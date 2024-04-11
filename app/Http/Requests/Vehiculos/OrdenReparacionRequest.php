@@ -33,6 +33,7 @@ class OrdenReparacionRequest extends FormRequest
             'autorizacion_id' => 'required',
             'vehiculo_id' => 'required',
             'servicios' => 'required|string',
+            'observacion' => 'required|string',
         ];
     }
 

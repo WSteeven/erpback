@@ -7,6 +7,7 @@ use App\Events\Vehiculos\NotificarOrdenInternaAlAdminVehiculos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\OrdenReparacionRequest;
 use App\Http\Resources\Vehiculos\OrdenReparacionResource;
+use App\Models\User;
 use App\Models\Vehiculos\OrdenReparacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,14 @@ class OrdenReparacionController extends Controller
     public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        $results = OrdenReparacion::get($campos);
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_ADMINISTRADOR_VEHICULOS]))
+            $results = OrdenReparacion::filter()->get($campos);
+        else {
+            $results = OrdenReparacion::where(function ($q) {
+                $q->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('autorizador_id', auth()->user()->empleado->id);
+            })->filter()->get($campos);
+        }
         $results = OrdenReparacionResource::collection($results);
         return response()->json(compact('results'));
     }

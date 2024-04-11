@@ -48,13 +48,10 @@ class NotificarOrdenInternaActualizada implements ShouldBroadcast
 
     private function obtenerMensaje()
     {
-        switch ($this->orden->autorizacion_id) {
-            case 2:
-                return $this->orden->solicitante->nombres . ' ' . $this->orden->solicitante->apellidos . ' ha solicitado una orden de reparación de vehículo con placa ' . $this->orden->vehiculo->placa . '. Por favor aprueba o cancela la solicitud';
-            case 3:
-                return $this->orden->solicitante->nombres . ' ' . $this->orden->solicitante->apellidos . ' ha solicitado una orden de reparación de vehículo con placa ' . $this->orden->vehiculo->placa . '. Por favor aprueba o cancela la solicitud';
-            default:
-                return auth()->user()->empleado->nombres . ' ' . auth()->user()->empleado->apellidos . ' ha ' . $this->orden->autorizacion->nombre . ' la orden de reparación';
+        if ($this->orden->autorizacion_id == 2 || $this->orden->autorizacion_id == 3) {
+            return auth()->user()->empleado->nombres . ' ' . auth()->user()->empleado->apellidos . ' ha ' . $this->orden->autorizacion->nombre . ' la orden de reparación de vehículo con placa ' . $this->orden->vehiculo->placa . '.';
+        } else {
+            return auth()->user()->empleado->nombres . ' ' . auth()->user()->empleado->apellidos . ' ha modificado la orden de reparación N° ' . $this->orden->id;
         }
     }
 }

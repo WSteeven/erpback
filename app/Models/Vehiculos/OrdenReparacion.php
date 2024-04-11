@@ -26,6 +26,7 @@ class OrdenReparacion extends Model implements Auditable
         'autorizacion_id',
         'vehiculo_id',
         'servicios',
+        'observacion',
     ];
 
     protected $casts = [

@@ -21,16 +21,17 @@ class OrdenReparacionResource extends JsonResource
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'vehiculo' => $this->vehiculo->placa,
             'autorizacion' => $this->autorizacion->nombre,
-            'servicios',
             'fecha' => date(Utils::MASKFECHA, strtotime($this->created_at)),
+
         ];
 
         if ($controller_method == 'show') {
-            $modelo['servicios'] = $this->servicios ? Utils::convertirStringComasArray($this->servicios) : null;
-            $modelo['solicitante'] = $this->solicitante_id;
+            $modelo['servicios'] = $this->servicios ? array_map('intval', Utils::convertirStringComasArray($this->servicios)) : null;
+            $modelo['solicitante_id'] = $this->solicitante_id;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
-            $modelo['vehiculo'] = $this->vehiculo_id;
+            $modelo['vehiculo_id'] = $this->vehiculo_id;
+            $modelo['observacion'] = $this->observacion;
         }
 
         return $modelo;
