@@ -5,15 +5,17 @@ namespace App\Http\Controllers\Medico;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\FichaPreocupacionalRequest;
 use App\Http\Resources\Medico\FichaPreocupacionalResource;
+use App\Http\Resources\Medico\RegistroEmpleadoExamenResource;
 use App\Models\Empleado;
 use App\Models\Medico\AntecedenteGinecoObstetrico;
 use App\Models\Medico\AntecedentePersonal;
 use App\Models\Medico\ConstanteVital;
 use App\Models\Medico\DescripcionAntecedenteTrabajo;
 use App\Models\Medico\FichaPreocupacional;
+use App\Models\Medico\RegistroEmpleadoExamen;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\FichaPreocupacionalService;
 use Src\Shared\Utils;
@@ -44,20 +46,20 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional = FichaPreocupacional::create($datos);
             $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional->id);
             $ficha_preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
-            $ficha_preocupacional_service->agregarEstiloVida($request->estilos_vida);
-            $ficha_preocupacional_service->agregarMedicacion($request->medicaciones);
-            $ficha_preocupacional_service->agregarActividadPuestoTrabajo($request->actividades_puestos_trabajos);
+            $ficha_preocupacional_service->agregarActividadesFisicas($request->actividades_fisicas);
+            $ficha_preocupacional_service->agregarMedicaciones($request->medicaciones);
+            $ficha_preocupacional_service->agregarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
             $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
             $ficha_preocupacional_service->insertarAntecedentesPersonales(new AntecedentePersonal([
-                'antecedentes_quirorgicos' => $request->antecedentes_quirorgicos,
+                'antecedentes_quirurgicos' => $request->antecedentes_quirurgicos,
                 'vida_sexual_activa' => $request->vida_sexual_activa,
                 'tiene_metodo_planificacion_familiar' => $request->tiene_metodo_planificacion_familiar,
                 'tipo_metodo_planificacion_familiar' => $request->tipo_metodo_planificacion_familiar,
             ]));
             $ficha_preocupacional_service->agregarExamenes($request->examenes);
-            $empleado = Empleado::find($ficha_preocupacional->empleado_id);
-            $genero = $empleado?->genero;
-            if ($genero === 'F') {
+            $registro_empleado = RegistroEmpleadoExamen::find($datos['registro_empleado_examen_id']);
+            $genero = $registro_empleado->empleado?->genero;
+            if ($genero === Empleado::FEMENINO) {
                 $ficha_preocupacional_service->insertarAntecedentesGinecoObstetricos(new AntecedenteGinecoObstetrico([
                     'menarquia' => $request->menarquia,
                     'ciclos' => $request->ciclos,
@@ -91,15 +93,14 @@ class FichaPreocupacionalController extends Controller
                 'indice_masa_corporal' => $request->indice_masa_corporal,
                 'perimetro_abdominal' => $request->perimetro_abdominal,
             ]));
-            $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
-            $this->tabla_roles($ficha_preocupacional);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            $modelo =new FichaPreocupacionalResource($ficha_preocupacional);
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
+                'Error al insertar registro ficha preocupacional' => [$e->getMessage(), $e->getLine()],
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de preocupacional' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }

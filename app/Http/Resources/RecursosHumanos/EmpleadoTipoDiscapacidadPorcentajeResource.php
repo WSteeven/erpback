@@ -14,6 +14,10 @@ class EmpleadoTipoDiscapacidadPorcentajeResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'empleado_id' => $this->empleado_id,
+            'tipo_discapacidad'=> $this->tipo_discapacidad_id,
+            'porcentaje'=> $this->porcentaje,
+       ];
     }
 }

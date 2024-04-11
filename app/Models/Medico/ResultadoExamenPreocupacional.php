@@ -21,6 +21,7 @@ class ResultadoExamenPreocupacional extends Model  implements Auditable
         'resultados',
         'genero',
         'antecedente_personal_id',
+        'ficha_preocupacional_id'
     ];
     public function antecedentePersonal(){
         return $this->hasOne(AntecedentePersonal::class,'id','antecedente_personal_id');

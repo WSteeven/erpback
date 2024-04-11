@@ -27,7 +27,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Empleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;
-
+    const MASCULINO = 'M';
+    CONST FEMENINO = 'F';
     protected $table = "empleados";
     protected $fillable = [
         'identificacion',
@@ -453,7 +454,7 @@ class Empleado extends Model implements Auditable
     }
 
     public function tiposDiscapacidades(){
-        return $this->belongsToMany(TipoDiscapacidad::class,'rrhh_empleado_tipo_discapacidad_porcentaje');
+        return $this->belongsToMany(TipoDiscapacidad::class,'rrhh_empleado_tipo_discapacidad_porcentaje')->withPivot('porcentaje');
     }
 
     /*********

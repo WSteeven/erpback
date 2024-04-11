@@ -103,7 +103,6 @@ Route::apiResources(
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
-        'preocupacionales' => FichaPreocupacionalController::class,
         'profecionales-salud' => ProfesionalSaludController::class,
         'registros-empleados-examenes' => RegistroEmpleadoExamenController::class,
         'religiones' => ReligionController::class,

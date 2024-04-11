@@ -27,7 +27,7 @@ class FichaPreocupacional extends Model implements Auditable
         'identidad_genero_id',
         'actividades_relevantes_puesto_trabajo_ocupar',
         'motivo_consulta',
-        'empleado_id',
+        'registro_empleado_examen_id',
         'actividad_fisica',
         'enfermedad_actual',
         'recomendaciones_tratamiento',
