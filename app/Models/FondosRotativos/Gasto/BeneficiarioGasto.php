@@ -19,13 +19,13 @@ class BeneficiarioGasto extends Model implements Auditable
     protected $table = 'beneficiario_gastos';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'id_gasto',
+        'gasto_id',
         'beneficiario',
         'empleado_id',
     ];
     private static $whiteListFilter = [
         'gasto',
-        'id_gasto',
+        'gasto_id',
         'empleado_id',
         'beneficiario',
     ];

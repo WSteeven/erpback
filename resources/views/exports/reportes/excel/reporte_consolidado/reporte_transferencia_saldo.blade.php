@@ -70,8 +70,7 @@
                         @if ($empleado == null)
                             <tr>
                                 <td>
-                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
-                                        class="gastos">
+                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
                                         <tr>
                                             <td width="15%" bgcolor="#a9d08e">
                                                 <div align="center"><strong>FECHA</strong></div>
@@ -111,12 +110,12 @@
                                                     </td>
                                                     <td style="font-size:10px">
                                                         <div align="center">
-                                                            {{ $transferencia_data->usuario_envia->nombres . ' ' . $transferencia_data->usuario_envia->apellidos }}
+                                                            {{ $transferencia_data->empleadoEnvia->nombres . ' ' . $transferencia_data->empleadoEnvia->apellidos }}
                                                         </div>
                                                     </td>
                                                     <td style="font-size:10px">
                                                         <div align="center">
-                                                            {{ $transferencia_data->usuario_recibe->nombres . ' ' . $transferencia_data->usuario_recibe->apellidos }}
+                                                            {{ $transferencia_data->empleadoRecibe->nombres . ' ' . $transferencia_data->empleadoRecibe->apellidos }}
                                                         </div>
                                                     </td>
                                                     <td style="font-size:10px">
@@ -144,12 +143,10 @@
                                             <tr>
                                                 <td>&nbsp;</td>
                                                 <td colspan="5" style="font-size:10px">
-                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS
-                                                            :&nbsp;</strong></div>
+                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS :&nbsp;</strong></div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ number_format($transferencia_total, 2, ',', '.') }}</div>
+                                                    <div align="center">{{ number_format($transferencia_total, 2, ',', '.') }}</div>
                                                 </td>
                                             </tr>
                                         @endif
@@ -160,8 +157,7 @@
                         @if ($empleado != null)
                             <tr>
                                 <td>
-                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
-                                        class="gastos">
+                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
                                         <tr>
                                             <td width="100%"
                                                 style="font-size:16px; font-weight:bold margin-top: -6px;"
@@ -208,12 +204,12 @@
                                                     </td>
                                                     <td style="font-size:10px">
                                                         <div align="center">
-                                                            {{ $transferencia_enviada_data->usuario_envia->nombres . ' ' . $transferencia_enviada_data->usuario_envia->apellidos }}
+                                                            {{ $transferencia_enviada_data->empleadoEnvia->nombres . ' ' . $transferencia_enviada_data->empleadoEnvia->apellidos }}
                                                         </div>
                                                     </td>
                                                     <td style="font-size:10px">
                                                         <div align="center">
-                                                            {{ $transferencia_enviada_data->usuario_recibe->nombres . ' ' . $transferencia_enviada_data->usuario_recibe->apellidos }}
+                                                            {{ $transferencia_enviada_data->empleadoRecibe->nombres . ' ' . $transferencia_enviada_data->empleadoRecibe->apellidos }}
                                                         </div>
                                                     </td>
                                                     <td style="font-size:10px">
@@ -241,12 +237,10 @@
                                             <tr>
                                                 <td>&nbsp;</td>
                                                 <td colspan="5" style="font-size:10px">
-                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS
-                                                            ENVIADAS:&nbsp;</strong></div>
+                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ number_format($transferencia_enviada, 2, ',', ' ') }}</div>
+                                                    <div align="center">{{ number_format($transferencia_enviada, 2, ',', ' ') }}</div>
                                                 </td>
                                             </tr>
                                         @endif
@@ -255,15 +249,13 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
-                                        class="gastos">
+                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
                                         <tr>
                                             <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
                                             colspan="7">
                                             <div class="col-md-7" align="center">Transferencias Recibidas</div>
                                         </td>
                                         </tr>
-
                                         <tr>
                                             <td width="15%" bgcolor="#a9d08e">
                                                 <div align="center"><strong>FECHA</strong></div>
@@ -303,12 +295,12 @@
                                                     </td>
                                                     <td style="font-size:10px">
                                                         <div align="center">
-                                                            {{ $transferencia_recibida_data->usuario_envia->nombres . ' ' . $transferencia_recibida_data->usuario_envia->apellidos }}
+                                                            {{ $transferencia_recibida_data->empleadoEnvia->nombres . ' ' . $transferencia_recibida_data->empleadoEnvia->apellidos }}
                                                         </div>
                                                     </td>
                                                     <td style="font-size:10px">
                                                         <div align="center">
-                                                            {{ $transferencia_recibida_data->usuario_recibe->nombres . ' ' . $transferencia_recibida_data->usuario_recibe->apellidos }}
+                                                            {{ $transferencia_recibida_data->empleadoRecibe->nombres . ' ' . $transferencia_recibida_data->empleadoRecibe->apellidos }}
                                                         </div>
                                                     </td>
                                                     <td style="font-size:10px">
@@ -336,12 +328,10 @@
                                             <tr>
                                                 <td>&nbsp;</td>
                                                 <td colspan="5" style="font-size:10px">
-                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS
-                                                            RECIBIDAS:&nbsp;</strong></div>
+                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
+                                                    <div align="center">{{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
                                                 </td>
                                             </tr>
                                         @endif

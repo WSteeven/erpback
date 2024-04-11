@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
 use Src\Shared\ValidarIdentificacion;
 
@@ -101,6 +102,7 @@ class GastoRequest extends FormRequest
                 if ($this->route()->getActionMethod() === 'store') {
                     $this->validarNumeroComprobante($validator);
                     $this->comprobarRuc($validator, $this->ruc);
+                   // $this->comprobarTiempo($validator);
                 }
                 if ($this->route()->getActionMethod() === 'aprobarGasto') {
                     $gasto = Gasto::where('id', $this->id)->lockForUpdate()->first();
@@ -123,6 +125,20 @@ class GastoRequest extends FormRequest
             }
         });
     }
+   /* private function comprobarTiempo($validator)
+    {
+        $hora_limite = '15:00:00';
+        $fechaActual = Carbon::now();
+        $ultimoDiaMes = $fechaActual->copy()->endOfMonth();
+        $fecha_limite = $ultimoDiaMes->format('d-m-Y');
+        if ($fechaActual->isSameDay($ultimoDiaMes)) {
+            if ($fechaActual->format('H:i:s') > $hora_limite) {
+                $validator->errors()->add('hora_limite', 'Solo se podrán subir facturas para aprobación hasta ' . $fecha_limite . ' ' . $hora_limite);
+            }
+        }
+    }*/
+
+
     private function comprobarRuc(Validator $validator, $ruc)
     {
         if (substr_count($ruc, '9') < 9) {
