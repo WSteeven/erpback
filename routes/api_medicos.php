@@ -144,6 +144,7 @@ Route::apiResources(
             'tipos-eval-medicas-retiro' => 'tipo_evaluacion_medica_retiro',
             'tipos-aptitudes-medicas-laborales' => 'tipo_aptitud_medica_laboral',
             'tipos-antecedentes-familiare' => 'tipo_antecedente_familiar',
+            'tipos-antecedentes' => 'tipo_antecedente',
             'tipos-habitos_toxico' => 'tipo_habito_toxico',
             'fichas-aptitudes' => 'ficha_aptitud',
             'regiones-cuerpo' => 'region_cuerpo',

@@ -10,7 +10,7 @@ class TipoDiscapacidadSeeder extends Seeder
 {
   /**
      * Run the database seeds.
-     * php artisan db:seed --class="Database\Seeders\RcursosHumanos\TipoDiscapacidadSeeder"
+     * php artisan db:seed --class="Database\Seeders\RecursosHumanos\TipoDiscapacidadSeeder"
      * @return void
      */
     public function run()
