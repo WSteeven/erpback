@@ -69,6 +69,10 @@ class FichaPreocupacionalRequest extends FormRequest
             'talla' => 'required|numeric',
             'indice_masa_corporal' => 'required|numeric',
             'perimetro_abdominal' => 'required|numeric',
+            'fr_puestos_trabajos_actuales.*.puesto_trabajo' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.actividad' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.medidas_preventivas' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.detalle_categ_factor_riesg_fr_puest_trab_act' => 'required',
             'habitos_toxicos.*.tipo_habito_toxico' => 'required|exists:med_tipos_habitos_toxicos,id',
             'habitos_toxicos.*.tiempo_consumo_meses' => 'required|numeric',
             'habitos_toxicos.*.tiempo_abstinencia_meses' => 'required|numeric',
@@ -77,6 +81,8 @@ class FichaPreocupacionalRequest extends FormRequest
             'medicaciones.*.nombre' => 'required|string',
             'medicaciones.*.cantidad' => 'required|numeric',
             'actividades_puestos_trabajos.*.actividad' => 'required|string',
+            'antecedentes_familiares.*.descripcion' => 'required|string',
+            'antecedentes_familiares.*.tipo_antecedente_familiar' => 'required|exists:med_tipos_antecedentes_familiares,id',
             'antecedentes_empleos_anteriores.*.empresa' => 'required|string',
             'antecedentes_empleos_anteriores.*.puesto_trabajo' => 'required|string',
             'antecedentes_empleos_anteriores.*.actividades_desempenaba' => 'required|string',
@@ -88,9 +94,9 @@ class FichaPreocupacionalRequest extends FormRequest
             'antecedentes_empleos_anteriores.*.r_ergonomico' => 'required|boolean',
             'antecedentes_empleos_anteriores.*.r_phisosocial' => 'required|boolean',
             'antecedentes_empleos_anteriores.*.observacion' => 'required|string',
-            'examenes.*.tiempo'=>'required|numeric',
-            'examenes.*.resultados'=>'required|string',
-            'examenes.*.genero'=>'required|string',
+            'examenes.*.tiempo' => 'required|numeric',
+            'examenes.*.resultados' => 'required|string',
+            'examenes.*.genero' => 'required|string',
         ];
     }
     protected function prepareForValidation()

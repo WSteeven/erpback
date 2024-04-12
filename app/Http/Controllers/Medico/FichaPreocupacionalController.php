@@ -12,6 +12,7 @@ use App\Models\Medico\AntecedentePersonal;
 use App\Models\Medico\ConstanteVital;
 use App\Models\Medico\DescripcionAntecedenteTrabajo;
 use App\Models\Medico\FichaPreocupacional;
+use App\Models\Medico\FrPuestoTrabajoActual;
 use App\Models\Medico\RegistroEmpleadoExamen;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,7 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional_service->agregarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
             $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
             $ficha_preocupacional_service->agregarAntecedentesFamiliares($request->atecedentes_personales);
+            $ficha_preocupacional_service->agregarFrPuestosTrabajo($request->fr_puestos_trabajos_actuales);
             $ficha_preocupacional_service->insertarAntecedentesPersonales(new AntecedentePersonal([
                 'antecedentes_quirurgicos' => $request->antecedentes_quirurgicos,
                 'vida_sexual_activa' => $request->vida_sexual_activa,
@@ -128,7 +130,8 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional_service->actualizarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
             $ficha_preocupacional_service->insertarAntecedentesPersonales($request->antecedente_personal);
             $ficha_preocupacional_service->actualizarExamenes($request->examenes);
-            $ficha_preocupacional_service->actualizarAntecedentesFamiliares($request->atecedentes_personales);
+            $ficha_preocupacional_service->actualizarFrPuestosTrabajo($request->fr_puestos_trabajos_actuales);
+            $ficha_preocupacional_service->actualizarAntecedentesFamiliares($request->atecedentes_familiares);
             $registro_empleado = RegistroEmpleadoExamen::find($datos['registro_empleado_examen_id']);
             $genero = $registro_empleado->empleado?->genero;
             if ($genero === Empleado::FEMENINO) {
@@ -136,6 +139,8 @@ class FichaPreocupacionalController extends Controller
             }
             $ficha_preocupacional_service->insertarDescripcionAntecedenteTrabajo($request->descripcion_antecedente_trabajo);
             $ficha_preocupacional_service->insertarConstanteVital($request->contante_vital);
+            $ficha_preocupacional_service->insertarFrPuestoTrabajo($request->fr_puesto_trabajo);
+            $ficha_preocupacional_service->actualizarDetalleCategFactorRiesgoFrPuestoTrabajoAct($request->detalles_categorias_factores_riesgos_fr_puesto_trabajo_actual);
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();

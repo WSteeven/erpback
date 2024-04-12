@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('puesto_trabajo');
             $table->text('actividad');
+            $table->text('medidas_preventivas');
             $table->timestamps();
             $table->unsignedBigInteger('ficha_preocupacional_id');
             $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();

@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 
 class FrPuestoTrabajoActualResource extends JsonResource
 {
@@ -15,9 +16,13 @@ class FrPuestoTrabajoActualResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' =>$this->id,
-            'actividad' =>$this->actividad,
-            'ficha_preocupacional_id' =>$this->preocupacional_id
+            'id' => $this->id,
+            'puesto_trabajo' => $this->puesto_trabajo,
+            'actividad' => $this->actividad,
+            'medidas_preventivas' => $this->medidas_preventivas,
+            'detalle_categ_factor_riesg_fr_puest_trab_act' => $this->detalleCategFactorRiesgoFrPuestoTrabAct->pluck('id'),
+            'ficha_preocupacional' => $this->fichaPreocupacional
         ];
     }
+
 }

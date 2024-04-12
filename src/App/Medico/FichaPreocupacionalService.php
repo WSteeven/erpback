@@ -18,7 +18,6 @@ use App\Models\Medico\ResultadoExamenPreocupacional;
 use App\Models\Medico\ResultadoHabitoToxico;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class FichaPreocupacionalService
@@ -165,10 +164,10 @@ class FichaPreocupacionalService
         }
     }
 
-    public function agregarAntecedentesFamiliares(array $atecedentes_personales)
+    public function agregarAntecedentesFamiliares(array $antecedentes_familiares)
     {
         try {
-            foreach ($atecedentes_personales as $key => $value) {
+            foreach ($antecedentes_familiares as $key => $value) {
                 DB::beginTransaction();
                 AntecedenteFamiliar::create(
                     [
@@ -205,6 +204,45 @@ class FichaPreocupacionalService
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al insertar registro medicaciones' => [$e->getMessage(), $e->getLine()],
+            ]);
+        }
+    }
+
+    public function agregarFrPuestosTrabajo(array $fr_puestos_trabajos_actuales)
+    {
+        try {
+            foreach ($fr_puestos_trabajos_actuales as $key => $fr_puesto_trabajo_actual) {
+                DB::beginTransaction();
+                $this->insertarFrPuestoTrabajo(
+                    new FrPuestoTrabajoActual([
+                        'puesto_trabajo' => $fr_puesto_trabajo_actual['puesto_trabajo'],
+                        'actividad' => $fr_puesto_trabajo_actual['actividad'],
+                        'medidas_preventivas' => $fr_puesto_trabajo_actual['medidas_preventivas']
+                    ])
+                );
+                $this->agregarDetalleCategFactorRiesgoFrPuestoTrabajoAct($fr_puesto_trabajo_actual['detalle_categ_factor_riesg_fr_puest_trab_act']);
+                DB::commit();
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro CategFactorRiesgoFrPuestoTrabajoAct de empleos anteriores' => [$e->getMessage(), $e->getLine()],
+            ]);
+        }
+    }
+    public function actualizarFrPuestosTrabajo(array $fr_puestos_trabajos_actuales)
+    {
+        try {
+            foreach ($fr_puestos_trabajos_actuales as $key => $fr_puesto_trabajo_actual) {
+                DB::beginTransaction();
+                $this->insertarFrPuestoTrabajo($fr_puesto_trabajo_actual['fr_puesto_trabajo_actual']);
+                $this->actualizarDetalleCategFactorRiesgoFrPuestoTrabajoAct($fr_puesto_trabajo_actual['detalle_categ_factor_riesg_fr_puest_trab_act']);
+                DB::commit();
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro CategFactorRiesgoFrPuestoTrabajoAct de empleos anteriores' => [$e->getMessage(), $e->getLine()],
             ]);
         }
     }

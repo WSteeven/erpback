@@ -153,13 +153,21 @@ class FichaPreocupacionalResource extends JsonResource
             /*********************************************
              * Fin Examenes fisicos regionales
              * *******************************************/
-             /*****************************************
+            /*****************************************
              *Aptitud medica de trabajo
              * ***************************************/
             'aptitudes_medicas' => $this->aptitudesMedicas,
             /*********************************************
              * Aptitud medica de trabajo
              * *******************************************/
+            /*****************************************
+             *Antecedentes Familiares
+             * ***************************************/
+            'antecedentes_familiares' => $this->antecedentesFamiliares,
+            /*****************************************
+             *Antecedentes Familiares
+             * ***************************************/
+            'fr_puestos_trabajos_actuales' => FrPuestoTrabajoActualResource::collection($this->frPuestoTrabajoActual)
         ];
     }
 }
