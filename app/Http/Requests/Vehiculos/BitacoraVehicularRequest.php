@@ -28,7 +28,7 @@ class BitacoraVehicularRequest extends FormRequest
             'fecha' => 'date|required|date_format:Y-m-d',
             'hora_salida' => 'string|required',
             'hora_llegada' => 'nullable|string|sometimes',
-            'km_inicial' => 'string|required',
+            'km_inicial' => 'numeric|required',
             'km_final' => 'string|sometimes|nullable',
             'tanque_inicio' => 'numeric|required',
             'tanque_final' => 'numeric|sometimes|nullable',

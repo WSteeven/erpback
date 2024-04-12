@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('actividad_realizada');
             $table->string('observacion')->nullable();
             $table->string('fotografia')->nullable();
-            $table->unsignedBigInteger('empleado_id');
+            $table->unsignedBigInteger('empleado_id')->nullable();
             $table->unsignedBigInteger('actividable_id');
             $table->text('actividable_type');
 

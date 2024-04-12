@@ -7,6 +7,7 @@ use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -15,7 +16,7 @@ class BitacoraVehicular extends Pivot implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'bitacora_vehiculos';
+    protected $table = 'veh_bitacoras_vehiculos';
     protected $fillable = [
         'fecha',
         'hora_salida',
@@ -40,14 +41,17 @@ class BitacoraVehicular extends Pivot implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
-    public function chofer(){
-        return $this->belongsTo(Empleado::class);
+    public function chofer()
+    {
+        return $this->belongsTo(Empleado::class, 'chofer_id', 'id');
     }
-    public function vehiculo(){
+    public function vehiculo()
+    {
         return $this->belongsTo(Vehiculo::class);
     }
 
-    public function actividades(){
+    public function actividades()
+    {
         return $this->morphMany(ActividadRealizada::class, 'actividable');
     }
 

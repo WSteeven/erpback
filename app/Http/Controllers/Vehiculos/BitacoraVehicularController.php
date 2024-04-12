@@ -53,6 +53,8 @@ class BitacoraVehicularController extends Controller
     public function store(BitacoraVehicularRequest $request)
     {   //Adaptación de foreign keys
         $datos = $request->validated();
+        Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
+        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
         //Respuesta
         try {
@@ -101,15 +103,17 @@ class BitacoraVehicularController extends Controller
      * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
      * @return \Illuminate\Http\Response
      */
-    public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacoraVehicular)
+    public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
         try {
+            Log::channel('testing')->info('Log', ['antes de modificar', $bitacora]);
             //Validacion de datos
             $datos = $request->validated();
 
             DB::beginTransaction();
-            $bitacoraVehicular->update($datos);
-            $modelo = new BitacoraVehicularResource($bitacoraVehicular->refresh());
+            $bitacora->update($datos);
+            Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora]);
+            $modelo = new BitacoraVehicularResource($bitacora->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
         } catch (\Throwable $th) {
@@ -149,7 +153,7 @@ class BitacoraVehicularController extends Controller
         }
     }
 
-    public function storeActividades(Request $request, BitacoraVehicular $bitacora){
-
+    public function storeActividades(Request $request, BitacoraVehicular $bitacora)
+    {
     }
 }

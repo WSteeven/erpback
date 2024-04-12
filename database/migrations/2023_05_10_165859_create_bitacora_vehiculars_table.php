@@ -23,8 +23,8 @@ return new class extends Migration
             $table->unsignedInteger('tanque_inicio');
             $table->unsignedInteger('tanque_final')->nullable();
             $table->boolean('firmada')->default(false);
-            $table->unsignedBigInteger('chofer_id');
-            $table->unsignedBigInteger('vehiculo_id');
+            $table->unsignedBigInteger('chofer_id')->nullable();
+            $table->unsignedBigInteger('vehiculo_id')->nullable();
             $table->timestamps();
 
             $table->foreign('chofer_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
