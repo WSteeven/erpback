@@ -13,13 +13,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\ActividadRealizadaService;
 use Src\Shared\Utils;
 
 class BitacoraVehicularController extends Controller
 {
     private $entidad = 'Bitacora Vehicular';
+    private $actividadService;
     public function __construct()
     {
+        $this->actividadService = new ActividadRealizadaService();
         $this->middleware('can:puede.ver.bitacoras_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.bitacoras_vehiculos')->only('store');
         $this->middleware('can:puede.editar.bitacoras_vehiculos')->only('update');
@@ -98,7 +101,7 @@ class BitacoraVehicularController extends Controller
      * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, BitacoraVehicular $bitacoraVehicular)
+    public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacoraVehicular)
     {
         try {
             //Validacion de datos
@@ -134,5 +137,19 @@ class BitacoraVehicularController extends Controller
             ]);
             // return response()->json(['mensaje' => 'No se puede eliminar un registro ya firmado '], 422);
         }
+    }
+
+    public function indexActividades(BitacoraVehicular $bitacora)
+    {
+        try {
+            $results = $this->actividadService->index($bitacora);
+            return response()->json(compact('results'));
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+    }
+
+    public function storeActividades(Request $request, BitacoraVehicular $bitacora){
+
     }
 }

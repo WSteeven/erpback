@@ -106,7 +106,7 @@ class Vehiculo extends Model implements Auditable
      */
     public function bitacoras()
     {
-        return $this->belongsToMany(Empleado::class, 'bitacora_vehiculos', 'vehiculo_id', 'chofer_id')
+        return $this->belongsToMany(Empleado::class, 'veh_bitacoras_vehiculos', 'vehiculo_id', 'chofer_id')
             ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
 

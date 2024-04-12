@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\ActividadRealizada;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -44,6 +45,10 @@ class BitacoraVehicular extends Pivot implements Auditable
     }
     public function vehiculo(){
         return $this->belongsTo(Vehiculo::class);
+    }
+
+    public function actividades(){
+        return $this->morphMany(ActividadRealizada::class, 'actividable');
     }
 
     /**

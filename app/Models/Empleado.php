@@ -287,7 +287,7 @@ class Empleado extends Model implements Auditable
      */
     public function bitacoras()
     {
-        return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'chofer_id', 'vehiculo_id')
+        return $this->belongsToMany(Vehiculo::class, 'veh_bitacoras_vehiculos', 'chofer_id', 'vehiculo_id')
             ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
     public function ultimaBitacora()
