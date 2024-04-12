@@ -44,7 +44,7 @@ class ProformaResource extends JsonResource
             'sum_subtotal' => number_format($subtotal, 2),
             'sum_descuento' => number_format($descuento, 2),
             'sum_iva' => number_format($iva, 2),
-            'sum_total' => number_format($total, 2),
+            'sum_total' => number_format($total - $this->descuento_general, 2),
 
         ];
 

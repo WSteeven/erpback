@@ -197,20 +197,10 @@
                             <td colspan="2" align="center"> CONDICIONES</td>
                         </tr>
                         <tr>
-                            <td>Autorizado por</td>
-                            <td>{{ $prefactura['autorizador'] }}</td>
-                        </tr>
-                        <tr>
                             <td>Estado</td>
-                            <td>{{ $prefactura['autorizacion'] == 'CANCELADO' ? 'ANULADA - ' . $prefactura['estado'] : $prefactura['autorizacion'] }}
+                            <td>{{ $prefactura['estado'] }}
                             </td>
                         </tr>
-                        @if ($prefactura['autorizacion'] == 'CANCELADO')
-                            <tr>
-                                <td>Causa anulación</td>
-                                <td>{{ $prefactura['causa_anulacion'] }}</td>
-                            </tr>
-                        @endif
                         <tr>
                             <td>Forma de pago</td>
                             <td>{{ $prefactura['forma'] }}</td>
@@ -276,7 +266,7 @@
                         </tr>
                         <tr>
                             <td align="right">DESCUENTO</td>
-                            <td align="center">{{ $prefactura['sum_descuento'] }}</td>
+                            <td align="center">{{ $prefactura['sum_descuento']+$prefactura['descuento_general'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">IVA ({{$prefactura['iva']}}%)</td>

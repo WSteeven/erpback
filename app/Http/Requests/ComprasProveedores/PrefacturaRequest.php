@@ -30,6 +30,7 @@ class PrefacturaRequest extends FormRequest
             'solicitante' => 'required|numeric|exists:empleados,id',
             'cliente' => 'required|numeric|exists:clientes,id',
             'observacion_est' => 'nullable|sometimes|string',
+            'descuento_general' => 'nullable|sometimes|numeric',
             'descripcion' => 'required|string',
             'forma' => 'required|string',
             'tiempo' => 'required|string',

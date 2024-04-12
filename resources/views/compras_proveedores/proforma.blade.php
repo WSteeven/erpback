@@ -309,7 +309,7 @@
                     </tr>
                     <tr>
                         <td align="right">DESCUENTO</td>
-                        <td align="center">{{ $proforma['sum_descuento'] }}</td>
+                        <td align="center">{{ $proforma['sum_descuento']+$proforma['descuento_general'] }}</td>
                     </tr>
                     <tr>
                         <td align="right">IVA ({{ $proforma['iva'] }}%)</td>
