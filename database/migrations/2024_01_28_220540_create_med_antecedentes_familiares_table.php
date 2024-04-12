@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('med_antecedentes_familiares', function (Blueprint $table) {
             $table->id();
+            $table->text('descripcion');
             $table->unsignedBigInteger('tipo_antecedente_familiares_id');
             $table->unsignedBigInteger('ficha_preocupacional_id');
             $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();

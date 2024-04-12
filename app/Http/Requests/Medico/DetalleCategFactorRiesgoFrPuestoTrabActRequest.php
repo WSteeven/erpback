@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ActividadPuestoTrabajoRequest extends FormRequest
+class DetalleCategFactorRiesgoFrPuestoTrabActRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class ActividadPuestoTrabajoRequest extends FormRequest
     public function rules()
     {
         return [
-            'actividad'=> 'required|string',
-            'ficha_preocupacional_id'=> 'required|exists:med_fichas_preocupacionales,id',
+            //
         ];
     }
 }

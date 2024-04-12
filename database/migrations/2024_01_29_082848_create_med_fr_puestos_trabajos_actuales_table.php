@@ -13,8 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_actividades_puestos_trabajos', function (Blueprint $table) {
+        Schema::create('med_fr_puestos_trabajos_actuales', function (Blueprint $table) {
             $table->id();
+            $table->string('puesto_trabajo');
             $table->text('actividad');
             $table->timestamps();
             $table->unsignedBigInteger('ficha_preocupacional_id');
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_actividades_puestos_trabajos');
+        Schema::dropIfExists('med_fr_puestos_trabajos_actuales');
     }
 };

@@ -50,6 +50,7 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional_service->agregarMedicaciones($request->medicaciones);
             $ficha_preocupacional_service->agregarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
             $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
+            $ficha_preocupacional_service->agregarAntecedentesFamiliares($request->atecedentes_personales);
             $ficha_preocupacional_service->insertarAntecedentesPersonales(new AntecedentePersonal([
                 'antecedentes_quirurgicos' => $request->antecedentes_quirurgicos,
                 'vida_sexual_activa' => $request->vida_sexual_activa,
@@ -94,7 +95,7 @@ class FichaPreocupacionalController extends Controller
                 'perimetro_abdominal' => $request->perimetro_abdominal,
             ]));
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            $modelo =new FichaPreocupacionalResource($ficha_preocupacional);
+            $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -119,6 +120,22 @@ class FichaPreocupacionalController extends Controller
             DB::beginTransaction();
             $datos = $request->validated();
             $ficha_preocupacional->update($datos);
+            $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional->id);
+            $ficha_preocupacional_service->actualizarHabitosToxicos($request->habitos_toxicos);
+            $ficha_preocupacional_service->actualizarActividadesFisicas($request->actividades_fisicas);
+            $ficha_preocupacional_service->actualizarMedicaciones($request->medicaciones);
+            $ficha_preocupacional_service->actualizarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
+            $ficha_preocupacional_service->actualizarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
+            $ficha_preocupacional_service->insertarAntecedentesPersonales($request->antecedente_personal);
+            $ficha_preocupacional_service->actualizarExamenes($request->examenes);
+            $ficha_preocupacional_service->actualizarAntecedentesFamiliares($request->atecedentes_personales);
+            $registro_empleado = RegistroEmpleadoExamen::find($datos['registro_empleado_examen_id']);
+            $genero = $registro_empleado->empleado?->genero;
+            if ($genero === Empleado::FEMENINO) {
+                $ficha_preocupacional_service->insertarAntecedentesGinecoObstetricos($request->antecedente_ginecoobstetrico);
+            }
+            $ficha_preocupacional_service->insertarDescripcionAntecedenteTrabajo($request->descripcion_antecedente_trabajo);
+            $ficha_preocupacional_service->insertarConstanteVital($request->contante_vital);
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
