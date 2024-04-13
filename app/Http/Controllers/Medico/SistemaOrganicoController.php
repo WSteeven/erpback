@@ -14,20 +14,20 @@ use Src\Shared\Utils;
 
 class SistemaOrganicoController extends Controller
 {
-    private $entidad = 'Sistema Organico';
+    private $entidad = 'Sistema organo';
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.sistemas_organicos')->only('index', 'show');
-        $this->middleware('can:puede.crear.sistemas_organicos')->only('store');
-        $this->middleware('can:puede.editar.sistemas_organicos')->only('update');
-        $this->middleware('can:puede.eliminar.sistemas_organicos')->only('destroy');
+        $this->middleware('can:puede.ver.sistemas_organos')->only('index', 'show');
+        $this->middleware('can:puede.crear.sistemas_organos')->only('store');
+        $this->middleware('can:puede.editar.sistemas_organos')->only('update');
+        $this->middleware('can:puede.eliminar.sistemas_organos')->only('destroy');
     }
 
     public function index()
     {
-        $results = [];
         $results = SistemaOrganico::ignoreRequest(['campos'])->filter()->get();
+        $results = SistemaOrganicoResource::collection($results);
         return response()->json(compact('results'));
     }
 

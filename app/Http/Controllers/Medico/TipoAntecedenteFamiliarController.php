@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Medico\TipoAntecedenteFamiliarRequest;
 use App\Http\Requests\Medico\TipoHabitoToxicoRequest;
+use App\Http\Resources\Medico\TipoAntecedenteFamiliarResource;
 use App\Http\Resources\Medico\TipoHabitoToxicoResource;
 use App\Models\Medico\TipoAntecedenteFamiliar;
 use App\Models\Medico\TipoHabitoToxico;
@@ -27,12 +29,11 @@ class TipoAntecedenteFamiliarController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = TipoAntecedenteFamiliar::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function store(TipoHabitoToxicoRequest $request)
+    public function store(TipoAntecedenteFamiliarRequest $request)
     {
         try {
             $datos = $request->validated();
@@ -51,20 +52,20 @@ class TipoAntecedenteFamiliarController extends Controller
         }
     }
 
-    public function show(TipoHabitoToxicoRequest $request, TipoHabitoToxico $tipo_antecedente_familiar)
+    public function show(TipoAntecedenteFamiliarRequest $request, TipoAntecedenteFamiliar $tipo_antecedente_familiar)
     {
         $modelo = new TipoHabitoToxicoResource($tipo_antecedente_familiar);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(TipoHabitoToxicoRequest $request, TipoHabitoToxico $tipo_antecedente_familiar)
+    public function update(TipoAntecedenteFamiliarRequest $request, TipoAntecedenteFamiliar $tipo_antecedente_familiar)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $tipo_antecedente_familiar->update($datos);
-            $modelo = new TipoHabitoToxicoResource($tipo_antecedente_familiar->refresh());
+            $modelo = new TipoAntecedenteFamiliarResource($tipo_antecedente_familiar->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -77,7 +78,7 @@ class TipoAntecedenteFamiliarController extends Controller
         }
     }
 
-    public function destroy(TipoHabitoToxicoRequest $request, TipoHabitoToxico $tipo_antecedente_familiar)
+    public function destroy(TipoAntecedenteFamiliarRequest $request, TipoAntecedenteFamiliar $tipo_antecedente_familiar)
     {
         try {
             DB::beginTransaction();

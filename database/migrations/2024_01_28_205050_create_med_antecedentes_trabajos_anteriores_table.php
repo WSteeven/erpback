@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('r_quimico');
             $table->string('r_biologico');
             $table->string('r_ergonomico');
-            $table->string('r_phisosocial');
+            $table->string('r_psicosocial');
             $table->text('observacion');
 
             // Foreign keys

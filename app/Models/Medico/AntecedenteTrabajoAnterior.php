@@ -23,7 +23,7 @@ class AntecedenteTrabajoAnterior extends Model implements Auditable
         'r_quimico',
         'r_biologico',
         'r_ergonomico',
-        'r_phisosocial',
+        'r_psicosocial',
         'observacion',
         'tiempo_trabajo_meses',
         'ficha_preocupacional_id'

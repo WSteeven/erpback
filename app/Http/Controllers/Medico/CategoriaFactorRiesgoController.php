@@ -26,8 +26,8 @@ class CategoriaFactorRiesgoController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = CategoriaFactorRiesgo::ignoreRequest(['campos'])->filter()->get();
+        $results = CategoriaFactorRiesgoResource::collection($results);
         return response()->json(compact('results'));
     }
 

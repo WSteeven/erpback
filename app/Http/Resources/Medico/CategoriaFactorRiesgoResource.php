@@ -17,5 +17,7 @@ class CategoriaFactorRiesgoResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
-        ];    }
+            'tipo_factor_riesgo' => $this->tipo_factor_riesgo_id,
+        ];
+    }
 }

@@ -9,6 +9,8 @@ use App\Http\Controllers\Medico\AntecedentePersonalController;
 use App\Http\Controllers\Medico\AntecedenteTrabajoAnteriorController;
 use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
+use App\Http\Controllers\Medico\CategoriaExamenFisicoController;
+use App\Http\Controllers\Medico\CategoriaFactorRiesgoController;
 use App\Http\Controllers\Medico\CieController;
 use App\Http\Controllers\Medico\CitaMedicaController;
 use App\Http\Controllers\Medico\ConfiguracionCuestionarioEmpleadoController;
@@ -76,8 +78,8 @@ Route::apiResources(
         'antecedentes-trabajos-anteriores' => AntecedenteTrabajoAnteriorController::class,
         'aptitudes-medicas' => AptitudMedicaController::class,
         'categorias-examenes' => CategoriaExamenController::class,
-        'categorias-examenes-fisicos' => CategoriaExamenFisico::class,
-        'categorias-factores-riesgos' => CategoriaFactorRiesgo::class,
+        'categorias-examenes-fisicos' => CategoriaExamenFisicoController::class,
+        'categorias-factores-riesgos' => CategoriaFactorRiesgoController::class,
         'cie' => CieController::class,
         'citas-medicas' => CitaMedicaController::class,
         'configuraciones-examenes-campos' => ConfiguracionExamenCampoController::class,
@@ -109,7 +111,7 @@ Route::apiResources(
         'religiones' => ReligionController::class,
         'resultados-examenes' => ResultadoExamenController::class,
         'revisiones-actuales-organos' => RevisionActualOrganoSistemaController::class,
-        'sistemas-organicos' => SistemaOrganicoController::class,
+        'sistemas-organos' => SistemaOrganicoController::class,
         'tipos-antecedentes' => TipoAntecedenteController::class,
         'laboratorios-clinicos' => LaboratorioClinicoController::class,
         'tipos-antecedentes-familiares' => TipoAntecedenteFamiliarController::class,
@@ -145,6 +147,7 @@ Route::apiResources(
             'tipos-aptitudes-medicas-laborales' => 'tipo_aptitud_medica_laboral',
             'tipos-antecedentes-familiare' => 'tipo_antecedente_familiar',
             'tipos-antecedentes' => 'tipo_antecedente',
+            'tipos-antecedentes-familiares' => 'tipo_antecedente_familiar',
             'tipos-habitos_toxico' => 'tipo_habito_toxico',
             'fichas-aptitudes' => 'ficha_aptitud',
             'regiones-cuerpo' => 'region_cuerpo',
@@ -153,7 +156,8 @@ Route::apiResources(
             'resultados-examene' => 'resultado_examen',
             'fichas-periodicas-preocupacionales' => 'ficha_preocupacional',
             'orientaciones-sexuales' => 'orientacion_sexual',
-            'identidades-generos' => 'identidad_genero'
+            'identidades-generos' => 'identidad_genero',
+            'tipos-habitos-toxicos' => 'tipo_habito_toxico',
         ],
 
     ]

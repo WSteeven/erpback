@@ -26,7 +26,6 @@ class TipoHabitoToxicoController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = TipoHabitoToxico::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }

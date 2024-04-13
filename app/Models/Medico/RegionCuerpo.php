@@ -29,5 +29,5 @@ class RegionCuerpo extends Model implements Auditable
     public const EXTREMIDADES = 11;
     public const NEUROLOGICO = 12;
 
-    private static $whiteListFilter = ['nombre'];
+    private static $whiteListFilter = ['*'];
 }

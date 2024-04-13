@@ -30,7 +30,6 @@ class RegionCuerpoController extends Controller
      */
     public function index()
     {
-        $results = [];
         $results = RegionCuerpo::ignoreRequest(['campos'])->filter()->get();
         $results = RegionCuerpoResource::collection($results);
         return response()->json(compact('results'));

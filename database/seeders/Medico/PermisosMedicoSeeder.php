@@ -169,5 +169,23 @@ class PermisosMedicoSeeder extends Seeder
 
         // Identidades generos
         Permission::firstOrCreate(['name' => self::VER . ".identidades_generos"])->syncRoles([$empleado]);
+
+        // tipos_habitos_toxicos
+        Permission::firstOrCreate(['name' => self::VER . ".tipos_habitos_toxicos"])->syncRoles([$empleado]);
+
+        // tipos_antecedentes
+        Permission::firstOrCreate(['name' => self::VER . ".tipos_antecedentes"])->syncRoles([$empleado]);
+
+        // tipos_antecedentes_familiares
+        Permission::firstOrCreate(['name' => self::VER . ".tipos_antecedentes_familiares"])->syncRoles([$empleado]);
+
+        // categorias_factores_riesgos
+        Permission::firstOrCreate(['name' => self::VER . ".categorias_factores_riesgos"])->syncRoles([$empleado]);
+
+        // tipos_factores_riesgos
+        Permission::firstOrCreate(['name' => self::VER . ".tipos_factores_riesgos"])->syncRoles([$empleado]);
+
+        // sistemas_organicos
+        Permission::firstOrCreate(['name' => self::VER . ".sistemas_organos"])->syncRoles([$empleado]);
     }
 }

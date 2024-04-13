@@ -26,8 +26,8 @@ class CategoriaExamenFisicoController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = CategoriaExamenFisico::ignoreRequest(['campos'])->filter()->get();
+        $results = CategoriaExamenFisicoResource::collection($results);
         return response()->json(compact('results'));
     }
 

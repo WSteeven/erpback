@@ -26,7 +26,6 @@ class TipoFactorRiesgoController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = TipoFactorRiesgo::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
