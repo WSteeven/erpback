@@ -14,7 +14,7 @@ class FichaPreocupacionalRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,7 +26,7 @@ class FichaPreocupacionalRequest extends FormRequest
     {
         return [
             'ciu' => 'required|string',
-            'esatblecimiento_salud' => 'required|string',
+            'establecimiento_salud' => 'required|string',
             'numero_historia_clinica' => 'required|string',
             'numero_archivo' => 'required|string',
             'puesto_trabajo' => 'required|string',
@@ -35,13 +35,13 @@ class FichaPreocupacionalRequest extends FormRequest
             'identidad_genero_id' => 'required|exists:med_identidades_generos,id',
             'actividades_relevantes_puesto_trabajo_ocupar' => 'required|string',
             'motivo_consulta' => 'required|string',
-            'empleado_id' => 'required|exists:empleados,id',
+            'registro_empleado_examen_id' => 'required|exists:med_registros_empleados_examenes,id',
             'actividad_fisica' => 'required|string',
             'enfermedad_actual' => 'required|string',
             'recomendaciones_tratamiento' => 'required|string',
             'descripcion_examen_fisico_regional' => 'required|string',
             'descripcion_revision_organos_sistemas' => 'required|string',
-            'antecedentes_quirorgicos' => 'required|string',
+            'antecedentes_quirurgicos' => 'required|string',
             'vida_sexual_activa' => 'required|boolean',
             'tiene_metodo_planificacion_familiar' => 'required|boolean',
             'tipo_metodo_planificacion_familiar' => 'required|string',
@@ -60,15 +60,43 @@ class FichaPreocupacionalRequest extends FormRequest
             'observacion' => 'required|string',
             'tipo_descripcion_antecedente_trabajo' => 'required|string',
             'presion_arterial' => 'required|string',
-            'temperatura' => 'required|decimal:2',
-            'frecuencia_cardiaca' => 'required|decimal:2',
-            'saturacion_oxigeno' => 'required|decimal:2',
-            'frecuencia_respiratoria' => 'required|decimal:2',
-            'peso' => 'required|decimal:2',
-            'estatura' => 'required|decimal:2',
-            'talla' => 'required|decimal:2',
-            'indice_masa_corporal' => 'required|decimal:2',
-            'perimetro_abdominal' => 'required|decimal:2',
+            'temperatura' => 'required|numeric',
+            'frecuencia_cardiaca' => 'required|numeric',
+            'saturacion_oxigeno' => 'required|numeric',
+            'frecuencia_respiratoria' => 'required|numeric',
+            'peso' => 'required|numeric',
+            'estatura' => 'required|numeric',
+            'talla' => 'required|numeric',
+            'indice_masa_corporal' => 'required|numeric',
+            'perimetro_abdominal' => 'required|numeric',
+            'fr_puestos_trabajos_actuales.*.puesto_trabajo' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.actividad' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.medidas_preventivas' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.detalle_categ_factor_riesg_fr_puest_trab_act' => 'required',
+            'habitos_toxicos.*.tipo_habito_toxico' => 'required|exists:med_tipos_habitos_toxicos,id',
+            'habitos_toxicos.*.tiempo_consumo_meses' => 'required|numeric',
+            'habitos_toxicos.*.tiempo_abstinencia_meses' => 'required|numeric',
+            'actividades_fisicas.*.nombre_actividad' => 'required|string',
+            'actividades_fisicas.*.tiempo' => 'required|numeric',
+            'medicaciones.*.nombre' => 'required|string',
+            'medicaciones.*.cantidad' => 'required|numeric',
+            'actividades_puestos_trabajos.*.actividad' => 'required|string',
+            'antecedentes_familiares.*.descripcion' => 'required|string',
+            'antecedentes_familiares.*.tipo_antecedente_familiar' => 'required|exists:med_tipos_antecedentes_familiares,id',
+            'antecedentes_empleos_anteriores.*.empresa' => 'required|string',
+            'antecedentes_empleos_anteriores.*.puesto_trabajo' => 'required|string',
+            'antecedentes_empleos_anteriores.*.actividades_desempenaba' => 'required|string',
+            'antecedentes_empleos_anteriores.*.tiempo_trabajo_meses' => 'required|numeric',
+            'antecedentes_empleos_anteriores.*.r_fisico' => 'required|boolean',
+            'antecedentes_empleos_anteriores.*.r_mecanico' => 'required|boolean',
+            'antecedentes_empleos_anteriores.*.r_quimico' => 'required|boolean',
+            'antecedentes_empleos_anteriores.*.r_biologico' => 'required|boolean',
+            'antecedentes_empleos_anteriores.*.r_ergonomico' => 'required|boolean',
+            'antecedentes_empleos_anteriores.*.r_phisosocial' => 'required|boolean',
+            'antecedentes_empleos_anteriores.*.observacion' => 'required|string',
+            'examenes.*.tiempo' => 'required|numeric',
+            'examenes.*.resultados' => 'required|string',
+            'examenes.*.genero' => 'required|string',
         ];
     }
     protected function prepareForValidation()
@@ -77,7 +105,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'religion_id' => $this->religion,
             'orientacion_sexual_id' => $this->orientacion_sexual,
             'identidad_genero_id' => $this->identidad_genero,
-            'empleado_id' => $this->empleado,
+            'registro_empleado_examen_id' => $this->registro_empleado_examen,
             'fecha_ultima_menstruacion' => Carbon::parse($this->fecha_ultima_menstruacion)->format('Y-m-d'),
             'fecha' => Carbon::parse($this->fecha_ultima)->format('Y-m-d'),
             'menarquia' => Carbon::parse($this->menarquia)->format('Y-m-d')

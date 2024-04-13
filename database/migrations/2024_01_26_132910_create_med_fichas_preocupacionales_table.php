@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('med_fichas_preocupacionales', function (Blueprint $table) {
             $table->id();
             $table->string('ciu');
-            $table->text('esatblecimiento_salud');
+            $table->text('establecimiento_salud');
             $table->string('numero_historia_clinica');
             $table->string('numero_archivo');
             $table->string('puesto_trabajo');

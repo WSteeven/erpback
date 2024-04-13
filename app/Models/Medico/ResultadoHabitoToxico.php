@@ -15,7 +15,8 @@ class ResultadoHabitoToxico extends Model implements Auditable
     protected $table = 'med_resultados_habitos_toxicos';
     protected $fillable = [
         'tipo_habito_toxico_id',
-        'tiempo_consumo',
+        'tiempo_consumo_meses',
+        'tiempo_abstinencia_meses',
         'ficha_preocupacional_id'
     ];
     public function tipoHabitoToxico(){

@@ -3,41 +3,41 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\ActividadPuestoTrabajoRequest;
-use App\Http\Resources\Medico\ActividadPuestoTrabajoResource;
-use App\Models\Medico\ActividadPuestoTrabajo;
+use App\Http\Requests\Medico\FrPuestoTrabajoActualRequest;
+use App\Http\Resources\Medico\FrPuestoTrabajoActualResource;
+use App\Models\Medico\FrPuestoTrabajoActual;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
-class ActividadPuestoTrabajoController extends Controller
+class FrPuestoTrabajoActualController extends Controller
 {
     private $entidad = 'Actividad de puesto de trabajo';
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.actividades_puestos_trabajos')->only('index', 'show');
-        $this->middleware('can:puede.crear.actividades_puestos_trabajos')->only('store');
-        $this->middleware('can:puede.editar.actividades_puestos_trabajos')->only('update');
-        $this->middleware('can:puede.eliminar.actividades_puestos_trabajos')->only('destroy');
+        $this->middleware('can:puede.ver.fr_puesto_trabajo_actual')->only('index', 'show');
+        $this->middleware('can:puede.crear.fr_puesto_trabajo_actual')->only('store');
+        $this->middleware('can:puede.editar.fr_puesto_trabajo_actual')->only('update');
+        $this->middleware('can:puede.eliminar.fr_puesto_trabajo_actual')->only('destroy');
     }
 
     public function index()
     {
         $results = [];
-        $results = ActividadPuestoTrabajo::ignoreRequest(['campos'])->filter()->get();
+        $results = FrPuestoTrabajoActual::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function store(ActividadPuestoTrabajoRequest $request)
+    public function store(FrPuestoTrabajoActualRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $actividad_puesto_trabajo = ActividadPuestoTrabajo::create($datos);
-            $modelo = new ActividadPuestoTrabajoResource($actividad_puesto_trabajo);
+            $actividad_puesto_trabajo = FrPuestoTrabajoActual::create($datos);
+            $modelo = new FrPuestoTrabajoActualResource($actividad_puesto_trabajo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -50,20 +50,20 @@ class ActividadPuestoTrabajoController extends Controller
         }
     }
 
-    public function show(ActividadPuestoTrabajoRequest $request, ActividadPuestoTrabajo $actividad_puesto_trabajo)
+    public function show(FrPuestoTrabajoActualRequest $request, FrPuestoTrabajoActual $actividad_puesto_trabajo)
     {
-        $modelo = new ActividadPuestoTrabajoResource($actividad_puesto_trabajo);
+        $modelo = new FrPuestoTrabajoActualResource($actividad_puesto_trabajo);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(ActividadPuestoTrabajoRequest $request, ActividadPuestoTrabajo $actividad_puesto_trabajo)
+    public function update(FrPuestoTrabajoActualRequest $request, FrPuestoTrabajoActual $actividad_puesto_trabajo)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $actividad_puesto_trabajo->update($datos);
-            $modelo = new ActividadPuestoTrabajoResource($actividad_puesto_trabajo->refresh());
+            $modelo = new FrPuestoTrabajoActualResource($actividad_puesto_trabajo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -76,7 +76,7 @@ class ActividadPuestoTrabajoController extends Controller
         }
     }
 
-    public function destroy(ActividadPuestoTrabajoRequest $request, ActividadPuestoTrabajo $actividad_puesto_trabajo)
+    public function destroy(FrPuestoTrabajoActualRequest $request, FrPuestoTrabajoActual $actividad_puesto_trabajo)
     {
         try {
             DB::beginTransaction();

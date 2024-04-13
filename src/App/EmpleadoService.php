@@ -241,6 +241,12 @@ class EmpleadoService
     }
 
     public function agregarDiscapacidades(Empleado $empleado,array $discapacidades){
-        $empleado->tiposDiscapacidades()->sync($discapacidades);
+        $discapacidades_collection = collect($discapacidades);
+        $mappedCollection = $discapacidades_collection->map(function ($object) {
+            $object['tipo_discapacidad_id'] =  $object['tipo_discapacidad'];
+            unset($object['tipo_discapacidad']);
+            return $object;
+        });
+        $empleado->tiposDiscapacidades()->sync($mappedCollection);
     }
 }

@@ -81,10 +81,10 @@ class EmpleadoRequest extends FormRequest
             'acumula_fondos_reserva' => 'nullable',
             'realiza_factura' => 'required',
             'observacion' => 'nullable',
-            'discapacidades.*.tipo_discapacidad_id' => 'required|exists:rrhh_tipos_discapacidades,id',
+            'discapacidades.*.tipo_discapacidad' => 'required|exists:rrhh_tipos_discapacidades,id',
            // 'discapacidades.*.tipo_discapacidad_id' => 'nullable|exists:med_cies,id',
-            'discapacidades.*.porcentaje' => 'required|double',
-           // 'discapacidades.*.porcentaje' => 'nullable|double',
+            'discapacidades.*.porcentaje' => 'required|numeric',
+           // 'discapacidades.*.porcentaje' => 'nullable|numeric',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AntecedenteFamiliarRequest extends FormRequest
+class FrPuestoTrabajoActualRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class AntecedenteFamiliarRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,8 +24,7 @@ class AntecedenteFamiliarRequest extends FormRequest
     public function rules()
     {
         return [
-            'tipo_antecedente_familiar_id'=> 'required|exists:med_tipos_antecedentes_familiares,id',
-            'descripcion' => 'required|string',
+            'actividad'=> 'required|string',
             'ficha_preocupacional_id'=> 'required|exists:med_fichas_preocupacionales,id',
         ];
     }

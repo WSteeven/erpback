@@ -15,6 +15,7 @@ class AntecedenteFamiliar extends Model implements Auditable
 
     protected $table = 'med_antecedentes_familiares';
     protected $fillable = [
+        'descripcion',
         'tipo_antecedente_familiar_id',
         'ficha_preocupacional_id',
     ];

@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_actividades_puestos_trabajos', function (Blueprint $table) {
+        Schema::create('med_fr_puestos_trabajos_actuales', function (Blueprint $table) {
             $table->id();
+            $table->string('puesto_trabajo');
             $table->text('actividad');
+            $table->text('medidas_preventivas');
             $table->timestamps();
             $table->unsignedBigInteger('ficha_preocupacional_id');
             $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_actividades_puestos_trabajos');
+        Schema::dropIfExists('med_fr_puestos_trabajos_actuales');
     }
 };

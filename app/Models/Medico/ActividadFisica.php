@@ -14,7 +14,7 @@ class ActividadFisica extends Model  implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_estilos_vida';
+    protected $table = 'med_actividades_fisicas';
     protected $fillable = [
         'nombre_actividad',
         'tiempo',

@@ -4,7 +4,7 @@ namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ActividadPuestoTrabajoResource extends JsonResource
+class DetalleCategFactorRiesgoFrPuestoTrabActResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,10 +14,6 @@ class ActividadPuestoTrabajoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id' =>$this->id,
-            'actividad' =>$this->actividad,
-            'ficha_preocupacional_id' =>$this->preocupacional_id
-        ];
+        return parent::toArray($request);
     }
 }

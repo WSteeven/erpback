@@ -27,7 +27,7 @@ class FichaPreocupacional extends Model implements Auditable
         'identidad_genero_id',
         'actividades_relevantes_puesto_trabajo_ocupar',
         'motivo_consulta',
-        'empleado_id',
+        'registro_empleado_examen_id',
         'actividad_fisica',
         'enfermedad_actual',
         'recomendaciones_tratamiento',
@@ -81,9 +81,9 @@ class FichaPreocupacional extends Model implements Auditable
     {
         return $this->hasMany(AntecedenteFamiliar::class, 'ficha_preocupacional_id', 'id');
     }
-    public function actividadesPuestoTrabajo()
+    public function frPuestoTrabajoActual()
     {
-        return $this->hasMany(ActividadPuestoTrabajo::class, 'ficha_preocupacional_id', 'id');
+        return $this->hasMany(FrPuestoTrabajoActual::class, 'ficha_preocupacional_id', 'id');
     }
     public function factoresRiesgo()
     {

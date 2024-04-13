@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\RecursosHumanos\EmpleadoTipoDiscapacidadPorcentajeResource;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -62,10 +64,9 @@ class EmpleadoResource extends JsonResource
             'supa' => $this->supa,
             'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
             'direccion' => $this->direccion,
+            'discapacidades' => $this->tiposDiscapacidades,
 
         ];
-
-
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
             $modelo['usuario'] = $this->user->name;
@@ -101,6 +102,7 @@ class EmpleadoResource extends JsonResource
             $modelo['tipo_contrato_info'] = $this->tipoContrato ? $this->tipoContrato->nombre : null;
             $modelo['genero'] = $this->genero;
             $modelo['realiza_factura'] = $this->realiza_factura;
+            $modelo['discapacidades'] = $this->obtenerDiscapacidades($this->tiposDiscapacidades);
         }
 
         // Filtra los campos personalizados y añádelos a la respuesta si existen
@@ -137,5 +139,19 @@ class EmpleadoResource extends JsonResource
 
         // Retorna la diferencia en el formato deseado
         return $diffYears . ' Años ' . $diffMonths . ' Meses ' . $diffDays . ' Días';
+    }
+
+    public function obtenerDiscapacidades(Collection $tiposDiscapacidades) {
+        $tiposDiscapacidades = $tiposDiscapacidades->map(function ($object) {
+            $object['empleado_id'] = $object['pivot']['empleado_id'];
+            $object['tipo_discapacidad']=$object['pivot']['tipo_discapacidad_id'] ;
+            $object['porcentaje']= $object['pivot']['porcentaje'];
+            unset($object['pivot']);
+            unset($object['nombre']);
+            unset($object['created_at']);
+            unset($object['updated_at']);
+            return $object;
+        });
+        return $tiposDiscapacidades;
     }
 }

@@ -39,7 +39,7 @@ class FichaPreocupacionalResource extends JsonResource
             /***************************
              * Antecedentes Personales
              * *************************/
-            'antecedentes_quirorgicos' => $this->antecedentePersonal->antecedentes_quirorgicos,
+            'antecedentes_quirurgicos' => $this->antecedentePersonal->antecedentes_quirurgicos,
             'vida_sexual_activa' => $this->antecedentePersonal->vida_sexual_activa,
             'tiene_metodo_planificacion_familiar' => $this->antecedentePersonal->tiene_metodo_planificacion_familiar,
             'tipo_metodo_planificacion_familiar' => $this->antecedentePersonal->tipo_metodo_planificacion_familiar,
@@ -49,15 +49,15 @@ class FichaPreocupacionalResource extends JsonResource
             /*********************************
              * Antecedentes Ginecoobstetricos
              * *******************************/
-            'menarquia' => $this->antecedentePersonal->antecedenteGinecoobstetrico->menarquia,
-            'ciclos' => $this->antecedentePersonal->antecedenteGinecoobstetrico->ciclos,
-            'fecha_ultima_menstruacion' => $this->antecedentePersonal->antecedenteGinecoobstetrico->fecha_ultima_menstruacion,
-            'gestas' => $this->antecedentePersonal->antecedenteGinecoobstetrico->gestas,
-            'partos' => $this->antecedentePersonal->antecedenteGinecoobstetrico->partos,
-            'cesareas' => $this->antecedentePersonal->antecedenteGinecoobstetrico->cesareas,
-            'abortos' => $this->antecedentePersonal->antecedenteGinecoobstetrico->abortos,
-            'abortos' => $this->antecedentePersonal->antecedenteGinecoobstetrico->hijos_vivos,
-            'abortos' => $this->antecedentePersonal->antecedenteGinecoobstetrico->hijos_muertos,
+            'menarquia' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->menarquia,
+            'ciclos' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->ciclos,
+            'fecha_ultima_menstruacion' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->fecha_ultima_menstruacion,
+            'gestas' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->gestas,
+            'partos' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->partos,
+            'cesareas' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->cesareas,
+            'abortos' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->abortos,
+            'abortos' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->hijos_vivos,
+            'abortos' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->hijos_muertos,
             /**************************************
              * Fin Antecedentes Ginecoobstetricos
              **************************************/
@@ -153,13 +153,21 @@ class FichaPreocupacionalResource extends JsonResource
             /*********************************************
              * Fin Examenes fisicos regionales
              * *******************************************/
-             /*****************************************
+            /*****************************************
              *Aptitud medica de trabajo
              * ***************************************/
             'aptitudes_medicas' => $this->aptitudesMedicas,
             /*********************************************
              * Aptitud medica de trabajo
              * *******************************************/
+            /*****************************************
+             *Antecedentes Familiares
+             * ***************************************/
+            'antecedentes_familiares' => $this->antecedentesFamiliares,
+            /*****************************************
+             *Antecedentes Familiares
+             * ***************************************/
+            'fr_puestos_trabajos_actuales' => FrPuestoTrabajoActualResource::collection($this->frPuestoTrabajoActual)
         ];
     }
 }

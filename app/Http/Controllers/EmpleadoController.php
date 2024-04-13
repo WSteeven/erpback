@@ -166,6 +166,7 @@ class EmpleadoController extends Controller
                 'realiza_factura' => $datos['realiza_factura'],
                 'coordenadas' => $datos['coordenadas'],
             ]);
+
             $this->servicio->agregarDiscapacidades($empleado,$datos['discapacidades']);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
@@ -250,12 +251,10 @@ class EmpleadoController extends Controller
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
+        $this->servicio->agregarDiscapacidades($empleado,$datos['discapacidades']);
 
         if (!is_null($request->password)) {
-            // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
             $empleado->user()->update([
-                /*'name' => $request->usuario,
-                'email' => $request->email,*/
                 'password' => bcrypt($request->password),
             ]);
         }
