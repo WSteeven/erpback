@@ -21,6 +21,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class PrefacturaController extends Controller
@@ -39,7 +40,7 @@ class PrefacturaController extends Controller
     public function index(Request $request)
     {
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
-            $results = Prefactura::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+            $results = Prefactura::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('updated_at', 'desc')->get();
         } else {
             $results = Prefactura::filtrarPrefacturasEmpleado($request);
         }
@@ -70,9 +71,9 @@ class PrefacturaController extends Controller
             // Guardar los detalles de la orden de compra
             Prefactura::guardarDetalles($prefactura, $request->listadoProductos);
 
-            if($prefactura->proforma_id){
+            if ($prefactura->proforma_id) {
                 $proforma = Proforma::find($prefactura->proforma_id);
-                if($proforma){
+                if ($proforma) {
                     $proforma->estado_id = $estado_completado->id;
                     $proforma->save();
                 }
@@ -94,7 +95,7 @@ class PrefacturaController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
-            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+            throw ValidationException::withMessages(['error' => $e->getMessage() . ', ' . $e->getLine()]);
         }
     }
 
@@ -139,8 +140,8 @@ class PrefacturaController extends Controller
 
             // // aqui se debe lanzar la notificacion en caso de que la prefactura sea autorizacion pendiente
             // if ($prefactura->estado_id === $estado_completo->id && $prefactura->autorizacion_id === $autorizacion_aprobada->id) {
-                // $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
-                // event(new PrefacturaActualizadaEvent($prefactura, true));// crea el evento de la orden de compra actualizada al solicitante
+            // $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+            // event(new PrefacturaActualizadaEvent($prefactura, true));// crea el evento de la orden de compra actualizada al solicitante
             // }
 
             return response()->json(compact('mensaje', 'modelo'));

@@ -33,6 +33,7 @@ class Prefactura extends Model implements Auditable
         'proforma_id',
         'causa_anulacion',
         'descripcion',
+        'descuento_general',
         'forma',
         'tiempo',
         'iva',
@@ -190,7 +191,7 @@ class Prefactura extends Model implements Auditable
     {
         $results = Prefactura::where(function ($query) {
             $query->orWhere('solicitante_id', auth()->user()->empleado->id);
-        })->ignoreRequest(['solicitante_id'])->filter()->get();
+        })->ignoreRequest(['solicitante_id'])->filter()->orderBy('updated_at', 'desc')->get();
         return $results;
     }
 

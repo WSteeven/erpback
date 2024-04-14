@@ -19,7 +19,7 @@ class TransferenciaProductoEmpleadoService
         $results = [];
         switch ($request->estado) {
             case Autorizacion::PENDIENTE:
-                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR])) {
+                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA])) {
                     $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::PENDIENTE_ID)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::PENDIENTE_ID)
@@ -30,7 +30,7 @@ class TransferenciaProductoEmpleadoService
                 }
                 break;
             case Autorizacion::CANCELADO:
-                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR])) {
+                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA])) {
                     $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::CANCELADO_ID)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::CANCELADO_ID)
@@ -41,7 +41,7 @@ class TransferenciaProductoEmpleadoService
                 }
                 break;
             case Autorizacion::APROBADO:
-                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR])) {
+                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA])) {
                     $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::APROBADO_ID)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::APROBADO_ID)
