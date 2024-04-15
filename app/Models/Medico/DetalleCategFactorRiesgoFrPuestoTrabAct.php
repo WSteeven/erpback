@@ -12,7 +12,7 @@ class DetalleCategFactorRiesgoFrPuestoTrabAct extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_constantes_vitales';
+    protected $table = 'med_detalle_categ_factor_riesgo_fr_puesto_trab_acts';
     protected $fillable = [
         'categoria_factor_riesgo_id',
         'fr_puesto_trabajo_actual_id',
@@ -23,7 +23,7 @@ class DetalleCategFactorRiesgoFrPuestoTrabAct extends Model implements Auditable
     }
 
     public function FrPuestoTrabajoActual(){
-        return $this->hasOne(FrPuestoTrabajoActual::class,'fr_puesto_trabajo_actual_id','id');
+        return $this->belongsTo(FrPuestoTrabajoActual::class,'fr_puesto_trabajo_actual_id','id');
     }
 
 }

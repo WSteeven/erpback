@@ -3,7 +3,6 @@
 namespace Src\App\Medico;
 
 use App\Models\Medico\ActividadFisica;
-use App\Models\Medico\ActividadPuestoTrabajo;
 use App\Models\Medico\AntecedenteFamiliar;
 use App\Models\Medico\AntecedenteGinecoObstetrico;
 use App\Models\Medico\AntecedentePersonal;
@@ -18,7 +17,7 @@ use App\Models\Medico\ResultadoExamenPreocupacional;
 use App\Models\Medico\ResultadoHabitoToxico;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class FichaPreocupacionalService
 {
@@ -49,9 +48,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro habitos toxicos' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarHabitosToxicos(array $habitos_toxicos)
@@ -72,9 +69,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro habitos toxicos' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function agregarActividadesFisicas(array $estilos_vida)
@@ -93,9 +88,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro actividades fisicas' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarActividadesFisicas(array $actividades_fisicas)
@@ -115,9 +108,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro actividades fisicas' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function agregarMedicaciones(array $medicaciones)
@@ -136,9 +127,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro medicaciones' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarMedicaciones(array $medicaciones)
@@ -158,9 +147,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro medicaciones' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
 
@@ -180,9 +167,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro medicaciones' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarAntecedentesFamiliares(array $atecedentes_personales)
@@ -202,9 +187,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro medicaciones' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
 
@@ -225,9 +208,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro CategFactorRiesgoFrPuestoTrabajoAct de empleos anteriores' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarFrPuestosTrabajo(array $fr_puestos_trabajos_actuales)
@@ -241,24 +222,21 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro CategFactorRiesgoFrPuestoTrabajoAct de empleos anteriores' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function insertarFrPuestoTrabajo(FrPuestoTrabajoActual $fr_puesto_trabajo_actual)
     {
         try {
             DB::beginTransaction();
-            $fr_puesto_trabajo_actual->ficha_preocupacional_id =  $this->antecedente_personal->id;
+            $fr_puesto_trabajo_actual->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
             $fr_puesto_trabajo_actual->save();
             $this->fr_puesto_trabajo_actual = $fr_puesto_trabajo_actual;
             DB::commit();
         } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Error insertarFrPuestoTrabajo', $e->getLine(), $e->getMessage()]);
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro actividad de puesto de trabajos' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function agregarDetalleCategFactorRiesgoFrPuestoTrabajoAct(array $detalles_categorias_factores_riesgos_fr_puesto_trabajo_actual)
@@ -276,9 +254,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro CategFactorRiesgoFrPuestoTrabajoAct de empleos anteriores' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarDetalleCategFactorRiesgoFrPuestoTrabajoAct(array $detalles_categorias_factores_riesgos_fr_puesto_trabajo_actual)
@@ -297,9 +273,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro CategFactorRiesgoFrPuestoTrabajoAct de empleos anteriores' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function agregarAntecedentesEmpleosAnteriores(array $antecedentes_empleos_anteriores)
@@ -327,9 +301,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro antecedentes de empleos anteriores' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarAntecedentesEmpleosAnteriores(array $antecedentes_empleos_anteriores)
@@ -358,9 +330,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro antecedentes de empleos anteriores' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function agregarExamenes(array $examenes)
@@ -382,9 +352,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro examenes' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function actualizarExamenes(array $examenes)
@@ -407,12 +375,10 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro examenes' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
-    public function insertarAntecedentesPersonales(AntecedentePersonal $antecedente_personal)
+    public function insertarAntecedentePersonal(AntecedentePersonal $antecedente_personal)
     {
         try {
             DB::beginTransaction();
@@ -421,10 +387,9 @@ class FichaPreocupacionalService
             $this->antecedente_personal = $antecedente_personal;
             DB::commit();
         } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Error insertarAntecedentePersonal', $e->getLine(), $e->getMessage()]);
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro antecedentes personales' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function insertarAntecedentesGinecoObstetricos(AntecedenteGinecoObstetrico $antecedente_gineco_obstetrico)
@@ -436,9 +401,7 @@ class FichaPreocupacionalService
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro antecedentes gineco obstetricos' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function insertarDescripcionAntecedenteTrabajo(DescripcionAntecedenteTrabajo $descripcion_antecedente_trabajo)
@@ -450,9 +413,7 @@ class FichaPreocupacionalService
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro descripcion antecedente de trabajo' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
     public function insertarConstanteVital(ConstanteVital $constante_vital)
@@ -464,9 +425,7 @@ class FichaPreocupacionalService
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro constante vital' => [$e->getMessage(), $e->getLine()],
-            ]);
+            throw $e;
         }
     }
 }

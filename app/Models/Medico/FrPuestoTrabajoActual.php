@@ -20,8 +20,8 @@ class FrPuestoTrabajoActual extends Model implements Auditable
         'medidas_preventivas',
         'ficha_preocupacional_id',
     ];
-    public function DetalleCategFactorRiesgoFrPuestoTrabAct(){
-        return $this->belongsToMany(DetalleCategFactorRiesgoFrPuestoTrabAct::class);
+    public function detalleCategFactorRiesgoFrPuestoTrabAct(){
+        return $this->hasMany(DetalleCategFactorRiesgoFrPuestoTrabAct::class);
     }
     public function fichaPreocupacional(){
         return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
