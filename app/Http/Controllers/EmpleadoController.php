@@ -70,10 +70,10 @@ class EmpleadoController extends Controller
             return $this->servicio->obtenerTodosSinEstado();
         }
 
-        if(request('empleados_autorizadores_gasto')){
+        if (request('empleados_autorizadores_gasto')) {
             return $this->servicio->obtenerEmpleadosAutorizadoresGasto();
         }
-      /*  if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA])) {
+        /*  if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA])) {
             return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
         }*/
 
@@ -107,7 +107,7 @@ class EmpleadoController extends Controller
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
         $datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];
-       /* $datos['fecha_salida'] =  $datos['fecha_salida'] ? $request->safe()->only(['fecha_salida'])['fecha_salida'] : null;//$request->safe()->only(['departamento'])['departamento'];
+        /* $datos['fecha_salida'] =  $datos['fecha_salida'] ? $request->safe()->only(['fecha_salida'])['fecha_salida'] : null;//$request->safe()->only(['departamento'])['departamento'];
         $datos['fecha_nacimiento'] =new DateTime($datos['fecha_nacimiento']);*/
 
         if ($datos['foto_url']) {
@@ -167,7 +167,7 @@ class EmpleadoController extends Controller
                 'coordenadas' => $datos['coordenadas'],
             ]);
 
-            $this->servicio->agregarDiscapacidades($empleado,$datos['discapacidades']);
+            $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
             //$grupo = Grupo::find($datos['grupo_id']);
@@ -251,7 +251,7 @@ class EmpleadoController extends Controller
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
-        $this->servicio->agregarDiscapacidades($empleado,$datos['discapacidades']);
+        if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
 
         if (!is_null($request->password)) {
             $empleado->user()->update([
@@ -530,7 +530,7 @@ class EmpleadoController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request,Empleado $empleado)
+    public function indexFiles(Request $request, Empleado $empleado)
     {
         try {
             $results = $this->archivoService->listarArchivos($empleado);
