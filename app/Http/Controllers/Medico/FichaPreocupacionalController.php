@@ -46,19 +46,18 @@ class FichaPreocupacionalController extends Controller
             DB::beginTransaction();
             $ficha_preocupacional = FichaPreocupacional::create($datos);
             $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional->id);
-            $ficha_preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
-            $ficha_preocupacional_service->agregarActividadesFisicas($request->actividades_fisicas);
-            $ficha_preocupacional_service->agregarMedicaciones($request->medicaciones);
-            // $ficha_preocupacional_service->agregarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
-            $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
-            $ficha_preocupacional_service->agregarAntecedentesFamiliares($request->atecedentes_personales);
-            $ficha_preocupacional_service->agregarFrPuestosTrabajo($request->fr_puestos_trabajos_actuales);
-            $ficha_preocupacional_service->insertarAntecedentesPersonales(new AntecedentePersonal([
+            $ficha_preocupacional_service->insertarAntecedentePersonal(new AntecedentePersonal([
                 'antecedentes_quirurgicos' => $request->antecedentes_quirurgicos,
                 'vida_sexual_activa' => $request->vida_sexual_activa,
                 'tiene_metodo_planificacion_familiar' => $request->tiene_metodo_planificacion_familiar,
                 'tipo_metodo_planificacion_familiar' => $request->tipo_metodo_planificacion_familiar,
             ]));
+            $ficha_preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
+            $ficha_preocupacional_service->agregarActividadesFisicas($request->actividades_fisicas);
+            $ficha_preocupacional_service->agregarMedicaciones($request->medicaciones);
+            $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
+            if (!is_null($request->atecedentes_personales)) $ficha_preocupacional_service->agregarAntecedentesFamiliares($request->atecedentes_personales);
+            $ficha_preocupacional_service->agregarFrPuestosTrabajo($request->fr_puestos_trabajos_actuales);
             $ficha_preocupacional_service->agregarExamenes($request->examenes);
             $registro_empleado = RegistroEmpleadoExamen::find($datos['registro_empleado_examen_id']);
             $genero = $registro_empleado->empleado?->genero;
@@ -103,7 +102,7 @@ class FichaPreocupacionalController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al insertar registro ficha preocupacional' => [$e->getMessage(), $e->getLine()],
+                'Error al insertar registro' => [$e->getLine(), $e->getMessage()],
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de preocupacional' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
@@ -128,7 +127,7 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional_service->actualizarMedicaciones($request->medicaciones);
             $ficha_preocupacional_service->actualizarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
             $ficha_preocupacional_service->actualizarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
-            $ficha_preocupacional_service->insertarAntecedentesPersonales($request->antecedente_personal);
+            $ficha_preocupacional_service->insertarAntecedentePersonal($request->antecedente_personal);
             $ficha_preocupacional_service->actualizarExamenes($request->examenes);
             $ficha_preocupacional_service->actualizarFrPuestosTrabajo($request->fr_puestos_trabajos_actuales);
             $ficha_preocupacional_service->actualizarAntecedentesFamiliares($request->atecedentes_familiares);

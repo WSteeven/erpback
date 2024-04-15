@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class FichaPreocupacionalResource extends JsonResource
 {
