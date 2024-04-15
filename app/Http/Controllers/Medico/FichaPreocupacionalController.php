@@ -49,7 +49,7 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
             $ficha_preocupacional_service->agregarActividadesFisicas($request->actividades_fisicas);
             $ficha_preocupacional_service->agregarMedicaciones($request->medicaciones);
-            $ficha_preocupacional_service->agregarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
+            // $ficha_preocupacional_service->agregarActividadesPuestoTrabajo($request->actividades_puestos_trabajos);
             $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
             $ficha_preocupacional_service->agregarAntecedentesFamiliares($request->atecedentes_personales);
             $ficha_preocupacional_service->agregarFrPuestosTrabajo($request->fr_puestos_trabajos_actuales);

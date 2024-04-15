@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ExamenesController;
 use App\Http\Controllers\Medico\ActividadFisicaController;
-use App\Http\Controllers\Medico\ActividadPuestoTrabajoController;
+// use App\Http\Controllers\Medico\ActividadPuestoTrabajoController;
 use App\Http\Controllers\Medico\AntecedenteFamiliarController;
 use App\Http\Controllers\Medico\AntecedenteGinecoObstetricoController;
 use App\Http\Controllers\Medico\AntecedentePersonalController;
@@ -71,7 +71,7 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
-        'actividades-puestos-trabajos' => ActividadPuestoTrabajoController::class,
+        // 'actividades-puestos-trabajos' => ActividadPuestoTrabajoController::class,
         'antecedentes-familiares' => AntecedenteFamiliarController::class,
         'antecedentes-gineco-obstetricos' => AntecedenteGinecoObstetricoController::class,
         'antecedentes-personales' => AntecedentePersonalController::class,

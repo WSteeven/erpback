@@ -6,33 +6,39 @@ use App\Events\ActualizarNotificacionesEvent;
 use App\Events\Medico\CambioFechaHoraSolicitudExamenEvent;
 use App\Http\Requests\Medico\SolicitudExamenRequest;
 use App\Mail\Medico\CambioFechaHoraSolicitudExamenMail;
+use App\Models\Autorizacion;
+use App\Models\EstadoTransaccion;
 use App\Models\Medico\EstadoSolicitudExamen;
 use App\Models\Medico\SolicitudExamen;
 use Exception;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Mail;
+use Src\App\ComprasProveedores\OrdenCompraService;
 
 class SolicitudExamenService
 {
     protected $solicitudExamenRequest;
+    private OrdenCompraService $ordenCompraService;
 
     public function __construct() //SolicitudExamenRequest $solicitudExamenRequest)
     {
         $this->solicitudExamenRequest = new SolicitudExamenRequest(); //$solicitudExamenRequest;
+        $this->ordenCompraService = new OrdenCompraService();
     }
 
     public function crearSolicitudExamen(array $data)
     {
         // Si se llama al método desde el controlador, no validar dentro del servicio
-        // if (!$this->solicitudExamenRequest instanceof Request) { //->isCalledFromController
+        if (!$this->solicitudExamenRequest instanceof Request) { //->isCalledFromController
             $validator = Validator::make($data, $this->solicitudExamenRequest->rules());
 
             if ($validator->fails()) throw new \Exception($validator->errors()->first());
-        // }
+        }
 
         try {
             DB::beginTransaction();
@@ -48,6 +54,45 @@ class SolicitudExamenService
 
                 EstadoSolicitudExamen::create($examen);
             }
+
+            // Crear orden de compra
+            $ordenCompraData = [
+                'codigo' => '',
+                'solicitante_id' => Auth::user()->empleado->id,
+                'proveedor_id' => null,
+                'autorizador_id' => $solicitud->autorizador_id,
+                'autorizacion_id' => Autorizacion::PENDIENTE_ID, // 'required|numeric|exists:autorizaciones,id',
+                'preorden_id' => null, //'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
+                'pedido_id' => null, // 'nullable|sometimes|numeric|exists:pedidos,id',
+                'tarea_id' => null, // 'nullable|sometimes|numeric|exists:tareas,id',
+                'observacion_aut' => $solicitud->observacion_autorizador, // 'nullable|sometimes|string',
+                'observacion_est' => $solicitud->observacion_autorizador, // 'nullable|sometimes|string',
+                'descripcion' => SolicitudExamen::obtenerDescripcionOrdenCompra($solicitud), // 'required|string',
+                'forma' => null, //'nullable|string',
+                'tiempo' => null, //'nullable|string',
+                'fecha' => SolicitudExamen::obtenerFechaMenorExamen($solicitud->examenesSolicitados),// 'required|string',
+                'estado_id' => EstadoTransaccion::PENDIENTE_ID, // 'nullable|numeric|exists:estados_transacciones_bodega,id',
+                'categorias' => 'SERVICIO', // 'sometimes|nullable',
+                'iva' => 12, // 'required|numeric',
+                // 'listadoProductos.*.cantidad' => 'required',
+            ];
+
+            $listadoProductos = [
+                [
+                    'id' => 4229,
+                    'nombre' => 'SERVICIO',
+                    'cantidad' => 1,
+                    'descripcion' => SolicitudExamen::obtenerDescripcionDetalleOrdenCompra($solicitud),
+                    'precio_unitario' => 0,
+                    'facturable' => true,
+                    'grava_iva' => false,
+                    'iva' => 0,
+                    'subtotal' => 0,
+                    'total' => 0,
+                ],
+            ];
+
+            $orden  = $this->ordenCompraService->crearOrdenCompra($ordenCompraData, $listadoProductos);
 
             DB::commit();
 

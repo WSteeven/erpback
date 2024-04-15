@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('med_antecedentes_personales', function (Blueprint $table) {
             $table->id();
-            $table->string('antecedentes_quirorgicos');
+            $table->string('antecedentes_quirurgicos');
             $table->boolean('vida_sexual_activa')->default('0');
             $table->boolean('tiene_metodo_planificacion_familiar')->default('0');
             $table->string('tipo_metodo_planificacion_familiar');

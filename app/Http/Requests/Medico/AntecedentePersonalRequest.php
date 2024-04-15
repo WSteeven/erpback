@@ -24,7 +24,7 @@ class AntecedentePersonalRequest extends FormRequest
     public function rules()
     {
         return [
-            'antecedentes_quirorgicos' => 'required|string',
+            'antecedentes_quirurgicos' => 'required|string',
             'vida_sexual_activa'=> 'required',
             'tiene_metodo_planificacion_familiar'=> 'required',
             'tipo_metodo_planificacion_familiar'=> 'required|string',

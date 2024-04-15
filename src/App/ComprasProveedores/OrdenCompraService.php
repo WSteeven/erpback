@@ -79,8 +79,8 @@ class OrdenCompraService
     public function crearOrdenCompra(array $datos, array $items)
     {
         try {
-            $this->validador->setData($datos);
-            if ($this->validador->fails()) throw new \Exception($this->validador->errors()->first());
+            // $this->validador->setData($datos);
+            // if ($this->validador->fails()) throw new \Exception($this->validador->errors()->first());
             DB::beginTransaction();
             $orden = OrdenCompra::create($datos);
             $this->guardarDetalles($orden, $items);

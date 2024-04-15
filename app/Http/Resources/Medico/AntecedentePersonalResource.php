@@ -16,7 +16,7 @@ class AntecedentePersonalResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'antecedentes_quirorgicos'=> $this->antecedentes_quirorgicos,
+            'antecedentes_quirurgicos'=> $this->antecedentes_quirurgicos,
             'vida_sexual_activa'=> $this->vida_sexual_activa,
             'tiene_metodo_planificacion_familiar'=> $this->tiene_metodo_planificacion_familiar,
             'tipo_metodo_planificacion_familiar'=> $this->tipo_metodo_planificacion_familiar,

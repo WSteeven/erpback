@@ -187,5 +187,11 @@ class PermisosMedicoSeeder extends Seeder
 
         // sistemas_organicos
         Permission::firstOrCreate(['name' => self::VER . ".sistemas_organos"])->syncRoles([$empleado]);
+
+        // regiones_cuerpo
+        Permission::firstOrCreate(['name' => self::VER . ".regiones_cuerpo"])->syncRoles([$empleado]);
+
+        // categorias_examenes_fisicos
+        Permission::firstOrCreate(['name' => self::VER . ".categorias_examenes_fisicos"])->syncRoles([$empleado]);
     }
 }

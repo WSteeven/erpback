@@ -16,10 +16,10 @@ return new class extends Migration
         Schema::create('med_detalle_categ_factor_riesgo_fr_puesto_trab_acts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('categoria_factor_riesgo_id');
-            $table->foreign('categoria_factor_riesgo_id')->references('id')->on('med_categorias_factores_riesgos');
+            $table->foreign('categoria_factor_riesgo_id', 'fk_det_cat_fac_rie_fr_pue_tra_act_cat_fac_rie')->references('id')->on('med_categorias_factores_riesgos');
 
             $table->unsignedBigInteger('fr_puesto_trabajo_actual_id');
-            $table->foreign('fr_puesto_trabajo_actual_id')->references('id')->on('med_fr_puestos_trabajos_actuales');
+            $table->foreign('fr_puesto_trabajo_actual_id', 'fk_det_cat_fac_rie_fr_pue_trab_act_fr_pue_tra_act')->references('id')->on('med_fr_puestos_trabajos_actuales');
 
             $table->timestamps();
         });

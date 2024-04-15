@@ -19,6 +19,7 @@ class EsquemaVacunaResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'dosis_aplicadas' => $this->dosis_aplicadas,
+            'dosis_totales' => $this->tipoVacuna?->dosis_totales,
             'observacion' => $this->observacion,
             'tipo_vacuna' => $this->tipoVacuna?->nombre,
             'tipo_vacuna_id' => $this->tipo_vacuna_id,
