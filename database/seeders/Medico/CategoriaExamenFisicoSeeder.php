@@ -149,7 +149,7 @@ class CategoriaExamenFisicoSeeder extends Seeder
                 'region_cuerpo_id' => RegionCuerpo::PELVIS
             ],
             [
-                'nombre' => 'Genitales',
+                'nombre' => 'Genitales',    
                 'region_cuerpo_id' => RegionCuerpo::PELVIS
             ],
             [
