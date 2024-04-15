@@ -109,19 +109,25 @@ class BitacoraVehicularController extends Controller
             Log::channel('testing')->info('Log', ['antes de modificar', $bitacora]);
             //Validacion de datos
             $datos = $request->validated();
+            // $request['checklistAccesoriosVehiculo']['bitacora_id'] = $bitacora->id;
 
             DB::beginTransaction();
             $bitacora->update($datos);
             Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora]);
+            $bitacora->checklistAccesoriosVehiculo()->create($request->checklistAccesoriosVehiculo);
+            // Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora->checklistAccesoriosVehiculo()->get()]);
+            $bitacora->checklistVehiculo()->create($request->checklistVehiculo);
+            $bitacora->checklistImagenVehiculo()->create($request->checklistImagenVehiculo);
             $modelo = new BitacoraVehicularResource($bitacora->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
         } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['eror', $th->getLine(), $th->getMessage()]);
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
         return response()->json(compact('modelo', 'mensaje'));
-    }
+    }            
 
     /**
      * Remove the specified resource from storage.

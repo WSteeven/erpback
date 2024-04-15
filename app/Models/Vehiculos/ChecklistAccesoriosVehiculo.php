@@ -43,6 +43,6 @@ class ChecklistAccesoriosVehiculo extends Model implements Auditable
      */
     public function bitacora()
     {
-        return $this->belongsTo(BitacoraVehicular::class);
+        return $this->belongsTo(BitacoraVehicular::class, 'bitacora_id', 'id');
     }
 }
