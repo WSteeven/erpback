@@ -30,6 +30,9 @@ return new class extends Migration
             $table->text('enfermedad_actual');
             $table->text('descripcion_examen_fisico_regional');
             $table->text('descripcion_revision_organos_sistemas');
+            $table->integer('hijos_vivos')->default(0);
+            $table->integer('hijos_muertos')->default(0);
+            $table->boolean('vida_sexual_activa');
 
             // Foreign keys
             $table->unsignedBigInteger('religion_id');

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Seeders\Medico\CategoriaExamenFisicoSeeder;
 use Database\Seeders\Medico\CategoriaFactorRiesgoSeeder;
+use Database\Seeders\Medico\ExamenesOrganosReproductivosSeeder;
 use Database\Seeders\Medico\IdentidadGeneroSeeder;
 use Database\Seeders\Medico\OrganosSistemasSeeder;
 use Database\Seeders\Medico\OrientacionSexualSeeder;
@@ -35,6 +36,7 @@ class ModuloMedicoSeeder extends Seeder
          * Modulo medico
          *****************/
         $this->call([
+            ExamenesOrganosReproductivosSeeder::class,
             TipoExamenSeeder::class,
             TipoCuestionarioSeeder::class,
             RespuestaSeeder::class,

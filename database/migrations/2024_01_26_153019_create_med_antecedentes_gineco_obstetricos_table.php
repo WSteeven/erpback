@@ -15,19 +15,17 @@ return new class extends Migration
     {
         Schema::create('med_antecedentes_gineco_obstetricos', function (Blueprint $table) {
             $table->id();
-            $table->date('menarquia');
-            $table->integer('ciclos');
+            $table->text('menarquia');// a los 12 años, a los 14 años, etc...
+            $table->integer('ciclos'); //30 dias, 28 dias, 31 dias, etc.
             $table->date('fecha_ultima_menstruacion');
             $table->integer('gestas');
             $table->integer('partos');
             $table->integer('cesareas');
             $table->integer('abortos');
-            $table->integer('hijos_vivos');
-            $table->integer('hijos_muertos');
+            $table->unsignedBigInteger('ficha_preocupacional_id');
 
             // Foreign keys
-            $table->unsignedBigInteger('antecedentes_personales_id');
-            $table->foreign('antecedentes_personales_id', 'med_anteced_gineco_obstet')->references('id')->on('med_antecedentes_personales')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id')->references('id')->on('med_fichas_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

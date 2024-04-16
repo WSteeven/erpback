@@ -18,13 +18,16 @@ class FichaPreocupacional extends Model implements Auditable
     protected $table = 'med_fichas_preocupacionales';
     protected $fillable = [
         'ciu',
-        'esatblecimiento_salud',
+        'establecimiento_salud',
         'numero_historia_clinica',
         'numero_archivo',
         'puesto_trabajo',
         'religion_id',
         'orientacion_sexual_id',
         'identidad_genero_id',
+        'hijos_vivos',
+        'hijos_muertos',
+        'vida_sexual_activa',
         'actividades_relevantes_puesto_trabajo_ocupar',
         'motivo_consulta',
         'registro_empleado_examen_id',
@@ -59,7 +62,7 @@ class FichaPreocupacional extends Model implements Auditable
     }
     public function habitosToxicos()
     {
-        return $this->hasMany(ResultadoHabitoToxico::class, 'ficha_preocupacional_id', 'id');
+        return $this->morphMany(ResultadoHabitoToxico::class, 'fichable');
     }
     public function actividadFisica()
     {
@@ -105,4 +108,6 @@ class FichaPreocupacional extends Model implements Auditable
     {
         return $this->hasMany(AptitudMedica::class, 'ficha_preocupacional_id', 'id');
     }
+
+    
 }

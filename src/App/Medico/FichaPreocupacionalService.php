@@ -12,6 +12,7 @@ use App\Models\Medico\DescripcionAntecedenteTrabajo;
 use App\Models\Medico\DetalleCategFactorRiesgoFrPuestoTrabAct;
 use App\Models\Medico\Medicacion;
 use App\Models\Medico\FichaPreocupacional;
+use App\Models\Medico\FichaPeriodica;
 use App\Models\Medico\FrPuestoTrabajoActual;
 use App\Models\Medico\ResultadoExamenPreocupacional;
 use App\Models\Medico\ResultadoHabitoToxico;
@@ -31,17 +32,16 @@ class FichaPreocupacionalService
         $this->preocupacional = FichaPreocupacional::find($ficha_preocupacional_id);
     }
 
-    public function agregarHabitosToxicos(array $habitos_toxicos)
+    public function agregarHabitosToxicos(FichaPreocupacional|FichaPeriodica $ficha, array $habitos_toxicos)
     {
         try {
             foreach ($habitos_toxicos as $key => $value) {
                 DB::beginTransaction();
-                ResultadoHabitoToxico::create(
+                $ficha->habitosToxicos()->create(
                     [
                         'tipo_habito_toxico_id' => $value['tipo_habito_toxico'],
                         'tiempo_consumo_meses' => $value['tiempo_consumo_meses'],
                         'tiempo_abstinencia_meses' => $value['tiempo_abstinencia_meses'],
-                        'ficha_preocupacional_id' => $this->ficha_preocupacional_id
                     ]
                 );
                 DB::commit();

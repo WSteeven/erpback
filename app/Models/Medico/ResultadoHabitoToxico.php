@@ -17,12 +17,21 @@ class ResultadoHabitoToxico extends Model implements Auditable
         'tipo_habito_toxico_id',
         'tiempo_consumo_meses',
         'tiempo_abstinencia_meses',
-        'ficha_preocupacional_id'
+        'fichable_id',
+        'fichable_type',
     ];
-    public function tipoHabitoToxico(){
-        return $this->hasOne(TipoHabitoToxico::class,'id','tipo_habito_toxico_id');
+    public function tipoHabitoToxico()
+    {
+        return $this->hasOne(TipoHabitoToxico::class, 'id', 'tipo_habito_toxico_id');
     }
-    public function fichaPreocupacional(){
-        return $this->hasOne(FichaPreocupacional::class,'id','ficha_preocupacional_id');
+    public function fichaPreocupacional()
+    {
+        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
+    }
+
+    // Relación polimorfica
+    public function fichable()
+    {
+        return $this->morphTo();
     }
 }

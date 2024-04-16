@@ -32,6 +32,7 @@ use App\Http\Controllers\Medico\EstiloVidaController;
 use App\Http\Controllers\Medico\ExamenController;
 use App\Http\Controllers\Medico\ExamenEspecificoController;
 use App\Http\Controllers\Medico\ExamenFisicoRegionalController;
+use App\Http\Controllers\Medico\ExamenOrganoReproductivoController;
 use App\Http\Controllers\Medico\ExamenPreocupacionalController;
 use App\Http\Controllers\Medico\FactorRiesgoController;
 use App\Http\Controllers\Medico\FichaAptitudController;
@@ -97,6 +98,7 @@ Route::apiResources(
         'estados-solicitudes-examenes' => EstadoSolicitudExamenController::class,
         'estilos-vida' => ActividadFisicaController::class,
         'examenes' => ExamenController::class,
+        'examenes-organos-reproductivos' => ExamenOrganoReproductivoController::class,
         'examenes-fisicos-regionales' => ExamenFisicoRegionalController::class,
         'examenes-preocupacionales' => ResultadoExamenPreocupacionalController::class,
         'factores-riesgos' => FactorRiesgoController::class,
@@ -157,6 +159,7 @@ Route::apiResources(
             'orientaciones-sexuales' => 'orientacion_sexual',
             'identidades-generos' => 'identidad_genero',
             'tipos-habitos-toxicos' => 'tipo_habito_toxico',
+            'examenes-organos-reproductivos' => 'examen',
         ],
 
     ]

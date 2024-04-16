@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_examenes', function (Blueprint $table) {
+        Schema::create('med_examenes_organos_reproductivos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-
+            $table->string('examen');
+            $table->enum('tipo', ['M', 'F']);
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_examenes');
+        Schema::dropIfExists('med_examenes_organos_reproductivos');
     }
 };

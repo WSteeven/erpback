@@ -52,7 +52,7 @@ class FichaPreocupacionalController extends Controller
                 'tiene_metodo_planificacion_familiar' => $request->tiene_metodo_planificacion_familiar,
                 'tipo_metodo_planificacion_familiar' => $request->tipo_metodo_planificacion_familiar,
             ]));
-            $ficha_preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
+            $ficha_preocupacional_service->agregarHabitosToxicos($ficha_preocupacional, $request->habitos_toxicos);
             $ficha_preocupacional_service->agregarActividadesFisicas($request->actividades_fisicas);
             $ficha_preocupacional_service->agregarMedicaciones($request->medicaciones);
             $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);

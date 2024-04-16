@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_examenes', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-
-            $table->timestamps();
+        Schema::table('med_fichas_preocupacionales', function (Blueprint $table) {
+            $table->integer('hijos_vivos')->default(0)->after('enfermedad_actual');
+            $table->integer('hijos_muertos')->default(0)->after('enfermedad_actual');
         });
     }
 
@@ -28,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_examenes');
+        Schema::table('med_fichas_preocupacionales', function (Blueprint $table) {
+            //
+        });
     }
 };
