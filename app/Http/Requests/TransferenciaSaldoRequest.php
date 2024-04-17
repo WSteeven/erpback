@@ -77,7 +77,7 @@ class TransferenciaSaldoRequest extends FormRequest
             ]);
         }
         $this->merge([
-            'monto' => number_format($this->monto,2)
+            'monto' => round($this->monto,2)
         ]);
     }
 }

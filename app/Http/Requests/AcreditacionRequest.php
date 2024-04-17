@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,7 +27,7 @@ class AcreditacionRequest extends FormRequest
     {
         return [
             'fecha' => 'required',
-            'monto' => 'required',
+            'monto' => 'required|numeric',
             'id_saldo' => 'required',
             'id_tipo_fondo' => 'required',
             'id_tipo_saldo' => 'required',
@@ -45,7 +44,7 @@ class AcreditacionRequest extends FormRequest
             'id_tipo_fondo' =>  $this->tipo_fondo,
             'id_tipo_saldo' =>  $this->tipo_saldo,
             'id_usuario' =>  $this->usuario,
-            'monto' => number_format($this->monto,2)
+            'monto' => round( $this->monto, 2)
         ]);
         if ($this->route()->getActionMethod() === 'store') {
             $this->merge([
