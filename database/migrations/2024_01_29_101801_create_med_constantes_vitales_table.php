@@ -18,15 +18,14 @@ return new class extends Migration
             $table->string('presion_arterial');
             $table->decimal('temperatura',8,2);
             $table->integer('frecuencia_cardiaca');
-            $table->integer('saturacion_oxigeno');
+            $table->decimal('saturacion_oxigeno');
             $table->integer('frecuencia_respiratoria');
             $table->decimal('peso',8,2);
-            $table->decimal('estatura',8,2);
             $table->decimal('talla',8,2);
             $table->decimal('indice_masa_corporal',8,2);
             $table->decimal('perimetro_abdominal',8,2);
-            $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('constante_vitalable_id');
+            $table->string('constante_vitalable_type');
             $table->timestamps();
         });
     }

@@ -27,6 +27,6 @@ class AntecedenteGinecoObstetrico extends Model implements Auditable
     ];
     public function antecedentesPersonales()
     {
-        return $this->hasOne(AntecedentePersonal::class, 'id', 'antecedentes_personales_id');
+        return $this->hasOne(AntecedentePersonal::class, 'id', 'antecedente_personal_id');
     }
 }

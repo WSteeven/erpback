@@ -55,7 +55,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'antecedente_gineco_obstetrico.abortos' => 'nullable|integer',
             'antecedente_gineco_obstetrico.hijos_vivos' => 'nullable|integer',
             'antecedente_gineco_obstetrico.hijos_muertos' => 'nullable|integer',
-            'calificado_iess' => 'required|boolean',
+            'calificado_iss' => 'required|boolean',
             // 'descripcion' => 'required|string',
             'fecha' => 'required|date_format:Y-m-d',
             'observacion' => 'required|string',

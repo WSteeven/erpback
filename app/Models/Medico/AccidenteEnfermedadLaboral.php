@@ -16,7 +16,7 @@ class AccidenteEnfermedadLaboral extends Model implements Auditable
     protected $table = 'med_accidentes_enfermedades_laborales';
     protected $fillable = [
         'tipo',
-        'descripcion',
+        'observacion',
         'calificado_iss',
         'instituto_seguridad_social',
         'fecha',

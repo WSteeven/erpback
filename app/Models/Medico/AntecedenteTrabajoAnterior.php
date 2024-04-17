@@ -18,12 +18,6 @@ class AntecedenteTrabajoAnterior extends Model implements Auditable
         'puesto_trabajo',
         'actividades',
         'tiempo_trabajo', //meses
-        // 'r_fisico',
-        // 'r_mecanico',
-        // 'r_quimico',
-        // 'r_biologico',
-        // 'r_ergonomico',
-        // 'r_psicosocial',
         'observacion',
         'ficha_preocupacional_id'
     ];

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('examen');
             $table->enum('tipo', ['M', 'F']);
+            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }

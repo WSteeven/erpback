@@ -18,9 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('tipo_aptitud_id');
             $table->text('observacion');
             $table->text('limitacion');
-            $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('aptitudable_id');
+            $table->string('aptitudable_type');
             $table->timestamps();
+
+            $table->foreign('tipo_aptitud_id')->on('med_tipos_aptitudes')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

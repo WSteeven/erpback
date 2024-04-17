@@ -36,6 +36,7 @@ use App\Http\Controllers\Medico\ExamenOrganoReproductivoController;
 use App\Http\Controllers\Medico\ExamenPreocupacionalController;
 use App\Http\Controllers\Medico\FactorRiesgoController;
 use App\Http\Controllers\Medico\FichaAptitudController;
+use App\Http\Controllers\Medico\FichaPeriodicaController;
 use App\Http\Controllers\Medico\FichaPreocupacionalController;
 use App\Http\Controllers\Medico\HabitoToxicoController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
@@ -129,6 +130,7 @@ Route::apiResources(
         'recetas' => RecetaController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
         'regiones-cuerpo' => RegionCuerpoController::class,
+        'fichas-periodicas' => FichaPeriodicaController::class,
         'fichas-periodicas-preocupacionales' => FichaPreocupacionalController::class,
     ],
     [
@@ -155,6 +157,7 @@ Route::apiResources(
             'registros-empleados-examene' => 'registro_empleado_examen',
             'religiones' => 'religion',
             'resultados-examene' => 'resultado_examen',
+            'fichas-periodicas' => 'ficha',
             'fichas-periodicas-preocupacionales' => 'ficha_preocupacional',
             'orientaciones-sexuales' => 'orientacion_sexual',
             'identidades-generos' => 'identidad_genero',

@@ -5,18 +5,13 @@ namespace App\Http\Controllers\Medico;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\FichaPreocupacionalRequest;
 use App\Http\Resources\Medico\FichaPreocupacionalResource;
-use App\Http\Resources\Medico\RegistroEmpleadoExamenResource;
 use App\Models\Empleado;
-use App\Models\Medico\AntecedenteGinecoObstetrico;
+use App\Models\Medico\AccidenteEnfermedadLaboral;
 use App\Models\Medico\AntecedentePersonal;
-use App\Models\Medico\ConstanteVital;
-use App\Models\Medico\DescripcionAntecedenteTrabajo;
 use App\Models\Medico\FichaPreocupacional;
-use App\Models\Medico\FrPuestoTrabajoActual;
 use App\Models\Medico\RegistroEmpleadoExamen;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\FichaPreocupacionalService;
 use Src\Shared\Utils;
@@ -61,29 +56,30 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional_service->agregarExamenes($request->examenes);
             $registro_empleado = RegistroEmpleadoExamen::find($datos['registro_empleado_examen_id']);
             $genero = $registro_empleado->empleado?->genero;
-            if ($genero === Empleado::FEMENINO) {
-                $ficha_preocupacional_service->insertarAntecedentesGinecoObstetricos(new AntecedenteGinecoObstetrico([
-                    'menarquia' => $request->menarquia,
-                    'ciclos' => $request->ciclos,
-                    'fecha_ultima_menstruacion' => $request->fecha_ultima_menstruacion,
-                    'gestas' => $request->gestas,
-                    'partos' => $request->partos,
-                    'cesareas' => $request->cesareas,
-                    'abortos' => $request->abortos,
-                    'hijos_vivos' => $request->hijos_vivos,
-                    'hijos_muertos' => $request->hijos_muertos,
-                ]));
-            }
-            $ficha_preocupacional_service->insertarDescripcionAntecedenteTrabajo(
-                new DescripcionAntecedenteTrabajo([
-                    'calificado_iess' => $request->calificado_iess,
-                    'descripcion' => $request->descripcion,
-                    'fecha' => $request->fecha,
-                    'observacion' => $request->observacion,
-                    'tipo_descripcion_antecedente_trabajo' => $request->tipo_descripcion_antecedente_trabajo,
-                ])
-            );
-            $ficha_preocupacional_service->insertarConstanteVital(new ConstanteVital([
+            // if ($genero === Empleado::FEMENINO) {
+            //     $ficha_preocupacional_service->insertarAntecedentesGinecoObstetricos(new AntecedenteGinecoObstetrico([
+            //         'menarquia' => $request->menarquia,
+            //         'ciclos' => $request->ciclos,
+            //         'fecha_ultima_menstruacion' => $request->fecha_ultima_menstruacion,
+            //         'gestas' => $request->gestas,
+            //         'partos' => $request->partos,
+            //         'cesareas' => $request->cesareas,
+            //         'abortos' => $request->abortos,
+            //         'hijos_vivos' => $request->hijos_vivos,
+            //         'hijos_muertos' => $request->hijos_muertos,
+            //     ]));
+            // }
+            $ficha_preocupacional_service->insertarAccidenteEnfermedadLaboral([
+                'tipo' => AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO,
+                'observacion' => $request->observacion,
+                'calificado_iss' => $request->calificado_iss,
+                'instituto_seguridad_social' => $request->instituto_seguridad_social,
+                'descripcion' => $request->descripcion,
+                'fecha' => $request->fecha,
+                'tipo_descripcion_antecedente_trabajo' => $request->tipo_descripcion_antecedente_trabajo,
+            ]);
+            
+            $ficha_preocupacional_service->insertarConstanteVital([
                 'presion_arterial' => $request->presion_arterial,
                 'temperatura' => $request->temperatura,
                 'frecuencia_cardiaca' => $request->frecuencia_cardiaca,
@@ -94,7 +90,7 @@ class FichaPreocupacionalController extends Controller
                 'talla' => $request->talla,
                 'indice_masa_corporal' => $request->indice_masa_corporal,
                 'perimetro_abdominal' => $request->perimetro_abdominal,
-            ]));
+            ]);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
             DB::commit();

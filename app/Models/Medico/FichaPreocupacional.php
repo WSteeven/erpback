@@ -6,7 +6,6 @@ use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -21,22 +20,20 @@ class FichaPreocupacional extends Model implements Auditable
         'establecimiento_salud',
         'numero_historia_clinica',
         'numero_archivo',
-        'puesto_trabajo',
         'religion_id',
         'lateralidad',
         'orientacion_sexual_id',
         'identidad_genero_id',
+        'puesto_trabajo',
+        'area_trabajo',
         'actividades_relevantes_puesto_trabajo_ocupar',
         'motivo_consulta',
-        'vida_sexual_activa',
         'actividades_extralaborales',
         'enfermedad_actual',
         'registro_empleado_examen_id',
-        'actividad_fisica',
-        'recomendaciones_tratamiento',
-        'descripcion_examen_fisico_regional',
-        'descripcion_revision_organos_sistemas'
+        'observacion_examen_fisico_regional',
     ];
+    
     private static $whiteListFilter = ['*'];
 
     //Esta relación se utiliza para llenar el item C de la ficha preocupacional
@@ -56,7 +53,7 @@ class FichaPreocupacional extends Model implements Auditable
     }
     public function habitosToxicos()
     {
-        return $this->morphMany(ResultadoHabitoToxico::class, 'habitable');
+        return $this->morphMany(ResultadoHabitoToxico::class, 'habitable', 'habito_toxicable_type', 'habito_toxicable_id');
     }
     public function actividadesFisicas()
     {
@@ -80,7 +77,7 @@ class FichaPreocupacional extends Model implements Auditable
     }
     public function frPuestoTrabajoActual()
     {
-        return $this->morphMany(FrPuestoTrabajoActual::class, 'factorRiesgoTrabajable');
+        return $this->morphMany(FrPuestoTrabajoActual::class, 'factorRiesgoTrabajable', 'factor_riesgo_puesto_trabajable_type', 'factor_riesgo_puesto_trabajable_id');
     }
     public function orientacionSexual()
     {
@@ -95,32 +92,32 @@ class FichaPreocupacional extends Model implements Auditable
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }
 
-    public function examenesPreocupacionales()
-    {
-        return  $this->hasMany(ResultadoExamenPreocupacional::class, 'ficha_preocupacional_id', 'id');
-    }
-    public function descripcionAntecedenteTrabajo()
-    {
-        return $this->hasOne(DescripcionAntecedenteTrabajo::class, 'ficha_preocupacional_id', 'id');
-    }
-    public function factoresRiesgo()
-    {
-        return $this->hasMany(FactorRiesgo::class, 'ficha_preocupacional_id', 'id');
-    }
+    // public function descripcionAntecedenteTrabajo()
+    // {
+    //     return $this->hasOne(DescripcionAntecedenteTrabajo::class, 'ficha_preocupacional_id', 'id');
+    // }
+    // public function factoresRiesgo()
+    // {
+    //     return $this->hasMany(FactorRiesgo::class, 'ficha_preocupacional_id', 'id');
+    // }
     public function revisionesActualesOrganosSistemas()
     {
         return $this->morphMany(RevisionActualOrganoSistema::class, 'revisionable');
     }
     public function constanteVital()
     {
-        return $this->morphOne(ConstanteVital::class, 'constanteVitalable');
+        return $this->morphOne(ConstanteVital::class, 'constanteVitalable', 'constante_vitalable_type', 'constante_vitalable_id');
     }
     public function examenesFisicosRegionales()
     {
-        return $this->morphMany(ExamenFisicoRegional::class, 'examenFisicoRegionalable');
+        return $this->morphMany(ExamenFisicoRegional::class, 'examenFisicoRegionalable', 'examen_fisico_regionalable_type', 'examen_fisico_regionalable_id');
+    }
+    public function diagnosticos()
+    {
+        return $this->morphMany(DiagnosticoFicha::class, 'diagnosticable');
     }
     public function aptitudesMedicas()
     {
-        return $this->hasMany(AptitudMedica::class, 'ficha_preocupacional_id', 'id');
+        return $this->morphOne(AptitudMedica::class, 'aptitudable');
     }
 }

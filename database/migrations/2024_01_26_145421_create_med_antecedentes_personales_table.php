@@ -18,8 +18,8 @@ return new class extends Migration
             $table->boolean('vida_sexual_activa')->default(false);
             $table->boolean('tiene_metodo_planificacion_familiar')->default(false);
             $table->string('tipo_metodo_planificacion_familiar')->nullable();
-            $table->integer('hijos_vivos');
-            $table->integer('hijos_muertos');
+            $table->integer('hijos_vivos')->default(0);
+            $table->integer('hijos_muertos')->default(0);
 
             // Foreign keys
             $table->unsignedBigInteger('ficha_preocupacional_id');

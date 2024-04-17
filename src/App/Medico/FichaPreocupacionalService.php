@@ -196,13 +196,7 @@ class FichaPreocupacionalService
         try {
             foreach ($fr_puestos_trabajos_actuales as $key => $fr_puesto_trabajo_actual) {
                 DB::beginTransaction();
-                $this->insertarFrPuestoTrabajo(
-                    new FrPuestoTrabajoActual([
-                        'puesto_trabajo' => $fr_puesto_trabajo_actual['puesto_trabajo'],
-                        'actividad' => $fr_puesto_trabajo_actual['actividad'],
-                        'medidas_preventivas' => $fr_puesto_trabajo_actual['medidas_preventivas']
-                    ])
-                );
+                $this->insertarFrPuestoTrabajo($fr_puesto_trabajo_actual);
                 $this->agregarDetalleCategFactorRiesgoFrPuestoTrabajoAct($fr_puesto_trabajo_actual['detalle_categ_factor_riesg_fr_puest_trab_act']);
                 DB::commit();
             }
@@ -225,17 +219,16 @@ class FichaPreocupacionalService
             throw $e;
         }
     }
-    public function insertarFrPuestoTrabajo(FrPuestoTrabajoActual $fr_puesto_trabajo_actual)
+    public function insertarFrPuestoTrabajo(array $fr_puesto_trabajo_actual)
     {
         try {
             DB::beginTransaction();
-            $fr_puesto_trabajo_actual->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
-            $fr_puesto_trabajo_actual->save();
-            $this->fr_puesto_trabajo_actual = $fr_puesto_trabajo_actual;
+            $fr_puesto_trabajo = $this->preocupacional->frPuestoTrabajoActual()->create($fr_puesto_trabajo_actual);
+            $this->fr_puesto_trabajo_actual = $fr_puesto_trabajo;
             DB::commit();
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['Error insertarFrPuestoTrabajo', $e->getLine(), $e->getMessage()]);
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error insertarFrPuestoTrabajo', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
@@ -254,6 +247,7 @@ class FichaPreocupacionalService
             }
         } catch (Exception $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error agregarDetalleCategFactorRiesgoFrPuestoTrabajoAct', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
@@ -401,30 +395,43 @@ class FichaPreocupacionalService
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error insertarAntecedentesGinecoObstetricos', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
-    public function insertarDescripcionAntecedenteTrabajo(DescripcionAntecedenteTrabajo $descripcion_antecedente_trabajo)
+    public function insertarAccidenteEnfermedadLaboral(array $datos)
     {
         try {
             DB::beginTransaction();
-            $descripcion_antecedente_trabajo->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
-            $descripcion_antecedente_trabajo->save();
+            $this->preocupacional->accidentesEnfermedades()->create($datos);
             DB::commit();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error insertarAccidenteEnfermedadLaboral', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
-    public function insertarConstanteVital(ConstanteVital $constante_vital)
+    // public function insertarDescripcionAntecedenteTrabajo(DescripcionAntecedenteTrabajo $descripcion_antecedente_trabajo)
+    // {
+    //     try {
+    //         DB::beginTransaction();
+    //         $descripcion_antecedente_trabajo->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
+    //         $descripcion_antecedente_trabajo->save();
+    //         DB::commit();
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         throw $e;
+    //     }
+    // }
+    public function insertarConstanteVital(array $constante_vital)
     {
         try {
             DB::beginTransaction();
-            $constante_vital->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
-            $constante_vital->save();
+            $this->preocupacional->constanteVital()->create($constante_vital);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error insertarConstanteVital', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }

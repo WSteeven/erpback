@@ -17,7 +17,7 @@ class DiagnosticoCitaMedica extends Model implements Auditable
     protected $fillable = [
         'recomendacion',
         'cie_id',
-        'consulta_id',
+        'consulta_medica_id',
         // 'cita_medica_id',
         // 'registro_empleado_examen_id',
     ];

@@ -18,7 +18,6 @@ class Medicacion extends Model implements Auditable
         'cantidad',
         'medicable_id',
         'medicable_type',
-        'actividable_type'
     ];
     public function medicable()
     {

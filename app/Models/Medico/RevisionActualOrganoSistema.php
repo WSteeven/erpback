@@ -13,9 +13,9 @@ class RevisionActualOrganoSistema extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_revisiones_organos_sistemas';
+    protected $table = 'med_revisiones_actuales_organos_sistemas';
     protected $fillable = [
-        'organo_sistema_id',
+        'organo_id',
         'descripcion',
         'revisionable_id',
         'revisionable_type',

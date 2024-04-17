@@ -17,13 +17,13 @@ return new class extends Migration
             $table->id();
 
             //ForeingKey
-            $table->unsignedBigInteger('organo_sistema_id');
-            $table->foreign('organo_sistema_id', 'fk_organos_sistema')->on('med_sistemas_organicos')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
-
-            $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id', 'fk_preocupacional')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
-
+            $table->unsignedBigInteger('organo_id');
+            $table->text('descripcion');
+            $table->unsignedBigInteger('revisionable_id');
+            $table->string('revisionable_type');
+            
             $table->timestamps();
+            $table->foreign('organo_id')->on('med_sistemas_organicos')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

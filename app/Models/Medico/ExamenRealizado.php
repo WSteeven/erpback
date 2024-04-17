@@ -24,10 +24,12 @@ class ExamenRealizado extends Model  implements Auditable
     private static $whiteListFilter = ['*'];
 
 
-    public function fichaPreocupacional(){
+    public function fichaPreocupacional()
+    {
         return $this->belongsTo(fichaPreocupacional::class);
     }
-    public function examen(){
+    public function examen()
+    {
         return $this->hasOne(ExamenOrganoReproductivo::class);
     }
 }

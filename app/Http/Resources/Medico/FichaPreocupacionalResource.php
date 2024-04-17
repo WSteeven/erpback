@@ -95,11 +95,11 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              * Descripcion de Antecedentes de Trabajo
              * ***************************************/
-            'calificado_iess' => $this->descripcionAntecedenteTrabajo->calificado_iess,
-            'descripcion' => $this->descripcionAntecedenteTrabajo->descripcion,
-            'fecha' => $this->descripcionAntecedenteTrabajo->fecha,
-            'observacion' => $this->descripcionAntecedenteTrabajo->observacion,
-            'tipo_descripcion_antecedente_trabajo' => $this->descripcionAntecedenteTrabajo->tipo_descripcion_antecedente_trabajo,
+            'calificado_iss' => $this->accidentesEnfermedades()->first()?->calificado_iss,
+            'descripcion' => $this->accidentesEnfermedades()->first()->descripcion,
+            'fecha' => $this->accidentesEnfermedades()->first()->fecha,
+            'observacion' => $this->accidentesEnfermedades()->first()->observacion,
+            'tipo_descripcion_antecedente_trabajo' => $this->accidentesEnfermedades()->first()->tipo_descripcion_antecedente_trabajo,
             /*********************************************
              * Fin Descripcion de Antecedentes de Trabajo
              * *******************************************/
@@ -127,7 +127,7 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Revision  actual de organos y sistemas
              * ***************************************/
-            'revisiones_actuales_organos_sistemas' => $this->revisionesActualesOrganosSistemas,
+            'revisiones_actuales_organos_sistemas' => $this->revisionesActualesOrganosSistemas()->first(),
             /*********************************************
              * Fin Revision  actual de organos y sistemas
              * *******************************************/
@@ -150,7 +150,7 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Examenes fisicos regionales
              * ***************************************/
-            'examenes_fisicos_regionales' => $this->examenesFisicosRegionales,
+            'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->first(),
             /*********************************************
              * Fin Examenes fisicos regionales
              * *******************************************/

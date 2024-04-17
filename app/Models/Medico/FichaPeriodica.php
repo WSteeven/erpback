@@ -21,11 +21,11 @@ class FichaPeriodica extends Model implements Auditable
         'numero_archivo',
         'puesto_trabajo',
         'motivo_consulta',
+        'incidentes',
         'registro_empleado_examen_id',
-        'actividad_fisica',
         'enfermedad_actual',
-        'recomendaciones_tratamiento',
-        'descripcion_examen_fisico_regional',
-        'descripcion_revision_organos_sistemas'
+        'observacion_examen_fisico_regional',
     ];
+
+    private static $whiteListFilter = ['*'];
 }

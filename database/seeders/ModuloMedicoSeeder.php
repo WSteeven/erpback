@@ -67,12 +67,10 @@ class ModuloMedicoSeeder extends Seeder
             TipoAntecedenteSeeder::class,
             TipoAptitudMedicaLaboralSeeder::class,
             TipoAptitudSeeder::class,
-            TipoDescripcionAntecedenteTrabajoSeeder::class,
+            // TipoDescripcionAntecedenteTrabajoSeeder::class,
             TipoEvaluacionMedicaRetiroSeeder::class,
             TipoHabitoToxicoSeeder::class,
             PermisosMedicoSeeder::class,
-            OrientacionSexualSeeder::class,
-            ReligionSeeder::class,
             TipoDiscapacidadSeeder::class,
         ]);
     }

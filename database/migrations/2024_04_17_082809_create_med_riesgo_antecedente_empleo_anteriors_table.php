@@ -13,9 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_riesgo_antecedente_empleo_anteriors', function (Blueprint $table) {
+        Schema::create('med_riesgos_antecedentes_trabajos_anteriores', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('tipo_riesgo_id')->nullable();
+            $table->unsignedBigInteger('antecedente_id');
             $table->timestamps();
+
+            $table->foreign('tipo_riesgo_id', 'fk_tipo_riesgo')->references('id')->on('med_tipos_factores_riesgos')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('antecedente_id', 'fk_antecedente')->references('id')->on('med_antecedentes_trabajos_anteriores')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 
@@ -26,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_riesgo_antecedente_empleo_anteriors');
+        Schema::dropIfExists('med_riesgos_antecedentes_trabajos_anteriores');
     }
 };
