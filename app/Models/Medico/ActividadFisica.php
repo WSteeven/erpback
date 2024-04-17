@@ -21,8 +21,10 @@ class ActividadFisica extends Model  implements Auditable
         'actividable_id',
         'actividable_type'
     ];
-    public function fichaPreocupacional()
+
+    // Relación polimorfica
+    public function actividable()
     {
-        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
+        return $this->morphTo();
     }
 }

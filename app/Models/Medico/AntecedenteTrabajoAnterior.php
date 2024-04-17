@@ -29,6 +29,11 @@ class AntecedenteTrabajoAnterior extends Model implements Auditable
     ];
     public function fichaPreocupacional()
     {
-        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
+        return $this->hasOne(FichaPreocupacional::class);
+    }
+
+    public function riesgos()
+    {
+        return $this->hasMany(RiesgoAntecedenteEmpleoAnterior::class);
     }
 }

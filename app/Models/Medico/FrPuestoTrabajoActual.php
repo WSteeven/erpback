@@ -17,15 +17,17 @@ class FrPuestoTrabajoActual extends Model implements Auditable
     protected $fillable = [
         'puesto_trabajo',
         'actividad',
-        'tiempo_trabajo',
+        'tiempo_trabajo', //nullable
         'medidas_preventivas',
         'factor_riesgo_puesto_trabajable_id',
         'factor_riesgo_puesto_trabajable_type',
     ];
-    public function detalleCategFactorRiesgoFrPuestoTrabAct(){
+    public function detalleCategFactorRiesgoFrPuestoTrabAct()
+    {
         return $this->hasMany(DetalleCategFactorRiesgoFrPuestoTrabAct::class);
     }
-    public function fichaPreocupacional(){
-        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
+    public function factorRiesgoTrabajable()
+    {
+        return $this->morphTo();
     }
 }

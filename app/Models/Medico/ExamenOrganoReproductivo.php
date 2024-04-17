@@ -18,6 +18,7 @@ class ExamenOrganoReproductivo extends Model implements Auditable
     protected $fillable = [
         'examen',
         'tipo', //M-F
+        'activo', //boolean
     ];
     private static $whiteListFilter = ['*'];
 }

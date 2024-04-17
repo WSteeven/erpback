@@ -30,9 +30,9 @@ class FichaPreocupacional extends Model implements Auditable
         'motivo_consulta',
         'vida_sexual_activa',
         'actividades_extralaborales',
+        'enfermedad_actual',
         'registro_empleado_examen_id',
         'actividad_fisica',
-        'enfermedad_actual',
         'recomendaciones_tratamiento',
         'descripcion_examen_fisico_regional',
         'descripcion_revision_organos_sistemas'
@@ -40,14 +40,48 @@ class FichaPreocupacional extends Model implements Auditable
     private static $whiteListFilter = ['*'];
 
     //Esta relación se utiliza para llenar el item C de la ficha preocupacional
-    public function antecedentesClinicos(){
+    public function antecedentesClinicos()
+    {
         return $this->morphMany(AntecedenteClinico::class, 'antecedentable');
+    }
+
+    //Esta relación se utiliza para llenar los items de examenes realizados del literal C de la ficha preocupacional
+    public function examenesRealizados()
+    {
+        return $this->hasOne(ExamenRealizado::class);
     }
     public function antecedentePersonal()
     {
         return $this->hasOne(AntecedentePersonal::class, 'ficha_preocupacional_id', 'id')->with('antecedenteGinecoobstetrico');
     }
-
+    public function habitosToxicos()
+    {
+        return $this->morphMany(ResultadoHabitoToxico::class, 'habitable');
+    }
+    public function actividadesFisicas()
+    {
+        return $this->morphMany(ActividadFisica::class, 'actividable');
+    }
+    public function medicaciones()
+    {
+        return $this->morphMany(Medicacion::class, 'medicable');
+    }
+    public function antecedentesTrabajosAnteriores()
+    {
+        return $this->hasMany(AntecedenteTrabajoAnterior::class, 'ficha_preocupacional_id', 'id');
+    }
+    public function accidentesEnfermedades() //accidentes de trabajo y enfermedades laborales
+    {
+        return $this->morphMany(AccidenteEnfermedadLaboral::class, 'accidentable');
+    }
+    public function antecedentesFamiliares()
+    {
+        return $this->morphMany(AntecedenteFamiliar::class, 'antecedentable');
+    }
+    public function frPuestoTrabajoActual()
+    {
+        return $this->morphMany(FrPuestoTrabajoActual::class, 'factorRiesgoTrabajable');
+    }
     public function orientacionSexual()
     {
         return $this->hasOne(OrientacionSexual::class, 'id', 'orientacion_sexual_id');
@@ -65,33 +99,9 @@ class FichaPreocupacional extends Model implements Auditable
     {
         return  $this->hasMany(ResultadoExamenPreocupacional::class, 'ficha_preocupacional_id', 'id');
     }
-    public function habitosToxicos()
-    {
-        return $this->morphMany(ResultadoHabitoToxico::class, 'fichable');
-    }
-    public function actividadFisica()
-    {
-        return $this->hasMany(ActividadFisica::class, 'ficha_preocupacional_id', 'id');
-    }
-    public function medicaciones()
-    {
-        return $this->hasMany(Medicacion::class, 'ficha_preocupacional_id', 'id');
-    }
-    public function antecedentesTrabajosAnteriores()
-    {
-        return $this->hasMany(AntecedenteTrabajoAnterior::class, 'ficha_preocupacional_id', 'id');
-    }
     public function descripcionAntecedenteTrabajo()
     {
         return $this->hasOne(DescripcionAntecedenteTrabajo::class, 'ficha_preocupacional_id', 'id');
-    }
-    public function antecedentesFamiliares()
-    {
-        return $this->hasMany(AntecedenteFamiliar::class, 'ficha_preocupacional_id', 'id');
-    }
-    public function frPuestoTrabajoActual()
-    {
-        return $this->hasMany(FrPuestoTrabajoActual::class, 'ficha_preocupacional_id', 'id');
     }
     public function factoresRiesgo()
     {
@@ -99,20 +109,18 @@ class FichaPreocupacional extends Model implements Auditable
     }
     public function revisionesActualesOrganosSistemas()
     {
-        return $this->hasMany(RevisionActualOrganoSistema::class, 'ficha_preocupacional_id', 'id');
+        return $this->morphMany(RevisionActualOrganoSistema::class, 'revisionable');
     }
     public function constanteVital()
     {
-        return $this->hasOne(ConstanteVital::class, 'ficha_preocupacional_id', 'id');
+        return $this->morphOne(ConstanteVital::class, 'constanteVitalable');
     }
     public function examenesFisicosRegionales()
     {
-        return $this->hasMany(ExamenFisicoRegional::class, 'ficha_preocupacional_id', 'id');
+        return $this->morphMany(ExamenFisicoRegional::class, 'examenFisicoRegionalable');
     }
     public function aptitudesMedicas()
     {
         return $this->hasMany(AptitudMedica::class, 'ficha_preocupacional_id', 'id');
     }
-
-
 }

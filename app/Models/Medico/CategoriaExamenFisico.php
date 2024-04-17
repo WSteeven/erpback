@@ -20,4 +20,9 @@ class CategoriaExamenFisico extends Model implements Auditable
         'region_cuerpo_id'
     ];
     private static $whiteListFilter = ['*'];
+
+    public function region()
+    {
+        return $this->belongsTo(RegionCuerpo::class);
+    }
 }

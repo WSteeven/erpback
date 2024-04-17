@@ -21,12 +21,13 @@ class RevisionActualOrganoSistema extends Model implements Auditable
         'revisionable_type',
     ];
 
-    public function organoSistema(){
-        return $this->hasOne(SistemaOrganico::class,'id','organo_sistema_id');
+    public function organoSistema()
+    {
+        return $this->hasOne(SistemaOrganico::class);
     }
 
-    public function fichaPreocupacional(){
-        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
+    public function revisionable()
+    {
+        return $this->morphTo();
     }
-
 }

@@ -20,7 +20,6 @@ class ConstanteVital extends Model implements Auditable
         'saturacion_oxigeno',
         'frecuencia_respiratoria',
         'peso',
-        'estatura',
         'talla',
         'indice_masa_corporal',
         'perimetro_abdominal',
@@ -29,8 +28,8 @@ class ConstanteVital extends Model implements Auditable
     ];
 
 
-    public function fichaPreocupacional(){
-        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
+    public function constanteVitalable(){
+        return $this->morphTo();
     }
 
 }

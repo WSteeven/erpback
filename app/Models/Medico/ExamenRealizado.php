@@ -22,4 +22,12 @@ class ExamenRealizado extends Model  implements Auditable
         'ficha_preocupacional_id',
     ];
     private static $whiteListFilter = ['*'];
+
+
+    public function fichaPreocupacional(){
+        return $this->belongsTo(fichaPreocupacional::class);
+    }
+    public function examen(){
+        return $this->hasOne(ExamenOrganoReproductivo::class);
+    }
 }

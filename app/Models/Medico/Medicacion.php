@@ -16,11 +16,12 @@ class Medicacion extends Model implements Auditable
     protected $fillable = [
         'nombre',
         'cantidad',
-        'actividable_id',
+        'medicable_id',
+        'medicable_type',
         'actividable_type'
     ];
-    public function fichaPreocupacional()
+    public function medicable()
     {
-        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
+        return $this->morphTo();
     }
 }

@@ -23,10 +23,10 @@ class AntecedenteFamiliar extends Model implements Auditable
     ];
     public function tipoAntecedenteFamiliar()
     {
-        return $this->hasOne(TipoAntecedenteFamiliar::class, 'id', 'tipo_antecedente_familiares_id');
+        return $this->hasOne(TipoAntecedenteFamiliar::class);
     }
-    public function fichaPreocupacional(){
-        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
+    public function antecedentable(){
+        return $this->morphTo();
     }
 }
 

@@ -30,4 +30,9 @@ class RegionCuerpo extends Model implements Auditable
     public const NEUROLOGICO = 12;
 
     private static $whiteListFilter = ['*'];
+
+    public function categoriaExamen()
+    {
+        return $this->hasMany(CategoriaExamenFisico::class);
+    }
 }
