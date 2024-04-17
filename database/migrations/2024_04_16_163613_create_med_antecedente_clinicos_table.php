@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('med_antecedente_clinicos', function (Blueprint $table) {
             $table->id();
+            $table->text('descripcion');
+            $table->unsignedBigInteger('antecedentable_id');
+            $table->string('antecedentable_type');
             $table->timestamps();
         });
     }

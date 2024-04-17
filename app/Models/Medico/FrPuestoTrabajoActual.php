@@ -17,8 +17,10 @@ class FrPuestoTrabajoActual extends Model implements Auditable
     protected $fillable = [
         'puesto_trabajo',
         'actividad',
+        'tiempo_trabajo',
         'medidas_preventivas',
-        'ficha_preocupacional_id',
+        'factor_riesgo_puesto_trabajable_id',
+        'factor_riesgo_puesto_trabajable_type',
     ];
     public function detalleCategFactorRiesgoFrPuestoTrabAct(){
         return $this->hasMany(DetalleCategFactorRiesgoFrPuestoTrabAct::class);

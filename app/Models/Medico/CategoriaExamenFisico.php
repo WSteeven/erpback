@@ -17,7 +17,7 @@ class CategoriaExamenFisico extends Model implements Auditable
     protected $table = 'med_categorias_examenes_fisicos';
     protected $fillable = [
         'nombre',
-        'region'
+        'region_cuerpo_id'
     ];
     private static $whiteListFilter = ['*'];
 }

@@ -15,16 +15,15 @@ return new class extends Migration
     {
         Schema::create('med_antecedentes_personales', function (Blueprint $table) {
             $table->id();
-            $table->string('antecedentes_quirurgicos');
-            $table->boolean('vida_sexual_activa')->default('0');
-            $table->boolean('tiene_metodo_planificacion_familiar')->default('0');
-            $table->string('tipo_metodo_planificacion_familiar');
+            $table->boolean('vida_sexual_activa')->default(false);
+            $table->boolean('tiene_metodo_planificacion_familiar')->default(false);
+            $table->string('tipo_metodo_planificacion_familiar')->nullable();
             $table->integer('hijos_vivos');
             $table->integer('hijos_muertos');
 
             // Foreign keys
             $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id', 'med_antecedentes_foreign')->references('id')->on('med_fichas_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id')->references('id')->on('med_fichas_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

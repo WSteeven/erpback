@@ -17,7 +17,8 @@ class AptitudMedica extends Model implements Auditable
         'tipo_aptitud_id',
         'observacion',
         'limitacion',
-        'ficha_preocupacional_id',
+        'aptitudable_id',
+        'aptitudable_type',
     ];
 
     public function tipoAptitud()

@@ -22,10 +22,10 @@ return new class extends Migration
             $table->integer('partos');
             $table->integer('cesareas');
             $table->integer('abortos');
-            $table->unsignedBigInteger('ficha_preocupacional_id');
+            $table->unsignedBigInteger('antecedente_personal_id');
 
             // Foreign keys
-            $table->foreign('ficha_preocupacional_id')->references('id')->on('med_fichas_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('antecedente_personal_id')->references('id')->on('med_antecedentes_personales')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

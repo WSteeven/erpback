@@ -17,7 +17,9 @@ class AntecedenteFamiliar extends Model implements Auditable
     protected $fillable = [
         'descripcion',
         'tipo_antecedente_familiar_id',
-        'ficha_preocupacional_id',
+        'parentesco',
+        'antecedentable_id',
+        'antecedentable_type',
     ];
     public function tipoAntecedenteFamiliar()
     {

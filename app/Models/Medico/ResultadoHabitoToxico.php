@@ -17,8 +17,9 @@ class ResultadoHabitoToxico extends Model implements Auditable
         'tipo_habito_toxico_id',
         'tiempo_consumo_meses',
         'tiempo_abstinencia_meses',
-        'fichable_id',
-        'fichable_type',
+        'ex_consumidor',
+        'habito_toxicable_id',
+        'habito_toxicable_type',
     ];
     public function tipoHabitoToxico()
     {

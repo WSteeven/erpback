@@ -23,13 +23,13 @@ class FichaPreocupacional extends Model implements Auditable
         'numero_archivo',
         'puesto_trabajo',
         'religion_id',
+        'lateralidad',
         'orientacion_sexual_id',
         'identidad_genero_id',
-        'hijos_vivos',
-        'hijos_muertos',
-        'vida_sexual_activa',
         'actividades_relevantes_puesto_trabajo_ocupar',
         'motivo_consulta',
+        'vida_sexual_activa',
+        'actividades_extralaborales',
         'registro_empleado_examen_id',
         'actividad_fisica',
         'enfermedad_actual',
@@ -38,6 +38,15 @@ class FichaPreocupacional extends Model implements Auditable
         'descripcion_revision_organos_sistemas'
     ];
     private static $whiteListFilter = ['*'];
+
+    //Esta relación se utiliza para llenar el item C de la ficha preocupacional
+    public function antecedentesClinicos(){
+        return $this->morphMany(AntecedenteClinico::class, 'antecedentable');
+    }
+    public function antecedentePersonal()
+    {
+        return $this->hasOne(AntecedentePersonal::class, 'ficha_preocupacional_id', 'id')->with('antecedenteGinecoobstetrico');
+    }
 
     public function orientacionSexual()
     {
@@ -50,10 +59,6 @@ class FichaPreocupacional extends Model implements Auditable
     public function empleado()
     {
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
-    }
-    public function antecedentePersonal()
-    {
-        return $this->hasOne(AntecedentePersonal::class, 'ficha_preocupacional_id', 'id')->with('antecedenteGinecoobstetrico');
     }
 
     public function examenesPreocupacionales()
@@ -109,5 +114,5 @@ class FichaPreocupacional extends Model implements Auditable
         return $this->hasMany(AptitudMedica::class, 'ficha_preocupacional_id', 'id');
     }
 
-    
+
 }

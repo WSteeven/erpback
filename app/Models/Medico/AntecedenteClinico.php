@@ -15,9 +15,14 @@ class AntecedenteClinico extends Model implements Auditable
     protected $table  = 'med_antecedentes_clinicos';
     protected $fillable = [
         'descripcion',
-        'antecedentes_clinicos',
         'antecedentable_id',
         'antecedentable_type',
     ];
-    
+    private static $whiteListFilter = ['*'];
+
+    // Relación polimorfica
+    public function antecedentable()
+    {
+        return $this->morphTo();
+    }
 }

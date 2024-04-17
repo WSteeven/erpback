@@ -15,7 +15,9 @@ class ExamenFisicoRegional extends Model implements Auditable
     protected $table = 'med_examenes_fisicos_regionales';
     protected $fillable = [
         'categoria_examen_fisico_id',
-        'ficha_preocupacional_id',
+        'observacion',
+        'examen_fisico_regionalable_id',
+        'examen_fisico_regionalable_type',
     ];
 
     public function categoriaexamenFisico(){

@@ -18,7 +18,8 @@ class ActividadFisica extends Model  implements Auditable
     protected $fillable = [
         'nombre_actividad',
         'tiempo',
-        'ficha_preocupacional_id'
+        'actividable_id',
+        'actividable_type'
     ];
     public function fichaPreocupacional()
     {

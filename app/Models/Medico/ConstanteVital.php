@@ -24,7 +24,8 @@ class ConstanteVital extends Model implements Auditable
         'talla',
         'indice_masa_corporal',
         'perimetro_abdominal',
-        'ficha_preocupacional_id',
+        'constante_vitalable_id',
+        'constante_vitalable_type',
     ];
 
 

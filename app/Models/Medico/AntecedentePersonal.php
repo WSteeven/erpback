@@ -16,8 +16,9 @@ class AntecedentePersonal extends Model implements Auditable
 
     protected $table = 'med_antecedentes_personales';
     protected $fillable = [
-        'antecedentes_quirurgicos',
         'vida_sexual_activa',
+        'hijos_vivos',
+        'hijos_muertos',
         'tiene_metodo_planificacion_familiar',
         'tipo_metodo_planificacion_familiar',
         'ficha_preocupacional_id',
