@@ -191,3 +191,4 @@ Route::post('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController:
  * Imprimir PDFs
  *****************/
 Route::get('fichas-aptitudes/imprimir/{ficha_aptitud}', [FichaAptitudController::class, 'imprimirPDF']);
+Route::get('fichas-retiros/imprimir', [FichaAptitudController::class, 'imprimirPDFFichaRetiro']);

@@ -45,4 +45,13 @@ class RegistroEmpleadoExamen extends Model implements Auditable
     {
         return $this->hasOne(FichaAptitud::class);
     }
+
+    public function fichaPeriodica()
+    {
+        return $this->hasOne(FichaPreocupacional::class);
+    }
+    public function fichaRetiro()
+    {
+        // return $this->hasOne(FichaRetiro::class);
+    }
 }

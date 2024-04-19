@@ -16,7 +16,7 @@
     <title>FICHA DE APTITUD</title>
     <style>
         @page {
-            margin: 80px 40px 0 40px;
+            margin: 40px 40px 0 40px;
             /* 15px 10px 15px;*/
         }
 
@@ -133,6 +133,11 @@
             padding-top: 8px;
         }
 
+        .px-8 {
+            padding-right: 8px;
+            padding-left: 8px;
+        }
+
         .pl-8 {
             padding-left: 8px;
         }
@@ -189,12 +194,13 @@
         <tr>
             <td align="center">{{ $configuracion['razon_social'] }}</td>
             <td align="center">{{ $configuracion['ruc'] }}</td>
-            <td align="center">{{ '' }}</td>
+            <td align="center">{{ $configuracion['ciiu'] }}</td>
             <td align="center">{{ 'CONSULTORIO MÉDICO' }}</td>
-            <td align="center">{{ '' }}</td>
-            <td align="center">{{ '' }}</td>
+            <td align="center">{{ $empleado['identificacion'] }}</td>
+            <td align="center">{{ $ficha_aptitud['numero_archivo'] }}</td>
         </tr>
     </table>
+
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
         border="1" cellpadding="0" cellspacing="0" class="mb-8">
@@ -212,20 +218,20 @@
             <td align="center">{{ explode(' ', $empleado['nombres'])[0] }}</td>
             <td align="center">{{ explode(' ', $empleado['nombres'])[1] }}</td>
             <td align="center">{{ $empleado['genero'] }}</td>
-            <td align="center">{{ $empleado['cargo_id'] }}</td>
+            <td align="center">{{ $empleado['cargo']->nombre }}</td>
         </tr>
     </table>
 
     {{-- B. DATOS GENERALES --}}
     <div class="titulo-seccion">B. DATOS GENERALES</div>
     <div class="border mb-8">
-        <div class="pa-8 font-text">
+        <div class="pa-8 font-text-10">
             <span style="margin-right: 24px; display: inline-block;">FECHA DE EMISIÓN:</span> <span
                 class="cuadrado">{{ $ficha_aptitud['fecha_emision']->year }}</span><span
                 class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('m') }}</span><span
                 class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('d') }}</span>
         </div>
-        <div class="pa-8 font-text row items-center">
+        <div class="pa-8 font-text-10 row items-center">
             <span style="margin-right: 24px; display: inline-block;">EVALUACIÓN:</span>
             <span class="mr-4">INGRESO</span>
             @if ($tipo_proceso_examen === 'INGRESO')
@@ -273,8 +279,8 @@
                 @endforeach
             </tr>
         </table>
-        <p class="pa-8"><b>DETALLE DE OBSERVACIONES:</b></p>
-        <p class="pa-8">{{ $ficha_aptitud['observaciones_aptitud_medica'] }}</p>
+        <p class="px-8"><b>DETALLE DE OBSERVACIONES:</b></p>
+        <p class="px-8">{{ $ficha_aptitud['observaciones_aptitud_medica'] }}</p>
     </div>
 
     {{-- D. EVALUACIÓN MÉDICA DE RETIRO --}}
@@ -325,7 +331,7 @@
         <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="bg-green font-text-10" style="padding: 6px;">NOMBRE Y APELLIDO</td>
-                <td style="width: 20%">
+                <td style="width: 20%" class="font-text-10">
                     {{ $profesionalSalud->empleado->nombres . ' ' . $profesionalSalud->empleado->apellidos }}</td>
                 <td class="bg-green font-text-10">CÓDIGO</td>
                 <td style="width: 20%">{{ $profesionalSalud->codigo }}</td>
@@ -347,12 +353,15 @@
     <span style="width: 25%; display: inline-block;" class="border">
         <div class="titulo-seccion">G. FIRMA DEL USUARIO</div>
         <div class="pa-12">
-            @isset($firmaPaciente)
+            &nbsp;
+            <br />
+            <br />
+            {{-- @isset($firmaPaciente)
                 <img src="{{ $firmaPaciente }}" alt="" width="100%" height="40">
             @endisset
             @empty($firmaPaciente)
                 &nbsp;<br />
-            @endempty
+            @endempty --}}
         </div>
     </span>
 

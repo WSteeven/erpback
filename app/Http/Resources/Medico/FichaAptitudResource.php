@@ -33,6 +33,8 @@ class FichaAptitudResource extends JsonResource
             'fecha_emision' => $this->created_at,
             'paciente' => $this->registroEmpleadoExamen->empleado_id,
             'profesional_salud' => Empleado::extraerNombresApellidos(Empleado::find($this->profesional_salud_id)),
+            'numero_historia' => null,
+            'numero_archivo' => null,
         ];
     }
 }

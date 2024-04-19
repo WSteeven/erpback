@@ -7,6 +7,7 @@ use App\Http\Requests\Medico\FichaAptitudRequest;
 use App\Http\Resources\Medico\FichaAptitudResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
+use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\FichaAptitud;
 use App\Models\Medico\ProfesionalSalud;
 use App\Models\Medico\TipoAptitudMedicaLaboral;
@@ -18,6 +19,7 @@ use Illuminate\Validation\ValidationException;
 use Src\App\Medico\FichaAptitudService;
 use Src\Shared\Utils;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class FichaAptitudController extends Controller
@@ -169,6 +171,97 @@ class FichaAptitudController extends Controller
 
             $file = $pdf->output();
             return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'));
+        }
+    }
+
+    public function imprimirPDFFichaRetiro()
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        // $resource = new FichaAptitudResource($ficha_aptitud);
+        $empleado = Empleado::find(25); // $ficha_aptitud->registroEmpleadoExamen->empleado_id);
+        $profesionalSalud = ProfesionalSalud::find(116); //$ficha_aptitud->profesional_salud_id);
+
+        $actividadesFactorRiesgo = [
+            [
+                'actividad' => 'Actividad 1',
+                'factor_riesgo' => 'Fisico',
+            ],
+            [
+                'actividad' => 'Actividad 2',
+                'factor_riesgo' => 'Quimico',
+            ],
+            [
+                'actividad' => 'Actividad 3',
+                'factor_riesgo' => 'Biologico',
+            ],
+        ];
+
+        $fichaRetiro = [
+            'antecedentes_clinicos_quirurjicos' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+            'accidentes_trabajo' => [
+                'especificar' => 'IESS',
+                'calificado_iess' => true,
+                'observaciones' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                'fecha' => Carbon::parse('2024-04-20'),
+            ],
+            'enfermedades_profesionales' => [
+                'especificar' => 'IESS',
+                'calificado_iess' => false,
+                'observaciones' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+                'fecha' => Carbon::parse('2024-03-24'),
+            ],
+            'observaciones_examen_fisico_regional' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+            'examenes_fisicos_regionales' => [1,5,8, 35],
+        ];
+
+
+        $regiones = CategoriaExamenFisico::with('regionCuerpo')->select('id', 'nombre', 'region_cuerpo_id')->get()->groupBy(function ($item) {
+            return $item->regionCuerpo->nombre;
+        })->map(function ($items, $region) {
+            return [
+                'region' => $region,
+                'categorias' => $items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nombre' => $item->nombre,
+                    ];
+                })->toArray(),
+            ];
+        })->values();
+
+        Log::channel('testing')->info($regiones);
+        /*[
+            [
+                'region' => 'Piel',
+                'tipos' => [
+                    'a. Cicatrices'
+                ],
+            ],
+        ];*/
+
+        $datos = [
+            'configuracion' => $configuracion,
+            'empleado' => $empleado,
+            'profesionalSalud' => $profesionalSalud,
+            'firmaProfesionalMedico' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->empleado->firma_url, 1))),
+            'actividadesFactorRiesgo' => $actividadesFactorRiesgo,
+            'fichaRetiro' => $fichaRetiro,
+            'regiones' => $regiones,
+        ];
+
+        try {
+            $pdf = Pdf::loadView('medico.pdf.ficha_retiro', $datos);
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption(['isRemoteEnabled' => true]);
+            $pdf->render();
+
+            $file = $pdf->output();
+            return $file;
+            // return view('medico.pdf.ficha_retiro', $datos);
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();

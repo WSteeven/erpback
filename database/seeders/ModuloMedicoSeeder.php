@@ -27,7 +27,7 @@ class ModuloMedicoSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
+     * php artisan db:seed --class="Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder"
      * @return void
      */
     public function run()
@@ -53,19 +53,17 @@ class ModuloMedicoSeeder extends Seeder
             DetalleExamenSeeder::class,
             PreguntaSeeder::class,
             CuestionarioSeeder::class,
-            // CuestionarioDiagnosticoConsumoDrogasSeeder::class,
+            // CuestionarioDiagnosticoConsumoDrogasSeeder::class, <--
             RegionCuerpoSeeder::class,
             CategoriaExamenFisicoSeeder::class,
             TipoFactorRiesgoSeeder::class,
             CategoriaFactorRiesgoSeeder::class,
-            CategoriaExamenFisicoSeeder::class,
             IdentidadGeneroSeeder::class,
             OrganosSistemasSeeder::class,
             OrientacionSexualSeeder::class,
             ReligionSeeder::class,
             TipoAntecedenteFamiliarSeeder::class,
             TipoAntecedenteSeeder::class,
-            TipoAptitudMedicaLaboralSeeder::class,
             TipoAptitudSeeder::class,
             // TipoDescripcionAntecedenteTrabajoSeeder::class,
             TipoEvaluacionMedicaRetiroSeeder::class,
