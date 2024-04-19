@@ -10,7 +10,7 @@ class CategoriaExamenFisicoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
+     * php artisan db:seed --class="Database\Seeders\Medico\CategoriaExamenFisicoSeeder"
      * @return void
      */
     public function run()
@@ -42,10 +42,6 @@ class CategoriaExamenFisicoSeeder extends Seeder
             ],
             [
                 'nombre' => 'Cornea',
-                'region_cuerpo_id' => RegionCuerpo::OJOS
-            ],
-            [
-                'nombre' => 'Motilidad',
                 'region_cuerpo_id' => RegionCuerpo::OJOS
             ],
             [
@@ -149,7 +145,7 @@ class CategoriaExamenFisicoSeeder extends Seeder
                 'region_cuerpo_id' => RegionCuerpo::PELVIS
             ],
             [
-                'nombre' => 'Genitales',    
+                'nombre' => 'Genitales',
                 'region_cuerpo_id' => RegionCuerpo::PELVIS
             ],
             [

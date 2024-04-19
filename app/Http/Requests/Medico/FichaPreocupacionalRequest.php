@@ -28,7 +28,7 @@ class FichaPreocupacionalRequest extends FormRequest
         return [
             // 'ciu' => 'required|string',
             'establecimiento_salud' => 'nullable|string',
-            'numero_historia_clinica' => 'required|string',
+            // 'numero_historia_clinica' => 'required|string',
             'numero_archivo' => 'required|string',
             // 'puesto_trabajo' => 'required|string',
             'religion_id' => 'required|exists:med_religiones,id',

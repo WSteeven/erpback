@@ -26,7 +26,7 @@ class ModuloMedicoSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
+     * php artisan db:seed --class="Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder"
      * @return void
      */
     public function run()

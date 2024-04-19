@@ -32,6 +32,7 @@ class EmpleadoResource extends JsonResource
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'jefe_id' => $this->jefe_id,
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
+            'edad' => $this->obtenerEdad(),
             // 'nombre_canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
             'cargo' => $this->cargo?->nombre,
@@ -153,5 +154,19 @@ class EmpleadoResource extends JsonResource
             return $object;
         });
         return $tiposDiscapacidades;
+    }
+
+    private function obtenerEdad()
+    {
+        // Crear un objeto Carbon a partir de la fecha de nacimiento
+        // $fechaNacimiento = Carbon::createFromFormat('Y-m-d', $fechaNacimiento);
+
+        // Obtener la fecha actual
+        $fechaActual = Carbon::now();
+
+        // Calcular la diferencia de años
+        $edad = $fechaActual->diffInYears($this->fecha_nacimiento);
+
+        return $edad;
     }
 }
