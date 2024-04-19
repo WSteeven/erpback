@@ -55,7 +55,7 @@ class FichaPreocupacionalController extends Controller
         }
     }
 
-    public function show(FichaPreocupacionalRequest $request, FichaPreocupacional $ficha_preocupacional)
+    public function show(FichaPreocupacional $ficha_preocupacional)
     {
         $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
         return response()->json(compact('modelo'));
