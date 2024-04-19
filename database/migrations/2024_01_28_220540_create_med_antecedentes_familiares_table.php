@@ -16,11 +16,13 @@ return new class extends Migration
         Schema::create('med_antecedentes_familiares', function (Blueprint $table) {
             $table->id();
             $table->text('descripcion');
-            $table->unsignedBigInteger('tipo_antecedente_familiares_id');
-            $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('tipo_antecedente_familiares_id', 'med_antecedentes_familiares')->references('id')->on('med_tipos_antecedentes_familiares')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('tipo_antecedente_familiar_id');
+            $table->string('parentesco');
+            $table->unsignedBigInteger('antecedentable_id');
+            $table->string('antecedentable_type');
             $table->timestamps();
+
+            $table->foreign('tipo_antecedente_familiar_id')->references('id')->on('med_tipos_antecedentes_familiares')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

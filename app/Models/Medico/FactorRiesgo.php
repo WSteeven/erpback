@@ -30,3 +30,8 @@ class FactorRiesgo extends Model implements Auditable
     }
 
 }
+
+
+/**
+ * Esta tabla no se usa ni ningun elemento relacionado
+ */

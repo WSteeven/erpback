@@ -17,8 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->unsignedBigInteger('tipo_factor_riesgo_id');
-            $table->foreign('tipo_factor_riesgo_id')->references('id')->on('med_tipos_factores_riesgos')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
+
+            $table->foreign('tipo_factor_riesgo_id')->references('id')->on('med_tipos_factores_riesgos')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

@@ -16,7 +16,12 @@ class CategoriaFactorRiesgo extends Model implements Auditable
     protected $table = 'med_categorias_factores_riesgos';
     protected $fillable = [
         'nombre',
-        'tipo',
+        'tipo_factor_riesgo_id',
     ];
     private static $whiteListFilter = ['*'];
+
+    public function tipo()
+    {
+        return $this->hasOne(TipoFactorRiesgo::class);
+    }
 }

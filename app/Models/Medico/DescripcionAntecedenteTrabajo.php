@@ -24,6 +24,11 @@ class DescripcionAntecedenteTrabajo extends Model implements Auditable
     ];
     public function fichaPreocupacional()
     {
-        return $this->hasOne(Preocupacional::class, 'id', 'ficha_preocupacional_id');
+        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
     }
 }
+
+
+/**
+ * Esta tabla no se usa ni ningun elemento relacionado
+ */

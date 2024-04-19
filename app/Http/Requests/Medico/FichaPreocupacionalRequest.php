@@ -55,18 +55,11 @@ class FichaPreocupacionalRequest extends FormRequest
             'antecedente_gineco_obstetrico.abortos' => 'nullable|integer',
             'antecedente_gineco_obstetrico.hijos_vivos' => 'nullable|integer',
             'antecedente_gineco_obstetrico.hijos_muertos' => 'nullable|integer',
-            // accidente_trabajo
-            'accidente_trabajo.calificado_iess' => 'required|boolean',
-            'accidente_trabajo.fecha' => 'nullable|date_format:Y-m-d',
-            'accidente_trabajo.observacion' => 'nullable|string',
-            'accidente_trabajo.tipo_descripcion_antecedente_trabajo' => 'nullable|string',
-            'accidente_trabajo.descripcion' => 'nullable|string',
-            // enfermedad_profesional
-            'enfermedad_profesional.calificado_iess' => 'required|boolean',
-            'enfermedad_profesional.fecha' => 'nullable|date_format:Y-m-d',
-            'enfermedad_profesional.observacion' => 'nullable|string',
-            'enfermedad_profesional.tipo_descripcion_antecedente_trabajo' => 'nullable|string',
-            'enfermedad_profesional.descripcion' => 'nullable|string',
+            'calificado_iss' => 'required|boolean',
+            // 'descripcion' => 'required|string',
+            'fecha' => 'required|date_format:Y-m-d',
+            'observacion' => 'required|string',
+            'tipo_descripcion_antecedente_trabajo' => 'required|string',
             // 'estatura' => 'required|numeric',
             // Constantes vitales y antropometria
             'presion_arterial' => 'nullable|string',
@@ -98,8 +91,8 @@ class FichaPreocupacionalRequest extends FormRequest
             // actividades_puestos_trabajos
             'actividades_puestos_trabajos.*.actividad' => 'required|string',
             // antecedentes_familiares
-            'antecedentes_familiares.*.descripcion' => 'required|string',
-            'antecedentes_familiares.*.tipo_antecedente_familiar_id' => 'required|exists:med_tipos_antecedentes_familiares,id',
+            'antecedentes_familiares.*.descripcion' => 'sometimes|nullable|string',
+            'antecedentes_familiares.*.tipo_antecedente_familiar' => 'required|exists:med_tipos_antecedentes_familiares,id',
             // antecedentes_empleos_anteriores
             'antecedentes_empleos_anteriores.*.empresa' => 'required|string',
             'antecedentes_empleos_anteriores.*.puesto_trabajo' => 'required|string',

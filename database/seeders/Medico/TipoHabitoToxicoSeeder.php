@@ -19,7 +19,6 @@ class TipoHabitoToxicoSeeder extends Seeder
             ['nombre' => 'Tabaco'],
             ['nombre' => 'Alcohol'],
             ['nombre' => 'Otras Drogas'],
-            ['nombre' => 'Tabaco'],
         ]);
     }
 }

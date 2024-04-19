@@ -17,14 +17,14 @@ return new class extends Migration
             $table->id();
             $table->string('empresa');
             $table->text('puesto_trabajo');
-            $table->text('actividades_desempenaba');
-            $table->integer('tiempo_trabajo_meses');
-            $table->string('r_fisico');
-            $table->string('r_mecanico');
-            $table->string('r_quimico');
-            $table->string('r_biologico');
-            $table->string('r_ergonomico');
-            $table->string('r_psicosocial');
+            $table->text('actividades');
+            $table->integer('tiempo_trabajo'); //meses
+            // $table->string('r_fisico');
+            // $table->string('r_mecanico');
+            // $table->string('r_quimico');
+            // $table->string('r_biologico');
+            // $table->string('r_ergonomico');
+            // $table->string('r_psicosocial');
             $table->text('observacion');
 
             // Foreign keys

@@ -23,12 +23,10 @@ class AntecedenteGinecoObstetrico extends Model implements Auditable
         'partos',
         'cesareas',
         'abortos',
-        'hijos_vivos',
-        'hijos_muertos',
-        'antecedentes_personales_id',
+        'antecedente_personal_id',
     ];
     public function antecedentesPersonales()
     {
-        return $this->hasOne(AntecedentePersonal::class, 'id', 'antecedentes_personales_id');
+        return $this->hasOne(AntecedentePersonal::class, 'id', 'antecedente_personal_id');
     }
 }

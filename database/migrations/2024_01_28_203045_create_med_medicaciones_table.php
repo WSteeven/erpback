@@ -16,11 +16,11 @@ return new class extends Migration
         Schema::create('med_medicaciones', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->integer('cantidad');
+            $table->text('cantidad');
 
             // Foreign keys
-            $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('medicable_id');
+            $table->string('medicable_type');
 
             $table->timestamps();
         });

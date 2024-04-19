@@ -16,11 +16,6 @@ return new class extends Migration
         Schema::create('med_examenes', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            // $table->json('ids_cargos_acceso')->nullable();
-
-            // Foreign keys
-            // $table->unsignedBigInteger('categoria_examen_id');
-            // $table->foreign('categoria_examen_id')->references('id')->on('med_categorias_examenes')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

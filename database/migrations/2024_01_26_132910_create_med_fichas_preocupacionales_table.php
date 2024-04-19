@@ -19,17 +19,14 @@ return new class extends Migration
             $table->text('establecimiento_salud');
             $table->string('numero_historia_clinica');
             $table->string('numero_archivo');
-            $table->string('puesto_trabajo');
-            $table->integer('porcentaje_discapacidad');
-            $table->text('actividades_relevantes_puesto_trabajo_ocupar');
+            $table->string('lateralidad');
+            $table->string('puesto_trabajo')->nullable();
+            $table->string('area_trabajo')->nullable();
+            $table->text('actividades_relevantes_puesto_trabajo_ocupar')->nullable();
             $table->text('motivo_consulta');
-            $table->boolean('actividad_fisica')->default('0');
-            $table->boolean('consume_medicacion')->default('0');
-            $table->text('recomendaciones_tratamiento');
-            $table->text('actividades_extralaborales');
-            $table->text('enfermedad_actual');
-            $table->text('descripcion_examen_fisico_regional');
-            $table->text('descripcion_revision_organos_sistemas');
+            $table->text('actividades_extralaborales')->nullable();
+            $table->text('enfermedad_actual')->nullable();
+            $table->text('observacion_examen_fisico_regional')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('religion_id');

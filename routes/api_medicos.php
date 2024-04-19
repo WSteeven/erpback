@@ -32,9 +32,11 @@ use App\Http\Controllers\Medico\EstiloVidaController;
 use App\Http\Controllers\Medico\ExamenController;
 use App\Http\Controllers\Medico\ExamenEspecificoController;
 use App\Http\Controllers\Medico\ExamenFisicoRegionalController;
+use App\Http\Controllers\Medico\ExamenOrganoReproductivoController;
 use App\Http\Controllers\Medico\ExamenPreocupacionalController;
 use App\Http\Controllers\Medico\FactorRiesgoController;
 use App\Http\Controllers\Medico\FichaAptitudController;
+use App\Http\Controllers\Medico\FichaPeriodicaController;
 use App\Http\Controllers\Medico\FichaPreocupacionalController;
 use App\Http\Controllers\Medico\HabitoToxicoController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
@@ -97,6 +99,7 @@ Route::apiResources(
         'estados-solicitudes-examenes' => EstadoSolicitudExamenController::class,
         'estilos-vida' => ActividadFisicaController::class,
         'examenes' => ExamenController::class,
+        'examenes-organos-reproductivos' => ExamenOrganoReproductivoController::class,
         'examenes-fisicos-regionales' => ExamenFisicoRegionalController::class,
         'examenes-preocupacionales' => ResultadoExamenPreocupacionalController::class,
         'factores-riesgos' => FactorRiesgoController::class,
@@ -127,6 +130,7 @@ Route::apiResources(
         'recetas' => RecetaController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
         'regiones-cuerpo' => RegionCuerpoController::class,
+        'fichas-periodicas' => FichaPeriodicaController::class,
         'fichas-periodicas-preocupacionales' => FichaPreocupacionalController::class,
     ],
     [
@@ -153,10 +157,12 @@ Route::apiResources(
             'registros-empleados-examene' => 'registro_empleado_examen',
             'religiones' => 'religion',
             'resultados-examene' => 'resultado_examen',
+            'fichas-periodicas' => 'ficha',
             'fichas-periodicas-preocupacionales' => 'ficha_preocupacional',
             'orientaciones-sexuales' => 'orientacion_sexual',
             'identidades-generos' => 'identidad_genero',
             'tipos-habitos-toxicos' => 'tipo_habito_toxico',
+            'examenes-organos-reproductivos' => 'examen',
         ],
 
     ]
