@@ -38,7 +38,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'motivo_consulta' => 'required|string',
             'registro_empleado_examen_id' => 'required|exists:med_registros_empleados_examenes,id',
             // 'actividad_fisica' => 'required|string',
-            'enfermedad_actual' => 'required|string',
+            'enfermedad_actual' => 'sometimes|nullable|string',
             'recomendaciones_tratamiento' => 'required|string',
             // 'descripcion_examen_fisico_regional' => 'required|string',
             // 'descripcion_revision_organos_sistemas' => 'required|string',
@@ -55,7 +55,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'antecedente_gineco_obstetrico.abortos' => 'nullable|integer',
             'antecedente_gineco_obstetrico.hijos_vivos' => 'nullable|integer',
             'antecedente_gineco_obstetrico.hijos_muertos' => 'nullable|integer',
-            'calificado_iss' => 'required|boolean',
+            'accidentesTrabajo.*.calificado_iss' => 'required|boolean',
             // 'descripcion' => 'required|string',
             'fecha' => 'required|date_format:Y-m-d',
             'observacion' => 'required|string',
@@ -85,7 +85,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'actividades_fisicas.*.tiempo' => 'nullable|numeric',
             // medicaciones
             'medicaciones.*.nombre' => 'required|string',
-            'medicaciones.*.cantidad' => 'required|numeric',
+            'medicaciones.*.cantidad' => 'required|string',
             // actividades_puestos_trabajos
             'actividades_puestos_trabajos.*.actividad' => 'required|string',
             // antecedentes_familiares
@@ -109,7 +109,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'resultados_examenes_preocupacionales.*.tipo_antecedente_id' => 'required|exists:med_tipos_antecedentes,id',
             // 'examenes.*.genero' => 'required|string',
         ];
-      }
+    }
     protected function prepareForValidation()
     {
         $this->merge([

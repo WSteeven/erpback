@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('puesto_trabajo');
             $table->text('actividad');
-            $table->integer('tiempo_trabajo');
+            $table->integer('tiempo_trabajo')->nullable();
             $table->text('medidas_preventivas');
             $table->unsignedBigInteger('factor_riesgo_puesto_trabajable_id');
             $table->string('factor_riesgo_puesto_trabajable_type');

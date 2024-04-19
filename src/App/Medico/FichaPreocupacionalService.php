@@ -9,7 +9,6 @@ use App\Models\Medico\AntecedenteFamiliar;
 use App\Models\Medico\AntecedenteGinecoObstetrico;
 use App\Models\Medico\AntecedentePersonal;
 use App\Models\Medico\AntecedenteTrabajoAnterior;
-use App\Models\Medico\ConstanteVital;
 use App\Models\Medico\DescripcionAntecedenteTrabajo;
 use App\Models\Medico\DetalleCategFactorRiesgoFrPuestoTrabAct;
 use App\Models\Medico\ExamenRealizado;
@@ -20,6 +19,7 @@ use App\Models\Medico\FrPuestoTrabajoActual;
 use App\Models\Medico\RegistroEmpleadoExamen;
 use App\Models\Medico\ResultadoExamenPreocupacional;
 use App\Models\Medico\ResultadoHabitoToxico;
+use App\Models\Medico\RiesgoAntecedenteEmpleoAnterior;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -42,7 +42,7 @@ class FichaPreocupacionalService
     {
         try {
             //code...
-            if (!is_null($request->antecedente_clinico_quirurgico)) $this->servicioPolimorfico->crearAntecedenteClinico($this->ficha, $request->antecedente_clinico_quirurgico);
+            $this->servicioPolimorfico->crearAntecedenteClinico($this->ficha, $request->antecedente_clinico_quirurgico);
             $this->insertarAntecedentePersonal($request);
             $this->insertarExamenesRealizados($request->examenesRealizados);
             $this->servicioPolimorfico->crearHabitosToxicos($this->ficha, $request->habitosToxicos);
@@ -52,9 +52,13 @@ class FichaPreocupacionalService
             $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->accidentesTrabajo);
             $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->enfermedadesProfesionales);
             $this->servicioPolimorfico->crearAntecedentesFamiliares($this->ficha, $request->antecedentesFamiliares);
-            $this->servicioPolimorfico->crearFactoresRiesgoPuestoTrabajoActual($this->ficha, $request->factoresRiesgo);
+            $this->servicioPolimorfico->crearFactoresRiesgoPuestoTrabajoActual($this->ficha, $request->factoresRiesgoPuestoActual);
+            $this->servicioPolimorfico->crearRevisionesActualesOrganosSistemas($this->ficha, $request->revisionesOrganosSistemas);
+            $this->servicioPolimorfico->crearConstanteVital($this->ficha, $request->constanteVital);
+            $this->servicioPolimorfico->crearExamenesFisicosRegionales($this->ficha, $request->examenesFisicosRegionales);
             $this->servicioPolimorfico->crearDiagnosticosFicha($this->ficha, $request->diagnosticos);
-            new Exception('error provocado');
+            $this->servicioPolimorfico->crearAptitudMedica($this->ficha, $request->aptitudMedica);
+            // throw new Exception('error provocado');
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['Error guardar datos ficha preocupacional', $th->getLine(), $th->getMessage()]);
             throw $th;
@@ -63,7 +67,7 @@ class FichaPreocupacionalService
     public function actualizarDatosFichaPreocupacional(FichaPreocupacionalRequest $request)
     {
         try {
-            new Exception('Actualizar datos de ficha preocupacional');
+            throw new Exception('Actualizar datos de ficha preocupacional');
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['Error actualizar datos ficha preocupacional', $th->getLine(), $th->getMessage()]);
             throw $th;
@@ -232,63 +236,36 @@ class FichaPreocupacionalService
             throw $e;
         }
     }
-    public function actualizarDetalleCategFactorRiesgoFrPuestoTrabajoAct(array $detalles_categorias_factores_riesgos_fr_puesto_trabajo_actual)
-    {
-        try {
-            foreach ($detalles_categorias_factores_riesgos_fr_puesto_trabajo_actual as $key => $categoria_factor_riesgo_id) {
-                DB::beginTransaction();
-                $categoria_factor_riesgo_fr_puesto_trabajo_actual = DetalleCategFactorRiesgoFrPuestoTrabAct::find($categoria_factor_riesgo_id);
-                $categoria_factor_riesgo_fr_puesto_trabajo_actual->update(
-                    [
-                        'categoria_factor_riesgo_id' => $categoria_factor_riesgo_id,
-                        'fr_puesto_trabajo_actual_id' => $this->fr_puesto_trabajo_actual->id
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
     public function agregarAntecedentesEmpleosAnteriores(array|null $antecedentes)
     {
         try {
             if (!is_null($antecedentes))
                 foreach ($antecedentes as $key => $antecedente) {
-                    $this->crearAntecedenteTrabajoAnterior($antecedente);
+                    DB::beginTransaction();
+                    $antecedenteCreado = AntecedenteTrabajoAnterior::create(
+                        [
+                            'empresa' => $antecedente['empresa'],
+                            'puesto_trabajo' => $antecedente['puesto_trabajo'],
+                            'actividades'   => $antecedente['actividades'],
+                            'tiempo_trabajo' => $antecedente['tiempo_trabajo'],
+                            'ficha_preocupacional_id' => $this->ficha->id
+                        ]
+                    );
+                    foreach ($antecedente['riesgos'] as $riesgo) {
+                        RiesgoAntecedenteEmpleoAnterior::create([
+                            'tipo_riesgo_id' => $riesgo,
+                            'antecedente_id' => $antecedenteCreado->id
+                        ]);
+                    }
+                    DB::commit();
                 }
         } catch (Exception $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['error en agregarAntecedentesEmpleosAnteriores']);
             throw $e;
         }
     }
-    public function crearAntecedenteTrabajoAnterior(array $data)
-    {
-        try {
-            DB::beginTransaction();
-            AntecedenteTrabajoAnterior::create(
-                [
-                    'empresa' => $data['empresa'],
-                    'puesto_trabajo' => $data['puesto_trabajo'],
-                    'actividades_desempenaba'   => $data['actividades_desempenaba'],
-                    'tiempo_trabajo_meses' => $data['tiempo_trabajo_meses'],
-                    'r_fisico' => $data['r_fisico'],
-                    'r_mecanico' => $data['r_mecanico'],
-                    'r_quimico' => $data['r_quimico'],
-                    'r_biologico' => $data['r_biologico'],
-                    'r_ergonomico' => $data['r_ergonomico'],
-                    'r_phisosocial' => $data['r_phisosocial'],
-                    'observacion' => $data['observacion'],
-                    'ficha_preocupacional_id' => $this->ficha->id
-                ]
-            );
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
+
     public function actualizarAntecedentesEmpleosAnteriores(array $antecedentes_empleos_anteriores)
     {
         try {
@@ -379,7 +356,7 @@ class FichaPreocupacionalService
             $registro_empleado = RegistroEmpleadoExamen::find($request->registro_empleado_examen_id);
             $genero = $registro_empleado->empleado?->genero;
             if ($genero === Empleado::FEMENINO) {
-                $this->insertarAntecedentesGinecoObstetricos($request, $antecedente->id);
+                $this->insertarAntecedentesGinecoObstetricos($request->antecedentes_gineco_obstetricos, $antecedente->id);
             }
 
             DB::commit();
@@ -389,18 +366,18 @@ class FichaPreocupacionalService
             throw $e;
         }
     }
-    public function insertarAntecedentesGinecoObstetricos($request, $antecedente_id)
+    public function insertarAntecedentesGinecoObstetricos($data, $antecedente_id)
     {
         try {
             DB::beginTransaction();
             AntecedenteGinecoObstetrico::create([
-                'menarquia' => $request->menarquia,
-                'ciclos' => $request->ciclos,
-                'fecha_ultima_menstruacion' => $request->fecha_ultima_menstruacion,
-                'gestas' => $request->gestas,
-                'partos' => $request->partos,
-                'cesareas' => $request->cesareas,
-                'abortos' => $request->abortos,
+                'menarquia' => $data->menarquia,
+                'ciclos' => $data->ciclos,
+                'fecha_ultima_menstruacion' => $data->fecha_ultima_menstruacion,
+                'gestas' => $data->gestas,
+                'partos' => $data->partos,
+                'cesareas' => $data->cesareas,
+                'abortos' => $data->abortos,
                 'antecedente_personal_id' => $antecedente_id,
             ]);
             DB::commit();
@@ -419,30 +396,6 @@ class FichaPreocupacionalService
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Error insertarAccidenteEnfermedadLaboral', $e->getLine(), $e->getMessage()]);
-            throw $e;
-        }
-    }
-    // public function insertarDescripcionAntecedenteTrabajo(DescripcionAntecedenteTrabajo $descripcion_antecedente_trabajo)
-    // {
-    //     try {
-    //         DB::beginTransaction();
-    //         $descripcion_antecedente_trabajo->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
-    //         $descripcion_antecedente_trabajo->save();
-    //         DB::commit();
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-    // }
-    public function insertarConstanteVital(array $constante_vital)
-    {
-        try {
-            DB::beginTransaction();
-            $this->ficha->constanteVital()->create($constante_vital);
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::channel('testing')->info('Log', ['Error insertarConstanteVital', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }

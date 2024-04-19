@@ -2,6 +2,7 @@
 
 namespace Src\App\Medico;
 
+use App\Models\Medico\DetalleCategFactorRiesgoFrPuestoTrabAct;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -12,16 +13,17 @@ class PolymorphicMedicoModelsService
     /**
      * Esta función crea antecedentes clínicos, uno a la vez.
      */
-    public function crearAntecedenteClinico(Model $entidad, string|array $data)
+    public function crearAntecedenteClinico(Model $entidad, string|array|null $data)
     {
         try {
             DB::beginTransaction();
-            if (is_array($data))
-                foreach ($data as $d) {
-                    $entidad->antecedentesClinicos()->create(['descripcion' => $d]);
-                }
-            else
-                $entidad->antecedentesClinicos()->create(['descripcion' => $data]);
+            if (!is_null($data))
+                if (is_array($data))
+                    foreach ($data as $d) {
+                        $entidad->antecedentesClinicos()->create(['descripcion' => $d]);
+                    }
+                else
+                    $entidad->antecedentesClinicos()->create(['descripcion' => $data]);
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -38,7 +40,7 @@ class PolymorphicMedicoModelsService
                 foreach ($data as $d) {
                     $entidad->habitosToxicos()->create(
                         [
-                            'tipo_habito_toxico_id' => $d['tipo_habito_toxico'],
+                            'tipo_habito_toxico_id' => $d['tipo_habito_toxico_id'],
                             'tiempo_consumo_meses' => $d['tiempo_consumo_meses'],
                             'cantidad' => $d['cantidad'],
                             'ex_consumidor' => $d['ex_consumidor'],
@@ -109,14 +111,17 @@ class PolymorphicMedicoModelsService
             if (!is_null($data))
                 foreach ($data as $d) {
                     $entidad->accidentesEnfermedades()->create([
-                        'nombre' => $d['nombre'],
-                        'cantidad' => $d['cantidad']
+                        'tipo' => $d['tipo'],
+                        'observacion' => $d['observacion'],
+                        'calificado_iss' => $d['calificado_iss'],
+                        'instituto_seguridad_social' => $d['instituto_seguridad_social'],
+                        'fecha' => $d['fecha'],
                     ]);
                 }
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['error en crearMedicacion']);
+            Log::channel('testing')->info('Log', ['error en crearAccidentesEnfermedadesProfesionales']);
             throw $th;
         }
     }
@@ -126,13 +131,13 @@ class PolymorphicMedicoModelsService
         try {
             DB::beginTransaction();
             if (!is_null($data))
-            foreach ($data as $d) {
-                $entidad->antecedentesFamiliares()->create([
-                    'descripcion' => $d['descripcion'],
-                    'tipo_antecedente_familiar_id' => $d['tipo_antecedente_familiar_id'],
-                    'parentesco' => $d['parentesco'],
-                ]);
-            }
+                foreach ($data as $d) {
+                    $entidad->antecedentesFamiliares()->create([
+                        'descripcion' => $d['descripcion'],
+                        'tipo_antecedente_familiar_id' => $d['tipo_antecedente_familiar_id'],
+                        'parentesco' => $d['parentesco'],
+                    ]);
+                }
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -146,14 +151,20 @@ class PolymorphicMedicoModelsService
         try {
             DB::beginTransaction();
             if (!is_null($data))
-            foreach ($data as $d) {
-                $entidad->antecedentesFamiliares()->create([
-                    'puesto_trabajo' => $d['puesto_trabajo'],
-                    'actividad' => $d['actividad'],
-                    'tiempo_trabajo' => $d['tiempo_trabajo'],
-                    'medidas_preventivas' => $d['medidas_preventivas'],
-                ]);
-            }
+                foreach ($data as $d) {
+                    $factor = $entidad->frPuestoTrabajoActual()->create([
+                        'puesto_trabajo' => $d['puesto_trabajo'],
+                        'actividad' => $d['actividad'],
+                        'tiempo_trabajo' => $d['tiempo_trabajo'] ?? null,
+                        'medidas_preventivas' => $d['medidas_preventivas'],
+                    ]);
+                    foreach ($d['categorias'] as $c) {
+                        DetalleCategFactorRiesgoFrPuestoTrabAct::create([
+                            'categoria_factor_riesgo_id' => $c,
+                            'fr_puesto_trabajo_actual_id' => $factor->id,
+                        ]);
+                    }
+                }
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -179,17 +190,39 @@ class PolymorphicMedicoModelsService
             throw $th;
         }
     }
-
-    public function crearExamenesFisicosRegionales(Model $entidad, array $data)
+    public function crearConstanteVital(Model $entidad, array $data)
     {
         try {
             DB::beginTransaction();
-            foreach ($data as $d) {
-                $entidad->examenesFisicosRegionales()->create([
-                    'categoria_examen_fisico_id' => $d['categoria_examen_fisico_id'],
-                    'observacion' => $d['observacion'],
-                ]);
-            }
+            $entidad->constanteVital()->create([
+                'presion_arterial' => $data['presion_arterial'],
+                'temperatura' => $data['temperatura'],
+                'frecuencia_cardiaca' => $data['frecuencia_cardiaca'],
+                'saturacion_oxigeno' => $data['saturacion_oxigeno'],
+                'frecuencia_respiratoria' => $data['frecuencia_respiratoria'],
+                'peso' => $data['peso'],
+                'talla' => $data['talla'],
+                'indice_masa_corporal' => $data['indice_masa_corporal'],
+                'perimetro_abdominal' => $data['perimetro_abdominal'],
+            ]);
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error insertarConstanteVital', $e->getLine(), $e->getMessage()]);
+            throw $e;
+        }
+    }
+    public function crearExamenesFisicosRegionales(Model $entidad, array|null $data)
+    {
+        try {
+            DB::beginTransaction();
+            if (!is_null($data))
+                foreach ($data as $d) {
+                    $entidad->examenesFisicosRegionales()->create([
+                        'categoria_examen_fisico_id' => $d['categoria_examen_fisico_id'],
+                        'observacion' => $d['observacion'],
+                    ]);
+                }
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -203,12 +236,12 @@ class PolymorphicMedicoModelsService
         try {
             DB::beginTransaction();
             if (!is_null($data))
-            foreach ($data as $d) {
-                $entidad->diagnosticos()->create([
-                    'diagnostico_id' => $d['diagnostico_id'],
-                    'tipo' => $d['tipo'],
-                ]);
-            }
+                foreach ($data as $d) {
+                    $entidad->diagnosticos()->create([
+                        'diagnostico_id' => $d['diagnostico_id'],
+                        'tipo' => $d['tipo'],
+                    ]);
+                }
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
