@@ -28,4 +28,15 @@ class FichaPeriodica extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function antecedentesClinicos()
+    {
+        return $this->morphMany(AntecedenteClinico::class, 'antecedentable');
+    }
+    
+    public function habitosToxicos()
+    {
+        return $this->morphMany(ResultadoHabitoToxico::class, 'habitable', 'habito_toxicable_type', 'habito_toxicable_id');
+    }
+
 }

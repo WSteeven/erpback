@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('puesto_trabajo')->nullable();
             $table->text('motivo_consulta');
             $table->text('incidentes');
-            $table->unsignedBigInteger('registro_empleado_examen_id');            
+            $table->unsignedBigInteger('registro_empleado_examen_id');
             $table->text('enfermedad_actual')->nullable();
             $table->text('observacion_examen_fisico_regional')->nullable();
             $table->timestamps();

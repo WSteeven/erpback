@@ -96,10 +96,10 @@ class FichaPreocupacionalResource extends JsonResource
              * Descripcion de Antecedentes de Trabajo
              * ***************************************/
             'calificado_iss' => $this->accidentesEnfermedades()->first()?->calificado_iss,
-            'descripcion' => $this->accidentesEnfermedades()->first()->descripcion,
-            'fecha' => $this->accidentesEnfermedades()->first()->fecha,
-            'observacion' => $this->accidentesEnfermedades()->first()->observacion,
-            'tipo_descripcion_antecedente_trabajo' => $this->accidentesEnfermedades()->first()->tipo_descripcion_antecedente_trabajo,
+            'descripcion' => $this->accidentesEnfermedades()->first()?->descripcion,
+            'fecha' => $this->accidentesEnfermedades()->first()?->fecha,
+            'observacion' => $this->accidentesEnfermedades()->first()?->observacion,
+            'tipo_descripcion_antecedente_trabajo' => $this->accidentesEnfermedades()->first()?->tipo_descripcion_antecedente_trabajo,
             /*********************************************
              * Fin Descripcion de Antecedentes de Trabajo
              * *******************************************/
@@ -134,16 +134,16 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Constantes vitales y antropometría
              * ***************************************/
-            'presion_arterial' => $this->constanteVital->presion_arterial,
-            'temperatura' => $this->constanteVital->temperatura,
-            'frecuencia_cardiaca' => $this->constanteVital->frecuencia_cardiaca,
-            'saturacion_oxigeno' => $this->constanteVital->saturacion_oxigeno,
-            'frecuencia_respiratoria' => $this->constanteVital->frecuencia_respiratoria,
-            'peso' => $this->constanteVital->peso,
-            'estatura' => $this->constanteVital->estatura,
-            'talla' => $this->constanteVital->talla,
-            'indice_masa_corporal' => $this->constanteVital->indice_masa_corporal,
-            'perimetro_abdominal' => $this->constanteVital->perimetro_abdominal,
+            'presion_arterial' => $this->constanteVital()->first()?->presion_arterial,
+            'temperatura' => $this->constanteVital()->first()?->temperatura,
+            'frecuencia_cardiaca' => $this->constanteVital()->first()?->frecuencia_cardiaca,
+            'saturacion_oxigeno' => $this->constanteVital()->first()?->saturacion_oxigeno,
+            'frecuencia_respiratoria' => $this->constanteVital()->first()?->frecuencia_respiratoria,
+            'peso' => $this->constanteVital()->first()?->peso,
+            'estatura' => $this->constanteVital()->first()?->estatura,
+            'talla' => $this->constanteVital()->first()?->talla,
+            'indice_masa_corporal' => $this->constanteVital()->first()?->indice_masa_corporal,
+            'perimetro_abdominal' => $this->constanteVital()->first()?->perimetro_abdominal,
             /*********************************************
              * Fin Constantes vitales y antropometría
              *********************************************/

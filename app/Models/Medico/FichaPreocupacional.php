@@ -33,7 +33,7 @@ class FichaPreocupacional extends Model implements Auditable
         'registro_empleado_examen_id',
         'observacion_examen_fisico_regional',
     ];
-    
+
     private static $whiteListFilter = ['*'];
 
     //Esta relación se utiliza para llenar el item C de la ficha preocupacional
@@ -45,7 +45,7 @@ class FichaPreocupacional extends Model implements Auditable
     //Esta relación se utiliza para llenar los items de examenes realizados del literal C de la ficha preocupacional
     public function examenesRealizados()
     {
-        return $this->hasOne(ExamenRealizado::class);
+        return $this->hasMany(ExamenRealizado::class);
     }
     public function antecedentePersonal()
     {

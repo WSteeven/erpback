@@ -89,7 +89,7 @@ class FichaPreocupacionalRequest extends FormRequest
             // actividades_puestos_trabajos
             'actividades_puestos_trabajos.*.actividad' => 'required|string',
             // antecedentes_familiares
-            'antecedentes_familiares.*.descripcion' => 'required|string',
+            'antecedentes_familiares.*.descripcion' => 'sometimes|nullable|string',
             'antecedentes_familiares.*.tipo_antecedente_familiar' => 'required|exists:med_tipos_antecedentes_familiares,id',
             // antecedentes_empleos_anteriores
             'antecedentes_empleos_anteriores.*.empresa' => 'required|string',
