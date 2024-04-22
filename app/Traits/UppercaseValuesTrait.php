@@ -23,7 +23,11 @@ trait UppercaseValuesTrait
             if (is_string($value))
                 $this->attributes[$key] = trim(strtolower($value));
         }
-
+        
+        if(str_ends_with($key,'_type')){
+            $this->attributes[$key] = $value;
+        }
+        
         if($key === 'firma_url') {
             if (is_string($value))
             $this->attributes[$key] = $value;
@@ -52,5 +56,7 @@ trait UppercaseValuesTrait
         if($key === 'logo_marca_agua' && is_string($value)) $this->attributes[$key] = trim($value);
         if($key === 'descripcion' && is_string($value)) $this->attributes[$key] = trim($value);
         if($key === 'saldoable_type' && is_string($value)) $this->attributes[$key] = $value;
+
+        
     }
 }

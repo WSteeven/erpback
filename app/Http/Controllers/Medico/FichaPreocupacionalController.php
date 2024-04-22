@@ -42,7 +42,7 @@ class FichaPreocupacionalController extends Controller
             $ficha_preocupacional = FichaPreocupacional::create($datos);
             $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional);
             $ficha_preocupacional_service->guardarDatosFichaPreocupacional($request);
-
+            
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
             DB::commit();
@@ -55,7 +55,7 @@ class FichaPreocupacionalController extends Controller
         }
     }
 
-    public function show(FichaPreocupacionalRequest $request, FichaPreocupacional $ficha_preocupacional)
+    public function show(FichaPreocupacional $ficha_preocupacional)
     {
         $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
         return response()->json(compact('modelo'));

@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\Medico;
 
+use App\Models\Medico\AccidenteEnfermedadLaboral;
+use App\Models\Medico\AntecedentePersonal;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -50,6 +52,7 @@ class FichaPreocupacionalResource extends JsonResource
             /*********************************
              * Antecedentes Ginecoobstetricos
              * *******************************/
+            'antecedentePersonal' => new AntecedentePersonalResource($this->antecedentePersonal),
             'menarquia' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->menarquia,
             'ciclos' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->ciclos,
             'fecha_ultima_menstruacion' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->fecha_ultima_menstruacion,
@@ -95,11 +98,8 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              * Descripcion de Antecedentes de Trabajo
              * ***************************************/
-            'calificado_iss' => $this->accidentesEnfermedades()->first()?->calificado_iss,
-            'descripcion' => $this->accidentesEnfermedades()->first()?->descripcion,
-            'fecha' => $this->accidentesEnfermedades()->first()?->fecha,
-            'observacion' => $this->accidentesEnfermedades()->first()?->observacion,
-            'tipo_descripcion_antecedente_trabajo' => $this->accidentesEnfermedades()->first()?->tipo_descripcion_antecedente_trabajo,
+            'accidentesTrabajo' => $this->accidentesEnfermedades()->where('tipo', AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO)->orderBy('id', 'desc')->first(),
+            'enfermedadesProfesionales' => $this->accidentesEnfermedades()->where('tipo', AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL)->orderBy('id', 'desc')->first(),
             /*********************************************
              * Fin Descripcion de Antecedentes de Trabajo
              * *******************************************/
