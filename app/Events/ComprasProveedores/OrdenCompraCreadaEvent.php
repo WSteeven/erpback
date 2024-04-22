@@ -41,7 +41,10 @@ class OrdenCompraCreadaEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('ordenes-tracker-' . $this->orden->autorizador_id);
+        if ($this->orden->autorizador_id === 11)
+            return new Channel('ordenes-tracker-' . 40);
+        else
+            return new Channel('ordenes-tracker-' . $this->orden->autorizador_id);
     }
     public function broadcastAs()
     {

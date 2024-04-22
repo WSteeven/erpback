@@ -6,14 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AcreditacionRequest;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
-use App\Models\FondosRotativos\Gasto\EstadoGasto;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
-use App\Models\User;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class AcreditacionesController extends Controller
