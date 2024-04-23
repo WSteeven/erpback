@@ -3,9 +3,7 @@
 namespace App\Http\Resources\Medico;
 
 use App\Models\Medico\AccidenteEnfermedadLaboral;
-use App\Models\Medico\AntecedentePersonal;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class FichaPreocupacionalResource extends JsonResource
 {
@@ -120,7 +118,7 @@ class FichaPreocupacionalResource extends JsonResource
             /***************************************
              *Factores de riesgo
              * ***********************************/
-            'factores_riesgo' => $this->factoresRiesgo,
+            'factores_riesgo' => $this->frPuestoTrabajoActual,
             /*****************************************
              * Fin Factores de riesgo
              * ***************************************/

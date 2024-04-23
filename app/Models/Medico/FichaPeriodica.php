@@ -16,7 +16,7 @@ class FichaPeriodica extends Model implements Auditable
     protected $table = 'med_fichas_periodicas';
     protected $fillable = [
         'ciu',
-        'esatblecimiento_salud',
+        'establecimiento_salud',
         'numero_historia_clinica',
         'numero_archivo',
         'puesto_trabajo',
