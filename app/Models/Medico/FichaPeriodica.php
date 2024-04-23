@@ -33,10 +33,41 @@ class FichaPeriodica extends Model implements Auditable
     {
         return $this->morphMany(AntecedenteClinico::class, 'antecedentable');
     }
-    
+
     public function habitosToxicos()
     {
         return $this->morphMany(ResultadoHabitoToxico::class, 'habitable', 'habito_toxicable_type', 'habito_toxicable_id');
     }
-
+    public function accidentesEnfermedades() //accidentes de trabajo y enfermedades laborales
+    {
+        return $this->morphMany(AccidenteEnfermedadLaboral::class, 'accidentable');
+    }
+    public function antecedentesFamiliares()
+    {
+        return $this->morphMany(AntecedenteFamiliar::class, 'antecedentable');
+    }
+    public function frPuestoTrabajoActual()
+    {
+        return $this->morphMany(FrPuestoTrabajoActual::class, 'factorRiesgoTrabajable', 'factor_riesgo_puesto_trabajable_type', 'factor_riesgo_puesto_trabajable_id');
+    }
+    public function revisionesActualesOrganosSistemas()
+    {
+        return $this->morphMany(RevisionActualOrganoSistema::class, 'revisionable');
+    }
+    public function constanteVital()
+    {
+        return $this->morphOne(ConstanteVital::class, 'constanteVitalable', 'constante_vitalable_type', 'constante_vitalable_id');
+    }
+    public function examenesFisicosRegionales()
+    {
+        return $this->morphMany(ExamenFisicoRegional::class, 'examenFisicoRegionalable', 'examen_fisico_regionalable_type', 'examen_fisico_regionalable_id');
+    }
+    public function diagnosticos()
+    {
+        return $this->morphMany(DiagnosticoFicha::class, 'diagnosticable');
+    }
+    public function aptitudesMedicas()
+    {
+        return $this->morphOne(AptitudMedica::class, 'aptitudable');
+    }
 }

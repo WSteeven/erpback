@@ -54,36 +54,8 @@ class FichaPeriodicaController extends Controller
             DB::beginTransaction();
             $ficha = FichaPeriodica::create($datos);
             $ficha_service = new FichaPeriodicaService($ficha);
-            $ficha_service->agregarHabitosToxicos($ficha, $request->habitos_toxicos);
-            $ficha_service->agregarActividadesFisicas($request->actividades_fisicas);
-            $ficha_service->agregarMedicaciones($request->medicaciones);
-            $ficha_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
-            $ficha_service->agregarAntecedentesFamiliares($request->atecedentes_personales);
-            $ficha_service->agregarFrPuestosTrabajo($request->fr_puestos_trabajos_actuales);
-            $ficha_service->agregarExamenes($request->examenes);
-            $registro_empleado = RegistroEmpleadoExamen::find($datos['registro_empleado_examen_id']);
-            $ficha_service->insertarAccidenteEnfermedadLaboral([
-                'tipo' => AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO,
-                'observacion' => $request->observacion,
-                'calificado_iss' => $request->calificado_iss,
-                'instituto_seguridad_social' => $request->instituto_seguridad_social,
-                'descripcion' => $request->descripcion,
-                'fecha' => $request->fecha,
-                'tipo_descripcion_antecedente_trabajo' => $request->tipo_descripcion_antecedente_trabajo,
-            ]);
-            
-            $ficha_service->insertarConstanteVital([
-                'presion_arterial' => $request->presion_arterial,
-                'temperatura' => $request->temperatura,
-                'frecuencia_cardiaca' => $request->frecuencia_cardiaca,
-                'saturacion_oxigeno' => $request->saturacion_oxigeno,
-                'frecuencia_respiratoria' => $request->frecuencia_respiratoria,
-                'peso' => $request->peso,
-                'estatura' => $request->estatura,
-                'talla' => $request->talla,
-                'indice_masa_corporal' => $request->indice_masa_corporal,
-                'perimetro_abdominal' => $request->perimetro_abdominal,
-            ]);
+            $ficha_service->guardarDatosFichaPeriodica($request);
+
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new FichaPeriodicaResource($ficha);
             DB::commit();

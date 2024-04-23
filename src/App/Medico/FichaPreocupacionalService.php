@@ -26,10 +26,7 @@ use Illuminate\Support\Facades\Log;
 
 class FichaPreocupacionalService
 {
-    private $ficha_preocupacional_id;
     private $ficha;
-    private $antecedente_personal;
-    private $fr_puesto_trabajo_actual;
     private $servicioPolimorfico;
 
     public function __construct(FichaPreocupacional $ficha_preocupacional)
@@ -113,129 +110,8 @@ class FichaPreocupacionalService
             throw $e;
         }
     }
-    public function actualizarHabitosToxicos(array $habitos_toxicos)
-    {
-        try {
-            foreach ($habitos_toxicos as $key => $value) {
-                DB::beginTransaction();
-                $resultado_habito_toxico = ResultadoHabitoToxico::find($value['id']);
-                $resultado_habito_toxico->update(
-                    [
-                        'tipo_habito_toxico_id' => $value['tipo_habito_toxico'],
-                        'tiempo_consumo_meses' => $value['tiempo_consumo_meses'],
-                        'tiempo_abstinencia_meses' => $value['tiempo_abstinencia_meses'],
-                        'ficha_preocupacional_id' => $this->ficha_preocupacional_id
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
 
 
-    public function agregarAntecedentesFamiliares(array $antecedentes_familiares)
-    {
-        try {
-            foreach ($antecedentes_familiares as $key => $value) {
-                DB::beginTransaction();
-                AntecedenteFamiliar::create(
-                    [
-                        'descripcion' => $value['descripcion'],
-                        'tipo_antecedente_familiar_id' => $value['tipo_antecedente_familiar'],
-                        'ficha_preocupacional_id' => $this->ficha_preocupacional_id
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-    public function actualizarAntecedentesFamiliares(array $atecedentes_personales)
-    {
-        try {
-            foreach ($atecedentes_personales as $key => $value) {
-                DB::beginTransaction();
-                $antecedente_familiar =  AntecedenteFamiliar::find($value['id']);
-                $antecedente_familiar->update(
-                    [
-                        'descripcion' => $value['descripcion'],
-                        'tipo_antecedente_familiar_id' => $value['tipo_antecedente_familiar'],
-                        'ficha_preocupacional_id' => $this->ficha_preocupacional_id
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-
-    public function agregarFrPuestosTrabajo(array $fr_puestos_trabajos_actuales)
-    {
-        try {
-            foreach ($fr_puestos_trabajos_actuales as $key => $fr_puesto_trabajo_actual) {
-                DB::beginTransaction();
-                $this->insertarFrPuestoTrabajo($fr_puesto_trabajo_actual);
-                $this->agregarDetalleCategFactorRiesgoFrPuestoTrabajoAct($fr_puesto_trabajo_actual['detalle_categ_factor_riesg_fr_puest_trab_act']);
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-    public function actualizarFrPuestosTrabajo(array $fr_puestos_trabajos_actuales)
-    {
-        try {
-            foreach ($fr_puestos_trabajos_actuales as $key => $fr_puesto_trabajo_actual) {
-                DB::beginTransaction();
-                $this->insertarFrPuestoTrabajo($fr_puesto_trabajo_actual['fr_puesto_trabajo_actual']);
-                $this->actualizarDetalleCategFactorRiesgoFrPuestoTrabajoAct($fr_puesto_trabajo_actual['detalle_categ_factor_riesg_fr_puest_trab_act']);
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-    public function insertarFrPuestoTrabajo(array $fr_puesto_trabajo_actual)
-    {
-        try {
-            DB::beginTransaction();
-            $fr_puesto_trabajo = $this->ficha->frPuestoTrabajoActual()->create($fr_puesto_trabajo_actual);
-            $this->fr_puesto_trabajo_actual = $fr_puesto_trabajo;
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::channel('testing')->info('Log', ['Error insertarFrPuestoTrabajo', $e->getLine(), $e->getMessage()]);
-            throw $e;
-        }
-    }
-    public function agregarDetalleCategFactorRiesgoFrPuestoTrabajoAct(array $detalles_categorias_factores_riesgos_fr_puesto_trabajo_actual)
-    {
-        try {
-            foreach ($detalles_categorias_factores_riesgos_fr_puesto_trabajo_actual as $key => $categoria_factor_riesgo_id) {
-                DB::beginTransaction();
-                DetalleCategFactorRiesgoFrPuestoTrabAct::create(
-                    [
-                        'categoria_factor_riesgo_id' => $categoria_factor_riesgo_id,
-                        'fr_puesto_trabajo_actual_id' => $this->fr_puesto_trabajo_actual->id
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::channel('testing')->info('Log', ['Error agregarDetalleCategFactorRiesgoFrPuestoTrabajoAct', $e->getLine(), $e->getMessage()]);
-            throw $e;
-        }
-    }
     public function agregarAntecedentesEmpleosAnteriores(array|null $antecedentes)
     {
         try {
@@ -266,80 +142,6 @@ class FichaPreocupacionalService
         }
     }
 
-    public function actualizarAntecedentesEmpleosAnteriores(array $antecedentes_empleos_anteriores)
-    {
-        try {
-            foreach ($antecedentes_empleos_anteriores as $key => $value) {
-                DB::beginTransaction();
-                $antecedente_trabajo = AntecedenteTrabajoAnterior::find($value['id']);
-                $antecedente_trabajo->update(
-                    [
-                        'empresa' => $value['empresa'],
-                        'puesto_trabajo' => $value['puesto_trabajo'],
-                        'actividades_desempenaba'   => $value['actividades_desempenaba'],
-                        'tiempo_trabajo_meses' => $value['tiempo_trabajo_meses'],
-                        'r_fisico' => $value['r_fisico'],
-                        'r_mecanico' => $value['r_mecanico'],
-                        'r_quimico' => $value['r_quimico'],
-                        'r_biologico' => $value['r_biologico'],
-                        'r_ergonomico' => $value['r_ergonomico'],
-                        'r_phisosocial' => $value['r_phisosocial'],
-                        'observacion' => $value['observacion'],
-                        'ficha_preocupacional_id' => $this->ficha_preocupacional_id
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-    public function agregarExamenes(array $examenes)
-    {
-        try {
-            foreach ($examenes as $key => $value) {
-                DB::beginTransaction();
-                ResultadoExamenPreocupacional::create(
-                    [
-                        'tiempo' => $value['tiempo'],
-                        'resultados' => $value['resultados'],
-                        'genero' => $value['genero'],
-                        'antecedente_personal_id' =>   $this->antecedente_personal->id,
-                        'ficha_preocupacional_id' => $this->ficha_preocupacional_id
-
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-    public function actualizarExamenes(array $examenes)
-    {
-        try {
-            foreach ($examenes as $key => $value) {
-                DB::beginTransaction();
-                $resultado_examen_preocupacional = ResultadoExamenPreocupacional::find($value['id']);
-                $resultado_examen_preocupacional->update(
-                    [
-                        'tiempo' => $value['tiempo'],
-                        'resultados' => $value['resultados'],
-                        'genero' => $value['genero'],
-                        'antecedente_personal_id' =>   $this->antecedente_personal->id,
-                        'ficha_preocupacional_id' => $this->ficha_preocupacional_id
-
-                    ]
-                );
-                DB::commit();
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
     public function insertarAntecedentePersonal($request)
     {
         try {
