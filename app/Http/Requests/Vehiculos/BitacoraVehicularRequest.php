@@ -35,6 +35,9 @@ class BitacoraVehicularRequest extends FormRequest
             'firmada' => 'boolean|sometimes',
             'chofer_id' => 'sometimes|exists:empleados,id',
             'vehiculo_id' => 'numeric|exists:vehiculos,id',
+            'checklistAccesoriosVehiculo' => 'required|array',
+            'checklistVehiculo' => 'required|array',
+            'checklistImagenVehiculo' => 'required|array',
         ];
 
         return $rules;
@@ -42,9 +45,18 @@ class BitacoraVehicularRequest extends FormRequest
 
     public function prepareForValidation()
     {
+        $controller_method = $this->route()->getActionMethod();
         $this->merge([
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
-            'vehiculo_id'=>Vehiculo::where('placa', $this->vehiculo)->first()?->id,
+            'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
         ]);
+
+        if ($controller_method == 'update') {
+            $this->merge([
+                'checklistAccesoriosVehiculo.bitacora_id' => $this->id,
+                'checklistVehiculo.bitacora_id' => $this->id,
+                'checklistImagenVehiculo.bitacora_id' => $this->id,
+            ]);
+        }
     }
 }

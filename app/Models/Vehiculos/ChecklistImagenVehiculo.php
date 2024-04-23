@@ -26,6 +26,7 @@ class ChecklistImagenVehiculo extends Model implements Auditable
         'imagen_tablero_radio',
         'imagen_asientos',
         'imagen_accesorios',
+        'observacion',
     ];
 
     protected $casts = [

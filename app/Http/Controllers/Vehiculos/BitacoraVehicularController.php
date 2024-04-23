@@ -14,15 +14,20 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ActividadRealizadaService;
+use Src\App\PolymorphicGenericService;
+use Src\App\Vehiculos\BitacoraVehicularService;
 use Src\Shared\Utils;
 
 class BitacoraVehicularController extends Controller
 {
     private $entidad = 'Bitacora Vehicular';
     private $actividadService;
+    private $service;
+
     public function __construct()
     {
         $this->actividadService = new ActividadRealizadaService();
+        $this->service = new BitacoraVehicularService();
         $this->middleware('can:puede.ver.bitacoras_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.bitacoras_vehiculos')->only('store');
         $this->middleware('can:puede.editar.bitacoras_vehiculos')->only('update');
@@ -91,8 +96,8 @@ class BitacoraVehicularController extends Controller
      */
     public function show(BitacoraVehicular $bitacora)
     {
-        Log::channel('testing')->info('Log', ['metodo show de bitacora: ...', $bitacora]);
         $modelo = new BitacoraVehicularResource($bitacora);
+        Log::channel('testing')->info('Log', ['metodo show de bitacora: ...', $modelo]);
         return response()->json(compact('modelo'));
     }
 
@@ -106,28 +111,24 @@ class BitacoraVehicularController extends Controller
     public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
         try {
-            Log::channel('testing')->info('Log', ['antes de modificar', $bitacora]);
+            Log::channel('testing')->info('Log', ['request', $request->all()]);
             //Validacion de datos
             $datos = $request->validated();
-            // $request['checklistAccesoriosVehiculo']['bitacora_id'] = $bitacora->id;
 
             DB::beginTransaction();
             $bitacora->update($datos);
+            $this->service->actualizarDatosRelacionadosBitacora($bitacora, $request);
             Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora]);
-            $bitacora->checklistAccesoriosVehiculo()->create($request->checklistAccesoriosVehiculo);
-            // Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora->checklistAccesoriosVehiculo()->get()]);
-            $bitacora->checklistVehiculo()->create($request->checklistVehiculo);
-            $bitacora->checklistImagenVehiculo()->create($request->checklistImagenVehiculo);
             $modelo = new BitacoraVehicularResource($bitacora->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
         } catch (\Throwable $th) {
-            Log::channel('testing')->info('Log', ['eror', $th->getLine(), $th->getMessage()]);
+            Log::channel('testing')->info('Log', ['error', $th->getLine(), $th->getMessage()]);
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
         return response()->json(compact('modelo', 'mensaje'));
-    }            
+    }
 
     /**
      * Remove the specified resource from storage.

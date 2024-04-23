@@ -57,17 +57,17 @@ class BitacoraVehicular extends Pivot implements Auditable
 
     public function checklistAccesoriosVehiculo()
     {
-        return $this->hasMany(ChecklistAccesoriosVehiculo::class, 'id', 'bitacora_id');
+        return $this->hasMany(ChecklistAccesoriosVehiculo::class, 'bitacora_id');
     }
 
     public function checklistVehiculo()
     {
-        return $this->hasMany(ChecklistVehiculo::class, 'id', 'bitacora_id');
+        return $this->hasMany(ChecklistVehiculo::class, 'bitacora_id');
     }
 
     public function checklistImagenVehiculo()
     {
-        return $this->hasMany(ChecklistImagenVehiculo::class, 'id', 'bitacora_id');
+        return $this->hasOne(ChecklistImagenVehiculo::class, 'bitacora_id');
     }
 
     /**

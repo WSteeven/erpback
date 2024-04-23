@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class BitacoraVehicularResource extends JsonResource
@@ -26,15 +27,16 @@ class BitacoraVehicularResource extends JsonResource
             'tanque_inicio' => $this->tanque_inicio,
             'tanque_final' => $this->tanque_final,
             'firmada' => $this->firmada,
-            'chofer' => $this->chofer?->nombres.' '.$this->chofer?->apellidos,
+            'chofer' => $this->chofer?->nombres . ' ' . $this->chofer?->apellidos,
             'chofer_id' => $this->chofer_id,
             'vehiculo' => $this->vehiculo->placa,
         ];
 
         if ($controller_method == 'show') {
-            // $modelo['chofer'] = $this->chofer_id;
-            // $modelo['vehiculo'] = $this->vehiculo_id;
-            $modelo['actividadesRealizadas'] = [];
+            $modelo['actividadesRealizadas'] = $this->actividades;
+            $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo()->orderBy('id', 'desc')->first();
+            $modelo['checklistVehiculo'] = $this->checklistVehiculo()->orderBy('id', 'desc')->first();
+            $modelo['checklistImagenVehiculo'] = $this->checklistImagenVehiculo()->orderBy('id', 'desc')->first();
         }
 
         return $modelo;

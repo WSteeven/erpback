@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('actividad_realizadas', function (Blueprint $table) {
+        Schema::create('actividades_realizadas', function (Blueprint $table) {
             $table->id();
             $table->timestamp('fecha_hora');
             $table->text('actividad_realizada');
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('actividad_realizadas');
+        Schema::dropIfExists('actividades_realizadas');
     }
 };

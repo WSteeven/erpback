@@ -14,7 +14,7 @@ class ActividadRealizada extends Model implements Auditable
     protected $table = 'actividades_realizadas';
     protected $fillable = [
         'fecha_hora',
-        'actividad',
+        'actividad_realizada',
         'observacion',
         'fotografia',
         'empleado_id',
