@@ -1,8 +1,10 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $logo_principal =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 @endphp
 
 <head>
@@ -20,7 +22,7 @@
             background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
-            background-size:contain;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -117,14 +119,15 @@
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>
+                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador') }}</td>
                         </tr>
                         <tr>
                             <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">{{ strtolower($configuracion['correo_principal']) }} - {{ strtolower($configuracion['sitio_web'] )}}</td>
+                            <td align="center">{{ strtolower($configuracion['correo_principal']) }} -
+                                {{ strtolower($configuracion['sitio_web']) }}</td>
                         </tr>
                     </table>
                 </td>
@@ -137,7 +140,7 @@
                         </tr>
                         <tr>
                             <td align="center">
-                                <b>N° </b> {{$prefactura['codigo']}}
+                                <b>N° </b> {{ $prefactura['codigo'] }}
                             </td>
                         </tr>
                         <tr>
@@ -244,7 +247,7 @@
                 @endforeach
             </tbody>
         </table>
-        <p>{{$valor}}</p>
+        <p>{{ $valor }}</p>
         <table
             style="color:#000000; table-layout:fixed; width: 98%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
             <tr>
@@ -262,19 +265,28 @@
                     <table align="right" border="1" style="max-width: 100%;width:70%">
                         <tr>
                             <td align="right">SUBTOTAL</td>
-                            <td align="center">{{ $prefactura['sum_subtotal'] }}</td>
+                            <td align="right">{{ $prefactura['sum_subtotal'] }}</td>
+                        </tr>
+                        <tr>
+                            <td align="right">SUBTOTAL 0%</td>
+                            <td align="right">{{ $prefactura['sum_subtotal_sin_impuestos'] }}</td>
+                        </tr>
+                        <tr>
+                            <td align="right">SUBTOTAL {{ $prefactura['iva'] }}%</td>
+                            <td align="right">{{ $prefactura['sum_subtotal_con_impuestos'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">DESCUENTO</td>
-                            <td align="center">{{ $prefactura['sum_descuento']+$prefactura['descuento_general'] }}</td>
+                            <td align="right">{{ $prefactura['sum_descuento'] + $prefactura['descuento_general'] }}
+                            </td>
                         </tr>
                         <tr>
-                            <td align="right">IVA ({{$prefactura['iva']}}%)</td>
-                            <td align="center">{{ $prefactura['sum_iva'] }}</td>
+                            <td align="right">IVA {{ $prefactura['iva'] }}%</td>
+                            <td align="right">{{ $prefactura['sum_iva'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">TOTAL</td>
-                            <td align="center">{{ $prefactura['sum_total'] }}</td>
+                            <td align="right">{{ $prefactura['sum_total'] }}</td>
                         </tr>
                     </table>
                 </td>
