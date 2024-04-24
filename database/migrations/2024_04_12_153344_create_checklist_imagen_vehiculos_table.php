@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('imagen_tablero_radio')->nullable();
             $table->string('imagen_asientos')->nullable();
             $table->string('imagen_accesorios')->nullable();
-            $table->string('imagen_accesorios')->nullable();
             $table->string('observacion');
             $table->timestamps();
 
