@@ -45,6 +45,8 @@ Route::apiResources(
     ]
 );
 
+Route::post('historial/{vehiculo}', [VehiculoController::class, 'historial'])->middleware('auth:sanctum');
+
 // pagar multas
 Route::post('multas/marcar-pagada/{multa}', [MultaConductorController::class, 'pagar'])->middleware('auth:sanctum');
 // pagar matricula vehicular

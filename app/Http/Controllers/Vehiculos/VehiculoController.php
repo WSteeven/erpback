@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Vehiculos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\VehiculoRequest;
 use App\Http\Resources\Vehiculos\VehiculoResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Vehiculos\Vehiculo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -144,5 +146,28 @@ class VehiculoController extends Controller
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'), 500);
         }
+    }
+
+
+    public function historial(Request $request,  Vehiculo $vehiculo)
+    {
+        Log::channel('testing')->info('Log', ['req', $request->all()]);
+        Log::channel('testing')->info('Log', ['vehiculo', $vehiculo]);
+        $configuracion = ConfiguracionGeneral::first();
+        $results = [];
+        try {
+            switch ($request->accion) {
+                case 'excel':
+                    throw new Exception('No se puede exportar reportes de excel aún');
+                    // return Excel::download(new VehiculoExport)
+                case 'pdf':
+                    throw new Exception('No se puede exportar reportes de pdf aún');
+                default:
+                    $results = new VehiculoResource($vehiculo);
+            }
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        return response()->json(compact('results'));
     }
 }
