@@ -8,6 +8,7 @@ use App\Http\Controllers\Vehiculos\MatriculaController;
 use App\Http\Controllers\Vehiculos\MultaConductorController;
 use App\Http\Controllers\Vehiculos\OrdenReparacionController;
 use App\Http\Controllers\Vehiculos\PlanMantenimientoController;
+use App\Http\Controllers\Vehiculos\RegistroIncidenteController;
 use App\Http\Controllers\Vehiculos\SeguroVehicularController;
 use App\Http\Controllers\Vehiculos\ServicioController;
 use App\Http\Controllers\Vehiculos\TipoVehiculoController;
@@ -28,6 +29,7 @@ Route::apiResources(
         'tipos-vehiculos' => TipoVehiculoController::class,
         'asignaciones-vehiculos' => AsignacionVehiculoController::class,
         'ordenes-reparaciones' => OrdenReparacionController::class,
+        'registros-incidentes' => RegistroIncidenteController::class,
     ],
     [
         'parameters' => [
@@ -37,6 +39,7 @@ Route::apiResources(
             'tipos-vehiculos' => 'tipo',
             'asignaciones-vehiculos' => 'asignacion',
             'ordenes-reparaciones' => 'orden',
+            'registros-incidentes' => 'registro',
         ],
         'middleware' => ['auth:sanctum']
     ]
@@ -49,9 +52,11 @@ Route::post('matriculas/marcar-pagada/{matricula}', [MatriculaController::class,
 
 // listar archivos
 Route::get('vehiculos/files/{vehiculo}', [VehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('registros-incidentes/files/{registro}', [RegistroIncidenteController::class, 'indexFiles'])->middleware('auth:sanctum');
 
 // guardar archivos
 Route::post('vehiculos/files/{vehiculo}', [VehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
+Route::post('registros-incidentes/files/{registro}', [RegistroIncidenteController::class, 'storeFiles'])->middleware('auth:sanctum');
 
 
 //anular

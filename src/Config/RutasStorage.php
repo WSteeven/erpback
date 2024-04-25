@@ -53,4 +53,5 @@ enum RutasStorage: string
     case TRANSFERENCIAS_PRODUCTOS_EMPLEADOS  = 'public/transferencias_productos_empleados/archivos';
     case DOCUMENTOS_DIGITALIZADOS_EMPLEADOS = 'public/carpeta_digital_empleados/';
     case FOTOGRAFIAS_DIARIAS_VEHICULOS = 'public/vehiculos/fotografias_diarias';
+    case EVIDENCIAS_INCIDENTES_VEHICULOS = 'public/vehiculos/evidencias_incidentes/';
 }
