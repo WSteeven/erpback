@@ -3,21 +3,18 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\FichaPeriodicaRequest;
-use App\Http\Resources\Medico\FichaPeriodicaResource;
-use App\Models\Medico\AccidenteEnfermedadLaboral;
-use App\Models\Medico\FichaPeriodica;
-use App\Models\Medico\RegistroEmpleadoExamen;
-use Exception;
+use App\Http\Requests\Medico\FichaRetiroRequest;
+use App\Http\Resources\Medico\FichaRetiroResource;
+use App\Models\Medico\FichaRetiro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Src\App\Medico\FichaPeriodicaService;
+use Src\App\Medico\fichaRetiroService;
 use Src\Shared\Utils;
 
-class FichaPeriodicaController extends Controller
+class FichaRetiroController extends Controller
 {
-    private $entidad = 'Ficha Periodica';
+    private $entidad = 'Ficha de Retiro';
 
     public function __construct()
     {
@@ -25,10 +22,10 @@ class FichaPeriodicaController extends Controller
         $this->middleware('can:puede.crear.fichas_periodicas_preocupacionales')->only('store');
         $this->middleware('can:puede.editar.fichas_periodicas_preocupacionales')->only('update');
         $this->middleware('can:puede.eliminar.fichas_periodicas_preocupacionales')->only('destroy');
-        // $this->middleware('can:puede.ver.fichas_periodicas')->only('index', 'show');
-        // $this->middleware('can:puede.crear.fichas_periodicas')->only('store');
-        // $this->middleware('can:puede.editar.fichas_periodicas')->only('update');
-        // $this->middleware('can:puede.eliminar.fichas_periodicas')->only('destroy');
+        // $this->middleware('can:puede.ver.fichas_retiros')->only('index', 'show');
+        // $this->middleware('can:puede.crear.fichas_retiros')->only('store');
+        // $this->middleware('can:puede.editar.fichas_retiros')->only('update');
+        // $this->middleware('can:puede.eliminar.fichas_retiros')->only('destroy');
     }
     /**
      * Display a listing of the resource.
@@ -37,7 +34,7 @@ class FichaPeriodicaController extends Controller
      */
     public function index()
     {
-        $results = FichaPeriodica::ignoreRequest(['campos'])->filter()->get();
+        $results = FichaRetiro::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
@@ -47,20 +44,20 @@ class FichaPeriodicaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(FichaPeriodicaRequest $request)
+    public function store(FichaRetiroRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $ficha = FichaPeriodica::create($datos);
-            $ficha_service = new FichaPeriodicaService($ficha);
-            $ficha_service->guardarDatosFichaPeriodica($request);
+            $ficha = FichaRetiro::create($datos);
+            $ficha_service = new fichaRetiroService($ficha);
+            $ficha_service->guardarDatosFichaPreocupacional($request);
 
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            $modelo = new FichaPeriodicaResource($ficha);
+            $modelo = new FichaRetiroResource($ficha);
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getLine(), $e->getMessage()],

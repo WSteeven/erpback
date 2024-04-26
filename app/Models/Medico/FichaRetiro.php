@@ -9,24 +9,25 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class FichaPeriodica extends Model implements Auditable
+class FichaRetiro extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
+    use HasFactory;
+    use UppercaseValuesTrait, AuditableModel, Filterable;
 
-    protected $table = 'med_fichas_periodicas';
+    protected $table = "med_fichas_retiros";
     protected $fillable = [
         'ciu',
-        'establecimiento_salud',
+        'esatblecimiento_salud',
         'numero_historia_clinica',
         'numero_archivo',
         'puesto_trabajo',
-        'motivo_consulta',
-        'incidentes',
+        'fecha_salida',
+        'evaluacion_retiro', //boolean
+        'observacion_retiro',
+        'recomendacion_tratamiento',
         'registro_empleado_examen_id',
-        'enfermedad_actual',
-        'observacion_examen_fisico_regional',
+        'profesional_id',
     ];
-
     private static $whiteListFilter = ['*'];
 
     public function antecedentesClinicos()
@@ -34,40 +35,23 @@ class FichaPeriodica extends Model implements Auditable
         return $this->morphMany(AntecedenteClinico::class, 'antecedentable');
     }
 
-    public function habitosToxicos()
-    {
-        return $this->morphMany(ResultadoHabitoToxico::class, 'habitable', 'habito_toxicable_type', 'habito_toxicable_id');
-    }
     public function accidentesEnfermedades() //accidentes de trabajo y enfermedades laborales
     {
         return $this->morphMany(AccidenteEnfermedadLaboral::class, 'accidentable');
     }
-    public function antecedentesFamiliares()
-    {
-        return $this->morphMany(AntecedenteFamiliar::class, 'antecedentable');
-    }
-    public function frPuestoTrabajoActual()
-    {
-        return $this->morphMany(FrPuestoTrabajoActual::class, 'factorRiesgoTrabajable', 'factor_riesgo_puesto_trabajable_type', 'factor_riesgo_puesto_trabajable_id');
-    }
-    public function revisionesActualesOrganosSistemas()
-    {
-        return $this->morphMany(RevisionActualOrganoSistema::class, 'revisionable');
-    }
+
     public function constanteVital()
     {
         return $this->morphOne(ConstanteVital::class, 'constanteVitalable', 'constante_vitalable_type', 'constante_vitalable_id');
     }
+
     public function examenesFisicosRegionales()
     {
         return $this->morphMany(ExamenFisicoRegional::class, 'examenFisicoRegionalable', 'examen_fisico_regionalable_type', 'examen_fisico_regionalable_id');
     }
+
     public function diagnosticos()
     {
         return $this->morphMany(DiagnosticoFicha::class, 'diagnosticable');
-    }
-    public function aptitudesMedicas()
-    {
-        return $this->morphOne(AptitudMedica::class, 'aptitudable');
     }
 }
