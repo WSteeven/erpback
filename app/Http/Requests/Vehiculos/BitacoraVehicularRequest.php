@@ -48,7 +48,7 @@ class BitacoraVehicularRequest extends FormRequest
         $controller_method = $this->route()->getActionMethod();
         $this->merge([
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
-            'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
+            // 'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
         ]);
 
         if ($controller_method == 'update') {

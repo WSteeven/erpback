@@ -171,3 +171,5 @@ class VehiculoController extends Controller
         return response()->json(compact('results'));
     }
 }
+
+//21E32R43Caerf2234dvg

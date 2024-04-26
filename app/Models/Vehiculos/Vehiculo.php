@@ -9,7 +9,6 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -45,6 +44,11 @@ class Vehiculo extends Model implements Auditable
     const TODOTERRENO = '4X4';
     const DOSXUNO = '2X1';
     const DOSXDOS = '2X2';
+
+    //Tipos para el historial de vehiculos
+    const TODOS = 'TODOS';
+    const MANTENIMIENTOS = 'MANTENIMIENTOS';
+    const INCIDENTES = 'INCIDENTES';
 
     //Transmisiones
     // const MANUAL='MANUAL';

@@ -19,6 +19,7 @@ class AsignacionVehiculoResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'vehiculo' => $this->vehiculo->placa,
+            'vehiculo_id' => $this->vehiculo_id,
             'entrega' => $this->entrega->empleado->nombres . ' ' . $this->entrega->empleado->apellidos,
             'responsable' => $this->responsable->empleado->nombres . ' ' . $this->responsable->empleado->apellidos,
             'canton' => $this->canton->canton,

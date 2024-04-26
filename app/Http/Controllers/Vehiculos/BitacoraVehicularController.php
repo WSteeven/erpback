@@ -8,6 +8,7 @@ use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Empleado;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,11 +41,17 @@ class BitacoraVehicularController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
-            $results = BitacoraVehicular::all();
-        else {
-            $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
-            $results = BitacoraVehicularResource::collection($results);
+        if (request()->filtrar) {
+            $results = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->get();
+        } else {
+
+            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
+                $results = BitacoraVehicular::all();
+            else {
+                // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
+                $results = BitacoraVehicular::filter()->get();
+                $results = BitacoraVehicularResource::collection($results);
+            }
         }
         return response()->json(compact('results'));
     }
@@ -162,5 +169,22 @@ class BitacoraVehicularController extends Controller
 
     public function storeActividades(Request $request, BitacoraVehicular $bitacora)
     {
+    }
+
+    public function firmar(BitacoraVehicular $bitacora)
+    {
+        try {
+            if (!$bitacora->firmada) {
+                $bitacora->firmada = true;
+                $bitacora->fecha_finalizacion = Carbon::now();
+                $bitacora->save();
+                $mensaje = 'Bitacora firmada correctamente';
+            } else {
+                throw new Exception('No se puede finalizar la bitacora, ya ha sido finalizada previamente');
+            }
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        return response()->json(compact('mensaje'), 200);
     }
 }

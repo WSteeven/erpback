@@ -46,6 +46,7 @@ Route::apiResources(
 );
 
 Route::post('historial/{vehiculo}', [VehiculoController::class, 'historial'])->middleware('auth:sanctum');
+Route::post('bitacoras-vehiculos/firmar-bitacora/{bitacora}', [BitacoraVehicularController::class, 'firmar'])->middleware('auth:sanctum');
 
 // pagar multas
 Route::post('multas/marcar-pagada/{multa}', [MultaConductorController::class, 'pagar'])->middleware('auth:sanctum');
