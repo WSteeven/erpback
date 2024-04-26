@@ -34,6 +34,7 @@ class CitaMedicaRequest extends FormRequest
             'paciente_id' => 'required|exists:empleados,id',
             'motivo_rechazo' => 'nullable|string',
             'motivo_cancelacion' => 'nullable|string',
+            'tipo_cambio_cargo' => 'nullable|string',
         ];
     }
 

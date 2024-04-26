@@ -12,6 +12,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Src\Config\PusherEvents;
 use Src\Config\TiposNotificaciones;
 
@@ -36,7 +37,7 @@ class DiasDescansoEvent
         $this->destinatario = $destinatario;
 
         $ruta = '/';
-        $mensaje = 'Al paciente ' . Empleado::extraerNombresApellidos($consulta_medica->citaMedica?->paciente) . ' se le ha asignado ' . $consulta_medica->dias_descanso . ' días de descanso.';
+        $mensaje = 'Al paciente ' . is_null($consulta_medica->citaMedica) ? Empleado::extraerNombresApellidos($consulta_medica->registroEmpleadoExamen?->empleado) : Empleado::extraerNombresApellidos($consulta_medica->citaMedica?->paciente) . ' se le ha asignado ' . $consulta_medica->dias_descanso . ' días de descanso.';
 
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::DIAS_DESCANSO, $emisor, $destinatario, $consulta_medica, true);
     }

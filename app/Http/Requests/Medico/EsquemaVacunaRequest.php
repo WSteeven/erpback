@@ -26,6 +26,12 @@ class EsquemaVacunaRequest extends FormRequest
         return [
             'dosis_aplicadas' => 'required|numeric|integer',
             'observacion' => 'nullable|string',
+            'fecha' => 'nullable|string',
+            'lote' => 'nullable|numeric|integer',
+            'responsable_vacunacion' => 'nullable|string',
+            'establecimiento_salud' => 'nullable|string',
+            'es_dosis_unica' => 'boolean',
+            'fecha_caducidad' => 'nullable|string',
             'tipo_vacuna_id' => 'required|numeric|integer|exists:med_tipos_vacunas,id',
             'paciente_id' => 'required|numeric|integer|exists:empleados,id',
         ];

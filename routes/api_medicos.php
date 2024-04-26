@@ -192,3 +192,6 @@ Route::post('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController:
  *****************/
 Route::get('fichas-aptitudes/imprimir/{ficha_aptitud}', [FichaAptitudController::class, 'imprimirPDF']);
 Route::get('fichas-retiros/imprimir', [FichaAptitudController::class, 'imprimirPDFFichaRetiro']);
+
+Route::put('resultados-examenes', [ResultadoExamenController::class, 'multipleUpdate']);
+// 02-04-2024

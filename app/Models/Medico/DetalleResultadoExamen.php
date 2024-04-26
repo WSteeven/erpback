@@ -15,8 +15,6 @@ class DetalleResultadoExamen extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
     protected $table = 'med_detalles_resultados_examenes';
     protected $fillable = [
-        'observacion',
-        // 'tipo_examen_id',
         'estado_solicitud_examen_id',
     ];
     private static $whiteListFilter = ['*'];
@@ -35,10 +33,4 @@ class DetalleResultadoExamen extends Model implements Auditable
     {
         return $this->morphMany(Archivo::class, 'archivable');
     }
-    /*   public function tipoExamen(){
-        return $this->hasOne(TipoExamen::class,'id','tipo_examen_id');
-    }
-    public function examen(){
-        return $this->hasOne(Examen::class,'id','examen_id');
-    }*/
 }

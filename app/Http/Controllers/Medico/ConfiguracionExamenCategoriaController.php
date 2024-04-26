@@ -13,11 +13,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\Medico\SolicitudExamenService;
 use Src\Shared\Utils;
 
 class ConfiguracionExamenCategoriaController extends Controller
 {
-    private $entidad = 'Configuracion de Examen Categoria';
+    private $entidad = 'Configuracion de examen categoria';
+    private SolicitudExamenService $solicitudExamenService;
 
     public function __construct()
     {
@@ -25,6 +27,8 @@ class ConfiguracionExamenCategoriaController extends Controller
         $this->middleware('can:puede.crear.configuraciones_examenes_categorias')->only('store');
         $this->middleware('can:puede.editar.configuraciones_examenes_categorias')->only('update');
         $this->middleware('can:puede.eliminar.configuraciones_examenes_categorias')->only('destroy');
+
+        $this->solicitudExamenService = new SolicitudExamenService();
     }
 
     private function obtenerCategoriaCampos()
@@ -36,11 +40,23 @@ class ConfiguracionExamenCategoriaController extends Controller
         } else {
             $configuracionExamenCategorias = ConfiguracionExamenCategoria::filter()->get();
         }*/
-        $configuracionExamenCategorias = ConfiguracionExamenCategoria::filter()->get();
 
-        $data = $configuracionExamenCategorias->groupBy('examen')->map(function ($categorias, $examen) {
+        $ids_examenes = $this->solicitudExamenService->obtenerIdsExamenes(request('registro_empleado_examen_id'));
+        $solicitudes_examenes = $this->solicitudExamenService->obtenerSolicitudExamenPorRegistro(request('registro_empleado_examen_id'));
+
+
+        Log::channel('testing')->info('Log', ['solicitudes_examenes', $solicitudes_examenes]);
+        Log::channel('testing')->info('Log', ['ids_examenes', $ids_examenes]);
+
+        $configuracionExamenCategorias = ConfiguracionExamenCategoria::ignoreRequest(['registro_empleado_examen_id'])->filter()->whereIn('examen_id', $ids_examenes)->get();
+        Log::channel('testing')->info('Log', ['configuracionExamenCategorias', $configuracionExamenCategorias]);
+
+        $data = $configuracionExamenCategorias->groupBy('examen')->map(function ($categorias, $examen) use($solicitudes_examenes) {
+            Log::channel('testing')->info('Log', ['categorias', $categorias]);
+
             return [
                 'examen' => json_decode($examen)->nombre,
+                'examen_solicitado' => $this->solicitudExamenService->encontrarIdExamenSolicitado($solicitudes_examenes, json_decode($examen)->id), // examen_soliitado_id
                 'categorias' => $categorias->map(function ($categoria) {
                     return [
                         'categoria' => $categoria->nombre,
@@ -51,7 +67,10 @@ class ConfiguracionExamenCategoriaController extends Controller
             ];
         });
 
-        return $data;
+        Log::channel('testing')->info('Log', ['data', $data]);
+
+        // return array_values($data);
+        return $data->values();
     }
 
     private function listar()

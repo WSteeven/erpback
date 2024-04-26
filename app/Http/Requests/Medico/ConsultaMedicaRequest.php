@@ -29,9 +29,11 @@ class ConsultaMedicaRequest extends FormRequest
             'receta.prescripcion' => 'required|string',
             'diagnosticos.*.cie' => 'required|exists:med_cies,id',
             'diagnosticos.*.recomendacion' => 'nullable|string',
-            'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
+            'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_registros_empleados_examenes,id',
+            // 'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
             'cita_medica' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
             'dias_descanso' => 'nullable|numeric|integer',
+            'dado_alta' => 'boolean',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

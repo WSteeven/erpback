@@ -15,6 +15,7 @@ class RegionCuerpoResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'nombre' => $this->nombre,
         ];
     }

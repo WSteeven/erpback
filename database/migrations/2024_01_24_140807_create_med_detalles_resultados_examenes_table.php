@@ -15,9 +15,11 @@ return new class extends Migration
     {
         Schema::create('med_detalles_resultados_examenes', function (Blueprint $table) {
             $table->id();
-            $table->text('observacion');
-            $table->unsignedBigInteger('examen_id');
-            $table->foreign('examen_id')->references('id')->on('med_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+
+            // Foreign keys
+            $table->unsignedBigInteger('estado_solicitud_examen_id');
+            $table->foreign('estado_solicitud_examen_id', 'fk_det_res_exa_est_sol_exa')->references('id')->on('med_estados_solicitudes_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

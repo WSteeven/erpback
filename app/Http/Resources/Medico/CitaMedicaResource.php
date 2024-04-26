@@ -34,6 +34,7 @@ class CitaMedicaResource extends JsonResource
             'fecha_hora_rechazo' => $this->fecha_hora_rechazo ? Carbon::parse($this->fecha_hora_rechazo)->format('Y-m-d H:i:s') : null,
             'dado_alta' => $this->consultaMedica?->dado_alta,
             'fecha_hora_accidente' => $this->fecha_hora_accidente,
+            'tipo_cambio_cargo' => $this->tipo_cambio_cargo,
         ];
     }
 }

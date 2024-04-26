@@ -70,7 +70,7 @@ class SolicitudExamenService
                 'descripcion' => SolicitudExamen::obtenerDescripcionOrdenCompra($solicitud), // 'required|string',
                 'forma' => null, //'nullable|string',
                 'tiempo' => null, //'nullable|string',
-                'fecha' => SolicitudExamen::obtenerFechaMenorExamen($solicitud->examenesSolicitados),// 'required|string',
+                'fecha' => SolicitudExamen::obtenerFechaMenorExamen($solicitud->examenesSolicitados), // 'required|string',
                 'estado_id' => EstadoTransaccion::PENDIENTE_ID, // 'nullable|numeric|exists:estados_transacciones_bodega,id',
                 'categorias' => 'SERVICIO', // 'sometimes|nullable',
                 'iva' => 12, // 'required|numeric',
@@ -155,5 +155,71 @@ class SolicitudExamenService
         // Notificar sistema
         event(new CambioFechaHoraSolicitudExamenEvent($solicitud_examen, $solicitud_examen->autorizador_id, $solicitud_examen->solicitante_id));
         event(new ActualizarNotificacionesEvent());
+    }
+
+    public function obtenerSolicitudExamenPorRegistro(int $registro_empleado_examen_id)
+    {
+        return SolicitudExamen::where('registro_empleado_examen_id', $registro_empleado_examen_id)->get();
+    }
+
+    public function obtenerIdsExamenes(int $registro_empleado_examen_id): array
+    {
+        $solicitudes_examenes = $this->obtenerSolicitudExamenPorRegistro($registro_empleado_examen_id);
+        $ids_examenes_solicitados = [];
+
+        foreach ($solicitudes_examenes as $solicitud_examen) {
+            $examenes = $solicitud_examen->examenesSolicitados->pluck('examen_id')->toArray();
+            array_push($ids_examenes_solicitados, ...$examenes);
+        }
+
+        return $ids_examenes_solicitados;
+    }
+
+    public function obtenerIdsExamenesSolicitados(int $registro_empleado_examen_id): array
+    {
+        $solicitudes_examenes = $this->obtenerSolicitudExamenPorRegistro($registro_empleado_examen_id);
+        $ids_examenes_solicitados = [];
+
+        foreach ($solicitudes_examenes as $solicitud_examen) {
+            $examenes = $solicitud_examen->examenesSolicitados->pluck('id')->toArray();
+            array_push($ids_examenes_solicitados, ...$examenes);
+        }
+
+        return $ids_examenes_solicitados;
+    }
+
+    public function encontrarIdExamenSolicitadoBueno($solicitudes_examenes, int $examen_id)
+    {
+        Log::channel('testing')->info('Log', ['funcion', 'llamada a funcion']);
+
+        foreach ($solicitudes_examenes as $solicitud_examen) {
+            $examenSolicitado = $solicitud_examen->examenesSolicitados->first(function ($examen_solicitado) use ($examen_id, $solicitud_examen) {
+
+                Log::channel('testing')->info('Log', ['solicitud_examen dentro', $solicitud_examen]);
+                Log::channel('testing')->info('Log', ['examen_solicitado dentro', $examen_solicitado]);
+                Log::channel('testing')->info('Log', ['examen_id dentro', $examen_id]);
+                return $examen_solicitado->examen_id === $examen_id;
+            });
+            return $examenSolicitado?->id;
+        }
+    }
+
+    public function encontrarIdExamenSolicitado($solicitudes_examenes, int $examen_id)
+    {
+        Log::channel('testing')->info('Log', ['funcion', 'llamada a funcion']);
+
+        foreach ($solicitudes_examenes as $solicitud_examen) {
+            $examenSolicitado = $solicitud_examen->examenesSolicitados->first(function ($examen_solicitado) use ($examen_id, $solicitud_examen) {
+
+                Log::channel('testing')->info('Log', ['solicitud_examen dentro', $solicitud_examen]);
+                Log::channel('testing')->info('Log', ['solicitud_examen->examenesSolicitados dentro', $solicitud_examen->examenesSolicitados]);
+                Log::channel('testing')->info('Log', ['solicitud_examen->examenesSolicitados contar dentro', $solicitud_examen->examenesSolicitados->count()]);
+                Log::channel('testing')->info('Log', ['examen_solicitado dentro', $examen_solicitado]);
+                Log::channel('testing')->info('Log', ['examen_id dentro', $examen_id]);
+                return $examen_solicitado->examen_id === $examen_id;
+            });
+
+        }
+        return $examenSolicitado?->id;
     }
 }

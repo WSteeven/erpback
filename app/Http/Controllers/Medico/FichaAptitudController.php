@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\FichaAptitudRequest;
+use App\Http\Resources\Medico\ConsultaMedicaResource;
 use App\Http\Resources\Medico\FichaAptitudResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\Medico\CategoriaExamenFisico;
+use App\Models\Medico\ConsultaMedica;
 use App\Models\Medico\FichaAptitud;
 use App\Models\Medico\ProfesionalSalud;
 use App\Models\Medico\TipoAptitudMedicaLaboral;
@@ -184,6 +186,28 @@ class FichaAptitudController extends Controller
         // $resource = new FichaAptitudResource($ficha_aptitud);
         $empleado = Empleado::find(25); // $ficha_aptitud->registroEmpleadoExamen->empleado_id);
         $profesionalSalud = ProfesionalSalud::find(116); //$ficha_aptitud->profesional_salud_id);
+        $idEmpleado = 25;
+
+        $consultasMedicas = ConsultaMedica::whereHas('registroEmpleadoExamen', function ($query) use ($idEmpleado) {
+            $query->where('empleado_id', $idEmpleado);
+        })->orWhereHas('citaMedica', function ($query) use ($idEmpleado) {
+            $query->where('paciente_id', $idEmpleado);
+        })->latest()->get();
+
+        // $consultasMedicas = ConsultaMedicaResource::collection($consultasMedicas);
+        $consultasMedicas = $consultasMedicas->map(function ($consulta) {
+            return [
+                'observacion' => $consulta->observacion,
+                'diagnosticos' => $consulta->diagnosticosCitaMedica->map(function($diagnostico) {
+                    return [
+                        'recomendacion' => $diagnostico->recomendacion,
+                        'cie' => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad,
+                        'pre' => null,
+                        'def' => null,
+                    ];
+                }),
+            ];
+        });
 
         $actividadesFactorRiesgo = [
             [
@@ -201,6 +225,7 @@ class FichaAptitudController extends Controller
         ];
 
         $fichaRetiro = [
+            'consultasMedicas' => $consultasMedicas,
             'antecedentes_clinicos_quirurjicos' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
             'accidentes_trabajo' => [
                 'especificar' => 'IESS',
@@ -215,12 +240,44 @@ class FichaAptitudController extends Controller
                 'fecha' => Carbon::parse('2024-03-24'),
             ],
             'observaciones_examen_fisico_regional' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
-            'examenes_fisicos_regionales' => [1,5,8, 35],
+            'examenes_fisicos_regionales' => [1, 5, 8, 35, 32, 30],
+            'observaciones_resultados_examenes' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry.',
+            'resultados_examenes' => [
+                [
+                    'examen' => 'TGO',
+                    'fecha' => '1996-04-20',
+                    'resultado' => 'TODO BIEN',
+                ],
+                [
+                    'examen' => 'TGP',
+                    'fecha' => '1996-04-21',
+                    'resultado' => 'TODO BIEN OTRA VEZ',
+                ],
+            ],
+            'diagnosticos' => [
+                [
+                    'cie' => 'TGO',
+                    'descripcion' => 'TODO BIEN',
+                    'pre' => 'bien',
+                    'def' => 'tambien',
+                ],
+                [
+                    'cie' => 'TGP',
+                    'descripcion' => 'TODO BIEN OTRA VEZ',
+                    'pre' => 'bien',
+                    'def' => 'tambien',
+                ],
+            ],
+            'se_hizo_evaluacion_retiro' => true,
+            'observaciones_evaluacion_retiro' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has.',
+            'recomendaciones_tratamientos' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has.',
+            'fecha_creacion' => Carbon::parse('2024-04-20')->format('Y-m-d'),
+            'hora_creacion' => Carbon::parse('2024-04-20 10:54:14')->format('H:i:s'),
         ];
 
 
-        $regiones = CategoriaExamenFisico::with('regionCuerpo')->select('id', 'nombre', 'region_cuerpo_id')->get()->groupBy(function ($item) {
-            return $item->regionCuerpo->nombre;
+        $regiones = CategoriaExamenFisico::with('region')->select('id', 'nombre', 'region_cuerpo_id')->get()->groupBy(function ($item) {
+            return $item->region?->nombre;
         })->map(function ($items, $region) {
             return [
                 'region' => $region,

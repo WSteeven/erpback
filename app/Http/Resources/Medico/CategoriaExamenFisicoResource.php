@@ -17,6 +17,7 @@ class CategoriaExamenFisicoResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
+            'region_cuerpo' => $this->region_cuerpo_id,
         ];
     }
 }

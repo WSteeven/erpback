@@ -18,6 +18,12 @@ class EsquemaVacuna extends Model implements Auditable
     protected $fillable = [
         'dosis_aplicadas',
         'observacion',
+        'fecha',
+        'lote',
+        'responsable_vacunacion',
+        'establecimiento_salud',
+        'es_dosis_unica',
+        'fecha_caducidad',
         'paciente_id',
         'tipo_vacuna_id',
     ];

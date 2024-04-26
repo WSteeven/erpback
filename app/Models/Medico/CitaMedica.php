@@ -36,6 +36,7 @@ class CitaMedica extends Model implements Auditable
         'motivo_cancelacion',
         'fecha_hora_rechazo',
         'fecha_hora_cancelado',
+        'tipo_cambio_cargo',
         'paciente_id',
     ];
 

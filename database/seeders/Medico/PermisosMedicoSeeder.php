@@ -155,11 +155,17 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::CREAR . ".fichas_aptitudes"])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_aptitudes"])->syncRoles([$empleado]);
 
-        // Fichas periodicas preocupacionales
+        // Fichas periodicas
         Permission::firstOrCreate(['name' => self::VER . ".fichas_periodicas_preocupacionales"])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_periodicas_preocupacionales"])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::CREAR . ".fichas_periodicas_preocupacionales"])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_periodicas_preocupacionales"])->syncRoles([$empleado]);
+
+        // Fichas retiro
+        Permission::firstOrCreate(['name' => self::VER . ".fichas_retiro"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_retiro"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".fichas_retiro"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_retiro"])->syncRoles([$empleado]);
 
         // Religiones
         Permission::firstOrCreate(['name' => self::VER . ".religiones"])->syncRoles([$empleado]);

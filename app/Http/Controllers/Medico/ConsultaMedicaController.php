@@ -49,7 +49,7 @@ class ConsultaMedicaController extends Controller
                 'observacion' => $datos['observacion'],
                 'cita_medica_id' => $datos['cita_medica'],
                 'registro_empleado_examen_id' => isset($datos['registro_empleado_examen']) ? $datos['registro_empleado_examen'] : null,
-                'dado_alta' => false,
+                'dado_alta' => $datos['dado_alta'],
                 'dias_descanso' => $datos['dias_descanso'],
             ]);
 
@@ -69,9 +69,11 @@ class ConsultaMedicaController extends Controller
             }
 
             // cita atendida
-            $citaMedica = CitaMedica::find($datos['cita_medica']);
-            $citaMedica->estado_cita_medica = CitaMedica::ATENDIDO;
-            $citaMedica->save();
+            if ($datos['cita_medica']) {
+                $citaMedica = CitaMedica::find($datos['cita_medica']);
+                $citaMedica->estado_cita_medica = CitaMedica::ATENDIDO;
+                $citaMedica->save();
+            }
 
             $modelo = new ConsultaMedicaResource($consulta_medica);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

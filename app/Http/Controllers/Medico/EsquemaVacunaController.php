@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\EsquemaVacunaRequest;
 use App\Http\Resources\Medico\EsquemaVacunaResource;
 use App\Models\Medico\EsquemaVacuna;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +32,28 @@ class EsquemaVacunaController extends Controller
 
     public function index()
     {
-        $results = EsquemaVacuna::ignoreRequest(['campos'])->filter()->get();
-        $results = EsquemaVacunaResource::collection($results);
+        if (request('agrupar')) $results = EsquemaVacuna::ignoreRequest(['campos', 'agrupar'])->filter()->selectRaw('*, COUNT(*) as aplicadas')->groupBy('tipo_vacuna_id')->get();
+        else $results = EsquemaVacuna::ignoreRequest(['campos'])->filter()->get();
+
+        Log::channel('testing')->info('Log', ['results', $results]);
+        $results = $results->map(function ($esquema) {
+            return [
+                'tipo_vacuna' => $esquema->tipoVacuna?->nombre,
+                'dosis_totales' => $esquema->tipoVacuna?->dosis_totales,
+                'dosis_aplicadas' => $esquema->aplicadas,
+                'tipo_vacuna_id' => $esquema->tipo_vacuna_id,
+                'observacion' => $esquema->observacion,
+                'fecha' => Carbon::parse($esquema->fecha)->format('Y-m-d'),
+                'lote' => $esquema->lote,
+                'responsable_vacunacion' => $esquema->responsable_vacunacion,
+                'establecimiento_salud' => $esquema->establecimiento_salud,
+                'es_dosis_unica' => $esquema->es_dosis_unica,
+                'fecha_caducidad' => Carbon::parse($esquema->fecha_caducidad)->format('Y-m-d'),
+            ];
+        });
+        // $results = EsquemaVacunaResource::collection($results);
+
+        // $results = EsquemaVacuna::where('pacie
         return response()->json(compact('results'));
     }
 
@@ -43,7 +64,20 @@ class EsquemaVacunaController extends Controller
 
             $datos = $request->validated();
             $esquema_vacuna = EsquemaVacuna::create($datos);
-            $modelo = new EsquemaVacunaResource($esquema_vacuna);
+            $modelo = [
+                'id' => $esquema_vacuna->id,
+                'tipo_vacuna' => $esquema_vacuna->tipoVacuna?->nombre,
+                'dosis_totales' => $esquema_vacuna->tipoVacuna?->dosis_totales,
+                'dosis_aplicadas' => EsquemaVacuna::where('paciente_id', $esquema_vacuna->paciente_id)->where('tipo_vacuna_id', $esquema_vacuna->tipo_vacuna_id)->count(),
+                'tipo_vacuna_id' => $esquema_vacuna->tipo_vacuna_id,
+                'fecha' => Carbon::parse($esquema_vacuna->fecha)->format('Y-m-d'),
+                'lote' => $esquema_vacuna->lote,
+                'responsable_vacunacion' => $esquema_vacuna->responsable_vacunacion,
+                'establecimiento_salud' => $esquema_vacuna->establecimiento_salud,
+                'observacion' => $esquema_vacuna->observacion,
+            ];
+
+            // $modelo = new EsquemaVacunaResource($esquema_vacuna);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             DB::commit();

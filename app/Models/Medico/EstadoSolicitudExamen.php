@@ -15,7 +15,7 @@ class EstadoSolicitudExamen extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, EstadoSolicitudExamenFilter;
 
-    protected $table = 'med_estados_solicitudes_examenes';
+    protected $table = 'med_examenes_solicitados';
     protected $fillable = [
         'examen_id',
         'laboratorio_clinico_id',

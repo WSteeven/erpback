@@ -33,7 +33,7 @@ class ConsultaMedicaResource extends JsonResource
             'dado_alta' => $this->dado_alta,
             'paciente' => $citaMedica?->paciente, // Empleado::extraerNombresApellidos($citaMedica?->paciente),
             'sintomas' => $citaMedica?->sintomas,
-            'fecha_hora_solicitud' => $citaMedica?->created_at,
+            'fecha_hora_solicitud' => Carbon::parse($citaMedica?->created_at)->format('Y-m-d H:i:s'),
             'dias_descanso' => $this->dias_descanso,
         ];
     }

@@ -24,17 +24,11 @@ class ResultadoExamenRequest extends FormRequest
     public function rules()
     {
         return [
-            'resultado' => 'required|string',
-            'fecha_examen' => 'required|string',
-            'configuracion_examen_id' => 'required|exists:med_configuraciones_examenes,id',
-            'empleado_id' => 'required|exists:empleados,id',
+            '*.id' => 'nullable|numeric|integer',
+            '*.resultado' => 'required|numeric',
+            '*.observaciones' => 'nullable|string',
+            '*.configuracion_examen_campo' => 'required|exists:med_configuraciones_examenes_campos,id',
+            '*.examen_solicitado' => 'required|exists:med_examenes_solicitados,id',
         ];
-    }
-    protected function prepareForValidation()
-    {
-            $this->merge([
-                'configuracion_examen_id' => $this->configuracion_examen,
-                'empleado_id' => $this->empleado
-            ]);
     }
 }

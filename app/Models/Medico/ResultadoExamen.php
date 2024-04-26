@@ -8,32 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class ResultadoExamen extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
 
     protected $table = 'med_resultados_examenes';
     protected $fillable = [
         'resultado',
-        'fecha_examen',
+        'observaciones',
         'configuracion_examen_campo_id',
-        // 'estado_solicitud_examen_id',
-        'detalle_resultado_examen_id',
+        'examen_solicitado_id',
     ];
+    private static $whiteListFilter = ['*'];
 
     public function configuracionExamenCampo()
     {
-        return $this->hasOne(ConfiguracionExamenCampo::class); //, 'id', 'configuracion_examen_id');
+        return $this->hasOne(ConfiguracionExamenCampo::class);
     }
 
-    /*public function estadoSolicitudExamen()
+    public function estadoSolicitudExamen()
     {
-        return $this->hasOne(EstadoSolicitudExamen::class); //, 'id', 'empleado_id');
-    }*/
-
-    public function detalleResultadoExamen()
-    {
-        return $this->belongsTo(DetalleResultadoExamen::class);
+        return $this->hasOne(EstadoSolicitudExamen::class, 'examen_solicitado_id', 'id');
     }
 }
