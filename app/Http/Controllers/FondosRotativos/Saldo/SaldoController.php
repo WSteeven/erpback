@@ -583,7 +583,7 @@ class SaldoController extends Controller
                 $fecha_anterior = $saldo_anterior->fecha;
             }
             $fecha_anterior =  $fecha->format('Y-m-d');
-            $es_nuevo_saldo = SaldoService::existeSaldoNuevaTabla( $fecha_inicio);
+            $es_nuevo_saldo = SaldoService::existeSaldoNuevaTabla( $fecha_inicio, $request->usuarios);
             //Gastos
             $gastos = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'authEspecialUser')
                 ->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")

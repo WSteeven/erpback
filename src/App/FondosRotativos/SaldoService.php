@@ -340,10 +340,12 @@ class SaldoService
         }
         return $results;
     }
-    public static function existeSaldoNuevaTabla($fecha)
+    public static function existeSaldoNuevaTabla($fecha,$empleado_id)
     {
-        $registros_saldos = Saldo::where('fecha', $fecha)->get();
+        $registros_saldos = Saldo::where('fecha', $fecha)->where('empleado_id',$empleado_id)->get();
         $cantidad_registros_saldos = $registros_saldos->count();
+        Log::channel('testing')->info('Log', ['saldos_nuevos',$fecha,Saldo::where('fecha', $fecha)->toSql()]);
+
         return $cantidad_registros_saldos > 0;
     }
     private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
