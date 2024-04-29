@@ -30,7 +30,6 @@ class BitacoraVehicularService
     {
         try {
             foreach ($request->actividadesRealizadas as $actividad) {
-                Log::channel('testing')->info('Log', ['actividad', $actividad]);
                 $actualizada = $this->polymorphicGenericService->actualizarActividadPolimorfica($bitacora, $actividad);
                 if (!$actualizada) $this->polymorphicGenericService->crearActividadPolimorfica($bitacora, $actividad);
             }

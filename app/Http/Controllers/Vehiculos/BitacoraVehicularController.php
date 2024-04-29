@@ -71,6 +71,8 @@ class BitacoraVehicularController extends Controller
         //Respuesta
         try {
             $chofer = Empleado::find($request->chofer_id);
+            $bitacoraActiva = BitacoraVehicular::where('chofer_id', $chofer->id)->where('firmada', false)->get();
+            if (count($bitacoraActiva) > 0) throw new Exception('Ya tienes una bitacora activa, por favor finalizala para poder crear otra');
             $chofer->bitacoras()->attach(
                 $datos['vehiculo_id'],
                 [
@@ -125,7 +127,7 @@ class BitacoraVehicularController extends Controller
             DB::beginTransaction();
             $bitacora->update($datos);
             $this->service->actualizarDatosRelacionadosBitacora($bitacora, $request);
-            Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora]);
+            // Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora]);
             $modelo = new BitacoraVehicularResource($bitacora->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
@@ -174,6 +176,8 @@ class BitacoraVehicularController extends Controller
     public function firmar(BitacoraVehicular $bitacora)
     {
         try {
+            if (is_null($bitacora->km_final) || $bitacora->km_final < $bitacora->km_inicial)
+                throw new Exception("Debes ingresar un kilometraje final que sea superior al kilometraje inicial. Por favor corrige y vuelve a intentarlo");
             if (!$bitacora->firmada) {
                 $bitacora->firmada = true;
                 $bitacora->fecha_finalizacion = Carbon::now();

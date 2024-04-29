@@ -30,9 +30,11 @@ class BitacoraVehicularResource extends JsonResource
             'chofer' => $this->chofer?->nombres . ' ' . $this->chofer?->apellidos,
             'chofer_id' => $this->chofer_id,
             'vehiculo' => $this->vehiculo->placa,
+            'vehiculo_id' => $this->vehiculo_id,
         ];
 
         if ($controller_method == 'show') {
+            // $modelo['vehiculo'] = $this->vehiculo_id;
             $modelo['actividadesRealizadas'] = $this->actividades;
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo()->orderBy('id', 'desc')->first();
             $modelo['checklistVehiculo'] = $this->checklistVehiculo()->orderBy('id', 'desc')->first();

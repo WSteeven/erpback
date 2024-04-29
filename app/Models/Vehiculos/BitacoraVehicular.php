@@ -4,6 +4,7 @@ namespace App\Models\Vehiculos;
 
 use App\Models\ActividadRealizada;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,6 +34,7 @@ class BitacoraVehicular extends Pivot implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'firmada' => 'boolean',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -57,7 +59,7 @@ class BitacoraVehicular extends Pivot implements Auditable
 
     public function checklistAccesoriosVehiculo()
     {
-        return $this->hasMany(ChecklistAccesoriosVehiculo::class, 'bitacora_id');
+        return $this->hasOne(ChecklistAccesoriosVehiculo::class, 'bitacora_id');
     }
 
     public function checklistVehiculo()
@@ -69,6 +71,23 @@ class BitacoraVehicular extends Pivot implements Auditable
     {
         return $this->hasOne(ChecklistImagenVehiculo::class, 'bitacora_id');
     }
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una orden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
 
     /**
      * ______________________________________________________________________________________

@@ -12,6 +12,7 @@ use App\Models\Inventario;
 use App\Models\MovimientoProducto;
 use App\Models\Percha;
 use App\Models\Proveedor;
+use App\Models\Vehiculos\BitacoraVehicular;
 use App\Observers\DetalleObserver;
 use App\Observers\DetallePedidoProductoObserver;
 use App\Observers\DetalleProductoTransaccionObserver;
@@ -22,6 +23,7 @@ use App\Observers\InventarioObserver;
 use App\Observers\MovimientoProductoObserver;
 use App\Observers\PerchaObserver;
 use App\Observers\ProveedorObserver;
+use App\Observers\Vehiculos\BitacoraVehicularObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -69,6 +71,11 @@ class EventServiceProvider extends ServiceProvider
         Acreditaciones::observe(AcreditacionObserver::class);
         Transferencias::observe(TransferenciaObserver::class);
         
+        /**
+         * VEHICULOS
+         */
+        BitacoraVehicular::observe(BitacoraVehicularObserver::class);
+
         /**
          * Compras y Proveedores
          */
