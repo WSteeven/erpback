@@ -20,18 +20,19 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public Transferencias $transferencia;
     public Notificacion $notificacion;
+
     public $ruta = '/transferencia';
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($transferencia)
+    public function __construct($canal,$transferencia)
     {
         $this->transferencia = $transferencia;
         $this->enviarNotificacionesContabilidad();
     }
-    public function obtenerRuta(Empleado $empleado)
+    public function obtenerRuta()
     {
         $ruta = null;
         if ($this->transferencia->es_devolucion) {
@@ -42,7 +43,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' => 'Devolución Aceptada',
                         'originador' =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' =>  $empleado->id,
+                        'destinatario' =>  null,
                     ];
                     break;
                 case Transferencias::RECHAZADO:
@@ -51,7 +52,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' => 'Han rechazado  devolucion  a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
                         'originador' =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' =>  $empleado->id,
+                        'destinatario' =>  null,
                     ];
                     break;
                 case Transferencias::PENDIENTE:
@@ -60,7 +61,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' => 'Han realizado una  devolucion  por un monto de $' . $this->transferencia->monto,
                         'originador' =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' =>  $empleado->id,
+                        'destinatario' =>  null,
                     ];
                     break;
                 case Transferencias::ANULADO:
@@ -69,7 +70,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' => 'Han anulado una  devolucion a  ' . $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
                         'originador' =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' => $empleado->id,
+                        'destinatario' => null,
                     ];
                     break;
             }
@@ -81,7 +82,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' =>  $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . 'Acepto Transferencia',
                         'originador' =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' => $empleado->id,
+                        'destinatario' => null,
                     ];
                     break;
                 case Transferencias::RECHAZADO:
@@ -90,7 +91,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' => 'Han rechazado  transferencia de  ' . $this->transferencia->empleadoEnvia->nombres . ' ' .  $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
                         'originador' =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' =>  $empleado->id,
+                        'destinatario' => null,
                     ];
                     break;
                 case Transferencias::PENDIENTE:
@@ -99,7 +100,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' => 'Han realizado una  transferencia de  ' .  $this->transferencia->empleadoEnvia->nombres . ' ' .  $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
                         'originador'   =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' => $empleado->id,
+                        'destinatario' => null,
                     ];
                     break;
                 case Transferencias::ANULADO:
@@ -108,7 +109,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'informativa' => false,
                         'mensaje' => 'Han anulado una  transferencia de  ' . $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
                         'originador' =>  $this->transferencia->usuario_recibe_id,
-                        'destinatario' => $empleado->id,
+                        'destinatario' => null,
                     ];
                     break;
             }
@@ -117,18 +118,13 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     }
     public function enviarNotificacionesContabilidad()
     {
-        $usuarios_contabilidad = User::role(User::ROL_CONTABILIDAD)->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
-        foreach ($usuarios_contabilidad as $usuario) {
-            $ruta =  $this->obtenerRuta($usuario->empleado);
-            if ($usuario->empleado != null) {
-                $this->notificar(
-                    $ruta['mensaje'],
-                    $ruta['ruta'],
-                    $ruta['originador'],
-                    $ruta['destinatario'],
-                );
-            }
-        }
+        $ruta =  $this->obtenerRuta();
+        $this->notificar(
+            $ruta['mensaje'],
+            $ruta['ruta'],
+            $ruta['originador'],
+            $ruta['destinatario'],
+        );
     }
     public function notificar($mensaje, $ruta, $originador, $destinatario)
     {
