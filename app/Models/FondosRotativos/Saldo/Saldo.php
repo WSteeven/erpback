@@ -46,11 +46,12 @@ class Saldo extends Model  implements Auditable
         return $this->morphTo();
     }
 
-    public static function empaquetarCombinado($arreglo, $empleado)
+    public static function empaquetarCombinado($nuevo_elemento,$arreglo, $empleado)
     {
         $results = [];
-        $id = 0;
+        $id = 1;
         $row = [];
+        $results[0]= $nuevo_elemento;
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
                 case Acreditaciones::class:
@@ -62,15 +63,15 @@ class Saldo extends Model  implements Auditable
                         $id++;
                     }
                     break;
-
                 default:
-                    $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                    $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                    $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
-                    $results[$id] = $row;
-                    $id++;
-                    break;
+                $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                $results[$id] = $row;
+                $id++;
+                break;
             }
+
         }
         return $results;
     }
@@ -143,6 +144,8 @@ class Saldo extends Model  implements Auditable
      */
     private static function ingreso($saldo, $tipo, $empleado)
     {
+        //Log::channel('testing')->info('Log', ['saldo', $saldo]);
+
         switch (get_class($saldo)) {
             case Gasto::class:
                 if ($tipo === self::ANULACION) {
@@ -150,7 +153,9 @@ class Saldo extends Model  implements Auditable
                 }
                 break;
             case Acreditaciones::class:
-                return $saldo['monto'];
+                if ($tipo === self::INGRESO) {
+                    return $saldo['monto'];
+                }
                 break;
             case Transferencias::class:
                 if ($tipo === self::ANULACION) {
