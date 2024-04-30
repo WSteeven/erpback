@@ -27,7 +27,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($canal,$transferencia)
+    public function __construct($transferencia)
     {
         $this->transferencia = $transferencia;
         $this->enviarNotificacionesContabilidad();
