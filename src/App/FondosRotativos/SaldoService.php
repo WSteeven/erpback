@@ -282,33 +282,38 @@ class SaldoService
 
         if ($saldo_grupo) {
             $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-            ->where('fecha', '<=', $fecha)
-            ->orderBy('id', 'desc')
-            ->first();
+                ->where('fecha', '<=', $fecha)
+                ->orderBy('id', 'desc')
+                ->first();
             return $saldo_grupo;
         } else {
             $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
                 ->where('fecha', '<=', $fecha)
                 ->orderBy('id', 'desc')
                 ->first();
-                Log::channel('testing')->info('Log', ['saldo',$fecha, $saldo_grupo ]);
+            Log::channel('testing')->info('Log', ['saldo', $fecha, $saldo_grupo]);
 
             return  $saldo_fondos;
         }
     }
-    public static function obtenerSaldoAnterior(int $empleado_id, $fecha)
+    public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior, $fecha_inicio=null)
     {
         $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-            ->where('fecha', '<=', $fecha)
+            ->where('fecha', '>=', $fecha_anterior)
             ->orderBy('id', 'desc')
             ->first();
         if ($saldo_grupo) {
+            Log::channel('testing')->info('Log', ['saldo anterior']);
+            $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
+            ->where('fecha', '>=', $fecha_anterior)
+            ->orderBy('id', 'desc')
+            ->first();
             return $saldo_grupo;
         } else {
             $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
-                ->where('fecha', '<=', $fecha)
-                ->orderBy('id', 'desc')
-                ->first();
+                ->where('fecha', '>=', $fecha_anterior)
+                ->where('fecha', '<', $fecha_inicio)
+                ->orderBy('created_at', 'desc')->first();
             return  $saldo_fondos;
         }
     }
@@ -340,10 +345,12 @@ class SaldoService
         }
         return $results;
     }
-    public static function existeSaldoNuevaTabla($fecha)
+    public static function existeSaldoNuevaTabla($fecha, $empleado_id)
     {
-        $registros_saldos = Saldo::where('fecha', $fecha)->get();
+        $registros_saldos = Saldo::where('fecha', $fecha)->where('empleado_id', $empleado_id)->get();
         $cantidad_registros_saldos = $registros_saldos->count();
+        Log::channel('testing')->info('Log', ['existe saldo', $fecha,$cantidad_registros_saldos]);
+
         return $cantidad_registros_saldos > 0;
     }
     private static function guardarArreglo($id, $ingreso, $gasto, $saldo)

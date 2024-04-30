@@ -32,8 +32,12 @@ class TransferenciaObserver
             $this->guardara_transferencia($transferencia);
         }
         if ($transferencia->estado == Transferencias::ANULADO) {
-            $this->anularTransferenciaEmpleadoEnvia($transferencia);
-            $this->anularTransferenciaEmpleadoRecibe($transferencia);
+            if($transferencia->es_devolucion){
+                $this->anularTransferenciaEmpleadoEnvia($transferencia);
+            }else{
+                $this->anularTransferenciaEmpleadoEnvia($transferencia);
+                $this->anularTransferenciaEmpleadoRecibe($transferencia);
+            }
         }
     }
 
@@ -118,4 +122,5 @@ class TransferenciaObserver
         );
         SaldoService::anularSaldo($transferencia, $data);
     }
+
 }
