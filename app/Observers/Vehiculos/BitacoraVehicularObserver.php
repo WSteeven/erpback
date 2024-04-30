@@ -36,10 +36,11 @@ class BitacoraVehicularObserver
                 event(new NotificarBajoNivelCombustible($bitacora, $admin_vehiculos->id));
             }
 
-            //Aquí se revisa si 
+            //Aquí se revisa si hay algun elemento con problemas y se envía un resumen por correo electronico con los problemas del vehiculo
+            
             Log::channel('testing')->info('Log', ['accesorios', $bitacora->checklistAccesoriosVehiculo]);
-            Log::channel('testing')->info('Log', ['vehiculo', $bitacora->checklistVehiculo()->orderBy('id', 'desc')->first()]);
-            Log::channel('testing')->info('Log', ['imagenes', $bitacora->checklistImagenVehiculo()->orderBy('id', 'desc')->first()]);
+            Log::channel('testing')->info('Log', ['vehiculo', $bitacora->checklistVehiculo]);
+            Log::channel('testing')->info('Log', ['imagenes', $bitacora->checklistImagenVehiculo]);
         // }
     }
 

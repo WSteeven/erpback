@@ -191,4 +191,19 @@ class BitacoraVehicularController extends Controller
         }
         return response()->json(compact('mensaje'), 200);
     }
+
+    public function imprimir(BitacoraVehicular $bitacora)
+    {
+        try {
+           return $this->service->generarPdf($bitacora, true, true);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(
+                ['error' => $e->getMessage(),
+                'Por si acaso'=>'Error duplicado',
+            ]);
+            $mensaje = $e->getMessage() . '. ' . $e->getLine();
+            return response()->json(compact('mensaje'));
+        }
+    }
 }

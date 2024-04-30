@@ -69,3 +69,4 @@ Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactiv
  * RUTAS PARA IMPRIMIR PDFs
  */
 Route::get('asignaciones-vehiculos/imprimir/{asignacion}', [AsignacionVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');
+Route::get('bitacoras-vehiculos/imprimir/{bitacora}', [BitacoraVehicularController::class, 'imprimir'])->middleware('auth:sanctum');

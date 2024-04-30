@@ -26,6 +26,7 @@ class ChecklistVehiculo extends Model implements Auditable
         'liquido_refrigerante',
         'filtro_combustible',
         'bateria',
+        'agua_plumas_radiador',
         'cables_conexiones',
         'luces_exteriores',
         'frenos',

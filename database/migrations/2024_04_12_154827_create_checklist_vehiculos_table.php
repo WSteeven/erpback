@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('liquido_refrigerante');
             $table->string('filtro_combustible');
             $table->string('bateria');
+            $table->string('agua_plumas_radiador');
             $table->string('cables_conexiones');
             $table->string('luces_exteriores');
             $table->string('frenos');

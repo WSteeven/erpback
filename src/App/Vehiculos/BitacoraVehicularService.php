@@ -2,10 +2,13 @@
 
 namespace Src\App\Vehiculos;
 
+use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use App\Models\Vehiculos\ChecklistImagenVehiculo;
 use App\Models\Vehiculos\ChecklistVehiculo;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\App\PolymorphicGenericService;
@@ -156,6 +159,25 @@ class BitacoraVehicularService
 
             $datos['bitacora_id'] = $bitacora_id;
             ChecklistImagenVehiculo::create($datos);
+        }
+    }
+
+    public function generarPdf(BitacoraVehicular $bitacora, $descargar = true)
+    {
+        try {
+            $configuracion = ConfiguracionGeneral::first();
+            $bitacora = new BitacoraVehicularResource($bitacora);
+            //aplanar collection
+            $bitacora = $bitacora->resolve();
+            $pdf = Pdf::loadView('vehiculos.bitacora_vehicular', compact(['bitacora', 'configuracion']));
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption(['isRemoteEnabled' => true]);
+            $pdf->render();
+            $file = $pdf->output(); //se genera el pdf
+
+            return $file;
+        } catch (\Throwable $th) {
+            throw new \Exception(Utils::obtenerMensajeError($th, 'No se pudo generar el PDF..'), 1, $th);
         }
     }
 }
