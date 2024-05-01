@@ -258,7 +258,7 @@ class DetalleProductoController extends Controller
         })->where(function ($query) use ($request) {
             $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
             $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');
-        })->get();
+        })->groupBy('descripcion')->get();
 
         $results = DetalleProductoResource::collection($detalles);
         return response()->json(compact('results'));
