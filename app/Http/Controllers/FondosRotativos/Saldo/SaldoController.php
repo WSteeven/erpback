@@ -579,7 +579,7 @@ class SaldoController extends Controller
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
 
-            $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->usuario, $fecha_anterior);
+            $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->usuario, $fecha_anterior,$fecha_inicio);
             if ($saldo_anterior != null) {
                 $fecha_anterior = $saldo_anterior->fecha;
             }
@@ -642,7 +642,7 @@ class SaldoController extends Controller
             //Unir todos los reportes
             $saldos_fondos = Saldo::with('saldoable')->where('empleado_id', $request->usuario)->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->get();
             $reportes_unidos_historico = $gastos->merge($transferencias_enviadas)->merge($transferencias_recibidas)->merge($acreditaciones)->merge($ajuste_saldo);
-            $reportes_unidos = $es_nuevo_saldo ? $reportes_unidos = Saldo::empaquetarCombinado( $nuevo_elemento,$saldos_fondos, $request->usuario) : SaldoGrupo::empaquetarCombinado($nuevo_elemento,$reportes_unidos_historico, $request->usuario);
+            $reportes_unidos = $es_nuevo_saldo ? $reportes_unidos = Saldo::empaquetarCombinado( $nuevo_elemento,$saldos_fondos, $request->usuario,$fecha_inicio, $fecha_fin) : SaldoGrupo::empaquetarCombinado($nuevo_elemento,$reportes_unidos_historico, $request->usuario);
             $sub_total = 0;
             $nuevo_saldo = $ultimo_saldo != null ?  $ultimo_saldo->saldo_actual : 0;
             $empleado = Empleado::where('id', $request->usuario)->first();

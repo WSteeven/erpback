@@ -294,8 +294,9 @@ class SaldoService
             return  $saldo_fondos;
         }
     }
-    public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior)
+    public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior, $fecha_inicio = null)
     {
+
         $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
             ->where('fecha', '>=', $fecha_anterior)
             ->orderBy('id', 'desc')
@@ -305,11 +306,17 @@ class SaldoService
             ->where('fecha', '<=', $fecha_anterior)
             ->orderBy('created_at', 'DESC')
             ->first();
-            Log::channel('testing')->info('Log', ['saldo viejo']);
-
             return $saldo_grupo;
         } else {
-            $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
+            $saldo_fondos = null;
+            if($fecha_inicio == null){
+                $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
+                ->where('fecha', '<=', $fecha_anterior)
+                ->where('fecha', '<', $fecha_inicio)
+                ->orderBy('created_at', 'DESC')
+                ->first();
+            }
+            $saldo_fondos = $saldo_fondos  || !is_null($saldo_fondos)?  $saldo_fondos: Saldo::where('empleado_id', $empleado_id)
             ->where('fecha', $fecha_anterior)
             ->orderBy('created_at', 'DESC')
             ->first();

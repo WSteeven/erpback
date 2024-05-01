@@ -42,7 +42,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' => 'Devolución Aceptada',
-                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'originador' =>  $this->transferencia->usuario_envia_id,
                         'destinatario' =>  null,
                     ];
                     break;
@@ -51,7 +51,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' => 'Han rechazado  devolucion  a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
-                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'originador' =>  $this->transferencia->usuario_envia_id,
                         'destinatario' =>  null,
                     ];
                     break;
@@ -60,7 +60,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' => 'Han realizado una  devolucion  por un monto de $' . $this->transferencia->monto,
-                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'originador' =>  $this->transferencia->usuario_envia_id,
                         'destinatario' =>  null,
                     ];
                     break;
@@ -69,7 +69,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' => 'Han anulado una  devolucion a  ' . $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
-                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'originador' =>  $this->transferencia->usuario_envia_id,
                         'destinatario' => null,
                     ];
                     break;
@@ -81,7 +81,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' =>  $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . 'Acepto Transferencia',
-                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'originador' =>  $this->transferencia->usuario_envia_id,
                         'destinatario' => null,
                     ];
                     break;
@@ -90,7 +90,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' => 'Han rechazado  transferencia de  ' . $this->transferencia->empleadoEnvia->nombres . ' ' .  $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
-                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'originador' =>  $this->transferencia->usuario_envia_id,
                         'destinatario' => null,
                     ];
                     break;
@@ -99,7 +99,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' => 'Han realizado una  transferencia de  ' .  $this->transferencia->empleadoEnvia->nombres . ' ' .  $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
-                        'originador'   =>  $this->transferencia->usuario_recibe_id,
+                        'originador'   =>  $this->transferencia->usuario_envia_id,
                         'destinatario' => null,
                     ];
                     break;
@@ -108,7 +108,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                         'ruta' => $this->ruta,
                         'informativa' => false,
                         'mensaje' => 'Han anulado una  transferencia de  ' . $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
-                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'originador' =>  $this->transferencia->usuario_envia_id,
                         'destinatario' => null,
                     ];
                     break;
