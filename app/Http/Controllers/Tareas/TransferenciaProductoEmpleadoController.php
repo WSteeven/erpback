@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tareas;
 
+use App\Events\Tareas\NotificarTransferenciaProductosRealizadaEvent;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Http\Requests\Tareas\TransferenciaProductoEmpleadoRequest;
 use Src\App\Tareas\TransferenciaProductoEmpleadoService;
@@ -70,8 +71,6 @@ class TransferenciaProductoEmpleadoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             DB::commit();
-            // $msg = 'Devolución N°' . $devolucion->id . ' ' . $devolucion->solicitante->nombres . ' ' . $devolucion->solicitante->apellidos . ' ha realizado una devolución en la sucursal ' . $devolucion->sucursal->lugar . ' . La autorización está ' . $devolucion->autorizacion->nombre;
-            // event(new DevolucionCreadaEvent($msg, $url, $devolucion, $devolucion->solicitante_id, $devolucion->per_autoriza_id, false));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
@@ -123,6 +122,11 @@ class TransferenciaProductoEmpleadoController extends Controller
             Log::channel('testing')->info('Log', compact('esTransferenciaDeStock'));
 
             $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
+
+            $emisor_id = $transferencia_producto_empleado->empleado_origen_id;
+            $destinatario_id = $transferencia_producto_empleado->empleado_destino_id;
+
+            if ($emisor_id !== $destinatario_id) event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
         }
 
         $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
