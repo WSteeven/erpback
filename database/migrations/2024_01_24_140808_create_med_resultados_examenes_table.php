@@ -22,7 +22,7 @@ return new class extends Migration
             $table->foreign('configuracion_examen_campo_id','fk_config_exam')->references('id')->on('med_configuraciones_examenes_campos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('examen_solicitado_id');
-            $table->foreign('examen_solicitado_id')->references('id')->on('med_estados_solicitudes_examenes')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('examen_solicitado_id')->references('id')->on('med_examenes_solicitados')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

@@ -36,7 +36,7 @@ class ModuloMedicoSeeder extends Seeder
          * Modulo medico
          *****************/
         $this->call([
-            // PermisosMedicoSeeder::class,
+            PermisosMedicoSeeder::class,
             ExamenesOrganosReproductivosSeeder::class,
             TipoExamenSeeder::class,
             TipoCuestionarioSeeder::class,
