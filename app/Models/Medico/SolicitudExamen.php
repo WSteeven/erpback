@@ -2,6 +2,7 @@
 
 namespace App\Models\Medico;
 
+use App\Models\Archivo;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\Notificacion;
@@ -68,10 +69,16 @@ class SolicitudExamen extends Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
+
     /************
      * Funciones
      ************/
-    public static function obtenerDescripcionOrdenCompra(SolicitudExamen $solicitudExamen){
+    public static function obtenerDescripcionOrdenCompra(SolicitudExamen $solicitudExamen)
+    {
         $empleado = $solicitudExamen->registroEmpleadoExamen->empleado;
         $nombresEmpleado = Empleado::extraerNombresApellidos($empleado);
         $nombresJefe = $empleado->jefe ? Empleado::extraerNombresApellidos($empleado->jefe) : '(NO TIENE JEFE ASIGNADO)';
@@ -80,7 +87,8 @@ class SolicitudExamen extends Model implements Auditable
         return 'EXAMENES ' . $tipo_proceso_examen . ' PARA ' . $nombresEmpleado . ' EN EL CARGO DE ' . $cargo . ' A CARGO DE ' . $nombresJefe . '.'; //' CON FECHA DE REALIZACIÓN  ';
     }
 
-    public static function obtenerDescripcionDetalleOrdenCompra(SolicitudExamen $solicitudExamen) {
+    public static function obtenerDescripcionDetalleOrdenCompra(SolicitudExamen $solicitudExamen)
+    {
         $examenesSolicitados = $solicitudExamen->examenesSolicitados;
         // Log::channel('testing')->info('Log', ['examenesSolicitados', $examenesSolicitados]);
         $empleado = $solicitudExamen->registroEmpleadoExamen->empleado;
@@ -93,8 +101,9 @@ class SolicitudExamen extends Model implements Auditable
         return $mensaje;
     }
 
-    private static function obtenerTextoExamen($examenesSolicitados) {
-        $listadoNombres = $examenesSolicitados->map(function($examenSolicitado) {
+    private static function obtenerTextoExamen($examenesSolicitados)
+    {
+        $listadoNombres = $examenesSolicitados->map(function ($examenSolicitado) {
 
             return $examenSolicitado->examen->nombre;
         })->toArray();
@@ -102,7 +111,8 @@ class SolicitudExamen extends Model implements Auditable
         return implode(' ', $listadoNombres); //->toArray());
     }
 
-    public static function obtenerFechaMenorExamen($examenesSolicitados) {
+    public static function obtenerFechaMenorExamen($examenesSolicitados)
+    {
         $fechaHora = $examenesSolicitados->sortBy('fecha_hora_asistencia')->first()->fecha_hora_asistencia;
         return Carbon::parse($fechaHora)->format('Y-m-d');
     }

@@ -15,12 +15,9 @@ return new class extends Migration
     {
         Schema::create('med_fichas_preocupacionales', function (Blueprint $table) {
             $table->id();
-            $table->string('ciu');
             $table->text('establecimiento_salud');
-            $table->string('numero_historia_clinica');
-            $table->string('numero_archivo');
+            $table->string('numero_archivo')->nullable();
             $table->string('lateralidad');
-            $table->string('puesto_trabajo')->nullable();
             $table->string('area_trabajo')->nullable();
             $table->text('actividades_relevantes_puesto_trabajo_ocupar')->nullable();
             $table->text('motivo_consulta');
@@ -29,6 +26,9 @@ return new class extends Migration
             $table->text('observacion_examen_fisico_regional')->nullable();
 
             // Foreign keys
+            $table->unsignedBigInteger('cargo_id');
+            $table->foreign('cargo_id')->references('id')->on('cargos')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->unsignedBigInteger('religion_id');
             $table->foreign('religion_id')->references('id')->on('med_religiones')->cascadeOnDelete()->cascadeOnUpdate();
 

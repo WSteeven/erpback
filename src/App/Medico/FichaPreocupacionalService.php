@@ -41,7 +41,7 @@ class FichaPreocupacionalService
             //code...
             $this->servicioPolimorfico->crearAntecedenteClinico($this->ficha, $request->antecedente_clinico_quirurgico);
             $this->insertarAntecedentePersonal($request);
-            $this->insertarExamenesRealizados($request->examenesRealizados);
+            $this->insertarExamenesRealizados($request->examenes_realizados);
             $this->servicioPolimorfico->crearHabitosToxicos($this->ficha, $request->habitosToxicos);
             $this->servicioPolimorfico->crearActividadesFisicas($this->ficha, $request->actividadesFisicas);
             $this->servicioPolimorfico->crearMedicaciones($this->ficha, $request->medicaciones);
@@ -50,11 +50,11 @@ class FichaPreocupacionalService
             $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->enfermedadesProfesionales);
             $this->servicioPolimorfico->crearAntecedentesFamiliares($this->ficha, $request->antecedentesFamiliares);
             $this->servicioPolimorfico->crearFactoresRiesgoPuestoTrabajoActual($this->ficha, $request->factoresRiesgoPuestoActual);
-            $this->servicioPolimorfico->crearRevisionesActualesOrganosSistemas($this->ficha, $request->revisionesOrganosSistemas);
-            $this->servicioPolimorfico->crearConstanteVital($this->ficha, $request->constanteVital);
-            $this->servicioPolimorfico->crearExamenesFisicosRegionales($this->ficha, $request->examenesFisicosRegionales);
+            $this->servicioPolimorfico->crearRevisionesActualesOrganosSistemas($this->ficha, $request->revisiones_actuales_organos_sistemas);
+            $this->servicioPolimorfico->crearConstanteVital($this->ficha, $request->constante_vital);
+            $this->servicioPolimorfico->crearExamenesFisicosRegionales($this->ficha, $request->examenes_fisicos_regionales);
             $this->servicioPolimorfico->crearDiagnosticosFicha($this->ficha, $request->diagnosticos);
-            $this->servicioPolimorfico->crearAptitudMedica($this->ficha, $request->aptitudMedica);
+            $this->servicioPolimorfico->crearAptitudMedica($this->ficha, $request->aptitud_medica);
             // throw new Exception('error provocado');
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['Error guardar datos ficha preocupacional', $th->getLine(), $th->getMessage()]);
@@ -147,11 +147,11 @@ class FichaPreocupacionalService
         try {
             DB::beginTransaction();
             $antecedente = AntecedentePersonal::create([
-                'vida_sexual_activa' => $request->vida_sexual_activa,
-                'hijos_vivos' => $request->hijos_vivos,
-                'hijos_muertos' => $request->hijos_muertos,
-                'tiene_metodo_planificacion_familiar' => $request->tiene_metodo_planificacion_familiar,
-                'tipo_metodo_planificacion_familiar' => $request->tipo_metodo_planificacion_familiar,
+                'vida_sexual_activa' => $request->antecedente_personal['vida_sexual_activa'],
+                'hijos_vivos' => $request->antecedente_personal['hijos_vivos'],
+                'hijos_muertos' => $request->antecedente_personal['hijos_muertos'],
+                'tiene_metodo_planificacion_familiar' => $request->antecedente_personal['tiene_metodo_planificacion_familiar'],
+                'tipo_metodo_planificacion_familiar' => $request->antecedente_personal['tipo_metodo_planificacion_familiar'],
                 'ficha_preocupacional_id' =>  $this->ficha->id,
             ]);
 

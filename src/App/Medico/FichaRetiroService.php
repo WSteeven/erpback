@@ -4,6 +4,7 @@ namespace Src\App\Medico;
 
 use App\Http\Requests\Medico\FichaRetiroRequest;
 use App\Models\Medico\FichaRetiro;
+use App\Models\Medico\RegistroEmpleadoExamen;
 use Illuminate\Support\Facades\Log;
 
 class fichaRetiroService
@@ -11,7 +12,7 @@ class fichaRetiroService
     private $ficha;
     private $servicioPolimorfico;
 
-    public function __construct(FichaRetiro $ficha)
+    public function __construct(FichaRetiro $ficha = null)
     {
         $this->ficha = $ficha;
         $this->servicioPolimorfico = new PolymorphicMedicoModelsService();
@@ -34,4 +35,8 @@ class fichaRetiroService
         }
     }
 
+    public function consultarResultadosExamenes(RegistroEmpleadoExamen $registro_empleado_examen)
+    {
+        return [];//$registro_empleado_examen->fichaRetiro;
+    }
 }

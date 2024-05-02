@@ -3,6 +3,8 @@
 namespace App\Http\Resources\Medico;
 
 use App\Models\Medico\AccidenteEnfermedadLaboral;
+use App\Models\Medico\RevisionActualOrganoSistema;
+use App\Models\Medico\SistemaOrganico;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class FichaPreocupacionalResource extends JsonResource
@@ -50,7 +52,7 @@ class FichaPreocupacionalResource extends JsonResource
             /*********************************
              * Antecedentes Ginecoobstetricos
              * *******************************/
-            'antecedentePersonal' => new AntecedentePersonalResource($this->antecedentePersonal),
+            'antecedente_personal' => new AntecedentePersonalResource($this->antecedentePersonal),
             'menarquia' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->menarquia,
             'ciclos' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->ciclos,
             'fecha_ultima_menstruacion' => $this->antecedentePersonal->antecedenteGinecoobstetrico?->fecha_ultima_menstruacion,
@@ -125,37 +127,46 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Revision  actual de organos y sistemas
              * ***************************************/
-            'revisiones_actuales_organos_sistemas' => $this->revisionesActualesOrganosSistemas()->first(),
+            'revisiones_actuales_organos_sistemas' => [$this->mapearRevisionActual()], //)->map(fn($item) => [
+            // 'descripcion' => $item,
+            // 'organo_id' => $item->organo_id,
+            // 'organo' => $item->organoSistema->nombre,
+            // ]),
             /*********************************************
              * Fin Revision  actual de organos y sistemas
              * *******************************************/
             /*****************************************
              *Constantes vitales y antropometría
              * ***************************************/
-            'presion_arterial' => $this->constanteVital()->first()?->presion_arterial,
-            'temperatura' => $this->constanteVital()->first()?->temperatura,
-            'frecuencia_cardiaca' => $this->constanteVital()->first()?->frecuencia_cardiaca,
-            'saturacion_oxigeno' => $this->constanteVital()->first()?->saturacion_oxigeno,
-            'frecuencia_respiratoria' => $this->constanteVital()->first()?->frecuencia_respiratoria,
-            'peso' => $this->constanteVital()->first()?->peso,
-            'estatura' => $this->constanteVital()->first()?->estatura,
-            'talla' => $this->constanteVital()->first()?->talla,
-            'indice_masa_corporal' => $this->constanteVital()->first()?->indice_masa_corporal,
-            'perimetro_abdominal' => $this->constanteVital()->first()?->perimetro_abdominal,
+            'constante_vital' => [
+                'presion_arterial' => $this->constanteVital()->first()?->presion_arterial,
+                'temperatura' => $this->constanteVital()->first()?->temperatura,
+                'frecuencia_cardiaca' => $this->constanteVital()->first()?->frecuencia_cardiaca,
+                'saturacion_oxigeno' => $this->constanteVital()->first()?->saturacion_oxigeno,
+                'frecuencia_respiratoria' => $this->constanteVital()->first()?->frecuencia_respiratoria,
+                'peso' => $this->constanteVital()->first()?->peso,
+                'estatura' => $this->constanteVital()->first()?->estatura,
+                'talla' => $this->constanteVital()->first()?->talla,
+                'indice_masa_corporal' => $this->constanteVital()->first()?->indice_masa_corporal,
+                'perimetro_abdominal' => $this->constanteVital()->first()?->perimetro_abdominal,
+            ],
             /*********************************************
              * Fin Constantes vitales y antropometría
              *********************************************/
             /*****************************************
              *Examenes fisicos regionales
              * ***************************************/
-            'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->first(),
+            'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->get()->map(fn ($item) => [
+                'categoria_examen_fisico_id' => $item->categoria_examen_fisico_id,
+                'observacion' => $item['observacion'],
+            ]),
             /*********************************************
              * Fin Examenes fisicos regionales
              * *******************************************/
             /*****************************************
              *Aptitud medica de trabajo
              * ***************************************/
-            'aptitudes_medicas' => $this->aptitudesMedicas,
+            'aptitud_medica' => $this->aptitudesMedicas,
             /*********************************************
              * Aptitud medica de trabajo
              * *******************************************/
@@ -166,7 +177,21 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Antecedentes Familiares
              * ***************************************/
-            'fr_puestos_trabajos_actuales' => FrPuestoTrabajoActualResource::collection($this->frPuestoTrabajoActual)
+            'fr_puestos_trabajos_actuales' => FrPuestoTrabajoActualResource::collection($this->frPuestoTrabajoActual),
+            'cargo' => $this->cargo_id,
+            'lateralidad' => $this->lateralidad,
+            'actividades_extralaborales' => $this->actividades_extralaborales,
+            // 'antecedente_personal' => $this->antecedentePersonal()->first(),
+        ];
+    }
+
+    private function mapearRevisionActual()
+    {
+        $revision = $this->revisionesActualesOrganosSistemas()->first();
+        return [
+            'descripcion' => $revision->descripcion,
+            'organo_id' => $revision->organo_id,
+            'organo' => SistemaOrganico::find($revision->organo_id)->nombre,
         ];
     }
 }

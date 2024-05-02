@@ -2,6 +2,7 @@
 
 namespace App\Models\Medico;
 
+use App\Models\Cargo;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,22 +17,21 @@ class FichaPreocupacional extends Model implements Auditable
 
     protected $table = 'med_fichas_preocupacionales';
     protected $fillable = [
-        'ciu',
         'establecimiento_salud',
-        'numero_historia_clinica',
         'numero_archivo',
         'religion_id',
         'lateralidad',
         'orientacion_sexual_id',
         'identidad_genero_id',
-        'puesto_trabajo',
         'area_trabajo',
         'actividades_relevantes_puesto_trabajo_ocupar',
         'motivo_consulta',
         'actividades_extralaborales',
         'enfermedad_actual',
+        'cargo_id',
         'registro_empleado_examen_id',
         'observacion_examen_fisico_regional',
+        'profesional_salud_id',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -92,6 +92,11 @@ class FichaPreocupacional extends Model implements Auditable
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }
 
+    public function cargo()
+    {
+        return $this->belongsTo(Cargo::class);
+    }
+
     // public function descripcionAntecedenteTrabajo()
     // {
     //     return $this->hasOne(DescripcionAntecedenteTrabajo::class, 'ficha_preocupacional_id', 'id');
@@ -119,5 +124,9 @@ class FichaPreocupacional extends Model implements Auditable
     public function aptitudesMedicas()
     {
         return $this->morphOne(AptitudMedica::class, 'aptitudable');
+    }
+    public function registroEmpleadoExamen()
+    {
+        return $this->belongsTo(RegistroEmpleadoExamen::class);
     }
 }

@@ -27,11 +27,12 @@ class FichaPreocupacionalRequest extends FormRequest
     public function rules()
     {
         return [
-            'ciu' => 'required|string',
+            // 'ciu' => 'required|string',
             'establecimiento_salud' => 'nullable|string',
-            'numero_historia_clinica' => 'required|string',
+            // 'numero_historia_clinica' => 'required|string',
             'numero_archivo' => 'required|string',
-            'puesto_trabajo' => 'required|string',
+            // 'puesto_trabajo' => 'required|string',
+            'cargo_id' => 'required|numeric|integer|exists:cargos,id', // me quedé aqui <---
             'lateralidad' => 'required|string',
             'religion_id' => 'required|exists:med_religiones,id',
             'orientacion_sexual_id' => 'required|exists:med_orientaciones_sexuales,id',
@@ -44,6 +45,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'enfermedad_actual' => 'sometimes|nullable|string',
             'recomendaciones_tratamiento' => 'nullable|string',
             'antecedentes_quirurgicos' => 'nullable|string',
+            // antecedentes_gineco_obstetricos
             'antecedentes_gineco_obstetricos.menarquia' => 'nullable|string',
             'antecedentes_gineco_obstetricos.ciclos' => 'nullable|integer',
             'antecedentes_gineco_obstetricos.fecha_ultima_menstruacion' => 'nullable|date_format:Y-m-d',
@@ -53,17 +55,17 @@ class FichaPreocupacionalRequest extends FormRequest
             'antecedentes_gineco_obstetricos.abortos' => 'nullable|integer',
             'accidentesTrabajo.*.calificado_iss' => 'required|boolean',
             'fecha' => 'required|date_format:Y-m-d',
-            'observacion' => 'required|string',
-            'tipo_descripcion_antecedente_trabajo' => 'required|string',
-            'constanteVital.presion_arterial' => 'required|string',
-            'constanteVital.temperatura' => 'nullable|numeric',
-            'constanteVital.frecuencia_cardiaca' => 'nullable|numeric',
-            'constanteVital.saturacion_oxigeno' => 'nullable|numeric',
-            'constanteVital.frecuencia_respiratoria' => 'nullable|numeric',
-            'constanteVital.peso' => 'nullable|numeric',
-            'constanteVital.talla' => 'nullable|numeric',
-            'constanteVital.indice_masa_corporal' => 'nullable|numeric',
-            'constanteVital.perimetro_abdominal' => 'nullable|numeric',
+            'observacion_examen_fisico_regional' => 'nullable|string',
+            // 'tipo_descripcion_antecedente_trabajo' => 'required|string',
+            'constante_vital.presion_arterial' => 'required|string',
+            'constante_vital.temperatura' => 'required|numeric',
+            'constante_vital.frecuencia_cardiaca' => 'required|numeric',
+            'constante_vital.saturacion_oxigeno' => 'required|numeric',
+            'constante_vital.frecuencia_respiratoria' => 'required|numeric',
+            'constante_vital.peso' => 'required|numeric',
+            'constante_vital.talla' => 'required|numeric',
+            'constante_vital.indice_masa_corporal' => 'required|numeric',
+            'constante_vital.perimetro_abdominal' => 'required|numeric',
             // fr_puestos_trabajos_actuales
             'factoresRiesgoPuestoActual.*.puesto_trabajo' => 'required|string',
             'factoresRiesgoPuestoActual.*.actividad' => 'required|string',
@@ -83,7 +85,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'medicaciones.*.cantidad' => 'required|string',
             // actividades_puestos_trabajos
             'actividades_puestos_trabajos.*.actividad' => 'required|string',
-            // antecedentes_familiares
+            // antecedentes familiares
             'antecedentesFamiliares.*.descripcion' => 'sometimes|nullable|string',
             'antecedentesFamiliares.*.parentesco' => 'required|string',
             'antecedentesFamiliares.*.tipo_antecedente_familiar_id' => 'required|exists:med_tipos_antecedentes_familiares,id',
@@ -94,6 +96,26 @@ class FichaPreocupacionalRequest extends FormRequest
             'antecedentesEmpleosAnteriores.*.tiempo_trabajo' => 'required|numeric',
             'antecedentesEmpleosAnteriores.*.observacion' => 'required|string',
             'antecedentesEmpleosAnteriores.*.riesgos' => 'required|array',
+            // antecedente_personal
+            'antecedente_personal.vida_sexual_activa' => 'required|boolean',
+            'antecedente_personal.hijos_vivos' => 'required|numeric|integer|min:0',
+            'antecedente_personal.hijos_muertos' => 'required|numeric|integer|min:0',
+            'antecedente_personal.tiene_metodo_planificacion_familiar' => 'required|boolean',
+            'antecedente_personal.tipo_metodo_planificacion_familiar' => 'nullable|string',
+            // revisiones organos sistemas
+            'revisiones_actuales_organos_sistemas.*.organo_id' => 'required|numeric|integer',
+            'revisiones_actuales_organos_sistemas.*.descripcion' => 'required|string',
+            // aptitud_medica
+            'aptitud_medica.tipo_aptitud_id' => 'required|numeric|integer',
+            'aptitud_medica.observacion' => 'nullable|string',
+            'aptitud_medica.limitacion' => 'nullable|string',
+            // examenes fisicos regionales
+            'examenes_fisicos_regionales.*.categoria_examen_fisico_id' => 'required|numeric|integer|exists:med_categorias_examenes_fisicos,id',
+            'examenes_fisicos_regionales.*. ' => 'nullable|string',
+            // examenes_realizados
+            'examenes_realizados.*.examen_id' => 'required|numeric|integer|exists:med_examenes_organos_reproductivos,id',
+            'examenes_realizados.*.tiempo' => 'required|numeric|integer',
+            'examenes_realizados.*.resultado' => 'required|string',
         ];
     }
     protected function prepareForValidation()
@@ -105,6 +127,14 @@ class FichaPreocupacionalRequest extends FormRequest
             'registro_empleado_examen_id' => $this->registro_empleado_examen,
             'fecha_ultima_menstruacion' => Carbon::parse($this->fecha_ultima_menstruacion)->format('Y-m-d'),
             'fecha' => Carbon::parse(Carbon::now())->format('Y-m-d'),
+            'cargo_id' => $this->cargo,
         ]);
+    }
+
+    public function messages()
+    {
+        return [
+            'aptitud_medica.tipo_aptitud_id.required' => 'Seleccione la aptitud médica para el trabajo.'
+        ];
     }
 }

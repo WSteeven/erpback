@@ -190,7 +190,7 @@ class PolymorphicMedicoModelsService
             throw $th;
         }
     }
-    public function crearConstanteVital(Model $entidad, array $data)
+    public function crearConstanteVital(Model $entidad, $data)
     {
         try {
             DB::beginTransaction();

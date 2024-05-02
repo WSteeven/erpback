@@ -68,7 +68,7 @@ class DetalleExamenSeeder extends Seeder
             ],
             [
                 'tipo_examen_id' => 1,
-                'categoria_examen_id' => 4, //quimica sanguines
+                'categoria_examen_id' => 5, //quimica sanguines
                 'examen_id' => 11,
             ],
             [
@@ -82,31 +82,25 @@ class DetalleExamenSeeder extends Seeder
                 'examen_id' => 13,
             ],
             [
-                'tipo_examen_id' => 1,
+                'tipo_examen_id' => 2,
                 'categoria_examen_id' => 6, //imagenologia
                 'examen_id' => 14,
             ],
-            /*[
+            [
                 'tipo_examen_id' => 2,
-                'categoria_examen_id' => null,
+                'categoria_examen_id' => 6, //imagenologia
                 'examen_id' => 15,
             ],
             [
                 'tipo_examen_id' => 2,
-                'categoria_examen_id' => null,
+                'categoria_examen_id' => 6, //imagenologia
                 'examen_id' => 16,
             ],
             [
                 'tipo_examen_id' => 2,
-                'categoria_examen_id' => null,
+                'categoria_examen_id' => 6, //imagenologia
                 'examen_id' => 17,
             ],
-            [
-                'tipo_examen_id' => 2,
-                'categoria_examen_id' => null,
-                'examen_id' => 18,
-            ],*/
-
         ];
 
         foreach ($data as $detalle) {

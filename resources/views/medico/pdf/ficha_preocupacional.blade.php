@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>FICHA DE APTITUD</title>
+    <title>FICHA DE PREOCUPACIONAL</title>
     <style>
         @page {
             margin: 40px;
@@ -297,23 +297,18 @@
         </tr>
     </table>
 
+    {{-- B. MOTIVO DE LA CONSULTA --}}
+    <div class="titulo-seccion">B. MOTIVO DE LA CONSULTA</div>
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
-        border="1" cellpadding="0" cellspacing="0" class="mb-8">
+        border="1" cellpadding="0" cellspacing="0">
         <tr>
-            <th style="width: 40%;">ACTIVIDADES</th>
-            <th style="width: 60%;">FACTORES DE RIESGO</th>
+            <td>{{ $ficha_preocupacional['motivo_consulta'] }}</td>
         </tr>
-        @foreach ($actividadesFactorRiesgo as $actividad)
-            <tr>
-                <td>{{ $actividad['actividad'] }}</td>
-                <td>{{ $actividad['factor_riesgo'] }}</td>
-            </tr>
-        @endforeach
     </table>
 
-    {{-- B. ANTECEDENTES PERSONALES --}}
-    <div class="titulo-seccion">B. ANTECEDENTES PERSONALES</div>
+    {{-- C. ANTECEDENTES PERSONALES --}}
+    <div class="titulo-seccion">C. ANTECEDENTES PERSONALES</div>
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
         border="1" cellpadding="0" cellspacing="0">
@@ -321,7 +316,7 @@
             <th align="left" style="width: 100%;">ANTECEDENTES CLÍNICOS Y QUIRÚRGICOS</th>
         </tr>
         <tr>
-            <td>{{ $fichaRetiro['antecedentes_clinicos_quirurjicos'] }}</td>
+            <td>{{ $ficha_preocupacional['antecedente_personal']['antecedentes_quirurgicos'] }}</td>
         </tr>
     </table>
 
@@ -333,28 +328,29 @@
         </tr>
         <tr>
             <td class="fs-10">FUE CALIFICADO POR EL INSTITUTO DE SEGURIDAD SOCIAL CORRESPONDIENTE:
-                SI @if ($fichaRetiro['accidentes_trabajo']['calificado_iess'])
+                SI @if ($ficha_preocupacional['accidentes_trabajo']['calificado_iess'])
                     <span class="cuadrado">{{ 'X' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
                 ESPECIFICAR: IESS
-                NO @if (!$fichaRetiro['accidentes_trabajo']['calificado_iess'])
+                NO @if (!$ficha_preocupacional['accidentes_trabajo']['calificado_iess'])
                     <span class="cuadrado">{{ 'X' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
                 <span class="fs-10">FECHA:</span>
-                <span class="cuadrado fs-10">{{ $fichaRetiro['accidentes_trabajo']['fecha']->format('d') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['accidentes_trabajo']['fecha']->format('m') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['accidentes_trabajo']['fecha']->year }}</span>
+                <span
+                    class="cuadrado fs-10">{{ $ficha_preocupacional['accidentes_trabajo']['fecha']->format('d') }}</span><span
+                    class="cuadrado fs-10">{{ $ficha_preocupacional['accidentes_trabajo']['fecha']->format('m') }}</span><span
+                    class="cuadrado fs-10">{{ $ficha_preocupacional['accidentes_trabajo']['fecha']->year }}</span>
             </td>
         </tr>
 
         <tr>
             <td>
                 <div class="mb-4 fs-10">Observaciones:</div>
-                <div class="mb-4 fs-10">{{ $fichaRetiro['accidentes_trabajo']['observaciones'] }}</div>
+                <div class="mb-4 fs-10">{{ $ficha_preocupacional['accidentes_trabajo']['observaciones'] }}</div>
             </td>
         </tr>
 
@@ -372,29 +368,29 @@
         </tr>
         <tr>
             <td class="fs-10">FUE CALIFICADO POR EL INSTITUTO DE SEGURIDAD SOCIAL CORRESPONDIENTE:
-                SI @if ($fichaRetiro['enfermedades_profesionales']['calificado_iess'])
+                SI @if ($ficha_preocupacional['enfermedades_profesionales']['calificado_iess'])
                     <span class="cuadrado">{{ 'X' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
                 ESPECIFICAR: IESS
-                NO @if (!$fichaRetiro['enfermedades_profesionales']['calificado_iess'])
+                NO @if (!$ficha_preocupacional['enfermedades_profesionales']['calificado_iess'])
                     <span class="cuadrado">{{ 'X' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
                 <span class="fs-10">FECHA:</span>
                 <span
-                    class="cuadrado fs-10">{{ $fichaRetiro['enfermedades_profesionales']['fecha']->format('d') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['enfermedades_profesionales']['fecha']->format('m') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['enfermedades_profesionales']['fecha']->year }}</span>
+                    class="cuadrado fs-10">{{ $ficha_preocupacional['enfermedades_profesionales']['fecha']->format('d') }}</span><span
+                    class="cuadrado fs-10">{{ $ficha_preocupacional['enfermedades_profesionales']['fecha']->format('m') }}</span><span
+                    class="cuadrado fs-10">{{ $ficha_preocupacional['enfermedades_profesionales']['fecha']->year }}</span>
             </td>
         </tr>
 
         <tr>
             <td>
                 <div class="mb-4 fs-10">Observaciones:</div>
-                <div class="mb-4 fs-10">{{ $fichaRetiro['accidentes_trabajo']['observaciones'] }}</div>
+                <div class="mb-4 fs-10">{{ $ficha_preocupacional['accidentes_trabajo']['observaciones'] }}</div>
             </td>
         </tr>
 
@@ -404,8 +400,28 @@
         </tr>
     </table>
 
-    {{-- C. CONSTANTES VITALES Y ANTROPOMETRÍA --}}
-    <div class="titulo-seccion">C. CONSTANTES VITALES Y ANTROPOMETRÍA</div>
+    {{-- G. ACTIVIDADES EXTRA LABORALES --}}
+    <div class="titulo-seccion">G. ACTIVIDADES EXTRA LABORALES</div>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+        border="1" cellpadding="0" cellspacing="0">
+        <tr>
+            <td>{{ $ficha_preocupacional['actividades_extralaborales'] }}</td>
+        </tr>
+    </table>
+
+    {{-- H. ENFERMEDAD ACTUAL --}}
+    <div class="titulo-seccion">H. ENFERMEDAD ACTUAL</div>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+        border="1" cellpadding="0" cellspacing="0">
+        <tr>
+            <td>{{ $ficha_preocupacional['enfermedad_actual'] }}</td>
+        </tr>
+    </table>
+
+    {{-- J. CONSTANTES VITALES Y ANTROPOMETRÍA --}}
+    <div class="titulo-seccion">J. CONSTANTES VITALES Y ANTROPOMETRÍA</div>
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
         border="1" cellpadding="0" cellspacing="0" class="mb-8">
@@ -421,20 +437,20 @@
             <th style="width: 10%;" class="fs-10">PERÍMETRO ABDOMINAL(cm)</th>
         </tr>
         <tr>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['presion_arterial'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['temperatura'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['frecuencia_cardiaca'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['saturacion_oxigeno'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['frecuencia_respiratoria'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['peso'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['talla'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['indice_masa_corporal'] }}</td>
+            <td class="pa-12">{{ $ficha_preocupacional['constante_vital']['perimetro_abdominal'] }}</td>
         </tr>
     </table>
-    {{-- {{ $fichaRetiro['examenes_fisicos_regionales'] }} --}}
-    {{-- D. EXAMEN FÍSICO REGIONAL --}}
-    <div class="titulo-seccion">D. EXAMEN FÍSICO REGIONAL</div>
+
+    {{-- K. EXAMEN FÍSICO REGIONAL --}}
+    <div class="titulo-seccion">K. EXAMEN FÍSICO REGIONAL</div>
     <div class="subtitulo-seccion">REGIONES</div>
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:8px;"
@@ -443,153 +459,153 @@
             <tr>
                 <td rowspan="3" class="celda"><span class="texto-vertical">1. Piel</span></td>
                 <td style="width: 12%;">a. Cicatrices</td>
-                <td>{{ in_array(CategoriaExamenFisico::CICATRICES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CICATRICES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">3. Oido</span></td>
                 <td style="width: 12%;">a. C. auditivo externo</td>
-                <td>{{ in_array(CategoriaExamenFisico::AUDITIVO_EXTERNO, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::AUDITIVO_EXTERNO, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="4" class="celda"><span class="texto-vertical">5. Nariz</span></td>
                 <td style="width: 12%;">a. Tabique</td>
-                <td>{{ in_array(CategoriaExamenFisico::TABIQUE, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TABIQUE, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">8. Tórax</span></td>
                 <td style="width: 12%;">a. Pulmones</td>
-                <td>{{ in_array(CategoriaExamenFisico::PULMONES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PULMONES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">11. Pelvis</span></td>
                 <td style="width: 12%;">a. Pelvis</td>
-                <td>{{ in_array(CategoriaExamenFisico::PELVIS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PELVIS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
             <tr>
                 <td>b. Tatuajes</td>
-                <td>{{ in_array(CategoriaExamenFisico::TATUAJES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TATUAJES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Pabellón</td>
-                <td>{{ in_array(CategoriaExamenFisico::PABELLON, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PABELLON, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Cornetes</td>
-                <td>{{ in_array(CategoriaExamenFisico::CORNETES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CORNETES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Parrilla costal</td>
-                <td>{{ in_array(CategoriaExamenFisico::PARRILLA_COSTAL, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PARRILLA_COSTAL, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Genitales</td>
-                <td>{{ in_array(CategoriaExamenFisico::GENITALES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::GENITALES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>c. Piel y faneras</td>
-                <td>{{ in_array(CategoriaExamenFisico::PIEL_FANERAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PIEL_FANERAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Tímpanos</td>
-                <td>{{ in_array(CategoriaExamenFisico::TIMPANOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TIMPANOS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Mucosas</td>
-                <td>{{ in_array(CategoriaExamenFisico::MUCOSAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MUCOSAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">9. Abdomen</span></td>
                 <td>a. Vísceras</td>
-                <td>{{ in_array(CategoriaExamenFisico::VISCERAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::VISCERAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">12. Extremidades</span></td>
                 <td>a. Vascular</td>
-                <td>{{ in_array(CategoriaExamenFisico::VASCULAR, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::VASCULAR, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
             </tr>
 
             <tr>
                 <td rowspan="5" class="celda"><span class="texto-vertical">2. Ojos</span></td>
                 <td>a. Párpados</td>
-                <td>{{ in_array(CategoriaExamenFisico::PARPADOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PARPADOS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="5" class="celda"><span class="texto-vertical">4. Oro faringe</span></td>
                 <td>a. Labios</td>
-                <td>{{ in_array(CategoriaExamenFisico::LABIOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::LABIOS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>d. Senos paranasales</td>
-                <td>{{ in_array(CategoriaExamenFisico::SENOS_PARANASALES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::SENOS_PARANASALES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Pared abdominal</td>
-                <td>{{ in_array(CategoriaExamenFisico::PARED_ABDOMINAL, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PARED_ABDOMINAL, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Miembros superiores</td>
-                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_SUPERIORES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_SUPERIORES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>b. Conjuntivas</td>
-                <td>{{ in_array(CategoriaExamenFisico::CONJUNTIVAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CONJUNTIVAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Lengua</td>
-                <td>{{ in_array(CategoriaExamenFisico::LENGUA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::LENGUA, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">6. Cuello</span></td>
                 <td>a. Tiroides / masas</td>
-                <td>{{ in_array(CategoriaExamenFisico::TIROIDES_MASAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TIROIDES_MASAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Flexibilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::FLEXIBILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::FLEXIBILIDAD, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Miembros inferiores</td>
-                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_INFERIORES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_INFERIORES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>c. Pupilas</td>
-                <td>{{ in_array(CategoriaExamenFisico::PUPILAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PUPILAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Faringe</td>
-                <td>{{ in_array(CategoriaExamenFisico::FARINGE, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::FARINGE, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Movilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::MOVILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MOVILIDAD, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">10. Columna</span></td>
                 <td rowspan="2">a. Desviación</td>
                 <td rowspan="2">
-                    {{ in_array(CategoriaExamenFisico::DESVIACION, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                    {{ in_array(CategoriaExamenFisico::DESVIACION, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="4" class="celda"><span class="texto-vertical">13. Neurológico</span></td>
                 <td>a. Fuerza</td>
-                <td>{{ in_array(CategoriaExamenFisico::FUERZA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::FUERZA, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>d. Córnea</td>
-                <td>{{ in_array(CategoriaExamenFisico::CORNEA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CORNEA, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>d. Amígdalas</td>
-                <td>{{ in_array(CategoriaExamenFisico::AMIGDALAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::AMIGDALAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">7. Tórax</span></td>
                 <td>a. Mamas</td>
-                <td>{{ in_array(CategoriaExamenFisico::MAMAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MAMAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Sensibilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::SENSIBILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::SENSIBILIDAD, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>e. Motilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::MOTILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MOTILIDAD, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>e. Dentadura</td>
-                <td>{{ in_array(CategoriaExamenFisico::DENTADURA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::DENTADURA, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Corazón</td>
-                <td>{{ in_array(CategoriaExamenFisico::CORAZON, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CORAZON, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Dolor</td>
-                <td>{{ in_array(CategoriaExamenFisico::DOLOR, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::DOLOR, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Marcha</td>
-                <td>{{ in_array(CategoriaExamenFisico::MARCHA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MARCHA, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
@@ -598,53 +614,27 @@
                     {{ 'CON EVIDENCIA DE PATOLOGÍA MARCAR CON "X" Y DESCRIBIR EN LA SIGUIENTE SECCIÓN ANOTANDO EL NUMERAL' }}
                 </td>
                 <td>d. Reflejos</td>
-                <td>{{ in_array(CategoriaExamenFisico::REFLEJOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::REFLEJOS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td colspan="15">
                     <div class="mb-4"><b class="fs-10">Observaciones:</b></div>
-                    <div class="mb-4 fs-10">{{ $fichaRetiro['observaciones_examen_fisico_regional'] }}</div>
+                    <div class="mb-4 fs-10">{{ $ficha_preocupacional['observaciones_examen_fisico_regional'] }}</div>
                 </td>
             </tr>
         </tbody>
     </table>
 
-    {{-- E. RESULTADOS DE EXÁMENES GENERALES Y ESPECÍFICOS DE ACUERDO AL RIESGO Y PUESTO DE TRABAJO (IMAGEN, LABORATORIO Y OTROS) --}}
-    <div class="titulo-seccion">E. RESULTADOS DE EXÁMENES GENERALES Y ESPECÍFICOS DE ACUERDO AL RIESGO Y PUESTO DE
-        TRABAJO (IMAGEN, LABORATORIO Y OTROS)</div>
-    <table
-        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
-        border="1" cellpadding="0" cellspacing="0" class="mb-8">
-        <tr>
-            <th class="fs-10">EXAMEN</th>
-            <th class="fs-10">FECHA</th>
-            <th class="fs-10">RESULTADO</th>
-        </tr>
-        @foreach ($fichaRetiro['resultados_examenes'] as $resultado)
-            <tr>
-                <td>{{ $resultado['examen'] }}</td>
-                <td>{{ $resultado['fecha'] }}</td>
-                <td>{{ $resultado['resultado'] }}</td>
-            </tr>
-        @endforeach
-        <tr>
-            <td colspan="3">
-                <div class="mb-4 fs-10">Observaciones:</div>
-                <div class="mb-4 fs-10">{{ $fichaRetiro['observaciones_resultados_examenes'] }}</div>
-            </td>
-        </tr>
-    </table>
-
-    {{-- F. DIAGNÓSTICO --}}
+    {{-- M. DIAGNÓSTICO --}}
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
         border="1" cellpadding="0" cellspacing="0" class="mb-8">
         <tr>
             <th colspan="2" class=" bg-titulo" style="width: 60%; text-align: left;">
                 <span class="fs-10">
-                    F. DIAGNÓSTICO
+                    M. DIAGNÓSTICO
                 </span>
                 <span class="fs-10">
                     PRE = PRESUNTIVO
@@ -656,7 +646,7 @@
             <th class="fs-10 bg-titulo" style="width: 5%;">DEF</th>
         </tr>
 
-        @if (count($fichaRetiro['consultasMedicas']) === 0)
+        @if (count($ficha_preocupacional['consultas_medicas']) === 0)
             <tr>
                 <td style="width: 4%;" class="bg-green">{{ '1' }}</td>
                 <td style="width: 55%;">{{ '' }}</td>
@@ -665,7 +655,7 @@
                 <td style="width: 8%;">{{ '' }}</td>
             </tr>
         @else
-            @foreach ($fichaRetiro['consultasMedicas'][0]['diagnosticos'] as $diagnostico)
+            @foreach ($ficha_preocupacional['consultas_medicas'][0]['diagnosticos'] as $diagnostico)
                 <tr>
                     <td style="width: 4%;" class="bg-green">{{ $loop->index + 1 }}</td>
                     <td style="width: 55%;">{{ $diagnostico['recomendacion'] }}</td>
@@ -677,79 +667,26 @@
         @endif
     </table>
 
-    {{-- G. EVALUACION MEDICA DE RETIRO --}}
-    <div class="titulo-seccion">G. EVALUACIÓN MÉDICA DE RETIRO</div>
-    {{-- <div class="pa-8 border"> --}}
-    <table
-        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
-        border="1" cellpadding="0" cellspacing="0">
-        <tr>
-            <td style="width: 15%;" class="bg-green">SE REALIZÓ LA EVALUACIÓN</td>
-            <td style="width: 10%;" class="bg-green">SI</td>
-            @if ($fichaRetiro['se_hizo_evaluacion_retiro'])
-                <td style="width: 5%;">{{ 'X' }}</td>
-            @else
-                <td style="width: 5%;">&nbsp;&nbsp;</td>
-            @endif
-
-            <td style="border: none; width: 5%;">&nbsp;&nbsp;</td>
-
-            <td style="width: 10%;" class="bg-green">NO</td>
-            @if (!$fichaRetiro['se_hizo_evaluacion_retiro'])
-                <td style="width: 5%;">{{ 'X' }}</td>
-            @else
-                <td style="width: 5%;">&nbsp;&nbsp;</td>
-            @endif
-
-            {{-- <td style="width: 50%;"></td> --}}
-        </tr>
-    </table>
-    <div class="border pa-8 mb-8 fs-10">
-        <div class="fs-10 mb-4">Observaciones</div>
-        {{ $fichaRetiro['observaciones_evaluacion_retiro'] }}
-    </div>
-
-    <div class="titulo-seccion">H. RECOMENDACIONES Y/O TRATAMIENTO</div>
-    <div class="border pa-8 fs-10 mb-8">
-        <div class="fs-10 mb-4">Descripción</div>
-        {{ $fichaRetiro['recomendaciones_tratamientos'] }}
-    </div>
-
-    <div class="fs-10 mb-8">
-        {{ 'CERTIFICO QUE LO ANTERIORMENTE EXPRESADO EN RELACIÓN A MI ESTADO DE SALUD ES VERDAD. SE ME HA INFORMADO MI ESTADO ACTUAL DE SALUD Y LAS RECOMENDACIONES PERTINENTES.' }}
-    </div>
-
-    {{-- F. DATOS DEL PROFESIONAL DE SALUD --}}
-    <span style="width: 100%; display: inline-block;" class="border mr-8">
-        <div class="titulo-seccion">F. DATOS DEL PROFESIONAL DE SALUD</div>
-        <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0">
+    {{-- N. APTITUD MÉDICA LABORAL --}}
+    <div class="titulo-seccion">N. APTITUD MÉDICA PARA EL TRABAJO</div>
+    <div class="border mb-8">
+        <table
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+            border="1" cellpadding="0" cellspacing="0" class="mb-8">
             <tr>
-                <td class="bg-green fs-10">FECHA</td>
-                <td style="width: 10%">{{ $fichaRetiro['fecha_creacion'] }}</td>
-                <td class="bg-green fs-10">HORA</td>
-                <td style="width: 8%">{{ $fichaRetiro['hora_creacion'] }}</td>
-                <td class="bg-green fs-10" style="width: 10%;">NOMBRE Y APELLIDO</td>
-                <td style="width: 15%" class="fs-10">
-                    {{ $profesionalSalud->empleado->nombres . ' ' . $profesionalSalud->empleado->apellidos }}</td>
-                <td class="bg-green fs-10" style="width: 10%;">CÓDIGO</td>
-                <td style="width: 8%">{{ $profesionalSalud->codigo }}</td>
-                <td class="bg-green fs-10">FIRMA Y SELLO</td>
-                <td style="width: 20%">
-                    @isset($firmaProfesionalMedico)
-                        <img src="{{ $firmaProfesionalMedico }}" alt="" width="100%" height="40">
-                    @endisset
-                    @empty($firmaProfesionalMedico)
-                        &nbsp;<br />
-                    @endempty
-                </td>
+                @foreach ($tipos_aptitudes_medicas_laborales as $tipo)
+                    <th class="pa-4">{{ $tipo->nombre }}</th>
+                    @if ($tipo->seleccionado)
+                        <td class="pa-4" align="center">{{ 'X' }}</td>
+                    @else
+                        <td class="pa-4">&nbsp;&nbsp;</td>
+                    @endif
+                @endforeach
             </tr>
         </table>
-    </span>
-
-    {{-- <footer>
-        <b style="float: left;">SNS-MSP / Form. CERT. 081 / 2019</b>
-        <b style="float: right;">CERTIFICADO DE SALUD EN EL TRABAJO</b>
-    </footer> --}}
+        <p class="px-8 fs-10"><b>DETALLE DE OBSERVACIONES:</b></p>
+        <p class="px-8 fs-10">{{ $ficha_preocupacional['observaciones_aptitud_medica'] }}</p>
+    </div>
 </body>
 
 </html>

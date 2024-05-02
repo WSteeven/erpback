@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\ExamenesController;
 use App\Http\Controllers\Medico\ActividadFisicaController;
-// use App\Http\Controllers\Medico\ActividadPuestoTrabajoController;
 use App\Http\Controllers\Medico\AntecedenteFamiliarController;
 use App\Http\Controllers\Medico\AntecedenteGinecoObstetricoController;
 use App\Http\Controllers\Medico\AntecedentePersonalController;
@@ -23,22 +21,18 @@ use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
 use App\Http\Controllers\Medico\DiagnosticoCitaController;
-use App\Http\Controllers\Medico\DiagnosticoController;
 use App\Http\Controllers\Medico\DiagnosticoRecetaController;
 use App\Http\Controllers\Medico\EsquemaVacunaController;
 use App\Http\Controllers\Medico\EstadoExamenController;
 use App\Http\Controllers\Medico\EstadoSolicitudExamenController;
-use App\Http\Controllers\Medico\EstiloVidaController;
 use App\Http\Controllers\Medico\ExamenController;
-use App\Http\Controllers\Medico\ExamenEspecificoController;
 use App\Http\Controllers\Medico\ExamenFisicoRegionalController;
 use App\Http\Controllers\Medico\ExamenOrganoReproductivoController;
-use App\Http\Controllers\Medico\ExamenPreocupacionalController;
 use App\Http\Controllers\Medico\FactorRiesgoController;
 use App\Http\Controllers\Medico\FichaAptitudController;
 use App\Http\Controllers\Medico\FichaPeriodicaController;
 use App\Http\Controllers\Medico\FichaPreocupacionalController;
-use App\Http\Controllers\Medico\HabitoToxicoController;
+use App\Http\Controllers\Medico\FichaRetiroController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LaboratorioClinicoController;
 use App\Http\Controllers\Medico\MedicacionController;
@@ -66,8 +60,6 @@ use App\Http\Controllers\Medico\TipoExamenController;
 use App\Http\Controllers\Medico\TipoFactorRiesgoController;
 use App\Http\Controllers\Medico\TipoHabitoToxicoController;
 use App\Http\Controllers\Medico\TipoVacunaController;
-use App\Models\Medico\CategoriaExamenFisico;
-use App\Models\Medico\CategoriaFactorRiesgo;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -131,7 +123,8 @@ Route::apiResources(
         'solicitudes-examenes' => SolicitudExamenController::class,
         'regiones-cuerpo' => RegionCuerpoController::class,
         'fichas-periodicas' => FichaPeriodicaController::class,
-        'fichas-periodicas-preocupacionales' => FichaPreocupacionalController::class,
+        'fichas-preocupacionales' => FichaPreocupacionalController::class,
+        'fichas-retiro' => FichaRetiroController::class,
     ],
     [
         'parameters' => [
@@ -158,7 +151,7 @@ Route::apiResources(
             'religiones' => 'religion',
             'resultados-examene' => 'resultado_examen',
             'fichas-periodicas' => 'ficha',
-            'fichas-periodicas-preocupacionales' => 'ficha_preocupacional',
+            'fichas-preocupacionales' => 'ficha_preocupacional',
             'orientaciones-sexuales' => 'orientacion_sexual',
             'identidades-generos' => 'identidad_genero',
             'tipos-habitos-toxicos' => 'tipo_habito_toxico',
@@ -168,9 +161,13 @@ Route::apiResources(
     ]
 );
 
+/********
+ * Otros
+ ********/
 Route::post('archivo-cie', [CieController::class, 'archivoCie']);
 Route::get('reporte-cuestionario', [CuestionarioController::class, 'reportesCuestionarios']);
 Route::get('imprimir-cuestionario', [CuestionarioController::class, 'imprimirCuestionario']);
+Route::get('ficha-preocupacional-informacion-defecto', [FichaPreocupacionalController::class, 'consultarInformacionDefectoFicha']);
 
 /************************************
  * Cambiar estados de citas medicas
@@ -187,11 +184,14 @@ Route::post('detalles-resultados-examenes/files/{detalle_resultado_examen}', [De
 Route::get('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController::class, 'indexFiles']);
 Route::post('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController::class, 'storeFiles']);
 
+Route::get('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenController::class, 'indexFiles']);
+Route::post('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenController::class, 'storeFiles']);
+
 /*****************
  * Imprimir PDFs
  *****************/
 Route::get('fichas-aptitudes/imprimir/{ficha_aptitud}', [FichaAptitudController::class, 'imprimirPDF']);
-Route::get('fichas-retiros/imprimir', [FichaAptitudController::class, 'imprimirPDFFichaRetiro']);
+Route::get('fichas-retiros/imprimir', [FichaRetiroController::class, 'imprimirPDF']);
+Route::get('fichas-preocupacionales/imprimir/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'imprimirPDF']);
 
 Route::put('resultados-examenes', [ResultadoExamenController::class, 'multipleUpdate']);
-// 02-04-2024

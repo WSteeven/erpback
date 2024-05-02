@@ -85,11 +85,11 @@
 
         /* Mis estilos */
         th {
-            background: #abbca8;
+            background: #ccffcc;
         }
 
         .bg-green {
-            background: #abbca8;
+            background: #ccffcc;
         }
 
         td,
@@ -100,7 +100,7 @@
         }
 
         .titulo-seccion {
-            background: #8aa9c5;
+            background: #ccccff;
             border: 1px solid #000;
             padding: 4px;
             font-size: 14px;
@@ -173,6 +173,21 @@
         .text-bold {
             font-weight: bold;
         }
+
+        span {
+            display: inline-block;
+            /* Mostrar en línea */
+            vertical-align: middle;
+            /* Alinear verticalmente al centro */
+        }
+
+        /* Estilo para el elemento después del span */
+        .elemento-despues {
+            display: block;
+            /* Mostrar en bloque (debajo del span) */
+            text-align: center;
+            /* Alinear texto al centro */
+        }
     </style>
 </head>
 
@@ -226,10 +241,10 @@
     <div class="titulo-seccion">B. DATOS GENERALES</div>
     <div class="border mb-8">
         <div class="pa-8 font-text-10">
-            <span style="margin-right: 24px; display: inline-block;">FECHA DE EMISIÓN:</span> <span
-                class="cuadrado">{{ $ficha_aptitud['fecha_emision']->year }}</span><span
-                class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('m') }}</span><span
-                class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('d') }}</span>
+            <span style="margin-right: 24px; display: inline-block;">FECHA DE EMISIÓN:</span>
+            <span><span class="cuadrado">{{ $ficha_aptitud['fecha_emision']->year }}</span><small class="elemento-despues">aaaa</small></span>
+            <span><span class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('m') }}</span></br>mm</span>
+            <span><span class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('d') }}</span></br>dd</span>
         </div>
         <div class="pa-8 font-text-10 row items-center">
             <span style="margin-right: 24px; display: inline-block;">EVALUACIÓN:</span>
