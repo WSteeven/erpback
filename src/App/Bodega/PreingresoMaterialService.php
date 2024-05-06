@@ -131,7 +131,22 @@ class PreingresoMaterialService
                             $detalleNuevo = DetalleProducto::crearDetalle($categoria, $datos);
                             ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalleNuevo->id, $item));
                         }
-                    } else  throw new Exception('No se encontró un detalle de producto con las similitudes dadas');
+                    } else {
+                        if ($item['es_generico']) {
+                            // se creará nuevo detalle
+                            $detalleGenerico  = DetalleProducto::obtenerDetalle(null, $item['descripcion_original']);
+                            $fibra = Fibra::where('detalle_id', $detalleGenerico->id)->first();
+                            if ($detalleGenerico) {
+                                $detalleGenerico->descripcion = $item['descripcion'];
+                                $detalleGenerico->serial = $item['serial'];
+                                $categoria = new \stdClass();
+                                $categoria->categoria = strtoupper($producto->categoria->nombre);
+                                $categoria->es_fibra = !!$fibra;
+                                $detalleCreado = DetalleProducto::crearDetalle($categoria, $detalleGenerico->toArray());
+                                Log::channel('testing')->info('Log', ['detalle creado es :', $detalleCreado]);
+                            }
+                        } else throw new Exception('No se encontró un detalle de producto con las similitudes dadas'); //aquí se debe controlar crear el nuevo ítem           
+                    }
                 }
             }
         } catch (\Throwable $th) {
