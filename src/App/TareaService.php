@@ -72,8 +72,8 @@ class TareaService
             $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%')->groupBy('tarea_id')->pluck('tarea_id');
         }
         $ignoreRequest = ['activas_empleado', 'empleado_id', 'campos', 'formulario'];
-        return Tarea::whereIn('id', $tareas_ids)->estaActiva()->orWhere(function ($query) {
-            $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
+        return Tarea::whereIn('id', $tareas_ids)->estaActiva()->orWhere(function ($query) use ($tareas_ids) {
+            $query->whereIn('id', $tareas_ids)->where('finalizado', true)->disponibleUnaHoraFinalizar();
         })->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
     }
     public function obtenerTareasAsignadasGrupoLuegoFinalizar(int $grupo_id)
