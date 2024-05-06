@@ -452,14 +452,14 @@
             <thead>
                 <th align="center">
                     __________________________________________<br />
-                    <b>{{ $creador_rol_pago->nombres . '' . $creador_rol_pago->apellidos }}</b>
+                    <b>{{ $creador_rol_pago->nombres . ' ' . $creador_rol_pago->apellidos }}</b>
                     <br>
                     <b>ELABORADO</b>
                 </th>
                 <th align="center"></th>
                 <th align="center">
                     __________________________________________<br />
-                    <b>ING. JEAN PATRICIO PAZMIÑO BARROS</b>
+                    <b>{{ $aprueba_rol_pago->nombres.' '.$aprueba_rol_pago->apellidos }}</b>
                     <br>
                     <b>APROBADO </b>
                 </th>

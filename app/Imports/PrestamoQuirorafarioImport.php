@@ -25,8 +25,6 @@ class PrestamoQuirorafarioImport implements ToModel, WithHeadingRow, WithValidat
      */
     public function model(array $row)
     {
-        Log::channel('testing')->info('Log', ['array', $row['cedula']]);
-
         return new PrestamoQuirorafario([
             "mes" => $this->mes,
             "empleado_id" => $this->empleados[$row['cedula']],
