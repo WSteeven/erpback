@@ -144,6 +144,10 @@ class FichaPreocupacionalService
 
     public function insertarAntecedentePersonal($request)
     {
+        // Log::channel('testing')->info('Log', ['Error antecente personal', $request]);
+        // Log::channel('testing')->info('Log', ['Error antecente personal', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Error antecente personal', $request->antecedente_personal['tipo_metodo_planificacion_familiar']]);
+
         try {
             DB::beginTransaction();
             $antecedente = AntecedentePersonal::create([
@@ -170,16 +174,17 @@ class FichaPreocupacionalService
     }
     public function insertarAntecedentesGinecoObstetricos($data, $antecedente_id)
     {
+        Log::channel('testing')->info('Log', ['gineco', $data]);
         try {
             DB::beginTransaction();
             AntecedenteGinecoObstetrico::create([
-                'menarquia' => $data->menarquia,
-                'ciclos' => $data->ciclos,
-                'fecha_ultima_menstruacion' => $data->fecha_ultima_menstruacion,
-                'gestas' => $data->gestas,
-                'partos' => $data->partos,
-                'cesareas' => $data->cesareas,
-                'abortos' => $data->abortos,
+                'menarquia' => $data['menarquia'],
+                'ciclos' => $data['ciclos'],
+                'fecha_ultima_menstruacion' => $data['fecha_ultima_menstruacion'],
+                'gestas' => $data['gestas'],
+                'partos' => $data['partos'],
+                'cesareas' => $data['cesareas'],
+                'abortos' => $data['abortos'],
                 'antecedente_personal_id' => $antecedente_id,
             ]);
             DB::commit();

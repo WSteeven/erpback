@@ -28,6 +28,8 @@ class FichaPreocupacional extends Model implements Auditable
         'motivo_consulta',
         'actividades_extralaborales',
         'enfermedad_actual',
+        'recomendaciones_tratamiento',
+        'grupo_sanguineo',
         'cargo_id',
         'registro_empleado_examen_id',
         'observacion_examen_fisico_regional',

@@ -120,8 +120,8 @@ class FichaPreocupacionalController extends Controller
 
         $modelo = [
             'motivo_consulta' => 'Ficha preocupacional',
-            'recomendaciones_tratamiento' => $consulta_medica->receta->rp . '/' . $consulta_medica->receta->prescripcion,
-            'enfermedad_actual' => $consulta_medica->diagnosticosCitaMedica->map(fn ($diagnostico) => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad)->implode(',', ' '),
+            'recomendaciones_tratamiento' => $consulta_medica?->receta->rp . '/' . $consulta_medica?->receta->prescripcion,
+            'enfermedad_actual' => $consulta_medica?->diagnosticosCitaMedica->map(fn ($diagnostico) => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad)->implode(',', ' '),
         ];
 
         return response()->json(compact('modelo'));
@@ -215,6 +215,8 @@ class FichaPreocupacionalController extends Controller
             'profesionalSalud' => $profesionalSalud,
             'tipo_proceso_examen' => $ficha_preocupacional->registroEmpleadoExamen->tipo_proceso_examen,
             'tipos_aptitudes_medicas_laborales' => $tipos_aptitudes_medicas_laborales,
+            'fecha_creacion' => Carbon::parse($ficha_preocupacional->created_at)->format('Y-m-d'),
+            'hora_creacion' => Carbon::parse($ficha_preocupacional->created_at)->format('H:i:s'),
         ];
 
         try {

@@ -1,9 +1,6 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $num_registro = 1;
 
     // $firma_profesional_salud = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->firma_url, 1)));
     use App\Models\Medico\CategoriaExamenFisico;
@@ -91,6 +88,14 @@
             background: #ccffcc;
         }
 
+        .bg-titulo {
+            background: #ccccff !important;
+        }
+
+        .bg-celeste {
+            background: #ccffff !important;
+        }
+
         td,
         th {
             padding: 4px;
@@ -117,10 +122,6 @@
             padding: 4px;
             font-size: 10px;
             font-weight: bold;
-        }
-
-        .bg-titulo {
-            background: #ccccff !important;
         }
 
         .subtitulo-seccion {
@@ -203,7 +204,11 @@
         }
 
         .fs-9 {
-            font-size: 9px;
+            font-size: 9px !important;
+        }
+
+        .fs-8 {
+            font-size: 8px !important;
         }
 
         .border {
@@ -317,6 +322,178 @@
         </tr>
         <tr>
             <td>{{ $ficha_preocupacional['antecedente_personal']['antecedentes_quirurgicos'] }}</td>
+        </tr>
+    </table>
+
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif;"
+        border="1" cellpadding="0" cellspacing="0" >
+        <tr>
+            <th align="left" style="width: 10%;" colspan="14">ANTECEDENTES GINECO OBSTÉTRICOS</th>
+        </tr>
+
+        <tr>
+            <td style="width: 10%;" class="bg-celeste fs-8" rowspan="2" colspan="1">{{ 'MENARQUÍA' }}</td>
+            <td style="width: 7%;" class="bg-celeste fs-8" rowspan="2" colspan="1">{{ 'CICLOS' }}</td>
+            <td style="width: 12%;" class="bg-celeste fs-8" rowspan="2" colspan="1" align="center">{{ 'FECHA DE ÚLTIMA MENSTRUACIÓN' }}</td>
+            <td style="width: 8%;" class="bg-celeste fs-8" rowspan="2" colspan="1">{{ 'GESTAS' }}</td>
+            <td style="width: 8%;" class="bg-celeste fs-8" rowspan="2" colspan="1">{{ 'PARTOS' }}</td>
+            <td style="width: 10%;" class="bg-celeste fs-8" rowspan="2" colspan="1">{{ 'CESÁREAS' }}</td>
+            <td style="width: 9%;" class="bg-celeste fs-8" rowspan="2" colspan="1">{{ 'ABORTOS' }}</td>
+            <td class="bg-celeste fs-8" rowspan="1" colspan="2" align="center">{{ 'HIJOS' }}</td>
+            <td class="bg-celeste fs-8" rowspan="1" colspan="2" align="center">{{ 'VIDA SEXUAL ACTIVA' }}</td>
+            <td style="width: 10%;" class="bg-celeste fs-8" rowspan="1" colspan="3">{{ 'MÉTODO DE PLANIFICACIÓN FAMILIAR' }}</td>
+        </tr>
+
+        <tr>
+            <td style="width: 6%;" class="bg-celeste fs-8" rowspan="1">{{ 'VIVOS' }}</td>
+            <td style="width: 8%;" class="bg-celeste fs-8" rowspan="1">{{ 'MUERTOS' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'SI' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'NO' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'SI' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'NO' }}</td>
+            <td style="width: 20%;" class="bg-celeste fs-8" rowspan="1">{{ 'TIPO' }}</td>
+        </tr>
+
+        <tr>
+            <td>{{ isset($ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia']) ? $ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia']) ? $ficha_preocupacional['antecedentes_gineco_obstetricos']['ciclos'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia']) ? $ficha_preocupacional['antecedentes_gineco_obstetricos']['fecha_ultima_menstruacion'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia']) ? $ficha_preocupacional['antecedentes_gineco_obstetricos']['gestas'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia']) ? $ficha_preocupacional['antecedentes_gineco_obstetricos']['partos'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia']) ? $ficha_preocupacional['antecedentes_gineco_obstetricos']['cesareas'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedentes_gineco_obstetricos']['menarquia']) ? $ficha_preocupacional['antecedentes_gineco_obstetricos']['abortos'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedente_personal']['hijos_vivos']) ? $ficha_preocupacional['antecedente_personal']['hijos_vivos'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedente_personal']['hijos_muertos']) ? $ficha_preocupacional['antecedente_personal']['hijos_muertos'] : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedente_personal']['vida_sexual_activa']) && $ficha_preocupacional['antecedente_personal']['vida_sexual_activa'] ? 'x' : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedente_personal']['vida_sexual_activa']) && !$ficha_preocupacional['antecedente_personal']['vida_sexual_activa'] ? 'x' : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedente_personal']['tiene_metodo_planificacion_familiar']) && $ficha_preocupacional['antecedente_personal']['tiene_metodo_planificacion_familiar'] ? 'x' : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedente_personal']['tiene_metodo_planificacion_familiar']) && !$ficha_preocupacional['antecedente_personal']['tiene_metodo_planificacion_familiar'] ? 'x' : ''}}</td>
+            <td>{{ isset($ficha_preocupacional['antecedente_personal']['tipo_metodo_planificacion_familiar']) ? $ficha_preocupacional['antecedente_personal']['tipo_metodo_planificacion_familiar'] : ''}}</td>
+        </tr>
+    </table>
+
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+        border="1" cellpadding="0" cellspacing="0">
+        <tr>
+            <th align="left" style="width: 100%;" colspan="10">ANTECEDENTES GINECO OBSTÉTRICOS</th>
+        </tr>
+        <tr>
+            <td class="bg-celeste" style="width: 20%;">{{ 'EXÁMENES REALIZADOS' }}</td>
+            <td class="bg-celeste" style="width: 4%;">{{ 'SI' }}</td>
+            <td class="bg-celeste" style="width: 4%;">{{ 'NO' }}</td>
+            <td class="bg-celeste" style="width: 11%;">{{ 'TIEMPO(años)' }}</td>
+            <td class="bg-celeste" style="width: 11%;">{{ 'RESULTADO' }}</td>
+            <td class="bg-celeste" style="width: 20%;">{{ 'EXÁMENES REALIZADOS' }}</td>
+            <td class="bg-celeste" style="width: 4%;">{{ 'SI' }}</td>
+            <td class="bg-celeste" style="width: 4%;">{{ 'NO' }}</td>
+            <td class="bg-celeste" style="width: 11%;">{{ 'TIEMPO(años)' }}</td>
+            <td class="bg-celeste" style="width: 11%;">{{ 'RESULTADO' }}</td>
+        </tr>
+        <tr>
+            {{-- Papanicolaou --}}
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][0]['examen'] : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? ($ficha_preocupacional['examenes_realizados'][0]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? (!$ficha_preocupacional['examenes_realizados'][0]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][0]['tiempo'] : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][0]['resultado'] : '' }}
+            </td>
+            {{-- Ecomamario --}}
+            <td>{{ 3 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][2]['examen'] : '' }}
+            </td>
+            <td>{{ 3 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? ($ficha_preocupacional['examenes_realizados'][2]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 3 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? (!$ficha_preocupacional['examenes_realizados'][2]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 3 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][2]['tiempo'] : '' }}
+            </td>
+            <td>{{ 3 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][2]['resultado'] : '' }}
+            </td>
+        </tr>
+        <tr>
+            {{-- Colposcopia --}}
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][1]['examen'] : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? ($ficha_preocupacional['examenes_realizados'][1]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? (!$ficha_preocupacional['examenes_realizados'][1]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][1]['tiempo'] : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][1]['resultado'] : '' }}
+            </td>
+            {{-- Mamografia --}}
+            <td>{{ 4 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][3]['examen'] : '' }}
+            </td>
+            <td>{{ 4 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? ($ficha_preocupacional['examenes_realizados'][3]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 4 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? (!$ficha_preocupacional['examenes_realizados'][3]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 4 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][3]['tiempo'] : '' }}
+            </td>
+            <td>{{ 4 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'F' ? $ficha_preocupacional['examenes_realizados'][3]['resultado'] : '' }}
+            </td>
+        </tr>
+    </table>
+
+    {{-- AQUI --}}
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+        border="1" cellpadding="0" cellspacing="0">
+        <tr>
+            <th align="left" style="width: 100%;" colspan="10">ANTECEDENTES REPRODUCTIVOS MASCULINOS</th>
+        </tr>
+        <tr>
+            <td class="bg-celeste" style="width: 20%;">{{ 'EXÁMENES REALIZADOS' }}</td>
+            <td class="bg-celeste" style="width: 4%;">{{ 'SI' }}</td>
+            <td class="bg-celeste" style="width: 4%;">{{ 'NO' }}</td>
+            <td class="bg-celeste" style="width: 11%;">{{ 'TIEMPO(años)' }}</td>
+            <td class="bg-celeste" style="width: 11%;">{{ 'RESULTADO' }}</td>
+            <td class="bg-celeste fs-8" rowspan="1" colspan="2" align="center">{{ 'HIJOS' }}</td>
+            <td class="bg-celeste fs-8" rowspan="1" colspan="2" align="center">{{ 'VIDA SEXUAL ACTIVA' }}</td>
+            <td style="width: 10%;" class="bg-celeste fs-8" rowspan="1" colspan="3">{{ 'MÉTODO DE PLANIFICACIÓN FAMILIAR' }}</td>
+        </tr>
+
+        <tr>
+            <td style="width: 6%;" class="bg-celeste fs-8" rowspan="1">{{ 'VIVOS' }}</td>
+            <td style="width: 8%;" class="bg-celeste fs-8" rowspan="1">{{ 'MUERTOS' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'SI' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'NO' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'SI' }}</td>
+            <td style="width: 4%;" class="bg-celeste fs-8" rowspan="1">{{ 'NO' }}</td>
+            <td style="width: 20%;" class="bg-celeste fs-8" rowspan="1">{{ 'TIPO' }}</td>
+        </tr>
+        
+        <tr>
+            {{-- Antigeno prostatico --}}
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'M' ? $ficha_preocupacional['examenes_realizados'][0]['examen'] : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'M' ? ($ficha_preocupacional['examenes_realizados'][0]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'M' ? (!$ficha_preocupacional['examenes_realizados'][0]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'M' ? $ficha_preocupacional['examenes_realizados'][0]['tiempo'] : '' }}
+            </td>
+            <td>{{ 1 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][0]['tipo'] == 'M' ? $ficha_preocupacional['examenes_realizados'][0]['resultado'] : '' }}
+            </td>
+        </tr>
+        <tr>
+            {{-- Antigeno prostatico --}}
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][1]['tipo'] == 'M' ? $ficha_preocupacional['examenes_realizados'][1]['examen'] : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][1]['tipo'] == 'M' ? ($ficha_preocupacional['examenes_realizados'][1]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][1]['tipo'] == 'M' ? (!$ficha_preocupacional['examenes_realizados'][1]['resultado'] ? 'x' : '') : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][1]['tipo'] == 'M' ? $ficha_preocupacional['examenes_realizados'][1]['tiempo'] : '' }}
+            </td>
+            <td>{{ 2 <= count($ficha_preocupacional['examenes_realizados']) && $ficha_preocupacional['examenes_realizados'][1]['tipo'] == 'M' ? $ficha_preocupacional['examenes_realizados'][1]['resultado'] : '' }}
+            </td>
         </tr>
     </table>
 
@@ -672,7 +849,7 @@
     <div class="border mb-8">
         <table
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
-            border="1" cellpadding="0" cellspacing="0" class="mb-8">
+            border="1" cellpadding="0" cellspacing="0">
             <tr>
                 @foreach ($tipos_aptitudes_medicas_laborales as $tipo)
                     <th class="pa-4">{{ $tipo->nombre }}</th>
@@ -684,9 +861,75 @@
                 @endforeach
             </tr>
         </table>
-        <p class="px-8 fs-10"><b>DETALLE DE OBSERVACIONES:</b></p>
-        <p class="px-8 fs-10">{{ $ficha_preocupacional['observaciones_aptitud_medica'] }}</p>
+
+        <table
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+            border="1" cellpadding="0" cellspacing="0" class="mb-8">
+            <tr>
+                <td class="bg-celeste px-8 fs-10" style="width: 12%;">{{ 'Observación' }}</td>
+                <td class="px-8 fs-10" style="width: 88%;">
+                    {{ $ficha_preocupacional['aptitud_medica']['observacion'] }}</td>
+            </tr>
+            <tr>
+                <td class="bg-celeste px-8 fs-10">{{ 'Limitación' }}</td>
+                <td class="px-8 fs-10">
+                    {{ $ficha_preocupacional['aptitud_medica']['limitacion'] }}</td>
+            </tr>
+        </table>
     </div>
+
+    {{-- O. RECOMENDACIONES Y/O TRATAMIENTO --}}
+    <div class="titulo-seccion">O. RECOMENDACIONES Y/O TRATAMIENTO</div>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+        border="1" cellpadding="0" cellspacing="0">
+        <tr>
+            <td>{{ $ficha_preocupacional['recomendaciones_tratamiento'] }}</td>
+        </tr>
+    </table>
+
+    <p class="fs-10 mb-16">
+        {{ 'CERTIFICO QUE LO ANTERIORMENTE EXPRESADO EN RELACIÓN A MI ESTADO DE SALUD ES VERDAD. SE ME HA INFORMADO LAS MEDIDAS PREVENTIVAS A TOMAR PARA DISMINUIR O MITIGAR LOS RIESGOS RELACIONADOS CON MI ACTIVIDAD LABORAL.' }}
+    </p>
+
+    <br>
+
+    {{-- F. DATOS DEL PROFESIONAL DE SALUD --}}
+    <span style="width: 77%; display: inline-block;" class="border mr-8">
+        <div class="titulo-seccion">F. DATOS DEL PROFESIONAL DE SALUD</div>
+        <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="bg-green fs-10" style="width: 8%">FECHA</td>
+                <td style="width: 11%">{{ $fecha_creacion }}</td>
+                <td class="bg-green fs-10" style="width: 7%">HORA</td>
+                <td style="width: 9%">{{ $hora_creacion }}</td>
+                <td class="bg-green fs-10" style="width: 12%;">NOMBRE Y APELLIDO</td>
+                <td style="width: 14%" class="fs-10">
+                    {{ $profesionalSalud?->empleado->nombres . ' ' . $profesionalSalud?->empleado->apellidos }}</td>
+                <td class="bg-green fs-10" style="width: 9%;">CÓDIGO</td>
+                <td style="width: 6%">{{ $profesionalSalud?->codigo }}</td>
+                <td class="bg-green fs-10" style="width: 8%;">FIRMA Y SELLO</td>
+                <td style="width: 10%">
+                    @isset($firmaProfesionalMedico)
+                        <img src="{{ $firmaProfesionalMedico }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($firmaProfesionalMedico)
+                        &nbsp;<br />
+                    @endempty
+                </td>
+            </tr>
+        </table>
+    </span>
+
+    {{-- G. FIRMA DEL USUARIO --}}
+    <span style="width: 20%; display: inline-block;" class="border">
+        <div class="titulo-seccion">G. FIRMA DEL USUARIO</div>
+        <div class="pa-12">
+            &nbsp;
+            <br />
+            <br />
+        </div>
+    </span>
 </body>
 
 </html>

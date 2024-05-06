@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Medico;
 
 use App\Models\Medico\AccidenteEnfermedadLaboral;
+use App\Models\Medico\ExamenOrganoReproductivo;
 use App\Models\Medico\RevisionActualOrganoSistema;
 use App\Models\Medico\SistemaOrganico;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -37,6 +38,7 @@ class FichaPreocupacionalResource extends JsonResource
             'actividad_fisica' => $this->actividad_fisica,
             'enfermedad_actual' => $this->enfermedad_actual,
             'recomendaciones_tratamiento' => $this->recomendaciones_tratamiento,
+            'grupo_sanguineo' => $this->grupo_sanguineo,
             'descripcion_examen_fisico_regional' => $this->descripcion_examen_fisico_regional,
             'descripcion_revision_organos_sistemas' => $this->descripcion_revision_organos_sistemas,
             /***************************
@@ -181,17 +183,35 @@ class FichaPreocupacionalResource extends JsonResource
             'cargo' => $this->cargo_id,
             'lateralidad' => $this->lateralidad,
             'actividades_extralaborales' => $this->actividades_extralaborales,
+            'profesional_salud_id' => $this->profesional_salud_id,
             // 'antecedente_personal' => $this->antecedentePersonal()->first(),
+            'examenes_realizados' => $this->mapearExamenesRealizados(),
+            'antecedentes_gineco_obstetricos' => $this->antecedentePersonal->antecedenteGinecoobstetrico,
         ];
     }
 
     private function mapearRevisionActual()
     {
         $revision = $this->revisionesActualesOrganosSistemas()->first();
+        if (!$revision) return null;
         return [
             'descripcion' => $revision->descripcion,
             'organo_id' => $revision->organo_id,
             'organo' => SistemaOrganico::find($revision->organo_id)->nombre,
         ];
+    }
+
+    private function mapearExamenesRealizados()
+    {
+        $examenes = $this->examenesRealizados()->get();
+        // if (!$examenes) return null;
+        return $examenes->map(fn ($examen_realizado) => [
+            'tiempo' => $examen_realizado->tiempo,
+            'resultado' => $examen_realizado->resultado,
+            'examen_id' => $examen_realizado->examen_id,
+            'examen' => ExamenOrganoReproductivo::find($examen_realizado->examen_id)->examen,
+            'tipo' => ExamenOrganoReproductivo::find($examen_realizado->examen_id)->tipo,
+            // 'organo' => SistemaOrganico::find($revision->organo_id)->nombre,
+        ]);
     }
 }

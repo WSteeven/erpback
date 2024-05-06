@@ -24,6 +24,8 @@ return new class extends Migration
             $table->text('actividades_extralaborales')->nullable();
             $table->text('enfermedad_actual')->nullable();
             $table->text('observacion_examen_fisico_regional')->nullable();
+            $table->text('recomendaciones_tratamiento')->nullable();
+            $table->string('grupo_sanguineo');
 
             // Foreign keys
             $table->unsignedBigInteger('cargo_id');
@@ -40,6 +42,9 @@ return new class extends Migration
 
             $table->unsignedBigInteger('registro_empleado_examen_id');
             $table->foreign('registro_empleado_examen_id')->references('id')->on('med_registros_empleados_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('profesional_salud_id');
+            $table->foreign('profesional_salud_id')->references('id')->on('empleados')->cascadeOnUpdate();
 
             $table->timestamps();
         });

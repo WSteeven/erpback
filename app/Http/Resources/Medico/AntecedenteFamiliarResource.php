@@ -15,11 +15,11 @@ class AntecedenteFamiliarResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'=>$this->id,
+            'id' => $this->id,
             'tipo_antecedente_familiares' => $this->tipo_antecedente_familiar_id,
             'descripcion' => $this->descripcion,
-            'tipo_antecedente_familiares_info' => $this->tipoAntecedenteFamiliar !== null? $this->tipoAntecedenteFamiliar->nombre:' ',
-            'ficha_preocupacional_id'=> $this->ficha_preocupacional_id,
+            'tipo_antecedente_familiares_info' => $this->tipoAntecedenteFamiliar !== null ? $this->tipoAntecedenteFamiliar->nombre : ' ',
+            'ficha_preocupacional_id' => $this->ficha_preocupacional_id,
         ];
     }
 }
