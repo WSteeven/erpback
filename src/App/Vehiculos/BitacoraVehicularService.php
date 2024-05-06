@@ -3,11 +3,14 @@
 namespace Src\App\Vehiculos;
 
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
+use App\Http\Resources\Vehiculos\VehiculoResource;
 use App\Models\ConfiguracionGeneral;
+use App\Models\Empleado;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use App\Models\Vehiculos\ChecklistImagenVehiculo;
 use App\Models\Vehiculos\ChecklistVehiculo;
+use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -165,11 +168,20 @@ class BitacoraVehicularService
     public function generarPdf(BitacoraVehicular $bitacora, $descargar = true)
     {
         try {
+            $bita = $bitacora;
             $configuracion = ConfiguracionGeneral::first();
-            $bitacora = new BitacoraVehicularResource($bitacora);
+            $modelo = new BitacoraVehicularResource($bitacora);
+            $vehiculo = new VehiculoResource(Vehiculo::find($bitacora->vehiculo_id));
+            $chofer = Empleado::find($bitacora->chofer_id);
             //aplanar collection
-            $bitacora = $bitacora->resolve();
-            $pdf = Pdf::loadView('vehiculos.bitacora_vehicular', compact(['bitacora', 'configuracion']));
+            $bitacora = $modelo->resolve();
+            $bitacora['actividadesRealizadas'] = $bita->actividades;
+            $bitacora['checklistAccesoriosVehiculo'] = $bita->checklistAccesoriosVehiculo;
+            $bitacora['checklistVehiculo'] = $bita->checklistVehiculo;
+            $bitacora['checklistImagenVehiculo'] = $bita->checklistImagenVehiculo;
+            $vehiculo = $vehiculo->resolve();
+            // Log::channel('testing')->info('Log', ['Datos que se pasan a la plantilla', compact(['bitacora', 'vehiculo', 'chofer', 'configuracion'])]);
+            $pdf = Pdf::loadView('vehiculos.bitacora_vehicular', compact(['bitacora', 'vehiculo', 'chofer', 'configuracion']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
