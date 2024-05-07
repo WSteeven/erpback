@@ -180,7 +180,7 @@ class BitacoraVehicularService
             $bitacora['checklistVehiculo'] = $bita->checklistVehiculo;
             $bitacora['checklistImagenVehiculo'] = $bita->checklistImagenVehiculo;
             $vehiculo = $vehiculo->resolve();
-            // Log::channel('testing')->info('Log', ['Datos que se pasan a la plantilla', compact(['bitacora', 'vehiculo', 'chofer', 'configuracion'])]);
+            Log::channel('testing')->info('Log', ['Datos que se pasan a la plantilla', compact(['bitacora', 'vehiculo', 'chofer', 'configuracion'])]);
             $pdf = Pdf::loadView('vehiculos.bitacora_vehicular', compact(['bitacora', 'vehiculo', 'chofer', 'configuracion']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);

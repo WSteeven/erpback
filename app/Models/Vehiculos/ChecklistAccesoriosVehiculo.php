@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ class ChecklistAccesoriosVehiculo extends Model implements Auditable
 {
     use HasFactory;
     use Filterable;
+    use UppercaseValuesTrait;
     use AuditableModel;
     public $table = 'veh_checklist_accesorios_vehiculos';
     public $fillable = [

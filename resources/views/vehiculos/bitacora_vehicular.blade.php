@@ -6,6 +6,9 @@
         'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
     $logo_watermark =
         'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    if ($bitacora['firmada']) {
+        $firma_responsable = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($chofer->firma_url, 1)));
+    }
 @endphp
 
 <head>
@@ -54,8 +57,8 @@
         bottom: 0px;
         left: 0cm;
         right: 0cm;
-        height: 2cm;
         margin-bottom: 5px;
+        /* height: 2cm; */
 
         /** Estilos extra personales **/
         text-align: center;
@@ -89,6 +92,11 @@
     .header-title {
         font-weight: bold;
     }
+
+    .custom-table th,
+    .custom-table td {
+        width: 25%;
+    }
 </style>
 
 <body>
@@ -109,7 +117,7 @@
         </table>
     </header>
     <footer>
-        <table class="firma" style="width: 100%;">
+        {{-- <table class="firma" style="width: 100%;">
             <thead>
                 <th align="center"></th>
                 <th align="center">___________________</th>
@@ -132,14 +140,17 @@
                     <td></td>
                 </tr>
             </tbody>
-        </table>
+        </table> --}}
         <table style="width: 100%;">
             <tr>
-                <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
-                        {{ $configuracion['razon_social'] }}</div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; margin-left: 80px;margin-right: 80px; font-size: 14px"
+                        align="center">La
+                        información contenida en este documento es confidencial y de uso exclusivo de
+                        {{ $configuracion['razon_social'] }}
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; font-size: 12px" align="center">
+                        Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
@@ -199,31 +210,34 @@
         </table>
         <br>
         <table style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
-            <thead>
-                <th style="width: 20%">Fecha y Hora</th>
-                <th style="width: 80%">Actividad</th>
+            <thead style="background-color:#F2F2F2 ">
+                <th style="width: 20%">FECHA Y HORA</th>
+                <th style="width: 80%">ACTIVIDAD</th>
             </thead>
             <tbody>
                 @foreach ($bitacora['actividadesRealizadas'] as $actividad)
                     <tr>
                         <td>{{ $actividad['fecha_hora'] }}</td>
-                        <td>{{ $actividad['actividad_realizada'] }}</td>
+                        <td>{{ strtoupper($actividad['actividad_realizada']) }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
         <br>
-        <table style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
+        <table class="custom-table" style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
             <tr>
-                <th colspan="4" style="background-color: rgba(143, 235, 198, 0.267)" align="left">1. INTERIOR</th>
+                <th colspan="4" align="center">CHECKLIST DEL VEHICULO</th>
             </tr>
-            <tr style="width: auto">
+            <tr>
+                <th colspan="4" style="background-color: #F2F2F2" align="left">1. INTERIOR</th>
+            </tr>
+            <tr>
                 <th>VIDRIOS (VENTANAS/PARABRISAS)</th>
                 <th>LIMPIA PARABRISAS</th>
                 <th>LUCES</th>
                 <th>AA/CC</th>
             </tr>
-            <tr style="width: auto">
+            <tr>
                 <td>{{ $bitacora['checklistVehiculo']['parabrisas'] }}</td>
                 <td>{{ $bitacora['checklistVehiculo']['limpiaparabrisas'] }}</td>
                 <td>{{ $bitacora['checklistVehiculo']['luces_interiores'] }}</td>
@@ -231,11 +245,14 @@
             </tr>
             <tr>
                 <td style="width: 10%" class="header-title">OBSERVACION</td>
-                <td style="width: 90%">{{ $bitacora['checklistVehiculo']['observacion_checklist_interior'] }}</td>
+                <td style="width: 90%" colspan="3">
+                    {{ $bitacora['checklistVehiculo']['observacion_checklist_interior'] }}</td>
             </tr>
-
+            {{-- <tr>
+                <td colspan="4"></td>
+            </tr> --}}
             <tr>
-                <th colspan="4" style="background-color: rgba(143, 235, 198, 0.267)" align="left">2. BAJO EL CAPÓ
+                <th colspan="4" style="background-color:#F2F2F2 " align="left">2. BAJO EL CAPÓ
                 </th>
             </tr>
             <tr>
@@ -264,12 +281,196 @@
             </tr>
             <tr>
                 <td style="width: 10%" class="header-title">OBSERVACION</td>
-                <td style="width: 90%">{{ $bitacora['checklistVehiculo']['observacion_checklist_bajo_capo'] }}</td>
+                <td style="width: 90%" colspan="3">
+                    {{ $bitacora['checklistVehiculo']['observacion_checklist_bajo_capo'] }}</td>
+            </tr>
+            {{-- <tr>
+                <td colspan="4"></td>
+            </tr> --}}
+            <tr>
+                <th colspan="4" style="background-color:#F2F2F2 " align="left">3. BAJO EL
+                    VEHICULO Y EXTERIOR</th>
+            </tr>
+            <tr>
+                <th>LUCES EXTERIORES</th>
+                <th>FRENOS (PASTILLAS/ZAPATAS)</th>
+                <th>AMORTIGUADORES</th>
+                <th>LLANTAS</th>
+            </tr>
+            <tr>
+                <td>{{ $bitacora['checklistVehiculo']['parabrisas'] }}</td>
+                <td>{{ $bitacora['checklistVehiculo']['limpiaparabrisas'] }}</td>
+                <td>{{ $bitacora['checklistVehiculo']['luces_interiores'] }}</td>
+                <td>{{ $bitacora['checklistVehiculo']['aire_acondicionado'] }}</td>
+            </tr>
+            <tr>
+                <td style="width: 10%" class="header-title">OBSERVACION</td>
+                <td style="width: 90%" colspan="3">
+                    {{ $bitacora['checklistVehiculo']['observacion_checklist_interior'] }}</td>
             </tr>
         </table>
-        <div class="justificado">
-        </div>
-    </main>
+        <br>
+        <table class="custom-table" style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
+            <tr>
+                <th colspan="4" align="center">CHECKLIST DE ACCESORIOS DEL VEHICULO</th>
+            </tr>
+            <tr>
+                <th>BOTIQUIN</th>
+                <th>CAJA DE HERRAMIENTAS</th>
+                <th>TRIANGULOS/CONOS SEGURIDAD</th>
+                <th>LLANTA EMERGENCIA</th>
+            </tr>
+            <tr>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['botiquin'] }}</td>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['caja_herramientas'] }}</td>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['triangulos'] }}</td>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['llanta_emergencia'] }}</td>
+            </tr>
+            <tr>
+                <th>CINTURONES SEGURIDAD</th>
+                <th>GATA HIDRAULICA</th>
+                <th>PORTAESCALERA</th>
+                <th>EXTINTOR</th>
+            </tr>
+            <tr>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['cinturones'] }}</td>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['gata'] }}</td>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['portaescalera'] }}</td>
+                <td>{{ $bitacora['checklistAccesoriosVehiculo']['extintor'] }}</td>
+            </tr>
+            <tr>
+                <td style="width: 10%" class="header-title">OBSERVACION</td>
+                <td style="width: 90%" colspan="3">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['observacion_accesorios_vehiculo'] }}</td>
+            </tr>
+        </table>
+        <br>
+        <table class="custom-table" style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
+            <tr>
+                <th colspan="4" align="center">CHECKLIST DE IMAGENES DEL VEHICULO</th>
+            </tr>
+            <tr>
+                <th>DELANTERA</th>
+                <th>TRASERA</th>
+                <th>LATERAL IZQ.</th>
+                <th>LATERAL DER.</th>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_frontal'] ? url($bitacora['checklistImagenVehiculo']['imagen_frontal']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Frontal">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_frontal']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_frontal'])) : '' }}"
+                            height="150" width="150" style="object-fit: contain;" />
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_trasera'] ? url($bitacora['checklistImagenVehiculo']['imagen_trasera']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Trasera">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_trasera']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_trasera'])) : '' }}"
+                            height="150" width="150" style="object-fit: fill;" />
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda'] ? url($bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Lateral Izquierda">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda'])) : '' }}"
+                            height="150" width="150" style="object-fit: scale-down;" />
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_lateral_derecha'] ? url($bitacora['checklistImagenVehiculo']['imagen_lateral_derecha']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Lateral Derecha">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_lateral_derecha']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_lateral_derecha'])) : '' }}"
+                            height="150" width="150" style="object-fit: cover;" />
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <th>TABLERO(KM)</th>
+                <th>TABLERO(RADIO)</th>
+                <th>ASIENTOS</th>
+                <th>HERRAMIENTAS/ACCESORIOS</th>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_tablero_km'] ? url($bitacora['checklistImagenVehiculo']['imagen_tablero_km']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Frontal">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_tablero_km']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_tablero_km'])) : '' }}"
+                            height="150" width="150" style="object-fit: cover;" />
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_tablero_radio'] ? url($bitacora['checklistImagenVehiculo']['imagen_tablero_radio']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Frontal">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_tablero_radio']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_tablero_radio'])) : '' }}"
+                            height="150" width="150" style="object-fit: cover;" />
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_asientos'] ? url($bitacora['checklistImagenVehiculo']['imagen_asientos']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Frontal">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_asientos']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_asientos'])) : '' }}"
+                            height="150" width="150" style="object-fit: cover;" />
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_accesorios'] ? url($bitacora['checklistImagenVehiculo']['imagen_accesorios']) : '#' }}"
+                        style="display: block;" target="_blank" title="Imagen Frontal">
+                        <img src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_accesorios']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_accesorios'])) : '' }}"
+                            height="150" width="150" style="object-fit: cover;" />
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 10%" class="header-title">OBSERVACION</td>
+                <td style="width: 90%" colspan="3">
+                    {{ strtoupper($bitacora['checklistImagenVehiculo']['observacion']) }}</td>
+            </tr>
+        </table>
+        <br><br><br><br><br><br><br><br><br>
+        <table style="width: 100%;">
+            <thead>
+                <th align="center"></th>
+                <th align="center">
+                    @if ($bitacora['firmada'])
+                        @isset($firma_responsable)
+                            <img src="{{ $firma_responsable }}" alt="" width="100" height="100">
+                        @endisset
+                    @else
+                    @empty($firma_responsable)
+                        ___________________ <br>
+                    @endempty
+                @endif
+            </th>
+            <th align="center"></th>
+        </thead>
+        <tbody>
+            <tr align="center">
+                <td></td>
+                <td><b>RESPONSABLE</b></td>
+                <td></td>
+            </tr>
+            <tr align="center">
+                <td></td>
+                <td>{{ $bitacora['chofer'] }} </td>
+                <td></td>
+            </tr>
+            <tr align="center">
+                <td></td>
+                <td>{{ $chofer->identificacion }}</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="justificado">
+    </div>
+</main>
+<script type="text/php">
+    $pdf->page_script('
+        $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+        $pdf->text(10, $pdf->get_height() - 25, "Pág $PAGE_NUM de $PAGE_COUNT", $font, 12);
+    ');
+</script>
 </body>
 
 </html>

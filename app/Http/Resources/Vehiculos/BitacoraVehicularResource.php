@@ -38,7 +38,7 @@ class BitacoraVehicularResource extends JsonResource
             $modelo['actividadesRealizadas'] = $this->actividades;
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo;
             $modelo['checklistVehiculo'] = $this->checklistVehiculo;
-            $modelo['checklistImagenVehiculo'] = $this->checklistImagenVehiculo;
+            $modelo['checklistImagenVehiculo'] = new ChecklistImagenVehiculoResource($this->checklistImagenVehiculo);
         }
 
         return $modelo;
