@@ -640,7 +640,8 @@ class SaldoController extends Controller
                 'saldo' => $saldo_anterior_db,
             ];
             //Unir todos los reportes
-            $saldos_fondos = Saldo::with('saldoable')->where('empleado_id', $request->usuario)->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->get();
+            $fecha_fin_aux = Carbon::parse($fecha_fin)->addDays(7)->format('Y-m-d');
+            $saldos_fondos = Saldo::with('saldoable')->where('empleado_id', $request->usuario)->whereBetween('created_at', [$fecha_inicio, $fecha_fin_aux])->get();
             $reportes_unidos_historico = $gastos->merge($transferencias_enviadas)->merge($transferencias_recibidas)->merge($acreditaciones)->merge($ajuste_saldo);
             $reportes_unidos = $es_nuevo_saldo ? $reportes_unidos = Saldo::empaquetarCombinado( $nuevo_elemento,$saldos_fondos, $request->usuario,$fecha_inicio, $fecha_fin) : SaldoGrupo::empaquetarCombinado($nuevo_elemento,$reportes_unidos_historico, $request->usuario);
             $sub_total = 0;
