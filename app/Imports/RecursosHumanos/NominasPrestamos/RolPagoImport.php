@@ -134,11 +134,13 @@ class RolPagoImport implements ToModel, WithHeadingRow, WithValidation
         $concepto_ingreso = ConceptoIngreso::where('abreviatura', 'ALI')->first();
         $id_rol_pago = $rol_pago?->id;
         $monto = is_null($valor_alimentacion) ? 0 : $valor_alimentacion;
-        IngresoRolPago::create([
-            'id_rol_pago' => $id_rol_pago,
-            'concepto' => $concepto_ingreso?->id,
-            'monto' => $monto,
-        ]);
+        if ($monto !== 0) {
+            IngresoRolPago::create([
+                'id_rol_pago' => $id_rol_pago,
+                'concepto' => $concepto_ingreso?->id,
+                'monto' => $monto,
+            ]);
+        }
     }
     public function obtenerEgresos($valor_antAlimentacion, $valor_descuento, $valor_memo, $valor_difiess)
     {
@@ -179,10 +181,10 @@ class RolPagoImport implements ToModel, WithHeadingRow, WithValidation
         $valor_descuento = is_null($valor_descuento) ? 0 : $valor_descuento;
         $valor_antAlimentacion = is_null($valor_antAlimentacion) ? 0 : $valor_antAlimentacion;
         $valor_memo = is_null($valor_memo) ? 0 : $valor_memo;
-        EgresoRolPago::crearEgresoRol($rol_pago, $valor_difiess, $difiess);
-        EgresoRolPago::crearEgresoRol($rol_pago, $valor_descuento, $descuento);
-        EgresoRolPago::crearEgresoRol($rol_pago, $valor_antAlimentacion, $antAlimentacion);
-        EgresoRolPago::crearEgresoRol($rol_pago, $valor_memo, $memo);
+        if ($valor_difiess !== 0) EgresoRolPago::crearEgresoRol($rol_pago, $valor_difiess, $difiess);
+        if ($valor_descuento !== 0) EgresoRolPago::crearEgresoRol($rol_pago, $valor_descuento, $descuento);
+        if ($valor_antAlimentacion !== 0) EgresoRolPago::crearEgresoRol($rol_pago, $valor_antAlimentacion, $antAlimentacion);
+        if ($valor_memo !== 0) EgresoRolPago::crearEgresoRol($rol_pago, $valor_memo, $memo);
     }
     public function rules(): array
     {
