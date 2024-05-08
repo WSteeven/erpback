@@ -296,30 +296,26 @@ class SaldoService
     }
     public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior, $fecha_inicio = null)
     {
-        $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-        ->where('fecha', '<=', $fecha_anterior)
-        ->orderBy('created_at', 'DESC')
-        ->first();
-        if ($saldo_grupo) {
+        if (strtotime($fecha_anterior) < strtotime('05-04-2024')) {
             $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-            ->where('fecha', '<=', $fecha_anterior)
-            ->orderBy('created_at', 'DESC')
-            ->first();
+                ->where('fecha', '<=', $fecha_anterior)
+                ->orderBy('created_at', 'DESC')
+                ->first();
             return $saldo_grupo;
         } else {
             $saldo_fondos = null;
-            if(!is_null($fecha_inicio) == null){
+            if (!is_null($fecha_inicio) == null) {
                 $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
-                ->where('fecha', '<=', $fecha_anterior)
-                ->where('fecha', '<', $fecha_inicio)
+                    ->where('fecha', '<=', $fecha_anterior)
+                    ->where('fecha', '<', $fecha_inicio)
+                    ->orderBy('created_at', 'DESC')
+                    ->first();
+            }
+            $saldo_fondos = $saldo_fondos  || !is_null($saldo_fondos) ?  $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
+                ->where('fecha', $fecha_anterior)
                 ->orderBy('created_at', 'DESC')
                 ->first();
-            }
-            $saldo_fondos = $saldo_fondos  || !is_null($saldo_fondos)?  $saldo_fondos: Saldo::where('empleado_id', $empleado_id)
-            ->where('fecha', $fecha_anterior)
-            ->orderBy('created_at', 'DESC')
-            ->first();
-            $saldo_fondos = $saldo_fondos?$saldo_fondos: Saldo::where('empleado_id', $empleado_id)
+            $saldo_fondos = $saldo_fondos ? $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
                 ->where('fecha', '<=', $fecha_anterior)
                 ->orderBy('created_at', 'DESC')
                 ->first();

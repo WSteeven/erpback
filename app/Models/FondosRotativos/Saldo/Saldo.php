@@ -64,7 +64,7 @@ class Saldo extends Model  implements Auditable
                     }
                     break;
                 default:
-                    if ($saldo->fecha >= $fecha_inicio   && $saldo->fecha < $fecha_fin) {
+                    if ($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin) {
                         $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
@@ -226,6 +226,9 @@ class Saldo extends Model  implements Auditable
             case Gasto::class:
                 $sub_detalle_info = self::subDetalleInfo($saldo->subDetalle);
                 if ($tipo == self::EGRESO) {
+                    if ($saldo->estado == Gasto::ANULADO) {
+                        return 'ANULACION DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                    }
                     return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
                 }
                 if ($tipo == self::ANULACION) {
