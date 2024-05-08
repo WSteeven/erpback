@@ -4,6 +4,7 @@ namespace App\Http\Resources\Vehiculos;
 
 use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Shared\Utils;
 
 class BitacoraVehicularResource extends JsonResource
 {
@@ -35,6 +36,8 @@ class BitacoraVehicularResource extends JsonResource
 
         if ($controller_method == 'show') {
             // $modelo['vehiculo'] = $this->vehiculo_id;
+            $modelo['tareas'] = $this->tareas ? array_map('intval', Utils::convertirStringComasArray($this->tareas)) : null;
+            $modelo['tickets'] = $this->tickets ? array_map('intval',Utils::convertirStringComasArray($this->tickets)) : null;
             $modelo['actividadesRealizadas'] = $this->actividades;
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo;
             $modelo['checklistVehiculo'] = $this->checklistVehiculo;

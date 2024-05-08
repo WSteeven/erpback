@@ -44,6 +44,8 @@ class BitacoraVehicularRequest extends FormRequest
             // 'checklistVehiculo.observacion_checklist_exterior' => 'required|string',
             'checklistImagenVehiculo' => 'required|array',
             // 'checklistImagenVehiculo.observacion' => 'required|string',
+            'tareas' => 'nullable|array',
+            'tickets' => 'nullable|array',
         ];
 
         if ($this->controller_method == 'update') {

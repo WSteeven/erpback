@@ -65,6 +65,8 @@ class BitacoraVehicularController extends Controller
     public function store(BitacoraVehicularRequest $request)
     {   //Adaptación de foreign keys
         $datos = $request->validated();
+        $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
+        $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
         Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
         Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
@@ -106,7 +108,7 @@ class BitacoraVehicularController extends Controller
     public function show(BitacoraVehicular $bitacora)
     {
         $modelo = new BitacoraVehicularResource($bitacora);
-        Log::channel('testing')->info('Log', ['metodo show de bitacora: ...', $modelo]);
+        // Log::channel('testing')->info('Log', ['metodo show de bitacora: ...', $modelo]);
         return response()->json(compact('modelo'));
     }
 
@@ -123,6 +125,8 @@ class BitacoraVehicularController extends Controller
             Log::channel('testing')->info('Log', ['request', $request->all()]);
             //Validacion de datos
             $datos = $request->validated();
+            $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
+            $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
 
             DB::beginTransaction();
             $bitacora->update($datos);
@@ -195,13 +199,15 @@ class BitacoraVehicularController extends Controller
     public function imprimir(BitacoraVehicular $bitacora)
     {
         try {
-           return $this->service->generarPdf($bitacora, true, true);
+            return $this->service->generarPdf($bitacora, true, true);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages(
-                ['error' => $e->getMessage(),
-                'Por si acaso'=>'Error duplicado',
-            ]);
+                [
+                    'error' => $e->getMessage(),
+                    'Por si acaso' => 'Error duplicado',
+                ]
+            );
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
             return response()->json(compact('mensaje'));
         }

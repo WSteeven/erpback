@@ -29,6 +29,8 @@ class BitacoraVehicular extends Pivot implements Auditable
         'firmada',
         'chofer_id',
         'vehiculo_id',
+        'tareas',
+        'tickets',
     ];
     public $incrementing = true;
     protected $casts = [
@@ -36,6 +38,17 @@ class BitacoraVehicular extends Pivot implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'firmada' => 'boolean',
     ];
+
+    const LLENO = 'LLENO';
+    const VACIO = 'VACIO';
+    const CADUCADO = 'CADUCADO';
+    const BUENO = 'BUENO';
+    const MALO = 'MALO';
+    const CORRECTO = 'CORRECTO';
+    const ADVERTENCIA = 'ADVERTENCIA';
+    const PELIGRO = 'PELIGRO';
+
+
 
     private static $whiteListFilter = ['*'];
     /**

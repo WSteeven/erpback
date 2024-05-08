@@ -70,11 +70,7 @@ class EventServiceProvider extends ServiceProvider
         Gasto::observe(GastosObserver::class);
         Acreditaciones::observe(AcreditacionObserver::class);
         Transferencias::observe(TransferenciaObserver::class);
-        
-        /**
-         * VEHICULOS
-         */
-        BitacoraVehicular::observe(BitacoraVehicularObserver::class);
+
 
         /**
          * Compras y Proveedores

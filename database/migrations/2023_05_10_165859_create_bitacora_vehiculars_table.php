@@ -26,6 +26,8 @@ return new class extends Migration
             $table->timestamp('fecha_finalizacion')->nullable();
             $table->unsignedBigInteger('chofer_id')->nullable();
             $table->unsignedBigInteger('vehiculo_id')->nullable();
+            $table->text('tareas')->nullable();
+            $table->text('tickets')->nullable();
             $table->timestamps();
 
             $table->foreign('chofer_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();

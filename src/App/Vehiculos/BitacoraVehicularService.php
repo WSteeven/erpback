@@ -2,10 +2,12 @@
 
 namespace Src\App\Vehiculos;
 
+use App\Events\Vehiculos\NotificarBajoNivelCombustible;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Http\Resources\Vehiculos\VehiculoResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
+use App\Models\User;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use App\Models\Vehiculos\ChecklistImagenVehiculo;
@@ -14,6 +16,8 @@ use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Expr\FuncCall;
+use Src\App\EmpleadoService;
 use Src\App\PolymorphicGenericService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
@@ -42,6 +46,8 @@ class BitacoraVehicularService
             $this->actualizarChecklistAccesoriosVehiculo($bitacora->id, $request->checklistAccesoriosVehiculo);
             $this->actualizarChecklistVehiculo($bitacora->id, $request->checklistVehiculo);
             $this->actualizarChecklistImagenesVehiculo($bitacora->id, $request->checklistImagenVehiculo);
+
+            $this->notificarNovedadesVehiculo($bitacora);
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['error en actualizarDatosRelacionadosBitacora', $th->getLine()]);
             throw $th;
@@ -163,6 +169,58 @@ class BitacoraVehicularService
             $datos['bitacora_id'] = $bitacora_id;
             ChecklistImagenVehiculo::create($datos);
         }
+    }
+
+    private function notificarNovedadesVehiculo($bitacora)
+    {
+        Log::channel('testing')->info('Log', ['updated del notificarNovedadesVehiculo']);
+        if ($bitacora->firmada) {
+            //Lanzar notificacion de advertencia de combustible
+            if ($bitacora->tanque_final < 50) {
+                $admin_vehiculos = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS, true);
+                event(new NotificarBajoNivelCombustible($bitacora, $admin_vehiculos->id));
+            }
+
+            //Aquí se revisa si hay algun elemento con problemas y se envía un resumen 
+            // por notificación con los problemas del vehiculo
+            $this->resumenElementosBitacora($bitacora);
+
+            Log::channel('testing')->info('Log', ['accesorios', $bitacora->checklistAccesoriosVehiculo]);
+            Log::channel('testing')->info('Log', ['vehiculo', $bitacora->checklistVehiculo]);
+            Log::channel('testing')->info('Log', ['imagenes', $bitacora->checklistImagenVehiculo]);
+        }
+    }
+
+    private function resumenElementosBitacora($bitacora)
+    {
+        $results1 = $this->resumenChecklistAccesorios($bitacora->checklistAccesoriosVehiculo);
+    }
+    private function resumenChecklistAccesorios($data)
+    {
+        $results = [];
+        $correcto = 0;
+        $advertencia = 0;
+        $peligro = 0;
+
+        $lleno = 0;
+        $vacio = 0;
+        $caducado = 0;
+
+        $bueno = 0;
+        $malo = 0;
+        foreach ($data as $key => $value) {
+            if ($value === BitacoraVehicular::CORRECTO) $correcto++;
+            if ($value === BitacoraVehicular::ADVERTENCIA) $advertencia++;
+            if ($value === BitacoraVehicular::PELIGRO) $peligro++;
+            if ($value === BitacoraVehicular::LLENO) $lleno++;
+            if ($value === BitacoraVehicular::VACIO) $vacio++;
+            if ($value === BitacoraVehicular::CADUCADO) $caducado++;
+            if ($value === BitacoraVehicular::BUENO) $bueno++;
+            if ($value === BitacoraVehicular::MALO) $malo++;
+        }
+
+
+        return $results;
     }
 
     public function generarPdf(BitacoraVehicular $bitacora, $descargar = true)
