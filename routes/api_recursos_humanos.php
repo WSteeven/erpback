@@ -33,6 +33,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpres
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use Illuminate\Support\Facades\Route;
 
@@ -72,11 +73,13 @@ Route::apiResources(
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
+        'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
     ],
     [
         'parameters' => [
             'descuentos_generales' => 'descuento_general',
             'descuentos_ley' => 'descuento_ley',
+            'tipos_puestos_trabajos' => 'tipo_puesto_trabajo'
         ],
 
     ]
@@ -127,7 +130,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('crear-cash-alimentacion/{alimentacion_id}',[AlimentacionController::class, 'crear_cash_alimentacion']);
     Route::get('imprimir-reporte-general-alimentacion/{id}',[AlimentacionController::class, 'reporte_alimentacion']);
     Route::get('finalizar-asignacion-alimentacion', [AlimentacionController::class, 'finalizarAsignacionAlimentacion']);
-
-
-
 });
