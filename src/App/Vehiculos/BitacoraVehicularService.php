@@ -2,6 +2,7 @@
 
 namespace Src\App\Vehiculos;
 
+use App\Events\Vehiculos\NotificarAdvertenciasVehiculoBitacora;
 use App\Events\Vehiculos\NotificarBajoNivelCombustible;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Http\Resources\Vehiculos\VehiculoResource;
@@ -14,6 +15,7 @@ use App\Models\Vehiculos\ChecklistImagenVehiculo;
 use App\Models\Vehiculos\ChecklistVehiculo;
 use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Expr\FuncCall;
@@ -183,45 +185,96 @@ class BitacoraVehicularService
 
             //Aquí se revisa si hay algun elemento con problemas y se envía un resumen 
             // por notificación con los problemas del vehiculo
-            $this->resumenElementosBitacora($bitacora);
-
-            Log::channel('testing')->info('Log', ['accesorios', $bitacora->checklistAccesoriosVehiculo]);
-            Log::channel('testing')->info('Log', ['vehiculo', $bitacora->checklistVehiculo]);
-            Log::channel('testing')->info('Log', ['imagenes', $bitacora->checklistImagenVehiculo]);
+            $advertenciasEncontradas = $this->resumenElementosBitacora($bitacora);
+            if (empty($advertenciasEncontradas))  Log::channel('testing')->info('Log', ['No se encontraron advertencias ']);
+            else {
+                Log::channel('testing')->info('Log', ['Si se encontraron advertencias', $advertenciasEncontradas]);
+                //Aquí se debe notificar por notificacion y correo
+                event(new NotificarAdvertenciasVehiculoBitacora($bitacora, $advertenciasEncontradas, $admin_vehiculos->id));
+            }
         }
     }
 
     private function resumenElementosBitacora($bitacora)
     {
-        $results1 = $this->resumenChecklistAccesorios($bitacora->checklistAccesoriosVehiculo);
-    }
-    private function resumenChecklistAccesorios($data)
-    {
+        // Definimos los valores de cada clave a sumar
         $results = [];
-        $correcto = 0;
-        $advertencia = 0;
-        $peligro = 0;
+        $results['correcto'] = 0;
+        $results['advertencia'] = 0;
+        $results['peligro'] = 0;
+        $results['lleno'] = 0;
+        $results['vacio'] = 0;
+        $results['caducado'] = 0;
+        $results['bueno'] = 0;
+        $results['malo'] = 0;
 
-        $lleno = 0;
-        $vacio = 0;
-        $caducado = 0;
+        //Contamos los elementos categorizados para saber cuantos hay de cada uno 
+        $resultsAccesorios = $this->contarElementos($results, $bitacora->checklistAccesoriosVehiculo);
+        $resultsVehiculo = $this->contarElementos($results, $bitacora->checklistVehiculo);
 
-        $bueno = 0;
-        $malo = 0;
-        foreach ($data as $key => $value) {
-            if ($value === BitacoraVehicular::CORRECTO) $correcto++;
-            if ($value === BitacoraVehicular::ADVERTENCIA) $advertencia++;
-            if ($value === BitacoraVehicular::PELIGRO) $peligro++;
-            if ($value === BitacoraVehicular::LLENO) $lleno++;
-            if ($value === BitacoraVehicular::VACIO) $vacio++;
-            if ($value === BitacoraVehicular::CADUCADO) $caducado++;
-            if ($value === BitacoraVehicular::BUENO) $bueno++;
-            if ($value === BitacoraVehicular::MALO) $malo++;
+        // Sumamos ambos arrays para obtener un array con la suma de cada clave
+        $results = $this->sumarArray($resultsAccesorios, $resultsVehiculo);
+
+
+        //Filtramos los resultados para obtener solo los elementos diferentes a cero
+        $results = array_filter($results, function ($value) {
+            return $value !== 0;
+        });
+        Log::channel('testing')->info('Log', ['Results sin ceros', $results]);
+
+        $claves_a_comprobar = ["advertencia", "peligro", "vacio", "caducado", "malo"];
+
+        $clavesEncontradas = array_intersect_key($results, array_flip($claves_a_comprobar));
+
+        return $clavesEncontradas;
+    }
+
+    /**
+     * La función cuenta las apariciones de atributos específicos en un objeto modelo y actualiza una
+     * matriz de resultados en consecuencia.
+     * 
+     * @param array $results Un array al que se le van a sumar de los valores de los atributos encontrados.
+     * @param Model $model El modelo al que se le van a contar los atributos.
+     * 
+     * @return array la matriz `$results` actualizada después de contar las apariciones de diferentes
+     * atributos en el objeto modelo `$data`.
+     */
+    private function contarElementos(array $results, Model $model)
+    {
+        foreach ($model->getAttributes() as $key => $value) {
+            if (preg_match('/observacion/i', $key)) continue;
+            if ($value === BitacoraVehicular::CORRECTO) $results['correcto']++;
+            if ($value === BitacoraVehicular::ADVERTENCIA) $results['advertencia']++;
+            if ($value === BitacoraVehicular::PELIGRO) $results['peligro']++;
+            if ($value === BitacoraVehicular::LLENO) $results['lleno']++;
+            if ($value === BitacoraVehicular::VACIO) $results['vacio']++;
+            if ($value === BitacoraVehicular::CADUCADO) $results['caducado']++;
+            if ($value === BitacoraVehicular::BUENO) $results['bueno']++;
+            if ($value === BitacoraVehicular::MALO) $results['malo']++;
         }
-
 
         return $results;
     }
+
+    /**
+     * La función `sumarArray` toma dos matrices como entrada y devuelve una nueva matriz con la suma
+     * de los elementos correspondientes de las matrices de entrada.
+     * 
+     * @param array $array1 La matriz 1 es una matriz asociativa que contiene claves y valores.
+     * @param array $array2 La matriz 2 que contiene los mismos claves y valores de la matriz 1.
+     * 
+     * @return array Devuelve una matriz que contiene la suma de los elementos correspondientes
+     * de ambas matrices.
+     */
+    private function sumarArray(array $array1, array $array2)
+    {
+        $results = [];
+        foreach ($array1 as $key => $value) {
+            $results[$key] = $value + $array2[$key];
+        }
+        return $results;
+    }
+
 
     public function generarPdf(BitacoraVehicular $bitacora, $descargar = true)
     {
