@@ -91,11 +91,7 @@ class RolPagoMesController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['datos', $datos]);
-
             $rolPago = RolPagoMes::create($datos);
-            Log::channel('testing')->info('Log', ['rol_pago', $rolPago]);
-
             $this->validate($request, [
                 'file' => 'required|mimes:xls,xlsx'
             ]);
