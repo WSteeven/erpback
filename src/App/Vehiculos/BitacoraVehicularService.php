@@ -173,7 +173,7 @@ class BitacoraVehicularService
         }
     }
 
-    private function notificarNovedadesVehiculo($bitacora)
+    public function notificarNovedadesVehiculo($bitacora)
     {
         Log::channel('testing')->info('Log', ['updated del notificarNovedadesVehiculo']);
         if ($bitacora->firmada) {

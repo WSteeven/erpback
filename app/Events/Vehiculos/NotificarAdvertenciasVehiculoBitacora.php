@@ -58,7 +58,7 @@ class NotificarAdvertenciasVehiculoBitacora implements ShouldBroadcast
         $mensaje = '';
 
         foreach ($this->advertencias as $key => $value) {
-            $mensaje .= "$value en $key, ";
+            $mensaje .= "$value elementos en $key, ";
         }
 
         // Eliminar la coma y el espacio extra al final

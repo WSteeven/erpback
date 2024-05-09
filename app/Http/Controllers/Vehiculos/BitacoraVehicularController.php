@@ -46,10 +46,10 @@ class BitacoraVehicularController extends Controller
         } else {
 
             if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
-                $results = BitacoraVehicular::all();
+                $results = BitacoraVehicular::orderBy('updated_at', 'desc')->get();
             else {
                 // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
-                $results = BitacoraVehicular::filter()->get();
+                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
                 $results = BitacoraVehicularResource::collection($results);
             }
         }
@@ -177,15 +177,17 @@ class BitacoraVehicularController extends Controller
     {
     }
 
-    public function firmar(BitacoraVehicular $bitacora)
+    public function firmar(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
         try {
             if (is_null($bitacora->km_final) || $bitacora->km_final < $bitacora->km_inicial)
                 throw new Exception("Debes ingresar un kilometraje final que sea superior al kilometraje inicial. Por favor corrige y vuelve a intentarlo");
             if (!$bitacora->firmada) {
+                $datos = $request->validated();
                 $bitacora->firmada = true;
                 $bitacora->fecha_finalizacion = Carbon::now();
                 $bitacora->save();
+                $this->service->notificarNovedadesVehiculo($bitacora);
                 $mensaje = 'Bitacora firmada correctamente';
             } else {
                 throw new Exception('No se puede finalizar la bitacora, ya ha sido finalizada previamente');
