@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,10 +24,14 @@ class MantenimientoVehiculo extends Model implements Auditable
         'fecha_realizado',
         'km_realizado',
         'imagen_evidencia', //alguna imagen de evidencia del mantenimiento 
-        'estado', // pendiente de realizar, realizado, retrasado, postergado. retrasado se calcula desde que se crea el registro y los km transcurridos
+        // pendiente de realizar, realizado, retrasado, postergado, no realizado. 
+        //retrasado se calcula desde que se crea el registro y los km transcurridos.
+        // no realizado cuando el supervisor decide no realizar el mantenimiento pese a estar programado
+        'estado',
         'km_retraso',
         'dias_postergado', //si estado es postergado debe poner los días aquí para que le notifique 
         'motivo_postergacion', //si estado es postergado este campo es obligatorio
+        'observacion'
     ];
 
     protected $casts = [
@@ -34,4 +39,28 @@ class MantenimientoVehiculo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'firmada' => 'boolean',
     ];
+
+    private static $whiteListFilter = ['*'];
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    public function vehiculo()
+    {
+        return $this->belongsTo(Vehiculo::class);
+    }
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class);
+    }
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
+    }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(Empleado::class, 'supervisor_id', 'id');
+    }
 }

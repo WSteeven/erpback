@@ -88,6 +88,7 @@ class BitacoraVehicularController extends Controller
                     'firmada' => $datos['firmada'],
                 ]
             );
+            $this->service->actualizarDatosRelacionadosBitacora($chofer->ultimaBitacora, $request);
             // $bitacora = BitacoraVehicular::create($datos);
             Log::channel('testing')->info('Log', ['BitacoraVehicularRecienCreada', $chofer->ultimaBitacora]);
             $modelo = new BitacoraVehicularResource($chofer->ultimaBitacora);
@@ -108,7 +109,15 @@ class BitacoraVehicularController extends Controller
     public function show(BitacoraVehicular $bitacora)
     {
         $modelo = new BitacoraVehicularResource($bitacora);
-        // Log::channel('testing')->info('Log', ['metodo show de bitacora: ...', $modelo]);
+        return response()->json(compact('modelo'));
+    }
+
+    public function ultima()
+    {
+        if (request()->filtrar) {
+            $bitacora = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->first();
+        }
+        $modelo = new BitacoraVehicularResource($bitacora);
         return response()->json(compact('modelo'));
     }
 

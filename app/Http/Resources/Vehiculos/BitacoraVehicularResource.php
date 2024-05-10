@@ -34,10 +34,10 @@ class BitacoraVehicularResource extends JsonResource
             'vehiculo_id' => $this->vehiculo_id,
         ];
 
-        if ($controller_method == 'show') {
+        if ($controller_method == 'show' || $controller_method == 'ultima') {
             // $modelo['vehiculo'] = $this->vehiculo_id;
             $modelo['tareas'] = $this->tareas ? array_map('intval', Utils::convertirStringComasArray($this->tareas)) : null;
-            $modelo['tickets'] = $this->tickets ? array_map('intval',Utils::convertirStringComasArray($this->tickets)) : null;
+            $modelo['tickets'] = $this->tickets ? array_map('intval', Utils::convertirStringComasArray($this->tickets)) : null;
             $modelo['actividadesRealizadas'] = $this->actividades;
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo;
             $modelo['checklistVehiculo'] = $this->checklistVehiculo;
