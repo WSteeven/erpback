@@ -40,6 +40,13 @@ class MantenimientoVehiculo extends Model implements Auditable
         'firmada' => 'boolean',
     ];
 
+    //Definicion de constantes de estados
+    const PENDIENTE = 'PENDIENTE';
+    const REALIZADO = 'REALIZADO';
+    const RETRASADO = 'RETRASADO';
+    const POSTERGADO = 'POSTERGADO';
+    const NO_REALIZADO = 'NO REALIZADO';
+
     private static $whiteListFilter = ['*'];
     /**
      * ______________________________________________________________________________________

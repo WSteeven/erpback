@@ -45,7 +45,7 @@ Route::apiResources(
     ]
 );
 
-Route::get('bitacoras-vehiculos/ultima-bitacora/{bitacora}', [BitacoraVehicularController::class, 'ultima'])->middleware('auth:sanctum');
+Route::get('ultima-bitacora', [BitacoraVehicularController::class, 'ultima'])->middleware('auth:sanctum');
 Route::post('historial/{vehiculo}', [VehiculoController::class, 'historial'])->middleware('auth:sanctum');
 Route::post('bitacoras-vehiculos/firmar-bitacora/{bitacora}', [BitacoraVehicularController::class, 'firmar'])->middleware('auth:sanctum');
 

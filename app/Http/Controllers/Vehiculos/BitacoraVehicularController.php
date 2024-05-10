@@ -141,6 +141,10 @@ class BitacoraVehicularController extends Controller
             $bitacora->update($datos);
             $this->service->actualizarDatosRelacionadosBitacora($bitacora, $request);
             // Log::channel('testing')->info('Log', ['BitacoraVehicularRecienActualizada', $bitacora]);
+            if ($bitacora->firmada) {
+                $bitacora->fecha_finalizacion = Carbon::now();
+                $bitacora->save();
+            }
             $modelo = new BitacoraVehicularResource($bitacora->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();

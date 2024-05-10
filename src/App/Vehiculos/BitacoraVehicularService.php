@@ -27,11 +27,12 @@ use Src\Shared\Utils;
 
 class BitacoraVehicularService
 {
-
+    private Empleado $admin_vehiculos;
     private $polymorphicGenericService;
     public function __construct()
     {
         $this->polymorphicGenericService = new PolymorphicGenericService();
+        $this->admin_vehiculos = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS, true);
     }
 
     public function guardarDatosRelacionadosBitacora()
@@ -175,12 +176,12 @@ class BitacoraVehicularService
 
     public function notificarNovedadesVehiculo($bitacora)
     {
+        
         Log::channel('testing')->info('Log', ['updated del notificarNovedadesVehiculo']);
         if ($bitacora->firmada) {
             //Lanzar notificacion de advertencia de combustible
             if ($bitacora->tanque_final < 50) {
-                $admin_vehiculos = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS, true);
-                event(new NotificarBajoNivelCombustible($bitacora, $admin_vehiculos->id));
+                event(new NotificarBajoNivelCombustible($bitacora, $this->admin_vehiculos->id));
             }
 
             //Aquí se revisa si hay algun elemento con problemas y se envía un resumen 
@@ -190,7 +191,7 @@ class BitacoraVehicularService
             else {
                 Log::channel('testing')->info('Log', ['Si se encontraron advertencias', $advertenciasEncontradas]);
                 //Aquí se debe notificar por notificacion y correo
-                event(new NotificarAdvertenciasVehiculoBitacora($bitacora, $advertenciasEncontradas, $admin_vehiculos->id));
+                event(new NotificarAdvertenciasVehiculoBitacora($bitacora, $advertenciasEncontradas, $this->admin_vehiculos->id));
             }
 
             $this->verificarMantenimientosPlanMantenimientos($bitacora);
