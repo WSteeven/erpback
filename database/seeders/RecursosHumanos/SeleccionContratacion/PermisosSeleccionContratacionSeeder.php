@@ -27,16 +27,21 @@ class PermisosSeleccionContratacionSeeder extends Seeder
          Modulo Seleccion y Contratacion
          ********************************/
         $rrhh = Role::firstOrCreate(['name' => User::ROL_RECURSOS_HUMANOS]);
+        $administrador = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR]);
         // Modulo Seleccion y Contratacion
-        Permission::firstOrCreate(['name' => self::VER . '.modulo.seleccion_contratacion'])->syncRoles([$rrhh]);
-        Permission::firstOrCreate(['name' => self::ACCEDER . '.modulo.seleccion_contratacion'])->syncRoles([$rrhh]);
+        Permission::firstOrCreate(['name' => self::VER . '.modulo.seleccion_contratacion'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.modulo.seleccion_contratacion'])->syncRoles([$rrhh,$administrador]);
         // solicitud de puestos
-        Permission::firstOrCreate(['name' => self::VER . '.solicitud_puesto_empleo'])->syncRoles([$rrhh]);
-        Permission::firstOrCreate(['name' => self::ACCEDER . '.solicitud_puesto_empleo'])->syncRoles([$rrhh]);
-        Permission::firstOrCreate(['name' => self::EDITAR . '.solicitud_puesto_empleo'])->syncRoles([$rrhh]);
+        Permission::firstOrCreate(['name' => self::VER . '.solicitud_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.solicitud_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::EDITAR . '.solicitud_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
+        // publicar de puestos de trabajo
+        Permission::firstOrCreate(['name' => self::VER . '.publicacion_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.publicacion_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::EDITAR . '.publicacion_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
         // tipos de puestos de trabajo
-        Permission::firstOrCreate(['name' => self::VER . '.tipos_puestos_trabajos'])->syncRoles([$rrhh]);
-        Permission::firstOrCreate(['name' => self::ACCEDER . '.tipos_puestos_trabajos'])->syncRoles([$rrhh]);
-        Permission::firstOrCreate(['name' => self::EDITAR . '.tipos_puestos_trabajos'])->syncRoles([$rrhh]);
+        Permission::firstOrCreate(['name' => self::VER . '.tipos_puestos_trabajos'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.tipos_puestos_trabajos'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::EDITAR . '.tipos_puestos_trabajos'])->syncRoles([$rrhh,$administrador]);
     }
 }
