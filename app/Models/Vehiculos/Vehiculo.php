@@ -9,6 +9,7 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -144,7 +145,7 @@ class Vehiculo extends Model implements Auditable
         $listadoServicios = $items;
         if ($metodo == 'show') {
             $aplicar_desde = $items->max('aplicar_desde');
-            $estado = $items->where('estado', 1)->count() > $items->where('estado', 0)->count();
+            $estado = $items->where('activo', true)->count() > $items->where('activo', false)->count();
             foreach ($items as $index => $item) {
 
 

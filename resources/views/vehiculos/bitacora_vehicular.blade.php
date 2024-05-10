@@ -9,6 +9,30 @@
     if ($bitacora['firmada']) {
         $firma_responsable = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($chofer->firma_url, 1)));
     }
+
+    function determinarClase($valor)
+    {
+        switch ($valor) {
+            case 'BUENO':
+                return 'verde'; // Clase CSS para el estado "correcto"
+            case 'LLENO':
+                return 'verde'; // Clase CSS para el estado "correcto"
+            case 'CORRECTO':
+                return 'verde'; // Clase CSS para el estado "correcto"
+            case 'ADVERTENCIA':
+                return 'naranja'; // Clase CSS para el estado "advertencia"
+            case 'CADUCADO':
+                return 'naranja'; // Clase CSS para el estado "advertencia"
+            case 'PELIGRO':
+                return 'rojo'; // Clase CSS para el estado "peligro"
+            case 'VACIO':
+                return 'rojo'; // Clase CSS para el estado "peligro"
+            case 'MALO':
+                return 'rojo'; // Clase CSS para el estado "peligro"
+            default:
+                return ''; // Clase CSS por defecto
+        }
+    }
 @endphp
 
 <head>
@@ -96,6 +120,22 @@
     .custom-table th,
     .custom-table td {
         width: 25%;
+    }
+
+    /* cambios de colores según los estados */
+    .verde {
+        color: green;
+        /* Color verde */
+    }
+
+    .naranja {
+        color: orange;
+        /* Color naranja */
+    }
+
+    .rojo {
+        color: red;
+        /* Color rojo */
     }
 </style>
 
@@ -238,10 +278,15 @@
                 <th>AA/CC</th>
             </tr>
             <tr>
-                <td>{{ $bitacora['checklistVehiculo']['parabrisas'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['limpiaparabrisas'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['luces_interiores'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['aire_acondicionado'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['parabrisas']) }}">
+                    {{ $bitacora['checklistVehiculo']['parabrisas'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['limpiaparabrisas']) }}">
+                    {{ $bitacora['checklistVehiculo']['limpiaparabrisas'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['luces_interiores']) }}">
+                    {{ $bitacora['checklistVehiculo']['luces_interiores'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['aire_acondicionado']) }}">
+                    {{ $bitacora['checklistVehiculo']['aire_acondicionado'] }}</td>
+
             </tr>
             <tr>
                 <td style="width: 10%" class="header-title">OBSERVACION</td>
@@ -262,10 +307,14 @@
                 <th>LIQUIDO REFRIGERANTE</th>
             </tr>
             <tr>
-                <td>{{ $bitacora['checklistVehiculo']['aceite_motor'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['aceite_hidraulico'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['liquido_freno'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['liquido_refrigerante'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['aceite_motor']) }}">
+                    {{ $bitacora['checklistVehiculo']['aceite_motor'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['aceite_hidraulico']) }}">
+                    {{ $bitacora['checklistVehiculo']['aceite_hidraulico'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['liquido_freno']) }}">
+                    {{ $bitacora['checklistVehiculo']['liquido_freno'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['liquido_refrigerante']) }}">
+                    {{ $bitacora['checklistVehiculo']['liquido_refrigerante'] }}</td>
             </tr>
             <tr>
                 <th>AGUA PLUMAS/RADIADOR</th>
@@ -274,10 +323,14 @@
                 <th>CABLES Y CONEXIONES</th>
             </tr>
             <tr>
-                <td>{{ $bitacora['checklistVehiculo']['agua_plumas_radiador'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['filtro_combustible'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['bateria'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['cables_conexiones'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['agua_plumas_radiador']) }}">
+                    {{ $bitacora['checklistVehiculo']['agua_plumas_radiador'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['filtro_combustible']) }}">
+                    {{ $bitacora['checklistVehiculo']['filtro_combustible'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['bateria']) }}">
+                    {{ $bitacora['checklistVehiculo']['bateria'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['cables_conexiones']) }}">
+                    {{ $bitacora['checklistVehiculo']['cables_conexiones'] }}</td>
             </tr>
             <tr>
                 <td style="width: 10%" class="header-title">OBSERVACION</td>
@@ -298,10 +351,14 @@
                 <th>LLANTAS</th>
             </tr>
             <tr>
-                <td>{{ $bitacora['checklistVehiculo']['parabrisas'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['limpiaparabrisas'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['luces_interiores'] }}</td>
-                <td>{{ $bitacora['checklistVehiculo']['aire_acondicionado'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['parabrisas']) }}">
+                    {{ $bitacora['checklistVehiculo']['parabrisas'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['limpiaparabrisas']) }}">
+                    {{ $bitacora['checklistVehiculo']['limpiaparabrisas'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['luces_interiores']) }}">
+                    {{ $bitacora['checklistVehiculo']['luces_interiores'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistVehiculo']['aire_acondicionado']) }}">
+                    {{ $bitacora['checklistVehiculo']['aire_acondicionado'] }}</td>
             </tr>
             <tr>
                 <td style="width: 10%" class="header-title">OBSERVACION</td>
@@ -321,10 +378,14 @@
                 <th>LLANTA EMERGENCIA</th>
             </tr>
             <tr>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['botiquin'] }}</td>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['caja_herramientas'] }}</td>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['triangulos'] }}</td>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['llanta_emergencia'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['botiquin']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['botiquin'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['caja_herramientas']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['caja_herramientas'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['triangulos']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['triangulos'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['llanta_emergencia']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['llanta_emergencia'] }}</td>
             </tr>
             <tr>
                 <th>CINTURONES SEGURIDAD</th>
@@ -333,10 +394,14 @@
                 <th>EXTINTOR</th>
             </tr>
             <tr>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['cinturones'] }}</td>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['gata'] }}</td>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['portaescalera'] }}</td>
-                <td>{{ $bitacora['checklistAccesoriosVehiculo']['extintor'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['cinturones']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['cinturones'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['gata']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['gata'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['portaescalera']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['portaescalera'] }}</td>
+                <td class="{{ determinarClase($bitacora['checklistAccesoriosVehiculo']['extintor']) }}">
+                    {{ $bitacora['checklistAccesoriosVehiculo']['extintor'] }}</td>
             </tr>
             <tr>
                 <td style="width: 10%" class="header-title">OBSERVACION</td>

@@ -192,7 +192,18 @@ class BitacoraVehicularService
                 //Aquí se debe notificar por notificacion y correo
                 event(new NotificarAdvertenciasVehiculoBitacora($bitacora, $advertenciasEncontradas, $admin_vehiculos->id));
             }
+
+            $this->verificarMantenimientosPlanMantenimientos($bitacora);
         }
+    }
+
+    private function verificarMantenimientosPlanMantenimientos(BitacoraVehicular $bitacora)
+    {
+        //obtenemos los mantenimientos según el plan de mantenimiento asociado al vehiculo
+        Log::channel('testing')->info('Log', ['bitacora vehículo', $bitacora->vehiculo]);
+        $itemsMantenimiento = $bitacora->vehiculo->itemsMantenimiento()->where('activo', true)->get();
+        Log::channel('testing')->info('Log', ['Items de mantenimiento del vehículo', $itemsMantenimiento]);
+
     }
 
     private function resumenElementosBitacora($bitacora)
