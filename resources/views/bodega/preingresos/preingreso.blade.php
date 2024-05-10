@@ -221,7 +221,8 @@
                 <td>Cliente: <b>{{ $preingreso['cliente'] }}</b></td>
             </tr>
             <tr class="row">
-                <td>Destino del material: <b>{{ $preingreso['tarea'] ? 'TAREA' : 'STOCK PERSONAL' }}</b></td>
+                <td>Destino del material:
+                    <b>{{ $preingreso['tarea'] ? 'TAREA ' . $preingreso['codigo_tarea'] : 'STOCK PERSONAL' }}</b></td>
             </tr>
         </table>
         <table>
