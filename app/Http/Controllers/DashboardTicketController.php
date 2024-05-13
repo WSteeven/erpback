@@ -181,7 +181,7 @@ class DashboardTicketController extends Controller
 
             if ($tiempos) {
 
-                $primerEjecucion = $tiempos->first(fn ($tiempo) => $tiempo->new_values ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : null);
+                $primerEjecucion = $tiempos->first(fn ($tiempo) => $tiempo->new_values && isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : null);
 
                 if ($primerEjecucion) {
                     $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
