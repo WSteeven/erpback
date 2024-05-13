@@ -38,19 +38,23 @@ class OrdenCompraService
             })
             ->get();
 
+        if ($request->estado) {
 
-        if (in_array('PENDIENTES', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
-            return $orden->autorizacion_id === 1 && $orden->estado_id  === 1;
-        }));
-        if (in_array('REVISADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
-            return ($orden->revisada_compras === true || $orden->estado_id === 2) && $orden->realizada == false;
-        }));
-        if (in_array('REALIZADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
-            return $orden->realizada === true && $orden->pagada === false && $orden->estado_id === 2;
-        }));
-        if (in_array('PAGADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
-            return $orden->pagada === true;
-        }));
+            if (in_array('PENDIENTES', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+                return $orden->autorizacion_id === 1 && $orden->estado_id  === 1;
+            }));
+            if (in_array('REVISADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+                return ($orden->revisada_compras === true || $orden->estado_id === 2) && $orden->realizada == false;
+            }));
+            if (in_array('REALIZADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+                return $orden->realizada === true && $orden->pagada === false && $orden->estado_id === 2;
+            }));
+            if (in_array('PAGADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+                return $orden->pagada === true;
+            }));
+        } else {
+            $results = $ordenes;
+        }
 
         return $results->unique();
     }
