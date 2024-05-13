@@ -3,6 +3,7 @@
 namespace App\Models\FondosRotativos;
 
 use App\Models\Empleado;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
@@ -59,29 +60,31 @@ class AjusteSaldoFondoRotativo extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'autorizador_id', 'id');
     }
+    public function saldoFondoRotativo()
+    {
+        return $this->morphOne(Saldo::class, 'saldoable');
+    }
     public static function empaquetar($ajustessaldos)
     {
-        try{
+        try {
             $results = [];
             $id = 0;
             $row = [];
             foreach ($ajustessaldos as $ajustesaldo) {
                 $row['id'] = $ajustesaldo->id;
-                $row['num_registro'] = $id+1;
+                $row['num_registro'] = $id + 1;
                 $row['fecha'] = $ajustesaldo->created_at;
-                $row['solicitante']= $ajustesaldo->solicitante->nombres.' '. $ajustesaldo->solicitante->apellidos;
-                $row['destinatario']= $ajustesaldo->destinatario->nombres.' '. $ajustesaldo->destinatario->apellidos;
-                $row['motivo']= $ajustesaldo->motivo;
-                $row['descripcion']= $ajustesaldo->descripcion;
+                $row['solicitante'] = $ajustesaldo->solicitante->nombres . ' ' . $ajustesaldo->solicitante->apellidos;
+                $row['destinatario'] = $ajustesaldo->destinatario->nombres . ' ' . $ajustesaldo->destinatario->apellidos;
+                $row['motivo'] = $ajustesaldo->motivo;
+                $row['descripcion'] = $ajustesaldo->descripcion;
                 $row['monto'] = $ajustesaldo->monto;
                 $results[$id] = $row;
                 $id++;
             }
             return $results;
-        }catch(Exception $e){
+        } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error modelo', $e->getMessage(), $e->getLine()]);
         }
-
-
     }
 }

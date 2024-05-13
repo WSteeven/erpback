@@ -194,26 +194,30 @@ class SaldoService
             throw $th;
         }
     }
-    public static function ajustarSaldo($data)
+    public static function ajustarSaldo($entidad, $data)
     {
-        $empleado_id = $data['destinatario_id'];
-        $fecha = Carbon::now();
-        $monto = $data['monto'];
-        $tipo = $data['tipo'];
-        $saldo_anterior = Saldo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
-        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        $saldo = new Saldo();
-        $saldo->fecha = $fecha;
-        $saldo->saldo_anterior = $total_saldo_actual;
-        $saldo->saldo_depositado = $monto;
-        $nuevo_saldo = ($tipo == AjusteSaldoFondoRotativo::INGRESO) ?
-            (array('monto' => ($total_saldo_actual + $monto), 'descripcion' => $tipo)) : (array('monto' => ($total_saldo_actual - $monto), 'descripcion' => $tipo));
-        $saldo->saldo_actual =  $nuevo_saldo['monto'];
-        $saldo->fecha_inicio = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[0];
-        $saldo->fecha_fin = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[1];;
-        $saldo->id_usuario = $empleado_id;
-        $saldo->tipo_saldo = $nuevo_saldo['descripcion'];
-        $saldo->save();
+        try {
+            DB::beginTransaction();
+            $empleado_id = $data['destinatario_id'];
+            $fecha = Carbon::now();
+            $saldo_anterior = Saldo::where('empleado_id', $empleado_id)->orderBy('id', 'desc')->first();
+            $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+            $saldo = [];
+            $saldo['fecha'] = $fecha;
+            $saldo['saldo_anterior'] = $total_saldo_actual;
+            $saldo['saldo_depositado'] = $data['monto'];
+            $saldo['saldo_actual'] = $data['tipo'] == AjusteSaldoFondoRotativo::INGRESO ? $total_saldo_actual + $data['monto'] : $total_saldo_actual - $data['monto'];
+            // $saldo->fecha_inicio = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[0];
+            // $saldo->fecha_fin = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[1];;
+            $saldo['tipo_saldo'] = $data['tipo'];
+            $saldo['empleado_id'] = $empleado_id;
+
+            $entidad->saldoFondoRotativo()->create($saldo);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
     private static function calcular_fechas($fecha)
     {
@@ -296,30 +300,26 @@ class SaldoService
     }
     public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior, $fecha_inicio = null)
     {
-        $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-        ->where('fecha', '<=', $fecha_anterior)
-        ->orderBy('created_at', 'DESC')
-        ->first();
-        if ($saldo_grupo) {
+        if (strtotime($fecha_anterior) < strtotime('05-04-2024')) {
             $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-            ->where('fecha', '<=', $fecha_anterior)
-            ->orderBy('created_at', 'DESC')
-            ->first();
+                ->where('fecha', '<=', $fecha_anterior)
+                ->orderBy('created_at', 'DESC')
+                ->first();
             return $saldo_grupo;
         } else {
             $saldo_fondos = null;
-            if(!is_null($fecha_inicio) == null){
+            if (!is_null($fecha_inicio) == null) {
                 $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
-                ->where('fecha', '<=', $fecha_anterior)
-                ->where('fecha', '<', $fecha_inicio)
+                    ->where('fecha', '<=', $fecha_anterior)
+                    ->where('fecha', '<', $fecha_inicio)
+                    ->orderBy('created_at', 'DESC')
+                    ->first();
+            }
+            $saldo_fondos = $saldo_fondos  || !is_null($saldo_fondos) ?  $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
+                ->where('fecha', $fecha_anterior)
                 ->orderBy('created_at', 'DESC')
                 ->first();
-            }
-            $saldo_fondos = $saldo_fondos  || !is_null($saldo_fondos)?  $saldo_fondos: Saldo::where('empleado_id', $empleado_id)
-            ->where('fecha', $fecha_anterior)
-            ->orderBy('created_at', 'DESC')
-            ->first();
-            $saldo_fondos = $saldo_fondos?$saldo_fondos: Saldo::where('empleado_id', $empleado_id)
+            $saldo_fondos = $saldo_fondos ? $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
                 ->where('fecha', '<=', $fecha_anterior)
                 ->orderBy('created_at', 'DESC')
                 ->first();
