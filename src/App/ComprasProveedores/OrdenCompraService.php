@@ -27,6 +27,34 @@ class OrdenCompraService
         //
     }
 
+    public function filtrarOrdenes(Request $request)
+    {
+        $results = collect([]);
+        $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+        $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+        $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+            ->when($request->proveedor, function ($query) use ($request) {
+                $query->where('proveedor_id', $request->proveedor);
+            })
+            ->get();
+
+
+        if (in_array('PENDIENTES', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+            return $orden->autorizacion_id === 1 && $orden->estado_id  === 1;
+        }));
+        if (in_array('REVISADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+            return ($orden->revisada_compras === true || $orden->estado_id === 2) && $orden->realizada == false;
+        }));
+        if (in_array('REALIZADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+            return $orden->realizada === true && $orden->pagada === false && $orden->estado_id === 2;
+        }));
+        if (in_array('PAGADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+            return $orden->pagada === true;
+        }));
+
+        return $results->unique();
+    }
+
     public static function generarPdf(OrdenCompra $orden_compra, $guardar, $descargar)
     {
         try {
@@ -77,15 +105,37 @@ class OrdenCompraService
         $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
         $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
         $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-            ->when($request->empleado, function ($query) use ($request) {
+            ->when($request->empleado && $request->tipo == 'ESTADO', function ($query) use ($request) {
                 $query->where('solicitante_id', $request->empleado);
             })
             ->when($request->proveedor && $request->tipo == 'PROVEEDOR', function ($query) use ($request) {
-                if ($request->proveedor != null) $query->where('proveedor_id', $request->proveedor);
+                $query->where('proveedor_id', $request->proveedor);
+            })
+            ->when($request->tipo == 'VALORES', function ($query) use ($request) {
+                $query->where(function ($q) {
+                    $q->where('estado_id', EstadosTransacciones::COMPLETA)
+                        ->orWhere('revisada_compras', true)
+                        ->orWhere('realizada', true)
+                        ->orWhere('pagada', true);
+                });
             })
             // ->where('solicitante_id', $request->empleado)
             ->get();
-        // Log::channel('testing')->info('Log', ['request:', $request->empleado]);
+        Log::channel('testing')->info('Log', ['request:', $ordenes->count()]);
+        Log::channel('testing')->info('Log', ['sql:', OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+            ->when($request->empleado && $request->tipo == 'ESTADO', function ($query) use ($request) {
+                $query->where('solicitante_id', $request->empleado);
+            })
+            ->when($request->proveedor && $request->tipo == 'PROVEEDOR', function ($query) use ($request) {
+                $query->where('proveedor_id', $request->proveedor);
+            })
+            ->when($request->tipo == 'VALORES', function ($query) use ($request) {
+                $query->where(function ($q) {
+                    $q->where('revisada_compras', true)
+                        ->orWhere('realizada', true)
+                        ->orWhere('pagada', true);
+                });
+            })->toSql()]);
         // Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $fecha_inicio, $fecha_fin, $ordenes]);
 
         switch ($request->tipo) {
@@ -94,6 +144,9 @@ class OrdenCompraService
                 break;
             case 'PROVEEDOR':
                 $results = self::dividirOrdenesPorProveedores($ordenes);
+                break;
+            case 'VALORES':
+                $results = self::dividirOrdenesPorValores($ordenes);
                 break;
             default:
                 // Log::channel('testing')->info('Log', ['Entró en default, se lanzará un error']);
@@ -216,7 +269,6 @@ class OrdenCompraService
             return $orden->proveedor_id != null && $orden->pagada == true;
         });
         $anuladas = $ordenes->filter(function ($orden) {
-            // return $orden->proveedor_id != null && ($orden->autorizacion_id == Autorizaciones::CANCELADO || $orden->estado_id == EstadosTransacciones::ANULADA);
             return $orden->estado_id == 4;
         });
         // Log::channel('testing')->info('Log', ['pendientes:', $pendientes->count()]);
@@ -298,6 +350,120 @@ class OrdenCompraService
             'cant_ordenes_realizadas',
             'cant_ordenes_pagadas',
             'cant_ordenes_anuladas',
+        );
+    }
+
+    /**
+     * Aquí obtendremos todas las ordenes de compras que han sido revisadas, realizadas y pagadas respectivamente.
+     */
+    public static function dividirOrdenesPorValores($ordenes)
+    {
+        $results = [];
+        //filtramos las ordenes de compras revisadas, realizadas y pagadas en adelante
+        $todas = $ordenes;
+
+        $revisadas = $ordenes->filter(function ($orden) {
+            return $orden->estado_id == 2 && $orden->realizada == false;
+        });
+        $realizadas = $ordenes->filter(function ($orden) {
+            return $orden->realizada == true && $orden->pagada == false;
+        });
+        $pagadas = $ordenes->filter(function ($orden) {
+            return $orden->pagada == true;
+        });
+        $todas = OrdenCompraResource::collection($todas);
+        $cant_ordenes_revisadas = $revisadas->count();
+        $cant_ordenes_realizadas = $realizadas->count();
+        $cant_ordenes_pagadas = $pagadas->count();
+        $tituloGrafico = "Ordenes de Compra por Valores";
+
+        $graficos = [];
+
+        $suma_revisadas = 0;
+        $revisadas->each(function ($orden) use (&$suma_revisadas) {
+            $total_orden = 0;
+            foreach ($orden->detalles as $detalle) {
+                $total_orden += $detalle->total;
+            }
+            $suma_revisadas += $total_orden;
+            Log::channel('testing')->info('Log', ['revisadas:', $total_orden, $orden->id]);
+        });
+        $suma_realizadas = 0;
+        $realizadas->each(function ($orden) use (&$suma_realizadas) {
+            $total_orden = 0;
+            foreach ($orden->detalles as $detalle) {
+                $total_orden += $detalle->total;
+            }
+            $suma_realizadas += $total_orden;
+            Log::channel('testing')->info('Log', ['revisadas:', $total_orden, $orden->id]);
+        });
+        $suma_pagadas = 0;
+        $pagadas->each(function ($orden) use (&$suma_pagadas) {
+            $total_orden = 0;
+            foreach ($orden->detalles as $detalle) {
+                $total_orden += $detalle->total;
+            }
+            $suma_pagadas += $total_orden;
+            Log::channel('testing')->info('Log', ['revisadas:', $total_orden, $orden->id]);
+        });
+
+        //Configuramos el primer gráfico
+        $graficoCreadas = new Collection([
+            'id' => 1,
+            'identificador' => 'PROVEEDORES',
+            'encabezado' => 'Estados de las ordenes de compras que tienen proveedor',
+            'labels' => [
+                'REVISADAS',
+                'REALIZADAS',
+                'PAGADAS',
+            ],
+            'datasets' => [
+                [
+                    'backgroundColor' => Utils::coloresAleatorios(),
+                    'label' => $tituloGrafico,
+                    'data' => [
+                        $revisadas->count(),
+                        $realizadas->count(), //realizadas
+                        $pagadas->count(), //pagadas
+                    ],
+                ]
+            ],
+        ]);
+        array_push($graficos, $graficoCreadas);
+
+        //Configuramos el segundo gráfico
+        $graficoCreadas = new Collection([
+            'id' => 2,
+            'identificador' => 'PROVEEDORES',
+            'encabezado' => 'Suma de valores por las ordenes de compras',
+            'labels' => [
+                'REVISADAS',
+                'REALIZADAS',
+                'PAGADAS',
+            ],
+            'datasets' => [
+                [
+                    'backgroundColor' => Utils::coloresAleatorios(),
+                    'label' => $tituloGrafico,
+                    'data' => [
+                        round($suma_revisadas, 2),
+                        round($suma_realizadas, 2), //realizadas
+                        round($suma_pagadas, 2), //pagadas
+                    ],
+                ]
+            ],
+        ]);
+        array_push($graficos, $graficoCreadas);
+
+        return compact(
+            'graficos',
+            'todas',
+            'revisadas',
+            'realizadas',
+            'pagadas',
+            'cant_ordenes_revisadas',
+            'cant_ordenes_realizadas',
+            'cant_ordenes_pagadas',
         );
     }
 }
