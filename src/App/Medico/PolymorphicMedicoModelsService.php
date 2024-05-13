@@ -104,14 +104,32 @@ class PolymorphicMedicoModelsService
      * Está función recibe un objeto o un array para guardar una o varias accidentes o enfermedades profesionales
      * Depende del tipo que reciba en cada objeto de `$data` se guardará como accidente de trabajo o como enfermedad profesional.
      */
-    public function crearAccidentesEnfermedadesProfesionales(Model $entidad, array|null $data)
+    public function crearAccidentesEnfermedadesProfesionales(Model $entidad, array|null $data, $tipo)
+    {
+        try {
+            DB::beginTransaction();
+            $entidad->accidentesEnfermedades()->create([
+                'tipo' => $tipo,
+                'observacion' => $data['observacion'],
+                'calificado_iss' => $data['calificado_iss'],
+                'instituto_seguridad_social' => $data['instituto_seguridad_social'],
+                'fecha' => $data['fecha'],
+            ]);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['error en crearAccidentesEnfermedadesProfesionales']);
+            throw $th;
+        }
+    }
+    public function crearAccidentesEnfermedadesProfesionalesOld(Model $entidad, array|null $data, $tipo)
     {
         try {
             DB::beginTransaction();
             if (!is_null($data))
                 foreach ($data as $d) {
                     $entidad->accidentesEnfermedades()->create([
-                        'tipo' => $d['tipo'],
+                        'tipo' => $tipo,
                         'observacion' => $d['observacion'],
                         'calificado_iss' => $d['calificado_iss'],
                         'instituto_seguridad_social' => $d['instituto_seguridad_social'],

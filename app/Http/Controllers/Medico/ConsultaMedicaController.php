@@ -50,7 +50,7 @@ class ConsultaMedicaController extends Controller
                 'cita_medica_id' => $datos['cita_medica'],
                 'registro_empleado_examen_id' => isset($datos['registro_empleado_examen']) ? $datos['registro_empleado_examen'] : null,
                 'dado_alta' => $datos['dado_alta'],
-                'dias_descanso' => $datos['dias_descanso'],
+                'dias_descanso' => $datos['dias_descanso'] ?? 0,
             ]);
 
             $consulta_medica->receta()->create([

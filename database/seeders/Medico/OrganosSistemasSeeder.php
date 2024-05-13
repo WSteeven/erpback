@@ -20,28 +20,28 @@ class OrganosSistemasSeeder extends Seeder
                 'nombre' => 'Piel anexos',
             ],
             [
-                'nombre' => 'Respiratorio',
-            ],
-            [
-                'nombre' => 'Digestivo',
-            ],
-            [
-                'nombre' => 'Músculo esquelético',
-            ],
-            [
-                'nombre' => 'Emo linfático',
-            ],
-            [
                 'nombre' => 'Órganos de los sentidos',
+            ],
+            [
+                'nombre' => 'Respiratorio',
             ],
             [
                 'nombre' => 'Cardiovascular',
             ],
             [
+                'nombre' => 'Digestivo',
+            ],
+            [
                 'nombre' => 'Genito urinario',
             ],
             [
+                'nombre' => 'Músculo esquelético',
+            ],
+            [
                 'nombre' => 'Endocrino',
+            ],
+            [
+                'nombre' => 'Hemolinfático',
             ],
             [
                 'nombre' => 'Nervioso',

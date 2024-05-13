@@ -17,10 +17,10 @@ return new class extends Migration
         Schema::create('med_accidentes_enfermedades_laborales', function (Blueprint $table) {
             $table->id();
             $table->enum('tipo', [AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO, AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL]);
-            $table->text('observacion');
+            $table->text('observacion')->nullable();
             $table->boolean('calificado_iss');
             $table->text('instituto_seguridad_social')->nullable();
-            $table->date('fecha');
+            $table->date('fecha')->nullable();
             $table->unsignedBigInteger('accidentable_id');
             $table->string('accidentable_type');
             $table->timestamps();

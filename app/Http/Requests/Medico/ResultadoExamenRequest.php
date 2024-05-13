@@ -25,7 +25,7 @@ class ResultadoExamenRequest extends FormRequest
     {
         return [
             '*.id' => 'nullable|numeric|integer',
-            '*.resultado' => 'required|numeric',
+            '*.resultado' => 'nullable|string',
             '*.observaciones' => 'nullable|string',
             '*.configuracion_examen_campo' => 'required|exists:med_configuraciones_examenes_campos,id',
             '*.examen_solicitado' => 'required|exists:med_examenes_solicitados,id',

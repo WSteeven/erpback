@@ -53,7 +53,17 @@ class FichaPreocupacionalRequest extends FormRequest
             'antecedentes_gineco_obstetricos.partos' => 'nullable|integer',
             'antecedentes_gineco_obstetricos.cesareas' => 'nullable|integer',
             'antecedentes_gineco_obstetricos.abortos' => 'nullable|integer',
-            'accidentesTrabajo.*.calificado_iss' => 'required|boolean',
+            // Accidentes de trabajo
+            'accidente_trabajo.calificado_iss' => 'required|boolean',
+            'accidente_trabajo.observacion' => 'nullable|string',
+            'accidente_trabajo.instituto_seguridad_social' => 'nullable|string',
+            'accidente_trabajo.fecha' => 'nullable|string',
+            // Enfermedad profesional
+            'enfermedad_profesional.calificado_iss' => 'required|boolean',
+            'enfermedad_profesional.observacion' => 'nullable|string',
+            'enfermedad_profesional.instituto_seguridad_social' => 'nullable|string',
+            'enfermedad_profesional.fecha' => 'nullable|string',
+            // --
             'fecha' => 'required|date_format:Y-m-d',
             'observacion_examen_fisico_regional' => 'nullable|string',
             // 'tipo_descripcion_antecedente_trabajo' => 'required|string',
@@ -72,30 +82,30 @@ class FichaPreocupacionalRequest extends FormRequest
             'factoresRiesgoPuestoActual.*.medidas_preventivas' => 'required|string',
             'factoresRiesgoPuestoActual.*.categorias' => 'required|array',
             // habitos_toxicos
-            'habitosToxicos.*.tiempo_consumo_meses' => 'required|numeric',
-            'habitosToxicos.*.cantidad' => 'required|numeric|integer',
-            'habitosToxicos.*.ex_consumidor' => 'required|boolean',
-            'habitosToxicos.*.tipo_habito_toxico_id' => 'required|exists:med_tipos_habitos_toxicos,id',
-            'habitosToxicos.*.tiempo_abstinencia_meses' => 'required|numeric|integer',
+            'habitos_toxicos.*.tiempo_consumo_meses' => 'required|numeric',
+            'habitos_toxicos.*.cantidad' => 'required|numeric|integer',
+            'habitos_toxicos.*.ex_consumidor' => 'required|boolean',
+            'habitos_toxicos.*.tipo_habito_toxico_id' => 'required|exists:med_tipos_habitos_toxicos,id',
+            'habitos_toxicos.*.tiempo_abstinencia_meses' => 'nullable|numeric|integer',
             // actividades_fisicas
-            'actividadesFisicas.*.nombre_actividad' => 'nullable|string',
-            'actividadesFisicas.*.tiempo' => 'nullable|numeric',
+            'actividades_fisicas.*.nombre_actividad' => 'required|string',
+            'actividades_fisicas.*.tiempo' => 'required|numeric',
             // medicaciones
             'medicaciones.*.nombre' => 'required|string',
             'medicaciones.*.cantidad' => 'required|string',
             // actividades_puestos_trabajos
             'actividades_puestos_trabajos.*.actividad' => 'required|string',
             // antecedentes familiares
-            'antecedentesFamiliares.*.descripcion' => 'sometimes|nullable|string',
-            'antecedentesFamiliares.*.parentesco' => 'required|string',
-            'antecedentesFamiliares.*.tipo_antecedente_familiar_id' => 'required|exists:med_tipos_antecedentes_familiares,id',
+            'antecedentes_familiares.*.descripcion' => 'sometimes|nullable|string',
+            'antecedentes_familiares.*.parentesco' => 'required|string',
+            'antecedentes_familiares.*.tipo_antecedente_familiar_id' => 'required|exists:med_tipos_antecedentes_familiares,id',
             // antecedentesEmpleosAnteriores
-            'antecedentesEmpleosAnteriores.*.empresa' => 'required|string',
-            'antecedentesEmpleosAnteriores.*.puesto_trabajo' => 'required|string',
-            'antecedentesEmpleosAnteriores.*.actividades' => 'required|string',
-            'antecedentesEmpleosAnteriores.*.tiempo_trabajo' => 'required|numeric',
-            'antecedentesEmpleosAnteriores.*.observacion' => 'required|string',
-            'antecedentesEmpleosAnteriores.*.riesgos' => 'required|array',
+            'antecedentes_empleos_anteriores.*.empresa' => 'required|string',
+            'antecedentes_empleos_anteriores.*.puesto_trabajo' => 'required|string',
+            'antecedentes_empleos_anteriores.*.actividades' => 'required|string',
+            'antecedentes_empleos_anteriores.*.tiempo_trabajo' => 'required|numeric',
+            'antecedentes_empleos_anteriores.*.observaciones' => 'required|string',
+            'antecedentes_empleos_anteriores.*.tipos_riesgos_ids' => 'required|array',
             // antecedente_personal
             'antecedente_personal.vida_sexual_activa' => 'required|boolean',
             'antecedente_personal.hijos_vivos' => 'required|numeric|integer|min:0',
@@ -111,7 +121,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'aptitud_medica.limitacion' => 'nullable|string',
             // examenes fisicos regionales
             'examenes_fisicos_regionales.*.categoria_examen_fisico_id' => 'required|numeric|integer|exists:med_categorias_examenes_fisicos,id',
-            'examenes_fisicos_regionales.*. ' => 'nullable|string',
+            'examenes_fisicos_regionales.*.observacion' => 'nullable|string',
             // examenes_realizados
             'examenes_realizados.*.examen_id' => 'required|numeric|integer|exists:med_examenes_organos_reproductivos,id',
             'examenes_realizados.*.tiempo' => 'required|numeric|integer',
