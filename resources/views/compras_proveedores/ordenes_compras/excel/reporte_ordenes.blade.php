@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-@php
-    obtenerTotal($orden){
-        $total = 0;
 
-        foreach($orden->detalles() as $detalle){
-            $total += $detalle->total;
-        }
-
-        return $total;
-    }
-@endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,7 +115,7 @@
                                             <td>{{ $rpt['descripcion'] }}</td>
                                             <td>{{ $rpt['estado']['nombre'] ?? '' }}</td>
                                             <td>{{ $rpt['fecha'] }}</td>
-                                            <td>{{ obtenerTotal($rpt) }}</td>
+                                            <td>{{ round($rpt->detalles()->sum('total'), 2) }}</td>
                                         </tr>
                                     @endforeach
                                 </table>
