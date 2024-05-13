@@ -25,10 +25,10 @@ class ConsultaMedicaRequest extends FormRequest
     {
         $reglas = [
             'observacion' => 'nullable|string',
-            'receta.rp' => 'required|string',
-            'receta.prescripcion' => 'required|string',
+            'receta.rp' => 'nullable|string',
+            'receta.prescripcion' => 'nullable|string',
             'diagnosticos.*.cie' => 'required|exists:med_cies,id',
-            'diagnosticos.*.recomendacion' => 'nullable|string',
+            'diagnosticos.*.recomendacion' => 'required|string',
             'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_registros_empleados_examenes,id',
             // 'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
             'cita_medica' => 'nullable|numeric|integer|exists:med_citas_medicas,id',

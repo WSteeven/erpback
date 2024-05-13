@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('med_consultas_medicas', function (Blueprint $table) {
             $table->id();
-            $table->string('observacion');
+            $table->string('observacion')->nullable();
             $table->boolean('dado_alta')->default(false);
             $table->unsignedInteger('dias_descanso')->default(0);
 
