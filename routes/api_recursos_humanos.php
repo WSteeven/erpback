@@ -11,6 +11,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioCon
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
+use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\AlimentacionController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\DetalleAlimentacionController;
