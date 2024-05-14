@@ -6,6 +6,7 @@
     use App\Models\Medico\CategoriaExamenFisico;
     use App\Models\Medico\TipoAntecedenteFamiliar;
     use App\Models\Medico\SistemaOrganico;
+    use Carbon\Carbon;
 @endphp
 
 <head>
@@ -253,7 +254,7 @@
             text-align: center;
             width: max-content;
             display: block;
-            font-size: 10px;
+            /* font-size: 10px; */
         }
 
         .celda {
@@ -295,17 +296,29 @@
 
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
-        border="1" cellpadding="0" cellspacing="0" class="celdas_amplias mb-8">
+        border="1" cellpadding="0" cellspacing="0" class="celdas_amplias">
         <tr>
-            <th style="width: 10%;">PRIMER APELLIDO</th>
-            <th style="width: 10%;">SEGUNDO APELLIDO</th>
-            <th style="width: 10%;">PRIMER NOMBRE</th>
-            <th style="width: 10%;">SEGUNDO NOMBRE</th>
-            <th style="width: 8%;">SEXO</th>
-            <th style="width: 10%;">FECHA DE INICIO DE LABORES</th>
-            <th style="width: 10%;">FECHA DE SALIDA</th>
-            <th style="width: 10%;">Tiempo <small>(meses)</small></th>
-            <th style="width: 22%;">PUESTO DE TRABAJO (CIUO)</th>
+            <th rowspan="2" style="width: 10%;">PRIMER APELLIDO</th>
+            <th rowspan="2" style="width: 10%;">SEGUNDO APELLIDO</th>
+            <th rowspan="2" style="width: 10%;">PRIMER NOMBRE</th>
+            <th rowspan="2" style="width: 10%;">SEGUNDO NOMBRE</th>
+            <th rowspan="2" style="width: 8%;">SEXO</th>
+            <th rowspan="2" style="width: 8%;">EDAD <br> <small class="text-mini">AÑOS</small></th>
+            <th rowspan="1" style="width: 5%;" colspan="5">RELIGIÓN</th>
+            <th rowspan="2" style="width: 10%;">GRUPO SANGUINEO</th>
+            <th rowspan="2" style="width: 10%;">LATERALIDAD</th>
+        </tr>
+        <tr>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">CATÓLICA</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">EVANGELICA</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">TESTIGOS DE <br> JEHOVÁ</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">MORMONA</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">OTRAS</small></td>
         </tr>
         <tr>
             <td align="center">{{ explode(' ', $empleado['apellidos'])[0] }}</td>
@@ -313,11 +326,107 @@
             <td align="center">{{ explode(' ', $empleado['nombres'])[0] }}</td>
             <td align="center">{{ explode(' ', $empleado['nombres'])[1] }}</td>
             <td align="center">{{ $empleado['genero'] }}</td>
-            <td align="center">{{ $empleado['fecha_ingreso'] }}</td>
-            <td align="center">{{ $empleado['fecha_salida'] }}</td>
-            <td align="center">{{ $empleado['antiguedad'] }}</td>
-            <td align="center">{{ $empleado['cargo']->nombre }}</td>
+            <td align="center">{{ $empleado['edad'] }}</td>
+
+            <td align="center">{{ $ficha_preocupacional['religion'] == 1 ? 'x' : '' }}</td>
+            <td align="center">{{ $ficha_preocupacional['religion'] == 2 ? 'x' : '' }}</td>
+            <td align="center">{{ $ficha_preocupacional['religion'] == 3 ? 'x' : '' }}</td>
+            <td align="center">{{ $ficha_preocupacional['religion'] == 4 ? 'x' : '' }}</td>
+            <td align="center">{{ $ficha_preocupacional['religion'] == 5 ? 'x' : '' }}</td>
+
+            <td align="center">{{ $empleado['tipo_sangre'] }}</td>
+            <td align="center">{{ $empleado['lateralidad'] }}</td>
         </tr>
+    </table>
+
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+        border="1" cellpadding="0" cellspacing="0" class="  mb-8">
+        <tr>
+            <th rowspan="1" colspan="5" style="width: 10%;">ORIENTACIÓN SEXUAL</th>
+            <th rowspan="1" colspan="5" style="width: 10%;">IDENTIDAD DE GÉNERO</th>
+            <th rowspan="1" colspan="4" style="width: 20%;">DISCAPACIDAD</th>
+            <th rowspan="2" style="width: 10%;">FECHA DE INGRESO AL TRABAJO <br> <small
+                    class="text-mini">{{ 'aaaa/mm/dd' }}</small></th>
+            <th rowspan="2" style="width: 15%;">PUESTO DE TRABAJO <br> <small class="text-mini">(CIUO)</small></th>
+            <th rowspan="2" style="width: 15%;">ÁREA DE TRABAJO</th>
+            <th rowspan="2" style="width: 20%;">ACTIVIDADES RELEVANTES AL PUESTO DE TRABAJO A OCUPAR</th>
+        </tr>
+
+        <tr>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">LESBIANA</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">GAY</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">BISEXUAL</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">HETEROSEXUAL</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">NO SABE/NO <br> RESPONDE</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">FEMENINO</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">MASCULINO</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">TRANS- <br> FEMENINO</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">TRANS- <br> MASCULINO</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><small
+                    class="text-mini texto-vertical">NO SABE/NO <br> RESPONDE</small></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><span
+                    class="text-mini texto-vertical">SI</span></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><span
+                    class="text-mini texto-vertical">NO</span></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 60%;"><span
+                    class="text-mini texto-vertical">TIPO</span></td>
+            <td class="bg-green celda" style="padding-top: 20px; padding-bottom: 20px; width: 20%;"><span
+                    class="text-mini texto-vertical"> (%) </span></td>
+        </tr>
+
+        <tr>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['orientacion_sexual'] == 1 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['orientacion_sexual'] == 2 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['orientacion_sexual'] == 3 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['orientacion_sexual'] == 4 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['orientacion_sexual'] == 5 ? 'x' : '' }}
+            </td>
+
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['identidad_genero'] == 1 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['identidad_genero'] == 2 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['identidad_genero'] == 3 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['identidad_genero'] == 4 ? 'x' : '' }}
+            </td>
+            <td align="center" style="width: 5%;">{{ $ficha_preocupacional['identidad_genero'] == 5 ? 'x' : '' }}
+            </td>
+
+            <td align="center" style="width: 5%;">{{ $empleado['tiene_discapacidad'] ? 'x' : '' }}</td>
+            <td align="center" style="width: 5%;">{{ !$empleado['tiene_discapacidad'] ? 'x' : '' }}</td>
+            <td style="width: 10%;">
+                @foreach ($empleado->tiposDiscapacidades as $discapacidad)
+                    <div class="fs-9">{{ $discapacidad->nombre }}</div>
+                @endforeach
+            </td>
+
+            <td style="width: 10%;">
+                @foreach ($empleado->tiposDiscapacidades as $discapacidad)
+                    <div class="fs-9">{{ $discapacidad->pivot->porcentaje . '%' }}</div>
+                @endforeach
+            </td>
+
+            <td style="width: 5%;" align="center">{{ $empleado['fecha_ingreso'] }}</td>
+            <td style="width: 5%;" align="center">{{ $empleado['cargo']->nombre }}</td>
+            <td style="width: 5%;" align="center">{{ $empleado['departamento']->nombre }}</td>
+            <td style="width: 5%;" align="center">{{ '' }}</td>
+        </tr>
+
     </table>
 
     {{-- B. MOTIVO DE LA CONSULTA --}}
@@ -706,9 +815,9 @@
                 <span class="mr-8 d-inline-block"></span>
                 <span class="fs-9">FECHA:</span>
                 <span
-                    class="cuadrado fs-9">{{ $ficha_preocupacional['accidente_trabajo'] ? $ficha_preocupacional['accidente_trabajo']['fecha']->format('d') : '' }}</span><span
-                    class="cuadrado fs-9">{{ $ficha_preocupacional['accidente_trabajo'] ? $ficha_preocupacional['accidente_trabajo']['fecha']->format('m') : '' }}</span><span
-                    class="cuadrado fs-9">{{ $ficha_preocupacional['accidente_trabajo'] ? $ficha_preocupacional['accidente_trabajo']['fecha']->year : '' }}</span>
+                    class="cuadrado fs-9">{{ $ficha_preocupacional['accidente_trabajo'] ? Carbon::parse($ficha_preocupacional['accidente_trabajo']['fecha'])->format('d') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_preocupacional['accidente_trabajo'] ? Carbon::parse($ficha_preocupacional['accidente_trabajo']['fecha'])->format('m') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_preocupacional['accidente_trabajo'] ? Carbon::parse($ficha_preocupacional['accidente_trabajo']['fecha'])->year : '' }}</span>
             </td>
         </tr>
 
@@ -759,9 +868,9 @@
                 <span class="mr-8 d-inline-block"></span>
                 <span class="fs-9">FECHA:</span>
                 <span
-                    class="cuadrado fs-9">{{ $ficha_preocupacional['enfermedad_profesional'] ? $ficha_preocupacional['enfermedad_profesional']['fecha']->format('d') : '' }}</span><span
-                    class="cuadrado fs-9">{{ $ficha_preocupacional['enfermedad_profesional'] ? $ficha_preocupacional['enfermedad_profesional']['fecha']->format('m') : '' }}</span><span
-                    class="cuadrado fs-9">{{ $ficha_preocupacional['enfermedad_profesional'] ? $ficha_preocupacional['enfermedad_profesional']['fecha']->year : '' }}</span>
+                    class="cuadrado fs-9">{{ $ficha_preocupacional['enfermedad_profesional'] ? Carbon::parse($ficha_preocupacional['enfermedad_profesional']['fecha'])->format('d') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_preocupacional['enfermedad_profesional'] ? Carbon::parse($ficha_preocupacional['enfermedad_profesional']['fecha'])->format('m') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_preocupacional['enfermedad_profesional'] ? Carbon::parse($ficha_preocupacional['enfermedad_profesional']['fecha'])->year : '' }}</span>
             </td>
         </tr>
 
@@ -1034,23 +1143,23 @@
         border="1" cellpadding="0" cellspacing="0" class="mb-8 celdas_amplias">
         <tbody>
             <tr>
-                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical">1. Piel</span></td>
+                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical fs-9">1. Piel</span></td>
                 <td class="bg-celeste" style="width: 12%;">a. Cicatrices</td>
                 <td>{{ in_array(CategoriaExamenFisico::CICATRICES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical">3. Oido</span></td>
+                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical fs-9">3. Oido</span></td>
                 <td class="bg-celeste" style="width: 12%;">a. C. auditivo externo</td>
                 <td>{{ in_array(CategoriaExamenFisico::AUDITIVO_EXTERNO, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="4" class="celda bg-celeste"><span class="texto-vertical">5. Nariz</span></td>
+                <td rowspan="4" class="celda bg-celeste"><span class="texto-vertical fs-9">5. Nariz</span></td>
                 <td class="bg-celeste" style="width: 12%;">a. Tabique</td>
                 <td>{{ in_array(CategoriaExamenFisico::TABIQUE, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical">8. Tórax</span></td>
+                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical fs-9">8. Tórax</span></td>
                 <td class="bg-celeste" style="width: 12%;">a. Pulmones</td>
                 <td>{{ in_array(CategoriaExamenFisico::PULMONES, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical">11. Pelvis</span></td>
+                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical fs-9">11. Pelvis</span></td>
                 <td class="bg-celeste" style="width: 12%;">a. Pelvis</td>
                 <td>{{ in_array(CategoriaExamenFisico::PELVIS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
@@ -1083,21 +1192,21 @@
                 <td class="bg-celeste">c. Mucosas</td>
                 <td>{{ in_array(CategoriaExamenFisico::MUCOSAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical">9. Abdomen</span></td>
+                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical fs-9">9. Abdomen</span></td>
                 <td class="bg-celeste">a. Vísceras</td>
                 <td>{{ in_array(CategoriaExamenFisico::VISCERAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical">12. Extremidades</span></td>
+                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical fs-9">12. Extremidades</span></td>
                 <td class="bg-celeste">a. Vascular</td>
                 <td>{{ in_array(CategoriaExamenFisico::VASCULAR, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
             </tr>
 
             <tr>
-                <td rowspan="5" class="celda bg-celeste"><span class="texto-vertical">2. Ojos</span></td>
+                <td rowspan="5" class="celda bg-celeste"><span class="texto-vertical fs-9">2. Ojos</span></td>
                 <td class="bg-celeste">a. Párpados</td>
                 <td>{{ in_array(CategoriaExamenFisico::PARPADOS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="5" class="celda bg-celeste"><span class="texto-vertical">4. Oro faringe</span></td>
+                <td rowspan="5" class="celda bg-celeste"><span class="texto-vertical fs-9">4. Oro faringe</span></td>
                 <td class="bg-celeste">a. Labios</td>
                 <td>{{ in_array(CategoriaExamenFisico::LABIOS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
@@ -1119,7 +1228,7 @@
                 <td class="bg-celeste">b. Lengua</td>
                 <td>{{ in_array(CategoriaExamenFisico::LENGUA, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical">6. Cuello</span></td>
+                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical fs-9">6. Cuello</span></td>
                 <td class="bg-celeste">a. Tiroides / masas</td>
                 <td>{{ in_array(CategoriaExamenFisico::TIROIDES_MASAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
@@ -1141,12 +1250,12 @@
                 <td class="bg-celeste">b. Movilidad</td>
                 <td>{{ in_array(CategoriaExamenFisico::MOVILIDAD, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical">10. Columna</span></td>
+                <td rowspan="3" class="celda bg-celeste"><span class="texto-vertical fs-9">10. Columna</span></td>
                 <td class="bg-celeste" rowspan="2">a. Desviación</td>
                 <td rowspan="2">
                     {{ in_array(CategoriaExamenFisico::DESVIACION, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="4" class="celda bg-celeste"><span class="texto-vertical">13. Neurológico</span></td>
+                <td rowspan="4" class="celda bg-celeste"><span class="texto-vertical fs-9">13. Neurológico</span></td>
                 <td class="bg-celeste">a. Fuerza</td>
                 <td>{{ in_array(CategoriaExamenFisico::FUERZA, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
@@ -1159,7 +1268,7 @@
                 <td class="bg-celeste">d. Amígdalas</td>
                 <td>{{ in_array(CategoriaExamenFisico::AMIGDALAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
-                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical">7. Tórax</span></td>
+                <td rowspan="2" class="celda bg-celeste"><span class="texto-vertical fs-9">7. Tórax</span></td>
                 <td class="bg-celeste">a. Mamas</td>
                 <td>{{ in_array(CategoriaExamenFisico::MAMAS, $ficha_preocupacional['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>

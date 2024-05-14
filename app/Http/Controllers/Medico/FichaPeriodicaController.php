@@ -21,15 +21,12 @@ class FichaPeriodicaController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.fichas_periodicas_preocupacionales')->only('index', 'show');
-        $this->middleware('can:puede.crear.fichas_periodicas_preocupacionales')->only('store');
-        $this->middleware('can:puede.editar.fichas_periodicas_preocupacionales')->only('update');
-        $this->middleware('can:puede.eliminar.fichas_periodicas_preocupacionales')->only('destroy');
-        // $this->middleware('can:puede.ver.fichas_periodicas')->only('index', 'show');
-        // $this->middleware('can:puede.crear.fichas_periodicas')->only('store');
-        // $this->middleware('can:puede.editar.fichas_periodicas')->only('update');
-        // $this->middleware('can:puede.eliminar.fichas_periodicas')->only('destroy');
+        $this->middleware('can:puede.ver.fichas_periodicas')->only('index', 'show');
+        $this->middleware('can:puede.crear.fichas_periodicas')->only('store');
+        $this->middleware('can:puede.editar.fichas_periodicas')->only('update');
+        $this->middleware('can:puede.eliminar.fichas_periodicas')->only('destroy');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -74,9 +71,10 @@ class FichaPeriodicaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(FichaPeriodica $ficha_periodica)
     {
-        //
+        $modelo = new FichaPeriodicaResource($ficha_periodica);
+        return response()->json(compact('modelo'));
     }
 
     /**

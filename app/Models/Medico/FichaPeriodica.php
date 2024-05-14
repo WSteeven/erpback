@@ -25,6 +25,7 @@ class FichaPeriodica extends Model implements Auditable
         'registro_empleado_examen_id',
         'enfermedad_actual',
         'observacion_examen_fisico_regional',
+        'profesional_salud_id',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -32,6 +33,11 @@ class FichaPeriodica extends Model implements Auditable
     public function antecedentesClinicos()
     {
         return $this->morphMany(AntecedenteClinico::class, 'antecedentable');
+    }
+
+    public function actividadesFisicas()
+    {
+        return $this->morphMany(ActividadFisica::class, 'actividable');
     }
 
     public function habitosToxicos()
@@ -69,5 +75,10 @@ class FichaPeriodica extends Model implements Auditable
     public function aptitudesMedicas()
     {
         return $this->morphOne(AptitudMedica::class, 'aptitudable');
+    }
+
+    public function medicaciones()
+    {
+        return $this->morphMany(Medicacion::class, 'medicable');
     }
 }

@@ -161,6 +161,12 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::CREAR . ".fichas_preocupacionales"])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_preocupacionales"])->syncRoles([$empleado]);
 
+        // Fichas periodicas
+        Permission::firstOrCreate(['name' => self::VER . ".fichas_periodicas"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_periodicas"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".fichas_periodicas"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_periodicas"])->syncRoles([$empleado]);
+
         // Fichas retiro
         Permission::firstOrCreate(['name' => self::VER . ".fichas_retiro"])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_retiro"])->syncRoles([$empleado]);

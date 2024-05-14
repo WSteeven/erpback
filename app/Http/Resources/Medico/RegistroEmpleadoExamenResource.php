@@ -27,6 +27,7 @@ class RegistroEmpleadoExamenResource extends JsonResource
             'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
             'ficha_aptitud' => $this->fichaAptitud?->id,
             'ficha_preocupacional' => $this->fichaPreocupacional?->id,
+            'ficha_periodica' => $this->fichaPeriodica?->id,
             'ficha_retiro' => null, // $this->fichaRetiro?->id,
         ];
     }

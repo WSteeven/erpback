@@ -68,7 +68,6 @@ class ModuloMedicoSeeder extends Seeder
             TipoAntecedenteFamiliarSeeder::class,
             TipoAntecedenteSeeder::class,
             TipoAptitudSeeder::class,
-            TipoEvaluacionMedicaRetiroSeeder::class,
             TipoHabitoToxicoSeeder::class,
             TipoDiscapacidadSeeder::class,
         ]);

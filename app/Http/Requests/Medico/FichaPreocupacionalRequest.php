@@ -5,6 +5,7 @@ namespace App\Http\Requests\Medico;
 // use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 
 class FichaPreocupacionalRequest extends FormRequest
@@ -126,8 +127,10 @@ class FichaPreocupacionalRequest extends FormRequest
             'examenes_realizados.*.examen_id' => 'required|numeric|integer|exists:med_examenes_organos_reproductivos,id',
             'examenes_realizados.*.tiempo' => 'required|numeric|integer',
             'examenes_realizados.*.resultado' => 'required|string',
+            'profesional_salud_id' => 'nullable|numeric|integer',
         ];
     }
+    
     protected function prepareForValidation()
     {
         $this->merge([
@@ -138,6 +141,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'fecha_ultima_menstruacion' => Carbon::parse($this->fecha_ultima_menstruacion)->format('Y-m-d'),
             'fecha' => Carbon::parse(Carbon::now())->format('Y-m-d'),
             'cargo_id' => $this->cargo,
+            'profesional_salud_id' => Auth::user()->empleado->id,
         ]);
     }
 

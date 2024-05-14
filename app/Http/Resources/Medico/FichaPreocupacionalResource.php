@@ -167,6 +167,7 @@ class FichaPreocupacionalResource extends JsonResource
              * ***************************************/
             'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->get()->map(fn ($item) => [
                 'categoria_examen_fisico_id' => $item->categoria_examen_fisico_id,
+                'categoria_examen_fisico' => $item->categoriaexamenFisico->nombre,
                 'observacion' => $item['observacion'],
             ]),
             /*********************************************
@@ -235,7 +236,7 @@ class FichaPreocupacionalResource extends JsonResource
             'id' => $accidente_enfermedad_laboral->id,
             'calificado_iss' => boolval($accidente_enfermedad_laboral?->calificado_iss),
             'instituto_seguridad_social' => $accidente_enfermedad_laboral?->instituto_seguridad_social,
-            'fecha' => Carbon::parse($accidente_enfermedad_laboral?->fecha),
+            'fecha' => $accidente_enfermedad_laboral?->fecha ? Carbon::parse($accidente_enfermedad_laboral?->fecha)?->format('Y-m-d') : null,
             'observacion' => $accidente_enfermedad_laboral?->observacion,
             'tipo_descripcion_antecedente_trabajo' => $accidente_enfermedad_laboral?->tipo,
             'ficha_preocupacional_id' => $accidente_enfermedad_laboral?->ficha_preocupacional_id,

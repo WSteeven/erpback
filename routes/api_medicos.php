@@ -150,7 +150,7 @@ Route::apiResources(
             'registros-empleados-examene' => 'registro_empleado_examen',
             'religiones' => 'religion',
             'resultados-examene' => 'resultado_examen',
-            'fichas-periodicas' => 'ficha',
+            'fichas-periodicas' => 'ficha_periodica',
             'fichas-preocupacionales' => 'ficha_preocupacional',
             'orientaciones-sexuales' => 'orientacion_sexual',
             'identidades-generos' => 'identidad_genero',

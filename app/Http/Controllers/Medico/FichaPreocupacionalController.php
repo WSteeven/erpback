@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\FichaPreocupacionalRequest;
+use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\Medico\ConsultaMedicaResource;
 use App\Http\Resources\Medico\FichaPreocupacionalResource;
 use App\Models\ConfiguracionGeneral;
@@ -157,7 +158,7 @@ class FichaPreocupacionalController extends Controller
         // Solo de la ficha actual
         $consultasMedicas = ConsultaMedica::where('registro_empleado_examen_id', $registro_empleado_examen_id)->latest()->get();
 
-        // Log::channel('testing')->info('Log', ['Consultas medicas', $consultasMedicas]);
+        Log::channel('testing')->info('Log', ['empleado', $empleado]);
 
         $consultasMedicasMapeado = $consultasMedicas->map(function ($consulta) {
             return [
@@ -201,7 +202,7 @@ class FichaPreocupacionalController extends Controller
         // $ficha['tipos_aptitudes_medicas_laborales'] = $tipos_aptitudes_medicas_laborales;
 
         $ficha['consultas_medicas'] = $consultasMedicasMapeado;
-        $ficha['recomendaciones_tratamiento'] = $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion;
+        $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : '';
         $ficha['resultados_examenes'] = $this->consultarResultadosExamenes($registro_empleado_examen_id);
         $ficha['observaciones_aptitud_medica'] = 'observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica';
 
@@ -225,7 +226,7 @@ class FichaPreocupacionalController extends Controller
         $datos = [
             'ficha_preocupacional' => $ficha,
             'configuracion' => $configuracion,
-            'empleado' => $empleado,
+            'empleado' => new EmpleadoResource($empleado),
             'profesionalSalud' => $profesionalSalud,
             'tipo_proceso_examen' => $ficha_preocupacional->registroEmpleadoExamen->tipo_proceso_examen,
             'tipos_aptitudes_medicas_laborales' => $tipos_aptitudes_medicas_laborales,
