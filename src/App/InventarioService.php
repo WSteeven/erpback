@@ -245,7 +245,7 @@ class InventarioService
 
         $pendientes = $todas->filter(function ($egreso) {
             if (!is_null($egreso->comprobante()->first()))
-                return !$egreso->comprobante()->first()->firmada;
+                return !$egreso->comprobante()->first()->firmada && $egreso->comprobante()->first()->estado === EstadoTransaccion::PENDIENTE;
         })->count();
         $parciales = $todas->filter(function ($egreso) {
             return  $egreso->comprobante()->first()?->estado == EstadoTransaccion::PARCIAL;

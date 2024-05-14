@@ -112,7 +112,7 @@ class PreingresoMaterialService
                     $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
 
                     if ($detalle) { //se encontró detalle, pero se sabe que no tiene el mismo número de serie, entonces se debe crear uno nuevo
-                        if ($item['serial'] && !is_null($detalle->serial)) {
+                        if ($item['serial']) {
                             $datos = $detalle->toArray();
                             $datos['serial'] = $item['serial'];
                             $fibra = Fibra::where('detalle_id', $detalle->id)->first();

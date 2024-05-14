@@ -3,15 +3,35 @@
 {{-- Aquí codigo PHP --}}
 @php
     $fecha = new Datetime();
-    $mensaje_qr = $configuracion['razon_social'] . PHP_EOL . 'PREINGRESO: ' . $preingreso['id'] . PHP_EOL . 'AUTORIZADO POR: ' . $preingreso['autorizador'] . PHP_EOL . 'RESPONSABLE: ' . $preingreso['responsable'] . PHP_EOL . 'ESTADO DE AUTORIZACION: ' . $preingreso['autorizacion'] . PHP_EOL . 'ULTIMA MODIFICACION: ' . $preingreso['updated_at'];
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $mensaje_qr =
+        $configuracion['razon_social'] .
+        PHP_EOL .
+        'PREINGRESO: ' .
+        $preingreso['id'] .
+        PHP_EOL .
+        'AUTORIZADO POR: ' .
+        $preingreso['autorizador'] .
+        PHP_EOL .
+        'RESPONSABLE: ' .
+        $preingreso['responsable'] .
+        PHP_EOL .
+        'ESTADO DE AUTORIZACION: ' .
+        $preingreso['autorizacion'] .
+        PHP_EOL .
+        'ULTIMA MODIFICACION: ' .
+        $preingreso['updated_at'];
+    $logo_principal =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 
     if ($persona_responsable->firma_url) {
-        $responsable_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_responsable->firma_url, 1)));
+        $responsable_firma =
+            'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_responsable->firma_url, 1)));
     }
     if ($persona_autoriza->firma_url) {
-        $autoriza_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_autoriza->firma_url, 1)));
+        $autoriza_firma =
+            'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_autoriza->firma_url, 1)));
     }
 
 @endphp
@@ -166,9 +186,7 @@
                     </div>
                 </td>
                 <td>
-                    <div align="right"><img src="data:image/svg;base64,{!! base64_encode(
-                        QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr),
-                    ) !!}"></div>
+                    <div align="right"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr)) !!}"></div>
                 </td>
             </tr>
         </table>
@@ -179,9 +197,12 @@
             <tr class="row">
                 <td>Preingreso N°: <b>{{ $preingreso['id'] }}</b></td>
                 <td>Fecha: <b>{{ $preingreso['created_at'] }}</b></td>
+            </tr>
+            <tr class="row">
                 @if (!is_null($preingreso['solicitante']) && strlen($preingreso['solicitante']) > 5)
                     <td>Solicitante: <b>{{ $preingreso['solicitante'] }}</b></td>
                 @endif
+                <td></td>
                 <td>Responsable: <b>{{ $preingreso['responsable'] }}</b></td>
             </tr>
             <tr class="row">
@@ -198,6 +219,10 @@
                 <td>Coordinador Responsable: <b>{{ $preingreso['coordinador'] }}</b></td>
                 <td></td>
                 <td>Cliente: <b>{{ $preingreso['cliente'] }}</b></td>
+            </tr>
+            <tr class="row">
+                <td>Destino del material:
+                    <b>{{ $preingreso['tarea'] ? 'TAREA ' . $preingreso['codigo_tarea'] : 'STOCK PERSONAL' }}</b></td>
             </tr>
         </table>
         <table>
