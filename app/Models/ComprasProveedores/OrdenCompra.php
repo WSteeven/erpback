@@ -90,6 +90,11 @@ class OrdenCompra extends Model implements Auditable
     return $this->belongsToMany(Producto::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'producto_id')
       ->withPivot(['id', 'descripcion', 'unidad_medida_id', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
   }
+
+  public function detalles()
+  {
+    return $this->hasMany(ItemDetalleOrdenCompra::class);
+  }
   /**
    * Relación uno a uno.
    * Una orden de compra se realiza unicamente a un proveedor.
@@ -239,7 +244,7 @@ class OrdenCompra extends Model implements Auditable
    */
   public static function obtenerSumaListado($id)
   {
-    $orden= OrdenCompra::find($id);
+    $orden = OrdenCompra::find($id);
     $detalles = ItemDetalleOrdenCompra::where('orden_compra_id', $id)->get();
     $subtotal = $detalles->sum('subtotal');
     $descuento = $detalles->sum('descuento');
