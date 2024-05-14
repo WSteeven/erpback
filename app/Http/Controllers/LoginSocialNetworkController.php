@@ -9,12 +9,13 @@ use Laravel\Socialite\Facades\Socialite;
 
 class LoginSocialNetworkController extends Controller
 {
-    public function login()
+    public function login($driver)
     {
-            return Socialite::driver('google')->redirect();
+        return Socialite::driver($driver)->redirect();
     }
-    public function handleCallback($driver){
-        $postulante = $driver($driver)->user();
-        return response()->json(['postulante' =>  $postulante], 200);
+    public function handleCallback($driver, Request $request)
+    {
+        $user = Socialite::driver($driver)->stateless()->user();
+        return response()->json(['postulante' => $user], 200);
     }
 }
