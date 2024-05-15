@@ -50,6 +50,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ParroquiaController;
 use App\Http\Resources\UserInfoResource;
@@ -90,6 +91,8 @@ Route::post('usuarios/login', [LoginController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
 Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
+Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
+Route::get('auth-social',[LoginSocialNetworkController::class, 'getDataFromSession']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('registrar', [UserController::class, 'store']);

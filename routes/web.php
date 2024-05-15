@@ -53,7 +53,7 @@ Route::get('/notificar', function () {
 
     dump($response);
 });
-Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
+
 Route::get('social-network/{driver}',[LoginSocialNetworkController::class, 'handleCallback']);
 
 // Route::get('verificar', function(){

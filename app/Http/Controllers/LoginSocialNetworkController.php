@@ -2,29 +2,87 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserInfoResource;
 use App\Models\User;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Session\SessionManager;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginSocialNetworkController extends Controller
 {
     public function login($driver)
     {
-        return Socialite::driver($driver)->redirect();
+        $clientId = config('services.google.client_id');
+       // $clientSecret = config('services.google.client_secret');
+        $redirectUri = config('services.google.redirect');
+
+        $url = 'https://accounts.google.com/o/oauth2/auth';
+        $queryParams = [
+            'client_id' => $clientId,
+            'redirect_uri' => $redirectUri,
+            'scope' => 'openid profile email',
+            'response_type' => 'code',
+            'state' => Session::token()
+        ];
+        $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
+        $redirectUrl = $url . '?' . $queryString;
+        return response()->json(['url' => $redirectUrl], 200);
+
+       /*$socialite = Socialite::driver($driver);
+
+         return $socialite->redirect();*/
     }
     public function handleCallback($driver, Request $request)
     {
         $user_social = Socialite::driver($driver)->stateless()->user();
-        $user = User::updateOrCreate([
-            'github_id' =>  $user_social->id,
-        ], [
-            'name' =>  $user_social->name,
-            'email' =>  $user_social->email,
-        ]);
-        Auth::login($user);
-        return redirect('/');
+        $userDB = User::where('email', $user_social->email)->first();
+        if ($userDB) {
+           return $this->iniciarSesion($userDB, $user_social->id,$request);
+        } else {
+            $user =  $this->registrar($user_social);
+            return $this->iniciarSesion($user, $user_social->id,$request);
+        }
     }
+    public function registrar($user_social)
+    {
+        $username =  explode("@", $user_social->email)[0];
+        $user = User::create([
+            'name' => $username,
+            'email' =>  $user_social->email,
+            'password' => bcrypt($user_social->id),
+        ]);
+        return $user;
+    }
+    public function iniciarSesion(User $user, $password, Request $request)
+    {
+        if (!$user || !Hash::check($password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Usuario o contraseña incorrectos'],
+            ]);
+        }
+        $token = $user->createToken('auth_token')->plainTextToken;
+        $modelo = $user;
+        $postData = json_encode(['access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo]);
+        Cache::put('autenticacion', $postData);
+        $externalUrl = 'http://localhost:8080/login-postulante';
+                // Redireccionar al usuario a la página externa
+        return redirect()->away($externalUrl);
+    }
+    public function getDataFromSession(Request $request)
+    {
+        $value = Cache::get('autenticacion');
+        return response()->json(['value' => $value]);
+    }
+
+
+
 }
