@@ -1,44 +1,61 @@
 <?php
 
-namespace Src\App\RecursosHumanos\NominaPrestamos;
+namespace Src\App\RecursosHumanos\SeleccionContratacion;
 
-use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class Oauth2Service
 {
     private $driver;
-    private $id_empleado;
+    private $clientId;
+    private $clientSecret;
+    private $redirectUri;
+    private $url;
+    protected $version = 'v3.3';
+    protected $queryParams;
+
 
     public function __construct($driver)
     {
         $this->driver = $driver;
+        $this->conexion();
     }
-    public function coneccion(){
-        $clientId = config('services.google.client_id');
-        // $clientSecret = config('services.google.client_secret');
-         $redirectUri = config('services.google.redirect');
-
-         $url = 'https://accounts.google.com/o/oauth2/auth';
-         $queryParams = [
-             'client_id' => $clientId,
-             'redirect_uri' => $redirectUri,
-             'scope' => 'openid profile email',
-             'response_type' => 'code',
-             'state' => Session::token()
-         ];
-         $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
-         $redirectUrl = $url . '?' . $queryString;
+    public function conexion()
+    {
+        switch ($this->driver) {
+            case 'google':
+                $this->clientId = config('services.google.client_id');
+                $this->redirectUri = config('services.google.redirect');
+                $this->url = 'https://accounts.google.com/o/oauth2/auth';
+                break;
+            case 'linkedin':
+                $this->clientId = config('services.linkedin.client_id');
+                $this->clientSecret = config('services.linkedin.client_secret');
+                $this->redirectUri = config('services.linkedin.redirect');
+                $this->url = 'https://www.linkedin.com/oauth/v2/authorization';
+                break;
+            case 'facebook':
+                $this->clientId = config('services.facebook.client_id');
+                $this->clientSecret = config('services.facebook.client_secret');
+                $this->redirectUri = config('services.facebook.redirect');
+                $this->url = 'https://www.facebook.com/' . $this->version . '/dialog/oauth';
+                break;
+        }
     }
-
-
-
+    private function obtenerParametos()
+    {
+        $this->queryParams = [
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+            'redirect_uri' => $this->redirectUri,
+            'scope' => 'openid profile email',
+            'response_type' => 'code',
+            'state' => Session::token()
+        ];
+    }
+    public function obtenerUrl()
+    {
+        $this->obtenerParametos();
+        return $this->url . '?' . http_build_query($this->queryParams, '', '&', PHP_QUERY_RFC3986);
+    }
 }

@@ -2,54 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\UserInfoResource;
 use App\Models\User;
-use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Session\SessionManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
+
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
+use Src\App\RecursosHumanos\SeleccionContratacion\Oauth2Service;
 
 class LoginSocialNetworkController extends Controller
 {
     public function login($driver)
     {
-        $clientId = config('services.google.client_id');
-       // $clientSecret = config('services.google.client_secret');
-        $redirectUri = config('services.google.redirect');
-
-        $url = 'https://accounts.google.com/o/oauth2/auth';
-        $queryParams = [
-            'client_id' => $clientId,
-            'redirect_uri' => $redirectUri,
-            'scope' => 'openid profile email',
-            'response_type' => 'code',
-            'state' => Session::token()
-        ];
-        $queryString = http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
-        $redirectUrl = $url . '?' . $queryString;
-        return response()->json(['url' => $redirectUrl], 200);
-
-       /*$socialite = Socialite::driver($driver);
-
-         return $socialite->redirect();*/
+        $oauth2Service = new Oauth2Service($driver);
+        return response()->json(['url' => $oauth2Service->obtenerUrl()], 200);
     }
     public function handleCallback($driver, Request $request)
     {
         $user_social = Socialite::driver($driver)->stateless()->user();
         $userDB = User::where('email', $user_social->email)->first();
         if ($userDB) {
-           return $this->iniciarSesion($userDB, $user_social->id,$request);
+            return $this->iniciarSesion($userDB, $user_social->id, $request);
         } else {
             $user =  $this->registrar($user_social);
-            return $this->iniciarSesion($user, $user_social->id,$request);
+            return $this->iniciarSesion($user, $user_social->id, $request);
         }
     }
     public function registrar($user_social)
@@ -71,10 +48,10 @@ class LoginSocialNetworkController extends Controller
         }
         $token = $user->createToken('auth_token')->plainTextToken;
         $modelo = $user;
-        $postData = json_encode(['access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo]);
+        $postData = ['access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo];
         Cache::put('autenticacion', $postData);
         $externalUrl = 'http://localhost:8080/login-postulante';
-                // Redireccionar al usuario a la página externa
+        // Redireccionar al usuario a la página externa
         return redirect()->away($externalUrl);
     }
     public function getDataFromSession(Request $request)
@@ -82,7 +59,4 @@ class LoginSocialNetworkController extends Controller
         $value = Cache::get('autenticacion');
         return response()->json(['value' => $value]);
     }
-
-
-
 }
