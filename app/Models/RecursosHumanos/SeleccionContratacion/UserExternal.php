@@ -21,6 +21,8 @@ class UserExternal extends Authenticatable implements Auditable
     use UppercaseValuesTrait;
     const POSTULANTE = 'POSTULANTE';
     const ROL_POSTULANTE = 'POSTULANTES';
+    protected $table = 'rrhh_users_externals';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -74,5 +76,19 @@ class UserExternal extends Authenticatable implements Auditable
             }
         }
         return $permissions;
+    }
+        /**
+     * Relacion uno a muchos
+     * Un usuario es solicitante de varias transacciones
+     */
+    /*public function transacciones()
+    {
+        return $this->hasMany(TransaccionesBodega::class, 'solicitante_id');
+    } */
+
+    // Relacion uno a uno
+    public function postulante()
+    {
+        return $this->hasOne(Postulante::class, 'usuario_external_id');
     }
 }
