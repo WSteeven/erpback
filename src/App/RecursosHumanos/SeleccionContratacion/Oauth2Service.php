@@ -13,6 +13,8 @@ class Oauth2Service
     private $url;
     protected $version = 'v3.3';
     protected $queryParams;
+    protected $scope;
+
 
 
     public function __construct($driver)
@@ -27,12 +29,15 @@ class Oauth2Service
                 $this->clientId = config('services.google.client_id');
                 $this->redirectUri = config('services.google.redirect');
                 $this->url = 'https://accounts.google.com/o/oauth2/auth';
+                $this->scope = 'openid profile email';
                 break;
             case 'linkedin':
                 $this->clientId = config('services.linkedin.client_id');
                 $this->clientSecret = config('services.linkedin.client_secret');
                 $this->redirectUri = config('services.linkedin.redirect');
                 $this->url = 'https://www.linkedin.com/oauth/v2/authorization';
+                $this->scope = 'r_liteprofile r_emailaddress';
+
                 break;
             case 'facebook':
                 $this->clientId = config('services.facebook.client_id');
@@ -48,7 +53,7 @@ class Oauth2Service
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'redirect_uri' => $this->redirectUri,
-            'scope' => 'openid profile email',
+            'scope' => $this->scope,
             'response_type' => 'code',
             'state' => Session::token()
         ];

@@ -50,7 +50,7 @@ class LoginSocialNetworkController extends Controller
         $modelo = $user;
         $postData = ['access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo];
         Cache::put('autenticacion', $postData);
-        $externalUrl = 'http://localhost:8080/login-postulante';
+        $externalUrl = 'http://localhost:8080/puestos-disponibles';
         // Redireccionar al usuario a la página externa
         return redirect()->away($externalUrl);
     }
