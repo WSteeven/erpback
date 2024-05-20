@@ -361,7 +361,7 @@ class SaldoService
     }
     public static function existeSaldoNuevaTabla($fecha, $empleado_id)
     {
-        $registros_saldos = Saldo::where('fecha', $fecha)->where('empleado_id', $empleado_id)->get();
+        $registros_saldos = Saldo::where('fecha', $fecha)->where('fecha','>','2024-04-05')->where('empleado_id', $empleado_id)->get();
         $cantidad_registros_saldos = $registros_saldos->count();
         return $cantidad_registros_saldos > 0;
     }
