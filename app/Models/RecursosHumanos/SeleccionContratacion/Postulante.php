@@ -33,6 +33,11 @@ class Postulante extends Model implements Auditable
         'usuario_external_id',
         'usuario_external'
     ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'estado' => 'boolean',
+    ];
 
     public function usuario(){
         return $this->hasOne(UserExternal::class, 'usuario_external_id');

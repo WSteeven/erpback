@@ -60,6 +60,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Resources\CantonResource;
+use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -97,6 +98,7 @@ Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('registrar', [UserController::class, 'store']);
     Route::post('logout', [LoginController::class, 'logout']);
+    Route::post('logout-postulante', [LoginSocialNetworkController::class, 'logout']);
     Route::get('ver/{empleado}', [UserController::class, 'show']);
     Route::put('actualizar/{empleado}', [UserController::class, 'update']);
     Route::post('cambiar-contrasena', [UserController::class, 'updatePassword']);
@@ -109,6 +111,7 @@ Route::group(['prefix' => '/permisos'], function () {
 
 // El frontend usa esta ruta para verificar si está autenticado
 Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => new UserInfoResource($request->user()));
+Route::middleware('auth:sanctum')->get('/user-postulante', fn (Request $request) => new UserExternalResource($request->user()));
 
 // El frontend usa esta ruta para obtener los roles y permisos del usuario autenticado
 // Route::middleware('auth:sanctum')->get('/user/roles', fn (Request $request) => $request->user()->getRoleNames());

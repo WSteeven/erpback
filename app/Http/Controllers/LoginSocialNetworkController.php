@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -39,19 +40,20 @@ class LoginSocialNetworkController extends Controller
             'token' => $user_social->token,
             'password' => bcrypt($user_social->id),
         ]);
-        $this->crearPostulante($user,$user_social);
+        $this->crearPostulante($user, $user_social);
         return $user;
     }
-    private function crearPostulante(UserExternal $user, $user_social) {
+    private function crearPostulante(UserExternal $user, $user_social)
+    {
         $name_socialite = explode(" ", $user_social->getName());
-        $nombres = $name_socialite[0]. ' '.$name_socialite[1];
-        $apellidos = $name_socialite[2]. ' '.$name_socialite[3];
+        $nombres = $name_socialite[0] . ' ' . $name_socialite[1];
+        $apellidos = $name_socialite[2] . ' ' . $name_socialite[3];
         $user->postulante()->create([
             'nombres' => $nombres,
             'apellidos' => $apellidos,
             'tipo_documento_identificacion' => '',
             'numero_documento_identificacion' => '',
-            'telefono'=>'',
+            'telefono' => '',
         ]);
     }
     public function iniciarSesion(UserExternal $user, $password)
@@ -62,17 +64,21 @@ class LoginSocialNetworkController extends Controller
             ]);
         }
         $token = $user->createToken('auth_token')->plainTextToken;
-        $modelo = $user;
+        $modelo = new UserExternalResource($user);
         $postData = ['access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo];
         Cache::put('autenticacion', $postData);
-        $externalUrl = 'http://localhost:8080/login-postulante';
+        $externalUrl = 'http://localhost:8080/puestos-disponibles';
         // Redireccionar al usuario a la página externa
         return redirect()->away($externalUrl);
     }
     public function getDataFromSession()
     {
         $value = Cache::get('autenticacion');
-
-        return response()->json(['value' => $value]);
+        return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $value['access_token'], 'token_type' => $value['token_type'], 'modelo' => $value['modelo']], 200);
+    }
+    public function logout(Request $request)
+    {
+        Cache::pull('autenticacion');
+        $request->user()->currentAccessToken()->delete();
     }
 }
