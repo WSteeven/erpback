@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\Prefactura;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,6 +41,11 @@ class Cliente extends Model implements Auditable
         return $this->belongsTo(Parroquia::class);
     }
 
+    public function prefacturas()
+    {
+        return $this->hasMany(Prefactura::class, 'cliente_id');
+    }
+
     /**
      * Relacion uno a uno (inversa)
      */
@@ -69,7 +75,8 @@ class Cliente extends Model implements Auditable
      * Relacion muchos a muchos.
      * Un cliente tiene varios detalles_productos en inventario.
      */
-    public function detalles(){
+    public function detalles()
+    {
         return $this->belongsToMany(DetalleProducto::class, 'inventarios', 'cliente_id', 'detalle_id');
     }
 

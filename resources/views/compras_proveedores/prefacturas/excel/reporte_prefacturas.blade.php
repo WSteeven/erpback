@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ordenes de Compras</title>
+    <title>Prefacturas</title>
     <style>
         @page {
             margin: 100px 25px;
@@ -48,7 +48,7 @@
                             <img src="{{ public_path($configuracion['logo_claro']) }}" width="90">
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
-                            <div align="center">JPCONSTRUCRED C.LTDA</div>
+                            <div align="center">{{ $configuracion->razon_social }}</div>
                         </td>
                     </tr>
                     <tr>
@@ -56,7 +56,7 @@
                             <div align="center"></div>
                         </td>
                         <td width="83%" style="font-size:12px">
-                            <div align="center"><strong>ORDENES DE COMPRAS
+                            <div align="center"><strong>REPORTE DE PREFACTURAS
                                 </strong>
                             </div>
                         </td>
@@ -83,40 +83,34 @@
                                             style="text-align: center !important;
                                 background-color: #DBDBDB;">
                                             SOLICITANTE</td>
-                                        <td
-                                            style="  text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            PEDIDO</td>
-                                        <td
-                                            style="  text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            TAREA</td>
-                                        <td
-                                            style="  text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            AUTORIZADOR</td>
-                                        <td style="background-color:#DBDBDB">PROVEEDOR</td>
+                                        <td style="background-color:#DBDBDB">CLIENTE</td>
                                         <td style="background-color:#DBDBDB">DESCRIPCION</td>
                                         <td style="background-color:#DBDBDB">ESTADO</td>
                                         <td style="background-color:#DBDBDB">FECHA</td>
+                                        <td style="background-color:#DBDBDB">ELEMENTO</td>
+                                        <td style="background-color:#DBDBDB">SUBTOTAL</td>
+                                        <td style="background-color:#DBDBDB">IVA</td>
+                                        <td style="background-color:#DBDBDB">DESCUENTO</td>
                                         <td style="background-color:#DBDBDB">TOTAL</td>
                                     </tr>
 
                                     @foreach ($reporte as $rpt)
-                                        <tr>
-                                            <td>{{ $rpt['codigo'] }}</td>
-                                            <td>{{ $rpt['solicitante']['nombres'] }}
-                                                {{ $rpt['solicitante']['apellidos'] }}</td>
-                                            <td>{{ $rpt['pedido']['id'] ?? '' }}</td>
-                                            <td>{{ $rpt['tarea']['codigo_tarea'] ?? '' }}</td>
-                                            <td>{{ $rpt['autorizador']['nombres'] }}
-                                                {{ $rpt['autorizador']['apellidos'] }}</td>
-                                            <td>{{ $rpt['proveedor']['empresa']['razon_social'] ?? '' }}</td>
-                                            <td>{{ $rpt['descripcion'] }}</td>
-                                            <td>{{ $rpt['estado']['nombre'] ?? '' }}</td>
-                                            <td>{{ $rpt['fecha'] }}</td>
-                                            <td>{{ round($rpt->detalles()->sum('total'), 2) }}</td>
-                                        </tr>
+                                        @foreach ($rpt->listadoProductos($rpt['id']) as $item)
+                                            <tr>
+                                                <td>{{ $rpt['codigo'] }} </td>
+                                                <td>{{ $rpt['solicitante']['nombres'] }}
+                                                    {{ $rpt['solicitante']['apellidos'] }}</td>
+                                                <td>{{ $rpt['cliente']['empresa']['razon_social'] ?? '' }}</td>
+                                                <td>{{ $rpt['descripcion'] }}</td>
+                                                <td>{{ $rpt['estado']['nombre'] ?? '' }}</td>
+                                                <td>{{ $rpt['created_at'] }}</td>
+                                                <td>{{ strtoupper($item['descripcion']) }}</td>
+                                                <td>{{ round($rpt->detalles()->sum('subtotal'), 2) }}</td>
+                                                <td>{{ round($rpt->detalles()->sum('iva'), 2) }}</td>
+                                                <td>{{ round($rpt->detalles()->sum('descuento'), 2) }}</td>
+                                                <td>{{ round($rpt->detalles()->sum('total'), 2) }}</td>
+                                            </tr>
+                                        @endforeach
                                     @endforeach
                                 </table>
                             </td>
