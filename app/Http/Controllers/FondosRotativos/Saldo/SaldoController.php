@@ -621,6 +621,7 @@ class SaldoController extends Controller
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             $ajuste_saldo = AjusteSaldoFondoRotativo::where('created_at', '>=', Carbon::parse($fecha_inicio)->endOfDay())
+                ->where('destinatario_id', $request->usuario)
                 ->where('created_at', '<=', Carbon::parse($fecha_fin)->endOfDay())
                 ->get();
             $ultimo_saldo = SaldoService::obtenerSaldoActualUltimaFecha($fecha_fin,  $request->usuario);

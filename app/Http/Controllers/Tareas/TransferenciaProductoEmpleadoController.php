@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 use Exception;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
 
@@ -88,49 +89,58 @@ class TransferenciaProductoEmpleadoController extends Controller
 
     public function update(TransferenciaProductoEmpleadoRequest $request, TransferenciaProductoEmpleado $transferencia_producto_empleado)
     {
-        $url = '/transferencia-producto-empleado';
+        try {
+            DB::beginTransaction();
 
-        $datos = $request->validated();
-        $datos['solicitante_id'] = $request['solicitante'];
-        $datos['empleado_origen_id'] = $request['empleado_origen'];
-        $datos['empleado_destino_id'] = $request['empleado_destino'];
-        $datos['proyecto_origen_id'] = $request['proyecto_origen'];
-        $datos['proyecto_destino_id'] = $request['proyecto_destino'];
-        $datos['etapa_origen_id'] = $request['etapa_origen'];
-        $datos['etapa_destino_id'] = $request['etapa_destino'];
-        $datos['tarea_origen_id'] = $request['tarea_origen'];
-        $datos['tarea_destino_id'] = $request['tarea_destino'];
-        $datos['autorizacion_id'] = $request['autorizacion'];
-        $datos['autorizador_id'] = $request['autorizador'];
-        // $cliente_id = $request['cliente_id'];
+            $url = '/transferencia-producto-empleado';
 
-        $transferencia_producto_empleado->update($datos);
+            $datos = $request->validated();
+            $datos['solicitante_id'] = $request['solicitante'];
+            $datos['empleado_origen_id'] = $request['empleado_origen'];
+            $datos['empleado_destino_id'] = $request['empleado_destino'];
+            $datos['proyecto_origen_id'] = $request['proyecto_origen'];
+            $datos['proyecto_destino_id'] = $request['proyecto_destino'];
+            $datos['etapa_origen_id'] = $request['etapa_origen'];
+            $datos['etapa_destino_id'] = $request['etapa_destino'];
+            $datos['tarea_origen_id'] = $request['tarea_origen'];
+            $datos['tarea_destino_id'] = $request['tarea_destino'];
+            $datos['autorizacion_id'] = $request['autorizacion'];
+            $datos['autorizador_id'] = $request['autorizador'];
+            // $cliente_id = $request['cliente_id'];
 
-        // Borrar los registros de la tabla intermedia para guardar los modificados
-        $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->detach();
+            $transferencia_producto_empleado->update($datos);
 
-        // Guardar los productos seleccionados
-        foreach ($request->listado_productos as $listado) {
-            $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]); ///, 'cliente_id' => $cliente_id]);
+            // Borrar los registros de la tabla intermedia para guardar los modificados
+            $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->detach();
+
+            // Guardar los productos seleccionados
+            foreach ($request->listado_productos as $listado) {
+                $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]); ///, 'cliente_id' => $cliente_id]);
+            }
+
+            if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
+                $mensaje = 'dentro de if';
+                Log::channel('testing')->info('Log', compact('mensaje'));
+
+                $esTransferenciaDeStock = !$datos['proyecto_origen_id'] && !$datos['etapa_origen_id'] && !$datos['tarea_origen_id'];
+                Log::channel('testing')->info('Log', compact('esTransferenciaDeStock'));
+
+                $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
+
+                $emisor_id = $transferencia_producto_empleado->empleado_origen_id;
+                $destinatario_id = $transferencia_producto_empleado->empleado_destino_id;
+
+                if ($emisor_id !== $destinatario_id) event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
+            }
+
+            $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages(['error' => $e->getMessage()]);
         }
-
-        if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
-            $mensaje = 'dentro de if';
-            Log::channel('testing')->info('Log', compact('mensaje'));
-
-            $esTransferenciaDeStock = !$datos['proyecto_origen_id'] && !$datos['etapa_origen_id'] && !$datos['tarea_origen_id'];
-            Log::channel('testing')->info('Log', compact('esTransferenciaDeStock'));
-
-            $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
-
-            $emisor_id = $transferencia_producto_empleado->empleado_origen_id;
-            $destinatario_id = $transferencia_producto_empleado->empleado_destino_id;
-
-            if ($emisor_id !== $destinatario_id) event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
-        }
-
-        $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         /* $proyecto_id = request('proyecto_id');
         $etapa_id = request('etapa_id');

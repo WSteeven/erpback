@@ -52,8 +52,6 @@ class Saldo extends Model  implements Auditable
         $id = 1;
         $row = [];
         $results[0] = $nuevo_elemento;
-        Log::channel('testing')->info('Log', ['saldo_recibido', $arreglo]);
-
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
                 case Acreditaciones::class:
@@ -261,7 +259,7 @@ class Saldo extends Model  implements Auditable
                 }
                 if ($tipo == self::INGRESO) {
                     if ($saldo['usuario_recibe_id'] == $empleado) {
-                        return 'TRANSFERENCIA DE  ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' a ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos;
+                        return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
                     }
                 }
 
