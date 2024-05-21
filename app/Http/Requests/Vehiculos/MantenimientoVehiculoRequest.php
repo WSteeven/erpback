@@ -13,7 +13,7 @@ class MantenimientoVehiculoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,18 @@ class MantenimientoVehiculoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'vehiculo_id' => 'required|exists:vehiculos,id',
+            'servicio_id' => 'required|exists:veh_servicios,id',
+            'empleado_id' => 'required|exists:empleados,id',
+            'supervisor_id' => 'required|exists:empleados,id',
+            'fecha_realizado' => 'sometimes|string|nullable',
+            'km_realizado' => 'string|nullable',
+            'imagen_evidencia' => 'string|nullable',
+            'estado' => 'required|string',
+            'km_retraso' => 'string|nullable',
+            'dias_postergado' => 'integer|nullable',
+            'motivo_postergacion' => 'string|nullable',
+            'observacion' => 'string|nullable',
         ];
     }
 }

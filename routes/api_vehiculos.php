@@ -4,6 +4,7 @@ use App\Http\Controllers\Vehiculos\AsignacionVehiculoController;
 use App\Http\Controllers\Vehiculos\BitacoraVehicularController;
 use App\Http\Controllers\Vehiculos\CombustibleController;
 use App\Http\Controllers\Vehiculos\ConductorController;
+use App\Http\Controllers\Vehiculos\MantenimientoVehiculoController;
 use App\Http\Controllers\Vehiculos\MatriculaController;
 use App\Http\Controllers\Vehiculos\MultaConductorController;
 use App\Http\Controllers\Vehiculos\OrdenReparacionController;
@@ -25,6 +26,7 @@ Route::apiResources(
         'bitacoras-vehiculos' => BitacoraVehicularController::class,
         'servicios' => ServicioController::class,
         'seguros' => SeguroVehicularController::class,
+        'mantenimientos-vehiculos' => MantenimientoVehiculoController::class,
         'planes-mantenimientos' => PlanMantenimientoController::class,
         'tipos-vehiculos' => TipoVehiculoController::class,
         'asignaciones-vehiculos' => AsignacionVehiculoController::class,
@@ -35,6 +37,7 @@ Route::apiResources(
         'parameters' => [
             'bitacoras-vehiculos' => 'bitacora',
             'conductores' => 'conductor',
+            'mantenimientos-vehiculos' => 'mantenimiento',
             'planes-mantenimientos' => 'vehiculo',
             'tipos-vehiculos' => 'tipo',
             'asignaciones-vehiculos' => 'asignacion',
