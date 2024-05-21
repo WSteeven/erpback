@@ -40,6 +40,6 @@ class Postulante extends Model implements Auditable
     ];
 
     public function usuario(){
-        return $this->hasOne(UserExternal::class, 'usuario_external_id');
+        return $this->hasOne(UserExternal::class,'id', 'usuario_external_id');
     }
 }

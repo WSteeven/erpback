@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 use Src\App\RecursosHumanos\SeleccionContratacion\Oauth2Service;

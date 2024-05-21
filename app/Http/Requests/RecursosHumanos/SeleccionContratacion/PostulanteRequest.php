@@ -26,7 +26,7 @@ class PostulanteRequest extends FormRequest
         return [
             'nombres' => 'required|string' ,
             'apellidos' => 'required|string',
-            'tipo_documento_identificacion',
+            'tipo_documento_identificacion' => 'required|string',
             'numero_documento_identificacion'=>'string|required|unique:rrhh_postulantes,numero_documento_identificacion|min:10',
             'telefono' => 'required|string' ,
             'email' => 'required|email|max:255|unique:users',
