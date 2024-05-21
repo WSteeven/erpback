@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('km_realizado')->nullable();
             $table->string('imagen_evidencia')->nullable();
             $table->string('estado')->default(MantenimientoVehiculo::PENDIENTE);
-            $table->string('km_retraso');
+            $table->string('km_retraso')->nullable();
             $table->integer('dias_postergado')->default(0);
             $table->text('motivo_postergacion')->nullable();
             $table->text('observacion')->nullable();

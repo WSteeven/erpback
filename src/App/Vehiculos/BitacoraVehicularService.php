@@ -13,6 +13,7 @@ use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use App\Models\Vehiculos\ChecklistImagenVehiculo;
 use App\Models\Vehiculos\ChecklistVehiculo;
+use App\Models\Vehiculos\MantenimientoVehiculo;
 use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Model;
@@ -176,7 +177,7 @@ class BitacoraVehicularService
 
     public function notificarNovedadesVehiculo($bitacora)
     {
-        
+
         Log::channel('testing')->info('Log', ['updated del notificarNovedadesVehiculo']);
         if ($bitacora->firmada) {
             //Lanzar notificacion de advertencia de combustible
@@ -204,7 +205,32 @@ class BitacoraVehicularService
         Log::channel('testing')->info('Log', ['bitacora vehículo', $bitacora->vehiculo]);
         $itemsMantenimiento = $bitacora->vehiculo->itemsMantenimiento()->where('activo', true)->get();
         Log::channel('testing')->info('Log', ['Items de mantenimiento del vehículo', $itemsMantenimiento]);
-
+        // Verificamos si ya han habido mantenimientos anteriores para comprobar el más reciente
+        $mantenimientosRealizados = MantenimientoVehiculo::where('vehiculo_id', $bitacora->vehiculo->id)->whereIn('servicio_id', $itemsMantenimiento->pluck('id'))->orderBy('id', 'desc')->get();
+        if ($mantenimientosRealizados->count < 1) {
+            Log::channel('testing')->info('Log', ['No han habido mantenimientos previos']);
+            //Se verifica si ya es hora de notificar o de hacerse el mantenimiento
+            foreach ($itemsMantenimiento as $item) {
+                //                                       1000        +   5000              -      500 = 5500
+                if ($bitacora->km_final >= ($item->aplicar_desde + $item->aplicar_cada - $item->notificar_antes)) {
+                    // Se crea mantenimiento según el plan de mantenimientos
+                    $nuevoMantenimiento = MantenimientoVehiculo::create(
+                        [
+                            'vehiculo_id' => $bitacora->vehiculo->id,
+                            'servicio_id' => $item['servicio_id'],
+                            'empleado_id' => auth()->user()->empleado->id,
+                            'supervisor_id' => $this->admin_vehiculos->id,
+                        ]
+                    );
+                    Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento', $nuevoMantenimiento]);
+                }
+            }
+        } else {
+            // recorremos cada mantenimiento para trabajar con la fecha de realizado y el km realizado
+            foreach ($mantenimientosRealizados as $mantenimiento) {
+                $mantenimiento['km_realizado'];
+            }
+        }
     }
 
     private function resumenElementosBitacora($bitacora)

@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ActividadRealizadaService;
-use Src\App\PolymorphicGenericService;
 use Src\App\Vehiculos\BitacoraVehicularService;
 use Src\Shared\Utils;
 
