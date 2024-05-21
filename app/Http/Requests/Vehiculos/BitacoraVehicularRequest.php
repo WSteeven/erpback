@@ -90,6 +90,8 @@ class BitacoraVehicularRequest extends FormRequest
             // 'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
         ]);
 
+        
+
         if ($this->controller_method == 'update') {
             $this->merge([
                 'checklistAccesoriosVehiculo.bitacora_id' => $this->id,

@@ -14,10 +14,13 @@ use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use App\Models\Vehiculos\ChecklistImagenVehiculo;
 use App\Models\Vehiculos\ChecklistVehiculo;
 use App\Models\Vehiculos\MantenimientoVehiculo;
+use App\Models\Vehiculos\PlanMantenimiento;
 use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Expr\FuncCall;
 use Src\App\EmpleadoService;
@@ -125,7 +128,7 @@ class BitacoraVehicularService
             } else {
                 unset($datos['imagen_accesorios']);
             }
-
+            if (is_null($datos['observacion']) || strlen($datos['observacion']) <= 1) $datos['observacion'] = 'NINGUNA';
             $checklist->update($datos);
         } else {
             //se guarda el registro, primero las imagenes en el servidor y luego las url en la base de datos
@@ -171,6 +174,7 @@ class BitacoraVehicularService
             }
 
             $datos['bitacora_id'] = $bitacora_id;
+            if (is_null($datos['observacion']) || strlen($datos['observacion']) <= 1) $datos['observacion'] = 'NINGUNA';
             ChecklistImagenVehiculo::create($datos);
         }
     }
@@ -207,30 +211,89 @@ class BitacoraVehicularService
         Log::channel('testing')->info('Log', ['Items de mantenimiento del vehículo', $itemsMantenimiento]);
         // Verificamos si ya han habido mantenimientos anteriores para comprobar el más reciente
         $mantenimientosRealizados = MantenimientoVehiculo::where('vehiculo_id', $bitacora->vehiculo->id)->whereIn('servicio_id', $itemsMantenimiento->pluck('id'))->orderBy('id', 'desc')->get();
-        if ($mantenimientosRealizados->count < 1) {
+        if ($mantenimientosRealizados->count() < 1) {
             Log::channel('testing')->info('Log', ['No han habido mantenimientos previos']);
             //Se verifica si ya es hora de notificar o de hacerse el mantenimiento
             foreach ($itemsMantenimiento as $item) {
                 //                                       1000        +   5000              -      500 = 5500
                 if ($bitacora->km_final >= ($item->aplicar_desde + $item->aplicar_cada - $item->notificar_antes)) {
                     // Se crea mantenimiento según el plan de mantenimientos
-                    $nuevoMantenimiento = MantenimientoVehiculo::create(
-                        [
-                            'vehiculo_id' => $bitacora->vehiculo->id,
-                            'servicio_id' => $item['servicio_id'],
-                            'empleado_id' => auth()->user()->empleado->id,
-                            'supervisor_id' => $this->admin_vehiculos->id,
-                        ]
-                    );
+                    $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $item['servicio_id']);
                     Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento', $nuevoMantenimiento]);
                 }
             }
         } else {
             // recorremos cada mantenimiento para trabajar con la fecha de realizado y el km realizado
             foreach ($mantenimientosRealizados as $mantenimiento) {
-                $mantenimiento['km_realizado'];
+                $itemMantenimiento = $this->obtenerItemMantenimiento($itemsMantenimiento, $mantenimiento['vehiculo_id'], $mantenimiento['servicio_id']);
+                if ($itemMantenimiento)
+                    //Suponiendo que el cambio de aceite se hizo al km 5682
+                    // sumamos      5682           +       $5000                      -        $500 = 10182 km
+                    // R= Al 10182 km debe crearse nuevamente la alerta de mantenimiento del vehículo. 
+                    if ($bitacora->km_final >= ($mantenimiento['km_realizado'] + $itemMantenimiento->aplicar_cada - $itemMantenimiento->notificar_antes)) {
+                        // Verificamos si ya hay un mantenimiento creado y está con estado PENDIENTE, en ese caso solo se notifica al admin de vehiculos
+                        if ($mantenimiento['estado'] === MantenimientoVehiculo::PENDIENTE) {
+                            // Lanzar notificacion al admin de vehiculos
+                        } else {
+                            // Se crea el mantenimiento nuevo que toca en este momento.
+                            $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $mantenimiento['servicio_id']);
+                            Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento en el else', $nuevoMantenimiento]);
+                        }
+                    }
             }
         }
+    }
+    /**
+     * La función crea un nuevo registro de mantenimiento para un vehículo con servicio específico y lo
+     * asigna a un empleado y supervisor.
+     * 
+     * @param int $vehiculo_id El parámetro `vehiculo_id` es un número entero que representa el ID del
+     * vehículo para el cual se está creando el mantenimiento.
+     * @param int $servicio_id El parámetro `servicio_id` en la función `crearMantenimiento` representa
+     * el ID del servicio que se está asignando a la tarea de mantenimiento de un vehículo. Este ID se
+     * utiliza para asociar un servicio específico con el registro de mantenimiento en la base de
+     * datos.
+     * 
+     * @return MantenimientoVehiculo La función `crearMantenimiento` devuelve el objeto `MantenimientoVehiculo` recién creado
+     * si la creación es exitosa. Si ocurre un error durante el proceso de creación, se generará una
+     * excepción.
+     */
+    private function crearMantenimiento(int $vehiculo_id, int  $servicio_id)
+    {
+        $nuevoMantenimiento = null;
+        try {
+            DB::beginTransaction();
+            $nuevoMantenimiento = MantenimientoVehiculo::create([
+                'vehiculo_id' => $vehiculo_id,
+                'servicio_id' => $servicio_id,
+                'empleado_id' => auth()->user()->empleado->id,
+                'supervisor_id' => $this->admin_vehiculos->id,
+            ]);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+        return $nuevoMantenimiento;
+    }
+    /**
+     * La función "obtenerItemMantenimiento" filtra elementos del plan de mantenimiento según el ID del vehículo y del servicio.
+     * 
+     * @param Collection $items Cada elemento de la
+     * colección probablemente tenga propiedades como `servicio_id` y `vehiculo_id` que se utilizan
+     * para filtrar y recuperar elementos de mantenimiento específicos.
+     * @param int $vehiculo El id de vehiculo
+     * @param int $servicio El id de `servicio`
+     * 
+     * @return PlanMantenimiento $item Se está devolviendo el artículo que coincide
+     * con `servicio_id` y `vehiculo_id`.
+     */
+    private function obtenerItemMantenimiento($items, $vehiculo, $servicio)
+    {
+        $item = $items->filter(function ($item) use ($vehiculo, $servicio) {
+            return $item->servicio_id == $servicio && $item->vehiculo_id == $vehiculo;
+        });
+        return $item;
     }
 
     private function resumenElementosBitacora($bitacora)
