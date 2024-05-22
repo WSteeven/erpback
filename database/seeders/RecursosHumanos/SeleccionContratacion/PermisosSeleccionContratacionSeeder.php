@@ -16,6 +16,8 @@ class PermisosSeleccionContratacionSeeder extends Seeder
     const EDITAR = 'puede.editar';
     const RECHAZAR = 'puede.rechazar';
     const AUTORIZAR = 'puede.autorizar';
+    const ELIMINAR = 'puede.eliminar';
+
     /**
      * Run the database seeds.
      *
@@ -28,6 +30,8 @@ class PermisosSeleccionContratacionSeeder extends Seeder
          ********************************/
         $rrhh = Role::firstOrCreate(['name' => User::ROL_RECURSOS_HUMANOS]);
         $administrador = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR]);
+        $gerente = Role::firstOrCreate(['name' => User::ROL_GERENTE]);
+        $coordinador = Role::firstOrCreate(['name' => User::ROL_COORDINADOR]);
         // Modulo Seleccion y Contratacion
         Permission::firstOrCreate(['name' => self::VER . '.modulo.seleccion_contratacion'])->syncRoles([$rrhh,$administrador]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.modulo.seleccion_contratacion'])->syncRoles([$rrhh,$administrador]);
@@ -35,6 +39,9 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::VER . '.solicitud_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.solicitud_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
         Permission::firstOrCreate(['name' => self::EDITAR . '.solicitud_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
+        Permission::firstOrCreate(['name' => self::AUTORIZAR . '.solicitud_puesto_empleo'])->syncRoles([$gerente]);
+        Permission::firstOrCreate(['name' => self::ELIMINAR . '.conocimientos'])->syncRoles([$coordinador,$rrhh]);
+        Permission::firstOrCreate(['name' => self::ELIMINAR . '.formaciones_academicas'])->syncRoles([$coordinador,$rrhh]);
         // publicar de puestos de trabajo
         Permission::firstOrCreate(['name' => self::VER . '.publicacion_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.publicacion_puesto_empleo'])->syncRoles([$rrhh,$administrador]);
