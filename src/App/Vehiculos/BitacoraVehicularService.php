@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Expr\FuncCall;
 use Src\App\EmpleadoService;
 use Src\App\PolymorphicGenericService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
