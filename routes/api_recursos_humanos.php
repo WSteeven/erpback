@@ -35,6 +35,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\SolicitudPuestoEmpleoController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
@@ -82,6 +83,7 @@ Route::apiResources(
         /*************************************************
          *  Modulo de Seleción y contratación de personal
          *************************************************/
+        'solicitud-puesto-empleo' => SolicitudPuestoEmpleoController::class,
         'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
         'postulantes' => PostulanteController::class,
         'tipos-discapacidades' =>TipoDiscapacidadController::class

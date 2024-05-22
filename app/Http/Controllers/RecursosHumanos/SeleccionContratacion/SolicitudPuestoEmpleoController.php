@@ -38,14 +38,14 @@ class SolicitudPuestoEmpleoController extends Controller
             $SolicitudPuestoEmpleo = SolicitudPuestoEmpleo::create($request->validated());
             $modelo = new SolicitudPuestoEmpleoResource($SolicitudPuestoEmpleo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            return response()->json(compact('mensaje', 'modelo'));
             DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al aprobar gasto' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al solicitar puesto de empleo' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
