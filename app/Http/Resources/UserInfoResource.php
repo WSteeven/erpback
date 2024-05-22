@@ -19,6 +19,7 @@ class UserInfoResource extends JsonResource
     public function toArray($request)
     {
         $empleado = $this->empleado;
+
         return [
             'id' => $this->empleado != null ? $this->empleado->id : 0,
             'usuario' => $this->empleado != null ? Empleado::extraerNombresApellidos($empleado) : '',
@@ -41,6 +42,11 @@ class UserInfoResource extends JsonResource
             'cargo' => $this->empleado != null ? $empleado->cargo?->nombre : '',
             'departamento' => $this->empleado ? $empleado->departamento_id : null,
             'es_responsable_departamento' => Departamento::where('responsable_id', $empleado->id)->exists(),
+            'foto_url' => $this->foto_url ? url($this->foto_url) : url('/storage/sinfoto.png'),
+            'nombre_canton' => $empleado->canton?->canton,
+            'tipo_sangre' => $empleado->tipo_sangre,
+            'area_info' =>  $empleado->area?->nombre,
+            'nombre_cargo' => $empleado->cargo?->nombre,
         ];
     }
 }

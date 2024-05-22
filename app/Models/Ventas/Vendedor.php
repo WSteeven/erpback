@@ -76,11 +76,11 @@ class Vendedor extends Model implements Auditable
     /**
      * La función "verificarVentasMensuales" verifica si un vendedor ha alcanzado el umbral mínimo de
      * ventas para un mes hasta una fecha determinada.
-     * 
+     *
      * @param Vendedor $vendedor Una instancia de la clase Vendedor, que representa a un vendedor.
      * @param string $fecha El parámetro "fecha" es una fecha que representa la fecha maxima del mes del cual queremos verificar
      * las ventas mensuales.
-     * 
+     *
      * @return bool Devuelve verdadero si el recuento de ventas en el mes determinado es
      * mayor que el umbral mínimo definido en la modalidad del vendedor, y falso en caso contrario.
      */
@@ -105,13 +105,13 @@ class Vendedor extends Model implements Auditable
     /**
      * La función calcula el número de ventas mensuales de un vendedor específico en función de una
      * fecha determinada.
-     * 
+     *
      * @param Carbon $fecha El parámetro "fecha" es una instancia de la clase Carbon, que representa una
      * fecha y hora. Se utiliza para especificar el mes y año para el cual se deben calcular las
      * ventas.
      * @param int $vendedor_id El parámetro `vendedor_id` representa el ID del vendedor o proveedor para
      * quien desea calcular la cantidad de ventas mensuales.
-     * 
+     *
      * @return La función `calcularCantidadVentasMensuales` devuelve una colección de ventas
      * (`) que cumplen con los criterios especificados. Las ventas se filtran según el año y
      * mes de la fecha de activación, el vendedor_id (id del vendedor) y el estado_activacion (estado

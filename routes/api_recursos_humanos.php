@@ -37,6 +37,7 @@ use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
+use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -83,6 +84,7 @@ Route::apiResources(
          *************************************************/
         'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
         'postulantes' => PostulanteController::class,
+        'tipos-discapacidades' =>TipoDiscapacidadController::class
     ],
     [
         'parameters' => [

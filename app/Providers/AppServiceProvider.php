@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Src\App\Medico\SolicitudExamenService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(SolicitudExamenService::class, function ($app) {
+            return new SolicitudExamenService();
+        });
     }
 
     /**
@@ -28,6 +31,6 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         Blade::withoutDoubleEncoding();
 
-       
+
     }
 }

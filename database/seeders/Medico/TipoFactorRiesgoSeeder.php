@@ -1,0 +1,27 @@
+<?php
+
+namespace Database\Seeders\Medico;
+
+use App\Models\Medico\TipoFactorRiesgo;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class TipoFactorRiesgoSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        TipoFactorRiesgo::insert([
+            ['nombre'=>'Fisico'],
+            ['nombre'=>'Mecánico'],
+            ['nombre'=>'Quimico'],
+            ['nombre'=>'Biologico'],
+            ['nombre'=>'Ergonomico'],
+            ['nombre'=>'Psicosocial'],
+        ]);
+    }
+}

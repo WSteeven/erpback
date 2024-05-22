@@ -37,6 +37,7 @@ class RoleSeeder extends Seeder
         $administrador_tickets_1 = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_TICKETS_1]);
         $administrador_tickets_2 = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_TICKETS_2]);
         $administrador_sistema = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_SISTEMA]);
+        $medico = Role::firstOrCreate(['name' => User::ROL_MEDICO]);
 
         // Roles de cuadrillas
         $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_LIDER_DE_GRUPO]);
@@ -623,5 +624,19 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_pausas_tickets'])->syncRoles([$administrador_tickets_1]);
 
         Permission::firstOrCreate(['name' => 'puede.ver.campo.autorizador'])->syncRoles([$jefe_tecnico, $tecnico]);
+
+        /***************
+         Modulo médico
+         ***************/
+        // Gestionar pacientes
+        Permission::firstOrCreate(['name' => 'puede.acceder.gestionar_pacientes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.gestionar_pacientes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.gestionar_pacientes'])->syncRoles([$medico]);
+
+        Permission::firstOrCreate(['name' => 'puede.ver.solicitudes_examenes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.solicitudes_examenes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.solicitudes_examenes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => 'puede.autorizar.solicitudes_examenes']); // yloja
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_cuestionarios_psicosocial'])->syncRoles([$medico]);
     }
 }
