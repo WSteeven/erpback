@@ -58,6 +58,15 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $datos = $request->validated();
         $rubro = Rubros::where('nombre_rubro', 'Sueldo Basico')->first();
+        $empleado = Auth::user()->empleado;
+        $fechaActual = Carbon::now();
+        $fechaIngreso = Carbon::parse($empleado->fecha_ingreso);
+        $diff = $fechaActual->diff($fechaIngreso);
+        if($diff->y <1){
+            throw ValidationException::withMessages([
+                '404' => ['Solo se puede solicitar prestamos una vez cumplido 1 año de trabajo'],
+            ]);
+        }
         $sbu_doble = $rubro->valor_rubro * 2;
         if ($request->monto >= $sbu_doble) {
             throw ValidationException::withMessages([

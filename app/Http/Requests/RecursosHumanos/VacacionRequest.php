@@ -43,31 +43,12 @@ class VacacionRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $fecha_inicio = Carbon::createFromFormat('d-m-Y', $this->fecha_inicio);
-        $fecha_fin = Carbon::createFromFormat('d-m-Y', $this->fecha_fin);
         $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
         $this->merge([
             'empleado_id' => $empleado_id,
-        ]);
-        $dateFields = [
-            'fecha_inicio_rango1_vacaciones',
-            'fecha_fin_rango1_vacaciones',
-            'fecha_inicio_rango2_vacaciones',
-            'fecha_fin_rango2_vacaciones',
-            'derecho_vacaciones'
-        ];
-        foreach ($dateFields as $field) {
-            if ($this->$field) {
-                $date = Carbon::createFromFormat('d-m-Y', $this->$field);
-                $this->merge([
-                    $field => $date->format('Y-m-d'),
-                ]);
-            }
-        }
-        $this->merge([
             'periodo_id' => $this->periodo,
-            'fecha_inicio' => $fecha_inicio->format('Y-m-d'),
-            'fecha_fin' => $fecha_fin->format('Y-m-d'),
+            'fecha_inicio' => $this->fecha_inicio,
+            'fecha_fin' =>$this->fecha_fin,
         ]);
     }
 }
