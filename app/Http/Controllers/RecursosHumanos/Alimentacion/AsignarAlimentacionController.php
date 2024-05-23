@@ -42,23 +42,37 @@ class AsignarAlimentacionController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            foreach ($datos['empleados'] as $empleado) {
-                $registro = AsignarAlimentacion::where('empleado_id', $empleado['id'])->first();
-                if (!$registro) {
-                    AsignarAlimentacion::create([
-                        'empleado_id' => $empleado['id'],
-                        'valor_minimo' => $datos['valor_minimo'],
-                    ]);
-                }
+            $modelo = null;
+            if (isset($datos['empleado'])) {
+                $modelo = new AsignarAlimentacionResource($this->asignarAlimentacionEmpleado($datos));
+            } else {
+                $modelo = $this->asignarAlimentacionArray($datos['empleados'],$datos['valor_minimo']);
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            $modelo = [];
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
             return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+        }
+    }
+    private function asignarAlimentacionEmpleado($datos){
+        $asignar_alimentacion = AsignarAlimentacion::create([
+            'empleado_id' => $datos['empleado'],
+            'valor_minimo' => $datos['valor_minimo'],
+        ]);
+        return $asignar_alimentacion;
+    }
+    private function asignarAlimentacionArray($empleados,$valor_minimo){
+        foreach ($empleados as $empleado) {
+            $registro = AsignarAlimentacion::where('empleado_id', $empleado['id'])->first();
+            if (!$registro) {
+                AsignarAlimentacion::create([
+                    'empleado_id' => $empleado['id'],
+                    'valor_minimo' => $valor_minimo,
+                ]);
+            }
         }
     }
     /**
