@@ -44,7 +44,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
             $results = SolicitudPrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         } else {
-            $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->id)->ignoreRequest(['campos'])->filter()->get();
+            $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->empleado->id)->ignoreRequest(['campos'])->filter()->get();
             $results = SolicitudPrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         }
