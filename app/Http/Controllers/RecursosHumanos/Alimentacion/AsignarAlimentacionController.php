@@ -19,10 +19,10 @@ class AsignarAlimentacionController extends Controller
     private $entidad = 'Asignar Alimentacion';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.asignar_alimentacion')->only('index', 'show');
-        $this->middleware('can:puede.crear.asignar_alimentacion')->only('store');
-        $this->middleware('can:puede.editar.asignar_alimentacion')->only('update');
-        $this->middleware('can:puede.eliminar.asignar_alimentacion')->only('destroy');
+        $this->middleware('can:puede.ver.asignar_alimentaciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.asignar_alimentaciones')->only('store');
+        $this->middleware('can:puede.editar.asignar_alimentaciones')->only('update');
+        $this->middleware('can:puede.eliminar.asignar_alimentaciones')->only('destroy');
     }
     /**
      * Listar
