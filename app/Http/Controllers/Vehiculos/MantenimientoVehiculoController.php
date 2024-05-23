@@ -46,6 +46,7 @@ class MantenimientoVehiculoController extends Controller
 
         //Respuesta
         $mantenimiento->update($datos);
+        $mantenimiento->latestNotificacion()->update(['leida' => true]);
         $modelo = new MantenimientoVehiculoResource($mantenimiento->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update', 'M');
 

@@ -38,4 +38,14 @@ class MantenimientoVehiculoRequest extends FormRequest
             'observacion' => 'string|nullable',
         ];
     }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'vehiculo_id' => $this->vehiculo,
+            'servicio_id' => $this->servicio,
+            'empleado_id' => $this->empleado,
+            'supervisor_id' => $this->supervisor,
+        ]);
+    }
 }

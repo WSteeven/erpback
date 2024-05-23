@@ -26,7 +26,6 @@ class ServicioController extends Controller
 
     public function index()
     {
-        Log::channel('testing')->info('Log', ['index', request()->all()]);
         if (request()->search)
             $results = Servicio::search(request()->search)->orderBy('nombre', 'asc')->get();
         else

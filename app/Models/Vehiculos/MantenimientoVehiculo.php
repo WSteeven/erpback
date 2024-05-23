@@ -3,6 +3,7 @@
 namespace App\Models\Vehiculos;
 
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -70,4 +71,22 @@ class MantenimientoVehiculo extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'supervisor_id', 'id');
     }
+
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una orden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Vehiculos;
 
+use App\Events\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\MantenimientoVehiculo;
 use App\Models\Vehiculos\PlanMantenimiento;
@@ -11,10 +12,14 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Src\App\Vehiculos\MantenimientoVehiculoService;
+use Src\Shared\Utils;
 
 class ActualizarMantenimientoVehiculoJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    private $mantenimientoService;
 
     /**
      * Create a new job instance.
@@ -23,7 +28,7 @@ class ActualizarMantenimientoVehiculoJob implements ShouldQueue
      */
     public function __construct()
     {
-        //
+        $this->mantenimientoService = new MantenimientoVehiculoService();
     }
 
     /**
@@ -33,26 +38,29 @@ class ActualizarMantenimientoVehiculoJob implements ShouldQueue
      */
     public function handle()
     {
-        //Revisamos si todos los mantenimientos pendientes han excedido el km de aplicar_cada
-        $mantenimientos = MantenimientoVehiculo::where('estado', MantenimientoVehiculo::PENDIENTE)->get();
-        foreach ($mantenimientos as $mantenimiento) {
-            //Buscamos el plan de mantenimiento y la ultima bitacora del vehiculo para comparar los kms transcurridos
-            $plan = PlanMantenimiento::where('vehiculo_id', $mantenimiento->vehiculo_id)->where('servicio_id', $mantenimiento->servicio_id)->get();
-            if ($plan) {
-                $bitacora = BitacoraVehicular::where('vehiculo_id', $mantenimiento->vehiculo_id)->where('firmada', true)->orderBy('id', 'desc')->first();
-                $ultimoMantenimiento = MantenimientoVehiculo::where('vehiculo_id', $mantenimiento->vehiculo_id)->where('servicio_id', $mantenimiento->servicio_id)->where('estado', MantenimientoVehiculo::REALIZADO)->orderBy('id', 'desc')->first();
-                if ($ultimoMantenimiento) {
-                    //Se realiza el calculo en base al km_realizado del ultimo mantenimiento
-                    if ($bitacora->km_final > $ultimoMantenimiento->km_realizado + $plan->aplicar_cada) {
-                        $mantenimiento->estado = MantenimientoVehiculo::RETRASADO;
-                        $mantenimiento->km_retraso = $bitacora->km_final - ($ultimoMantenimiento->km_realizado + $plan->aplicar_cada);
-                        $mantenimiento->save();
-                    }
-                } else {
-                    //Se realiza el calculo como que fuera el primer mantenimiento
-
+        try {
+            //code...
+            //Revisamos si todos los mantenimientos pendientes han excedido el km de aplicar_cada
+            $mantenimientos = MantenimientoVehiculo::where('estado', MantenimientoVehiculo::PENDIENTE)->get();
+            foreach ($mantenimientos as $mantenimiento) {
+                //Buscamos el plan de mantenimiento y la ultima bitacora del vehiculo para comparar los kms transcurridos
+                $itemPlan = PlanMantenimiento::where('vehiculo_id', $mantenimiento->vehiculo_id)->where('servicio_id', $mantenimiento->servicio_id)->first();
+                if ($itemPlan) {
+                    $bitacora = BitacoraVehicular::where('vehiculo_id', $mantenimiento->vehiculo_id)->where('firmada', true)->orderBy('id', 'desc')->first();
+                    $this->mantenimientoService->actualizarMantenimiento($bitacora, $itemPlan, $mantenimiento);
                 }
             }
+
+            //Ahora que se actualizaron los mantenimientos, se notificará al admin de vehiculos
+            $mantenimientos = MantenimientoVehiculo::whereIn('estado', [MantenimientoVehiculo::PENDIENTE, MantenimientoVehiculo::RETRASADO])->get();
+            foreach ($mantenimientos as $mantenimiento) {
+                //Aqui se notifica diariamente los mantenimientos pendientes y retrasados para cada vehículo
+                // Primero se marca como leída la notificación anterior
+                $mantenimiento->latestNotificacion()->update(['leida' => true]);
+                event(new NotificarMantenimientoPendienteRetrasadoEvent($mantenimiento));
+            }
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['Error' . Utils::obtenerMensajeError($th)]);
         }
     }
 }

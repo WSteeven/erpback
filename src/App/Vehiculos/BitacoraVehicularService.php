@@ -4,6 +4,8 @@ namespace Src\App\Vehiculos;
 
 use App\Events\Vehiculos\NotificarAdvertenciasVehiculoBitacora;
 use App\Events\Vehiculos\NotificarBajoNivelCombustible;
+use App\Events\vehiculos\NotificarMantenimientoCreado;
+use App\Events\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Http\Resources\Vehiculos\VehiculoResource;
 use App\Models\ConfiguracionGeneral;
@@ -32,10 +34,12 @@ class BitacoraVehicularService
 {
     private Empleado $admin_vehiculos;
     private $polymorphicGenericService;
+    private $mantenimientoService;
     public function __construct()
     {
         $this->polymorphicGenericService = new PolymorphicGenericService();
         $this->admin_vehiculos = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS, true);
+        $this->mantenimientoService = new MantenimientoVehiculoService();
     }
 
     public function guardarDatosRelacionadosBitacora()
@@ -180,66 +184,84 @@ class BitacoraVehicularService
 
     public function notificarNovedadesVehiculo($bitacora)
     {
+        try {
+            //code...
+            if ($bitacora->firmada) {
+                //Lanzar notificacion de advertencia de combustible
+                if ($bitacora->tanque_final < 50) {
+                    event(new NotificarBajoNivelCombustible($bitacora, $this->admin_vehiculos->id));
+                }
 
-        Log::channel('testing')->info('Log', ['updated del notificarNovedadesVehiculo']);
-        if ($bitacora->firmada) {
-            //Lanzar notificacion de advertencia de combustible
-            if ($bitacora->tanque_final < 50) {
-                event(new NotificarBajoNivelCombustible($bitacora, $this->admin_vehiculos->id));
+                //Aquí se revisa si hay algun elemento con problemas y se envía un resumen 
+                // por notificación con los problemas del vehiculo
+                $advertenciasEncontradas = $this->resumenElementosBitacora($bitacora);
+                if (empty($advertenciasEncontradas))  Log::channel('testing')->info('Log', ['No se encontraron advertencias ']);
+                else {
+                    Log::channel('testing')->info('Log', ['Si se encontraron advertencias', $advertenciasEncontradas]);
+                    //Aquí se debe notificar por notificacion y correo
+                    event(new NotificarAdvertenciasVehiculoBitacora($bitacora, $advertenciasEncontradas, $this->admin_vehiculos->id));
+                }
+
+                $this->verificarMantenimientosPlanMantenimientos($bitacora);
             }
-
-            //Aquí se revisa si hay algun elemento con problemas y se envía un resumen 
-            // por notificación con los problemas del vehiculo
-            $advertenciasEncontradas = $this->resumenElementosBitacora($bitacora);
-            if (empty($advertenciasEncontradas))  Log::channel('testing')->info('Log', ['No se encontraron advertencias ']);
-            else {
-                Log::channel('testing')->info('Log', ['Si se encontraron advertencias', $advertenciasEncontradas]);
-                //Aquí se debe notificar por notificacion y correo
-                event(new NotificarAdvertenciasVehiculoBitacora($bitacora, $advertenciasEncontradas, $this->admin_vehiculos->id));
-            }
-
-            $this->verificarMantenimientosPlanMantenimientos($bitacora);
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['Error en notificarNovedadesVehiculo', $th->getLine()]);
+            throw $th;
         }
     }
 
     private function verificarMantenimientosPlanMantenimientos(BitacoraVehicular $bitacora)
     {
-        //obtenemos los mantenimientos según el plan de mantenimiento asociado al vehiculo
-        Log::channel('testing')->info('Log', ['bitacora vehículo', $bitacora->vehiculo]);
-        $itemsMantenimiento = $bitacora->vehiculo->itemsMantenimiento()->where('activo', true)->get();
-        Log::channel('testing')->info('Log', ['Items de mantenimiento del vehículo', $itemsMantenimiento]);
-        // Verificamos si ya han habido mantenimientos anteriores para comprobar el más reciente
-        $mantenimientosRealizados = MantenimientoVehiculo::where('vehiculo_id', $bitacora->vehiculo->id)->whereIn('servicio_id', $itemsMantenimiento->pluck('id'))->orderBy('id', 'desc')->get();
-        if ($mantenimientosRealizados->count() < 1) {
-            Log::channel('testing')->info('Log', ['No han habido mantenimientos previos']);
-            //Se verifica si ya es hora de notificar o de hacerse el mantenimiento
-            foreach ($itemsMantenimiento as $item) {
-                //                                       1000        +   5000              -      500 = 5500
-                if ($bitacora->km_final >= ($item->aplicar_desde + $item->aplicar_cada - $item->notificar_antes)) {
-                    // Se crea mantenimiento según el plan de mantenimientos
-                    $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $item['servicio_id']);
-                    Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento', $nuevoMantenimiento]);
+        try {
+            //code...
+            //obtenemos los mantenimientos según el plan de mantenimiento asociado al vehiculo
+            Log::channel('testing')->info('Log', ['bitacora vehículo', $bitacora->vehiculo]);
+            $itemsMantenimiento = $bitacora->vehiculo->itemsMantenimiento()->where('activo', true)->get();
+            Log::channel('testing')->info('Log', ['Items de mantenimiento del vehículo', $itemsMantenimiento]);
+            Log::channel('testing')->info('Log', ['IDS Items de mantenimiento', $itemsMantenimiento->pluck('servicio_id')]);
+            // Verificamos si ya han habido mantenimientos anteriores para comprobar el más reciente
+            $mantenimientosRealizados = MantenimientoVehiculo::where('vehiculo_id', $bitacora->vehiculo->id)
+                ->whereIn('servicio_id', $itemsMantenimiento->pluck('servicio_id'))->orderBy('id', 'desc')->get();
+            if ($mantenimientosRealizados->count() < 1) {
+                Log::channel('testing')->info('Log', ['No han habido mantenimientos previos']);
+                //Se verifica si ya es hora de notificar o de hacerse el mantenimiento
+                foreach ($itemsMantenimiento as $item) {
+                    //                                       1000        +   5000              -      500 = 5500
+                    if ($bitacora->km_final >= ($item->aplicar_desde + $item->aplicar_cada - $item->notificar_antes)) {
+                        // Se crea mantenimiento según el plan de mantenimientos y se notifica al admin
+                        $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $item['servicio_id']);
+                        event(new NotificarMantenimientoCreado($nuevoMantenimiento));
+                        Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento', $nuevoMantenimiento]);
+                    }
+                }
+            } else {
+                // recorremos cada mantenimiento para trabajar con la fecha de realizado y el km realizado
+                foreach ($mantenimientosRealizados as $mantenimiento) {
+                    $itemMantenimiento =  $this->mantenimientoService->obtenerItemMantenimiento($itemsMantenimiento, $mantenimiento['vehiculo_id'], $mantenimiento['servicio_id']);
+                    Log::channel('testing')->info('Log', ['238 $item', $itemMantenimiento]);
+                    if ($itemMantenimiento)
+                        //Suponiendo que el cambio de aceite se hizo al km 5682
+                        // sumamos      5682           +       $5000                      -        $500 = 10182 km
+                        // R= Al 10182 km debe crearse nuevamente la alerta de mantenimiento del vehículo. 
+                        if ($bitacora->km_final >= ($mantenimiento['km_realizado'] + $itemMantenimiento['aplicar_cada'] - $itemMantenimiento['notificar_antes'])) {
+                            // Verificamos si ya hay un mantenimiento creado y está con estado PENDIENTE, en ese caso solo se notifica al admin de vehiculos
+                            if ($mantenimiento['estado'] === MantenimientoVehiculo::PENDIENTE) {
+                                // Lanzar notificacion al admin de vehiculos
+                                Log::channel('testing')->info('Log', ['El mantenimiento esta pendiente', $mantenimiento]);
+                                $mantenimiento->latestNotificacion()->update(['leida' => true]);
+                                $this->mantenimientoService->actualizarMantenimiento($bitacora, $itemMantenimiento, $mantenimiento);
+                                event(new NotificarMantenimientoPendienteRetrasadoEvent($mantenimiento));
+                            } else {
+                                // Se crea el mantenimiento nuevo que toca en este momento.
+                                $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $mantenimiento['servicio_id']);
+                                Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento en el else', $nuevoMantenimiento]);
+                            }
+                        }
                 }
             }
-        } else {
-            // recorremos cada mantenimiento para trabajar con la fecha de realizado y el km realizado
-            foreach ($mantenimientosRealizados as $mantenimiento) {
-                $itemMantenimiento = $this->obtenerItemMantenimiento($itemsMantenimiento, $mantenimiento['vehiculo_id'], $mantenimiento['servicio_id']);
-                if ($itemMantenimiento)
-                    //Suponiendo que el cambio de aceite se hizo al km 5682
-                    // sumamos      5682           +       $5000                      -        $500 = 10182 km
-                    // R= Al 10182 km debe crearse nuevamente la alerta de mantenimiento del vehículo. 
-                    if ($bitacora->km_final >= ($mantenimiento['km_realizado'] + $itemMantenimiento->aplicar_cada - $itemMantenimiento->notificar_antes)) {
-                        // Verificamos si ya hay un mantenimiento creado y está con estado PENDIENTE, en ese caso solo se notifica al admin de vehiculos
-                        if ($mantenimiento['estado'] === MantenimientoVehiculo::PENDIENTE) {
-                            // Lanzar notificacion al admin de vehiculos
-                        } else {
-                            // Se crea el mantenimiento nuevo que toca en este momento.
-                            $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $mantenimiento['servicio_id']);
-                            Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento en el else', $nuevoMantenimiento]);
-                        }
-                    }
-            }
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['Error en verificarMantenimientosPlanMantenimientos', $th->getLine()]);
+            throw $th;
         }
     }
     /**
@@ -274,25 +296,6 @@ class BitacoraVehicularService
             throw $th;
         }
         return $nuevoMantenimiento;
-    }
-    /**
-     * La función "obtenerItemMantenimiento" filtra elementos del plan de mantenimiento según el ID del vehículo y del servicio.
-     * 
-     * @param Collection $items Cada elemento de la
-     * colección probablemente tenga propiedades como `servicio_id` y `vehiculo_id` que se utilizan
-     * para filtrar y recuperar elementos de mantenimiento específicos.
-     * @param int $vehiculo El id de vehiculo
-     * @param int $servicio El id de `servicio`
-     * 
-     * @return PlanMantenimiento $item Se está devolviendo el artículo que coincide
-     * con `servicio_id` y `vehiculo_id`.
-     */
-    private function obtenerItemMantenimiento($items, $vehiculo, $servicio)
-    {
-        $item = $items->filter(function ($item) use ($vehiculo, $servicio) {
-            return $item->servicio_id == $servicio && $item->vehiculo_id == $vehiculo;
-        });
-        return $item;
     }
 
     private function resumenElementosBitacora($bitacora)
