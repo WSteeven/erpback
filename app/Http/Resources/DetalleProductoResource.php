@@ -22,7 +22,7 @@ class DetalleProductoResource extends JsonResource
             'id' => $this->id,
             'detalle_id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
-            'codigo'=>$this->codigo?$this->codigo->codigo:'',
+            'codigo' => $this->codigo ? $this->codigo->codigo : '',
             'producto' => $this->producto->nombre,
             'unidad_medida' => $this->producto->unidadMedida->nombre,
             'producto_id' => $this->producto_id,
@@ -31,16 +31,16 @@ class DetalleProductoResource extends JsonResource
             'modelo' => $this->modelo?->nombre,
             'serial' => $this->serial,
             'precio_compra' => $this->precio_compra,
-            'stock' => $request->stock? $this->detalle_stock($this->id,$request->sucursal_id)?->cantidad:0,
+            'stock' => $request->stock ? $this->detalle_stock($this->id, $request->sucursal_id)?->cantidad : 0,
 
-            'activo'=>$this->activo,
+            'activo' => $this->activo,
 
             'ram' => $this->computadora ? $this->computadora->memoria->nombre : null,
             'disco' => $this->computadora ? $this->computadora->disco->nombre : null,
             'procesador' => $this->computadora ? $this->computadora->procesador->nombre : null,
-            'imei' => $this->computadora ? $this->computadora->imei: null,
+            'imei' => $this->computadora ? $this->computadora->imei : null,
 
-            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei?', IMEI: ' .$this->computadora->imei:null) : null,
+            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei ? ', IMEI: ' . $this->computadora->imei : null) : null,
             'fibra' => $this->fibra ? 'Span ' . $this->fibra->span?->nombre . ', ' . $this->fibra->hilo?->nombre . 'H, ' . $this->fibra->tipo_fibra?->nombre : null,
 
             'span' => $this->fibra ? $this->fibra?->span?->nombre : 'N/A',
@@ -54,14 +54,14 @@ class DetalleProductoResource extends JsonResource
 
             'adicionales' => $this->color || $this->talla || $this->capacidad ? $this->color . ', ' . $this->talla . ',  ' . $this->tipo : null,
 
-            'color'=>$this->color,
-            'talla'=>$this->talla,
-            'tipo'=>$this->tipo,
+            'color' => $this->color,
+            'talla' => $this->talla,
+            'tipo' => $this->tipo,
 
             //variables auxiliares
             'tiene_serial' => is_null($this->serial) ? false : true,
             'es_computadora' => $this->producto->categoria->nombre == 'INFORMATICA' ? true : false,
-            'es_fibra' => $this->fibra ? true : false,
+            'es_fibra' => $this->fibra || $this->es_fibra ? true : false,
             'tiene_precio_compra' => $this->precio_compra > 0 ? true : false,
             'tiene_adicionales' => $this->color || $this->talla || $this->capacidad ? true : false,
         ];
