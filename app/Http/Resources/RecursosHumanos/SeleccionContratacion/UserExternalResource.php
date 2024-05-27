@@ -16,6 +16,7 @@ class UserExternalResource extends JsonResource
     {
         $postulante = $this->postulante;
         return [
+            'id' => $this->id,
             'nombres' => $this->postulante  ? $postulante->nombres : '',
             'apellidos' => $this->postulante  ? $postulante->apellidos : '',
             'tipo_documento_identificacion' => $this->postulante ? $postulante->tipo_documento_identificacion : '',
