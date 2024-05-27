@@ -166,8 +166,9 @@ class EmpleadoController extends Controller
                 'realiza_factura' => $datos['realiza_factura'],
                 'coordenadas' => $datos['coordenadas'],
             ]);
-
-            $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+            if(count($datos['discapacidades'])){
+                $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+            }
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
             //$grupo = Grupo::find($datos['grupo_id']);
