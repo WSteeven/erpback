@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 use Src\App\RecursosHumanos\SeleccionContratacion\Oauth2Service;
@@ -62,18 +63,18 @@ class LoginSocialNetworkController extends Controller
                 'email' => ['Usuario o contraseña incorrectos'],
             ]);
         }
-        session(['autenticacion' => $user->id]);
+        Cache::put('autenticacion', $user->id);
         $externalUrl = 'http://localhost:8080/puestos-disponibles';
-        // Redireccionar al usuario a la página externa
         return redirect()->away($externalUrl);
     }
-    public function getDataFromSession(Request $request)
+    public function getDataFromSession()
     {
-        $value = $request->session()->get('autenticacion');
-        Log::channel('testing')->info('Log', ['usuario autenticado', $value]);
-        $modelo = UserExternal::find($value);
-        $token = $modelo->createToken('auth_token')->plainTextToken;
-        return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo], 200);
+        $value = Cache::get('autenticacion');
+        $user =  UserExternal::find($value);
+        $modelo = new UserExternalResource($user);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'bearer', 'user_type'=>'postulante','modelo' => $modelo], 200);
     }
     public function logout(Request $request)
     {

@@ -42,7 +42,7 @@ class LoginController extends Controller
         if ($user->empleado->estado) {
             $token = $user->createToken('auth_token')->plainTextToken;
             $modelo = new UserInfoResource($user);
-            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer', 'modelo' => $modelo], 200);
+            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer','user_type'=>'empleado', 'modelo' => $modelo], 200);
         }
 
         return response()->json(["mensaje" => "El usuario no esta activo"], 401);
