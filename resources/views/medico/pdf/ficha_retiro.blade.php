@@ -1,19 +1,20 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo_principal =
+    /* $logo_principal =
         'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $num_registro = 1;
+    $num_registro = 1; */
 
     // $firma_profesional_salud = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->firma_url, 1)));
     use App\Models\Medico\CategoriaExamenFisico;
+    use Carbon\Carbon;
 @endphp
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>FICHA DE APTITUD</title>
+    <title>FICHA DE RETIRO</title>
     <style>
         @page {
             margin: 40px;
@@ -75,6 +76,10 @@
             font-size: 12px;
             /* position: inherit; */
             /* top: 140px; */
+        }
+
+        .text-mini {
+            font-size: 7px;
         }
 
 
@@ -321,7 +326,7 @@
             <th align="left" style="width: 100%;">ANTECEDENTES CLÍNICOS Y QUIRÚRGICOS</th>
         </tr>
         <tr>
-            <td>{{ $fichaRetiro['antecedentes_clinicos_quirurjicos'] }}</td>
+            <td>{{ $ficha_retiro['antecedentes_clinicos_quirurgicos'] }}</td>
         </tr>
     </table>
 
@@ -332,29 +337,39 @@
             <th align="left" style="width: 100%;">ACCIDENTES DE TRABAJO (DESCRIPCIÓN)</th>
         </tr>
         <tr>
-            <td class="fs-10">FUE CALIFICADO POR EL INSTITUTO DE SEGURIDAD SOCIAL CORRESPONDIENTE:
-                SI @if ($fichaRetiro['accidentes_trabajo']['calificado_iess'])
-                    <span class="cuadrado">{{ 'X' }}</span>
+            <td class="fs-9">
+                <span class="mr-8 fs-9 d-inline-block">FUE CALIFICADO POR EL INSTITUTO DE SEGURIDAD SOCIAL
+                    CORRESPONDIENTE:</span>
+                SI @if ($ficha_retiro['accidente_trabajo'] && $ficha_retiro['accidente_trabajo']['calificado_iss'])
+                    <span class="cuadrado fs-9">{{ 'x' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
-                ESPECIFICAR: IESS
-                NO @if (!$fichaRetiro['accidentes_trabajo']['calificado_iess'])
-                    <span class="cuadrado">{{ 'X' }}</span>
+                <span class="mr-8 d-inline-block"></span>
+                <span class="fs-9">ESPECIFICAR</span>
+                {{ $ficha_retiro['accidente_trabajo'] ? $ficha_retiro['accidente_trabajo']['instituto_seguridad_social'] : '____' }}
+                <span class="mr-8 d-inline-block"></span>
+                NO @if ($ficha_retiro['accidente_trabajo'] ? !$ficha_retiro['accidente_trabajo']['calificado_iss'] : '')
+                    <span class="cuadrado fs-9">{{ 'x' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
-                <span class="fs-10">FECHA:</span>
-                <span class="cuadrado fs-10">{{ $fichaRetiro['accidentes_trabajo']['fecha']->format('d') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['accidentes_trabajo']['fecha']->format('m') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['accidentes_trabajo']['fecha']->year }}</span>
+                <span class="mr-8 d-inline-block"></span>
+                <span class="fs-9">FECHA:</span>
+                <span
+                    class="cuadrado fs-9">{{ $ficha_retiro['accidente_trabajo'] ? Carbon::parse($ficha_retiro['accidente_trabajo']['fecha'])->format('d') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_retiro['accidente_trabajo'] ? Carbon::parse($ficha_retiro['accidente_trabajo']['fecha'])->format('m') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_retiro['accidente_trabajo'] ? Carbon::parse($ficha_retiro['accidente_trabajo']['fecha'])->year : '' }}</span>
             </td>
         </tr>
 
         <tr>
             <td>
                 <div class="mb-4 fs-10">Observaciones:</div>
-                <div class="mb-4 fs-10">{{ $fichaRetiro['accidentes_trabajo']['observaciones'] }}</div>
+                <div class="mb-4 fs-10">
+                    {{ $ficha_retiro['accidente_trabajo'] ? $ficha_retiro['accidente_trabajo']['observacion'] : '' }}
+                </div>
+                {{-- <div class="mb-4 fs-10">{{ $ficha_retiro['accidente_trabajo']['observacion'] }}</div> --}}
             </td>
         </tr>
 
@@ -371,30 +386,38 @@
             <th align="left" style="width: 100%;">{{ 'ENFERMEDADES PROFESIONALES' }}</th>
         </tr>
         <tr>
-            <td class="fs-10">FUE CALIFICADO POR EL INSTITUTO DE SEGURIDAD SOCIAL CORRESPONDIENTE:
-                SI @if ($fichaRetiro['enfermedades_profesionales']['calificado_iess'])
-                    <span class="cuadrado">{{ 'X' }}</span>
+            <td class="fs-9">
+                <span class="mr-8 fs-9 d-inline-block">FUE CALIFICADO POR EL INSTITUTO DE SEGURIDAD SOCIAL
+                    CORRESPONDIENTE:</span>
+                SI @if ($ficha_retiro['enfermedad_profesional'] && $ficha_retiro['enfermedad_profesional']['calificado_iss'])
+                    <span class="cuadrado fs-9">{{ 'x' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
-                ESPECIFICAR: IESS
-                NO @if (!$fichaRetiro['enfermedades_profesionales']['calificado_iess'])
-                    <span class="cuadrado">{{ 'X' }}</span>
+                <span class="mr-8 d-inline-block"></span>
+                ESPECIFICAR:
+                {{ $ficha_retiro['enfermedad_profesional'] ? $ficha_retiro['enfermedad_profesional']['instituto_seguridad_social'] : '____' }}
+                NO @if ($ficha_retiro['enfermedad_profesional'] && !$ficha_retiro['enfermedad_profesional']['calificado_iss'])
+                    <span class="cuadrado fs-9">{{ 'x' }}</span>
                 @else
                     <span class="cuadrado">&nbsp;&nbsp;</span>
                 @endif
-                <span class="fs-10">FECHA:</span>
+                <span class="mr-8 d-inline-block"></span>
+                <span class="fs-9">FECHA:</span>
                 <span
-                    class="cuadrado fs-10">{{ $fichaRetiro['enfermedades_profesionales']['fecha']->format('d') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['enfermedades_profesionales']['fecha']->format('m') }}</span><span
-                    class="cuadrado fs-10">{{ $fichaRetiro['enfermedades_profesionales']['fecha']->year }}</span>
+                    class="cuadrado fs-9">{{ $ficha_retiro['enfermedad_profesional'] ? Carbon::parse($ficha_retiro['enfermedad_profesional']['fecha'])->format('d') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_retiro['enfermedad_profesional'] ? Carbon::parse($ficha_retiro['enfermedad_profesional']['fecha'])->format('m') : '' }}</span><span
+                    class="cuadrado fs-9">{{ $ficha_retiro['enfermedad_profesional'] ? Carbon::parse($ficha_retiro['enfermedad_profesional']['fecha'])->year : '' }}</span>
             </td>
         </tr>
 
         <tr>
             <td>
                 <div class="mb-4 fs-10">Observaciones:</div>
-                <div class="mb-4 fs-10">{{ $fichaRetiro['accidentes_trabajo']['observaciones'] }}</div>
+                <div class="mb-4 fs-10">
+                    {{ $ficha_retiro['enfermedad_profesional'] ? $ficha_retiro['enfermedad_profesional']['observacion'] : '' }}
+                </div>
+                {{-- <div class="mb-4 fs-10">{{ $ficha_retiro['accidente_trabajo']['observacion'] }}</div> --}}
             </td>
         </tr>
 
@@ -408,31 +431,38 @@
     <div class="titulo-seccion">C. CONSTANTES VITALES Y ANTROPOMETRÍA</div>
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
-        border="1" cellpadding="0" cellspacing="0" class="mb-8">
+        border="1" cellpadding="0" cellspacing="0" class="celdas_amplias mb-8">
         <tr>
-            <th style="width: 15%;" class="fs-10">PRESIÓN ARTERIAL(mmHg)</th>
-            <th style="width: 10%;" class="fs-10">TEMPERATURA(°C)</th>
-            <th style="width: 15%;" class="fs-10">FRECUENCIA CARDIACA(l/min)</th>
-            <th style="width: 12%;" class="fs-10">SATURACIÓN DE OXÍGENO(%)</th>
-            <th style="width: 12%;" class="fs-10">FRECUENCIA RESPIRATORIA(fr/min)</th>
-            <th style="width: 8%;" class="fs-10">PESO(Kg)</th>
-            <th style="width: 8%;" class="fs-10">TALLA(cm)</th>
-            <th style="width: 10%;" class="fs-10">ÍNDICE DE MASA CORPORAL(kg/m2)</th>
-            <th style="width: 10%;" class="fs-10">PERÍMETRO ABDOMINAL(cm)</th>
+            <th style="width: 10%;" class="fs-10">PRESIÓN ARTERIAL <br> <small class="text-mini">(mmHg)</small></th>
+            <th style="width: 12%;" class="fs-10">TEMPERATURA <br> <small class="text-mini">(°C)</small></th>
+            <th style="width: 15%;" class="fs-10">FRECUENCIA CARDIACA <br> <small class="text-mini">(l/min)</small>
+            </th>
+            <th style="width: 12%;" class="fs-10">SATURACIÓN DE OXÍGENO <br> <small class="text-mini">(%)</small>
+            </th>
+            <th style="width: 12%;" class="fs-10">FRECUENCIA RESPIRATORIA <br> <small
+                    class="text-mini">(fr/min)</small></th>
+            <th style="width: 8%;" class="fs-10">PESO <br> <small class="text-mini">(Kg)</small></th>
+            <th style="width: 8%;" class="fs-10">TALLA <br> <small class="text-mini">(cm)</small></th>
+            <th style="width: 10%;" class="fs-10">ÍNDICE DE MASA CORPORAL <br> <small
+                    class="text-mini">(kg/m2)</small>
+            </th>
+            <th style="width: 10%;" class="fs-10">PERÍMETRO ABDOMINAL <br> <small class="text-mini">(cm)</small>
+            </th>
         </tr>
         <tr>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
-            <td class="pa-12">{{ '' }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['presion_arterial'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['temperatura'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['frecuencia_cardiaca'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['saturacion_oxigeno'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['frecuencia_respiratoria'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['peso'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['talla'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['indice_masa_corporal'] }}</td>
+            <td>{{ $ficha_retiro['constante_vital']['perimetro_abdominal'] }}</td>
         </tr>
     </table>
-    {{-- {{ $fichaRetiro['examenes_fisicos_regionales'] }} --}}
+
+    {{-- {{ $ficha_retiro['examenes_fisicos_regionales'] }} --}}
     {{-- D. EXAMEN FÍSICO REGIONAL --}}
     <div class="titulo-seccion">D. EXAMEN FÍSICO REGIONAL</div>
     <div class="subtitulo-seccion">REGIONES</div>
@@ -443,153 +473,153 @@
             <tr>
                 <td rowspan="3" class="celda"><span class="texto-vertical">1. Piel</span></td>
                 <td style="width: 12%;">a. Cicatrices</td>
-                <td>{{ in_array(CategoriaExamenFisico::CICATRICES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CICATRICES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">3. Oido</span></td>
                 <td style="width: 12%;">a. C. auditivo externo</td>
-                <td>{{ in_array(CategoriaExamenFisico::AUDITIVO_EXTERNO, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::AUDITIVO_EXTERNO, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="4" class="celda"><span class="texto-vertical">5. Nariz</span></td>
                 <td style="width: 12%;">a. Tabique</td>
-                <td>{{ in_array(CategoriaExamenFisico::TABIQUE, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TABIQUE, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">8. Tórax</span></td>
                 <td style="width: 12%;">a. Pulmones</td>
-                <td>{{ in_array(CategoriaExamenFisico::PULMONES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PULMONES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">11. Pelvis</span></td>
                 <td style="width: 12%;">a. Pelvis</td>
-                <td>{{ in_array(CategoriaExamenFisico::PELVIS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PELVIS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
             <tr>
                 <td>b. Tatuajes</td>
-                <td>{{ in_array(CategoriaExamenFisico::TATUAJES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TATUAJES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Pabellón</td>
-                <td>{{ in_array(CategoriaExamenFisico::PABELLON, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PABELLON, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Cornetes</td>
-                <td>{{ in_array(CategoriaExamenFisico::CORNETES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CORNETES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Parrilla costal</td>
-                <td>{{ in_array(CategoriaExamenFisico::PARRILLA_COSTAL, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PARRILLA_COSTAL, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Genitales</td>
-                <td>{{ in_array(CategoriaExamenFisico::GENITALES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::GENITALES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>c. Piel y faneras</td>
-                <td>{{ in_array(CategoriaExamenFisico::PIEL_FANERAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PIEL_FANERAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Tímpanos</td>
-                <td>{{ in_array(CategoriaExamenFisico::TIMPANOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TIMPANOS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Mucosas</td>
-                <td>{{ in_array(CategoriaExamenFisico::MUCOSAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MUCOSAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">9. Abdomen</span></td>
                 <td>a. Vísceras</td>
-                <td>{{ in_array(CategoriaExamenFisico::VISCERAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::VISCERAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">12. Extremidades</span></td>
                 <td>a. Vascular</td>
-                <td>{{ in_array(CategoriaExamenFisico::VASCULAR, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::VASCULAR, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
             </tr>
 
             <tr>
                 <td rowspan="5" class="celda"><span class="texto-vertical">2. Ojos</span></td>
                 <td>a. Párpados</td>
-                <td>{{ in_array(CategoriaExamenFisico::PARPADOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PARPADOS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="5" class="celda"><span class="texto-vertical">4. Oro faringe</span></td>
                 <td>a. Labios</td>
-                <td>{{ in_array(CategoriaExamenFisico::LABIOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::LABIOS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>d. Senos paranasales</td>
-                <td>{{ in_array(CategoriaExamenFisico::SENOS_PARANASALES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::SENOS_PARANASALES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Pared abdominal</td>
-                <td>{{ in_array(CategoriaExamenFisico::PARED_ABDOMINAL, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PARED_ABDOMINAL, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Miembros superiores</td>
-                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_SUPERIORES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_SUPERIORES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>b. Conjuntivas</td>
-                <td>{{ in_array(CategoriaExamenFisico::CONJUNTIVAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CONJUNTIVAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Lengua</td>
-                <td>{{ in_array(CategoriaExamenFisico::LENGUA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::LENGUA, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">6. Cuello</span></td>
                 <td>a. Tiroides / masas</td>
-                <td>{{ in_array(CategoriaExamenFisico::TIROIDES_MASAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::TIROIDES_MASAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Flexibilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::FLEXIBILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::FLEXIBILIDAD, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Miembros inferiores</td>
-                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_INFERIORES, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MIEMBROS_INFERIORES, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>c. Pupilas</td>
-                <td>{{ in_array(CategoriaExamenFisico::PUPILAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::PUPILAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Faringe</td>
-                <td>{{ in_array(CategoriaExamenFisico::FARINGE, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::FARINGE, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Movilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::MOVILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MOVILIDAD, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="3" class="celda"><span class="texto-vertical">10. Columna</span></td>
                 <td rowspan="2">a. Desviación</td>
                 <td rowspan="2">
-                    {{ in_array(CategoriaExamenFisico::DESVIACION, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                    {{ in_array(CategoriaExamenFisico::DESVIACION, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="4" class="celda"><span class="texto-vertical">13. Neurológico</span></td>
                 <td>a. Fuerza</td>
-                <td>{{ in_array(CategoriaExamenFisico::FUERZA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::FUERZA, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>d. Córnea</td>
-                <td>{{ in_array(CategoriaExamenFisico::CORNEA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CORNEA, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>d. Amígdalas</td>
-                <td>{{ in_array(CategoriaExamenFisico::AMIGDALAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::AMIGDALAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td rowspan="2" class="celda"><span class="texto-vertical">7. Tórax</span></td>
                 <td>a. Mamas</td>
-                <td>{{ in_array(CategoriaExamenFisico::MAMAS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MAMAS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Sensibilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::SENSIBILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::SENSIBILIDAD, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td>e. Motilidad</td>
-                <td>{{ in_array(CategoriaExamenFisico::MOTILIDAD, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MOTILIDAD, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>e. Dentadura</td>
-                <td>{{ in_array(CategoriaExamenFisico::DENTADURA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::DENTADURA, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Corazón</td>
-                <td>{{ in_array(CategoriaExamenFisico::CORAZON, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::CORAZON, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>b. Dolor</td>
-                <td>{{ in_array(CategoriaExamenFisico::DOLOR, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::DOLOR, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
                 <td>c. Marcha</td>
-                <td>{{ in_array(CategoriaExamenFisico::MARCHA, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::MARCHA, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
@@ -598,14 +628,20 @@
                     {{ 'CON EVIDENCIA DE PATOLOGÍA MARCAR CON "X" Y DESCRIBIR EN LA SIGUIENTE SECCIÓN ANOTANDO EL NUMERAL' }}
                 </td>
                 <td>d. Reflejos</td>
-                <td>{{ in_array(CategoriaExamenFisico::REFLEJOS, $fichaRetiro['examenes_fisicos_regionales']) ? 'x' : '' }}
+                <td>{{ in_array(CategoriaExamenFisico::REFLEJOS, $ficha_retiro['examenes_fisicos_regionales']) ? 'x' : '' }}
                 </td>
             </tr>
 
             <tr>
                 <td colspan="15">
                     <div class="mb-4"><b class="fs-10">Observaciones:</b></div>
-                    <div class="mb-4 fs-10">{{ $fichaRetiro['observaciones_examen_fisico_regional'] }}</div>
+                    <div class="mb-4 fs-9">
+                        {{-- {{ json_encode($ficha_preocupacional['observaciones_examen_fisico_regional']) }} --}}
+
+                        @foreach ($ficha_retiro['observaciones_examen_fisico_regional'] as $item)
+                            <div class="fs-9">{{ $item['categoria'] . ': ' . $item['observacion'] }}</div>
+                        @endforeach
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -616,13 +652,55 @@
         TRABAJO (IMAGEN, LABORATORIO Y OTROS)</div>
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
+        border="1" cellpadding="0" cellspacing="0" class="celdas_amplias mb-8">
+        <tr>
+            <th style="width: 20%;">EXAMEN</th>
+            <th style="width: 15%;">FECHA <br> <small class="text-mini">{{ 'aaa/mm/dd' }}</small></th>
+            <th style="width: 65%;">RESULTADOS</th>
+        </tr>
+
+        @foreach ($ficha_retiro['resultados_examenes'] as $resultado_examen)
+            <tr>
+                <td>{{ $resultado_examen['examen'] }}</td>
+                <td>{{ $resultado_examen['fecha_asistencia'] }}</td>
+                <td>
+                    <table
+                        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif;"
+                        border="0">
+                        <tr>
+                            <th style="border: none; width: 25%; background: #fff; text-align: left;">
+                                {{ 'Parámetro' }}</th>
+                            <th style="border: none; width: 25%; background: #fff; text-align: left;">
+                                {{ 'Resultado' }}</th>
+                            <th style="border: none; width: 50%; background: #fff; text-align: left;">
+                                {{ 'Observación' }}</th>
+                        </tr>
+                        @foreach ($resultado_examen['resultados'] as $resultado)
+                            <tr>
+                                <td style=" border: none;">{{ $resultado['configuracion_examen_campo'] }}
+                                </td>
+                                <td style="border: none;">
+                                    {{ $resultado['resultado'] . ' ' . $resultado['unidad_medida'] }}
+                                </td>
+                                <td style="border: none;">
+                                    {{ $resultado['observaciones'] ?? '(Sin observacióon)' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </td>
+            </tr>
+        @endforeach
+    </table>
+    {{-- <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;"
         border="1" cellpadding="0" cellspacing="0" class="mb-8">
         <tr>
             <th class="fs-10">EXAMEN</th>
             <th class="fs-10">FECHA</th>
             <th class="fs-10">RESULTADO</th>
         </tr>
-        @foreach ($fichaRetiro['resultados_examenes'] as $resultado)
+        @foreach ($ficha_retiro['resultados_examenes'] as $resultado)
             <tr>
                 <td>{{ $resultado['examen'] }}</td>
                 <td>{{ $resultado['fecha'] }}</td>
@@ -632,10 +710,10 @@
         <tr>
             <td colspan="3">
                 <div class="mb-4 fs-10">Observaciones:</div>
-                <div class="mb-4 fs-10">{{ $fichaRetiro['observaciones_resultados_examenes'] }}</div>
+                <div class="mb-4 fs-10">{{ $ficha_retiro['observaciones_resultados_examenes'] }}</div>
             </td>
         </tr>
-    </table>
+    </table> --}}
 
     {{-- F. DIAGNÓSTICO --}}
     <table
@@ -656,7 +734,7 @@
             <th class="fs-10 bg-titulo" style="width: 5%;">DEF</th>
         </tr>
 
-        @if (count($fichaRetiro['consultasMedicas']) === 0)
+        @if (count($ficha_retiro['consultas_medicas']) === 0)
             <tr>
                 <td style="width: 4%;" class="bg-green">{{ '1' }}</td>
                 <td style="width: 55%;">{{ '' }}</td>
@@ -665,7 +743,7 @@
                 <td style="width: 8%;">{{ '' }}</td>
             </tr>
         @else
-            @foreach ($fichaRetiro['consultasMedicas'][0]['diagnosticos'] as $diagnostico)
+            @foreach ($ficha_retiro['consultas_medicas'][0]['diagnosticos'] as $diagnostico)
                 <tr>
                     <td style="width: 4%;" class="bg-green">{{ $loop->index + 1 }}</td>
                     <td style="width: 55%;">{{ $diagnostico['recomendacion'] }}</td>
@@ -686,7 +764,7 @@
         <tr>
             <td style="width: 15%;" class="bg-green">SE REALIZÓ LA EVALUACIÓN</td>
             <td style="width: 10%;" class="bg-green">SI</td>
-            @if ($fichaRetiro['se_hizo_evaluacion_retiro'])
+            @if ($ficha_retiro['se_realizo_evaluacion_medica_retiro'])
                 <td style="width: 5%;">{{ 'X' }}</td>
             @else
                 <td style="width: 5%;">&nbsp;&nbsp;</td>
@@ -695,7 +773,7 @@
             <td style="border: none; width: 5%;">&nbsp;&nbsp;</td>
 
             <td style="width: 10%;" class="bg-green">NO</td>
-            @if (!$fichaRetiro['se_hizo_evaluacion_retiro'])
+            @if (!$ficha_retiro['se_realizo_evaluacion_medica_retiro'])
                 <td style="width: 5%;">{{ 'X' }}</td>
             @else
                 <td style="width: 5%;">&nbsp;&nbsp;</td>
@@ -706,13 +784,13 @@
     </table>
     <div class="border pa-8 mb-8 fs-10">
         <div class="fs-10 mb-4">Observaciones</div>
-        {{ $fichaRetiro['observaciones_evaluacion_retiro'] }}
+        {{ $ficha_retiro['observacion_evaluacion_medica_retiro'] }}
     </div>
 
     <div class="titulo-seccion">H. RECOMENDACIONES Y/O TRATAMIENTO</div>
     <div class="border pa-8 fs-10 mb-8">
         <div class="fs-10 mb-4">Descripción</div>
-        {{ $fichaRetiro['recomendaciones_tratamientos'] }}
+        {{ $ficha_retiro['recomendacion_tratamiento'] }}
     </div>
 
     <div class="fs-10 mb-8">
@@ -722,24 +800,28 @@
     {{-- F. DATOS DEL PROFESIONAL DE SALUD --}}
     <span style="width: 100%; display: inline-block;" class="border mr-8">
         <div class="titulo-seccion">F. DATOS DEL PROFESIONAL DE SALUD</div>
-        <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0">
+        <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0"
+            class="celdas_amplias">
             <tr>
-                <td class="bg-green fs-10">FECHA</td>
-                <td style="width: 10%">{{ $fichaRetiro['fecha_creacion'] }}</td>
-                <td class="bg-green fs-10">HORA</td>
-                <td style="width: 8%">{{ $fichaRetiro['hora_creacion'] }}</td>
-                <td class="bg-green fs-10" style="width: 10%;">NOMBRE Y APELLIDO</td>
-                <td style="width: 15%" class="fs-10">
-                    {{ $profesionalSalud->empleado->nombres . ' ' . $profesionalSalud->empleado->apellidos }}</td>
-                <td class="bg-green fs-10" style="width: 10%;">CÓDIGO</td>
-                <td style="width: 8%">{{ $profesionalSalud->codigo }}</td>
-                <td class="bg-green fs-10">FIRMA Y SELLO</td>
-                <td style="width: 20%">
+                <td class="bg-green" style="width: 8%">FECHA<br> <small
+                        class="text-mini">{{ 'aaa/mm/dd' }}</small></td>
+                <td style="width: 11%">{{ $fecha_creacion }}</td>
+                <td class="bg-green fs-10" style="width: 7%">HORA</td>
+                <td style="width: 9%">{{ $hora_creacion }}</td>
+                <td class="bg-green fs-10" style="width: 12%;" align="center">NOMBRE Y APELLIDO</td>
+                <td style="width: 14%" class="fs-10">
+                    {{ $profesionalSalud?->empleado->nombres . ' ' . $profesionalSalud?->empleado->apellidos }}</td>
+                <td class="bg-green fs-10" style="width: 9%;">CÓDIGO</td>
+                <td style="width: 6%">{{ $profesionalSalud?->codigo }}</td>
+                <td class="bg-green fs-10" style="width: 8%;">FIRMA Y SELLO</td>
+                <td style="width: 10%">
                     @isset($firmaProfesionalMedico)
                         <img src="{{ $firmaProfesionalMedico }}" alt="" width="100%" height="40">
                     @endisset
                     @empty($firmaProfesionalMedico)
-                        &nbsp;<br />
+                        <div class="pa-12">
+                            &nbsp;<br />
+                        </div>
                     @endempty
                 </td>
             </tr>

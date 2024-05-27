@@ -67,9 +67,38 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::ACCEDER . '.gestionar_pacientes'])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => self::EDITAR . '.gestionar_pacientes'])->syncRoles([$medico]);
 
+        // tipos_cuestionarios
+        Permission::firstOrCreate(['name' => self::VER . '.tipos_cuestionarios'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.tipos_cuestionarios'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.tipos_cuestionarios'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::EDITAR . '.tipos_cuestionarios'])->syncRoles([$medico]);
+
+        // Cuestionarios
+        Permission::firstOrCreate(['name' => self::VER . '.cuestionarios'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.cuestionarios'])->syncRoles([$empleado]);
+
         // Reporte de cuestionarios psicosocial
         Permission::firstOrCreate(['name' => self::VER . '.reporte_cuestionarios_psicosocial'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.reporte_cuestionarios_psicosocial'])->syncRoles([$empleado]);
+
+        // Cuestionarios psicosocial
+        Permission::firstOrCreate(['name' => self::VER . '.cuestionarios_psicosocial'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.cuestionarios_psicosocial'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.cuestionarios_psicosocial'])->syncRoles([$empleado]);
+
+        // Cuestionario diagnostico consumo drogas
+        Permission::firstOrCreate(['name' => self::VER . '.cuestionario_diagnostico_consumo_drogas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.cuestionario_diagnostico_consumo_drogas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.cuestionario_diagnostico_consumo_drogas'])->syncRoles([$empleado]);
+
+        // respuestas_cuestionarios_empleados
+        Permission::firstOrCreate(['name' => self::VER . '.respuestas_cuestionarios_empleados'])->syncRoles([$empleado]);
+        // Permission::firstOrCreate(['name' => self::ACCEDER . '.respuestas_cuestionarios_empleados'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.respuestas_cuestionarios_empleados'])->syncRoles([$empleado]);
+
+        // Preguntas
+        Permission::firstOrCreate(['name' => self::VER . '.preguntas'])->syncRoles([$empleado]);
+        // Permission::firstOrCreate(['name' => self::ACCEDER . '.preguntas'])->syncRoles([$empleado]);
 
         // Citas medicas
         Permission::firstOrCreate(['name' => self::RECHAZAR . '.citas_medicas'])->syncRoles([$medico]);
@@ -167,11 +196,17 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::CREAR . ".fichas_periodicas"])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_periodicas"])->syncRoles([$empleado]);
 
+        // Fichas reintegro
+        Permission::firstOrCreate(['name' => self::VER . ".fichas_reintegro"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_reintegro"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".fichas_reintegro"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_reintegro"])->syncRoles([$empleado]);
+
         // Fichas retiro
-        Permission::firstOrCreate(['name' => self::VER . ".fichas_retiro"])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_retiro"])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => self::CREAR . ".fichas_retiro"])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_retiro"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::VER . ".fichas_retiros"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_retiros"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".fichas_retiros"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::EDITAR . ".fichas_retiros"])->syncRoles([$empleado]);
 
         // Religiones
         Permission::firstOrCreate(['name' => self::VER . ".religiones"])->syncRoles([$empleado]);

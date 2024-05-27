@@ -25,4 +25,4 @@ class Pregunta extends Model implements Auditable
     {
         return $this->hasMany(Cuestionario::class, 'pregunta_id', 'id')->with('respuesta','respuestasCuestionariosEmpleados');
     }
-}
+} // 47

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Medico;
 
 use App\Models\Medico\Respuesta;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -85,41 +85,41 @@ class RespuestaSeeder extends Seeder
             // Pregunta 14a
             [
                 'respuesta' => 'Muy clara',
-                'valor' => 4, //16
+                'valor' => 1, //16
             ],
             [
                 'respuesta' => 'Clara',
-                'valor' => 3, //17
+                'valor' => 2, //17
             ],
             [
                 'respuesta' => 'Poco clara',
-                'valor' => 2, //18
+                'valor' => 3, //18
             ],
             [
                 'respuesta' => 'Nada clara',
-                'valor' => 1, //19
+                'valor' => 4, //19
             ],
             //Pregunta 16a
             [
-                'respuesta' => 'No tengo no hay otras personas',
+                'respuesta' => 'No tengo, no hay otras personas',
                 'valor' => 5, //20
             ],
             // Pregunta 17
             [
                 'respuesta' => 'Buenas',
-                'valor' => 4, //21
+                'valor' => 1, //21
             ],
             [
                 'respuesta' => 'Regulares',
-                'valor' => 3, //22
+                'valor' => 2, //22
             ],
             [
                 'respuesta' => 'Malas',
-                'valor' => 2, //23
+                'valor' => 3, //23
             ],
             [
                 'respuesta' => 'No tengo compañeros',
-                'valor' => 1, //24
+                'valor' => 4, //24
             ],
             // Pregunta 18a
             [
@@ -142,28 +142,28 @@ class RespuestaSeeder extends Seeder
             // Pregunta 19
             [
                 'respuesta' => 'Deja que sean los implicados quienes solucionen el tema',
-                'valor' => 4, //29
+                'valor' => 1, //29
             ],
             [
                 'respuesta' => 'Pide a los mandos de los afectados que traten de buscar una solución al problema',
-                'valor' => 3, //30
+                'valor' => 2, //30
             ],
             [
                 'respuesta' => 'Tiene establecido un procedimiento formal de actuación',
-                'valor' => 2, //31
+                'valor' => 3, //31
             ],
             [
                 'respuesta' => 'No lo sé',
-                'valor' => 1, //32
+                'valor' => 4, //32
             ],
             // Pregunta 22
             [
                 'respuesta' => 'Muy alta', //33
-                'valor' => 5,
+                'valor' => 1,
             ],
             [
                 'respuesta' => 'Alta', //34
-                'valor' => 4,
+                'valor' => 2,
             ],
             [
                 'respuesta' => 'Media', //35
@@ -171,11 +171,11 @@ class RespuestaSeeder extends Seeder
             ],
             [
                 'respuesta' => 'Baja', //36
-                'valor' => 2,
+                'valor' => 4,
             ],
             [
                 'respuesta' => 'Muy baja', //37
-                'valor' => 1,
+                'valor' => 5,
             ],
 
             // Pregunta 26
@@ -201,112 +201,116 @@ class RespuestaSeeder extends Seeder
             ],
             //pregunta 34a
             [
-                'respuesta' => 'No tengo no trato', //42
+                'respuesta' => 'No tengo, no trato', //43
                 'valor' => 5,
             ],
             // Pregunta 37
             [
-                'respuesta' => 'No', //43
+                'respuesta' => 'No', //44
                 'valor' => 1,
             ],
             [
-                'respuesta' => 'A veces', //44
+                'respuesta' => 'A veces', //45
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Bastante', //45
+                'respuesta' => 'Bastante', //46
                 'valor' => 3,
             ],
             [
-                'respuesta' => 'Mucho', //46
+                'respuesta' => 'Mucho', //47
                 'valor' => 4,
             ],
 
             // Pregunta 38
             [
-                'respuesta' => 'Mucho', //47
+                'respuesta' => 'Mucho', //48
                 'valor' => 1,
             ],
             [
-                'respuesta' => 'Bastante', //48
+                'respuesta' => 'Bastante', //49
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Poco', //49
+                'respuesta' => 'Poco', //50
                 'valor' => 3,
             ],
             [
-                'respuesta' => 'Nada', //50
+                'respuesta' => 'Nada', //51
                 'valor' => 4,
             ],
 
             // Pregunta 39
             [
-                'respuesta' => 'No es muy importante', //51
+                'respuesta' => 'No es muy importante', //52
                 'valor' => 1,
             ],
             [
-                'respuesta' => 'Es importante', //52
+                'respuesta' => 'Es importante', //53
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Es muy importante', //53
+                'respuesta' => 'Es muy importante', //54
                 'valor' => 3,
             ],
             [
-                'respuesta' => 'No lo sé', //54
+                'respuesta' => 'No lo sé', //55
                 'valor' => 4, // No hay opción específica
             ],
             // Pregunta 41
             [
-                'respuesta' => 'Adecuadamente', //55
+                'respuesta' => 'Adecuadamente', //56
                 'valor' => 1,
             ],
             [
-                'respuesta' => 'Regular', //56
+                'respuesta' => 'Regular', //57
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Insuficientemente', //57
+                'respuesta' => 'Insuficientemente', //58
                 'valor' => 3,
             ],
             [
-                'respuesta' => 'No existe posibilidad de desarrollo profesional', //58
+                'respuesta' => 'No existe posibilidad de desarrollo profesional', //59
                 'valor' => 4, // No hay opción específica
             ],
             // Pregunta 42
             [
-                'respuesta' => 'Muy adecuada', //59
-                'valor' => 4,
+                'respuesta' => 'Muy adecuada', // 60
+                'valor' => 1,
             ],
             [
-                'respuesta' => 'Suficiente', //60
-                'valor' => 3,
-            ],
-            [
-                'respuesta' => 'Insuficiente en algunos casos', //61
+                'respuesta' => 'Suficiente', //61
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Totalmente insuficiente', //62
-                'valor' => 1,
+                'respuesta' => 'Insuficiente en algunos casos', //62
+                'valor' => 3,
+            ],
+            [
+                'respuesta' => 'Totalmente insuficiente', //63
+                'valor' => 4,
             ],
             //Pregunta 44
             [
-                'respuesta' => 'Muy satisfecho', //63
-                'valor' => 4,
+                'respuesta' => 'Muy satisfecho', //64
+                'valor' => 1,
             ],
             [
-                'respuesta' => 'Satisfecho', //64
-                'valor' => 3,
-            ],
-            [
-                'respuesta' => 'Insatisfecho', //65
+                'respuesta' => 'Satisfecho', //65
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Muy insatisfecho', //66
-                'valor' => 1,
+                'respuesta' => 'Insatisfecho', //66
+                'valor' => 3,
+            ],
+            [
+                'respuesta' => 'Muy insatisfecho', //67
+                'valor' => 4,
+            ],
+            [
+                'respuesta' => 'Nunca',
+                'valor' => 4, // 68
             ],
         ]);
     }

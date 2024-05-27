@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('cuestionario_id');
             $table->foreign('cuestionario_id')->on('med_cuestionarios')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('respuesta');
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->on('empleados')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();

@@ -15,17 +15,19 @@ class FichaPeriodica extends Model implements Auditable
 
     protected $table = 'med_fichas_periodicas';
     protected $fillable = [
-        'ciu',
+        'incidentes',
         'establecimiento_salud',
         'numero_historia_clinica',
         'numero_archivo',
         'puesto_trabajo',
         'motivo_consulta',
         'incidentes',
+        'antecedentes_clinicos_quirurgicos',
         'registro_empleado_examen_id',
         'enfermedad_actual',
         'observacion_examen_fisico_regional',
         'profesional_salud_id',
+        'cargo_id',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -80,5 +82,10 @@ class FichaPeriodica extends Model implements Auditable
     public function medicaciones()
     {
         return $this->morphMany(Medicacion::class, 'medicable');
+    }
+
+    public function registroEmpleadoExamen()
+    {
+        return $this->belongsTo(RegistroEmpleadoExamen::class);
     }
 }

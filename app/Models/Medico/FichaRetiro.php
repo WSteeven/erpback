@@ -20,15 +20,23 @@ class FichaRetiro extends Model implements Auditable
         'establecimiento_salud',
         'numero_historia_clinica',
         'numero_archivo',
-        'puesto_trabajo',
+        'fecha_inicio_labores',
         'fecha_salida',
         'evaluacion_retiro', //boolean
         'observacion_retiro',
         'recomendacion_tratamiento',
+        'se_realizo_evaluacion_medica_retiro',
+        'observacion_evaluacion_medica_retiro',
+        'antecedentes_clinicos_quirurgicos',
+        'cargo_id',
         'registro_empleado_examen_id',
-        'profesional_id',
+        'profesional_salud_id',
     ];
     private static $whiteListFilter = ['*'];
+
+    protected $casts = [
+        'se_realizo_evaluacion_medica_retiro' => 'boolean',
+    ];
 
     public function antecedentesClinicos()
     {
@@ -53,5 +61,10 @@ class FichaRetiro extends Model implements Auditable
     public function diagnosticos()
     {
         return $this->morphMany(DiagnosticoFicha::class, 'diagnosticable');
+    }
+
+    public function registroEmpleadoExamen()
+    {
+        return $this->belongsTo(RegistroEmpleadoExamen::class);
     }
 }

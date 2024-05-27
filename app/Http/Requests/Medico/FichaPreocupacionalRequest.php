@@ -120,7 +120,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'aptitud_medica.tipo_aptitud_id' => 'required|numeric|integer',
             'aptitud_medica.observacion' => 'nullable|string',
             'aptitud_medica.limitacion' => 'nullable|string',
-            // examenes fisicos regionales
+            // Examenes fisicos regionales
             'examenes_fisicos_regionales.*.categoria_examen_fisico_id' => 'required|numeric|integer|exists:med_categorias_examenes_fisicos,id',
             'examenes_fisicos_regionales.*.observacion' => 'nullable|string',
             // examenes_realizados

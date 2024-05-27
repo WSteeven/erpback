@@ -28,7 +28,8 @@ class RegistroEmpleadoExamenResource extends JsonResource
             'ficha_aptitud' => $this->fichaAptitud?->id,
             'ficha_preocupacional' => $this->fichaPreocupacional?->id,
             'ficha_periodica' => $this->fichaPeriodica?->id,
-            'ficha_retiro' => null, // $this->fichaRetiro?->id,
+            'ficha_reintegro' => $this->fichaReintegro?->id,
+            'ficha_retiro' => $this->fichaRetiro?->id,
         ];
     }
 }

@@ -38,13 +38,12 @@ class PreguntaController extends Controller
     {
         $empleado_id = Auth::user()->empleado->id;
 
-        if ($this->preguntaService->empleadoYaLlenoCuestionario($empleado_id)) {
+        if ($this->preguntaService->empleadoYaLlenoCuestionario($empleado_id, $request->tipo_cuestionario_id)) {
             throw ValidationException::withMessages([
                 'cuestionario' => ['Ya completaste el cuestionario para éste período.'],
             ]);
         }
 
-        $results = [];
         $results = Pregunta::ignoreRequest(['campos','tipo_cuestionario_id'])->filter()->whereHas('cuestionario', function($query) use($request) {
             $query->where('tipo_cuestionario_id', $request->tipo_cuestionario_id);
         })->get();

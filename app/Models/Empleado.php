@@ -6,6 +6,7 @@ use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
+use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
@@ -28,7 +29,7 @@ class Empleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;
     const MASCULINO = 'M';
-    CONST FEMENINO = 'F';
+    const FEMENINO = 'F';
     protected $table = "empleados";
     protected $fillable = [
         'identificacion',
@@ -421,14 +422,19 @@ class Empleado extends Model implements Auditable
         return $this->hasOne(Vendedor::class);
     }
 
+    public function respuestaCuestionarioEmpleado()
+    {
+        return $this->hasMany(RespuestaCuestionarioEmpleado::class);
+    }
+
     /**
-   * Relacion polimorfica con Archivos uno a muchos.
-   *
-   */
-  public function archivos()
-  {
-    return $this->morphMany(Archivo::class, 'archivable');
-  }
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
 
     public static function empaquetarListado($empleados)
     {
@@ -453,8 +459,9 @@ class Empleado extends Model implements Auditable
         return $results;
     }
 
-    public function tiposDiscapacidades(){
-        return $this->belongsToMany(TipoDiscapacidad::class,'rrhh_empleado_tipo_discapacidad_porcentaje')->withPivot('porcentaje');
+    public function tiposDiscapacidades()
+    {
+        return $this->belongsToMany(TipoDiscapacidad::class, 'rrhh_empleado_tipo_discapacidad_porcentaje')->withPivot('porcentaje');
     }
 
     /*********
@@ -462,6 +469,6 @@ class Empleado extends Model implements Auditable
      *********/
     function scopeHabilitado($query)
     {
-        return $query->where('id', '>=', 2)->where('estado', true)->where('esta_en_rol_pago', true);
+        return $query->where('id', '>=', 2)->where('estado', true); //->where('esta_en_rol_pago', true);
     }
 }

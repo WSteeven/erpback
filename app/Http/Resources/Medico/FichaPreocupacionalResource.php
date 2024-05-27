@@ -9,6 +9,7 @@ use App\Models\Medico\SistemaOrganico;
 use App\Models\Medico\TipoHabitoToxico;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\App\Medico\FichasMedicasService;
 
 class FichaPreocupacionalResource extends JsonResource
 {
@@ -165,11 +166,12 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Examenes fisicos regionales
              * ***************************************/
-            'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->get()->map(fn ($item) => [
+            /*'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->get()->map(fn ($item) => [
                 'categoria_examen_fisico_id' => $item->categoria_examen_fisico_id,
                 'categoria_examen_fisico' => $item->categoriaexamenFisico->nombre,
                 'observacion' => $item['observacion'],
-            ]),
+            ]),*/
+            'examenes_fisicos_regionales' => FichasMedicasService::mapearExamenesFisicosRegionales($this),
             /*********************************************
              * Fin Examenes fisicos regionales
              * *******************************************/

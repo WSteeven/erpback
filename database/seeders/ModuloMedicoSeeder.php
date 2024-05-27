@@ -7,14 +7,17 @@ use Database\Seeders\Medico\CategoriaExamenFisicoSeeder;
 use Database\Seeders\Medico\CategoriaFactorRiesgoSeeder;
 use Database\Seeders\Medico\ConfiguracionExamenCampoSeeder;
 use Database\Seeders\Medico\ConfiguracionExamenCategoriaSeeder;
+use Database\Seeders\Medico\CuestionarioSeeder;
 use Database\Seeders\Medico\DetalleExamenSeeder;
 use Database\Seeders\Medico\ExamenesOrganosReproductivosSeeder;
 use Database\Seeders\Medico\IdentidadGeneroSeeder;
 use Database\Seeders\Medico\OrganosSistemasSeeder;
 use Database\Seeders\Medico\OrientacionSexualSeeder;
 use Database\Seeders\Medico\PermisosMedicoSeeder;
+use Database\Seeders\Medico\PreguntaSeeder;
 use Database\Seeders\Medico\RegionCuerpoSeeder;
 use Database\Seeders\Medico\ReligionSeeder;
+use Database\Seeders\Medico\RespuestaSeeder;
 use Database\Seeders\Medico\TipoAntecedenteFamiliarSeeder;
 use Database\Seeders\Medico\TipoAntecedenteSeeder;
 use Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder;
@@ -38,13 +41,11 @@ class ModuloMedicoSeeder extends Seeder
         /*****************
          * Modulo medico
          *****************/
-        $this->call([
+        $this->call([ // No cambiar el orden
             PermisosMedicoSeeder::class,
             ExamenesOrganosReproductivosSeeder::class,
             TipoExamenSeeder::class,
             TipoCuestionarioSeeder::class,
-            RespuestaSeeder::class,
-            RespuestasDiagnosticoConsumoDrogasSeeder::class,
             LaboratorioClinicoSeeder::class,
             ExamenSeeder::class,
             ConfiguracionExamenCategoriaSeeder::class,
@@ -55,8 +56,16 @@ class ModuloMedicoSeeder extends Seeder
             TipoAptitudMedicaLaboralSeeder::class,
             TipoEvaluacionMedicaRetiroSeeder::class,
             DetalleExamenSeeder::class,
+            /**** CUESTIONARIO PSICOSOCIAL */
             PreguntaSeeder::class,
+            RespuestaSeeder::class,
             CuestionarioSeeder::class,
+            /* FIN CUESTIONARIO PSICOSOCIAL */
+            /**** CUESTIONARIO DE ALCOHOL Y DROGAS */
+            PreguntasDiagnosticoConsumoDrogasSeeder::class,
+            RespuestasDiagnosticoConsumoDrogasSeeder::class,
+            CuestionarioDiagnosticoConsumoDrogasSeeder::class,
+            /* FIN CUESTIONARIO DE ALCOHOL Y DROGAS */
             RegionCuerpoSeeder::class,
             CategoriaExamenFisicoSeeder::class,
             TipoFactorRiesgoSeeder::class,
@@ -70,6 +79,7 @@ class ModuloMedicoSeeder extends Seeder
             TipoAptitudSeeder::class,
             TipoHabitoToxicoSeeder::class,
             TipoDiscapacidadSeeder::class,
+
         ]);
     }
 }
