@@ -83,7 +83,7 @@ class EmpleadoRequest extends FormRequest
             'observacion' => 'nullable',
             'discapacidades.*.tipo_discapacidad' => 'required_if:tiene_discapacidad,true|exists:rrhh_tipos_discapacidades,id',
            // 'discapacidades.*.tipo_discapacidad_id' => 'nullable|exists:med_cies,id',
-            'discapacidades.*.porcentaje' => 'required|numeric',
+            'discapacidades.*.porcentaje' => 'required_if:tiene_discapacidad,true|numeric',
            // 'discapacidades.*.porcentaje' => 'nullable|numeric',
         ];
 
