@@ -120,6 +120,7 @@ class OrdenCompraService
             return $orden;
         } catch (\Throwable $th) {
             DB::rollback();
+            Log::channel('testing')->info('Log', ['ERROR crearOrdenCompra', $th->getMessage(), $th->getLine()]);
             throw $th;
         }
     }
