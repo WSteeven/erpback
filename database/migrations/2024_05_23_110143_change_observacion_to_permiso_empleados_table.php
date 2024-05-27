@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_tipos_puestos_trabajos', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-            $table->timestamps();
+        Schema::table('permiso_empleados', function (Blueprint $table) {
+            $table->text('observacion')->change();
         });
     }
 
@@ -27,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_tipos_puestos_trabajos');
+        Schema::table('permiso_empleados', function (Blueprint $table) {
+            $table->boolean('observacion')->change();
+        });
     }
 };

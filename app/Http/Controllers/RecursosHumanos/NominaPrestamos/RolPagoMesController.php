@@ -73,7 +73,6 @@ class RolPagoMesController extends Controller
             $rolPago = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rolPago);
             $this->tabla_roles($rolPago);
-            Log::channel('testing')->info('Log', ['despues de tabla roles']);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -595,19 +594,15 @@ class RolPagoMesController extends Controller
                 ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
                 ->orderBy('apellidos', 'asc')->get();
             $this->nominaService->setMes($mes);
-            Log::channel('testing')->info('Log', ['luego de setMes', $mes]);
             $this->prestamoService->setMes($mes);
-            Log::channel('testing')->info('Log', ['luego de setMes en prestamoService', $mes]);
             $roles_pago = [];
             foreach ($empleados_activos as $empleado) {
                 $this->nominaService->setEmpleado($empleado->id);
                 $this->prestamoService->setEmpleado($empleado->id);
-                Log::channel('testing')->info('Log', ['luego de setEmpleado', $mes]);
                 // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
                 $diasTranscurridos = $rol->es_quincena ? 15 : 30;
                 $dias = $this->nominaService->calcularDias($diasTranscurridos);
-                Log::channel('testing')->info('Log', ['luego de calcular dias transcurridos', $mes]);
-                // $salario = $this->nominaService->calcularSalario();
+                //$salario = $this->nominaService->calcularSalario();
                 $salario = $empleado->salario;
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
                 $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);

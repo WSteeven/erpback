@@ -125,4 +125,18 @@ class ClienteController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+
+
+    public function clientesConPrefacturas(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $clientes = Cliente::whereHas('prefacturas', function ($query) use ($request) {
+            $query->when($request->solicitante_id, function ($q) use ($request) {
+                $q->where('solicitante_id', $request->solicitante_id);
+            });
+        })->get($campos);
+
+        $results = ClienteResource::collection($clientes);
+        return response()->json(compact('results'));
+    }
 }

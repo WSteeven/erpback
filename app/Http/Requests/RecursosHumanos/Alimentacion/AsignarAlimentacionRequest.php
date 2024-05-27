@@ -24,7 +24,8 @@ class AsignarAlimentacionRequest extends FormRequest
     public function rules()
     {
         return [
-            'empleados' => 'required',
+            'empleados' => 'nullable',
+            'empleado' => 'nullable',
             'valor_minimo' => 'required',
         ];
     }

@@ -40,7 +40,7 @@ class EnviarMailVentaSuspendida extends Mailable
         return new Envelope(
             // from: new Address('JPCONSTRUCRED'),
             from: new Address('no-reply@jpconstrucred.com', 'NOTIFICACIONES JP CONSTRUCRED C.LTDA'),
-            subject: '[PRUEBA] NOTIFCACION Venta Suspendida',
+            subject: 'NOTIFCACION Venta Suspendida',
         );
     }
 
