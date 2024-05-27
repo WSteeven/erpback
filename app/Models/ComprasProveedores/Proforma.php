@@ -159,13 +159,16 @@ class Proforma extends Model implements Auditable
   }
   public static function obtenerSumaListado($id)
   {
+    $proforma = Proforma::find($id);
     $detalles = ItemDetalleProforma::where('proforma_id', $id)->get();
-    $total = $detalles->sum('total');
     $subtotal = $detalles->sum('subtotal');
-    $iva = $detalles->sum('iva');
     $descuento = $detalles->sum('descuento');
+    $subtotal_con_impuestos = $detalles->where('grava_iva', true)->sum('subtotal') - $descuento;
+    $subtotal_sin_impuestos = $detalles->where('grava_iva', false)->sum('subtotal');
+    $iva = $subtotal_con_impuestos * $proforma->iva / 100;
+    $total = $subtotal_con_impuestos + $subtotal_sin_impuestos + $iva;
 
-    return [$subtotal, $iva, $descuento, $total];
+    return [$subtotal, $subtotal_con_impuestos, $subtotal_sin_impuestos, $iva, $descuento, $total];
   }
 
   public static function guardarDetalles($proforma, $items)

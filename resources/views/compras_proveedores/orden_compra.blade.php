@@ -1,10 +1,13 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $logo_principal =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     if ($empleado_solicita->firma_url) {
-        $firma_solicitante = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
+        $firma_solicitante =
+            'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
     }
 @endphp
 
@@ -121,14 +124,15 @@
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>
+                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador') }}</td>
                         </tr>
                         <tr>
                             <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">{{ strtolower($configuracion['correo_principal']) }} - {{ strtolower($configuracion['sitio_web'] )}}</td>
+                            <td align="center">{{ strtolower($configuracion['correo_principal']) }} -
+                                {{ strtolower($configuracion['sitio_web']) }}</td>
                         </tr>
                     </table>
                 </td>
@@ -291,11 +295,19 @@
                             <td align="right">{{ $orden['sum_subtotal'] }}</td>
                         </tr>
                         <tr>
+                            <td align="right">SUBTOTAL 0%</td>
+                            <td align="right">{{ $orden['sum_subtotal_sin_impuestos'] }}</td>
+                        </tr>
+                        <tr>
+                            <td align="right">SUBTOTAL {{ $orden['iva'] }}%</td>
+                            <td align="right">{{ $orden['sum_subtotal_con_impuestos'] }}</td>
+                        </tr>
+                        <tr>
                             <td align="right">DESCUENTO</td>
                             <td align="right">{{ $orden['sum_descuento'] }}</td>
                         </tr>
                         <tr>
-                            <td align="right">IVA ({{ $orden['iva'] }}%)</td>
+                            <td align="right">IVA {{ $orden['iva'] }}%</td>
                             <td align="right">{{ $orden['sum_iva'] }}</td>
                         </tr>
                         <tr>

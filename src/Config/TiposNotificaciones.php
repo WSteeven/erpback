@@ -10,8 +10,11 @@ enum TiposNotificaciones: string{
     case DEVOLUCION = 'DEVOLUCION';
     case AUTORIZACION_GASTO = 'AUTORIZACION GASTO';
     case TRANSFERENCIA_SALDO = 'TRANSFERENCIA DE SALDO';
+    // Tareas
     case TAREA = 'TAREA';
     case SUBTAREA = 'SUBTAREA';
+    case TRANSFERENCIA_PRODUCTOS = 'TRANSFERENCIA DE PRODUCTOS';
+    // Tickets
     case EGRESO = 'EGRESO';
     case TICKET = 'TICKET';
     case PERMISO_EMPLEADO = 'PERMISO EMPLEADO';

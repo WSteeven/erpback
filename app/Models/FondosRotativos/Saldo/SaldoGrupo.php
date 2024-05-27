@@ -37,11 +37,12 @@ class SaldoGrupo extends  Model implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
     }
-    public static function empaquetarCombinado($arreglo, $empleado, $fecha, $saldo_anterior)
+    public static function empaquetarCombinado($nuevo_elemento,$arreglo, $empleado)
     {
         $results = [];
-        $id = 0;
+        $id = 1;
         $row = [];
+        $results[0] = $nuevo_elemento;
         if (isset($arreglo)) {
             $id += 1;
             foreach ($arreglo as $saldo) {

@@ -46,15 +46,22 @@ class Saldo extends Model  implements Auditable
         return $this->morphTo();
     }
 
-    public static function empaquetarCombinado($arreglo, $empleado)
+    public static function empaquetarCombinado($nuevo_elemento, $arreglo, $empleado, $fecha_inicio, $fecha_fin)
     {
         $results = [];
-        $id = 0;
+        $id = 1;
         $row = [];
+        $results[0] = $nuevo_elemento;
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
                 case Acreditaciones::class:
-                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION) {
+                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION && (($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin))) {
+                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $results[$id] = $row;
+                        $id++;
+                    } else if ($saldo->tipo_saldo == self::ANULACION) {
                         $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
@@ -62,14 +69,22 @@ class Saldo extends Model  implements Auditable
                         $id++;
                     }
                     break;
-
                 default:
-                    $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                    $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                    $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
-                    $results[$id] = $row;
-                    $id++;
-                    break;
+                    if ($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin) {
+                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $results[$id] = $row;
+                        $id++;
+                        break;
+                    } else if ($saldo->tipo_saldo == self::ANULACION) {
+                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $results[$id] = $row;
+                        $id++;
+                        break;
+                    }
             }
         }
         return $results;
@@ -143,6 +158,8 @@ class Saldo extends Model  implements Auditable
      */
     private static function ingreso($saldo, $tipo, $empleado)
     {
+        //Log::channel('testing')->info('Log', ['saldo', $saldo]);
+
         switch (get_class($saldo)) {
             case Gasto::class:
                 if ($tipo === self::ANULACION) {
@@ -150,7 +167,9 @@ class Saldo extends Model  implements Auditable
                 }
                 break;
             case Acreditaciones::class:
-                return $saldo['monto'];
+                if ($tipo === self::INGRESO) {
+                    return $saldo['monto'];
+                }
                 break;
             case Transferencias::class:
                 if ($tipo === self::ANULACION) {
@@ -213,6 +232,9 @@ class Saldo extends Model  implements Auditable
             case Gasto::class:
                 $sub_detalle_info = self::subDetalleInfo($saldo->subDetalle);
                 if ($tipo == self::EGRESO) {
+                    if ($saldo->estado == Gasto::ANULADO) {
+                        return 'ANULACION DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                    }
                     return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
                 }
                 if ($tipo == self::ANULACION) {
@@ -237,7 +259,7 @@ class Saldo extends Model  implements Auditable
                 }
                 if ($tipo == self::INGRESO) {
                     if ($saldo['usuario_recibe_id'] == $empleado) {
-                        return 'TRANSFERENCIA DE  ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' a ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos;
+                        return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
                     }
                 }
 

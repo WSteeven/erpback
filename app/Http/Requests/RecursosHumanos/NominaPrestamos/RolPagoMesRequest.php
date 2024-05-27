@@ -26,13 +26,21 @@ class RolPagoMesRequest extends FormRequest
         return [
             'mes' => 'required',
             'nombre' => 'required | unique:rol_pago_mes,nombre',
-            'es_quincena' => 'nullable'
+            'es_quincena' => 'required | boolean'
         ];
     }
     public function messages(): array
-{
-    return [
-        'required | unique:rol_pago_mes,nombre' => 'Rol de Pagos ya existe porfavor ingrese uno diferente',
-    ];
-}
+    {
+        return [
+            'required | unique:rol_pago_mes,nombre' => 'Rol de Pagos ya existe porfavor ingrese uno diferente',
+        ];
+    }
+    protected function prepareForValidation()
+    {
+        if(is_string($this->es_quincena)){
+            $this->merge([
+                'es_quincena' => $this->es_quincena === 'true',
+            ]);
+        }
+    }
 }

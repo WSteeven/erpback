@@ -11,6 +11,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioCon
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
+use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\AlimentacionController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\DetalleAlimentacionController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpres
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
 use Illuminate\Support\Facades\Route;
@@ -73,12 +75,13 @@ Route::apiResources(
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
-        'tipos-discapacidades' =>TipoDiscapacidadController::class
+        'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
     ],
     [
         'parameters' => [
             'descuentos_generales' => 'descuento_general',
             'descuentos_ley' => 'descuento_ley',
+            'tipos_puestos_trabajos' => 'tipo_puesto_trabajo'
         ],
 
     ]
@@ -106,6 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo_prestamo_quirorafario', [PrestamoQuirirafarioController::class, 'archivo_prestamo_quirorafario']);
     Route::post('archivo_rol_pago', [RolPagosController::class, 'archivo_rol_pago_empleado']);
     Route::post('archivo_extencion_conyugal', [ExtensionCoverturaSaludController::class, 'archivo_extension_conyugal']);
+    Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisos_sin_recuperar']);
@@ -128,7 +132,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('crear-cash-alimentacion/{alimentacion_id}',[AlimentacionController::class, 'crear_cash_alimentacion']);
     Route::get('imprimir-reporte-general-alimentacion/{id}',[AlimentacionController::class, 'reporte_alimentacion']);
     Route::get('finalizar-asignacion-alimentacion', [AlimentacionController::class, 'finalizarAsignacionAlimentacion']);
-
-
-
 });

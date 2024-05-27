@@ -54,6 +54,14 @@
                             <div align="center">JPCONSTRUCRED C.LTDA</div>
                         </td>
                     </tr>
+                    <tr>
+                        <td></td>
+                            <td bgcolor="#bfbfbf" style="font-size:12px">
+                                <div align="center"><strong>REPORTE CONSOLIDADO
+                                        {{ ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</strong>
+                                </div>
+                            </td>
+                    </tr>
                 </table>
             </div>
         </tr>
@@ -61,13 +69,6 @@
             <td>
                 <div align="center">
                     <table width="100%">
-                        <tr>
-                            <td bgcolor="#bfbfbf" style="font-size:12px">
-                                <div align="center"><strong>REPORTE CONSOLIDADO
-                                        {{ ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</strong>
-                                </div>
-                            </td>
-                        </tr>
                         <tr>
                             <td>
                                 <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">

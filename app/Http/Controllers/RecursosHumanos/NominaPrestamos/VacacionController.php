@@ -87,8 +87,8 @@ class VacacionController extends Controller
      */
     public function store(VacacionRequest $request)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             $datos = $request->validated();
 
             $empleado = Empleado::findOrFail($request->empleado_id);

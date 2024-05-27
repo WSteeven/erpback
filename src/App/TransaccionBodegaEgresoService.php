@@ -34,7 +34,7 @@ class TransaccionBodegaEgresoService
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
                         $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
-                            $q->where('firmada', false);
+                            $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
                         })->orderBy('id', 'desc')->get();
                         break;
                     case EstadoTransaccion::PARCIAL:

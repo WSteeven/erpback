@@ -206,7 +206,7 @@ class InventarioService
         foreach ($resultados_agrupados as $motivo_id => $r) {
             $data[Motivo::find($motivo_id)->nombre] = $r->count();
         }
-        $tituloGrafico = 'Ingresos a bodega';
+        $tituloGrafico = 'Egresos de bodega';
         $graficos = [];
 
         //Ordenamos los datos en orden descendente
@@ -244,7 +244,8 @@ class InventarioService
         }
 
         $pendientes = $todas->filter(function ($egreso) {
-            return !$egreso->comprobante()->first()?->firmada;
+            if (!is_null($egreso->comprobante()->first()))
+                return !$egreso->comprobante()->first()->firmada && $egreso->comprobante()->first()->estado === EstadoTransaccion::PENDIENTE;
         })->count();
         $parciales = $todas->filter(function ($egreso) {
             return  $egreso->comprobante()->first()?->estado == EstadoTransaccion::PARCIAL;
@@ -253,6 +254,10 @@ class InventarioService
             $comprobante = $egreso->comprobante()->first();
             return  $comprobante?->firmada && $comprobante?->estado == TransaccionBodega::ACEPTADA;
         })->count();
+        $completasSinComprobante = $todas->filter(function ($transaccion) {
+            return !$transaccion->comprobante()->exists() && $transaccion->estado_id == 2;
+        })->count();
+        $completas += $completasSinComprobante;
         $anuladas = $todas->filter(function ($egreso) {
             return $egreso->estado_id == 4;
         })->count();
@@ -270,6 +275,7 @@ class InventarioService
             'parciales',
             'completas',
             'anuladas',
+            'completasSinComprobante',
         );
     }
     public static function obtenerDevoluciones($fecha_inicio, $fecha_fin)
