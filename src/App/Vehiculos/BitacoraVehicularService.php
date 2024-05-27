@@ -222,6 +222,8 @@ class BitacoraVehicularService
             // Verificamos si ya han habido mantenimientos anteriores para comprobar el más reciente
             $mantenimientosRealizados = MantenimientoVehiculo::where('vehiculo_id', $bitacora->vehiculo->id)
                 ->whereIn('servicio_id', $itemsMantenimiento->pluck('servicio_id'))->orderBy('id', 'desc')->get();
+            Log::channel('testing')->info('Log', ['Planes de Mantenimientos realizados al vehiculo', $bitacora->vehiculo->placa, $itemsMantenimiento]);
+            Log::channel('testing')->info('Log', ['Mantenimientos realizados al vehiculo', $bitacora->vehiculo->placa, $$mantenimientosRealizados]);
             if ($mantenimientosRealizados->count() < 1) {
                 Log::channel('testing')->info('Log', ['No han habido mantenimientos previos']);
                 //Se verifica si ya es hora de notificar o de hacerse el mantenimiento
@@ -238,10 +240,11 @@ class BitacoraVehicularService
                 // recorremos cada mantenimiento para trabajar con la fecha de realizado y el km realizado
                 foreach ($mantenimientosRealizados as $mantenimiento) {
                     $itemMantenimiento =  $this->mantenimientoService->obtenerItemMantenimiento($itemsMantenimiento, $mantenimiento['vehiculo_id'], $mantenimiento['servicio_id']);
-                    Log::channel('testing')->info('Log', ['238 $item', $itemMantenimiento]);
+                    Log::channel('testing')->info('Log', ['238 $item', $itemMantenimiento, $mantenimiento]);
                     if ($itemMantenimiento)
                         //Suponiendo que el cambio de aceite se hizo al km 5682
-                        // sumamos      5682           +       $5000                      -        $500 = 10182 km
+                        // sumamos      5600           +       $5000                      -        $500 = 10100 km
+                        // 10112 >= 10100 = true
                         // R= Al 10182 km debe crearse nuevamente la alerta de mantenimiento del vehículo. 
                         if ($bitacora->km_final >= ($mantenimiento['km_realizado'] + $itemMantenimiento['aplicar_cada'] - $itemMantenimiento['notificar_antes'])) {
                             // Verificamos si ya hay un mantenimiento creado y está con estado PENDIENTE, en ese caso solo se notifica al admin de vehiculos
@@ -254,6 +257,7 @@ class BitacoraVehicularService
                             } else {
                                 // Se crea el mantenimiento nuevo que toca en este momento.
                                 $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $mantenimiento['servicio_id']);
+                                event(new NotificarMantenimientoCreado($nuevoMantenimiento));
                                 Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento en el else', $nuevoMantenimiento]);
                             }
                         }
