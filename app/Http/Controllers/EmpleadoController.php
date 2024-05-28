@@ -169,6 +169,7 @@ class EmpleadoController extends Controller
 
 
             if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+            if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
 
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
@@ -254,6 +255,7 @@ class EmpleadoController extends Controller
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
         if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+        if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
 
         if (!is_null($request->password)) {
             $empleado->user()->update([

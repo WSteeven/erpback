@@ -59,7 +59,7 @@ class EmpleadoResource extends JsonResource
             'observacion' => $this->observacion,
             'esta_en_rol_pago' => $this->esta_en_rol_pago,
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
-            'familiares' => $this->familiares_info,
+            'familiares' => $this->familiares,
             'num_cuenta' => $this->num_cuenta_bancaria,
             'salario' => $this->salario,
             'supa' => $this->supa,
@@ -86,7 +86,7 @@ class EmpleadoResource extends JsonResource
             $modelo['salario'] = $this->salario;
             $modelo['num_cuenta'] = $this->num_cuenta_bancaria;
             $modelo['banco'] = $this->banco;
-            $modelo['banco_info'] = $this->banco_info ? $this->banco_info->nombre : null;
+            $modelo['banco_info'] = $this->bancoInfo ? $this->bancoInfo->nombre : null;
             $modelo['fecha_ingreso'] = $this->fecha_ingreso;
             $modelo['antiguedad'] = $this->antiguedad($this->fecha_ingreso);
             $modelo['fecha_salida'] = $this->fecha_salida;
