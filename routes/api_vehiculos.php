@@ -58,10 +58,12 @@ Route::post('multas/marcar-pagada/{multa}', [MultaConductorController::class, 'p
 Route::post('matriculas/marcar-pagada/{matricula}', [MatriculaController::class, 'pagar'])->middleware('auth:sanctum');
 
 // listar archivos
+Route::get('ordenes-reparaciones/files/{orden}', [OrdenReparacionController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('vehiculos/files/{vehiculo}', [VehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('registros-incidentes/files/{registro}', [RegistroIncidenteController::class, 'indexFiles'])->middleware('auth:sanctum');
 
 // guardar archivos
+Route::post('ordenes-reparaciones/files/{orden}', [OrdenReparacionController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('vehiculos/files/{vehiculo}', [VehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('registros-incidentes/files/{registro}', [RegistroIncidenteController::class, 'storeFiles'])->middleware('auth:sanctum');
 

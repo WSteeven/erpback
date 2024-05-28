@@ -247,22 +247,29 @@
                 <td class="header-title">FINALIZADA</td>
                 <td>{{ $bitacora['firmada'] ? 'SI' : 'NO' }}</td>
             </tr>
+            <tr>
+                <td colspan="2" class="header-title">FECHA FINALIZADA</td>
+                <td colspan="4">{{ $bitacora['fecha_finalizacion'] }}</td>
+            </tr>
         </table>
         <br>
-        <table style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
-            <thead style="background-color:#F2F2F2 ">
-                <th style="width: 20%">FECHA Y HORA</th>
-                <th style="width: 80%">ACTIVIDAD</th>
-            </thead>
-            <tbody>
-                @foreach ($bitacora['actividadesRealizadas'] as $actividad)
-                    <tr>
-                        <td>{{ $actividad['fecha_hora'] }}</td>
-                        <td>{{ strtoupper($actividad['actividad_realizada']) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        @if (count($bitacora['actividadesRealizadas']) > 0)
+
+            <table style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
+                <thead style="background-color:#F2F2F2 ">
+                    <th style="width: 20%">FECHA Y HORA</th>
+                    <th style="width: 80%">ACTIVIDAD</th>
+                </thead>
+                <tbody>
+                    @foreach ($bitacora['actividadesRealizadas'] as $actividad)
+                        <tr>
+                            <td>{{ $actividad['fecha_hora'] }}</td>
+                            <td>{{ strtoupper($actividad['actividad_realizada']) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
         <br>
         <table class="custom-table" style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
             <tr>

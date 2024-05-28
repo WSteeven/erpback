@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ArchivoService;
+use Src\App\Vehiculos\VehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -21,9 +22,11 @@ class VehiculoController extends Controller
 {
     private $entidad = 'Vehiculo';
     private $archivoService;
+    private $servicio;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
+        $this->servicio = new VehiculoService();
         $this->middleware('can:puede.ver.vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.vehiculos')->only('store');
         $this->middleware('can:puede.editar.vehiculos')->only('update');
@@ -153,6 +156,7 @@ class VehiculoController extends Controller
     {
         Log::channel('testing')->info('Log', ['req', $request->all()]);
         Log::channel('testing')->info('Log', ['vehiculo', $vehiculo]);
+        $this->servicio->obtenerHistorial($vehiculo, $request);
         $configuracion = ConfiguracionGeneral::first();
         $results = [];
         try {

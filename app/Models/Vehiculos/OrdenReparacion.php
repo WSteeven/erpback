@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\Archivo;
 use App\Models\Autorizacion;
 use App\Models\Empleado;
 use App\Models\Notificacion;
@@ -77,5 +78,14 @@ class OrdenReparacion extends Model implements Auditable
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }

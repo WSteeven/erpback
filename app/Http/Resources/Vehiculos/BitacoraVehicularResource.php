@@ -27,6 +27,7 @@ class BitacoraVehicularResource extends JsonResource
             'km_final' => $this->km_final,
             'tanque_inicio' => $this->tanque_inicio,
             'tanque_final' => $this->tanque_final,
+            'fecha_finalizacion' => $this->fecha_finalizacion,
             'firmada' => $this->firmada,
             'chofer' => $this->chofer?->nombres . ' ' . $this->chofer?->apellidos,
             'chofer_id' => $this->chofer_id,

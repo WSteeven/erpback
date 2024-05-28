@@ -215,7 +215,7 @@ class BitacoraVehicularController extends Controller
         try {
             return $this->service->generarPdf($bitacora, true, true);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages(
                 [
                     'error' => $e->getMessage(),
