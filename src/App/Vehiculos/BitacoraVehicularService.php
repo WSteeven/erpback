@@ -222,8 +222,9 @@ class BitacoraVehicularService
             // Verificamos si ya han habido mantenimientos anteriores para comprobar el más reciente
             $mantenimientosRealizados = MantenimientoVehiculo::where('vehiculo_id', $bitacora->vehiculo->id)
                 ->whereIn('servicio_id', $itemsMantenimiento->pluck('servicio_id'))->orderBy('id', 'desc')->get();
+            $mantenimientosRealizados = $mantenimientosRealizados->unique('servicio_id');
             Log::channel('testing')->info('Log', ['Planes de Mantenimientos realizados al vehiculo', $bitacora->vehiculo->placa, $itemsMantenimiento]);
-            Log::channel('testing')->info('Log', ['Mantenimientos realizados al vehiculo', $bitacora->vehiculo->placa, $$mantenimientosRealizados]);
+            Log::channel('testing')->info('Log', ['Mantenimientos realizados al vehiculo', $bitacora->vehiculo->placa, $mantenimientosRealizados]);
             if ($mantenimientosRealizados->count() < 1) {
                 Log::channel('testing')->info('Log', ['No han habido mantenimientos previos']);
                 //Se verifica si ya es hora de notificar o de hacerse el mantenimiento
@@ -248,7 +249,7 @@ class BitacoraVehicularService
                         // R= Al 10182 km debe crearse nuevamente la alerta de mantenimiento del vehículo. 
                         if ($bitacora->km_final >= ($mantenimiento['km_realizado'] + $itemMantenimiento['aplicar_cada'] - $itemMantenimiento['notificar_antes'])) {
                             // Verificamos si ya hay un mantenimiento creado y está con estado PENDIENTE, en ese caso solo se notifica al admin de vehiculos
-                            if ($mantenimiento['estado'] === MantenimientoVehiculo::PENDIENTE) {
+                            if ($mantenimiento['estado'] === MantenimientoVehiculo::PENDIENTE || $mantenimiento['estado'] === MantenimientoVehiculo::RETRASADO) {
                                 // Lanzar notificacion al admin de vehiculos
                                 Log::channel('testing')->info('Log', ['El mantenimiento esta pendiente', $mantenimiento]);
                                 $mantenimiento->latestNotificacion()->update(['leida' => true]);
@@ -256,9 +257,11 @@ class BitacoraVehicularService
                                 event(new NotificarMantenimientoPendienteRetrasadoEvent($mantenimiento));
                             } else {
                                 // Se crea el mantenimiento nuevo que toca en este momento.
-                                $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $mantenimiento['servicio_id']);
-                                event(new NotificarMantenimientoCreado($nuevoMantenimiento));
-                                Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento en el else', $nuevoMantenimiento]);
+                                if ($mantenimiento['estado'] === MantenimientoVehiculo::REALIZADO) {
+                                    $nuevoMantenimiento = $this->crearMantenimiento($bitacora->vehiculo->id, $mantenimiento['servicio_id']);
+                                    event(new NotificarMantenimientoCreado($nuevoMantenimiento));
+                                    Log::channel('testing')->info('Log', ['Se creó nuevo mantenimiento en el else', $nuevoMantenimiento]);
+                                } else Log::channel('testing')->info('Log', ['El mantenimiento no entró en ningun estado, es', $mantenimiento]);
                             }
                         }
                 }
