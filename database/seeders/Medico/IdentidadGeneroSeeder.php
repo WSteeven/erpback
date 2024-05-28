@@ -10,6 +10,7 @@ class IdentidadGeneroSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * php artisan db:seed --class="Database\Seeders\Medico\IdentidadGeneroSeeder"
      *
      * @return void
      */

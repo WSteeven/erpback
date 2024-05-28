@@ -122,12 +122,14 @@ class FichaPreocupacionalController extends Controller
         ]);
 
         $consulta_medica = ConsultaMedica::where('registro_empleado_examen_id', request('registro_empleado_examen_id'))->first();
+        $cargo_id = RegistroEmpleadoExamen::find(request('registro_empleado_examen_id'))->empleado->cargo_id;
         // $consulta_medica = new ConsultaMedicaResource($consulta_medica);
 
         $modelo = [
             'motivo_consulta' => 'Ficha preocupacional',
             'recomendaciones_tratamiento' => $consulta_medica?->receta->rp . '/' . $consulta_medica?->receta->prescripcion,
             'enfermedad_actual' => $consulta_medica?->diagnosticosCitaMedica->map(fn ($diagnostico) => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad)->implode(',', ' '),
+            'cargo' => $cargo_id,
         ];
 
         return response()->json(compact('modelo'));
