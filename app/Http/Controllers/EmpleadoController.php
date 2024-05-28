@@ -165,6 +165,11 @@ class EmpleadoController extends Controller
                 'acumula_fondos_reserva' => $datos['acumula_fondos_reserva'],
                 'realiza_factura' => $datos['realiza_factura'],
                 'coordenadas' => $datos['coordenadas'],
+                'autoidentificacion_etnica' => $datos['autoidentificacion_etnica'],
+                'trabajador_sustituto' => $datos['trabajador_sustituto'],
+                'orientacion_sexual_id' => $datos['orientacion_sexual_id'],
+                'identidad_genero_id' => $datos['identidad_genero_id'],
+                'religion_id' => $datos['religion_id'],
             ]);
 
 
