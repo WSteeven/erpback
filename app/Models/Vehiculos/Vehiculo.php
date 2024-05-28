@@ -50,6 +50,7 @@ class Vehiculo extends Model implements Auditable
     const TODOS = 'TODOS';
     const MANTENIMIENTOS = 'MANTENIMIENTOS';
     const INCIDENTES = 'INCIDENTES';
+    const CUSTODIOS = 'CUSTODIOS';
 
     //Transmisiones
     // const MANUAL='MANUAL';

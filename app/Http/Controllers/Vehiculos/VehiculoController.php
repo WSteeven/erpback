@@ -154,11 +154,11 @@ class VehiculoController extends Controller
 
     public function historial(Request $request,  Vehiculo $vehiculo)
     {
+        $results = [];
         Log::channel('testing')->info('Log', ['req', $request->all()]);
         Log::channel('testing')->info('Log', ['vehiculo', $vehiculo]);
-        $this->servicio->obtenerHistorial($vehiculo, $request);
+        $results = $this->servicio->obtenerHistorial($vehiculo, $request);
         $configuracion = ConfiguracionGeneral::first();
-        $results = [];
         try {
             switch ($request->accion) {
                 case 'excel':
@@ -167,7 +167,7 @@ class VehiculoController extends Controller
                 case 'pdf':
                     throw new Exception('No se puede exportar reportes de pdf aún');
                 default:
-                    $results = new VehiculoResource($vehiculo);
+                    // $results = new VehiculoResource($vehiculo);
             }
         } catch (\Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th);
