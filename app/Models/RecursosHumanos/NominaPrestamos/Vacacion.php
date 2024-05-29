@@ -23,6 +23,7 @@ class Vacacion extends Model implements Auditable
     protected $fillable = [
         'empleado_id',
         'periodo_id',
+        'numero_rangos',
         'fecha_inicio',
         'fecha_fin',
         'fecha_inicio_rango1_vacaciones',
@@ -30,7 +31,6 @@ class Vacacion extends Model implements Auditable
         'fecha_inicio_rango2_vacaciones',
         'fecha_fin_rango2_vacaciones',
         'estado',
-
     ];
     public function estado_info(){
         return $this->hasOne(Autorizacion::class,'id','estado');

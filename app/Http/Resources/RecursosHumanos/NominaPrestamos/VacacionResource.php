@@ -34,7 +34,7 @@ class VacacionResource extends JsonResource
             'solicitud' =>   $this->solicitud,
             'estado' => $this->estado,
             'estado_permiso_info' => $this->estado_permiso_info ?$this->estado_permiso_info->nombre:'',
-            'numero_rangos' => $this->fecha_inicio !=null && $this->fecha_fin != null ?1:2,
+            'numero_rangos' => $this->numero_rangos,
         ];
         return $modelo;
     }

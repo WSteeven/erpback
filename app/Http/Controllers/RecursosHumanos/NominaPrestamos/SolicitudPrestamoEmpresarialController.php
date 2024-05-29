@@ -73,10 +73,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 '404' => ['Solo se permite prestamo menor o igual a 2 SBU ($' . ($rubro->valor_rubro * 2) . ')'],
             ]);
         }
-
-        if ($request->foto) {
-            $datos['foto'] = (new GuardarImagenIndividual($request->foto, RutasStorage::FOTOGRAFIAS_PRESTAMO_EMPRESARIAL))->execute();
-        }
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::create($datos);
         event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
         if ($SolicitudPrestamoEmpresarial->estado == 4) {
@@ -110,11 +106,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
         $salario = $empleado->salario;
         $anticipo = $salario *  $porcentaje_anticipo;
-        /* if ($valor_pago <= $anticipo) {
-            throw ValidationException::withMessages([
-                '404' => ['No se puede generar coutas menores o iguales  ' . ($valor_pago / 100) . '%'],
-            ]);
-        }*/
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
