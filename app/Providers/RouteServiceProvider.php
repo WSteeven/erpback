@@ -42,6 +42,7 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/vehiculos')
                 ->group(base_path('routes/api_vehiculos.php'));
+
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/compras')
                 ->group(base_path('routes/api_compras_proveedores.php'));
@@ -49,12 +50,19 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/tickets')
                 ->group(base_path('routes/api_tickets.php'));
+
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/fondos-rotativos')
                 ->group(base_path('routes/api_fondos_rotativos.php'));
+
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/recursos-humanos')
                 ->group(base_path('routes/api_recursos_humanos.php'));
+
+            Route::middleware('api', 'auth:sanctum')
+                ->prefix('api/medico')
+                ->group(base_path('routes/api_medicos.php'));
+
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/ventas-claro')
                 ->group(base_path('routes/api_ventas_claro.php'));

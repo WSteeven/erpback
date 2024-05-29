@@ -58,7 +58,8 @@ class EmpleadoController extends Controller
 
         $user = User::find(auth()->id());
 
-        // Devuelve al  empleado resposanble del departamento que se pase como parametro
+        // Devuelve en un array al  empleado resposanble del departamento que se pase como parametro
+        // Requiere de campos: es_responsable_departamento=true&departamento_id=
         if (request('es_responsable_departamento')) {
             $idResponsable = Departamento::find(request('departamento_id'))->responsable_id;
             if ($idResponsable) {
@@ -71,14 +72,12 @@ class EmpleadoController extends Controller
             return $this->servicio->obtenerTodosSinEstado();
         }
 
-        if(request('empleados_autorizadores_gasto')){
+        if (request('empleados_autorizadores_gasto')) {
             return $this->servicio->obtenerEmpleadosAutorizadoresGasto();
         }
-      /*  if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA])) {
+        /*  if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA])) {
             return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
         }*/
-
-
 
         // Procesar respuesta
         if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
@@ -111,6 +110,8 @@ class EmpleadoController extends Controller
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
         $datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];
+        /* $datos['fecha_salida'] =  $datos['fecha_salida'] ? $request->safe()->only(['fecha_salida'])['fecha_salida'] : null;//$request->safe()->only(['departamento'])['departamento'];
+        $datos['fecha_nacimiento'] =new DateTime($datos['fecha_nacimiento']);*/
 
         if ($datos['foto_url']) {
             $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
@@ -135,14 +136,21 @@ class EmpleadoController extends Controller
             $datos['fecha_salida'] = $datos['fecha_salida'] ? $datos['fecha_salida'] : null;
 
             //Crear empleado
-            $user->empleado()->create($datos);
+            $empleado = $user->empleado()->create($datos);
+            if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
             //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
             if (!empty($request->conductor)) {
                 $datos_conductor = $request->conductor;
-                $datos_conductor['empleado_id'] = $user->empleado->id;
+                $datos_conductor['empleado_id'] = $empleado->id;
                 $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
                 $conductor = Conductor::create($datos_conductor);
             }
+            
+
+
+
+            //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
+            //$grupo = Grupo::find($datos['grupo_id']);
 
             DB::commit();
         } catch (Exception $e) {
@@ -222,6 +230,7 @@ class EmpleadoController extends Controller
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
+        if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
 
         //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
         if (!empty($request->conductor)) {
@@ -235,10 +244,7 @@ class EmpleadoController extends Controller
         }
 
         if (!is_null($request->password)) {
-            // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
             $empleado->user()->update([
-                /*'name' => $request->usuario,
-                'email' => $request->email,*/
                 'password' => bcrypt($request->password),
             ]);
         }

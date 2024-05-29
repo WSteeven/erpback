@@ -57,10 +57,9 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $fecha = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
             'solicitante' => $this->solicitante != null ? $this->solicitante : Auth::user()->empleado->id,
-            'fecha' => $fecha->format('Y-m-d'),
+            'fecha' => $this->fecha,
             'estado' => $this->estado == null ? 1 : $this->estado
         ]);
         if ($this->periodo != null) {

@@ -177,9 +177,19 @@ class DashboardTicketController extends Controller
     {
         if (in_array($ticket->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
             $tiempos = $ticket->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
-            $primerEjecucion = $tiempos->first(fn ($tiempo) => $tiempo->new_values['estado'] === Ticket::EJECUTANDO);
-            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
-            return $finalizacion ? Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])) : null;
+
+
+            if ($tiempos) {
+
+                $primerEjecucion = $tiempos->first(fn ($tiempo) => $tiempo->new_values && isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : null);
+
+                if ($primerEjecucion) {
+                    $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+                    return $finalizacion ? Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])) : null;
+                }
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

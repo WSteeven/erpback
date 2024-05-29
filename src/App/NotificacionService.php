@@ -78,6 +78,14 @@ class NotificacionService
         $results = Notificacion::ignoreRequest(['campos'])
             ->where('mensaje', 'LIKE', '%ha realizado un ingreso de materiales con motivo COMPRA A PROVEEDOR en la sucursal%')
             ->orWhere('mensaje', 'LIKE', '%ha marcado como realizada la Orden de Compra%')
+            ->orWhere('mensaje', 'LIKE', '%Devolución Aceptada%')
+            ->orWhere('mensaje', 'LIKE', '%Han rechazado  devolucion  a%')
+            ->orWhere('mensaje', 'LIKE', '%Han realizado una  devolucion  por un monto de $%')
+            ->orWhere('mensaje', 'LIKE', '%Han anulado una  devolucion a%')
+            ->orWhere('mensaje', 'LIKE', '%Acepto Transferencia%')
+            ->orWhere('mensaje', 'LIKE', '%Han rechazado  transferencia de%')
+            ->orWhere('mensaje', 'LIKE', '%Han realizado una  transferencia de%')
+            ->orWhere('mensaje', 'LIKE', '%Han anulado una  transferencia de%')
             ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         return $results;
     }

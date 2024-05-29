@@ -15,7 +15,9 @@ class Departamento extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     const DEPARTAMENTO_SSO = 5;
-    const DEPARTAMENTO_CONTABILIDAD = 6;
+    const DEPARTAMENTO_CONTABILIDAD = 'CONTABILIDAD';
+    const DEPARTAMENTO_GERENCIA = 'GERENCIA';
+    const DEPARTAMENTO_RRHH = 'RECURSOS HUMANOS';
 
     protected $table = 'departamentos';
     protected $fillable = ['nombre', 'activo', 'responsable_id'];
@@ -32,9 +34,9 @@ class Departamento extends Model implements Auditable
     ];
 
     /**
-     * ______________________________________________________________________________________
+     * ______________________________
      * RELACIONES CON OTRAS TABLAS
-     * ______________________________________________________________________________________
+     * ______________________________
      */
     public function responsable()
     {

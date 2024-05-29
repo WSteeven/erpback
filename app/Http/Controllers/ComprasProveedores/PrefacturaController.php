@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\ComprasProveedores;
 
-use App\Events\ComprasProveedores\PrefacturaActualizadaEvent;
-use App\Events\ComprasProveedores\PrefacturaCreadaEvent;
+use App\Exports\ComprasProveedores\PrefacturaExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\PrefacturaRequest;
 use App\Http\Resources\ClienteResource;
 use App\Http\Resources\ComprasProveedores\PrefacturaResource;
-use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\ComprasProveedores\Prefactura;
 use App\Models\ComprasProveedores\Proforma;
@@ -21,13 +19,18 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\App\ComprasProveedores\PrefacturaService;
 use Src\Shared\Utils;
 
 class PrefacturaController extends Controller
 {
     private $entidad = 'Prefactura';
+    private $servicio;
     public function __construct()
     {
+        $this->servicio = new PrefacturaService();
         $this->middleware('can:puede.ver.prefacturas')->only('index', 'show');
         $this->middleware('can:puede.crear.prefacturas')->only('store');
         $this->middleware('can:puede.editar.prefacturas')->only('update');
@@ -39,7 +42,7 @@ class PrefacturaController extends Controller
     public function index(Request $request)
     {
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
-            $results = Prefactura::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+            $results = Prefactura::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('updated_at', 'desc')->get();
         } else {
             $results = Prefactura::filtrarPrefacturasEmpleado($request);
         }
@@ -70,9 +73,9 @@ class PrefacturaController extends Controller
             // Guardar los detalles de la orden de compra
             Prefactura::guardarDetalles($prefactura, $request->listadoProductos);
 
-            if($prefactura->proforma_id){
+            if ($prefactura->proforma_id) {
                 $proforma = Proforma::find($prefactura->proforma_id);
-                if($proforma){
+                if ($proforma) {
                     $proforma->estado_id = $estado_completado->id;
                     $proforma->save();
                 }
@@ -94,7 +97,7 @@ class PrefacturaController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
-            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+            throw ValidationException::withMessages(['error' => $e->getMessage() . ', ' . $e->getLine()]);
         }
     }
 
@@ -139,8 +142,8 @@ class PrefacturaController extends Controller
 
             // // aqui se debe lanzar la notificacion en caso de que la prefactura sea autorizacion pendiente
             // if ($prefactura->estado_id === $estado_completo->id && $prefactura->autorizacion_id === $autorizacion_aprobada->id) {
-                // $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
-                // event(new PrefacturaActualizadaEvent($prefactura, true));// crea el evento de la orden de compra actualizada al solicitante
+            // $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+            // event(new PrefacturaActualizadaEvent($prefactura, true));// crea el evento de la orden de compra actualizada al solicitante
             // }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -196,5 +199,59 @@ class PrefacturaController extends Controller
             Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
             return response()->json('Ha ocurrido un error al intentar imprimir la prefactura' . $e->getMessage() . ' ' . $e->getLine(), 422);
         }
+    }
+
+    /**
+     * Reportes
+     */
+    public function reportes(Request $request)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $results = [];
+        try {
+            $vista = 'compras_proveedores.proveedores.proveedores';
+            $request['empresa.razon_social'] = $request->razon_social;
+            $results = $this->servicio->filtrarPrefacturas($request);
+            switch ($request->accion) {
+                case 'excel':
+                    // Log::channel('testing')->info('Log', ['reporte antes del excel', $reporte->listadoProductos]);
+                    // $reporte['listado'] = $reporte['listadoProductos'];
+
+                    return Excel::download(new PrefacturaExport(collect($results)), 'reporte_prefacturas.xlsx');
+                    break;
+                    // case 'pdf':
+                    //     try {
+                    //         $reporte = $registros;
+                    //         $peticion = $request->all();
+                    //         $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion', 'configuracion']));
+                    //         $pdf->setPaper('A4', 'landscape');
+                    //         $pdf->render();
+                    //         return $pdf->stream();
+                    //     } catch (Throwable $ex) {
+                    //         throw $ex->getMessage() . '. ' . $ex->getLine();
+                    //     }
+                    //     break;
+                default:
+                    // Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
+            }
+        } catch (Exception $ex) {
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$ex->getLine() . '. ' . $ex->getMessage()],
+            ]);
+        }
+        $results = PrefacturaResource::collection($results);
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Dashboard de prefacturas
+     */
+    public function dashboard(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
+
+        $results = $this->servicio->obtenerDashboard($request);
+
+        return response()->json(compact('results'));
     }
 }

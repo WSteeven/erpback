@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComprasProveedores\CalificacionDepartamentoProveedorController;
 use App\Http\Controllers\ComprasProveedores\CategoriaOfertaProveedorController;
 use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\ComprasProveedores\ProformaController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ProveedorController;
 use App\Models\ComprasProveedores\OfertaProveedor;
+use App\Models\ComprasProveedores\Prefactura;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources([
@@ -70,7 +72,8 @@ Route::get('prefacturas/imprimir/{prefactura}', [PrefacturaController::class, 'i
 //reportes excel
 Route::get('reporte-proveedores', [ProveedorController::class, 'reporteTodos'])->middleware('auth:sanctum');
 Route::get('pagos-proveedores/cash/{pago}', [PagoProveedoresController::class, 'reporteCash'])->middleware('auth:sanctum');
-
+Route::post('ordenes-compras/reportes', [OrdenCompraController::class, 'reportes']);
+Route::post('prefacturas/reportes', [PrefacturaController::class, 'reportes']);
 
 //listar archivos
 Route::get('ordenes-compras/files/{orden}', [OrdenCompraController::class, 'indexFiles'])->middleware('auth:sanctum');
@@ -96,6 +99,8 @@ Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consoli
  * Dashboard
  ***********/
 Route::post('dashboard', [OrdenCompraController::class, 'dashboard']);
+Route::post('dashboard-ventas', [PrefacturaController::class, 'dashboard']);
 Route::get('empleados-ordenes', [EmpleadoController::class, 'empleadosConOrdenes']);
 Route::get('proveedores-ordenes', [ProveedorController::class, 'proveedoresConOrdenes']);
+Route::get('clientes-prefacturas', [ClienteController::class, 'clientesConPrefacturas']);
 // Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);

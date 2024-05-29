@@ -36,15 +36,13 @@ class VacacionRequest extends FormRequest
             'fecha_inicio_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
             'fecha_fin_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
             'descuento_vacaciones' => 'required|integer',
-            'numero_dias' => 'required|integer',
+            'numero_dias' => 'nullable|integer',
             'numero_dias_rango1' => 'nullable|integer',
             'numero_dias_rango2' => 'nullable|integer'
         ];
     }
     protected function prepareForValidation()
     {
-        $fecha_inicio = Carbon::createFromFormat('d-m-Y', $this->fecha_inicio);
-        $fecha_fin = Carbon::createFromFormat('d-m-Y', $this->fecha_fin);
         $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
         $this->merge([
             'empleado_id' => $empleado_id,
@@ -58,16 +56,15 @@ class VacacionRequest extends FormRequest
         ];
         foreach ($dateFields as $field) {
             if ($this->$field) {
-                $date = Carbon::createFromFormat('d-m-Y', $this->$field);
                 $this->merge([
-                    $field => $date->format('Y-m-d'),
+                    $field =>$this->$field,
                 ]);
             }
         }
         $this->merge([
             'periodo_id' => $this->periodo,
-            'fecha_inicio' => $fecha_inicio->format('Y-m-d'),
-            'fecha_fin' => $fecha_fin->format('Y-m-d'),
+            'fecha_inicio' => $this->fecha_inicio,
+            'fecha_fin' =>  is_null($this->fecha_fin) ? $this->fecha_fin_rango2_vacaciones :$this->fecha_fin,
             'descuento_vacaciones' => $this->descuento_vacaciones?$this->descuento_vacaciones:0
         ]);
     }

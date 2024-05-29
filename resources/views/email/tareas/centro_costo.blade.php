@@ -11,7 +11,6 @@
 </head>
 
 <body>
-    <h1>Por favor no prestar atención a este correo</h1>
     <h2>JPCONSTRUCTRED C. Ltda.</h2>
     <img src="{{ $logo_principal }}" alt="logo" width="100" height="100" />
     <h2> Estimado contador, {{ Auth::user()->empleado->nombres }} {{ Auth::user()->empleado->apellidos }} ha creado una

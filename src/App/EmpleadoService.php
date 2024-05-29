@@ -125,9 +125,18 @@ class EmpleadoService
         return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
+    public function obtenerIdsEmpleadosPorRol(string $rol)
+    {
+        // $usuario_ac->hasRole('RECURSOS HUMANOS')
+        $idsUsuariosRRHH = User::role($rol)->pluck('id');
+        return Empleado::whereIn('usuario_id', $idsUsuariosRRHH)->pluck('id');
+
+        // return Departamento::where('nombre', 'RECURSOS HUMANOS')->pluck('responsable_id')->toArray();
+    }
+
     public function obtenerTodosSinEstado()
     {
-        $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual', 'empleados_autorizadores_gasto'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 
@@ -252,5 +261,16 @@ class EmpleadoService
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function agregarDiscapacidades(Empleado $empleado, array $discapacidades)
+    {
+        $discapacidades_collection = collect($discapacidades);
+        $mappedCollection = $discapacidades_collection->map(function ($object) {
+            $object['tipo_discapacidad_id'] =  $object['tipo_discapacidad'];
+            unset($object['tipo_discapacidad']);
+            return $object;
+        });
+        $empleado->tiposDiscapacidades()->sync($mappedCollection);
     }
 }

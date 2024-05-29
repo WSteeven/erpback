@@ -90,6 +90,11 @@ class OrdenCompra extends Model implements Auditable
     return $this->belongsToMany(Producto::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'producto_id')
       ->withPivot(['id', 'descripcion', 'unidad_medida_id', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
   }
+
+  public function detalles()
+  {
+    return $this->hasMany(ItemDetalleOrdenCompra::class);
+  }
   /**
    * Relación uno a uno.
    * Una orden de compra se realiza unicamente a un proveedor.
@@ -239,13 +244,16 @@ class OrdenCompra extends Model implements Auditable
    */
   public static function obtenerSumaListado($id)
   {
+    $orden = OrdenCompra::find($id);
     $detalles = ItemDetalleOrdenCompra::where('orden_compra_id', $id)->get();
-    $total = $detalles->sum('total');
     $subtotal = $detalles->sum('subtotal');
-    $iva = $detalles->sum('iva');
     $descuento = $detalles->sum('descuento');
+    $subtotal_con_impuestos = $detalles->where('grava_iva', true)->sum('subtotal') - $descuento;
+    $subtotal_sin_impuestos = $detalles->where('grava_iva', false)->sum('subtotal');
+    $iva = $subtotal_con_impuestos * $orden->iva / 100;
+    $total = $subtotal_con_impuestos + $subtotal_sin_impuestos + $iva;
 
-    return [$subtotal, $iva, $descuento, $total];
+    return [$subtotal, $subtotal_con_impuestos, $subtotal_sin_impuestos, $iva, $descuento, $total];
   }
 
   public static function guardarDetalles($orden, $items, $metodo)
@@ -262,6 +270,7 @@ class OrdenCompra extends Model implements Auditable
           'cantidad' => $detalle['cantidad'],
           'unidad_medida_id' => is_int($detalle['unidad_medida']) ? $detalle['unidad_medida'] : UnidadMedida::where('nombre', $detalle['unidad_medida'])->first()->id,
           'porcentaje_descuento' => array_key_exists('porcentaje_descuento', $detalle) ? $detalle['porcentaje_descuento'] : 0,
+          'descuento' => $detalle['descuento'],
           'facturable' => $detalle['facturable'],
           'grava_iva' => $detalle['grava_iva'],
           'precio_unitario' => array_key_exists('precio_unitario', $detalle) ? $detalle['precio_unitario'] : 0,

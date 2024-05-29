@@ -32,7 +32,8 @@ class Transferencias extends Model implements Auditable
         'id_tarea',
         'estado',
         'comprobante',
-        'fecha'
+        'fecha',
+        'es_devolucion'
     ];
     public const APROBADO = 1;
     public const RECHAZADO = 2;

@@ -65,6 +65,8 @@ class User extends Authenticatable implements Auditable
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
 
+    // Modulo medico
+    const ROL_MEDICO = 'MEDICO';
     //ventas claro
     const JEFE_VENTAS = 'JEFE_VENTAS';
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';

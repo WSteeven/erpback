@@ -8,6 +8,7 @@ use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaUsuario;
 use App\Events\ComprasProveedores\NotificarOrdenCompraRealizada;
 use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
 use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
+use App\Exports\ComprasProveedores\OrdenCompraExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
@@ -15,6 +16,7 @@ use App\Mail\ComprasProveedores\EnviarMailOrdenCompraProveedor;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\ConfiguracionGeneral;
 use App\Models\CorreoEnviado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
@@ -25,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\OrdenCompraService;
 use Src\Config\Autorizaciones;
@@ -78,26 +81,12 @@ class OrdenCompraController extends Controller
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
-            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
-            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
-            if (count($request->categorias) == 0) {
-                unset($datos['categorias']);
-            } else {
-                $datos['categorias'] = implode(',', $request->categorias);
-            }
-            // throw new Exception('Error para que no se guarde la oc');
             //Creación de la orden de compra
-            $orden = OrdenCompra::create($datos);
+            $orden  = $this->servicio->crearOrdenCompra($datos, $request->listadoProductos);
+            // $orden = OrdenCompra::create($datos);
             // Guardar los detalles de la orden de compra
-            OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'crear');
+            // OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'crear');
 
 
             //Respuesta
@@ -141,14 +130,14 @@ class OrdenCompraController extends Controller
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
-            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
-            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            // $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            // $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
+            // $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
+            // $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            // $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+            // if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
+            // if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+            // if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             // Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
             // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
@@ -244,13 +233,15 @@ class OrdenCompraController extends Controller
     {
         $orden_compra = $orden;
         try {
-           return $this->servicio->generarPdf($orden, true, true);
+            return $this->servicio->generarPdf($orden, true, true);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages(
-                ['error' => $e->getMessage(),
-                'Por si acaso'=>'Error duplicado',
-            ]);
+                [
+                    'error' => $e->getMessage(),
+                    'Por si acaso' => 'Error duplicado',
+                ]
+            );
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
             return response()->json(compact('mensaje'));
         }
@@ -268,7 +259,7 @@ class OrdenCompraController extends Controller
                 CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
                 $mensaje = 'Email enviado correctamente al provedor';
                 $status = 200;
-            } elseif($orden->proveedor->empresa->correo){
+            } elseif ($orden->proveedor->empresa->correo) {
                 Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
                 CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
                 $mensaje = 'Email enviado correctamente al provedor';
@@ -315,6 +306,47 @@ class OrdenCompraController extends Controller
             Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
         }
+    }
+
+    /**
+     * Reportes
+     */
+    public function reportes(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['request', $request->all()]);
+        $configuracion = ConfiguracionGeneral::first();
+        $results = [];
+        try {
+            $vista = 'compras_proveedores.proveedores.proveedores';
+            $request['empresa.razon_social'] = $request->razon_social;
+            $results = $this->servicio->filtrarOrdenes($request);
+            switch ($request->accion) {
+                case 'excel':
+                    $reporte = OrdenCompraResource::collection($results);
+                    return Excel::download(new OrdenCompraExport(collect($reporte)), 'reporte_ordenes_compras.xlsx');
+                    break;
+                    // case 'pdf':
+                    //     try {
+                    //         $reporte = $registros;
+                    //         $peticion = $request->all();
+                    //         $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion', 'configuracion']));
+                    //         $pdf->setPaper('A4', 'landscape');
+                    //         $pdf->render();
+                    //         return $pdf->stream();
+                    //     } catch (Throwable $ex) {
+                    //         throw $ex->getMessage() . '. ' . $ex->getLine();
+                    //     }
+                    //     break;
+                default:
+                    // Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
+            }
+        } catch (Exception $ex) {
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$ex->getMessage()],
+            ]);
+        }
+        $results = OrdenCompraResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**

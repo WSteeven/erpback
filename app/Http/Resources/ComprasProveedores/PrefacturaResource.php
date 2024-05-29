@@ -17,7 +17,7 @@ class PrefacturaResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $detalles = Prefactura::listadoProductos($this->id);
-        [$subtotal,  $iva, $descuento, $total] = Prefactura::obtenerSumaListado($this->id);
+        [$subtotal, $subtotal_con_impuestos, $subtotal_sin_impuestos, $iva, $descuento, $total] = Prefactura::obtenerSumaListado($this->id);
         $modelo = [
             'id' => $this->id,
             'codigo' => $this->codigo,
@@ -30,15 +30,18 @@ class PrefacturaResource extends JsonResource
             'estado_id' => $this->estado_id,
             'estado' => $this->estado->nombre,
             'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),
+            'descuento_general' => $this->descuento_general,
             'forma' => $this->forma,
             'tiempo' => $this->tiempo,
             'listadoProductos' => $detalles,
             'iva' => $this->iva,
-            'proforma' => $this->proforma->codigo,
+            'proforma' => $this->proforma?->codigo,
             'sum_subtotal' => number_format($subtotal, 2),
+            'sum_subtotal_sin_impuestos' => number_format($subtotal_sin_impuestos, 2),
+            'sum_subtotal_con_impuestos' => number_format($subtotal_con_impuestos, 2),
             'sum_descuento' => number_format($descuento, 2),
             'sum_iva' => number_format($iva, 2),
-            'sum_total' => number_format($total, 2),
+            'sum_total' => number_format($total - $this->descuento_general, 2),
 
         ];
 

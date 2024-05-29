@@ -8,6 +8,8 @@ use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
+use App\Imports\RecursosHumanos\NominasPrestamos\RolPagoImport;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
@@ -71,7 +73,6 @@ class RolPagoMesController extends Controller
             $rolPago = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rolPago);
             $this->tabla_roles($rolPago);
-            Log::channel('testing')->info('Log', ['despues de tabla roles']);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -84,7 +85,30 @@ class RolPagoMesController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-
+    public function importarRolPago(RolPagoMesRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+            $rolPago = RolPagoMes::create($datos);
+            $this->validate($request, [
+                'file' => 'required|mimes:xls,xlsx'
+            ]);
+            if (!$request->hasFile('file')) {
+                throw ValidationException::withMessages([
+                    'file' => ['Debe seleccionar al menos un archivo.'],
+                ]);
+            }
+            Excel::import(new RolPagoImport($request->mes,$rolPago), $request->file);
+            DB::commit();
+            return response()->json(['mensaje' => 'Subido exitosamente!']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage() . $e->getLine()],
+            ]);
+        }
+    }
     /**
      * La función "show" recupera un recurso "RolPagoMes" específico por su ID y lo devuelve como respuesta
      * JSON.
@@ -282,6 +306,8 @@ class RolPagoMesController extends Controller
     {
         $es_quincena = RolPagoMes::where('mes', $roles_pagos[0]->mes)->where('es_quincena', '1')->first() != null ? true : false;
         $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
+        $departamento_gerencia = Departamento::where("nombre", Departamento::DEPARTAMENTO_GERENCIA)->first();
+        $responsable_gerencia= $departamento_gerencia ?  $departamento_gerencia?->responsable:Empleado::find(117);
         $creador_rol_pago = Empleado::whereHas('user', function ($query) {
             $query->whereHas('permissions', function ($q) {
                 $q->where('name', 'puede.elaborar.rol_pago');
@@ -357,6 +383,7 @@ class RolPagoMesController extends Controller
             'sumatoria' => $sumColumns,
             'nombre' => $nombre,
             'creador_rol_pago' => $creador_rol_pago,
+            'aprueba_rol_pago' => $responsable_gerencia,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->sumatoria_llaves($colum_egreso_value),
         ];
@@ -567,19 +594,15 @@ class RolPagoMesController extends Controller
                 ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
                 ->orderBy('apellidos', 'asc')->get();
             $this->nominaService->setMes($mes);
-            Log::channel('testing')->info('Log', ['luego de setMes', $mes]);
             $this->prestamoService->setMes($mes);
-            Log::channel('testing')->info('Log', ['luego de setMes en prestamoService', $mes]);
             $roles_pago = [];
             foreach ($empleados_activos as $empleado) {
                 $this->nominaService->setEmpleado($empleado->id);
                 $this->prestamoService->setEmpleado($empleado->id);
-                Log::channel('testing')->info('Log', ['luego de setEmpleado', $mes]);
                 // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
                 $diasTranscurridos = $rol->es_quincena ? 15 : 30;
                 $dias = $this->nominaService->calcularDias($diasTranscurridos);
-                Log::channel('testing')->info('Log', ['luego de calcular dias transcurridos', $mes]);
-                // $salario = $this->nominaService->calcularSalario();
+                //$salario = $this->nominaService->calcularSalario();
                 $salario = $empleado->salario;
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
                 $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);

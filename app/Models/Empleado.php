@@ -6,11 +6,13 @@ use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
+use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+use App\Models\RecursosHumanos\TipoDiscapacidad;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;
@@ -27,7 +29,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Empleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;
-
+    const MASCULINO = 'M';
+    const FEMENINO = 'F';
     protected $table = "empleados";
     protected $fillable = [
         'identificacion',
@@ -119,7 +122,8 @@ class Empleado extends Model implements Auditable
         'esta_en_empleado',
         'acumula_fondos_reserva',
         'realiza_factura',
-        'es_reporte__saldo_actual'
+        'es_reporte__saldo_actual',
+        'empleados_autorizadores_gasto'
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -192,7 +196,7 @@ class Empleado extends Model implements Auditable
      */
     public function canton()
     {
-        return $this->belongsTo(Canton::class);
+        return $this->belongsTo(Canton::class)->with('provincia');
     }
 
     // Relacion uno a uno
@@ -389,9 +393,9 @@ class Empleado extends Model implements Auditable
 
     public static function extraerNombresApellidos(Empleado $empleado)
     {
-        // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
+
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
@@ -424,14 +428,19 @@ class Empleado extends Model implements Auditable
         return $this->hasOne(Conductor::class);
     }
 
+    public function respuestaCuestionarioEmpleado()
+    {
+        return $this->hasMany(RespuestaCuestionarioEmpleado::class);
+    }
+
     /**
-   * Relacion polimorfica con Archivos uno a muchos.
-   *
-   */
-  public function archivos()
-  {
-    return $this->morphMany(Archivo::class, 'archivable');
-  }
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
 
     public static function empaquetarListado($empleados)
     {
@@ -454,5 +463,18 @@ class Empleado extends Model implements Auditable
             $id++;
         }
         return $results;
+    }
+
+    public function tiposDiscapacidades()
+    {
+        return $this->belongsToMany(TipoDiscapacidad::class, 'rrhh_empleado_tipo_discapacidad_porcentaje')->withPivot('porcentaje');
+    }
+
+    /*********
+     * Scopes
+     *********/
+    function scopeHabilitado($query)
+    {
+        return $query->where('id', '>=', 2)->where('estado', true); //->where('esta_en_rol_pago', true);
     }
 }

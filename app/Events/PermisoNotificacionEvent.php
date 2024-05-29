@@ -29,7 +29,7 @@ class PermisoNotificacionEvent implements ShouldBroadcast
         $ruta = '/empleado';
         $this->permiso = $permiso;
         $informativa = true;
-        $this->jefeInmediato = Departamento::where('id', 7)->first()->responsable_id;
+        $this->jefeInmediato = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first()->responsable_id;
         $destinatario = $permiso->empleado_id ;
         $remitente =$this->jefeInmediato ;
         $mensaje = $this->permiso->empleado_info->nombres.' '. $this->permiso->empleado_info->apellidos. ' Ha pedido permiso de ' . $this->permiso->fecha_hora_inicio. ' hasta '. $this->permiso->fecha_hora_fin.' con la siguiente justificacion: '. $this->permiso->justificacion;

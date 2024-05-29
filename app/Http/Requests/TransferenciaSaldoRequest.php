@@ -62,8 +62,8 @@ class TransferenciaSaldoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $date = Carbon::now();
-        $departamento_contabilidad = Departamento::find(Departamento::DEPARTAMENTO_CONTABILIDAD);
-        $responsable_contabilidad =  $departamento_contabilidad?->responsable?->id;
+        $departamento_contabilidad = Departamento::where("nombre", Departamento::DEPARTAMENTO_CONTABILIDAD)->first();
+        $responsable_contabilidad= $departamento_contabilidad ?  $departamento_contabilidad?->responsable?->id: 10;
         if($this->es_devolucion){
             $this->merge(['usuario_recibe_id' => $responsable_contabilidad]);
         }else{
@@ -77,7 +77,7 @@ class TransferenciaSaldoRequest extends FormRequest
             ]);
         }
         $this->merge([
-            'monto' => number_format($this->monto,2)
+            'monto' => round($this->monto,2)
         ]);
     }
 }

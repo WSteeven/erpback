@@ -2,6 +2,7 @@
 
 use App\Exports\RegistroTendidoExport;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
@@ -52,6 +53,8 @@ Route::get('/notificar', function () {
 
     dump($response);
 });
+Route::get('login-social-network',[LoginSocialNetworkController::class, 'login']);
+Route::get('social-network/{driver}',[LoginSocialNetworkController::class, 'handleCallback']);
 
 // Route::get('verificar', function(){
 //     $empleado = Empleado::find(24);

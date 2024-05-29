@@ -27,20 +27,20 @@ class OrdenCompraRequest extends FormRequest
     {
         return [
             'codigo' => 'required|string',
-            'solicitante' => 'required|numeric|exists:empleados,id',
-            'proveedor' => 'nullable|numeric|exists:proveedores,id',
-            'autorizador' => 'required|numeric|exists:empleados,id',
-            'autorizacion' => 'required|numeric|exists:autorizaciones,id',
-            'preorden' => 'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
-            'pedido' => 'nullable|sometimes|numeric|exists:pedidos,id',
-            'tarea' => 'nullable|sometimes|numeric|exists:tareas,id',
+            'solicitante_id' => 'required|numeric|exists:empleados,id',
+            'proveedor_id' => 'nullable|numeric|exists:proveedores,id',
+            'autorizador_id' => 'required|numeric|exists:empleados,id',
+            'autorizacion_id' => 'required|numeric|exists:autorizaciones,id',
+            'preorden_id' => 'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
+            'pedido_id' => 'nullable|sometimes|numeric|exists:pedidos,id',
+            'tarea_id' => 'nullable|sometimes|numeric|exists:tareas,id',
             'observacion_aut' => 'nullable|sometimes|string',
             'observacion_est' => 'nullable|sometimes|string',
             'descripcion' => 'required|string',
             'forma' => 'nullable|string',
             'tiempo' => 'nullable|string',
             'fecha' => 'required|string',
-            'estado' => 'nullable|numeric|exists:estados_transacciones_bodega,id',
+            'estado_id' => 'nullable|numeric|exists:estados_transacciones_bodega,id',
             'categorias' => 'sometimes|nullable',
             'iva' => 'required|numeric',
             'listadoProductos.*.cantidad' => 'required',
@@ -49,14 +49,14 @@ class OrdenCompraRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if(auth()->user()->hasRole(User::ROL_COMPRAS)) $this->merge(['estado'=>1]);
+        if (auth()->user()->hasRole(User::ROL_COMPRAS)) $this->merge(['estado' => 1]);
         $this->merge(['fecha' => date('Y-m-d', strtotime($this->fecha))]);
         if ($this->autorizacion === 2 && $this->preorden) $this->merge(['estado' => 1]);
 
         if ($this->autorizacion === null) $this->merge(['autorizacion' => 1, 'estado' => 1]);
         if ($this->autorizacion === 1) $this->merge(['estado' => 1]);
 
-        if($this->completada)$this->merge(['estado' => 2, 'revisada_compras'=>true]);
+        if ($this->completada) $this->merge(['estado' => 2, 'revisada_compras' => true]);
 
         // Modificar los datos cuando es actualizar
         // if ($this->route()->getActionMethod() == 'update') {
@@ -67,9 +67,20 @@ class OrdenCompraRequest extends FormRequest
         if (is_null($this->codigo) || $this->codigo === '') {
             $this->merge(['codigo' => OrdenCompra::obtenerCodigo()]);
         }
+        $this->merge([
+            'solicitante_id' => $this->solicitante,
+            'proveedor_id' => $this->proveedor,
+            'autorizador_id' => $this->autorizador,
+            'autorizacion_id' => $this->autorizacion,
+            'estado_id' => $this->estado,
+        ]);
+        if ($this->preorden) $this->merge(['preorden_id' => $this->preorden]);
+        if ($this->pedido) $this->merge(['pedido_id' => $this->pedido]);
+        if ($this->tarea) $this->merge(['tarea_id' => $this->tarea]);
+        if (count($this->categorias) == 0) {
+            $this->merge(['categorias' => null]);
+        } else {
+            $this->merge(['categorias' => implode(',', $this->categorias)]);
+        }
     }
 }
-// "SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails
-// (`jpconstrucred`.`cmp_item_detalle_orden_compra`, CONSTRAINT `cmp_item_detalle_orden_compra_producto_id_foreign` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE ON U) (SQL:
-    // insert into `cmp_item_detalle_orden_compra` (`cantidad`, `created_at`, `descripcion`, `facturable`, `grava_iva`, `iva`, `orden_compra_id`, `porcentaje_descuento`, `precio_unitario`, `producto_id`, `subtotal`, `total`, `updated_at`)
-    // values           (1, 2023-11-06 18:52:57, MONITOR ASUS PROART PA247CV LED 24'' FHD GRIS Y NEGRO, 1, 1, 0.0000, 30, 0, 0.0000, 270, 0.0000, 0.0000, 2023-11-06 18:52:57)), 286"

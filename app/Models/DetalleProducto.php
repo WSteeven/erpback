@@ -46,11 +46,13 @@ class DetalleProducto extends Model implements Auditable
         'talla',
         'tipo',
         'url_imagen',
+        'es_fibra',
 
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'es_fibra' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -89,7 +91,7 @@ class DetalleProducto extends Model implements Auditable
     {
         return $this->hasMany(Inventario::class, 'detalle_id');
     }
-    
+
     public function itemsPreingresos()
     {
         return $this->hasMany(ItemDetallePreingresoMaterial::class, 'detalle_id');

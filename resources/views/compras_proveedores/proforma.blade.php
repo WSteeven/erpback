@@ -305,19 +305,27 @@
                 <table align="right" border="1" style="max-width: 100%;width:70%">
                     <tr>
                         <td align="right">SUBTOTAL</td>
-                        <td align="center">{{ $proforma['sum_subtotal'] }}</td>
+                        <td align="right">{{ $proforma['sum_subtotal'] }}</td>
+                    </tr>
+                    <tr>
+                        <td align="right">SUBTOTAL 0%</td>
+                        <td align="right">{{ $proforma['sum_subtotal_sin_impuestos'] }}</td>
+                    </tr>
+                    <tr>
+                        <td align="right">SUBTOTAL {{ $proforma['iva'] }}%</td>
+                        <td align="right">{{ $proforma['sum_subtotal_con_impuestos'] }}</td>
                     </tr>
                     <tr>
                         <td align="right">DESCUENTO</td>
-                        <td align="center">{{ $proforma['sum_descuento'] }}</td>
+                        <td align="right">{{ $proforma['sum_descuento']+$proforma['descuento_general'] }}</td>
                     </tr>
                     <tr>
-                        <td align="right">IVA ({{ $proforma['iva'] }}%)</td>
-                        <td align="center">{{ $proforma['sum_iva'] }}</td>
+                        <td align="right">IVA {{ $proforma['iva'] }}%</td>
+                        <td align="right">{{ $proforma['sum_iva'] }}</td>
                     </tr>
                     <tr>
                         <td align="right">TOTAL</td>
-                        <td align="center">{{ $proforma['sum_total'] }}</td>
+                        <td align="right">{{ $proforma['sum_total'] }}</td>
                     </tr>
                 </table>
             </td>

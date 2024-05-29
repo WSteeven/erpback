@@ -37,10 +37,10 @@ class AjusteSaldoFondoRotativoController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $modelo = AjusteSaldoFondoRotativo::create($datos);
-            $modelo = new  AjusteSaldoFondoRotativoResource($modelo);
+            $ajuste = AjusteSaldoFondoRotativo::create($datos);
+            $modelo = new  AjusteSaldoFondoRotativoResource($ajuste);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            SaldoService::ajustarSaldo($datos);
+            SaldoService::ajustarSaldo($ajuste, $datos);
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
