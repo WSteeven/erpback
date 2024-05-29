@@ -22,7 +22,7 @@ class MantenimientoVehiculoResource extends JsonResource
             'servicio' => $this->servicio->nombre,
             'empleado' => $this->empleado->nombres . ' ' . $this->empleado->apellidos,
             'supervisor' => $this->supervisor->nombres . ' ' . $this->supervisor->apellidos,
-            'fecha_realizado' => $this->fecha_realizado,
+            'fecha_realizado' => date(Utils::MASKFECHA, strtotime($this->fecha_realizado)),
             'km_realizado' => $this->km_realizado,
             'imagen_evidencia' => $this->imagen_evidencia,
             'estado' => $this->estado,

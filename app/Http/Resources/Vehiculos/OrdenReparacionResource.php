@@ -22,6 +22,7 @@ class OrdenReparacionResource extends JsonResource
             'vehiculo' => $this->vehiculo->placa,
             'autorizacion' => $this->autorizacion->nombre,
             'fecha' => date(Utils::MASKFECHA, strtotime($this->created_at)),
+            'servicios' => $this->servicios ? array_map('intval', Utils::convertirStringComasArray($this->servicios)) : null,
 
         ];
 
