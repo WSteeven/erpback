@@ -15,7 +15,7 @@ class TipoAntecedente extends Model implements Auditable
     const MASCULINO = 'MASCULINO';
     const FEMENINO = 'FEMENINO';
     // protected $table = 'med_tipos_antecedentes';
-    protected $table = 'med_tipos_antecedentes'; //examenes_organos_reproductivos';
+    protected $table = 'med_tipos_antecedentes'; // examenes_organos_reproductivos';
     protected $fillable = [
         'nombre',
         'genero'

@@ -273,4 +273,17 @@ class EmpleadoService
         });
         $empleado->tiposDiscapacidades()->sync($mappedCollection);
     }
+    public function agregarFamiliares(Empleado $empleado, array $familiares)
+    {
+        $familiares_collection = collect($familiares);
+        // Filtramos los familiares existentes y los eliminamos del array
+        $familiaresExistentes = $empleado->familiares->pluck('id')->toArray();
+        $mappedCollection = $familiares_collection->filter(function ($object) use ($familiaresExistentes) {
+            $object['parentezco_id'] =  $object['parentezco'];
+            unset($object['parentezco']);
+            return !in_array($object['id'], $familiaresExistentes);
+        });
+        // Agregamos los nuevos familiares
+        $empleado->familiares()->createMany($mappedCollection->toArray());
+    }
 }

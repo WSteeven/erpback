@@ -231,6 +231,7 @@ class EmpleadoController extends Controller
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
         if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+        if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
 
         //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
         if (!empty($request->conductor)) {

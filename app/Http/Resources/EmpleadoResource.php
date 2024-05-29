@@ -60,13 +60,21 @@ class EmpleadoResource extends JsonResource
             'observacion' => $this->observacion,
             'esta_en_rol_pago' => $this->esta_en_rol_pago,
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
-            'familiares' => $this->familiares_info,
+            'familiares' => $this->familiares,
             'num_cuenta' => $this->num_cuenta_bancaria,
             'salario' => $this->salario,
             'supa' => $this->supa,
             'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
             'direccion' => $this->direccion,
             'discapacidades' => $this->tiposDiscapacidades,
+            'autoidentificacion_etnica' => $this->autoidentificacion_etnica,
+            'trabajador_sustituto' => $this->trabajador_sustituto,
+            'orientacion_sexual_info' => $this->orientacionSexual,
+            'orientacion_sexual' => $this->orientacion_sexual_id,
+            'identidad_genero' => $this->identidad_genero_id,
+            'identidad_genero_info' => $this->identidadGenero,
+            'religion' => $this->religion_id,
+            'religion_info' => $this->religion
 
         ];
         if ($controller_method == 'show') {
@@ -87,7 +95,7 @@ class EmpleadoResource extends JsonResource
             $modelo['salario'] = $this->salario;
             $modelo['num_cuenta'] = $this->num_cuenta_bancaria;
             $modelo['banco'] = $this->banco;
-            $modelo['banco_info'] = $this->banco_info ? $this->banco_info->nombre : null;
+            $modelo['banco_info'] = $this->bancoInfo ? $this->bancoInfo->nombre : null;
             $modelo['fecha_ingreso'] = $this->fecha_ingreso;
             $modelo['antiguedad'] = $this->antiguedad($this->fecha_ingreso);
             $modelo['fecha_salida'] = $this->fecha_salida;
@@ -144,11 +152,12 @@ class EmpleadoResource extends JsonResource
         return $diffYears . ' Años ' . $diffMonths . ' Meses ' . $diffDays . ' Días';
     }
 
-    public function obtenerDiscapacidades(Collection $tiposDiscapacidades) {
+    public function obtenerDiscapacidades(Collection $tiposDiscapacidades)
+    {
         $tiposDiscapacidades = $tiposDiscapacidades->map(function ($object) {
             $object['empleado_id'] = $object['pivot']['empleado_id'];
-            $object['tipo_discapacidad']=$object['pivot']['tipo_discapacidad_id'] ;
-            $object['porcentaje']= $object['pivot']['porcentaje'];
+            $object['tipo_discapacidad'] = $object['pivot']['tipo_discapacidad_id'];
+            $object['porcentaje'] = $object['pivot']['porcentaje'];
             unset($object['pivot']);
             unset($object['nombre']);
             unset($object['created_at']);
