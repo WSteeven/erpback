@@ -15,7 +15,9 @@ class PrestamoEmpresarial extends Model  implements Auditable
     use AuditableModel;
     use Filterable;
     protected $table = 'prestamo_empresarial';
-
+    const ACTIVO ='ACTIVO';
+    const INACTIVO ='INACTIVO';
+    const FINALIZADO ='FINALIZADO';
     protected $fillable = [
         'solicitante',
         'fecha',
@@ -26,6 +28,7 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'estado',
         'id_solicitud_prestamo_empresarial'
     ];
+
     public function plazo_prestamo_empresarial_info()
     {
         return $this->hasMany(PlazoPrestamoEmpresarial::class, 'id_prestamo_empresarial', 'id');

@@ -131,7 +131,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $PrestamoEmpresarial->fecha = $request->fecha;
         $PrestamoEmpresarial->monto = $request->monto;
         $PrestamoEmpresarial->plazo = $request->plazo;
-        $PrestamoEmpresarial->estado = $request->estado;
+        $PrestamoEmpresarial->estado = PrestamoEmpresarial::ACTIVO;
         $PrestamoEmpresarial->periodo_id = $request->periodo_id;
         $PrestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
         $PrestamoEmpresarial->id_solicitud_prestamo_empresarial = $SolicitudPrestamoEmpresarial->id;

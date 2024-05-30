@@ -879,7 +879,7 @@ class SaldoController extends Controller
             $fecha_inicio = $date_inicio->format($mask);
             $fecha_fin = $date_fin->format($mask);
             $gastos = Gasto::with('empleado', 'detalleEstado', 'subDetalle')
-                ->where('id_usuario', $request->empleado)
+                ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->orderBy('fecha_viat', 'asc')
                 ->get();
