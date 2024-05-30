@@ -10,6 +10,7 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -87,5 +88,16 @@ class OrdenReparacion extends Model implements Auditable
     public function archivos()
     {
         return $this->morphMany(Archivo::class, 'archivable');
+    }
+
+    public function kmRealizado($vehiculo_id, $fecha)
+    {
+        $bitacora = BitacoraVehicular::where('vehiculo_id', $vehiculo_id)->where('created_at', '>=', $fecha)->first();
+        if ($bitacora)
+            return $bitacora?->km_inicial;
+        else {
+            $bitacora = BitacoraVehicular::where('vehiculo_id', $vehiculo_id)->where('created_at', '<=', $fecha)->orderBy('created_at', 'desc')->first();
+            return $bitacora?->km_inicial;
+        }
     }
 }

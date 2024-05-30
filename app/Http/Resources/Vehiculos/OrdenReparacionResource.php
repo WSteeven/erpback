@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use App\Models\Vehiculos\Servicio;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
 
@@ -21,8 +22,12 @@ class OrdenReparacionResource extends JsonResource
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'vehiculo' => $this->vehiculo->placa,
             'autorizacion' => $this->autorizacion->nombre,
+            'observacion' => $this->observacion,
+            'km_realizado' => $this->kmRealizado($this->vehiculo_id, $this->created_at),
             'fecha' => date(Utils::MASKFECHA, strtotime($this->created_at)),
-            'servicios' => $this->servicios ? array_map('intval', Utils::convertirStringComasArray($this->servicios)) : null,
+            'servicios' => $this->servicios ? ServicioResource::collection(Servicio::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->servicios)))->get())->map(function ($item) {
+                return $item->nombre;
+            }) : null,
 
         ];
 

@@ -29,27 +29,32 @@ class VehiculoService
         $resultados = [];
         $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
         $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-        $results['vehiculo'] = new VehiculoResource($vehiculo);
-        if (count($request->opciones) > 0) {
-            foreach ($request->opciones as $opcion) {
-                switch ($request->opciones[0]) {
-                    case Vehiculo::CUSTODIOS:
-                        $resultados = $this->obtenerCustodios($vehiculo, $fecha_inicio, $fecha_fin);
-                        break;
-                    case Vehiculo::MANTENIMIENTOS:
-                        $resultados = $this->obtenerMantenimientos($vehiculo, $fecha_inicio, $fecha_fin);
-                        break;
-                    case Vehiculo::INCIDENTES:
-                        $resultados = $this->obtenerIncidentes($vehiculo, $fecha_inicio, $fecha_fin);
-                        break;
-                    default:
-                        $results['custodios'] = $this->obtenerCustodios($vehiculo, $fecha_inicio, $fecha_fin);
-                        $results['mantenimientos'] = $this->obtenerMantenimientos($vehiculo, $fecha_inicio, $fecha_fin);
-                        $results['incidentes'] = $this->obtenerIncidentes($vehiculo, $fecha_inicio, $fecha_fin);
-                        return $results;
+        try {
+            $results['vehiculo'] = new VehiculoResource($vehiculo);
+            if (count($request->opciones) > 0) {
+                foreach ($request->opciones as $opcion) {
+                    switch ($opcion) {
+                        case Vehiculo::CUSTODIOS:
+                            $resultados = $this->obtenerCustodios($vehiculo, $fecha_inicio, $fecha_fin);
+                            break;
+                        case Vehiculo::MANTENIMIENTOS:
+                            $resultados = $this->obtenerMantenimientos($vehiculo, $fecha_inicio, $fecha_fin);
+                            break;
+                        case Vehiculo::INCIDENTES:
+                            $resultados = $this->obtenerIncidentes($vehiculo, $fecha_inicio, $fecha_fin);
+                            break;
+                        default:
+                            $results['custodios'] = $this->obtenerCustodios($vehiculo, $fecha_inicio, $fecha_fin);
+                            $results['mantenimientos'] = $this->obtenerMantenimientos($vehiculo, $fecha_inicio, $fecha_fin);
+                            $results['incidentes'] = $this->obtenerIncidentes($vehiculo, $fecha_inicio, $fecha_fin);
+                            return $results;
+                    }
+                    $results[strtolower($opcion)] = $resultados;
                 }
-                $results[strtolower($opcion)] = $resultados;
             }
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['Error en obtenerHistorial', $th->getLine()]);
+            throw $th;
         }
         return $results;
     }
@@ -60,7 +65,7 @@ class VehiculoService
         try {
             $asignaciones = AsignacionVehiculo::where('vehiculo_id', $vehiculo->id)
                 ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->get();
-            Log::channel('testing')->info('Log', ['Asignaciones', $asignaciones]);
+            // Log::channel('testing')->info('Log', ['Asignaciones', $asignaciones]);
             $results = AsignacionVehiculoResource::collection($asignaciones);
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['Error en obtenerCustodios', $th->getLine()]);

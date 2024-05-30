@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Vehiculos;
 
+use App\Exports\Vehiculos\HistorialVehiculoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\VehiculoRequest;
 use App\Http\Resources\Vehiculos\VehiculoResource;
@@ -156,12 +157,12 @@ class VehiculoController extends Controller
     {
         $results = [];
         Log::channel('testing')->info('Log', ['req', $request->all()]);
-        Log::channel('testing')->info('Log', ['vehiculo', $vehiculo]);
         $results = $this->servicio->obtenerHistorial($vehiculo, $request);
         $configuracion = ConfiguracionGeneral::first();
         try {
             switch ($request->accion) {
                 case 'excel':
+                    return Excel::download(new HistorialVehiculoExport($results, $request), 'historial_vehiculo.xlsx');
                     throw new Exception('No se puede exportar reportes de excel aún');
                     // return Excel::download(new VehiculoExport)
                 case 'pdf':

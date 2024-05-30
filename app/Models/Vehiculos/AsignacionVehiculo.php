@@ -4,6 +4,7 @@ namespace App\Models\Vehiculos;
 
 use App\Models\Archivo;
 use App\Models\Canton;
+use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -72,7 +73,7 @@ class AsignacionVehiculo extends Model implements Auditable
      */
     public function entrega()
     {
-        return $this->belongsTo(Conductor::class, 'entrega_id', 'empleado_id');
+        return $this->belongsTo(Empleado::class, 'entrega_id', 'id');
     }
 
     /**
@@ -80,7 +81,7 @@ class AsignacionVehiculo extends Model implements Auditable
      */
     public function responsable()
     {
-        return $this->belongsTo(Conductor::class, 'responsable_id', 'empleado_id');
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
 
     /**
