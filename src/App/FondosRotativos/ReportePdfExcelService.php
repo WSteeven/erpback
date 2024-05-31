@@ -48,6 +48,7 @@ class ReportePdfExcelService
                     return Excel::download($export_excel, $nombre_reporte . '.xlsx');
                     break;
                 case 'pdf':
+                    Log::channel('testing')->info('Log', ['Error en el listarArchivos de Archivo Service', count($reportes), $reportes]);
                     $pdf = PDF::loadView($vista, $reportes);
                     $pdf->getDomPDF()->setCallbacks([
                         'totalPages' => true,

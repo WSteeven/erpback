@@ -6,6 +6,9 @@ use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
+use App\Models\Medico\IdentidadGenero;
+use App\Models\Medico\OrientacionSexual;
+use App\Models\Medico\Religion;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
@@ -28,8 +31,16 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Empleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;
+    //generos
     const MASCULINO = 'M';
     const FEMENINO = 'F';
+    //Identificaciones etnicas
+    const INDIGENA = 'INDIGENA';
+    const AFRODECENDIENTE = 'AFRODECENDIENTE';
+    const MESTIZO = 'MESTIZO';
+    const BLANCO = 'BLANCO';
+    const MONTUBIO ='MONTUBIO';
+
     protected $table = "empleados";
     protected $fillable = [
         'identificacion',
@@ -79,6 +90,11 @@ class Empleado extends Model implements Auditable
         'esta_en_rol_pago',
         'acumula_fondos_reserva',
         'realiza_factura',
+        'autoidentificacion_etnica',
+        'trabajador_sustituto',
+        'orientacion_sexual_id',
+        'identidad_genero_id',
+        'religion_id'
     ];
 
     private static $whiteListFilter = [
@@ -122,7 +138,13 @@ class Empleado extends Model implements Auditable
         'acumula_fondos_reserva',
         'realiza_factura',
         'es_reporte__saldo_actual',
-        'empleados_autorizadores_gasto'
+        'empleados_autorizadores_gasto',
+
+        'autoidentificacion_etnica',
+        'trabajador_sustituto',
+        'orientacion_sexual_id',
+        'identidad_genero_id',
+        'religion_id'
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -141,6 +163,7 @@ class Empleado extends Model implements Auditable
         'esta_en_rol_pago' => 'boolean',
         'tiene_discapacidad' => 'boolean',
         'acumula_fondos_reserva' => 'boolean',
+        'trabajador_sustituto' => 'boolean',
 
     ];
 
@@ -550,6 +573,19 @@ class Empleado extends Model implements Auditable
     public function tiposDiscapacidades()
     {
         return $this->belongsToMany(TipoDiscapacidad::class, 'rrhh_empleado_tipo_discapacidad_porcentaje')->withPivot('porcentaje');
+    }
+
+    public function orientacionSexual()
+    {
+        return $this->hasOne(OrientacionSexual::class, 'id', 'orientacion_sexual_id');
+    }
+    public function identidadGenero()
+    {
+        return $this->hasOne(IdentidadGenero::class, 'id', 'identidad_genero_id');
+    }
+    public function religion()
+    {
+        return $this->hasOne(Religion::class, 'id', 'religion_id');
     }
 
     /*********

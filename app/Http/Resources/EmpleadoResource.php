@@ -66,6 +66,14 @@ class EmpleadoResource extends JsonResource
             'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
             'direccion' => $this->direccion,
             'discapacidades' => $this->tiposDiscapacidades,
+            'autoidentificacion_etnica' => $this->autoidentificacion_etnica,
+            'trabajador_sustituto' => $this->trabajador_sustituto,
+            'orientacion_sexual_info' => $this->orientacionSexual,
+            'orientacion_sexual' => $this->orientacion_sexual_id,
+            'identidad_genero' => $this->identidad_genero_id,
+            'identidad_genero_info' => $this->identidadGenero,
+            'religion' => $this->religion_id,
+            'religion_info' => $this->religion
 
         ];
         if ($controller_method == 'show') {
@@ -142,11 +150,12 @@ class EmpleadoResource extends JsonResource
         return $diffYears . ' Años ' . $diffMonths . ' Meses ' . $diffDays . ' Días';
     }
 
-    public function obtenerDiscapacidades(Collection $tiposDiscapacidades) {
+    public function obtenerDiscapacidades(Collection $tiposDiscapacidades)
+    {
         $tiposDiscapacidades = $tiposDiscapacidades->map(function ($object) {
             $object['empleado_id'] = $object['pivot']['empleado_id'];
-            $object['tipo_discapacidad']=$object['pivot']['tipo_discapacidad_id'] ;
-            $object['porcentaje']= $object['pivot']['porcentaje'];
+            $object['tipo_discapacidad'] = $object['pivot']['tipo_discapacidad_id'];
+            $object['porcentaje'] = $object['pivot']['porcentaje'];
             unset($object['pivot']);
             unset($object['nombre']);
             unset($object['created_at']);
