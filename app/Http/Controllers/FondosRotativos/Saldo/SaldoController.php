@@ -49,14 +49,14 @@ class SaldoController extends Controller
     private const TRANSFERENCIA = 5;
     private const GASTO_IMAGEN = 6;
     //Diccionario de filtros de gasto
-    private const PROYECTO = 1  ;
-    private const TAREA =2;
-    private const DETALLE =3;
-    private const SUBDETALLE =4;
-    private const AUTORIZADORGASTO =5;
-    private const EMPLEADO =6;
+    private const PROYECTO = 1;
+    private const TAREA = 2;
+    private const DETALLE = 3;
+    private const SUBDETALLE = 4;
+    private const AUTORIZADORGASTO = 5;
+    private const EMPLEADO = 6;
     private const RUC = 7;
-    private const SINFACTURA =8;
+    private const SINFACTURA = 8;
     private const CIUDAD = 9;
 
 
@@ -372,6 +372,14 @@ class SaldoController extends Controller
             $results = Gasto::empaquetar($gastos);
             $titulo = 'REPORTE ';
             $subtitulo = '';
+            $fecha = Carbon::parse($fecha_inicio);
+            $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
+            $acreditaciones = 0;
+            $transferencia = 0;
+            $transferencia_recibida = 0;
+            $gastos_totales = 0;
+            $total = 0;
+            $saldo_old = 0;
             switch ($request->tipo_filtro) {
                 case self::PROYECTO:
                     $proyecto = Proyecto::where('id', $request->proyecto)->first();
@@ -402,6 +410,30 @@ class SaldoController extends Controller
                     $usuario = Empleado::where('id', $request->empleado)->first();
                     $titulo .= 'DE GASTOS POR EMPLEADO ';
                     $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
+                    $saldo_anterior = SaldoGrupo::where('id_usuario', $request->empleado)
+                        ->where('fecha', '<=', $fecha_anterior)
+                        ->orderBy('created_at', 'desc')->limit(1)->first();
+                    $acreditaciones = Acreditaciones::with('usuario')
+                        ->where('id_usuario', $request->empleado)
+                        ->where('id_estado', EstadoAcreditaciones::REALIZADO)
+                        ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                        ->sum('monto');
+                    $transferencia = Transferencias::where('usuario_envia_id', $request->empleado)
+                        ->where('estado', 1)
+                        ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                        ->sum('monto');
+                    $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->empleado)
+                        ->where('estado', 1)
+                        ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                        ->sum('monto');
+                    $gastos = Gasto::with('empleado', 'detalleEstado', 'detalle_info', 'subDetalle', 'authEspecialUser', 'tarea')
+                        ->where('estado', Gasto::APROBADO)
+                        ->where('id_usuario', $request->empleado)
+                        ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                        ->get();
+                    $gastos_totales =  $gastos->sum('total');
+                    $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
+                    $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
                     break;
                 case self::RUC:
                     $ruc = Gasto::where('ruc', $request->ruc)->first();
@@ -425,6 +457,14 @@ class SaldoController extends Controller
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
                 'subdetalle' => $request->subdetalle,
+                'fecha_anterior' => $fecha_anterior,
+                'saldo_anterior' => $saldo_anterior,
+                'acreditaciones' => $acreditaciones,
+                'transferencia' => $transferencia,
+                'transferencia_recibida' => $transferencia_recibida,
+                'gastos_totales' => $gastos_totales,
+                'total_suma' => $total,
+                'saldo_anterior' => $saldo_old
             ];
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen_filtrado' : 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
