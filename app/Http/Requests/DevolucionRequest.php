@@ -82,7 +82,8 @@ class DevolucionRequest extends FormRequest
                         ->where(function ($query) {
                             $query->where('cliente_id', $this->cliente)
                                 ->orWhere('cliente_id', null);
-                        })->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
+                        })->where('cantidad_stock','>',0)
+                        ->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {
                             $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock. En stock ' . $material->cantidad_stock);
