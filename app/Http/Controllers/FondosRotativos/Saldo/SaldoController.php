@@ -366,8 +366,7 @@ class SaldoController extends Controller
                 $gastos = $gastosQuery->get();
             }
 
-
-            $usuario = Empleado::where('id', $request->empleado)->first();
+            $usuario = null;
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
             $titulo = 'REPORTE ';
@@ -458,13 +457,12 @@ class SaldoController extends Controller
                 'tipo_filtro' => $tipo_filtro,
                 'subdetalle' => $request->subdetalle,
                 'fecha_anterior' => $fecha_anterior,
-                'saldo_anterior' => $saldo_anterior,
+                'saldo_anterior' => $saldo_old,
                 'acreditaciones' => $acreditaciones,
                 'transferencia' => $transferencia,
                 'transferencia_recibida' => $transferencia_recibida,
                 'gastos_totales' => $gastos_totales,
                 'total_suma' => $total,
-                'saldo_anterior' => $saldo_old
             ];
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen_filtrado' : 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
