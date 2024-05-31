@@ -137,6 +137,12 @@
                                         <table width="100%" border="1" align="left" cellpadding="0"
                                             cellspacing="0">
                                             <tr>
+                                                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                                                    <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
+                                                </td>
+                                                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                                    <div align="center"><strong>LUGAR</strong></div>
+                                                </td>
                                                 <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
                                                     <div align="center"><strong>FECHA CONSOLIDADO</strong></div>
                                                 </td>
@@ -149,6 +155,15 @@
                                             </tr>
                                             <!--Saldo Inicial-->
                                             <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario_nombre }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
                                                 <td style="font-size:10px" width="17%">
                                                     <div align="center">{{ date('d-m-Y', strtotime($fecha_anterior)) }}
                                                     </div>
@@ -164,6 +179,15 @@
                                             <!--Fin Saldo Inicial-->
                                             <!--Acreditaciones-->
                                             <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario_nombre }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
                                                 <td style="font-size:10px" width="17%">
                                                     <div align="center">
                                                         {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
@@ -180,6 +204,15 @@
                                             <!--Fin Acreditaciones-->
                                             <!--Transferencias-->
                                             <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario_nombre }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
                                                 <td style="font-size:10px" width="17%">
                                                     <div align="center">
                                                         {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
@@ -196,6 +229,15 @@
                                             <!--Fin Transferencias-->
                                             <!--transferencias recibidas-->
                                             <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario_nombre }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
                                                 <td style="font-size:10px" width="17%">
                                                     <div align="center">
                                                         {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
@@ -211,6 +253,15 @@
                                             </tr>
                                             <!--Gastos-->
                                             <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario_nombre }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
                                                 <td style="font-size:10px" width="17%">
                                                     <div align="center">
                                                         {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
@@ -227,7 +278,7 @@
                                             <!--Fin Gastos-->
                                             <!--Saldo Final-->
                                             <tr>
-                                                <td colspan="2" style="font-size:10px">
+                                                <td colspan="4" style="font-size:10px">
                                                     <div align="right"><strong>TOTAL:</strong></div>
                                                 </td>
                                                 <td style="font-size:10px" align="center">

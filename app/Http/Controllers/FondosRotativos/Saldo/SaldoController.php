@@ -379,6 +379,8 @@ class SaldoController extends Controller
             $gastos_totales = 0;
             $total = 0;
             $saldo_old = 0;
+            $usuario_nombre='';
+            $usuario_canton = '';
             switch ($request->tipo_filtro) {
                 case self::PROYECTO:
                     $proyecto = Proyecto::where('id', $request->proyecto)->first();
@@ -407,6 +409,9 @@ class SaldoController extends Controller
                     break;
                 case self::EMPLEADO:
                     $usuario = Empleado::where('id', $request->empleado)->first();
+                    $usuario_nombre  = $usuario->nombres . ' ' . $usuario->apellidos;
+                    $usuario_canton =  $usuario->canton->canton;
+
                     $titulo .= 'DE GASTOS POR EMPLEADO ';
                     $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
                     $saldo_anterior = SaldoGrupo::where('id_usuario', $request->empleado)
@@ -452,6 +457,8 @@ class SaldoController extends Controller
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
                 'usuario' => $usuario,
+                'usuario_nombre' => $usuario_nombre,
+                'usuario_canton' => $usuario_canton,
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
