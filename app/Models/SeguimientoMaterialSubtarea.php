@@ -33,4 +33,8 @@ class SeguimientoMaterialSubtarea extends Model implements Auditable
         return $this->hasOne(Subtarea::class, 'id', 'subtarea_id');
         // return $query->where('subtarea_id', $subtarea_id);
     }
+
+    public function materialEmpleadoTarea(){
+        return $this->belongsTo(MaterialEmpleadoTarea::class, 'detalle_producto_id', 'detalle_producto_id');
+    }
 }

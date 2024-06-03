@@ -30,7 +30,6 @@ use Database\Seeders\Medico\TipoAntecedenteSeeder;
 use Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder;
 use Database\Seeders\Medico\TipoAptitudSeeder;
 use Database\Seeders\Medico\TipoCuestionarioSeeder;
-use Database\Seeders\Medico\TipoDescripcionAntecedenteTrabajoSeeder;
 use Database\Seeders\Medico\TipoEvaluacionMedicaRetiroSeeder;
 use Database\Seeders\Medico\TipoExamenSeeder;
 use Database\Seeders\Medico\TipoFactorRiesgoSeeder;
@@ -89,7 +88,6 @@ class ModuloMedicoSeeder extends Seeder
             TipoAptitudSeeder::class,
             TipoHabitoToxicoSeeder::class,
             TipoDiscapacidadSeeder::class,
-
         ]);
     }
 }
