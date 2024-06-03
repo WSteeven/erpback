@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Medico;
 
 use App\Models\Medico\TipoCuestionario;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,10 +17,10 @@ class TipoCuestionarioSeeder extends Seeder
     {
         TipoCuestionario::insert([
             [
-                'titulo' => 'CUESTIONARIO PSICOSOCIAL',
+                'titulo' => 'CUESTIONARIO DE EVALUACIÓN DE RIESGOS PSICOSOCIALES',
             ],
             [
-                'titulo' => 'CUESTIONARIO DIAGNOSTICO CONSUMO DE DROGAS',
+                'titulo' => 'DIAGNÓSTICO INICIAL PROGRAMA INTEGRAL DE REDUCCIÓN Y PREVENCIÓN DEL USO Y CONSUMO DE DROGAS',
             ]
         ]);
     }

@@ -77,9 +77,9 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::VER . '.cuestionarios'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.cuestionarios'])->syncRoles([$empleado]);
 
-        // Reporte de cuestionarios psicosocial
-        Permission::firstOrCreate(['name' => self::VER . '.reporte_cuestionarios_psicosocial'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => self::ACCEDER . '.reporte_cuestionarios_psicosocial'])->syncRoles([$empleado]);
+        // Reporte de cuestionarios
+        Permission::firstOrCreate(['name' => self::VER . '.reportes_cuestionarios'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.reportes_cuestionarios'])->syncRoles([$medico]);
 
         // Cuestionarios psicosocial
         Permission::firstOrCreate(['name' => self::VER . '.cuestionarios_psicosocial'])->syncRoles([$empleado]);
@@ -135,8 +135,8 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::CREAR . ".registros_empleados_examenes"])->syncRoles([$medico]);
 
         //- Solicitudes de examenes (Agrupa los examenes solicitados)
-        Permission::firstOrCreate(['name' => self::VER . '.solicitudes_examenes'])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::ACCEDER . '.solicitudes_examenes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . '.solicitudes_examenes'])->syncRoles([$medico, $compras]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.solicitudes_examenes'])->syncRoles([$medico, $compras]);
         Permission::firstOrCreate(['name' => self::CREAR . '.solicitudes_examenes'])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => self::EDITAR . '.solicitudes_examenes'])->syncRoles([$medico, $compras]);
         Permission::firstOrCreate(['name' => self::AUTORIZAR . '.solicitudes_examenes'])->syncRoles([$compras]); // yloja

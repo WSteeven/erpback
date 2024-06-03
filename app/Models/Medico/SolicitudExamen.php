@@ -84,7 +84,7 @@ class SolicitudExamen extends Model implements Auditable
         $nombresJefe = $empleado->jefe ? Empleado::extraerNombresApellidos($empleado->jefe) : '(NO TIENE JEFE ASIGNADO)';
         $cargo = $empleado->cargo->nombre;
         $tipo_proceso_examen = $solicitudExamen->registroEmpleadoExamen->tipo_proceso_examen;
-        return 'EXAMENES ' . $tipo_proceso_examen . ' PARA ' . $nombresEmpleado . ' EN EL CARGO DE ' . $cargo . ' A CARGO DE ' . $nombresJefe . '.'; //' CON FECHA DE REALIZACIÓN  ';
+        return 'EXAMENES ' . $tipo_proceso_examen . ' PARA: ' . $nombresEmpleado . ', ' . $cargo . ' A CARGO DE ' . $nombresJefe . '.'; //' CON FECHA DE REALIZACIÓN  ';
     }
 
     public static function obtenerDescripcionDetalleOrdenCompra(SolicitudExamen $solicitudExamen)

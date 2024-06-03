@@ -131,6 +131,8 @@ class ConsultaMedicaController extends Controller
         $idEmisor = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_MEDICO)[0];
         $idsDestinatarios = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_RECURSOS_HUMANOS);
 
+        if (!$idEmisor && !count($idsDestinatarios)) return;
+
         foreach ($idsDestinatarios as $destinatario) {
             event(new DiasDescansoEvent($consulta_medica, $idEmisor, $destinatario));
         };

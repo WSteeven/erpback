@@ -47,6 +47,7 @@ class UserInfoResource extends JsonResource
             'tipo_sangre' => $empleado->tipo_sangre,
             'area_info' =>  $empleado->area?->nombre,
             'nombre_cargo' => $empleado->cargo?->nombre,
+            'genero' => $empleado->genero,
         ];
     }
 }

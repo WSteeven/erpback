@@ -125,7 +125,7 @@ class EmpleadoService
         return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
-    public function obtenerIdsEmpleadosPorRol(string $rol)
+    public function obtenerIdsEmpleadosPorRol(string $rol): array
     {
         // $usuario_ac->hasRole('RECURSOS HUMANOS')
         $idsUsuariosRRHH = User::role($rol)->pluck('id');

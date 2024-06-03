@@ -214,8 +214,10 @@ class SeguimientoService
         $idDetalleProducto = $request['detalle_producto_id'];
         $cantidadUtilizada = $request['cantidad_utilizada'];
         $fecha = $request['fecha'];
+        $cliente_id = $request['cliente_id'];
 
-        $materialSubtarea = SeguimientoMaterialStock::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->whereDate('created_at', Carbon::parse($fecha)->format('Y-m-d'))->first();
+        $materialSubtarea = SeguimientoMaterialStock::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->where('cliente_id', $cliente_id)->whereDate('created_at', Carbon::parse($fecha)->format('Y-m-d'))->first();
+        // $materialSubtarea = SeguimientoMaterialStock::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->whereDate('created_at', Carbon::parse($fecha)->format('Y-m-d'))->first();
 
         if ($materialSubtarea) {
             $materialSubtarea->cantidad_utilizada =  $cantidadUtilizada;
@@ -275,7 +277,7 @@ class SeguimientoService
         Log::channel('testing')->info('Log', compact('material'));
 
         $modelo['total_cantidad_utilizada'] = intval($materialesUsados->first(function ($item) use ($material) {
-            return $item->detalle_producto_id === $material->detalle_producto_id;
+            return $item->detalle_producto_id === $material->detalle_producto_id && $item->cliente_id === $material->cliente_id;
         })?->suma_total);
 
         return $modelo;
@@ -350,6 +352,7 @@ class SeguimientoService
             'medida' => $producto->unidadMedida?->simbolo,
             'serial' => $detalle->serial,
             'cliente' => $material->cliente_id ? Cliente::find($material->cliente_id)->empresa->razon_social : null,
+            'cliente_id' => $material->cliente_id,
         ];
 
         $servicio = new TransaccionBodegaEgresoService();

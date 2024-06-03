@@ -37,8 +37,7 @@ class DiasDescansoEvent
         $this->destinatario = $destinatario;
 
         $ruta = '/';
-        $mensaje = 'Al paciente ' . is_null($consulta_medica->citaMedica) ? Empleado::extraerNombresApellidos($consulta_medica->registroEmpleadoExamen?->empleado) : Empleado::extraerNombresApellidos($consulta_medica->citaMedica?->paciente) . ' se le ha asignado ' . $consulta_medica->dias_descanso . ' días de descanso.';
-
+        $mensaje = 'Al paciente ' . $consulta_medica->citaMedica?->paciente ? Empleado::extraerNombresApellidos($consulta_medica->citaMedica?->paciente) : Empleado::extraerNombresApellidos($consulta_medica->registroEmpleadoExamen?->empleado) . ' se le ha asignado ' . $consulta_medica->dias_descanso . ' días de descanso.';
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::DIAS_DESCANSO, $emisor, $destinatario, $consulta_medica, true);
     }
 
