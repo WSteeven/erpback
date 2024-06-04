@@ -12,6 +12,7 @@ use App\Http\Controllers\Vehiculos\PlanMantenimientoController;
 use App\Http\Controllers\Vehiculos\RegistroIncidenteController;
 use App\Http\Controllers\Vehiculos\SeguroVehicularController;
 use App\Http\Controllers\Vehiculos\ServicioController;
+use App\Http\Controllers\Vehiculos\TanqueoController;
 use App\Http\Controllers\Vehiculos\TipoVehiculoController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,7 @@ Route::apiResources(
         'asignaciones-vehiculos' => AsignacionVehiculoController::class,
         'ordenes-reparaciones' => OrdenReparacionController::class,
         'registros-incidentes' => RegistroIncidenteController::class,
+        'tanqueos' => TanqueoController::class,
     ],
     [
         'parameters' => [
@@ -56,6 +58,7 @@ Route::post('bitacoras-vehiculos/firmar-bitacora/{bitacora}', [BitacoraVehicular
 Route::post('multas/marcar-pagada/{multa}', [MultaConductorController::class, 'pagar'])->middleware('auth:sanctum');
 // pagar matricula vehicular
 Route::post('matriculas/marcar-pagada/{matricula}', [MatriculaController::class, 'pagar'])->middleware('auth:sanctum');
+Route::post('matriculas/registrar-estimado-pagar/{matricula}', [MatriculaController::class, 'estimadoPagar'])->middleware('auth:sanctum');
 
 // listar archivos
 Route::get('ordenes-reparaciones/files/{orden}', [OrdenReparacionController::class, 'indexFiles'])->middleware('auth:sanctum');

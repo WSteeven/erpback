@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('vehiculo_id')->nullable();
             $table->date('fecha_matricula')->nullable();
             $table->date('proxima_matricula')->nullable();
+            $table->double('valor_estimado_pagar')->nullable();
             $table->string('matriculador')->nullable();
             $table->boolean('matriculado')->default(false);
             $table->string('observacion')->nullable();

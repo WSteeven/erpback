@@ -38,7 +38,7 @@ class GuardarImagenIndividual
 
             return $ruta_relativa;
         } catch (\Throwable $th) {
-            Log::channel('testing')->info('Log', ['TH', $th->getMessage(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['TH', Utils::obtenerMensajeError($th, 'GuardarImagenIndividual')]);
             return null;
         }
     }

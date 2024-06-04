@@ -97,4 +97,14 @@ class MatriculaController extends Controller
         $mensaje = 'Matricula pagada correctamente';
         return response()->json(compact('modelo', 'mensaje'));
     }
+
+    public function estimadoPagar(Request $request, Matricula $matricula)
+    {
+        $request->validate(['valor_estimado_pagar' => ['required', 'numeric']]);
+        $matricula->valor_estimado_pagar = $request->valor_estimado_pagar;
+        $matricula->save();
+        $modelo = new MatriculaResource($matricula->refresh());
+        $mensaje = 'Valor a pagar matricula actualizado correctamente';
+        return response()->json(compact('modelo', 'mensaje'));
+    }
 }

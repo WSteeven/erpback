@@ -21,6 +21,7 @@ class MatriculaResource extends JsonResource
             'fecha_matricula' => date('m-Y', strtotime($this->fecha_matricula)),
             'proxima_matricula' => date('m-Y', strtotime($this->proxima_matricula)),
             'matriculador' => $this->matriculador,
+            'valor_estimado_pagar' => $this->valor_estimado_pagar?$this->valor_estimado_pagar:'NO DEFINIDO',
             'matriculado' => $this->matriculado,
             'estado' => $this->matriculado,
             'observacion' => $this->observacion,

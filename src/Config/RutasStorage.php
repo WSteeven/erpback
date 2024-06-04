@@ -55,6 +55,7 @@ enum RutasStorage: string
     case FOTOGRAFIAS_DIARIAS_VEHICULOS = 'public/vehiculos/fotografias_diarias';
     case EVIDENCIAS_INCIDENTES_VEHICULOS = 'public/vehiculos/evidencias_incidentes/';
     case EVIDENCIAS_ORDENES_REPARACIONES = 'public/vehiculos/evidencias_ordenes_reparaciones/';
+    case EVIDENCIAS_TANQUEOS_COMBUSTIBLES = 'public/vehiculos/evidencias_tanqueo_combustible';
     // Medico
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
     case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';
