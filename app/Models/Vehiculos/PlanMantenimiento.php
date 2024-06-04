@@ -24,6 +24,7 @@ class PlanMantenimiento extends Model implements Auditable
         'aplicar_desde',
         'aplicar_cada',
         'notificar_antes',
+        'datos_adicionales',
         'activo',
     ];
 

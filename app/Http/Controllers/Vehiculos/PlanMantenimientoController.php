@@ -74,8 +74,9 @@ class PlanMantenimientoController extends Controller
                     'aplicar_desde' => $request->aplicar_desde,
                     'aplicar_cada' => $servicio['intervalo'],
                     'notificar_antes' => $servicio['notificar_antes'],
+                    'datos_adicionales' => $servicio['datos_adicionales'],
                     'activo' => $request->activo,
-                ], uniqueBy: ['vehiculo_id', 'servicio_id'], update: ['aplicar_desde', 'aplicar_cada', 'notificar_antes', 'activo']);
+                ], uniqueBy: ['vehiculo_id', 'servicio_id'], update: ['aplicar_desde', 'aplicar_cada', 'notificar_antes', 'datos_adicionales', 'activo']);
                 $plan = PlanMantenimiento::where('vehiculo_id', $request->vehiculo)->where('servicio_id', $servicio['id'])->first();
                 Log::channel('testing')->info('Log', ['plan', $plan]);
                 // Auditar el evento

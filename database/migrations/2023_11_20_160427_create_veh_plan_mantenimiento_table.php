@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('aplicar_desde');
             $table->integer('aplicar_cada');
             $table->integer('notificar_antes')->nullable();
+            $table->text('datos_adicionales')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();
 

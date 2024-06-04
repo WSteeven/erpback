@@ -24,6 +24,7 @@ class PlanMantenimientoResource extends JsonResource
             'vehiculo' => $this->placa,
             'aplicar_desde' => count($this->itemsMantenimiento) > 0 ? $aplicar_desde : 'NO CONFIGURADO',
             'cantidad_servicios' => count($this->itemsMantenimiento),
+            'datos_adicionales' => $this->datos_adicionales,
             'activo' => $estado,
         ];
         if ($controller_method == 'show') {

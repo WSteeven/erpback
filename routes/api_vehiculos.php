@@ -59,6 +59,8 @@ Route::post('multas/marcar-pagada/{multa}', [MultaConductorController::class, 'p
 // pagar matricula vehicular
 Route::post('matriculas/marcar-pagada/{matricula}', [MatriculaController::class, 'pagar'])->middleware('auth:sanctum');
 Route::post('matriculas/registrar-estimado-pagar/{matricula}', [MatriculaController::class, 'estimadoPagar'])->middleware('auth:sanctum');
+Route::post('matriculas/reportes', [MatriculaController::class, 'reportes'])->middleware('auth:sanctum');
+Route::post('asignaciones-vehiculos/devolver-vehiculo/{asignacion}', [AsignacionVehiculoController::class, 'devolverVehiculo'])->middleware('auth:sanctum');
 
 // listar archivos
 Route::get('ordenes-reparaciones/files/{orden}', [OrdenReparacionController::class, 'indexFiles'])->middleware('auth:sanctum');

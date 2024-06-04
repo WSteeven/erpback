@@ -41,6 +41,9 @@ class VehiculoRequest extends FormRequest
             'tipo_vehiculo_id' => 'required|exists:veh_tipos_vehiculos,id',
             'tiene_gravamen' => 'boolean',
             'prendador' => 'required_if:tiene_gravamen,true',
+            'tipo' => ['required', 'string', Rule::in([Vehiculo::PROPIO, Vehiculo::ALQUILADO])],
+            'tiene_rastreo' => 'boolean',
+            'propietario' => 'required|string',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

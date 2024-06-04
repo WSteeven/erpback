@@ -24,6 +24,10 @@ return new class extends Migration
             $table->text('observacion_recibe')->nullable();
             $table->date('fecha_entrega');
             $table->enum('estado', [AsignacionVehiculo::PENDIENTE, AsignacionVehiculo::ACEPTADO, AsignacionVehiculo::RECHAZADO, AsignacionVehiculo::ANULADO])->default(AsignacionVehiculo::PENDIENTE);
+            $table->boolean('devuelto')->default(false);
+            $table->timestamp('fecha_devolucion')->nullable();
+            $table->unsignedBigInteger('devuelve_id')->nullable();
+            $table->text('observaciones_devolucion')->nullable();
             $table->text('accesorios')->nullable();
             $table->text('estado_carroceria')->nullable();
             $table->text('estado_mecanico')->nullable();
@@ -34,6 +38,7 @@ return new class extends Migration
             $table->foreign('entrega_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
             $table->foreign('responsable_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
             $table->foreign('canton_id')->references('id')->on('cantones')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('devuelve_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 

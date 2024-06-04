@@ -13,7 +13,9 @@ use App\Models\User;
 use App\Models\Vehiculos\AsignacionVehiculo;
 use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -41,10 +43,14 @@ class AsignacionVehiculoController extends Controller
         if (request()->filtro) {
             $results = AsignacionVehiculo::ignoreRequest(['filtro'])->filter()->orderBy('id', 'desc')->get();
         } else {
-            $results = AsignacionVehiculo::where(function ($query) {
-                $query->where('entrega_id', auth()->user()->empleado->id)
-                    ->orWhere('responsable_id', auth()->user()->empleado->id);
-            })->ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+            if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR_VEHICULOS])) {
+                $results = AsignacionVehiculo::ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+            } else {
+                $results = AsignacionVehiculo::where(function ($query) {
+                    $query->where('entrega_id', auth()->user()->empleado->id)
+                        ->orWhere('responsable_id', auth()->user()->empleado->id);
+                })->ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+            }
         }
         $results = AsignacionVehiculoResource::collection($results);
         return response()->json(compact('results'));
@@ -54,6 +60,10 @@ class AsignacionVehiculoController extends Controller
     {
         $datos = $request->validated();
         try {
+            $vehiculoAsignado = AsignacionVehiculo::where('vehiculo_id', $datos['vehiculo_id'])
+                ->where('estado', AsignacionVehiculo::ACEPTADO)
+                ->where('devuelto', false)->orderBy('id', 'desc')->first();
+            if ($vehiculoAsignado) throw new Exception('El vehículo seleccionado ya está asignado a un chofer y aún no ha sido devuelto, por favor devuelve el vehículo para poder asignarlo nuevamente.');
             DB::beginTransaction();
             $asignacion = AsignacionVehiculo::create($datos);
             //Lanzar el evento de la notificación
@@ -127,5 +137,27 @@ class AsignacionVehiculoController extends Controller
         } catch (\Throwable $th) {
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
         }
+    }
+
+    public function devolverVehiculo(Request $request, AsignacionVehiculo $asignacion)
+    {
+        $request->validate(['observacion' => ['string', 'required']]);
+        try {
+            //code...
+            if ($asignacion->devuelto) throw new Exception('El vehículo ya ha sido devuelto previamente. Por favor verifica e intenta nuevamente');
+            DB::beginTransaction();
+            $asignacion->observaciones_devolucion = $request->observacion;
+            $asignacion->fecha_devolucion = Carbon::now();
+            $asignacion->devuelve_id = auth()->user()->empleado->id;
+            $asignacion->devuelto = !$asignacion->devuelto;
+            $asignacion->save();
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        $modelo = new AsignacionVehiculoResource($asignacion->refresh());
+        $mensaje = 'Vehículo devuelto correctamente';
+        return response()->json(compact('modelo', 'mensaje'));
     }
 }

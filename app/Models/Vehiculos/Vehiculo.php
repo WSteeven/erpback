@@ -35,6 +35,9 @@ class Vehiculo extends Model implements Auditable
         'tiene_gravamen',
         'color',
         'prendador',
+        'tipo',
+        'tiene_rastreo',
+        'propietario',
     ];
 
     //Tracciones
@@ -45,6 +48,10 @@ class Vehiculo extends Model implements Auditable
     const TODOTERRENO = '4X4';
     const DOSXUNO = '2X1';
     const DOSXDOS = '2X2';
+
+    //Tipos de vehiculos
+    const PROPIO = 'PROPIO';
+    const ALQUILADO = 'ALQUILADO';
 
     //Tipos para el historial de vehiculos
     const TODOS = 'TODOS';
@@ -157,6 +164,7 @@ class Vehiculo extends Model implements Auditable
                     'tipo' => $servicio->tipo,
                     'intervalo' => $item->aplicar_cada,
                     'notificar_antes' => $item->notificar_antes,
+                    'datos_adicionales' => $item->datos_adicionales,
                     'estado' => $item->activo,
                 ];
             }

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Vehiculos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\MatriculaRequest;
 use App\Http\Resources\Vehiculos\MatriculaResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Vehiculos\Matricula;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -90,6 +92,7 @@ class MatriculaController extends Controller
             $matricula->matriculador = $request['matriculador'];
             $matricula->observacion = $request['observacion'];
             $matricula->monto = $request['monto'];
+            $matricula->fecha_pago = Carbon::now();
             $matricula->save();
         }
         $matricula->latestNotificacion()->update(['leida' => true]);
@@ -106,5 +109,47 @@ class MatriculaController extends Controller
         $modelo = new MatriculaResource($matricula->refresh());
         $mensaje = 'Valor a pagar matricula actualizado correctamente';
         return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    /**
+     * Reportes
+     */
+    public function reportes(Request $request)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $results = [];
+        $registros = [];
+        $results = Matricula::whereYear('updated_at', $request->anio)->where('matriculado', true)->get();
+        // Se realiza el grafico para el dashboard
+        $tituloGrafico = 'Costos de matriculación de vehículos';
+        $graficos = [];
+        $resultadosPorMes = $results->groupBy(function ($registro) {
+            return $registro->fecha_matricula;
+        })->map(function ($registro) {
+            return $registro->sum('monto');
+        });
+        $meses = [];
+        $sumas = [];
+
+        foreach ($resultadosPorMes as $mes => $suma) {
+            $meses[] = date('Y-m', strtotime($mes));
+            $sumas[] = $suma;
+        }
+        //Configuramos el grafico
+        $grafico = Utils::configurarGrafico(
+            1,
+            'MATRICULAS',
+            'Costos mensuales de matriculación de vehículos',
+            $meses,
+            Utils::colorDefault(),
+            $tituloGrafico,
+            $sumas
+        );
+        if ($results->count() > 0)
+            array_push($graficos, $grafico);
+        else $graficos = null;
+
+        $results = MatriculaResource::collection($results);
+        return response()->json(compact('results', 'graficos'));
     }
 }

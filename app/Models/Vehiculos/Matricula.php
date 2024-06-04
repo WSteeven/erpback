@@ -24,6 +24,7 @@ class Matricula extends Model implements Auditable
         'fecha_matricula',
         'proxima_matricula',
         'valor_estimado_pagar',
+        'fecha_pago',
         'matriculador',
         'matriculado',
         'observacion',

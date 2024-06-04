@@ -21,6 +21,7 @@ return new class extends Migration
             $table->double('valor_estimado_pagar')->nullable();
             $table->string('matriculador')->nullable();
             $table->boolean('matriculado')->default(false);
+            $table->timestamp('fecha_pago')->nullable();
             $table->string('observacion')->nullable();
             $table->double('monto')->nullable();
             $table->timestamps();
