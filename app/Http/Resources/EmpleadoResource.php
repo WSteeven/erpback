@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\RecursosHumanos\EmpleadoTipoDiscapacidadPorcentajeResource;
+use App\Models\Empleado;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -78,6 +79,7 @@ class EmpleadoResource extends JsonResource
         ];
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
+            $modelo['jefe_inmediato'] = Empleado::extraerNombresApellidos($this->jefe);
             $modelo['usuario'] = $this->user->name;
             $modelo['canton'] = $this->canton_id;
             $modelo['nombre_canton'] = $this->canton?->canton;

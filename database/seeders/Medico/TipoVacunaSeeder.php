@@ -10,34 +10,34 @@ class TipoVacunaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * php artisan db:seed --class=TipoVacunaSeeder
+     * php artisan db:seed --class="Database\Seeders\Medico/TipoVacunaSeeder"
      * @return void
      */
     public function run()
     {
         TipoVacuna::insert([
             [
-                'nombre' => 'Covid',
+                'nombre' => 'COVID',
                 'dosis_totales' => 4,
             ],
             [
-                'nombre' => 'Fiebre amarilla',
+                'nombre' => 'FIEBRE AMARILLA',
                 'dosis_totales' => 1,
             ],
             [
-                'nombre' => 'Difteria',
+                'nombre' => 'DIFTERIA/TÉTANOS',
                 'dosis_totales' => 3,
             ],
             [
-                'nombre' => 'Hepatitis a o b, ab',
+                'nombre' => 'HEPATITIS A',
                 'dosis_totales' => 1,
             ],
             [
-                'nombre' => 'Tetanos',
-                'dosis_totales' => 3,
+                'nombre' => 'HEPATITIS AB',
+                'dosis_totales' => 1,
             ],
             [
-                'nombre' => 'Influenza',
+                'nombre' => 'INFLUENZA',
                 'dosis_totales' => 1,
             ],
         ]);

@@ -15,7 +15,9 @@ class LaboratorioClinicoResource extends BaseResource
      */
     public function construirModelo($request)
     {
-        return [
+        $controller_method = request()->route()->getActionMethod();
+
+        $modelo = [
             'id' => $this->id,
             'nombre' => $this->nombre,
             'direccion' => $this->direccion,
@@ -23,7 +25,14 @@ class LaboratorioClinicoResource extends BaseResource
             'correo' => $this->correo,
             'coordenadas' => $this->coordenadas,
             'activo' => $this->activo,
-            'canton_id' => $this->canton_id,
+            'canton' => $this->canton->canton,
+            'activo' => $this->activo,
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['canton'] = $this->canton_id;
+        }
+
+        return $modelo;
     }
 }

@@ -27,6 +27,10 @@ class LaboratorioClinico extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
+    protected $casts = [
+        'activo' => 'boolean'
+    ];
+
     /*************
      * Relaciones
      *************/

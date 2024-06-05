@@ -51,31 +51,31 @@ class ModuloMedicoSeeder extends Seeder
          * Modulo medico
          *****************/
         $this->call([ // No cambiar el orden
-            PermisosMedicoSeeder::class,
+            /* PermisosMedicoSeeder::class,
             ExamenesOrganosReproductivosSeeder::class,
             TipoExamenSeeder::class,
             TipoCuestionarioSeeder::class,
             LaboratorioClinicoSeeder::class,
-            ExamenSeeder::class,
+            ExamenSeeder::class, */
             ConfiguracionExamenCategoriaSeeder::class,
             ConfiguracionExamenCampoSeeder::class,
-            CategoriaExamenSeeder::class,
+            /* CategoriaExamenSeeder::class,
             EstadoExamenSeeder::class,
             TipoVacunaSeeder::class,
             TipoAptitudMedicaLaboralSeeder::class,
             TipoEvaluacionMedicaRetiroSeeder::class,
-            DetalleExamenSeeder::class,
+            DetalleExamenSeeder::class, */
             /**** CUESTIONARIO PSICOSOCIAL */
-            PreguntaSeeder::class,
+           /*  PreguntaSeeder::class,
             RespuestaSeeder::class,
-            CuestionarioSeeder::class,
+            CuestionarioSeeder::class, */
             /* FIN CUESTIONARIO PSICOSOCIAL */
             /**** CUESTIONARIO DE ALCOHOL Y DROGAS */
-            PreguntasDiagnosticoConsumoDrogasSeeder::class,
+            /* PreguntasDiagnosticoConsumoDrogasSeeder::class,
             RespuestasDiagnosticoConsumoDrogasSeeder::class,
-            CuestionarioDiagnosticoConsumoDrogasSeeder::class,
+            CuestionarioDiagnosticoConsumoDrogasSeeder::class, */
             /* FIN CUESTIONARIO DE ALCOHOL Y DROGAS */
-            RegionCuerpoSeeder::class,
+            /* RegionCuerpoSeeder::class,
             CategoriaExamenFisicoSeeder::class,
             TipoFactorRiesgoSeeder::class,
             CategoriaFactorRiesgoSeeder::class,
@@ -87,7 +87,7 @@ class ModuloMedicoSeeder extends Seeder
             TipoAntecedenteSeeder::class,
             TipoAptitudSeeder::class,
             TipoHabitoToxicoSeeder::class,
-            TipoDiscapacidadSeeder::class,
+            TipoDiscapacidadSeeder::class, */
         ]);
     }
 }

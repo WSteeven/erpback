@@ -48,11 +48,13 @@ class CambioFechaHoraSolicitudExamenEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel(PusherEvents::CAMBIO_FECHA_HORA_SOLICITUD_EXAMEN . '-tracker-' . $this->destinatario);
+        $canal = 'cambio-fecha-hora-solicitud-examen-tracker-' . $this->destinatario;
+        return new Channel($canal);
+        // return new Channel(PusherEvents::CAMBIO_FECHA_HORA_SOLICITUD_EXAMEN . '-tracker-' . $this->destinatario);
     }
 
     public function broadcastAs()
     {
-        return PusherEvents::CAMBIO_FECHA_HORA_SOLICITUD_EXAMEN . '-event';
+        return 'cambio-fecha-hora-solicitud-examen-event';
     }
 }
