@@ -113,10 +113,13 @@ class BitacoraVehicularController extends Controller
 
     public function ultima()
     {
+        $modelo = [];
         if (request()->filtrar) {
             $bitacora = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->first();
         }
-        $modelo = new BitacoraVehicularResource($bitacora);
+        if ($bitacora) {
+            $modelo = new BitacoraVehicularResource($bitacora);
+        }
         return response()->json(compact('modelo'));
     }
 

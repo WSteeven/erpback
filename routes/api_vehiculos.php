@@ -14,6 +14,7 @@ use App\Http\Controllers\Vehiculos\SeguroVehicularController;
 use App\Http\Controllers\Vehiculos\ServicioController;
 use App\Http\Controllers\Vehiculos\TanqueoController;
 use App\Http\Controllers\Vehiculos\TipoVehiculoController;
+use App\Http\Controllers\Vehiculos\TransferenciaVehiculoController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,7 @@ Route::apiResources(
         'planes-mantenimientos' => PlanMantenimientoController::class,
         'tipos-vehiculos' => TipoVehiculoController::class,
         'asignaciones-vehiculos' => AsignacionVehiculoController::class,
+        'transferencias-vehiculos' => TransferenciaVehiculoController::class,
         'ordenes-reparaciones' => OrdenReparacionController::class,
         'registros-incidentes' => RegistroIncidenteController::class,
         'tanqueos' => TanqueoController::class,
@@ -43,6 +45,7 @@ Route::apiResources(
             'planes-mantenimientos' => 'vehiculo',
             'tipos-vehiculos' => 'tipo',
             'asignaciones-vehiculos' => 'asignacion',
+            'transferencias-vehiculos' => 'transferencia',
             'ordenes-reparaciones' => 'orden',
             'registros-incidentes' => 'registro',
         ],
@@ -63,11 +66,15 @@ Route::post('matriculas/reportes', [MatriculaController::class, 'reportes'])->mi
 Route::post('asignaciones-vehiculos/devolver-vehiculo/{asignacion}', [AsignacionVehiculoController::class, 'devolverVehiculo'])->middleware('auth:sanctum');
 
 // listar archivos
+Route::get('asignaciones-vehiculos/files/{asignacion}', [AsignacionVehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('transferencias-vehiculos/files/{transferencia}', [TransferenciaVehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('ordenes-reparaciones/files/{orden}', [OrdenReparacionController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('vehiculos/files/{vehiculo}', [VehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('registros-incidentes/files/{registro}', [RegistroIncidenteController::class, 'indexFiles'])->middleware('auth:sanctum');
 
 // guardar archivos
+Route::post('asignaciones-vehiculos/files/{asignacion}', [AsignacionVehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
+Route::post('transferencias-vehiculos/files/{transferencia}', [TransferenciaVehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('ordenes-reparaciones/files/{orden}', [OrdenReparacionController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('vehiculos/files/{vehiculo}', [VehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('registros-incidentes/files/{registro}', [RegistroIncidenteController::class, 'storeFiles'])->middleware('auth:sanctum');
@@ -80,4 +87,5 @@ Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactiv
  * RUTAS PARA IMPRIMIR PDFs
  */
 Route::get('asignaciones-vehiculos/imprimir/{asignacion}', [AsignacionVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');
+Route::get('transferencias-vehiculos/imprimir/{transferencia}', [AsignacionVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');
 Route::get('bitacoras-vehiculos/imprimir/{bitacora}', [BitacoraVehicularController::class, 'imprimir'])->middleware('auth:sanctum');
