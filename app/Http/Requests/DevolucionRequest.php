@@ -69,6 +69,7 @@ class DevolucionRequest extends FormRequest
                 foreach ($this->listadoProductos as $listado) {
                     $material = MaterialEmpleadoTarea::where('tarea_id', $this->tarea)
                         ->where('empleado_id', auth()->user()->empleado->id)
+                        ->where('cantidad_stock','>',0)
                         ->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {
