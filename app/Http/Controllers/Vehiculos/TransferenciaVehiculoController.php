@@ -11,13 +11,18 @@ use App\Models\Vehiculos\TransferenciaVehiculo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class TransferenciaVehiculoController extends Controller
 {
     private $entidad = 'Transferencia de Vehículo';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.transferencias_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.transferencias_vehiculos')->only('store');
         $this->middleware('can:puede.editar.transferencias_vehiculos')->only('update');
@@ -126,5 +131,38 @@ class TransferenciaVehiculoController extends Controller
         $transferencia->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, TransferenciaVehiculo $transferencia)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($transferencia);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, TransferenciaVehiculo $transferencia)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($transferencia, $request->file, RutasStorage::EVIDENCIAS_VEHICULOS_TRANSFERIDOS->value . $transferencia->vehiculo->placa);
+            $mensaje = 'Archivo subido correctamente';
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de TransferenciaVehiculoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
     }
 }

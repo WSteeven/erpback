@@ -38,6 +38,9 @@ class Vehiculo extends Model implements Auditable
         'tipo',
         'tiene_rastreo',
         'propietario',
+        'custodio_id',
+        'conductor_externo',
+        'identificacion_conductor_externo',
     ];
 
     //Tracciones
@@ -70,6 +73,7 @@ class Vehiculo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'aire_acondicionado' => 'boolean',
         'tiene_gravamen' => 'boolean',
+        'tiene_rastreo' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -139,6 +143,15 @@ class Vehiculo extends Model implements Auditable
     public function archivos()
     {
         return $this->morphMany(Archivo::class, 'archivable');
+    }
+
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o varios pedidos tienen un responsable
+     */
+    public function custodio()
+    {
+        return $this->belongsTo(Empleado::class);
     }
 
 

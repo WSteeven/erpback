@@ -18,7 +18,7 @@ class TransferenciaVehiculo extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
 
-    protected $table = 'veh_bitacoras_vehiculos';
+    protected $table = 'veh_transferencias_vehiculos';
     protected $fillable = [
         'vehiculo_id',
         'entrega_id',

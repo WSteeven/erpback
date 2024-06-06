@@ -21,13 +21,18 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class AsignacionVehiculoController extends Controller
 {
     private $entidad = 'Asignación';
+    private $archivoService;
+
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.asignaciones_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.asignaciones_vehiculos')->only('store');
         $this->middleware('can:puede.editar.asignaciones_vehiculos')->only('update');
@@ -159,5 +164,37 @@ class AsignacionVehiculoController extends Controller
         $modelo = new AsignacionVehiculoResource($asignacion->refresh());
         $mensaje = 'Vehículo devuelto correctamente';
         return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, AsignacionVehiculo $asignacion)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($asignacion);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, AsignacionVehiculo $asignacion)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($asignacion, $request->file, RutasStorage::EVIDENCIAS_VEHICULOS_ASIGNADOS->value . $asignacion->vehiculo->placa);
+            $mensaje = 'Archivo subido correctamente';
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de AsignacionVehiculoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
     }
 }

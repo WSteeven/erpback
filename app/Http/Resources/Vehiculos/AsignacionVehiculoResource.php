@@ -23,6 +23,7 @@ class AsignacionVehiculoResource extends JsonResource
             'entrega' => $this->entrega->nombres . ' ' . $this->entrega->apellidos,
             'responsable' => $this->responsable->nombres . ' ' . $this->responsable->apellidos,
             'canton' => $this->canton->canton,
+            'canton_id' => $this->canton_id,
             'responsable_id' => $this->responsable_id,
             'observacion_recibe' => $this->observacion_recibe,
             'observacion_entrega' => $this->observacion_entrega,

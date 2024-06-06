@@ -31,6 +31,7 @@ class VehiculoResource extends JsonResource
             'aire_acondicionado' => $this->aire_acondicionado,
             'capacidad_tanque' => $this->capacidad_tanque,
             'color' => $this->color,
+            'custodio' => $this->custodio?->nombres . ' ' . $this->custodio?->apellidos,
         ];
 
         if ($controller_method == 'show') {
@@ -43,6 +44,8 @@ class VehiculoResource extends JsonResource
             $modelo['tipo'] = $this->tipo;
             $modelo['tiene_rastreo'] = $this->tiene_rastreo;
             $modelo['propietario'] = $this->propietario;
+            $modelo['conductor_externo'] = $this->conductor_externo;
+            $modelo['identificacion_conductor_externo'] = $this->identificacion_conductor_externo;
         }
 
         return $modelo;

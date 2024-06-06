@@ -44,6 +44,9 @@ class VehiculoRequest extends FormRequest
             'tipo' => ['required', 'string', Rule::in([Vehiculo::PROPIO, Vehiculo::ALQUILADO])],
             'tiene_rastreo' => 'boolean',
             'propietario' => 'required|string',
+            'custodio_id' => 'sometimes|nullable|exists:empleados,id',
+            'conductor_externo' => 'sometimes|nullable|string',
+            'identificacion_conductor_externo' => 'sometimes|nullable|string',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -64,6 +67,7 @@ class VehiculoRequest extends FormRequest
             'modelo_id' => $this->modelo,
             'combustible_id' => $this->combustible,
             'tipo_vehiculo_id' => $this->tipo_vehiculo,
+            'custodio_id' => $this->custodio,
         ]);
     }
 }
