@@ -1,8 +1,10 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $logo_principal =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 @endphp
 
 <head>
@@ -391,10 +393,13 @@
                         <div align="left">{{ $gasto['factura'] }}</div>
                     </td>
                     <td style="font-size:10px">
-                        <div align="left">  {{ $gasto['proyecto'] != null ? $gasto['proyecto']['codigo_proyecto'].' - '.$gasto['proyecto']['nombre'] : 'Sin Proyecto' }} </div>
+                        <div align="left">
+                            {{ $gasto['proyecto'] != null ? $gasto['proyecto']['codigo_proyecto'] . ' - ' . $gasto['proyecto']['nombre'] : 'Sin Proyecto' }}
+                        </div>
                     </td>
                     <td style="font-size:10px">
-                        <div align="left"> {{ $gasto['tarea'] != null ? $gasto['tarea']['codigo_tarea'] : 'Sin Tarea' }}</div>
+                        <div align="left">
+                            {{ $gasto['tarea'] != null ? $gasto['tarea']['codigo_tarea'] : 'Sin Tarea' }}</div>
                     </td>
                     <td style="font-size:10px">
                         <div align="left">{{ strtoupper($gasto['sub_detalle_desc']) }}</div>
@@ -402,15 +407,15 @@
                     <td style="font-size:10px">
                         <div class="col-md-3">
                             <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="nombreImagen">
-                                <img src="{{  file_exists(public_path() . $gasto['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])):' ' }}"
-                                    width="250">
+                                <img src="{{ file_exists(public_path() . $gasto['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])) : ' ' }}"
+                                    width="250" />
                             </a>
                         </div>
                     </td>
                     <td style="font-size:10px">
                         <div class="col-md-3">
                             <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="nombreImagen">
-                                <img src="{{ file_exists(public_path() . $gasto['comprobante2']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2'])): ' ' }}"
+                                <img src="{{ file_exists(public_path() . $gasto['comprobante2']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2'])) : ' ' }}"
                                     width="250" />
                             </a>
                         </div>
@@ -444,7 +449,197 @@
                     </div>
                 </td>
             </tr>
+
+
+
         </table>
+
+        {{-- Aqui va lo que pidio Maybi <3 --}}
+        <p
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
+        <div class="col-md-7" align="center"><b>Transferencias Enviadas</b></div>
+        </p>
+        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+            <tr>
+                <td width="15%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA</strong></div>
+                </td>
+                <td width="17%" bgcolor="#a9d08e">
+                    <div align="center"><strong>REMITENTE</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DESTINATARIO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MONTO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>COMPROBANTE</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong># Cuenta</strong></div>
+                </td>
+                <td width="35%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MOTIVO</strong></div>
+                </td>
+                <td width="24%" bgcolor="#a9d08e">
+                    <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
+                </td>
+            </tr>
+            @if (sizeof($transferencias_enviadas) == 0)
+                <tr>
+                    <td colspan="7">
+                        <div align="center">NO HAY TRANSFERENCIAS ENVIADAS</div>
+                    </td>
+                </tr>
+            @else
+                @foreach ($transferencias_enviadas as $transferencia_enviada)
+                    <tr>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_enviada->fecha }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_enviada->empleadoEnvia->nombres . ' ' . $transferencia_enviada->empleadoEnvia->apellidos }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_enviada->empleadoRecibe->nombres . ' ' . $transferencia_enviada->empleadoRecibe->apellidos }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_enviada->monto }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div class="col-md-3">
+                                <a href="{{ url($transferencia_enviada['comprobante']) }}" target="_blank"
+                                    title="nombreImagen">
+                                    <img src="{{ file_exists(public_path() . $transferencia_enviada['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_enviada['comprobante'])) : ' ' }}"
+                                        width="250" />
+                                </a>
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_enviada->cuenta }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_enviada->motivo }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_enviada->observacion }}
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:10px">
+                        <div align="right"><strong>TOTAL DE TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ number_format($transferencia, 2, ',', ' ') }}</div>
+                    </td>
+                </tr>
+            @endif
+        </table>
+        <br>
+        <p
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
+        <div class="col-md-7" align="center"><b>Transferencias Recibidas</b></div>
+        </p>
+        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+            <tr>
+                <td width="15%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA</strong></div>
+                </td>
+                <td width="17%" bgcolor="#a9d08e">
+                    <div align="center"><strong>REMITENTE</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DESTINATARIO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MONTO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>#COMPROBANTE</strong></div>
+                </td>
+                <td width="35%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MOTIVO</strong></div>
+                </td>
+                <td width="24%" bgcolor="#a9d08e">
+                    <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
+                </td>
+            </tr>
+            @if (sizeof($transferencias_recibidas) == 0)
+                <tr>
+                    <td colspan="7">
+                        <div align="center">NO HAY TRANSFERENCIAS RECIBIDAS</div>
+                    </td>
+                </tr>
+            @else
+                @foreach ($transferencias_recibidas as $transferencia_recibida_data)
+                    <tr>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_recibida_data->fecha }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_recibida_data->empleadoEnvia->nombres . ' ' . $transferencia_recibida_data->empleadoEnvia->apellidos }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_recibida_data->empleadoRecibe->nombres . ' ' . $transferencia_recibida_data->empleadoRecibe->apellidos }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_recibida_data->monto }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_recibida_data->cuenta }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_recibida_data->motivo }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $transferencia_recibida_data->observacion }}
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:10px">
+                        <div align="right"><strong>TOTAL DE TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
+                    </td>
+                </tr>
+            @endif
+        </table>
+        <br>
+
     </main>
     <script type="text/php">
         if (isset($pdf)) {
