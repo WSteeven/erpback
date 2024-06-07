@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('observacion_recibe')->nullable();
             $table->date('fecha_entrega');
             $table->enum('estado', [AsignacionVehiculo::PENDIENTE, AsignacionVehiculo::ACEPTADO, AsignacionVehiculo::RECHAZADO, AsignacionVehiculo::ANULADO])->default(AsignacionVehiculo::PENDIENTE);
+            $table->boolean('transferido')->default(false);
             $table->boolean('devuelto')->default(false);
             $table->timestamp('fecha_devolucion')->nullable();
             $table->unsignedBigInteger('devuelve_id')->nullable();

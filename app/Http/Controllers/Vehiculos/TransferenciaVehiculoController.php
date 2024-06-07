@@ -59,6 +59,10 @@ class TransferenciaVehiculoController extends Controller
     {
         $datos = $request->validated();
         try {
+            
+            throw new Exception('Error controlado');
+
+            
             $vehiculoAsignado = TransferenciaVehiculo::where('vehiculo_id', $datos['vehiculo_id'])
                 ->where('estado', AsignacionVehiculo::ACEPTADO)
                 ->where('devuelto', false)->orderBy('id', 'desc')->first();
