@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Vehiculos;
 
 use App\Models\Vehiculos\TipoVehiculo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
