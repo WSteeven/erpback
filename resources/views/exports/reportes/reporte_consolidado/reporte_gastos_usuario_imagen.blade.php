@@ -512,7 +512,7 @@ $logo_watermark =
                 <td style="font-size:10px">
                     <div class="col-md-3" align="center">
                         <a href="{{ url($transferencia_enviada['comprobante']) }}" target="_blank" title="nombreImagen">
-                            <img src="{{ file_exists(public_path() . $transferencia_enviada['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_enviada['comprobante'])) : ' ' }}" height="10%" />
+                            <img src="{{ file_exists(public_path() . $transferencia_enviada['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_enviada['comprobante'])) : ' ' }}" style="max-width: 100%; height: auto;" />
                         </a>
                     </div>
                 </td>
@@ -599,7 +599,7 @@ $logo_watermark =
                 <td style="font-size:10px">
                 <div align="center">
                         <a href="{{ url($transferencia_recibida_data['comprobante']) }}" target="_blank" title="nombreImagen">
-                            <img src="{{ file_exists(public_path() . $transferencia_recibida_data['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_recibida_data['comprobante'])) : ' ' }}" height="250"/>
+                            <img src="{{ file_exists(public_path() . $transferencia_recibida_data['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_recibida_data['comprobante'])) : ' ' }}" style="max-width: 100%; height: auto;"/>
                         </a>
                     </div>
                 </td>
