@@ -526,7 +526,8 @@ class SaldoController extends Controller
         }
     }
     /**
-     * A function that is used to generate a report of the expenses of a user.
+     * Esta funcion devuelve los reportes de gastos con imagenes de un empleado.
+     * Utiliza la plantilla resources\views\exports\reportes\reporte_consolidado\reporte_gastos_usuario_imagen.blade.php
      *
      * @param request The request object.
      * @param tipo The type of report you want to generate.
@@ -534,8 +535,8 @@ class SaldoController extends Controller
     private  function gasto($request, $tipo, $imagen = false)
     {
         try {
-            $fecha_inicio = $request->fecha_inicio;
-            $fecha_fin =  $request->fecha_fin;
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
             $ultimo_saldo = 0;
             $acreditaciones = 0;
             $gastos_totales = 0;
@@ -576,14 +577,18 @@ class SaldoController extends Controller
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
                 $gastos_totales =  $gastos->sum('total');
-                $transferencia = Transferencias::where('usuario_envia_id', $request->empleado)
-                    ->where('estado', 1)
-                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                    ->sum('monto');
-                $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->empleado)
-                    ->where('estado', 1)
-                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                    ->sum('monto');
+                $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->empleado)
+                ->with('empleadoRecibe', 'empleadoEnvia')
+                ->where('estado', Transferencias::APROBADO)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+            $transferencia =  $transferencias_enviadas->sum('monto');
+            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->empleado)
+                ->with('empleadoRecibe', 'empleadoEnvia')
+                ->where('estado', Transferencias::APROBADO)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+            $transferencia_recibida = $transferencias_recibidas->sum('monto');
                 $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
                 $empleado = Empleado::where('id', $request->empleado)->first();
@@ -605,9 +610,12 @@ class SaldoController extends Controller
                 'acreditaciones' => $acreditaciones,
                 'gastos_totales' => $gastos_totales,
                 'transferencia' => $transferencia,
-                'transferencia_recibida' => $transferencia_recibida
+                'transferencia_recibida' => $transferencia_recibida,
+                'transferencias_enviadas' => $transferencias_enviadas,
+                'transferencias_recibidas' => $transferencias_recibidas,
             ];
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
+            Log::channel('testing')->info('Log', ['gastos con imagen',count($reportes['gastos']), $reportes]);
             $export_excel = new GastoConsolidadoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimir_reporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);

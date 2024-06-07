@@ -412,7 +412,7 @@
                         <div class="col-md-3">
                             <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="nombreImagen">
                                 <img src="{{ file_exists(public_path() . $gasto['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])) : ' ' }}"
-                                    width="250">
+                                    width="250"/>
                             </a>
                         </div>
                     </td>
