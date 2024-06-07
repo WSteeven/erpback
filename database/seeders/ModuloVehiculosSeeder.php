@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Vehiculos\PermisosModuloVehiculosSeeder;
 use Database\Seeders\Vehiculos\ServicioSeeder;
 use Database\Seeders\Vehiculos\TipoVehiculoSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,6 +18,7 @@ class ModuloVehiculosSeeder extends Seeder
     public function run()
     {
         $this->call([
+            PermisosModuloVehiculosSeeder::class,
             ServicioSeeder::class,
             TipoVehiculoSeeder::class,
         ]);
