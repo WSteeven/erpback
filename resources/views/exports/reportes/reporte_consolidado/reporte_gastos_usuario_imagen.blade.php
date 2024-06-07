@@ -373,16 +373,16 @@ $logo_watermark =
             @endphp
             <tr>
                 <td style="font-size:10px">
-                    <div align="left">{{ $gasto['num_registro'] }}
+                    <div align="center">{{ $gasto['num_registro'] }}
                     </div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="left">
+                    <div align="center">
                         {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
                     </div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="left">{{ strtoupper($gasto['lugar']) }}
+                    <div align="center">{{ strtoupper($gasto['lugar']) }}
                     </div>
                 </td>
                 <td style="font-size:10px">
@@ -392,20 +392,20 @@ $logo_watermark =
                     <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha_autorizacion'])) }}</div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="left">{{ $gasto['factura'] }}</div>
+                    <div align="center">{{ $gasto['factura'] }}</div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="left">
+                    <div align="center">
                         {{ $gasto['proyecto'] != null ? $gasto['proyecto']['codigo_proyecto'] . ' - ' . $gasto['proyecto']['nombre'] : 'Sin Proyecto' }}
                     </div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="left">
+                    <div align="center">
                         {{ $gasto['tarea'] != null ? $gasto['tarea']['codigo_tarea'] : 'Sin Tarea' }}
                     </div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="left">{{ strtoupper($gasto['sub_detalle_desc']) }}</div>
+                    <div align="center">{{ strtoupper($gasto['sub_detalle_desc']) }}</div>
                 </td>
                 <td style="font-size:10px">
                     <div class="col-md-3">
@@ -422,15 +422,15 @@ $logo_watermark =
                     </div>
                 </td>
                 <td style="font-size:10px; word-wrap: break-word;">
-                    <div align="left">{{ strtoupper($gasto['observacion']) }}</div>
+                    <div align="center">{{ strtoupper($gasto['observacion']) }}</div>
                 </td>
                 <td style="font-size:10px; word-wrap: break-word;">
-                    <div align="left">{{ strtoupper($gasto['detalle_estado']) }}</div>
+                    <div align="center">{{ strtoupper($gasto['detalle_estado']) }}</div>
                 </td>
                 <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['centro_costo'] }}</td>
                 <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['sub_centro_costo'] }}</td>
                 <td style="font-size:10px" width="29%">
-                    <div align="left">
+                    <div align="center">
                         {{ $gasto['autorizador'] }}
                     </div>
                 </td>
@@ -451,39 +451,40 @@ $logo_watermark =
                     </div>
                 </td>
             </tr>
-
-
-
         </table>
 
+        <br>
         {{-- Aqui va lo que pidio Maybi <3 --}}
         <p style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
         <div class="col-md-7" align="center"><b>Transferencias Enviadas</b></div>
         </p>
-        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+
+        
+
+        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
-                <td width="10%" bgcolor="#a9d08e">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
                     <div align="center"><strong>FECHA</strong></div>
                 </td>
-                <td width="15%" bgcolor="#a9d08e">
+                <td width="15%" bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>REMITENTE</strong></div>
                 </td>
-                <td width="15%" bgcolor="#a9d08e">
+                <td width="15%" bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>DESTINATARIO</strong></div>
                 </td>
-                <td width="10%" bgcolor="#a9d08e">
+                <td width="10%" bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>MONTO</strong></div>
                 </td>
-                <td width="15%" bgcolor="#a9d08e">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="3%">
                     <div align="center"><strong>COMPROBANTE</strong></div>
                 </td>
-                <td width="15%" bgcolor="#a9d08e">
+                <td width="15%" bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong># Cuenta</strong></div>
                 </td>
-                <td width="10%" bgcolor="#a9d08e">
+                <td width="10%" bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>MOTIVO</strong></div>
                 </td>
-                <td width="10%" bgcolor="#a9d08e">
+                <td width="10%" bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                 </td>
             </tr>
@@ -509,9 +510,9 @@ $logo_watermark =
                     <div align="center">{{ $transferencia_enviada->monto }}</div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="center">
+                    <div class="col-md-3" align="center">
                         <a href="{{ url($transferencia_enviada['comprobante']) }}" target="_blank" title="nombreImagen">
-                            <img src="{{ file_exists(public_path() . $transferencia_enviada['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_enviada['comprobante'])) : ' ' }}" />
+                            <img src="{{ file_exists(public_path() . $transferencia_enviada['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_enviada['comprobante'])) : ' ' }}" height="10%" />
                         </a>
                     </div>
                 </td>
@@ -596,8 +597,10 @@ $logo_watermark =
                     </div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_recibida_data->cuenta }}
+                <div align="center">
+                        <a href="{{ url($transferencia_recibida_data['comprobante']) }}" target="_blank" title="nombreImagen">
+                            <img src="{{ file_exists(public_path() . $transferencia_recibida_data['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $transferencia_recibida_data['comprobante'])) : ' ' }}" height="250"/>
+                        </a>
                     </div>
                 </td>
                 <td style="font-size:10px">
