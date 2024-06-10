@@ -17,11 +17,11 @@ use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
+use Src\App\Vehiculos\VehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -29,10 +29,12 @@ class AsignacionVehiculoController extends Controller
 {
     private $entidad = 'Asignación';
     private $archivoService;
+    private $vehiculoService;
 
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
+        $this->vehiculoService = new VehiculoService();
         $this->middleware('can:puede.ver.asignaciones_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.asignaciones_vehiculos')->only('store');
         $this->middleware('can:puede.editar.asignaciones_vehiculos')->only('update');
@@ -65,10 +67,9 @@ class AsignacionVehiculoController extends Controller
     {
         $datos = $request->validated();
         try {
-            $vehiculoAsignado = AsignacionVehiculo::where('vehiculo_id', $datos['vehiculo_id'])
-                ->where('estado', AsignacionVehiculo::ACEPTADO)
-                ->where('devuelto', false)->orderBy('id', 'desc')->first();
-            if ($vehiculoAsignado) throw new Exception('El vehículo seleccionado ya está asignado a un chofer y aún no ha sido devuelto, por favor devuelve el vehículo para poder asignarlo nuevamente.');
+            $vehiculoDisponible = $this->vehiculoService->verificarDisponibilidadVehiculo($datos['vehiculo_id']);
+            if (!$vehiculoDisponible) throw new Exception('El vehículo seleccionado ya está asignado/transferido a un chofer y aún no ha sido devuelto, por favor devuelve el vehículo para poder asignarlo nuevamente.');
+
             DB::beginTransaction();
             $asignacion = AsignacionVehiculo::create($datos);
             //Lanzar el evento de la notificación

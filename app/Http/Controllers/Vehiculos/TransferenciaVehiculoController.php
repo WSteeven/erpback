@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\ArchivoService;
+use Src\App\Vehiculos\VehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -20,9 +21,11 @@ class TransferenciaVehiculoController extends Controller
 {
     private $entidad = 'Transferencia de Vehículo';
     private $archivoService;
+    private $vehiculoService;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
+        $this->vehiculoService = new VehiculoService();
         $this->middleware('can:puede.ver.transferencias_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.transferencias_vehiculos')->only('store');
         $this->middleware('can:puede.editar.transferencias_vehiculos')->only('update');
@@ -59,14 +62,27 @@ class TransferenciaVehiculoController extends Controller
     {
         $datos = $request->validated();
         try {
-            
-            throw new Exception('Error controlado');
+            if (is_null($datos['asignacion_id']) && is_null($datos['transferencia_id'])) throw new Exception("Debe ingresar un número de asignación o número de transferencia.");
+            if (!is_null($datos['asignacion_id']) && !is_null($datos['transferencia_id'])) throw new Exception("Transferencia no válida, no puede tener número de asignación y número de transferencia al mismo tiempo.");
+            if ($datos['asignacion_id']) {
+                $asignacion = AsignacionVehiculo::find($datos['asignacion_id']);
+                if ($asignacion) {
+                    if (!$asignacion->devuelto && !$asignacion->transferido && $asignacion->estado == AsignacionVehiculo::ACEPTADO) {
+                        // Se actualiza la asignación
 
+                    } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
+                } else throw new Exception("No se encuentra el número de asignación ingresado");
+            } else {
+                $transferencia = TransferenciaVehiculo::find($datos['transferencia_id']);
+                if ($transferencia) {
+                    if (!$transferencia->devuelto && !$transferencia->transferido && $transferencia->estado == AsignacionVehiculo::ACEPTADO) {
+                        // Se actualiza la transferencia
+                    } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
+                } else throw new Exception("No se encuentra el número de transferencia ingresado");
+            }
+            $vehiculoDisponible = $this->vehiculoService->verificarDisponibilidadVehiculo($datos['vehiculo_id']);
+            if (!$vehiculoDisponible) throw new Exception('El vehículo seleccionado ya está asignado/transferido a un chofer y aún no ha sido devuelto, por favor devuelve el vehículo para poder asignarlo nuevamente.');
             
-            $vehiculoAsignado = TransferenciaVehiculo::where('vehiculo_id', $datos['vehiculo_id'])
-                ->where('estado', AsignacionVehiculo::ACEPTADO)
-                ->where('devuelto', false)->orderBy('id', 'desc')->first();
-            if ($vehiculoAsignado) throw new Exception('El vehículo seleccionado ya está asignado a un chofer y aún no ha sido devuelto, por favor devuelve el vehículo para poder asignarlo nuevamente.');
             DB::beginTransaction();
             $transferencia = TransferenciaVehiculo::create($datos);
             //Lanzar el evento de la notificación

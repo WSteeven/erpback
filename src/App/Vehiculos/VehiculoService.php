@@ -12,6 +12,7 @@ use App\Models\Vehiculos\AsignacionVehiculo;
 use App\Models\Vehiculos\MantenimientoVehiculo;
 use App\Models\Vehiculos\OrdenReparacion;
 use App\Models\Vehiculos\RegistroIncidente;
+use App\Models\Vehiculos\TransferenciaVehiculo;
 use App\Models\Vehiculos\Vehiculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -104,6 +105,36 @@ class VehiculoService
             throw $th;
         }
         return $results;
+    }
+
+    /**
+     * La función "verificarDisponibilidadVehiculo" verifica si un vehículo está disponible para
+     * asignación a un empleado en función de su estado actual en el sistema.
+     * 
+     * @param int $vehiculo_id Verifica la disponibilidad de un vehículo en función de su ID. 
+     * Primero busca cualquier asignación del vehículo en la tabla `AsignacionVehiculo` donde 
+     * el estado es 'ACEPTADO', no transferido y no devuelto.
+     * 
+     * @return bool Si se cumplen las condiciones tanto para `AsignacionVehiculo` como para
+     * `TransferenciaVehiculo`, entonces devuelve `false`, indicando que el vehículo no
+     * está disponible. De lo contrario, devuelve "verdadero", lo que indica que el vehículo está
+     * disponible para su asignación.
+     */
+    public function verificarDisponibilidadVehiculo(int $vehiculo_id)
+    {
+        //Primero se verifica si el vehículo está asignado a alguien por medio de una asignación
+        $vehiculoAsignado = AsignacionVehiculo::where('vehiculo_id', $vehiculo_id)
+            ->where('estado', AsignacionVehiculo::ACEPTADO)->where('transferido', false)
+            ->where('devuelto', false)->orderBy('id', 'desc')->first();
+        if ($vehiculoAsignado) return false;
+        else {
+            // En este caso se verifica si el vehículo está asignado a alguien por medio de una transferencia
+            $vehiculoAsignadoPorTransferencia = TransferenciaVehiculo::where('vehiculo_id', $vehiculo_id)
+                ->whereIn('estado', [AsignacionVehiculo::ACEPTADO, AsignacionVehiculo::PENDIENTE])
+                ->where('transferido', false)->where('devuelto', false)->orderBy('id', 'desc')->first();
+            if ($vehiculoAsignadoPorTransferencia) return false;
+        }
+        return true;
     }
 }
 
