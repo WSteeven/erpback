@@ -136,6 +136,24 @@ class VehiculoService
         }
         return true;
     }
+
+    /**
+     * La función actualiza el custodio_id de un vehículo en la base de datos.
+     * 
+     * @param int $vehiculo_id El parámetro `vehiculo_id` es un número entero que representa el
+     * identificador único del vehículo cuyo custodio se está actualizando.
+     * @param int|null $custodio_id El parámetro `custodio_id` en la función `actualizarCustodioVehiculo` es
+     * el identificador del custodio (responsable del vehículo) que se desea asignar a un vehículo
+     * específico. Es de tipo `int|null`, lo que significa que puede configurarse como null si es necesario.
+     */
+    public function actualizarCustodioVehiculo(int $vehiculo_id, int|null $custodio_id)
+    {
+        $vehiculo = Vehiculo::find($vehiculo_id);
+        if ($vehiculo) {
+            $vehiculo->custodio_id = $custodio_id;
+            $vehiculo->save();
+        }
+    }
 }
 
 //21E32R43Caerf2234dvg

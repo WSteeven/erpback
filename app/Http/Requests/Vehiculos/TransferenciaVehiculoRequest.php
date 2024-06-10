@@ -29,6 +29,7 @@ class TransferenciaVehiculoRequest extends FormRequest
             'entrega_id' => 'required|exists:veh_conductores,empleado_id',
             'responsable_id' => 'required|exists:veh_conductores,empleado_id',
             'canton_id' => 'required|exists:cantones,id',
+            'motivo' => 'required|string',
             'observacion_recibe' => 'nullable|sometimes|string',
             'observacion_entrega' => 'nullable|sometimes|string',
             'fecha_entrega' => 'required|string',
@@ -60,10 +61,10 @@ class TransferenciaVehiculoRequest extends FormRequest
             'estado_mecanico' => Utils::convertArrayToString($this->estado_mecanico,),
             'estado_electrico' => Utils::convertArrayToString($this->estado_electrico,),
             'devuelve_id' => $this->devuelve,
-            'asignacion_id' => $this->asignacion,
             'transferencia_id' => $this->transferencia,
         ]);
+        if (!is_null($this->asignacion)) $this->merge([
+            'asignacion_id' => $this->asignacion
+        ]);
     }
-
-    
 }

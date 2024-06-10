@@ -25,6 +25,7 @@ class TransferenciaVehiculoResource extends JsonResource
             'responsable_id' => $this->responsable_id,
             'canton' => $this->canton->canton,
             'canton_id' => $this->canton_id,
+            'motivo' => $this->motivo,
             'observacion_recibe' => $this->observacion_recibe,
             'observacion_entrega' => $this->observacion_entrega,
             'fecha_entrega' => $this->fecha_entrega,

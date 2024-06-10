@@ -64,6 +64,7 @@ Route::post('matriculas/marcar-pagada/{matricula}', [MatriculaController::class,
 Route::post('matriculas/registrar-estimado-pagar/{matricula}', [MatriculaController::class, 'estimadoPagar'])->middleware('auth:sanctum');
 Route::post('matriculas/reportes', [MatriculaController::class, 'reportes'])->middleware('auth:sanctum');
 Route::post('asignaciones-vehiculos/devolver-vehiculo/{asignacion}', [AsignacionVehiculoController::class, 'devolverVehiculo'])->middleware('auth:sanctum');
+Route::post('transferencias-vehiculos/devolver-vehiculo/{transferencia}', [TransferenciaVehiculoController::class, 'devolverVehiculo'])->middleware('auth:sanctum');
 
 // listar archivos
 Route::get('asignaciones-vehiculos/files/{asignacion}', [AsignacionVehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
@@ -87,5 +88,5 @@ Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactiv
  * RUTAS PARA IMPRIMIR PDFs
  */
 Route::get('asignaciones-vehiculos/imprimir/{asignacion}', [AsignacionVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');
-Route::get('transferencias-vehiculos/imprimir/{transferencia}', [AsignacionVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');
+Route::get('transferencias-vehiculos/imprimir/{transferencia}', [TransferenciaVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');
 Route::get('bitacoras-vehiculos/imprimir/{bitacora}', [BitacoraVehicularController::class, 'imprimir'])->middleware('auth:sanctum');

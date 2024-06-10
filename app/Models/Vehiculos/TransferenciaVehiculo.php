@@ -24,6 +24,7 @@ class TransferenciaVehiculo extends Model implements Auditable
         'entrega_id',
         'responsable_id',
         'canton_id',
+        'motivo',
         'observacion_recibe',
         'observacion_entrega',
         'fecha_entrega',
@@ -79,6 +80,24 @@ class TransferenciaVehiculo extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'entrega_id', 'id');
     }
+
+    /**
+     * Relación uno a muchos
+     */
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
+
     /**
      * Relacion polimorfica a una notificacion.
      * Una orden de compra puede tener una o varias notificaciones.

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('entrega_id')->nullable();
             $table->unsignedBigInteger('responsable_id')->nullable();
             $table->unsignedBigInteger('canton_id')->nullable();
+            $table->string('motivo');
             $table->text('observacion_entrega')->nullable();
             $table->text('observacion_recibe')->nullable();
             $table->date('fecha_entrega');

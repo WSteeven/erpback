@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers\Vehiculos;
 
+use App\Events\Vehiculos\NotificarTransferenciaVehiculoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\TransferenciaVehiculoRequest;
 use App\Http\Resources\Vehiculos\TransferenciaVehiculoResource;
+use App\Http\Resources\Vehiculos\VehiculoResource;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Empleado;
 use App\Models\User;
 use App\Models\Vehiculos\AsignacionVehiculo;
 use App\Models\Vehiculos\TransferenciaVehiculo;
+use App\Models\Vehiculos\Vehiculo;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -64,12 +72,14 @@ class TransferenciaVehiculoController extends Controller
         try {
             if (is_null($datos['asignacion_id']) && is_null($datos['transferencia_id'])) throw new Exception("Debe ingresar un número de asignación o número de transferencia.");
             if (!is_null($datos['asignacion_id']) && !is_null($datos['transferencia_id'])) throw new Exception("Transferencia no válida, no puede tener número de asignación y número de transferencia al mismo tiempo.");
+            DB::beginTransaction();
             if ($datos['asignacion_id']) {
                 $asignacion = AsignacionVehiculo::find($datos['asignacion_id']);
                 if ($asignacion) {
                     if (!$asignacion->devuelto && !$asignacion->transferido && $asignacion->estado == AsignacionVehiculo::ACEPTADO) {
                         // Se actualiza la asignación
-
+                        $asignacion->transferido = true;
+                        $asignacion->save();
                     } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
                 } else throw new Exception("No se encuentra el número de asignación ingresado");
             } else {
@@ -77,16 +87,18 @@ class TransferenciaVehiculoController extends Controller
                 if ($transferencia) {
                     if (!$transferencia->devuelto && !$transferencia->transferido && $transferencia->estado == AsignacionVehiculo::ACEPTADO) {
                         // Se actualiza la transferencia
+                        $transferencia->transferido = true;
+                        $transferencia->save();
                     } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
                 } else throw new Exception("No se encuentra el número de transferencia ingresado");
             }
             $vehiculoDisponible = $this->vehiculoService->verificarDisponibilidadVehiculo($datos['vehiculo_id']);
+
             if (!$vehiculoDisponible) throw new Exception('El vehículo seleccionado ya está asignado/transferido a un chofer y aún no ha sido devuelto, por favor devuelve el vehículo para poder asignarlo nuevamente.');
-            
-            DB::beginTransaction();
+
             $transferencia = TransferenciaVehiculo::create($datos);
             //Lanzar el evento de la notificación
-            // event(new NotificarTransferenciaVehiculoEvent($asignacion));
+            event(new NotificarTransferenciaVehiculoEvent($transferencia));
             $modelo = new TransferenciaVehiculoResource($transferencia);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -124,12 +136,15 @@ class TransferenciaVehiculoController extends Controller
 
             //Respuesta
             $transferencia->update($datos);
+            if ($transferencia->estado === AsignacionVehiculo::ACEPTADO)
+                $this->vehiculoService->actualizarCustodioVehiculo($transferencia->vehiculo_id, $transferencia->responsable_id);
+
             $modelo = new TransferenciaVehiculoResource($transferencia->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             //Marcar como leída la notificación anterior y lanzar el evento de la notificación
             $transferencia->latestNotificacion()->update(['leida' => true]);
-            // if ($transferencia->estado != 'ANULADO')
-            // event(new NotificarAsignacionVehiculoEvent($asignacion));
+            if ($transferencia->estado != 'ANULADO')
+                event(new NotificarTransferenciaVehiculoEvent($transferencia));
 
             DB::commit();
         } catch (\Throwable $th) {
@@ -151,6 +166,54 @@ class TransferenciaVehiculoController extends Controller
         $transferencia->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    public function actaEntrega(TransferenciaVehiculo $transferencia)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $resource = new TransferenciaVehiculoResource($transferencia);
+        $vehiculo = new VehiculoResource(Vehiculo::find($transferencia->vehiculo_id));
+        $fecha_entrega = new DateTime($transferencia->fecha_entrega);
+        try {
+
+            $pdf = Pdf::loadView('vehiculos.actas.acta_responsabilidad_transferencia', [
+                'configuracion' => $configuracion,
+                'transferencia' => $resource->resolve(),
+                'vehiculo' => $vehiculo->resolve(),
+                'mes' => Utils::$meses[$fecha_entrega->format('F')],
+                'entrega' => Empleado::find($transferencia->entrega_id),
+                'responsable' => Empleado::find($transferencia->responsable_id),
+            ]);
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->render();
+            return $pdf->output();
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th, 'No se puede imprimir el pdf: ');
+        }
+    }
+
+    public function devolverVehiculo(Request $request, TransferenciaVehiculo $transferencia)
+    {
+        $request->validate(['observacion' => ['string', 'required']]);
+        try {
+            //code...
+            if ($transferencia->devuelto) throw new Exception('El vehículo ya ha sido devuelto previamente. Por favor verifica e intenta nuevamente');
+            DB::beginTransaction();
+            $transferencia->observaciones_devolucion = $request->observacion;
+            $transferencia->fecha_devolucion = Carbon::now();
+            $transferencia->devuelve_id = auth()->user()->empleado->id;
+            $transferencia->devuelto = !$transferencia->devuelto;
+            $transferencia->save();
+            //actualizamos el custodio del vehículo
+            $this->vehiculoService->actualizarCustodioVehiculo($transferencia->vehiculo_id, $transferencia->responsable_id);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        $modelo = new TransferenciaVehiculoResource($transferencia->refresh());
+        $mensaje = 'Vehículo devuelto correctamente';
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
 

@@ -157,6 +157,8 @@ class AsignacionVehiculoController extends Controller
             $asignacion->devuelve_id = auth()->user()->empleado->id;
             $asignacion->devuelto = !$asignacion->devuelto;
             $asignacion->save();
+            //actualizamos el custodio del vehículo
+            $this->vehiculoService->actualizarCustodioVehiculo($asignacion->vehiculo_id, $asignacion->responsable_id);
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
