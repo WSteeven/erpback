@@ -542,6 +542,8 @@ class SaldoController extends Controller
             $gastos_totales = 0;
             $transferencia = 0;
             $transferencia_recibida = 0;
+            $transferencias_enviadas = [];
+            $transferencias_recibidas = [];
             $total = 0;
             $usuario_canton = '';
             $fecha_anterior = '';
