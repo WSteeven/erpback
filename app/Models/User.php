@@ -22,10 +22,14 @@ class User extends Authenticatable implements Auditable
     use AuditableModel;
     use UppercaseValuesTrait;
 
+    const BODEGA_TELCONET = 'BODEGA_TELCONET';
+
     const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
     const ROL_ADMINISTRATIVO = 'ADMINISTRATIVO';
+    const ROL_COORDINADOR_BODEGA = 'COORDINADOR DE BODEGA';
     const ROL_BODEGA = 'BODEGA';
+    const ROL_BODEGA_TELCONET = 'BODEGA TELCONET';
     const ROL_COMPRAS = 'COMPRAS';
     const ROL_CONTABILIDAD = 'CONTABILIDAD';
     const ROL_COORDINADOR = 'COORDINADOR';
@@ -34,12 +38,15 @@ class User extends Authenticatable implements Auditable
     const ROL_GERENTE = 'GERENTE';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
+    const ROL_SUPERVISOR_TECNICO = 'SUPERVISOR_TECNICO';
     const ROL_FISCALIZADOR = 'FISCALIZADOR';
     const ROL_SSO = 'SEGURIDAD Y SALUD OCUPACIONAL';
     const ROL_TECNICO = 'TECNICO';
     const ROL_LIDER_DE_GRUPO = 'LIDER DE GRUPO';
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
     const ROL_SECRETARIO = 'SECRETARIO';
+    const ROL_CONSULTA = 'CONSULTA';
+
     //Roles de administración
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
     const ROL_ADMINISTRADOR_VEHICULOS = 'ADMINISTRADOR VEHICULOS';
@@ -57,6 +64,16 @@ class User extends Authenticatable implements Auditable
     const JEFE_TECNICO = 'JEFE TECNICO';
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
+
+    // Modulo medico
+    const ROL_MEDICO = 'MEDICO';
+    //ventas claro
+    const JEFE_VENTAS = 'JEFE_VENTAS';
+    const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
+    const VENDEDOR = 'VENDEDOR';
+
+    //Fondos Rotativos
+    const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
 
 
 

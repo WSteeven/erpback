@@ -4,6 +4,7 @@ namespace App\Observers\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use Src\App\FondosRotativos\SaldoService;
 
 class AcreditacionObserver
 {
@@ -15,7 +16,7 @@ class AcreditacionObserver
      */
     public function created(Acreditaciones $acreditaciones)
     {
-        $this->guardar_acreditacion($acreditaciones);
+        $this->guardarAcreditacion($acreditaciones);
     }
 
     /**
@@ -26,7 +27,7 @@ class AcreditacionObserver
      */
     public function updated(Acreditaciones $acreditaciones)
     {
-        $this->guardar_anulacion_acreditacion($acreditaciones);
+        $this->anulacionAcreditacion($acreditaciones);
    }
 
     /**
@@ -61,50 +62,22 @@ class AcreditacionObserver
     {
         //
     }
-    private function guardar_acreditacion(Acreditaciones $acreditacion){
-        $saldo_anterior = SaldoGrupo::where('id_usuario', $acreditacion->id_usuario)->orderBy('id', 'desc')->first();
-        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        $saldo = new SaldoGrupo();
-        $saldo->fecha = $acreditacion->fecha;
-        $saldo->saldo_anterior = $total_saldo_actual;
-        $saldo->saldo_depositado = $acreditacion->monto;
-        $saldo->saldo_actual =  $total_saldo_actual+$acreditacion->monto;
-        $saldo->fecha_inicio =$this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[0];
-        $saldo->fecha_fin = $this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[1];;
-        $saldo->id_usuario = $acreditacion->id_usuario;
-        $saldo->tipo_saldo = "Ingreso";
-        $saldo->save();
+    private function guardarAcreditacion(Acreditaciones $acreditacion){
+        $data = array(
+            'fecha' =>  $acreditacion->fecha,
+            'monto' =>  $acreditacion->monto,
+            'empleado_id' => $acreditacion->id_usuario,
+            'tipo' => SaldoService::INGRESO
+        );
+        SaldoService::guardarSaldo($acreditacion, $data);
     }
-    private function guardar_anulacion_acreditacion(Acreditaciones $acreditacion){
-        $saldo_anterior = SaldoGrupo::where('id_usuario', $acreditacion->id_usuario)->orderBy('id', 'desc')->first();
-        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        $saldo = new SaldoGrupo();
-        $saldo->fecha = $acreditacion->fecha;
-        $saldo->saldo_anterior = $total_saldo_actual;
-        $saldo->saldo_depositado = $acreditacion->monto;
-        $saldo->saldo_actual =  $total_saldo_actual-$acreditacion->monto;
-        $saldo->fecha_inicio =$this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[0];
-        $saldo->fecha_fin = $this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[1];;
-        $saldo->id_usuario = $acreditacion->id_usuario;
-        $saldo->tipo_saldo = "Anulacion";
-        $saldo->save();
-    }
-    private function calcular_fechas($fecha)
-    {
-        $array_dias['Sunday'] = 0;
-        $array_dias['Monday'] = 1;
-        $array_dias['Tuesday'] = 2;
-        $array_dias['Wednesday'] = 3;
-        $array_dias['Thursday'] = 4;
-        $array_dias['Friday'] = 5;
-        $array_dias['Saturday'] = 6;
+    private function anulacionAcreditacion(Acreditaciones $acreditacion){
+        $data = array(
+            'fecha' =>  $acreditacion->fecha,
+            'monto' =>  $acreditacion->monto,
+            'empleado_id' => $acreditacion->id_usuario,
+            'tipo' => SaldoService::EGRESO
+        );
+        SaldoService::anularSaldo($acreditacion, $data);    }
 
-        $dia_actual = $array_dias[date('l', strtotime($fecha))];
-
-        $rest = $dia_actual + 1;
-        $sum = 5 - $dia_actual;
-        $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
-        $fechaFin = date("Y-m-d", strtotime($fecha. "+$sum days"));
-        return array($fechaIni, $fechaFin);
-    }
 }

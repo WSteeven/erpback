@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -13,20 +14,30 @@ class Provincia extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use UppercaseValuesTrait;
+    use Filterable;
 
     protected $table = "provincias";
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+    private static $whiteListFilter = ['*'];
 
 
 
     /**
      * Get the cantones of the provincia.
      */
-    public function cantones(){
+    public function cantones()
+    {
         return $this->hasMany(Canton::class);
     }
 
+    /**
+     * Get the country than owns the province.
+     */
+    public  function pais()
+    {
+        return $this->belongsTo(Pais::class);
+    }
 }

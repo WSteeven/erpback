@@ -32,27 +32,41 @@ class Transferencias extends Model implements Auditable
         'id_tarea',
         'estado',
         'comprobante',
-        'fecha'
+        'fecha',
+        'es_devolucion'
     ];
-    public function usuario_envia()
+    public const APROBADO = 1;
+    public const RECHAZADO = 2;
+    public const PENDIENTE = 3;
+    public const ANULADO = 4;
+
+    protected $casts = [
+        'es_devolucion' => 'boolean',
+    ];
+
+    public function empleadoEnvia()
     {
         return $this->belongsTo(Empleado::class, 'usuario_envia_id');
     }
-    public function estado_info()
+    public function estadoViatico()
     {
         return $this->hasOne(EstadoViatico::class, 'id','estado');
     }
-    public function tarea_info()
+    public function tarea()
     {
         return $this->hasOne(Tarea::class, 'id','id_tarea');
     }
-    public function usuario_recibe()
+    public function empleadoRecibe()
     {
         return $this->belongsTo(Empleado::class, 'usuario_recibe_id');
     }
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
+    }
+    public function saldoFondoRotativo()
+    {
+        return $this->morphMany(Saldo::class, 'saldoable');
     }
     private static $whiteListFilter = [
         'usuario_envia_id',

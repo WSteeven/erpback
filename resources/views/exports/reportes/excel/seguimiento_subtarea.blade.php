@@ -1,163 +1,422 @@
 <!DOCTYPE html>
-<html lang="es">
-
-@php
-$fecha = new Datetime();
-$logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-$logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png'));
-@endphp
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte</title>
     <style>
         @page {
             margin: 100px 25px;
-        }
-
-        .header {
-            position: fixed;
-            top: -55px;
-            left: 0px;
-            right: 0px;
-            height: 80px;
-            text-align: center;
-            line-height: 35px;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0px;
-            right: 0px;
-            height: 50px;
-            color: #333333;
-            text-align: center;
-            line-height: 35px;
-            font-size: 10px;
-            font-style: italic;
-        }
-
-        table,
-        td,
-        th {
-            border: 1px solid #000;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
         }
     </style>
 </head>
 
 <body>
-    <table style="color: #000; width: 100%; table-layout: fixed;" border="1" bordercolor="#000">
-        <tbody>
 
-            {{-- Fila 0 --}}
+    <table style="border: 1px solid #000; background: #fff;">
+        <thead>
             <tr>
-                <td>&nbsp;</td>
-                <td><img src="{{ public_path('img/logoJP.png') }}" width="90" /></td>
-                <td>&nbsp;</td>
+                <th></th>
+                <th rowspan="3" colspan="1" style="vertical-align: middle; text-align: center; width: 200px;">
+                    <img src="img/logo_nedetel.png" height="70px" style="margin: 0 auto;" />
+                </th>
+                <th rowspan="3" colspan="2"
+                    style="vertical-align: middle; text-align: center; font-size: 14pt; font-weight: bold; color: #2f5597;">
+                    {{'REPORTE DE ASISTENCIA TÉCNICA OPERATIVA'}} <br>
+                    {{'NEDETEL/UFINET - OUTSOURCING'}}</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody style="border: 2px solid #000; background: #fff;">
+            <tr></tr>
+            <tr></tr>
+            {{-- <tr></tr> --}}
+            {{-- <tr></tr> --}}
+
+            <tr>
+                <td style="width: 80px;"></td>
+                <td style="font-weight: bold;">TICKET/TAREA ASIGNADA:</td>
+                <td style="width: 200px;"></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000; width: 200px;">{{
+                    $subtarea->codigo_subtarea }}</td>
+                <td style="width: 80px; border-right: 8pt solid #000;"></td>
             </tr>
 
-            {{-- Fila 1 --}}
             <tr>
-                <td>&nbsp;</td>
-                <td align="center"><b>INFORME DE SEGUIMIENTO</b></td>
-                <td>&nbsp;</td>
+                <td></td>
+                <td style="font-weight: bold;">REGIONAL:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
+                    $subtarea->grupoResponsable?->region }}</td>
+                <td></td>
             </tr>
 
-            {{-- Fila 2 --}}
             <tr>
-                <td>&nbsp;</td>
-                <td align="center"><b>Módulo de tareas</b></td>
-                <td>&nbsp;</td>
+                <td></td>
+                <td style="font-weight: bold;">CONTRATISTA:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">JP CONSTRUCRED</td>
+                <td></td>
             </tr>
 
-            {{-- Fila 3 --}}
             <tr>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
+                <td></td>
+                <td style="font-weight: bold;">CUADRILLA ASIGNADA:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
+                    $subtarea->grupoResponsable?->nombre }}</td>
+                <td></td>
             </tr>
 
-            {{-- Fila 4 --}}
             <tr>
-                <td>Cronologia de trabajos realizados</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
+                <td></td>
+                <td style="font-weight: bold;">FECHA DE ELABORACIÓN DEL REPORTE:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{ $fecha_actual }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">REPORTE ELABORADO POR:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{ $reporte_generado_por }}</td>
+                <td></td>
             </tr>
 
             <tr></tr>
 
             <tr>
                 <td></td>
-                <td>hola</td>
+                <td style="font-weight: bold;">PERSONAL TÉCNICO OPERATIVO:</td>
                 <td></td>
-            </tr>
-
-            {{-- ############### --}}
-
-            {{-- Fila 5 --}}
-            <tr>
-
-                <table>
-
-                    <tr>
-                        <th>Hora</th>
-                        <th width="60">Actividad</th>
-                        <th></th>
-                    </tr>
-
-                    @foreach ($trabajo_realizado as $trabajo)
-                    <tr>
-                        <td>{{ $trabajo['hora'] }}</td>
-                        <td>{{ $trabajo['actividad'] }}</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                    @endforeach
-
-                </table>
-
-
-<br>
-
-
-                <table>
-                    <tr>
-                        <th>Detalle de producto</th>
-                        <th>Medida</th>
-                        <th>Cantidad utilizada</th>
-                    </tr>
-
-                    @foreach ($materiales_ocupados as $material)
-                    <tr>
-                        <td>
-                            <div>
-                                {{ $material['detalle_producto'] }}
-                            </div>
-                        </td>
-                        <td>{{ $material['medida'] }}</td>
-                        <td>{{ $material['cantidad_utilizada'] }}</td>
-                    </tr>
-                    @endforeach
-                </table>
-
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr></tr>
 
-            {{-- Fila 4 --}}
             <tr>
-                <td><b>Materiales designados para la tarea</b></td>
+                <td></td>
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <th style="border: 1px solid #000; text-align: center; font-weight: bold;">N°</th>
+                            <th colspan="3" style="border: 1px solid #000; text-align: center; font-weight: bold;">
+                                NOMBRES Y
+                                APELLIDOS</th>
+                        </tr>
+
+                        @foreach ($empleados_designados as $empleado)
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center;">{{ $loop->index + 1 }}</td>
+                            <td colspan="3" style="border: 1px solid #000;">{{ $empleado }}</td>
+                        </tr>
+                        @endforeach
+                    </table>
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">ATENCIÓN (INTERURBANO/URBANO):</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{ $subtarea->atencion }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">TIPO DE INTERVENCIÓN:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
+                    $subtarea->tipo_trabajo->descripcion }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">TRAMO AFECTADO/OBSERVADO:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
+                    $subtarea->tarea->rutaTarea?->ruta
+                    }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">CAUSA DE INTERVENCIÓN:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
+                    $subtarea->causaIntervencion?->nombre
+                    }}</td>
+                <td></td>
+            </tr>
+
+            <tr></tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">CONTACTO NEDETEL/UFINET:</td>
+                <td></td>
+                <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
+                    $subtarea->tarea->clienteFinal?->nombres . $subtarea->tarea->clienteFinal?->apellidos
+                    }}</td>
+                <td></td>
+            </tr>
+
+            <tr></tr>
+
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="font-weight: bold; text-align: center;">FECHA</td>
+                <td style="font-weight: bold; text-align: center;">HORA</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">HORA DE REPORTE DEL PROBLEMA:</td>
+                <td></td>
+                <td style="text-align: center; border: 1px solid #000;">{{
+                    \Carbon\Carbon::parse($subtarea->tarea->fecha_solicitud)->format('d/m/Y');
+                    }}</td>
+                <td style="text-align: center; border: 1px solid #000;"></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">HORA DE ARRIBO:</td>
+                <td></td>
+                <td style="text-align: center; border: 1px solid #000;">{{
+                    $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('d/m/Y') :
+                    '';
+                    }}</td>
+                <td style="text-align: center; border: 1px solid #000;">{{
+                    $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('H:i') :
+                    '';
+                    }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">HORA DE FIN DE REPARACIÓN:</td>
+                <td></td>
+                <td style="text-align: center; border: 1px solid #000;">{{
+                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('d/m/Y');
+                    }}</td>
+                <td style="text-align: center; border: 1px solid #000;">{{
+                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('H:i');
+                    }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">HORA DE RETIRO DE PERSONAL:</td>
+                <td></td>
+                <td style="text-align: center; border: 1px solid #000;">{{
+                    $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('d/m/Y') :
+                    '';
+                    }}</td>
+                <td style="text-align: center; border: 1px solid #000;">{{
+                    $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('H:i') :
+                    '';
+                    }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">TIEMPO DE ESPERA ADICIONALES (TERCEROS/CLIMA/SECTOR):</td>
+                <td></td>
+                <td></td>
+                <td style="text-align: center; border: 1px solid #000;"></td>
+                <td></td>
+            </tr>
+
+            <tr></tr>
+
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="font-weight: bold; text-align: center;">ESTACIÓN DE REFERENCIA</td>
+                <td style="font-weight: bold; text-align: center;">DISTANCIA</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">{{ 'DISTANCIA DE LA AFECTACIÓN' }}</td>
+                <td></td>
+                <td style="border: 1px solid #000;"></td>
+                <td style="border: 1px solid #000;"></td>
+                <td></td>
+            </tr>
+
+            <tr></tr>
+
+            <tr>
+                <td></td>
+                <td style="font-weight: bold;">CRONOLOGÍA DE TRABAJOS REALIZADOS:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr></tr>
+
+            <tr>
+                <td></td>
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <th style="text-align: center; font-weight: bold;">{{ 'HORA' }}</th>
+                            <th colspan="3" style="text-align: center; font-weight: bold;">{{ 'ACCIONES REALIZADAS' }}
+                            </th>
+                        </tr>
+
+                        @foreach ($subtarea->trabajosRealizados as $trabajo)
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center;">{{
+                                \Carbon\Carbon::parse($trabajo->fecha_hora)->format('H:i'); }}</td>
+                            <td colspan="3" style="border: 1px solid #000;">{{ $trabajo->trabajo_realizado }}</td>
+                        </tr>
+                        @endforeach
+                    </table>
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td colspan="4" style="font-weight: bold;">{{ 'OBSERVACIONES/MEJORAS/PENDIENTES:' }}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td colspan="4" style="border: 1px solid #000;"></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td colspan="4" style="border: 1px solid #000;"></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td colspan="4" style="border: 1px solid #000;"></td>
+                <td></td>
+            </tr>
+
+            <tr></tr>
+
+            {{-- <tr>
+                <td></td>
+                <td colspan="2"
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #fff2cc;">{{
+                    'RESUMEN
+                    ACCIONES REALIZADAS REDES
+                    BACK BONE' }}</td>
+                <td colspan="2"
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #d0cece;">{{
+                    'RESUMEN
+                    ACCIONES REALIZADAS FTTH' }}
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
+                    {{ 'Cantidad' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
+                    {{ 'Descripcion' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
+                    {{ 'Detalle' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
+                    {{ 'Cantidad' }}</td>
+                <td></td>
+            </tr>
+
+            @foreach($resumenAccionesRedesBackBone as $fila)
+            <tr>
+                <td></td>
+                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;"></td>
+                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;">{{
+                    $fila['descripcion'] }}</td>
+                <td
+                    style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: pre-wrap; word-wrap: break-word; background: {{ $fila['background'] }};">
+                    {{
+                    $fila['detalle'] }}</td>
+                <td
+                    style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: normal; background: {{ $fila['background'] }};">
+                </td>
+                <td></td>
+            </tr>
+            @endforeach --}}
+
+            <tr>
+                <td></td>
+                <td colspan="4" style="font-weight: bold;">{{ 'MATERIALES UTILIZADOS:' }}</td>
+                <td></td>
+            </tr>
+
+            <tr></tr>
+
+            <tr>
+                <td></td>
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <th style="text-align: center; font-weight: bold;">{{ 'CANTIDAD' }}</th>
+                            <th colspan="3" style="text-align: center; font-weight: bold;">{{ 'DESCRIPCIÓN DEL MATERIAL'
+                                }}
+                            </th>
+                        </tr>
+
+                        @foreach ($materiales_tarea_usados as $material)
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
+                            </td>
+                            <td colspan="3" style="border: 1px solid #000;">{{ $material->descripcion }}</td>
+                        </tr>
+                        @endforeach
+
+                        @foreach ($materiales_stock_usados as $material)
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
+                            </td>
+                            <td colspan="3" style="border: 1px solid #000;">{{ $material->descripcion }}</td>
+                        </tr>
+                        @endforeach
+                    </table>
+                </td>
+                <td></td>
             </tr>
         </tbody>
-    </table>
 
+
+    </table>
 
 
 </body>

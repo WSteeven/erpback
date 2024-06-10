@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Events\PermisoEmpleadoEvent;
+use App\Events\PermisoNotificacionEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PermisoEmpleadoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoPermisoEmpleadoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
+use App\Models\Autorizacion;
 use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
@@ -49,7 +51,7 @@ class PermisoEmpleadoController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO, true, Auth::user()->empleado->id);
         $permiso_empleado->documento = $archivoJSON;
         $permiso_empleado->save();
         return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);
@@ -111,6 +113,7 @@ class PermisoEmpleadoController extends Controller
     public function show(PermisoEmpleado $permisoEmpleado)
     {
         $modelo = new PermisoEmpleadoResource($permisoEmpleado);
+
         return response()->json(compact('modelo'), 200);
     }
 
@@ -121,8 +124,12 @@ class PermisoEmpleadoController extends Controller
         $permisoEmpleado = PermisoEmpleado::find($permisoEmpleadoId);
         $permisoEmpleado->update($datos);
         event(new PermisoEmpleadoEvent($permisoEmpleado));
+        if ($datos['estado_permiso_id'] == Autorizacion::APROBADO_ID) {
+            event(new PermisoNotificacionEvent($permisoEmpleado));
+        }
         $modelo = new PermisoEmpleadoResource($permisoEmpleado);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -133,18 +140,18 @@ class PermisoEmpleadoController extends Controller
         return $permisoEmpleado;
     }
     public function permisos_sin_recuperar(Request $request)
-{
-    $mes = Carbon::createFromFormat('m-Y', $request->mes)->format('Y-m');
+    {
+        $mes = Carbon::createFromFormat('m-Y', $request->mes)->format('Y-m');
 
-    // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
-    $totalDiasPermiso = DB::table('permiso_empleados')
-        ->selectRaw('SUM(DATEDIFF(fecha_hora_fin, fecha_hora_inicio) + 1) as total_dias_permiso')
-        ->where('empleado_id', $request->empleado)
-        ->whereRaw('DATE_FORMAT(fecha_hora_inicio, "%Y-%m") <= ?', [$mes])
-        ->whereRaw('DATE_FORMAT(fecha_hora_fin, "%Y-%m") >= ?', [$mes])
-        ->where('recupero',0)
-        ->value('total_dias_permiso');
+        // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
+        $totalDiasPermiso = DB::table('permiso_empleados')
+            ->selectRaw('SUM(DATEDIFF(fecha_hora_fin, fecha_hora_inicio) + 1) as total_dias_permiso')
+            ->where('empleado_id', $request->empleado)
+            ->whereRaw('DATE_FORMAT(fecha_hora_inicio, "%Y-%m") <= ?', [$mes])
+            ->whereRaw('DATE_FORMAT(fecha_hora_fin, "%Y-%m") >= ?', [$mes])
+            ->where('recupero', 0)
+            ->value('total_dias_permiso');
 
-    return response()->json(compact('totalDiasPermiso'));
-}
+        return response()->json(compact('totalDiasPermiso'));
+    }
 }

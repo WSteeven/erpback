@@ -1,10 +1,15 @@
 <html>
-
+    @php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+@endphp
 <head>
     <style>
         body {
             font-family: sans-serif;
-            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            background-image: url({{$logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -90,18 +95,13 @@
         page-break-after: always;
     }
     </style>
-    @php
-        $fecha = new Datetime();
-        $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
-    @endphp
-
-<body>
+  <body>
     <header>
         <table
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{$logo_principal }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE SEMANAL DE SOLICITUD DE FONDOS DEL
@@ -117,8 +117,7 @@
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -131,42 +130,37 @@
     </footer>
     <div id="content">
         <p>
-            <div style="text-align: center; font-weight: bold">{{ $usuario->nombres.' '.$usuario->apellidos }}</div>
+            <div style="text-align: center; font-weight: bold">{{ $usuario !== null? $usuario->nombres.' '.$usuario->apellidos : '' }}</div>
         </p>
         <p>
-        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados" >
-            <tr>
-                <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Fecha</strong></td>
-                <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Lugar</strong></td>
-                <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Grupo</strong></td>
-                <td style="font-size:10px"width="7%" bgcolor="#a9d08e"><strong>Motivo</strong></td>
-                <td style="font-size:10px"width="9%" bgcolor="#a9d08e"><strong>Monto</strong></td>
-                <td style="font-size:10px" width="80%" bgcolor="#a9d08e"><strong>Descripción de la solicitud</strong></td>
-            </tr>
-            @if (sizeof($solicitudes) > 0)
-                @foreach ($solicitudes as $dato)
-                    <tr>
-                        <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato['fecha_gasto'])) }}</td>
-                        <td style="font-size:10px">{{ $dato['lugar_info'] }}</td>
-                        <td style="font-size:10px">{{ $dato['grupo_info'] }}</td>
-                        <td style="font-size:10px">
-                            <div align="center">  @foreach($dato['motivo_info'] as $motivo)
-                                {{ $motivo->nombre }}
-                                @if (!$loop->last)
-                                   ,
-                                @endif
-                             @endforeach</div>
-                        </td>
-                         <td style="font-size:10px">{{ number_format($dato['monto'], 2, ',', '.') }}</td>
-                        <td style="font-size:10px">{{ $dato['observacion'] }}</td>
-                    </tr>
-                @endforeach
-            @else
+            <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados" >
                 <tr>
-                    <td style="font-size:10px" colspan="6">NO SE REALIZARON SOLICITUDES DE FONDOS.</td>
+                    <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Fecha</strong></td>
+                    <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Empleado</strong></td>
+                    <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Lugar</strong></td>
+                    <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Grupo</strong></td>
+                    <td style="font-size:10px"width="7%" bgcolor="#a9d08e"><strong>Motivo</strong></td>
+                    <td style="font-size:10px"width="9%" bgcolor="#a9d08e"><strong>Monto</strong></td>
+                    <td style="font-size:10px" width="80%" bgcolor="#a9d08e"><strong>Descripción de la solicitud</strong></td>
                 </tr>
-            @endif
-        </table>
+                @if (sizeof($solicitudes) > 0)
+                    @foreach ($solicitudes as $dato)
+                        <tr>
+                            <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato['fecha_gasto'])) }}</td>
+                            <td style="font-size:10px">{{ $dato['empleado_info'] }}</td>
+                            <td style="font-size:10px">{{ $dato['lugar_info'] }}</td>
+                            <td style="font-size:10px">{{ $dato['grupo_info'] }}</td>
+                            <td style="font-size:10px">{{ $dato['motivo_info'] }}</td>
+                             <td style="font-size:10px">{{ number_format($dato['monto'], 2, ',', '.') }}</td>
+                            <td style="font-size:10px">{{ $dato['observacion'] }}</td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td style="font-size:10px" colspan="6">NO SE REALIZARON SOLICITUDES DE FONDOS.</td>
+                    </tr>
+                @endif
+            </table>
         </p>
 
     </div>

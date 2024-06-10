@@ -25,7 +25,9 @@ class TipoLicenciaSeeder extends Seeder
             ['nombre'=>'Fallecimiento de conyuge o conviviente registrado(a) del trabajador ','num_dias'=>3],
             ['nombre'=>'Licencia prevista en el codigo de trabajo','num_dias'=>0],
             ['nombre'=>'Nacimiento prematuro de hijo','num_dias'=>23],
-            ['nombre'=>'Enferemedades degenerativa de hijo','num_dias'=>25]
+            ['nombre'=>'Enferemedades degenerativa de hijo','num_dias'=>25],
+            ['nombre'=>'Nacimiento multiples o cesaria','num_dias'=>20]
+
         ]);
 
     }

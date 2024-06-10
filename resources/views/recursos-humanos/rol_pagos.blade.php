@@ -3,9 +3,12 @@
 {{-- Aquí codigo PHP --}}
 @php
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png'));
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
     $rol_pago = $roles_pago[0];
+    if ($responsable->firma_url) {
+        $firma_aprobacion = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($responsable->firma_url, 1)));
+    }
 @endphp
 
 <head>
@@ -28,7 +31,9 @@
         }
 
         body {
-            background-image: url('img/logoJPBN_10.png');
+            font-family: sans-serif;
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -153,8 +158,11 @@
                 </th>
                 <th align="center"></th>
                 <th align="center">
+                    @isset($firma_aprobacion)
+                        <img src="{{ $firma_aprobacion }}" alt="" width="100%" height="40">
+                    @endisset
                     __________________________________________<br />
-                    <b>ING. LUIS MANUEL PEZANTEZ MORA</b>
+                    <b>{{ $responsable->nombres . ' ' . $responsable->apellidos }}</b>
                     <br>
                     <b>APROBADO POR</b>
                 </th>
@@ -207,7 +215,7 @@
                                 {{ $rol_pago['decimo_cuarto'] }}
                             </td>
                         </tr>
-                        @if ($rol_pago['bonificacion'] != null)
+                        @if ($rol_pago['bonificacion'] != 0)
                             <tr>
                                 <td>Bono</td>
 
@@ -216,7 +224,7 @@
                                 </td>
                             </tr>
                         @endif
-                        @if ($rol_pago['bono_recurente'] != null)
+                        @if ($rol_pago['bono_recurente'] != 0)
                             <tr>
                                 <td>Bono Recurente</td>
 
@@ -314,13 +322,15 @@
                                 </td>
                             </tr>
                         @endforeach
-                        <tr>
-                            <td>SUPA</td>
+                        @if ($rol_pago['supa'] > 0)
+                            <tr>
+                                <td>SUPA</td>
 
-                            <td>
-                                {{ $rol_pago['supa'] }}
-                            </td>
-                        </tr>
+                                <td>
+                                    {{ $rol_pago['supa'] }}
+                                </td>
+                            </tr>
+                        @endif
                     </table>
                 </td>
             </tr>

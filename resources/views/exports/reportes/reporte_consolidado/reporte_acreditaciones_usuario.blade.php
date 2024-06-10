@@ -1,4 +1,9 @@
 <html>
+@php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -11,8 +16,9 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -72,11 +78,6 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
-@endphp
-
 <body>
     <header>
         <table
@@ -84,7 +85,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
+                            src="{{$logo_principal }}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -100,9 +101,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}

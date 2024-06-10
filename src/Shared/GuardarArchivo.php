@@ -3,12 +3,16 @@
 namespace Src\Shared;
 
 use App\Models\Carpeta;
+use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Src\Config\RutasStorage;
+
+use function React\Promise\Stream\first;
 
 class GuardarArchivo
 {
@@ -23,29 +27,30 @@ class GuardarArchivo
         $this->ruta = $ruta;
     }
 
+    // Guarda un archivo a la vez
     public function execute()
     {
         $archivo = $this->request->file('file');
-        // $carpeta = $this->request['carpeta'];
-        // $carpeta = Carpeta::find($carpeta);
 
-        $path = $archivo->store($this->ruta->value);
+        $nombreArchivo = preg_replace('/[^\w\-\.]/', '', $archivo->getClientOriginalName());
+
+        // $path = $archivo->storeAs($this->ruta->value, $archivo->getClientOriginalName());
+        $path = $archivo->storeAs($this->ruta->value, $nombreArchivo);
         $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
         return $this->modelo->archivos()->create([
             'nombre' => $archivo->getClientOriginalName(),
             'ruta' => $ruta_relativa,
             'tamanio_bytes' => filesize($archivo)
         ]);
-
-
-        //return response()->json(['mensaje' => 'Video actualizado exitosamente!']);
     }
-    public static function json(Request $request, RutasStorage $ruta, $carpeta_usuario = false)
+
+    public static function json(Request $request, RutasStorage $ruta, $carpeta_usuario = false,$empleado =null)
     {
+        $empleado_identificacion = Empleado::where('id',$empleado)->first()->identificacion;
         $archivo = $request->file('file');
         $ruta_modificada = $ruta->value;
         if ($carpeta_usuario) {
-            $ruta_modificada = 'public/' . Auth::user()->empleado->identificacion .'/' .$ruta->value;
+            $ruta_modificada = 'public/' . $empleado_identificacion .'/' .$ruta->value;
         }
         $path = $archivo->store( $ruta_modificada);
         $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
@@ -57,6 +62,6 @@ class GuardarArchivo
         // Convierte el arreglo en una cadena JSON
         $json = json_encode($data);
         return $json;
-    }
 
+    }
 }

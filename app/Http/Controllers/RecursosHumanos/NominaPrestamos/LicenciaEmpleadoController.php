@@ -4,7 +4,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Events\LicenciaEmpleadoEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LicenciaEmpleadoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoLicenciaEmpleadoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoResource;
 use App\Models\Empleado;
@@ -45,7 +45,7 @@ class LicenciaEmpleadoController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_LICENCIA_EMPLEADO);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_LICENCIA_EMPLEADO, true,Auth::user()->empleado->id);
         $permiso_empleado->documento = $archivoJSON;
         $permiso_empleado->save();
         return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);

@@ -20,6 +20,7 @@ class SeguimientoMaterialSubtarea extends Model implements Auditable
         'empleado_id',
         'grupo_id',
         'detalle_producto_id',
+        'cliente_id',
     ];
 
     public function scopeResponsable($query)

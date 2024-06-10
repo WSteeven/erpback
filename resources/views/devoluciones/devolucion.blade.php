@@ -1,18 +1,34 @@
 <!DOCTYPE html>
 <html lang="es">
+@php
+    $fecha = new Datetime();
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'DEVOLUCION: ' . $devolucion['id'] . PHP_EOL . 'SOLICITADO POR: ' . $devolucion['solicitante'] . PHP_EOL . 'SUCURSAL: ' . $devolucion['sucursal'] . PHP_EOL . 'PERSONA QUE AUTORIZA: ' . $devolucion['per_autoriza']. PHP_EOL . 'AUTORIZACION: ' . $devolucion['autorizacion']. PHP_EOL . 'ULTIMA MODIFICACION: ' . $devolucion['updated_at'];
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    if ($persona_solicitante->firma_url) {
+        $solicitante_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_solicitante->firma_url, 1)));
+    }
+    if ($persona_autoriza->firma_url) {
+        $autoriza_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_autoriza->firma_url, 1)));
+    }
+@endphp
+
+
+@endphp
 
 <head>
     <meta charset="utf-8">
-    <title>Devolución N° {{ $id }}</title>
+    <title>Devolución N° {{ $devolucion['id'] }}</title>
     <style>
         @page {
-            margin: 0cm 15px;
+            margin: 2px 15px 5px 15px;
         }
 
         body {
-            background-image: url('img/logoJPBN_10.png');
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -52,7 +68,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 7cm;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         div {
@@ -68,6 +84,7 @@
             table-layout: fixed;
             width: 100%;
             line-height: normal;
+            font-size: 10px;
             /* position: inherit; */
             /* top: 140px; */
         }
@@ -78,10 +95,7 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'PEDIDO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
-@endphp
+
 
 <body>
     <header>
@@ -89,7 +103,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     <div class="col-md-7" align="center"><b>COMPROBANTE DE DEVOLUCION</b></div>
@@ -104,25 +118,40 @@
     <footer>
         <table class="firma" style="width: 100%;">
             <thead>
-                <th align="center">___________________</th>
+                <th align="center">
+                    @isset($solicitante_firma)
+                        <img src="{{ $solicitante_firma }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($solicitante_firma)
+                        ___________________<br />
+                    @endempty
+                    <b>SOLICITANTE</b>
+                </th>
                 <th align="center"></th>
-                <th align="center">___________________</th>
+                <th align="center">
+                    @if ($devolucion['autorizacion'] == 'APROBADO')
+                        @isset($autoriza_firma)
+                            <img src="{{ $autoriza_firma }}" alt="" width="100%" height="40">
+                        @endisset
+                    @else
+                    <br /><br />___________________<br />
+                    @endif
+                    @empty($autoriza_firma)
+                        ___________________<br />
+                    @endempty
+                    <b>AUTORIZADOR</b>
+                </th>
             </thead>
             <tbody>
                 <tr align="center">
-                    <td><b>ENTREGA</b></td>
-                    <td><b></b></td>
-                    <td><b>RECIBE</b></td>
-                </tr>
-                <tr>
-                    <td style="padding-left: 60px;">Nombre: </td>
+                    <td>
+                        {{ $persona_solicitante->nombres }} {{ $persona_solicitante->apellidos }} <br>
+                        {{ $persona_solicitante->identificacion }} </td>
                     <td></td>
-                    <td style="padding-left: 60px;">Nombre:</td>
-                </tr>
-                <tr>
-                    <td style="padding-left: 60px;">C.I: </td>
-                    <td></td>
-                    <td style="padding-left: 60px;">C.I:</td>
+                    <td>
+                        {{ $persona_autoriza->nombres }} {{ $persona_autoriza->apellidos }} <br>
+                        {{ $persona_autoriza->identificacion }}
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -130,8 +159,8 @@
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
+                        {{ $configuracion['razon_social'] }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -151,18 +180,22 @@
     <main>
         <table style="width: 100%; border: #000000; border-collapse: collapse;" border="0">
             <tr class="row">
-                <td>Devolución N°: <b>{{ $id }}</b></td>
-                <td>Fecha: <b>{{ $created_at }}</b></td>
+                <td>Devolución N°: <b>{{ $devolucion['id'] }}</b></td>
+                <td>Fecha: <b>{{ $devolucion['created_at'] }}</b></td>
             </tr>
             <tr>
-                <td>Solicitante: <b>{{ $solicitante }}</b></td>
-                <td>Sucursal: <b>{{ $sucursal }}</b></td>
+                <td>Solicitante: <b>{{ $devolucion['solicitante'] }}</b></td>
+                <td>Sucursal: <b>{{ $devolucion['sucursal'] }}</b></td>
+            </tr>
+            <tr>
+                <td>Autorizacion: <b>{{ $devolucion['autorizacion'] }}</b></td>
+                <td>Estado bodega: <b>{{ $devolucion['estado_bodega'] }}</b></td>
             </tr>
         </table>
         <table>
             <thead style="margin-bottom:4px;">
                 <tr class="row">
-                    <td>Justificación: <b>{{ Str::upper($justificacion) }}</b></td>
+                    <td>Justificación: <b>{{ Str::upper($devolucion['justificacion']) }}</b></td>
                 </tr>
             </thead>
         </table>
@@ -173,14 +206,18 @@
                 <th>Descripcion</th>
                 <th>Categoria</th>
                 <th>Cantidad</th>
+                <th>Condición</th>
+                <th>Observación</th>
             </thead>
-            <tbody style="font-size: 14px;">
-                @foreach ($listadoProductos as $listado)
+            <tbody style="font-size: 10px;">
+                @foreach ($devolucion['listadoProductos'] as $listado)
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
                         <td>{{ $listado['categoria'] }}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
+                        <td>{{ $listado['condiciones'] }}</td>
+                        <td>{{ Str::upper($listado['observacion']) }}</td>
                     </tr>
                 @endforeach
             </tbody>

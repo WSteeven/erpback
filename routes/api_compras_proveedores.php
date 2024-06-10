@@ -1,0 +1,106 @@
+<?php
+
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ComprasProveedores\CalificacionDepartamentoProveedorController;
+use App\Http\Controllers\ComprasProveedores\CategoriaOfertaProveedorController;
+use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
+use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
+use App\Http\Controllers\ComprasProveedores\DatoBancarioProveedorController;
+use App\Http\Controllers\ComprasProveedores\DetalleDepartamentoProveedorController;
+use App\Http\Controllers\ComprasProveedores\NovedadOrdenCompraController;
+use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
+use App\Http\Controllers\ComprasProveedores\PagoProveedoresController;
+use App\Http\Controllers\ComprasProveedores\PrefacturaController;
+use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
+use App\Http\Controllers\ComprasProveedores\ProformaController;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\ProveedorController;
+use App\Models\ComprasProveedores\OfertaProveedor;
+use App\Models\ComprasProveedores\Prefactura;
+use Illuminate\Support\Facades\Route;
+
+Route::apiResources([
+    'datos-bancarios-proveedores' => DatoBancarioProveedorController::class,
+    'pagos-proveedores' => PagoProveedoresController::class,
+    'calificaciones-proveedores' => CalificacionDepartamentoProveedorController::class,
+    'proveedores-calificables' => CalificacionDepartamentoProveedorController::class,
+    'categorias-ofertas' => CategoriaOfertaProveedorController::class,
+    'contactos-proveedores' => ContactoProveedorController::class,
+    'criterios-calificaciones' => CriterioCalificacionController::class,
+    'detalles-departamentos-proveedor' => DetalleDepartamentoProveedorController::class,
+    'novedades-ordenes-compras' => NovedadOrdenCompraController::class,
+    'ordenes-compras' => OrdenCompraController::class,
+    'preordenes-compras' => PreordenCompraController::class,
+    'proformas' => ProformaController::class,
+    'prefacturas' => PrefacturaController::class,
+], [
+    'parameters' => [
+        'contactos-proveedores' => 'contacto',
+        'categorias-ofertas' => 'categoria',
+        'criterios-calificaciones' => 'criterio',
+        'pagos-proveedores' => 'pago',
+        'proveedores-calificables' => 'proveedor',
+        'calificaciones-proveedores' => 'calificacion',
+        'datos-bancarios-proveedores' => 'dato',
+        'detalles-departamentos-proveedor' => 'detalle',
+        'novedades-ordenes-compras' => 'novedad',
+        'ordenes-compras' => 'orden',
+        'preordenes-compras' => 'preorden',
+        'prefacturas' => 'prefactura',
+    ],
+    'middleware' => ['auth:sanctum']
+]);
+Route::get('ofertas-proveedores', fn () => ['results' => OfertaProveedor::all()])->middleware('auth:sanctum');
+Route::get('log-contactos-proveedores', [ContactoProveedorController::class, 'auditoria'])->middleware('auth:sanctum');
+
+//show-preview
+Route::get('preordenes-compras/show-preview/{preorden}', [PreordenCompraController::class, 'showPreview'])->middleware('auth:sanctum');
+Route::get('proformas/show-preview/{proforma}', [ProformaController::class, 'showPreview'])->middleware('auth:sanctum');
+
+//anular
+Route::post('ordenes-compras/anular/{orden}', [OrdenCompraController::class, 'anular'])->middleware('auth:sanctum');
+Route::post('preordenes-compras/anular/{preorden}', [PreordenCompraController::class, 'anular'])->middleware('auth:sanctum');
+Route::post('proformas/anular/{proforma}', [ProformaController::class, 'anular'])->middleware('auth:sanctum');
+Route::post('prefacturas/anular/{prefactura}', [PrefacturaController::class, 'anular'])->middleware('auth:sanctum');
+
+
+//imprimir
+Route::get('ordenes-compras/imprimir/{orden}', [OrdenCompraController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('proformas/imprimir/{proforma}', [ProformaController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('prefacturas/imprimir/{prefactura}', [PrefacturaController::class, 'imprimir'])->middleware('auth:sanctum');
+
+//reportes excel
+Route::get('reporte-proveedores', [ProveedorController::class, 'reporteTodos'])->middleware('auth:sanctum');
+Route::get('pagos-proveedores/cash/{pago}', [PagoProveedoresController::class, 'reporteCash'])->middleware('auth:sanctum');
+Route::post('ordenes-compras/reportes', [OrdenCompraController::class, 'reportes']);
+Route::post('prefacturas/reportes', [PrefacturaController::class, 'reportes']);
+
+//listar archivos
+Route::get('ordenes-compras/files/{orden}', [OrdenCompraController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('calificaciones-proveedores/files/{detalle}', [CalificacionDepartamentoProveedorController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('detalles-departamentos-proveedor/files/{detalle}', [DetalleDepartamentoProveedorController::class, 'indexFiles'])->middleware('auth:sanctum');
+//guardar archivos
+Route::post('ordenes-compras/files/{orden}', [OrdenCompraController::class, 'storeFiles'])->middleware('auth:sanctum');
+Route::post('calificaciones-proveedores/files/{detalle}', [CalificacionDepartamentoProveedorController::class, 'storeFiles'])->middleware('auth:sanctum');
+
+
+//enviar pdfs
+Route::get('ordenes-compras/toProveedor/{orden}', [OrdenCompraController::class, 'sendMail'])->middleware('auth:sanctum');
+
+//marcar OC como realizada
+Route::post('ordenes-compras/realizada/{orden}', [OrdenCompraController::class, 'realizada'])->middleware('auth:sanctum');
+//marcar OC como pagada
+Route::get('ordenes-compras/pagada/{orden}', [OrdenCompraController::class, 'pagada'])->middleware('auth:sanctum');
+
+//conlidar preordenes de compras
+Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consolidar'])->middleware('auth:sanctum');
+
+/***********
+ * Dashboard
+ ***********/
+Route::post('dashboard', [OrdenCompraController::class, 'dashboard']);
+Route::post('dashboard-ventas', [PrefacturaController::class, 'dashboard']);
+Route::get('empleados-ordenes', [EmpleadoController::class, 'empleadosConOrdenes']);
+Route::get('proveedores-ordenes', [ProveedorController::class, 'proveedoresConOrdenes']);
+Route::get('clientes-prefacturas', [ClienteController::class, 'clientesConPrefacturas']);
+// Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);

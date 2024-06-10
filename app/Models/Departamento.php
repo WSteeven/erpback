@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\CategoriaOfertaProveedor;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,11 @@ class Departamento extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
+    const DEPARTAMENTO_SSO = 5;
+    const DEPARTAMENTO_CONTABILIDAD = 'CONTABILIDAD';
+    const DEPARTAMENTO_GERENCIA = 'GERENCIA';
+    const DEPARTAMENTO_RRHH = 'RECURSOS HUMANOS';
+
     protected $table = 'departamentos';
     protected $fillable = ['nombre', 'activo', 'responsable_id'];
     protected $casts = [
@@ -22,11 +28,29 @@ class Departamento extends Model implements Auditable
     ];
 
     private static $whiteListFilter = [
-        '*',
+        'nombre',
+        'activo',
+        'responsable_id',
     ];
 
+    /**
+     * ______________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________
+     */
     public function responsable()
     {
         return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
+    }
+    public function calificaciones_proveedores()
+    {
+        return $this->belongsToMany(Proveedor::class, 'detalle_departamento_proveedor', 'departamento_id', 'proveedor_id')
+            ->withPivot(['calificacion', 'fecha_calificacion'])
+            ->withTimestamps();
+    }
+    public function categorias_proveedores()
+    {
+        return $this->belongsToMany(CategoriaOfertaProveedor::class, 'cmp_detalle_categoria_departamento_proveedor', 'departamento_id', 'categoria_id')
+            ->withTimestamps();
     }
 }

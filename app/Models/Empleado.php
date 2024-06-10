@@ -2,8 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
+use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
+use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+use App\Models\RecursosHumanos\TipoDiscapacidad;
+use App\Models\Vehiculos\BitacoraVehicular;
+use App\Models\Vehiculos\Vehiculo;
+use App\Models\Ventas\Vendedor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -16,7 +27,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Empleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;
-
+    const MASCULINO = 'M';
+    CONST FEMENINO = 'F';
     protected $table = "empleados";
     protected $fillable = [
         'identificacion',
@@ -48,18 +60,24 @@ class Empleado extends Model implements Auditable
         'num_cuenta_bancaria',
         'salario',
         'fecha_ingreso',
+        'fecha_vinculacion',
         'fecha_salida',
         'tipo_contrato_id',
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'titulo',
         'supa',
         'talla_zapato',
         'talla_camisa',
         'talla_guantes',
         'talla_pantalon',
         'banco',
-
+        'genero',
+        'esta_en_empleado',
+        'esta_en_rol_pago',
+        'acumula_fondos_reserva',
+        'realiza_factura',
     ];
 
     private static $whiteListFilter = [
@@ -75,26 +93,35 @@ class Empleado extends Model implements Auditable
         'cargo_id',
         'departamento_id',
         'estado',
+        'esta_en_rol_pago',
         'es_tecnico',
         'tipo_sangre',
         'dirrecion',
         'estado_civil',
         'correo_personal',
-        'area',
+        'area_id',
         'num_cuenta',
         'salario',
         'fecha_ingreso',
+        'fecha_vinculacion',
         'fecha_salida',
         'tipo_contrato',
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'titulo',
         'supa',
         'talla_zapato',
         'talla_camisa',
         'talla_guantes',
         'talla_pantalon',
-        'banco'
+        'banco',
+        'genero',
+        'esta_en_empleado',
+        'acumula_fondos_reserva',
+        'realiza_factura',
+        'es_reporte__saldo_actual',
+        'empleados_autorizadores_gasto'
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -104,11 +131,16 @@ class Empleado extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
+        'esta_en_empleado' => 'boolean',
+        'realiza_factura' => 'boolean',
         'estado' => 'boolean',
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
+        'esta_en_rol_pago' => 'boolean',
         'tiene_discapacidad' => 'boolean',
+        'acumula_fondos_reserva' => 'boolean',
+
     ];
 
     public function toSearchableArray()
@@ -141,10 +173,19 @@ class Empleado extends Model implements Auditable
         return $this->belongsTo(User::class, 'usuario_id', 'id');
     }
 
+    /**
+     * Relacion uno a muchos.
+     * Un empleado tiene muchos registros de saldo.
+     */
+    public function saldo()
+    {
+        return $this->hasMany(SaldoGrupo::class, 'id_usuario');
+    }
+
     // Relacion muchos a muchos
     public function grupo()
     {
-        return $this->belongsTo(Grupo::class);
+        return $this->belongsTo(Grupo::class)->with('subCentroCosto');
     }
 
     /**
@@ -153,7 +194,7 @@ class Empleado extends Model implements Auditable
      */
     public function canton()
     {
-        return $this->belongsTo(Canton::class);
+        return $this->belongsTo(Canton::class)->with('provincia');
     }
 
     // Relacion uno a uno
@@ -178,6 +219,10 @@ class Empleado extends Model implements Auditable
     public function transacciones()
     {
         return $this->hasMany(TransaccionBodega::class);
+    }
+    public function rolesPago()
+    {
+        return $this->hasMany(RolPago::class, 'empleado_id');
     }
 
     /**
@@ -298,15 +343,19 @@ class Empleado extends Model implements Auditable
      */
     public function estadoCivil()
     {
-        return $this->belongsTo(EstadoCivil::class);
+        return $this->hasOne(EstadoCivil::class, 'id', 'estado_civil_id');
+    }
+    public function familiares_info()
+    {
+        return $this->hasMany(Familiares::class, 'empleado_id', 'id');
     }
     /**
      * Relación uno a uno.
      * Un empleado tiene uncuente aen un banco.
      */
-    public function banco()
+    public function banco_info()
     {
-        return $this->belongsTo(Banco::class);
+        return $this->hasOne(Banco::class, 'id', 'banco');
     }
     /**
      * Relación uno a uno.
@@ -314,7 +363,7 @@ class Empleado extends Model implements Auditable
      */
     public function tipoContrato()
     {
-        return $this->belongsTo(TipoContrato::class);
+        return $this->belongsTo(TipoContrato::class, 'tipo_contrato_id', 'id');
     }
     /**
      * Relación uno a uno.
@@ -342,7 +391,78 @@ class Empleado extends Model implements Auditable
 
     public static function extraerNombresApellidos(Empleado $empleado)
     {
-        // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
+
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+    public function umbral()
+    {
+        return $this->hasOne(UmbralFondosRotativos::class, 'empleado_id', 'id');
+    }
+    public function egresoRolPago()
+    {
+        return $this->hasMany(EgresoRolPago::class, 'empleado_id', 'id');
+    }
+
+    public function ordenesCompras()
+    {
+        return $this->hasMany(OrdenCompra::class, 'solicitante_id');
+    }
+
+    public function gastos()
+    {
+        return $this->hasMany(Gasto::class, 'id_usuario');
+    }
+
+    public function vendedor()
+    {
+        return $this->hasOne(Vendedor::class);
+    }
+
+    /**
+   * Relacion polimorfica con Archivos uno a muchos.
+   *
+   */
+  public function archivos()
+  {
+    return $this->morphMany(Archivo::class, 'archivable');
+  }
+
+    public static function empaquetarListado($empleados)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($empleados as $empleado) {
+
+            $row['item'] = $id + 1;
+            $row['id'] =  $empleado->id;
+            $row['apellidos'] =  $empleado->apellidos;
+            $row['nombres'] =   $empleado->nombres;
+            $row['identificacion'] =  $empleado->identificacion;
+            $row['departamento'] =  $empleado->departamento != null ? $empleado->departamento->nombre : '';
+            $row['area'] =  $empleado->area != null ? $empleado->area->nombre : '';
+            $row['cargo'] =  $empleado->cargo != null ? $empleado->cargo->nombre : '';
+            $row['salario'] =  $empleado->salario;
+            $results[$id] = $row;
+            $id++;
+        }
+        return $results;
+    }
+
+    public function tiposDiscapacidades(){
+        return $this->belongsToMany(TipoDiscapacidad::class,'rrhh_empleado_tipo_discapacidad_porcentaje')->withPivot('porcentaje');
+    }
+
+    /*********
+     * Scopes
+     *********/
+    function scopeHabilitado($query)
+    {
+        return $query->where('id', '>=', 2)->where('estado', true)->where('esta_en_rol_pago', true);
     }
 }

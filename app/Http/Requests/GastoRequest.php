@@ -3,16 +3,14 @@
 namespace App\Http\Requests;
 
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
-use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
-use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
+use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use PgSql\Lob;
-use Psy\CodeCleaner\AssignThisVariablePass;
+use Illuminate\Validation\Validator;
 use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
@@ -36,13 +34,11 @@ class GastoRequest extends FormRequest
     {
         $rules = [
             'fecha_viat' => 'required|date_format:Y-m-d',
-            'lugar' => 'required',
-            'num_tarea' => 'required',
+            'id_lugar' => 'required',
             'subTarea' => 'nullable',
-            'proyecto' => 'required',
             'beneficiarios' => 'nullable',
             'ruc' => 'nullable|string',
-            'factura' => 'nullable|string|max:22|min:17',
+            'factura' => 'nullable|string|max:30|min:15',
             'num_comprobante' => 'nullable|string|max:13',
             'aut_especial' => 'required',
             'detalle' => 'required|exists:detalle_viatico,id',
@@ -51,20 +47,23 @@ class GastoRequest extends FormRequest
             'valor_u' => 'required|numeric',
             'total' => 'required|numeric',
             'observacion' => 'required|string',
-            'comprobante1' => 'required|string',
+            'comprobante' => 'required|string',
             'comprobante2' => 'required|string',
-            'detalle_estado' => 'nullable|srtring',
+            'detalle_estado' => 'nullable|string',
+            'id_tarea' => 'nullable',
+            'id_proyecto' => 'nullable',
+            'id_usuario' => 'required|exists:empleados,id',
+            'observacion_anulacion' => 'nullable',
+            'estado' => 'required'
         ];
-       if (!is_null($this->vehiculo) ) {
+        if (!is_null($this->vehiculo) || $this->es_vehiculo_alquilado) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
-                'lugar' => 'required',
-                'num_tarea' => 'required',
+                'id_lugar' => 'required',
                 'subTarea' => 'nullable',
-                'proyecto' => 'required',
                 'beneficiarios' => 'nullable',
                 'ruc' => 'nullable|string',
-                'factura' => 'nullable|string|max:22|min:17',
+                'factura' => 'nullable|string|max:30|min:15',
                 'num_comprobante' => 'nullable|string|max:13',
                 'aut_especial' => 'required',
                 'detalle' => 'required|exists:detalle_viatico,id',
@@ -73,16 +72,24 @@ class GastoRequest extends FormRequest
                 'valor_u' => 'required|numeric',
                 'total' => 'required|numeric',
                 'observacion' => 'required|string',
-                'comprobante1' => 'required|string',
+                'comprobante' => 'required|string',
                 'comprobante2' => 'required|string',
-                'detalle_estado' => 'nullable|srtring',
-                'vehiculo' => 'required|integer',
-                'kilometraje' => 'required|integer'
+                'detalle_estado' => 'nullable|string',
+                'es_vehiculo_alquilado' => 'boolean',
+                'vehiculo' =>  $this->es_vehiculo_alquilado ? 'nullable' : 'required|integer',
+                'placa' =>  $this->es_vehiculo_alquilado ? 'required|string' : 'nullable',
+                'kilometraje' => 'required|integer',
+                'id_tarea' => 'nullable',
+                'id_proyecto' => 'nullable',
+                'id_usuario' => 'required|exists:empleados,id',
+                'observacion_anulacion' => 'nullable',
+                'estado' => 'required'
             ];
         }
         return $rules;
     }
     /**
+     * Esto se ejecuta despues de validar
      * Configure the validator instance.
      *
      * @param \Illuminate\Validation\Validator $validator
@@ -91,64 +98,155 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $date = Carbon::parse($this->fecha_viat);
-            /* if (!$date->greaterThan('2023-03-31')) {
-                $validator->errors()->add('fecha_viat', 'La fecha no puede ser menor a 2023-03-31');
-            }*/
-            $factura = Gasto::where('factura', '!=', null)
-                ->where('factura', '!=', '')
-                ->where('ruc', $this->ruc)
-                ->where('factura', $this->factura)
-                ->where('estado', 1)
-                ->first();
-            $factura_pendiente = Gasto::where('factura', '!=', null)
-                ->where('factura', '!=', '')
-                ->where('ruc', $this->ruc)
-                ->where('factura', $this->factura)
-                ->where('estado', Gasto::PENDIENTE)
-                ->first();
-            if ($factura) {
-                $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
-            }
-            if ($factura_pendiente) {
-                $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
-            }
-            $comprobante = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante', $this->num_comprobante)
-                ->where('estado', 1)
-                ->first();
-            if ($comprobante) {
-                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
-            }
-            $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante', $this->num_comprobante)
-                ->where('estado', 3)
-                ->first();
-            if ($comprobante_pendiente) {
-                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
-            }
-            if (substr_count($this->ruc, '9') < 9) {
-                $validador = new ValidarIdentificacion();
-                $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->ruc);
-                if (!(($validador->validarCedula($this->ruc)) || ($existeRUC->body() == 'true'))) {
-                    $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
+            try {
+                if ($this->route()->getActionMethod() === 'store') {
+                    $this->validarNumeroComprobante($validator);
+                    $this->comprobarRuc($validator, $this->ruc);
+                   // $this->comprobarTiempo($validator);
                 }
+                if ($this->route()->getActionMethod() === 'aprobarGasto') {
+                    $gasto = Gasto::where('id', $this->id)->lockForUpdate()->first();
+                    $estado = $gasto?->estado;
+                    if ($estado == Gasto::APROBADO) {
+                        $validator->errors()->add('estado', 'El gasto ya fue aprobado');
+                    }
+                    if ($gasto?->ruc !== $this->ruc) {
+                        $this->comprobarRuc($validator, $this->ruc);
+                    }
+                }
+                if ($this->route()->getActionMethod() === 'update') {
+                    $gasto = Gasto::where('id', $this->id)->lockForUpdate()->first();
+                    if ($gasto?->ruc !== $this->ruc) {
+                        $this->comprobarRuc($validator, $this->ruc);
+                    }
+                }
+            } catch (Exception $e) {
+                throw ValidationException::withMessages(['Error al validar gasto' => $e->getMessage(), $e->getLine()]);
             }
         });
     }
+   /* private function comprobarTiempo($validator)
+    {
+        $hora_limite = '15:00:00';
+        $fechaActual = Carbon::now();
+        $ultimoDiaMes = $fechaActual->copy()->endOfMonth();
+        $fecha_limite = $ultimoDiaMes->format('d-m-Y');
+        if ($fechaActual->isSameDay($ultimoDiaMes)) {
+            if ($fechaActual->format('H:i:s') > $hora_limite) {
+                $validator->errors()->add('hora_limite', 'Solo se podrán subir facturas para aprobación hasta ' . $fecha_limite . ' ' . $hora_limite);
+            }
+        }
+    }*/
+
+
+    private function comprobarRuc(Validator $validator, $ruc)
+    {
+        if (substr_count($ruc, '9') < 9) {
+            $validador = new ValidarIdentificacion();
+            $existeRUC = $validador->validarRUCSRI($ruc);
+            if (!(($validador->validarCedula($ruc)) || $existeRUC)) {
+                $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
+            }
+        }
+    }
+    public function validarNumeroComprobante($validator)
+    {
+        $factura = Gasto::where('factura', '!=', null)
+            ->where('factura', '!=', '')
+            ->where('ruc', $this->ruc)
+            ->where('factura', $this->factura)
+            ->where('estado', Gasto::APROBADO)
+            ->lockForUpdate()
+            ->first();
+        $factura_pendiente = Gasto::where('factura', '!=', null)
+            ->where('factura', '!=', '')
+            ->where('ruc', $this->ruc)
+            ->where('factura', $this->factura)
+            ->where('estado', Gasto::PENDIENTE)
+            ->lockForUpdate()
+            ->first();
+        if ($factura) {
+            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+        }
+        if ($factura_pendiente) {
+            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+        }
+        $comprobante = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante', $this->num_comprobante)
+            ->where('estado', Gasto::APROBADO)
+            ->lockForUpdate()
+            ->first();
+        if ($comprobante) {
+            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+        }
+        $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante', $this->num_comprobante)
+            ->where('estado', Gasto::PENDIENTE)
+            ->lockForUpdate()
+            ->first();
+        if ($comprobante_pendiente) {
+            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+        }
+        if ($this->factura !== null) {
+            $numFacturaObjeto = [
+                [
+                    "detalle" => DetalleViatico::PEAJE,
+                    "cantidad" => 22,
+                ],
+                [
+                    "detalle" => DetalleViatico::ENVIO_ENCOMIENDA,
+                    "cantidad" => 17,
+                ],
+            ];
+            $index = array_search($this->detalle, array_column($numFacturaObjeto, 'detalle'));
+            $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
+            $num_fact = str_replace(' ', '',  $this->factura);
+            if (!!$this->factura) {
+                if ($this->detalle == DetalleViatico::PEAJE) {
+                    if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
+                        throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+                    }
+                } else {
+                    if (strlen($num_fact) < $cantidad) {
+                        throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Esto se ejecuta antes de validar
+     */
     protected function prepareForValidation()
     {
-        $date_viat = Carbon::createFromFormat('d-m-Y', $this->fecha_viat);
-        $this->merge([
-            'factura' => str_replace('_', ' ', $this->factura),
-        ]);
+        $date_viat = Carbon::createFromFormat('Y-m-d', $this->fecha_viat);
+        if (!is_null($this->factura))
+            $this->merge([
+                'factura' => str_replace('_', ' ', $this->factura),
+            ]);
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
         ]);
-        if (is_null($this->aut_especial)) {
-            $id_jefe = Auth::user()->empleado->jefe_id;
+        $this->merge([
+            'comprobante' =>  $this->comprobante1,
+        ]);
+        if ($this->route()->getActionMethod() === 'store') {
+
+            if (is_null($this->aut_especial)) {
+                $id_jefe = Auth::user()->empleado->jefe_id;
+                $this->merge([
+                    'aut_especial' => $id_jefe,
+                ]);
+            }
             $this->merge([
-                'aut_especial' => $id_jefe,
+                'id_usuario' => Auth::user()->empleado->id,
+                'estado' => Gasto::PENDIENTE
+            ]);
+        }
+        if ($this->route()->getActionMethod() === 'aprobarGasto') {
+            $this->merge([
+                'estado' => Gasto::APROBADO
             ]);
         }
         if (is_null($this->ruc)) {
@@ -161,5 +259,21 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 0,
             ]);
         }
+        $this->merge([
+            'factura' => str_replace('_', ' ', $this->factura),
+        ]);
+        $tarea = null;
+        $proyecto = null;
+        if ($this->num_tarea !== 0) {
+            $tarea = $this->num_tarea;
+        }
+        if ($this->proyecto !== 0) {
+            $proyecto = $this->proyecto;
+        }
+        $this->merge([
+            'id_tarea' => $tarea,
+            'id_proyecto' => $proyecto,
+            'id_lugar' => $this->lugar,
+        ]);
     }
 }

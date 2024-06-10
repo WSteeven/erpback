@@ -8,6 +8,8 @@ use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\ImagenProducto;
 use App\Models\TransaccionBodega;
+use Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder;
+use Database\Seeders\Medico\TipoEvaluacionMedicaRetiroSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -42,7 +44,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ProcesadorSeeder::class);
         $this->call(RamSeeder::class);
         $this->call(MarcaSeeder::class);
-        $this->call(ClienteProveedorSeeder::class);
+        // $this->call(ClienteProveedorSeeder::class);
         $this->call(UnidadMedidaSeeder::class);
         $this->call(ProductosSeeder::class);
         $this->call(HiloSeeder::class);
@@ -51,7 +53,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(CodigoClienteSeeder::class);
         $this->call(FibraSeeder::class);
         // $this->call(ComputadoraTelefonoSeeder::class);
-        $this->call(InventarioSeeder::class);
+        // $this->call(InventarioSeeder::class);
         // $this->call(DevolucionSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
@@ -59,16 +61,16 @@ class DatabaseSeeder extends Seeder
         // $this->call(PedidoSeeder::class); */
 
         // Módulo de Tareas
-        $this->call(ProyectoSeeder::class);
+        // $this->call(ProyectoSeeder::class);
         //$this->call(ClienteFinalSeeder::class);
         // $this->call(TareaSeeder::class);
-        $this->call(TipoTrabajoSeeder::class);
+        // $this->call(TipoTrabajoSeeder::class);
         //$this->call(SubtareaSeeder::class);
         $this->call(TipoElementoSeeder::class);
         $this->call(PropietarioElementoSeeder::class);
         $this->call(MotivoSuspendidoSeeder::class);
         $this->call(MotivoPausaSeeder::class);
-        $this->call(RutaTareaSeeder::class);
+        // $this->call(RutaTareaSeeder::class);
         //$this->call(MaterialGrupoTareaSeeder::class);
         //$this->call(ControlMaterialesSubtareasSeeder::class);
 

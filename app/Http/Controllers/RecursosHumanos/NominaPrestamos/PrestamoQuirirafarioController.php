@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PrestamoQuirorafarioRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\PrestamoQuirorafarioRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoQuirorafarioResource;
 use App\Imports\PrestamoQuirorafarioImport;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
@@ -26,7 +26,7 @@ class PrestamoQuirirafarioController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = PrestamoQuirorafario::ignoreRequest(['campos'])->filter()->get();
+        $results = PrestamoQuirorafario::ignoreRequest(['campos'])->filter()->orderBy('mes', 'desc')->get();
         $results = PrestamoQuirorafarioResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -95,6 +95,7 @@ class PrestamoQuirirafarioController extends Controller
     {
         $prestamoQuirorafario = PrestamoQuirorafario::find($prestamoQuirorafarioId);
         $prestamoQuirorafario->delete();
-        return $prestamoQuirorafario;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

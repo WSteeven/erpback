@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\CentroCosto;
+use App\Models\Tareas\SubcentroCosto;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +21,7 @@ class Grupo extends Model implements Auditable
     const R4 = 'R4';
 
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'region', 'activo'];
+    protected $fillable = ['nombre', 'region', 'activo', 'coordinador_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -29,6 +31,7 @@ class Grupo extends Model implements Auditable
     private static $whiteListFilter = [
         'nombre',
         'activo',
+        'coordinador_id',
     ];
 
     /*public function tareas()
@@ -51,4 +54,14 @@ class Grupo extends Model implements Auditable
     {
         return $this->hasMany(ControlMaterialTrabajo::class);
     }
+
+    public function coordinador()
+    {
+        return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
+    }
+    public function subCentroCosto()
+    {
+        return $this->belongsTo(SubcentroCosto::class, 'id', 'grupo_id');
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\Prefactura;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,9 +26,14 @@ class Cliente extends Model implements Auditable
         'estado' => 'boolean'
     ];
 
-    private static $whiteListFilter=['*'];
 
-    public function sucursales(){
+    const JEANPATRICIO = 1;
+    const JPCONSTRUCRED = 5;
+
+    private static $whiteListFilter = ['*'];
+
+    public function sucursales()
+    {
         return $this->hasMany(Sucursal::class);
     }
     public function parroquia()
@@ -35,18 +41,24 @@ class Cliente extends Model implements Auditable
         return $this->belongsTo(Parroquia::class);
     }
 
+    public function prefacturas()
+    {
+        return $this->hasMany(Prefactura::class, 'cliente_id');
+    }
+
     /**
      * Relacion uno a uno (inversa)
      */
     public function empresa()
     {
-        return $this->belongsTo(Empresa::class);
+        return $this->belongsTo(Empresa::class, 'empresa_id', 'id');
     }
     /**
      * Relacion uno a muchos
      * Un cliente tiene varios codigos para varios productos
      */
-    public function codigos(){
+    public function codigos()
+    {
         return $this->hasOne(CodigoCliente::class);
     }
 
@@ -63,7 +75,8 @@ class Cliente extends Model implements Auditable
      * Relacion muchos a muchos.
      * Un cliente tiene varios detalles_productos en inventario.
      */
-    public function detalles(){
+    public function detalles()
+    {
         return $this->belongsToMany(DetalleProducto::class, 'inventarios', 'cliente_id', 'detalle_id');
     }
 
@@ -71,7 +84,8 @@ class Cliente extends Model implements Auditable
      * Relación uno a muchos.
      * Un cliente tiene un producto al que se le hace un control de stock para estar pendiente de su reabastecimiento
      */
-    public function controlStock(){
+    public function controlStock()
+    {
         return $this->hasMany(ControlStock::class);
     }
 }

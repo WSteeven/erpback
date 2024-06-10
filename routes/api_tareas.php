@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\ActividadRealizadaSeguimientoSubtareaController;
 use App\Http\Controllers\ArchivoSeguimientoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
-use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TrabajoAsignadoController;
@@ -24,11 +24,19 @@ use App\Http\Controllers\SeguimientoSubtareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\Tareas\EtapaController;
+use App\Http\Controllers\Tareas\TransferenciaMaterialEmpleadoController;
+use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
+use App\Http\Controllers\Tareas\CentroCostoController;
+use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
+        'etapas' =>EtapaController::class,
+        'subcentros-costos' =>SubCentroCostoController::class,
+        'centros-costos' =>CentroCostoController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
@@ -46,9 +54,13 @@ Route::apiResources(
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
         'seguimientos' => SeguimientoSubtareaController::class,
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
+        'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,
+        'transferencias-productos-empleados' => TransferenciaProductoEmpleadoController::class,
     ],
     [
         'parameters' => [
+            'subcentros-costos' => 'subcentro',
+            'centros-costos' => 'centro',
             'tipos-trabajos' => 'tipo_trabajo',
             'causas-intervenciones' => 'causa_intervencion',
             'tipos-elementos' => 'tipo_elemento',
@@ -59,6 +71,8 @@ Route::apiResources(
             'motivos-suspendidos' => 'motivo_suspendido',
             'rutas-tareas' => 'ruta_tarea',
             'archivos-seguimientos' => 'archivo_seguimiento',
+            'actividades-realizadas-seguimientos-subtareas' => 'actividad_realizada',
+            'transferencias-productos-empleados' => 'transferencia_producto_empleado'
         ],
     ]
 );
@@ -81,6 +95,10 @@ Route::prefix('subtareas')->group(function () {
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
 
+Route::post('etapas/desactivar/{etapa}', [EtapaController::class, 'desactivar']);
+//Centros de costos
+Route::post('centros-costos/desactivar/{centro}', [CentroCostoController::class, 'desactivar']);
+
 // Verificar que se pueden finalizar las subtareas
 Route::get('verificar-todas-subtareas-finalizadas', [TareaController::class, 'verificarTodasSubtareasFinalizadas']);
 Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verificarMaterialTareaDevuelto']);
@@ -88,7 +106,8 @@ Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verifi
 // Transferir mis tareas activas
 Route::post('transferir-mis-tareas-activas', [TareaController::class, 'transferirMisTareasActivas']);
 
-Route::get('export-seguimiento/{seguimiento}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
+Route::get('export-seguimiento/{subtarea}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
+Route::get('ver-seguimiento/{subtarea}', [SeguimientoSubtareaController::class, 'verSeguimiento']);
 
 // Obtener los trabajos designados: de un grupo o empleado individual
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
@@ -103,7 +122,7 @@ Route::apiResource('tendidos', TendidoController::class)->except('show');
 Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 
 // Reportes de material
-Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);
+// Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);
 
 Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaController::class, 'destinoActual']);
 
@@ -112,12 +131,31 @@ Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaControll
  *************/
 // Obtener los materiales del stock personal
 Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
-
 // Obtener los materiales para tareas asignados a un empleado
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
-Route::get('obtener-suma-material-tarea-usado', [SeguimientoSubtareaController::class, 'obtenerSumaMaterialTareaUsado']);
+// Obtener los materiales del empleado tanto de tarea como stock personal
+Route::get('materiales-empleado-consolidado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoConsolidado']);
+
+// Route::get('proyectos-empleado', [ProyectoController::class,'obtenerProyectosEmpleado']);
+// Route::get('etapas-empleado', [EtapaController::class,'obtenerEtapasEmpleado']);
+// Route::get('tareas-empleado', [TareaController::class,'obtenerTareasEmpleado']);
+
+// Historial de materiales
+Route::get('obtener-fechas-historial-materiales-usados/{subtarea}', [SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesUsados']);
+Route::get('obtener-fechas-historial-materiales-stock-usados/{subtarea}', [SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesStockUsados']);
 Route::get('obtener-historial-material-tarea-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialTareaUsadoPorFecha']);
+Route::get('obtener-historial-material-stock-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialStockUsadoPorFecha']);
 Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorial']);
+Route::post('actualizar-cantidad-utilizada-historial-stock', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorialStock']);
+
+// Editar cantidad utilizada el dia actual
+Route::post('actualizar-cantidad-utilizada-tarea', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaMaterialTarea']);
+Route::post('actualizar-cantidad-utilizada-stock', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaMaterialStock']);
+
+
+// Clientes dueños de materiales
+Route::get('obtener-clientes-materiales-empleado', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesEmpleado']);
+Route::get('obtener-clientes-materiales-tarea', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesTarea']);
 
 /***********
  * Reportes
@@ -128,3 +166,9 @@ Route::get('reportes', [ReporteModuloTareaController::class, 'index']);
  * Dashboard
  ***********/
 Route::get('dashboard', [DashboardTareaController::class, 'index']);
+
+/*************************
+ * Archivos polimorficos
+ *************************/
+Route::get('transferencias-productos-empleados/files/{transferencia}', [TransferenciaProductoEmpleadoController::class, 'indexFiles']);
+Route::post('transferencias-productos-empleados/files/{transferencia}', [TransferenciaProductoEmpleadoController::class, 'storeFiles']);

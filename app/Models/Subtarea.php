@@ -23,7 +23,7 @@ use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 
 class Subtarea extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait, SubtareasFilter;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait; //, SubtareasFilter;
 
     const CREADO = 'CREADO';
     const ASIGNADO = 'ASIGNADO';
@@ -62,6 +62,7 @@ class Subtarea extends Model implements Auditable
         'hora_fin_trabajo',
         'tiempo_estimado',
         'empleados_designados',
+        'metraje_tendido',
         'tipo_trabajo_id',
         'tarea_id',
         'grupo_id',
@@ -78,6 +79,8 @@ class Subtarea extends Model implements Auditable
         'tiene_subtrabajos' => 'boolean',
         'empleados_designados' => 'json',
     ];
+
+    static $noFiltrar = ['codigo_tarea'];
 
     /*******************
      * Eloquent Filter
@@ -175,6 +178,11 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(ArchivoSubtarea::class);
     }
 
+    public function archivosSeguimiento()
+    {
+        return $this->hasMany(ArchivoSeguimiento::class, 'subtarea_id', 'id');
+    }
+
     public function pausasSubtarea()
     {
         return $this->hasMany(PausaSubtarea::class);
@@ -198,6 +206,11 @@ class Subtarea extends Model implements Auditable
     public function motivoCancelado()
     {
         return $this->belongsTo(MotivoSuspendido::class, 'motivo_cancelado_id', 'id');
+    }
+
+    public function causaIntervencion()
+    {
+        return $this->belongsTo(CausaIntervencion::class, 'causa_intervencion_id', 'id');
     }
 
     public function tecnicosPrincipales($empleados)
@@ -259,6 +272,17 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(SeguimientoMaterialSubtarea::class);
     }
 
+    public function trabajosRealizados()
+    {
+        return $this->hasMany(TrabajoRealizado::class);
+    }
+
+    // es lo mismo de arriba
+    public function actividadRealizadaSeguimientoSubtarea()
+    {
+        return $this->hasMany(ActividadRealizadaSeguimientoSubtarea::class);
+    }
+
     /*********
      * Scopes
      *********/
@@ -296,5 +320,10 @@ class Subtarea extends Model implements Auditable
         // return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
         // Log::channel('testing')->info('Log', ['Coordinador: ', $coordinador]);
         return DB::table('subtareas')->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')->where('tareas.coordinador_id', $coordinador);
+    }
+
+    public function scopeDisponible($query)
+    {
+        return $query->whereNotIn('estado', [Subtarea::FINALIZADO, Subtarea::CANCELADO, Subtarea::SUSPENDIDO]);
     }
 }

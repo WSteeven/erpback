@@ -8,16 +8,18 @@ use App\Models\Notificacion;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\NotificacionService;
 use Src\Shared\Utils;
 
 class NotificacionController extends Controller
 {
     private $entidad = 'Notificacion';
+    private NotificacionService $servicio;
     public function __construct()
     {
+        $this->servicio = new NotificacionService();
         $this->middleware('can:puede.ver.notificaciones')->only('index', 'show');
         $this->middleware('can:puede.crear.notificaciones')->only('store');
         $this->middleware('can:puede.editar.notificaciones')->only('update');
@@ -29,25 +31,21 @@ class NotificacionController extends Controller
      */
     public function index(Request $request)
     {
-        $campos = explode(',', $request['campos']);
-
-        if ($request['campos']) {
-            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                $results = Notificacion::ignoreRequest(['campos'])
-                    ->where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
-                    ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
-                    ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(10)->get($campos);
-            } else {
-                $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(10)->get($campos);
-            }
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $results = [];
+        if (auth()->user()->hasRole(User::ROL_COORDINADOR_BODEGA)) {
+            $results = $this->servicio->obtenerNotificacionesRol(User::ROL_COORDINADOR_BODEGA, $campos);
+        } else if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+            $results = $this->servicio->obtenerNotificacionesRol(User::ROL_BODEGA, $campos);
+        } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
+            $results = $this->servicio->obtenerNotificacionesRol(User::ROL_BODEGA_TELCONET, $campos);
+        } else if (auth()->user()->hasRole(User::ROL_CONTABILIDAD)) {
+            $results = $this->servicio->obtenerNotificacionesRol(User::ROL_CONTABILIDAD, $campos);
+        } else if (auth()->user()->hasRole(User::ROL_COMPRAS)) {
+            $results = $this->servicio->obtenerNotificacionesRol(User::ROL_COMPRAS, $campos);
         } else {
-            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
-                    ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
-                    ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
-            } else $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+            $results = $this->servicio->obtenerNotificacionesRol('', $campos);
         }
-
 
         return response()->json(compact('results'));
     }

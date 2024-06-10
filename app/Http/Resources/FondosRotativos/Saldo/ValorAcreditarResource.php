@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Http\Resources\FondosRotativos\Saldo;
+
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\FondosRotativos\Saldo\Saldo;
+use App\Models\FondosRotativos\Saldo\ValorAcreditar;
+use Carbon\Carbon;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
+use Src\App\FondosRotativos\AcreditacionSemanalService;
+
+class ValorAcreditarResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     */
+    public function toArray($request)
+    {
+        $controller_method = $request->route()->getActionMethod();
+        $numeroSemana = explode("FONDO ROTATIVO SEMANA #", $this->acreditacion_semanal->semana)[1];
+        $modelo = [
+            'id' => $this->id,
+            'empleado_info' => $this->empleado->nombres != null ? $this->empleado->apellidos . ' ' . $this->empleado->nombres : '',
+            'empleado' => $this->empleado_id,
+            'umbral_empleado' => $this->empleado->umbral != null ? number_format($this->empleado->umbral->valor_minimo, 2) : 0,
+            'saldo_empleado' => $this->saldo_empleado === 0 ? AcreditacionSemanalService::obtenerSaldo($this->empleado_id, $numeroSemana, $this->acreditacion_semanal->created_at) : $this->saldo_empleado,
+            'monto_generado' => number_format($this->monto_generado, 2),
+            'monto_modificado' => str_replace(",", "", number_format($this->monto_modificado, 2)),
+            'acreditacion_semana' => $this->acreditacion_semana_id,
+            'es_acreditado' => $this->acreditacion_semanal != null ? $this->acreditacion_semanal->acreditar : '',
+            'acreditacion_semana_info' => $this->acreditacion_semanal != null ? $this->acreditacion_semanal->semana : '',
+            'motivo' => $this->motivo,
+            'estado' => $this->estado
+        ];
+        return $modelo;
+    }
+}

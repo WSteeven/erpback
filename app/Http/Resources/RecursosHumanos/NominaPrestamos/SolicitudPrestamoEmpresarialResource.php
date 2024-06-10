@@ -4,6 +4,7 @@ namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class SolicitudPrestamoEmpresarialResource extends JsonResource
 {
@@ -20,11 +21,12 @@ class SolicitudPrestamoEmpresarialResource extends JsonResource
             'id' => $this->id,
             'solicitante' => $this->solicitante,
             'solicitante_info' => $this->empleado_info!=null?$this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos:'',
-            'fecha' =>  $this->cambiar_fecha($this->fecha),
+            'fecha' =>  $controller_method === 'show'?$this->fecha:$this->cambiar_fecha($this->fecha),
             'monto' =>  $this->monto,
             'plazo' => $this->plazo,
             'motivo' =>  $this->motivo,
             'observacion' => $this->observacion,
+            'cargo_utilidad' =>$this->periodo_id != null ? true:false,
             'periodo' =>   $this->periodo_id,
             'periodo_info' => $this->periodo_info? $this->periodo_info->nombre:'' ,
             'valor_utilidad' => $this->valor_utilidad,

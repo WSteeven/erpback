@@ -17,10 +17,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+use Src\Config\ClientesCorporativos;
 
 class SubtareaService
 {
-    public function __construct() { }
+    public function __construct()
+    {
+    }
 
     public function guardarSubtarea(SubtareaRequest $request)
     {
@@ -83,11 +86,12 @@ class SubtareaService
         $usuario = Auth::user();
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
 
         // Monitor
-        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup) {
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && $esJefeTecnico) {
             // $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
-            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->orderBy('fecha_hora_agendado', 'desc')->get();
+            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->get(); //->orderBy('fecha_hora_agendado', 'desc')->get();
             return SubtareaResource::collection($results);
         }
 
@@ -115,21 +119,16 @@ class SubtareaService
 
     public function puedeRealizar(Subtarea $subtarea)
     {
-        $seguimiento = SeguimientoSubtarea::find($subtarea->seguimiento_id);
         $ids = TipoTrabajo::where('descripcion', 'STANDBY')->pluck('id')->toArray();
 
-        if (!in_array($subtarea->tipo_trabajo_id, $ids) && !$seguimiento) throw ValidationException::withMessages([
-            'falta_seguimiento' => ['Debe registrar actividades en el seguimiento!'],
-        ]);
-
-        if ($seguimiento) {
-            if ($seguimiento->trabajoRealizado->count() < 3)
+        if (!in_array($subtarea->tipo_trabajo_id, $ids)) {
+            /*if ($subtarea->trabajosRealizados->count() < 1)
                 throw ValidationException::withMessages([
-                    'pocas_actividades' => ['Ingrese al menos tres actividades en el formulario de seguimiento!'],
-                ]);
+                    'pocas_actividades' => ['Ingrese al menos  actividades en el formulario de seguimiento!'],
+                ]);*/
 
-            if ($subtarea->tarea->cliente_id == 3) {
-                if ($seguimiento->archivos->count() === 0)
+            if ($subtarea->tarea->cliente_id == ClientesCorporativos::NEDETEL) {
+                if ($subtarea->archivosSeguimiento->count() === 0)
                     throw ValidationException::withMessages([
                         'archivo_requerido' => ['Debe subir al menos un archivo en el formulario de seguimiento!'],
                     ]);

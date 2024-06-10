@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
+use App\Http\Resources\SucursalResource;
 use App\Models\Cliente;
-use App\Models\ComputadoraTelefono;
 use App\Models\DetalleProducto;
-use App\Models\DetallesProducto;
-use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\Inventario;
+use App\Models\Sucursal;
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +31,7 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];
@@ -41,10 +39,20 @@ class DetalleProductoController extends Controller
         $results = [];
         if ($request->tipo_busqueda) {
             switch ($request->tipo_busqueda) {
+                case 'only_inventario':
+                    $results = DetalleProducto::whereHas('inventarios')->get();
+                    $results2 = DetalleProducto::whereHas('itemsPreingresos')->get();
+                    $results = $results->merge($results2);
+                    $results = DetalleProductoResource::collection($results);
+                    return response()->json(compact('results'));
+                    break;
                 case 'only_sucursal':
                     //aqui se lista solo los detalles que estan en la bodega seleccionada
                     $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
-                    $results = DetalleProducto::whereIn('id', $ids_detalles)->orderBy('descripcion', 'asc')->get();
+                    $results = DetalleProducto::whereIn('id', $ids_detalles)
+                        ->when($request->search, function ($query) use ($request) {
+                            $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
+                        })->where('activo', true)->orderBy('descripcion', 'asc')->get();
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
                     break;
@@ -52,31 +60,35 @@ class DetalleProductoController extends Controller
                     Log::channel('testing')->info('Log', ['eSTOY EN EL CASE DE CLIENTE TAREA:', $request->all()]);
                     //aqui se lista solo los detalles que tienen stock en inventario con el cliente de la tarea
                     // $ids_detalles = Inventario::where('cliente_id', $request->cliente_id)->limit(990)->get('detalle_id');
-                    // Log::channel('testing')->info('Log', ['los detalles CLIENTE TAREA:', $ids_detalles->count()]);
                     // Log::channel('testing')->info('Log', ['los detalles como tal:', DetalleProducto::whereIn('id', $ids_detalles)->get()]);
-                    $results = Cliente::find($request->cliente_id)->detalles->unique();
+                    $results = Cliente::find($request->cliente_id)->detalles->unique()->where('activo', true);
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
                     break;
                 default: //todos
-                    $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    if ($request->categoria_id && !is_null($request->categoria_id[0])) {
+                        $results = DetalleProducto::withWhereHas('producto', function ($query) use ($request) {
+                            $query->whereIn('categoria_id', $request->categoria_id);
+                        })->orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    } else $results = DetalleProducto::where('activo', true)->orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
             }
         }
         if (!empty($campos)) {
-            Log::channel('testing')->info('Log', ['Que tiene campos:', $campos]);
-            Log::channel('testing')->info('Log', ['Pasó por el if de campos:']);
             $results = DetalleProducto::ignoreRequest(['campos', 'search'])->filter()->get($campos);
-            // return response()->json(compact('results'));
         } else if ($page) {
-            Log::channel('testing')->info('Log', ['Pasó por el if de page:']);
             $results = DetalleProducto::simplePaginate($request['offset']);
         } else if ($search) { //en este caso busca en todos los detalles
-            Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
+            Log::channel('testing')->info('Log', ['Pasó por el if de search:', $request->all()]);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
             Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
+            // Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
+            $results = DetalleProducto::search($search)->get();
+        } else if ($sucursal) {
+            // Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
             if ($request->cliente_id) $ids_detalles = Inventario::where('sucursal_id', $sucursal)->where('cliente_id', $request->cliente_id)->get('detalle_id');
             else {
                 $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
@@ -84,17 +96,16 @@ class DetalleProductoController extends Controller
             }
             $results = DetalleProducto::whereIn('id', $ids_detalles)->get();
             $r2 = DetalleProducto::whereNotIn('id', $ids_detalles_en_inventario)->get();
-            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
+            // Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
             $results = $results->concat($r2);
             Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
         } else {
-            Log::channel('testing')->info('Log', ['Pasó por el else general:']);
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
-            // $results = DetalleProductoResource::collection($results);
         }
         $results = DetalleProductoResource::collection($results);
         return response()->json(compact('results'));
     }
+
 
     /**
      * Guardar
@@ -122,13 +133,13 @@ class DetalleProductoController extends Controller
                 $detalle = DetalleProducto::crearDetalle($request, $datos);
             }
 
+            $modelo = new DetalleProductoResource($detalle);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
         }
-        $modelo = new DetalleProductoResource($detalle);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -222,5 +233,42 @@ class DetalleProductoController extends Controller
         $detalle->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Desactivar un detalle especifico
+     */
+    public function desactivar(DetalleProducto $detalle)
+    {
+        // Log::channel('testing')->info('Log', ['Inicio del metodo desactivar:', $detalle]);
+        $detalle->activo = !$detalle->activo;
+        $detalle->save();
+
+        $modelo = new DetalleProductoResource($detalle->refresh());
+        return response()->json(compact('modelo'));
+    }
+
+
+    public function obtenerMateriales(Request $request)
+    {
+        $detalles = DetalleProducto::whereHas('producto', function ($query) {
+            $query->whereIn('categoria_id', [7,4,1]);
+        })->where(function ($query) use ($request) {
+            $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
+            $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');
+        })->get();
+
+        $results = DetalleProductoResource::collection($detalles);
+        return response()->json(compact('results'));
+    }
+
+    public function sucursalesDetalle(Request $request)
+    {
+        $ids_sucursales = Inventario::where('detalle_id', $request->detalle_id)->get('sucursal_id');
+        // $ids_sucursales = DetalleProducto::whereHas('inventarios', function ($query) use ($request) {
+        //     $query->where('detalle_id', $request->detalle_id);
+        // })->get();
+        $results = SucursalResource::collection(Sucursal::whereIn('id', $ids_sucursales)->get());
+        return response()->json(compact('results'));
     }
 }

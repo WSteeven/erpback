@@ -39,9 +39,10 @@ class TransaccionEgresoEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('egreso-'.$this->transaccion->responsable_id);
+        return new Channel('egreso-' . $this->transaccion->responsable_id);
     }
-    public function broadcastAs(){
+    public function broadcastAs()
+    {
         return 'egreso-event';
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -44,11 +46,13 @@ class DetalleProducto extends Model implements Auditable
         'talla',
         'tipo',
         'url_imagen',
+        'es_fibra',
 
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'es_fibra' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -70,7 +74,7 @@ class DetalleProducto extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
-     /**
+    /**
      * Relacion uno a muchos.
      * Un detalle tiene un codigo a la vez.
      */
@@ -85,21 +89,27 @@ class DetalleProducto extends Model implements Auditable
      */
     public function inventarios()
     {
-        return $this->hasMany(Inventario::class);
+        return $this->hasMany(Inventario::class, 'detalle_id');
+    }
+
+    public function itemsPreingresos()
+    {
+        return $this->hasMany(ItemDetallePreingresoMaterial::class, 'detalle_id');
     }
 
     /**
      * Relacion muchos a muchos.
      * Un detalle puede pertenecer a varios clientes en el inventario.
      */
-    public function clientes(){
+    public function clientes()
+    {
         return $this->belongsToMany(Cliente::class, 'cliente_id', 'detalle_id');
     }
 
     public function detalle_stock($detalle_id, $sucursal_id)
     {
         // SELECT SUM(cantidad) FROM inventarios where detalle_id=500 group by detalle_id
-        return Inventario::where('sucursal_id', $sucursal_id)->where('detalle_id', $detalle_id)->groupBy('detalle_id')->first('cantidad');
+        return Inventario::where('sucursal_id', $sucursal_id)->where('detalle_id', $detalle_id)->orderBy('cantidad', 'desc')->first('cantidad');
     }
 
 
@@ -157,7 +167,29 @@ class DetalleProducto extends Model implements Auditable
     public function detalleProductoPedido()
     {
         return $this->belongsToMany(Pedido::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
+            ->withPivot('cantidad', 'solicitante_id')->withTimestamps();
+    }
+
+
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una preorden.
+     */
+    public function detalleProductoPreordenCompra()
+    {
+        return $this->belongsToMany(PreordenCompra::class, 'cmp_item_detalle_preorden_compra', 'preorden_id', 'detalle_id')
             ->withPivot('cantidad')->withTimestamps();
+    }
+
+
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una preorden.
+     */
+    public function detalleProductoOrdenCompra()
+    {
+        return $this->belongsToMany(OrdenCompra::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'detalle_id')
+            ->withPivot(['cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
     }
 
     /**
@@ -167,7 +199,7 @@ class DetalleProducto extends Model implements Auditable
     public function detalleProductoTransaccion()
     {
         return $this->belongsToMany(TransaccionBodega::class, 'detalle_producto_transaccion', 'transaccion_id', 'detalle_id')
-            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
 
@@ -202,7 +234,7 @@ class DetalleProducto extends Model implements Auditable
      * Relación uno a uno (inversa).
      * Un detalle es un activo fijo.
      */
-    public function activo()
+    public function activo_fijo()
     {
         return $this->hasOne(ActivoFijo::class);
     }
@@ -222,27 +254,29 @@ class DetalleProducto extends Model implements Auditable
      * FUNCIONES
      * _______________________________
      */
-    
-     /**
+
+    /**
      * La función `crearDetalle` crea un nuevo registro `DetalleProducto` en la base de datos y lo
      * asocia con un registro `Computadora` o `Fibra` según el valor del campo `categoría` en la
      * solicitud.
-     * 
+     *
      * @param request El parámetro  es un objeto que contiene los datos de la solicitud HTTP,
      * como el método de solicitud, los encabezados y el cuerpo.
      * @param datos El parámetro "datos" es un arreglo que contiene los datos necesarios para crear un
      * nuevo registro "DetalleProducto". Las claves específicas y sus valores correspondientes en el
      * arreglo dependen de los requerimientos del modelo "DetalleProducto".
-     * 
+     *
      * @return la variable .
      */
-    public static function crearDetalle($request, $datos){
-        try{
+    public static function crearDetalle($request, $datos)
+    {
+        Log::channel('testing')->info('Log', ['Lo que se recibe para crear:', $request, $datos]);
+        try {
             DB::beginTransaction();
-            
+
             $detalle = DetalleProducto::create($datos);
             if ($request->categoria === 'INFORMATICA') {
-            
+
                 $detalle->computadora()->create([
                     'memoria_id' => $datos['ram'],
                     'disco_id' => $datos['disco'],
@@ -263,10 +297,40 @@ class DetalleProducto extends Model implements Auditable
                 DB::commit();
             }
             DB::commit();
-        }catch(Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             throw new Exception($e->getMessage());
         }
         return $detalle;
+    }
+
+    /**
+     * La función `obtenerDetalle` en PHP recupera detalles del producto en función de los parámetros
+     * proporcionados, como el producto_id, la descripción y el número de serie.
+     * 
+     * @param producto_id El ID del producto que desea buscar. Si se proporciona, la búsqueda se
+     * limitará a este producto específico.
+     * @param descripcion El parámetro "descripcion" es una cadena que representa la descripción del
+     * detalle de producto. Se utiliza para buscar un producto con una descripción coincidente o similar.
+     * @param serial El parámetro "serie" se utiliza para buscar un producto específico por su número
+     * de serie. Si se proporciona un número de serie, la función buscará un producto con un número de
+     * serie y una descripción coincidentes.
+     * 
+     * @return DetalleProducto el resultado de la consulta a la base de datos.
+     */
+    public static function obtenerDetalle($producto_id = null, $descripcion, $serial = null)
+    {
+        if (!is_null($producto_id)) { // si hay producto_id realiza busqueda teniendo en cuenta la varible producto_id
+            if (is_null($serial)) { // si no hay serial
+                $result = DetalleProducto::where('producto_id', $producto_id)->where(function ($query) use ($descripcion) {
+                    $query->where('descripcion', $descripcion)->orWhere('descripcion', 'LIKE', '%' . $descripcion   . '%'); // busca coincidencia exacta o similitud en el texto
+                })->first();
+            } else
+                $result = DetalleProducto::where('producto_id', $producto_id)->where('serial', $serial)->where('descripcion', 'LIKE', '%' . $descripcion   . '%')->first();
+        } else { // solo se buscará según la descripcion y/o numero serial
+            if (is_null($serial)) $result  = DetalleProducto::where('descripcion', $descripcion)->orWhere('descripcion', 'LIKE', '%' . $descripcion   . '%')->first();
+            else  $result  = DetalleProducto::where('serial', $serial)->where('descripcion', $descripcion)->orWhere('descripcion', 'LIKE', '%' . $descripcion   . '%')->first();
+        }
+        return $result;
     }
 }

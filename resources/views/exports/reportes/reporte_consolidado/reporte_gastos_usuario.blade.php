@@ -1,4 +1,9 @@
 <html>
+@php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -11,8 +16,9 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -72,10 +78,6 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
-@endphp
 
 <body>
     <header>
@@ -83,9 +85,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
-                            width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE GASTOS
@@ -100,8 +100,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
@@ -150,6 +149,12 @@
                 <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>COMENTARIO</strong></div>
                 </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="7%">
                     <div align="center"><strong>AUTORIZADOR</strong></div>
                 </td>
@@ -191,6 +196,8 @@
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['detalle_estado'] }}</div>
                     </td>
+                    <td style="font-size:10px">{{ $gasto['centro_costo'] }}</td>
+                    <td style="font-size:10px">{{ $gasto['sub_centro_costo'] }}</td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
                             {{ $gasto['autorizador'] }}
@@ -203,7 +210,7 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="9" style="font-size:10px" width="29%">
+                <td colspan="11" style="font-size:10px" width="29%">
                     <div align="right"><strong>Total</strong></div>
                 </td>
                 <td style="font-size:10px" width="10%">

@@ -122,7 +122,7 @@
 
                         <tr>
                             <td>
-                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
+                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
                                     <tr>
                                         <td width="3%" bgcolor="#a9d08e">
                                             <div align="center"><strong>#</strong></div>
@@ -157,7 +157,7 @@
                                         </tr>
                                     @else
                                         @php
-                                        $saldo_act = $saldo_anterior;
+                                            $saldo_act = $saldo_anterior;
                                         @endphp
                                         @foreach ($reportes_unidos as $dato)
                                             @php
@@ -165,21 +165,21 @@
                                             @endphp
                                             <tr>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $num_registro}}</div>
+                                                    <div align="center">{{ $num_registro }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{date("d-m-Y", strtotime( $dato['fecha']))}}</div>
+                                                    <div align="center">{{ date('d-m-Y', strtotime($dato['fecha'])) }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{$dato['num_comprobante']}}
+                                                    <div align="center">{{ $dato['num_comprobante'] }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ strtoupper($dato['descripcion'])}}
+                                                    <div align="center">{{ strtoupper($dato['descripcion']) }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{$dato['observacion']}}
+                                                    <div align="center">{{ $dato['observacion'] }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
@@ -191,7 +191,8 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ isset($dato['saldo'])? number_format($dato['saldo'], 2, ',', '.') :number_format($saldo_act, 2, ',', '.') }}
+                                                    <div align="center">
+                                                        {{ isset($dato['saldo']) ? number_format($dato['saldo'], 2, ',', '.') : number_format($saldo_act, 2, ',', '.') }}
                                                     </div>
                                                 </td>
                                             </tr>

@@ -19,21 +19,21 @@ class BeneficiarioGasto extends Model implements Auditable
     protected $table = 'beneficiario_gastos';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'id_gasto',
+        'gasto_id',
         'beneficiario',
         'empleado_id',
     ];
     private static $whiteListFilter = [
         'gasto',
-        'id_gasto',
+        'gasto_id',
         'empleado_id',
         'beneficiario',
     ];
-    public function gasto_info()
+    public function gasto()
     {
         return $this->hasOne(Gasto::class, 'id','id_gasto');
     }
-    public function empleado_info()
+    public function empleado()
     {
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }

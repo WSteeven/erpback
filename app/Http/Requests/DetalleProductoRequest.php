@@ -49,6 +49,7 @@ class DetalleProductoRequest extends FormRequest
 
             'color' => 'sometimes|nullable|string',
             'talla' => 'sometimes|nullable|string',
+            'es_fibra' => 'boolean',
             'tipo' => ['sometimes', 'nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
         ];
 
@@ -74,7 +75,7 @@ class DetalleProductoRequest extends FormRequest
             Log::channel('testing')->info('Log', ['El detalle encontrado es: ', $detalle]);
             if (!is_null($detalle)) {
                 Log::channel('testing')->info('Log', ['Hay un detalle: ', $detalle]);
-                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial)!==$detalle->serial && count($this->seriales)<1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
+                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial) !== $detalle->serial && count($this->seriales) < 1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
             }
         });
     }

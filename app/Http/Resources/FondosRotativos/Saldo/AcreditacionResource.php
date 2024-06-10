@@ -20,20 +20,33 @@ class AcreditacionResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'fecha' =>$this->cambiar_fecha($this->fecha),
+            'fecha' => $this->cambiarFecha($this->fecha),
             'tipo_saldo' => $this->id_tipo_saldo,
             'tipo_fondo' => $this->id_tipo_fondo,
             'id_saldo' => $this->id_saldo,
             'usuario' => $this->id_usuario,
-            'empleado_info' => $this->usuario->nombres.' '.$this->usuario->apellidos,
-            'estado' => $this->estado!=null? $this->estado->estado:' ',
+            'empleado_info' => $this->usuario->nombres . ' ' . $this->usuario->apellidos,
+            'estado' => $this->estado != null ? $this->estado->estado : ' ',
             'descripcion_acreditacion' => $this->descripcion_acreditacion,
+            'motivo' => $this->motivo,
             'monto' => $this->monto,
         ];
         return $modelo;
     }
-    private function cambiar_fecha($fecha){
-        $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
-            return $fecha_formateada;
-        }
+    /**
+     * La función "cambiarFecha" toma una cadena de fecha como entrada, la analiza usando Carbon y
+     * devuelve la fecha con el formato 'd-m-Y'.
+     *
+     * @param string fecha La función `cambiarFecha` toma un parámetro de cadena llamado ``, que
+     * representa una fecha en un formato específico. La función utiliza la biblioteca Carbon para
+     * analizar la cadena de fecha de entrada y luego formatearla en formato 'd-m-Y'. Finalmente, devuelve
+     * la cadena de fecha formateada.
+     *
+     * @return La función `cambiarFecha` devuelve una cadena de fecha formateada en el formato 'd-m-Y'.
+     */
+    private function cambiarFecha(string $fecha)
+    {
+        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
+        return $fecha_formateada;
+    }
 }
