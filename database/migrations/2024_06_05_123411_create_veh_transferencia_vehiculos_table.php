@@ -44,7 +44,7 @@ return new class extends Migration
             $table->foreign('canton_id')->references('id')->on('cantones')->cascadeOnUpdate()->nullOnDelete();
             $table->foreign('devuelve_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
             $table->foreign('asignacion_id')->references('id')->on('veh_asignaciones_vehiculos')->cascadeOnUpdate()->nullOnDelete();
-            $table->foreign('transferencia_id')->references('id')->on('veh_transferencia_vehiculos')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('transferencia_id')->references('id')->on('veh_transferencias_vehiculos')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 

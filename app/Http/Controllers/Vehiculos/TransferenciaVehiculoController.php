@@ -70,28 +70,36 @@ class TransferenciaVehiculoController extends Controller
     {
         $datos = $request->validated();
         try {
-            if (is_null($datos['asignacion_id']) && is_null($datos['transferencia_id'])) throw new Exception("Debe ingresar un número de asignación o número de transferencia.");
-            if (!is_null($datos['asignacion_id']) && !is_null($datos['transferencia_id'])) throw new Exception("Transferencia no válida, no puede tener número de asignación y número de transferencia al mismo tiempo.");
-            DB::beginTransaction();
-            if ($datos['asignacion_id']) {
-                $asignacion = AsignacionVehiculo::find($datos['asignacion_id']);
-                if ($asignacion) {
-                    if (!$asignacion->devuelto && !$asignacion->transferido && $asignacion->estado == AsignacionVehiculo::ACEPTADO) {
-                        // Se actualiza la asignación
-                        $asignacion->transferido = true;
-                        $asignacion->save();
-                    } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
-                } else throw new Exception("No se encuentra el número de asignación ingresado");
-            } else {
-                $transferencia = TransferenciaVehiculo::find($datos['transferencia_id']);
-                if ($transferencia) {
-                    if (!$transferencia->devuelto && !$transferencia->transferido && $transferencia->estado == AsignacionVehiculo::ACEPTADO) {
-                        // Se actualiza la transferencia
-                        $transferencia->transferido = true;
-                        $transferencia->save();
-                    } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
-                } else throw new Exception("No se encuentra el número de transferencia ingresado");
+            if (array_key_exists('asignacion_id', $datos) && array_key_exists('transferencia_id', $datos)) {
+                if (is_null($datos['asignacion_id']) && is_null($datos['transferencia_id'])) throw new Exception("Debe ingresar un número de asignación o número de transferencia.");
+                if (!is_null($datos['asignacion_id']) && !is_null($datos['transferencia_id'])) throw new Exception("Transferencia no válida, no puede tener número de asignación y número de transferencia al mismo tiempo.");
             }
+            DB::beginTransaction();
+            if (array_key_exists('asignacion_id', $datos)) {
+                if ($datos['asignacion_id']) {
+                    $asignacion = AsignacionVehiculo::find($datos['asignacion_id']);
+                    if ($asignacion) {
+                        if (!$asignacion->devuelto && !$asignacion->transferido && $asignacion->estado == AsignacionVehiculo::ACEPTADO) {
+                            // Se actualiza la asignación
+                            $asignacion->transferido = true;
+                            $asignacion->save();
+                        } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
+                    } else throw new Exception("No se encuentra el número de asignación ingresado");
+                }
+            } else {
+                Log::channel('testing')->info('Log', ['else 88', $datos]);
+                if (array_key_exists('transferencia_id', $datos)) {
+                    $transferencia = TransferenciaVehiculo::find($datos['transferencia_id']);
+                    if ($transferencia) {
+                        if (!$transferencia->devuelto && !$transferencia->transferido && $transferencia->estado == AsignacionVehiculo::ACEPTADO) {
+                            // Se actualiza la transferencia
+                            $transferencia->transferido = true;
+                            $transferencia->save();
+                        } else throw new Exception("No se puede crear la transferencia de un vehículo que ya ha sido devuelto o transferido");
+                    } else throw new Exception("No se encuentra el número de transferencia ingresado");
+                }
+            }
+
             $vehiculoDisponible = $this->vehiculoService->verificarDisponibilidadVehiculo($datos['vehiculo_id']);
 
             if (!$vehiculoDisponible) throw new Exception('El vehículo seleccionado ya está asignado/transferido a un chofer y aún no ha sido devuelto, por favor devuelve el vehículo para poder asignarlo nuevamente.');
