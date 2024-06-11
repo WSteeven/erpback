@@ -61,10 +61,13 @@ class TransferenciaVehiculoRequest extends FormRequest
             'estado_mecanico' => Utils::convertArrayToString($this->estado_mecanico,),
             'estado_electrico' => Utils::convertArrayToString($this->estado_electrico,),
             'devuelve_id' => $this->devuelve,
-            'transferencia_id' => $this->transferencia,
         ]);
+
         if (!is_null($this->asignacion)) $this->merge([
             'asignacion_id' => $this->asignacion
+        ]);
+        if (!is_null($this->transferencia)) $this->merge([
+            'transferencia_id' => $this->transferencia,
         ]);
     }
 }

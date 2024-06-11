@@ -146,7 +146,7 @@ class VehiculoService
      * el identificador del custodio (responsable del vehículo) que se desea asignar a un vehículo
      * específico. Es de tipo `int|null`, lo que significa que puede configurarse como null si es necesario.
      */
-    public function actualizarCustodioVehiculo(int $vehiculo_id, int|null $custodio_id)
+    public function actualizarCustodioVehiculo(int $vehiculo_id, int|null $custodio_id=null)
     {
         $vehiculo = Vehiculo::find($vehiculo_id);
         if ($vehiculo) {

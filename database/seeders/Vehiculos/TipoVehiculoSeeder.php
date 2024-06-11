@@ -15,17 +15,17 @@ class TipoVehiculoSeeder extends Seeder
      */
     public function run()
     {
-        TipoVehiculo::create(['nombre'=>'SEDAN']);
-        TipoVehiculo::create(['nombre'=>'HATHBACK']);
-        TipoVehiculo::create(['nombre'=>'SUV']);
-        TipoVehiculo::create(['nombre'=>'CAMIONETA']);
-        TipoVehiculo::create(['nombre'=>'PICK-UP']);
-        TipoVehiculo::create(['nombre'=>'MOTOCICLETA']);
-        TipoVehiculo::create(['nombre'=>'CAMION LIVIANO']);
-        TipoVehiculo::create(['nombre'=>'CAMION MEDIANO']);
-        TipoVehiculo::create(['nombre'=>'CAMION PESADO']);
-        TipoVehiculo::create(['nombre'=>'CAMION VOLQUETE']);
-        TipoVehiculo::create(['nombre'=>'CAMION PLATAFORMAÑ']);
-        TipoVehiculo::create(['nombre'=>'CAMION GRUA']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'SEDAN']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'HATHBACK']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'SUV']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'CAMIONETA']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'PICK-UP']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'MOTOCICLETA']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'CAMION LIVIANO']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'CAMION MEDIANO']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'CAMION PESADO']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'CAMION VOLQUETE']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'CAMION PLATAFORMAÑ']);
+        TipoVehiculo::firstOrCreate(['nombre' => 'CAMION GRUA']);
     }
 }

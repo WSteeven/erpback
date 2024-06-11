@@ -87,7 +87,6 @@ class TransferenciaVehiculoController extends Controller
                     } else throw new Exception("No se encuentra el número de asignación ingresado");
                 }
             } else {
-                Log::channel('testing')->info('Log', ['else 88', $datos]);
                 if (array_key_exists('transferencia_id', $datos)) {
                     $transferencia = TransferenciaVehiculo::find($datos['transferencia_id']);
                     if ($transferencia) {
@@ -213,7 +212,7 @@ class TransferenciaVehiculoController extends Controller
             $transferencia->devuelto = !$transferencia->devuelto;
             $transferencia->save();
             //actualizamos el custodio del vehículo
-            $this->vehiculoService->actualizarCustodioVehiculo($transferencia->vehiculo_id, $transferencia->responsable_id);
+            $this->vehiculoService->actualizarCustodioVehiculo($transferencia->vehiculo_id);
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
