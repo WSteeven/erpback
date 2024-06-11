@@ -24,7 +24,8 @@ class ConsultaMedicaRequest extends FormRequest
     public function rules()
     {
         $reglas = [
-            'observacion' => 'nullable|string',
+            'evolucion' => 'nullable|string',
+            'examen_fisico' => 'nullable|string',
             'receta.rp' => 'nullable|string',
             'receta.prescripcion' => 'nullable|string',
             'diagnosticos.*.cie' => 'required|exists:med_cies,id',

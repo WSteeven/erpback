@@ -75,7 +75,8 @@ class FichasMedicasService
     public static function mapearAccidenteTrabajo($ficha_medica, string $accidente_enfermedad_laboral)
     {
         $modelo = $ficha_medica->accidentesEnfermedades()->where('tipo', $accidente_enfermedad_laboral)->orderBy('id', 'desc')->first();
-        return $modelo;[
+        return $modelo;
+        [
             'id' => $modelo->id,
             'calificado_iss' => boolval($modelo?->calificado_iss),
             'instituto_seguridad_social' => $modelo?->instituto_seguridad_social,
@@ -85,5 +86,21 @@ class FichasMedicasService
             'ficha_preocupacional_id' => $modelo?->ficha_preocupacional_id,
         ];
         // return $ficha_medica->accidentesEnfermedades()->where('tipo', AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO)->orderBy('id', 'desc')->first();
+    }
+
+    public function mapearConstanteVital($ficha_medica)
+    {
+        return [
+            'presion_arterial' => $ficha_medica->constanteVital()->first()?->presion_arterial,
+            'temperatura' => $ficha_medica->constanteVital()->first()?->temperatura,
+            'frecuencia_cardiaca' => $ficha_medica->constanteVital()->first()?->frecuencia_cardiaca,
+            'saturacion_oxigeno' => $ficha_medica->constanteVital()->first()?->saturacion_oxigeno,
+            'frecuencia_respiratoria' => $ficha_medica->constanteVital()->first()?->frecuencia_respiratoria,
+            'peso' => $ficha_medica->constanteVital()->first()?->peso,
+            'estatura' => $ficha_medica->constanteVital()->first()?->estatura,
+            'talla' => $ficha_medica->constanteVital()->first()?->talla,
+            'indice_masa_corporal' => $ficha_medica->constanteVital()->first()?->indice_masa_corporal,
+            'perimetro_abdominal' => $ficha_medica->constanteVital()->first()?->perimetro_abdominal,
+        ];
     }
 }

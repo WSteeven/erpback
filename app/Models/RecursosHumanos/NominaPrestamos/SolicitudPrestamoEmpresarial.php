@@ -26,7 +26,6 @@ class SolicitudPrestamoEmpresarial extends  Model implements Auditable
         'plazo',
         'motivo',
         'observacion',
-        'foto',
         'estado'
     ];
     public function estado_info()
@@ -55,7 +54,6 @@ class SolicitudPrestamoEmpresarial extends  Model implements Auditable
         'plazo',
         'motivo',
         'observacion',
-        'foto',
         'estado'
     ];
 }

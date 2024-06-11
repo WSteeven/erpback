@@ -251,7 +251,7 @@ class InventarioController extends Controller
                     ])
                     ->first();
                 // Log::channel('testing')->info('Log', ['audit', $audit]);
-                if ($audit) $cantAudit =  $audit->old_values['cantidad'];
+                if ($audit) $cantAudit = count($audit->old_values)>0? $audit->old_values['cantidad']:0;
             }
             $row['id'] = $movimiento->inventario->detalle->id;
             $row['id'] = $cont + 1;

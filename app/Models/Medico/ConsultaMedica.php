@@ -18,7 +18,8 @@ class ConsultaMedica extends Model implements Auditable
     protected $table = 'med_consultas_medicas';
 
     protected $fillable = [
-        'observacion',
+        'evolucion',
+        'examen_fisico',
         'dado_alta',
         'dias_descanso',
         'cita_medica_id',
@@ -50,5 +51,10 @@ class ConsultaMedica extends Model implements Auditable
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    public function constanteVital()
+    {
+        return $this->morphOne(ConstanteVital::class, 'constanteVitalable', 'constante_vitalable_type', 'constante_vitalable_id');
     }
 }

@@ -20,7 +20,7 @@ class ConfiguracionExamenCampoSeeder extends Seeder
             // GRUPO SANGUINEO
             [
                 'campo' => 'GRUPO SANGUÍNEO',
-                'unidad_medida' => '103/UL',
+                'unidad_medida' => null,
                 'rango_superior' => null,
                 'rango_inferior' => null,
                 'configuracion_examen_categoria_id' => '1',
@@ -41,15 +41,15 @@ class ConfiguracionExamenCampoSeeder extends Seeder
                 'configuracion_examen_categoria_id' => '2',
             ],
             [
-                'campo' => 'HEMATROCRITO',
-                'unidad_medida' => '103/UL',
+                'campo' => 'HEMATÓCRITO',
+                'unidad_medida' => '%',
                 'rango_superior' => 54.0,
                 'rango_inferior' => 40.0,
                 'configuracion_examen_categoria_id' => '2',
             ],
             [
                 'campo' => 'HEMOGLOBINA',
-                'unidad_medida' => '103/UL',
+                'unidad_medida' => 'g/dl',
                 'rango_superior' => 18.0,
                 'rango_inferior' => 13.0,
                 'configuracion_examen_categoria_id' => '2',
@@ -63,28 +63,28 @@ class ConfiguracionExamenCampoSeeder extends Seeder
             ],
             [
                 'campo' => 'LINFOCITOS %',
-                'unidad_medida' => '103/UL',
+                'unidad_medida' => '%',
                 'rango_superior' => 48.0,
                 'rango_inferior' => 21.0,
                 'configuracion_examen_categoria_id' => '2',
             ],
             [
-                'campo' => 'EOSINOFILOS %',
-                'unidad_medida' => '103/UL',
+                'campo' => 'EOSINÓFILOS %',
+                'unidad_medida' => '%',
                 'rango_superior' => 3.9,
                 'rango_inferior' => 0.1,
                 'configuracion_examen_categoria_id' => '2',
             ],
             [
                 'campo' => 'BASOFILOS %',
-                'unidad_medida' => '103/UL',
+                'unidad_medida' => '%',
                 'rango_superior' => 1.0,
                 'rango_inferior' => 0.0,
                 'configuracion_examen_categoria_id' => '2',
             ],
             [
                 'campo' => 'MONOCITOS %',
-                'unidad_medida' => '103/UL',
+                'unidad_medida' => '%',
                 'rango_superior' => 8.0,
                 'rango_inferior' => 2.0,
                 'configuracion_examen_categoria_id' => '2',
@@ -302,6 +302,13 @@ class ConfiguracionExamenCampoSeeder extends Seeder
                 'rango_inferior' => null,
                 'configuracion_examen_categoria_id' => '6',
             ],
+            [
+                'campo' => 'PMN',
+                'unidad_medida' => 'cél/µL',
+                'rango_superior' => null,
+                'rango_inferior' => null,
+                'configuracion_examen_categoria_id' => '6',
+            ],
             /**
              * Examen: GLUCOSA
              */
@@ -317,6 +324,20 @@ class ConfiguracionExamenCampoSeeder extends Seeder
                 'unidad_medida' => 'mg/dl',
                 'rango_superior' => 200,
                 'rango_inferior' => 199,
+                'configuracion_examen_categoria_id' => '8',
+            ],
+            [
+                'campo' => 'HDL',
+                'unidad_medida' => 'mg/dl',
+                'rango_superior' => NULL,
+                'rango_inferior' => 40,
+                'configuracion_examen_categoria_id' => '8',
+            ],
+            [
+                'campo' => 'LDL',
+                'unidad_medida' => 'mg/dl',
+                'rango_superior' => 100,
+                'rango_inferior' => NULL,
                 'configuracion_examen_categoria_id' => '8',
             ],
             [

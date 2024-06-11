@@ -37,8 +37,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
                 'periodo_id' => 'nullable|exists:periodos,id',
                 'valor_utilidad' => 'nullable|numeric',
                 'motivo' => 'nullable|string',
-                'foto' => 'nullable|string',
-                 'estado' => 'required|numeric',
+                'estado' => 'required|numeric',
                 'observacion' => 'required|string',
             ];
         } else {
@@ -49,7 +48,6 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
                 'motivo' => 'nullable|string',
                 'periodo_id' => 'nullable|exists:periodos,id',
                 'valor_utilidad' => 'nullable|numeric',
-                'foto' => 'nullable|string',
                 'estado' => 'required|numeric',
             ];
         }

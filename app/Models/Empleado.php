@@ -26,6 +26,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
@@ -453,6 +454,17 @@ class Empleado extends Model implements Auditable
     public static function extraerNombresApellidos(Empleado $empleado)
     {
         return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
+
+    public static function obtenerEdad($empleado)
+    {
+        // Obtener la fecha actual
+        $fechaActual = Carbon::now();
+
+        // Calcular la diferencia de años
+        $edad = $fechaActual->diffInYears($empleado->fecha_nacimiento);
+
+        return $edad;
     }
 
     /**

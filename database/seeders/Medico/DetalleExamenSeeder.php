@@ -78,29 +78,29 @@ class DetalleExamenSeeder extends Seeder
                 'examen_id' => 12,
             ],
             [
-                'tipo_examen_id' => 2,
-                'categoria_examen_id' => 5,
+                'tipo_examen_id' => 1,
+                'categoria_examen_id' => 6, // IMAGENOLOGIA
                 'examen_id' => 13, // Rx. AP y LATERAL DE COLUMNA LUMBAR
             ],
             [
                 'tipo_examen_id' => 2,
-                'categoria_examen_id' => 6, //imagenologia
-                'examen_id' => 14,
+                'categoria_examen_id' => 7, // ORL
+                'examen_id' => 17,          // AUDIOOMETRIA
             ],
             [
                 'tipo_examen_id' => 2,
-                'categoria_examen_id' => 6, //imagenologia
+                'categoria_examen_id' => 8, // OFTALMOLOGÍA
+                'examen_id' => 16,          // OPTOMETRIA
+            ],
+            [
+                'tipo_examen_id' => 2,
+                'categoria_examen_id' => 9, // CARDIOLOGÍA
                 'examen_id' => 15,
             ],
             [
                 'tipo_examen_id' => 2,
-                'categoria_examen_id' => 6, //imagenologia
-                'examen_id' => 16,
-            ],
-            [
-                'tipo_examen_id' => 2,
-                'categoria_examen_id' => 6, //imagenologia
-                'examen_id' => 17,
+                'categoria_examen_id' => 10, // NEUROLOGÍA
+                'examen_id' => 14,           // ELECTROENCEFALOGRAMA
             ],
         ];
 

@@ -45,15 +45,19 @@ class Grupo extends Model implements Auditable
         return $this->belongsToMany(Subtarea::class);
     } */
 
+    public function empleados(){
+        return $this->hasMany(Empleado::class);
+    }
+
     public function subtareas()
     {
         return $this->hasMany(Subtarea::class);
     }
 
-    public function controlMaterialesSubtareas()
-    {
-        return $this->hasMany(ControlMaterialTrabajo::class);
-    }
+    // public function controlMaterialesSubtareas()
+    // {
+    //     return $this->hasMany(ControlMaterialTrabajo::class);
+    // }
 
     public function coordinador()
     {

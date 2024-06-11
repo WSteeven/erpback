@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Http\Resources\RecursosHumanos\EmpleadoTipoDiscapacidadPorcentajeResource;
+use App\Models\Empleado;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -33,7 +34,7 @@ class EmpleadoResource extends JsonResource
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'jefe_id' => $this->jefe_id,
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
-            'edad' => $this->obtenerEdad(),
+            'edad' => Empleado::obtenerEdad($this),
             // 'nombre_canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
             'cargo' => $this->cargo?->nombre,
@@ -79,6 +80,7 @@ class EmpleadoResource extends JsonResource
         ];
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
+            $modelo['jefe_inmediato'] = Empleado::extraerNombresApellidos($this->jefe);
             $modelo['usuario'] = $this->user->name;
             $modelo['canton'] = $this->canton_id;
             $modelo['nombre_canton'] = $this->canton?->canton;
@@ -167,7 +169,7 @@ class EmpleadoResource extends JsonResource
         return $tiposDiscapacidades;
     }
 
-    private function obtenerEdad()
+    /* public static function obtenerEdad($empleado)
     {
         // Crear un objeto Carbon a partir de la fecha de nacimiento
         // $fechaNacimiento = Carbon::createFromFormat('Y-m-d', $fechaNacimiento);
@@ -176,8 +178,8 @@ class EmpleadoResource extends JsonResource
         $fechaActual = Carbon::now();
 
         // Calcular la diferencia de años
-        $edad = $fechaActual->diffInYears($this->fecha_nacimiento);
+        $edad = $fechaActual->diffInYears($empleado->fecha_nacimiento);
 
         return $edad;
-    }
+    } */
 }

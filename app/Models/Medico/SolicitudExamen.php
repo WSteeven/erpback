@@ -84,31 +84,66 @@ class SolicitudExamen extends Model implements Auditable
         $nombresJefe = $empleado->jefe ? Empleado::extraerNombresApellidos($empleado->jefe) : '(NO TIENE JEFE ASIGNADO)';
         $cargo = $empleado->cargo->nombre;
         $tipo_proceso_examen = $solicitudExamen->registroEmpleadoExamen->tipo_proceso_examen;
-        return 'EXAMENES ' . $tipo_proceso_examen . ' PARA ' . $nombresEmpleado . ' EN EL CARGO DE ' . $cargo . ' A CARGO DE ' . $nombresJefe . '.'; //' CON FECHA DE REALIZACIÓN  ';
+        $examenesSolicitados = $solicitudExamen->examenesSolicitados;
+        return 'EXAMENES ' . $tipo_proceso_examen
+            . ' PARA: ' . $nombresEmpleado
+            . ', CON IDENTIFICACIÓN #' . $empleado->identificacion
+            . ' Y CELULAR ' . $empleado->telefono
+            . ', ' . $cargo . ' A CARGO DE ' . $nombresJefe . '. SE REALIZARÁ LOS EXÁMENES EL/LOS DIA(S) '
+            . self::obtenerFechasExamenesEnTexto($examenesSolicitados)
+            . ' EN EL/LOS LABORATORIO(S): ' . self::obtenerLaboratoriosEnTexto($examenesSolicitados)
+            . ' EN LA CIUDAD DE ' . self::obtenerCantonesEnTexto($examenesSolicitados) . '.';
     }
 
     public static function obtenerDescripcionDetalleOrdenCompra(SolicitudExamen $solicitudExamen)
     {
         $examenesSolicitados = $solicitudExamen->examenesSolicitados;
-        // Log::channel('testing')->info('Log', ['examenesSolicitados', $examenesSolicitados]);
         $empleado = $solicitudExamen->registroEmpleadoExamen->empleado;
         $nombresEmpleado = Empleado::extraerNombresApellidos($empleado);
         $nombresJefe = $empleado->jefe ? Empleado::extraerNombresApellidos($empleado->jefe) : '(NO TIENE JEFE ASIGNADO)';
         $cargo = $empleado->cargo->nombre;
         $tipo_proceso_examen = $solicitudExamen->registroEmpleadoExamen->tipo_proceso_examen;
-        $mensaje = 'EXAMENES ' . $tipo_proceso_examen . ' PARA ' . $nombresEmpleado . ' EN EL CARGO DE ' . $cargo . ' A CARGO DE ' . $nombresJefe . '. LOS EXAMENES DE LABORATORIO SOLICITADOS SON: ' . self::obtenerTextoExamen($examenesSolicitados);
-        // Log::channel('testing')->info('Log', ['examenesSolicitados', $mensaje]);
+        $mensaje = 'EXAMENES ' . $tipo_proceso_examen . ' PARA ' . $nombresEmpleado . ' EN EL CARGO DE ' . $cargo . ' A CARGO DE ' . $nombresJefe
+            . '. LOS EXAMENES DE LABORATORIO SOLICITADOS SON: ' . self::obtenerTextoExamen($examenesSolicitados)
+            . ' EN EL/LOS LABORATORIO(S): ' . self::obtenerLaboratoriosEnTexto($examenesSolicitados)
+            . ' EN LA CIUDAD DE ' . self::obtenerCantonesEnTexto($examenesSolicitados) . '.';
         return $mensaje;
     }
 
     private static function obtenerTextoExamen($examenesSolicitados)
     {
         $listadoNombres = $examenesSolicitados->map(function ($examenSolicitado) {
-
             return $examenSolicitado->examen->nombre;
         })->toArray();
 
-        return implode(' ', $listadoNombres); //->toArray());
+        return implode(', ', $listadoNombres); //->toArray());
+    }
+
+    private static function obtenerLaboratoriosEnTexto($examenesSolicitados)
+    {
+        $listadoNombres = $examenesSolicitados->map(function ($examenSolicitado) {
+            return $examenSolicitado->laboratorioClinico->nombre;
+        })->unique()->toArray();
+
+        return implode(', ', $listadoNombres);
+    }
+
+    private static function obtenerCantonesEnTexto($examenesSolicitados)
+    {
+        $listadoNombres = $examenesSolicitados->map(function ($examenSolicitado) {
+            return $examenSolicitado->laboratorioClinico->canton->canton;
+        })->unique()->toArray();
+
+        return implode(', ', $listadoNombres);
+    }
+
+    private static function obtenerFechasExamenesEnTexto($examenesSolicitados)
+    {
+        $listadoNombres = $examenesSolicitados->map(function ($examenSolicitado) {
+            return Carbon::parse($examenSolicitado->fecha_hora_asistencia)->format('Y-m-d');
+        })->unique()->toArray();
+
+        return implode(', ', $listadoNombres);
     }
 
     public static function obtenerFechaMenorExamen($examenesSolicitados)

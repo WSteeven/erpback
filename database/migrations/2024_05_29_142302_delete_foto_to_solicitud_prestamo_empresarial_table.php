@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('med_citas_medicas', function (Blueprint $table) {
-            $table->string('tipo_cambio_cargo')->nullable();
+        Schema::table('solicitud_prestamo_empresarial', function (Blueprint $table) {
+            $table->dropColumn('foto');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('med_citas_medicas', function (Blueprint $table) {
-            $table->dropColumn('tipo_cambio_cargo');
+        Schema::table('solicitud_prestamo_empresarial', function (Blueprint $table) {
+            $table->string('foto');
         });
     }
 };

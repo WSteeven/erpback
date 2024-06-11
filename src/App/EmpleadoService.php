@@ -129,8 +129,10 @@ class EmpleadoService
     {
         // $usuario_ac->hasRole('RECURSOS HUMANOS')
         $idsUsuariosRRHH = User::role($rol)->pluck('id');
-        return Empleado::whereIn('usuario_id', $idsUsuariosRRHH)->pluck('id');
-
+        Log::channel('testing')->info('Log', ['idsUsuariosRRHH', $idsUsuariosRRHH]);
+        $ids = Empleado::whereIn('usuario_id', $idsUsuariosRRHH)->pluck('id');
+        Log::channel('testing')->info('Log', ['ids', $ids]);
+        return $ids;
         // return Departamento::where('nombre', 'RECURSOS HUMANOS')->pluck('responsable_id')->toArray();
     }
 

@@ -131,8 +131,8 @@ class GastoController extends Controller
      */
     public function update(GastoRequest $request, Gasto $gasto)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             $datos = $request->validated();
             $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
             $gasto->update($datos);
