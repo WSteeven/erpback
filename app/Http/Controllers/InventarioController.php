@@ -16,6 +16,7 @@ use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
 use App\Models\MaterialEmpleado;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
@@ -357,6 +358,7 @@ class InventarioController extends Controller
 
     public function actualizarMaterialesEmpleado(Request $request)
     {
+        Log::channel('testing')->info('Log', ['actualizarMaterialesEmpleado', $request->all()]);
         $modelo = [];
         try {
             switch ($request->tipo) {
@@ -366,22 +368,22 @@ class InventarioController extends Controller
                     MaterialEmpleado::actualizarMaterialesEmpleado($request->registroOld, $request->registro, $request->empleado);
                     $material = MaterialEmpleado::where('empleado_id', $request->empleado)
                         ->where('detalle_producto_id', $request->registro['detalle_producto_id'])
-                        ->where('cliente_id', $request->registro['cliente'])->first();
+                        ->where('cliente_id', $request->registro['cliente'])
+                        ->where('cantidad_stock', '>', 0)
+                        ->first();
                     if ($material)
-                        $modelo = [
-                            'id' => $material->detalle_producto_id,
-                            'producto' => $material->detalle->producto->nombre,
-                            'detalle_producto' => $material->detalle->descripcion,
-                            'detalle_producto_id' => $material->detalle_producto_id,
-                            'categoria' => $material->detalle->producto->categoria->nombre,
-                            'stock_actual' => intval($material->cantidad_stock),
-                            'despachado' => intval($material->despachado),
-                            'devuelto' => intval($material->devuelto),
-                            'medida' => $material->detalle->producto->unidadMedida?->simbolo,
-                            'serial' => $material->detalle->serial,
-                            'cliente' => Cliente::find($material->cliente_id)?->empresa->razon_social,
-                            'cliente_id' => $material->cliente_id,
-                        ];
+                        $modelo = $this->empaquetarMaterialSingular($material);
+                    break;
+                case 'PARA_CLIENTE_FINAL':
+                    //busca y actualiza en la tabla de materiales_empleados_tareas
+                    MaterialEmpleadoTarea::actualizarMaterialesEmpleadoTarea($request->registroOld, $request->registro, $request->empleado);
+                    $material = MaterialEmpleadoTarea::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->registro['detalle_producto_id'])
+                        ->where('cliente_id', $request->registro['cliente'])
+                        ->where('cantidad_stock', '>', 0)
+                        ->first();
+                    if ($material)
+                        $modelo = $this->empaquetarMaterialSingular($material);
                     break;
                 default:
                     //busca y actualiza en la tabla de materiales_empleados_tareas
@@ -407,29 +409,20 @@ class InventarioController extends Controller
                         ->where('cantidad_stock', '>', 0)->first();
 
                     if ($material) {
-                        if ($request->cantidad < $material->cantidad_stock) {
-                            $material->devuelto += $material->cantidad_stock - $request->cantidad;
-                            $material->cantidad_stock = $request->cantidad;
-                            $material->save();
-                        } else {
-                            $material->despachado += $request->cantidad - $material->cantidad_stock;
-                            $material->cantidad_stock = $request->cantidad;
-                        }
-
-                        $modelo = [
-                            'id' => $material->detalle_producto_id,
-                            'producto' => $material->detalle->producto->nombre,
-                            'detalle_producto' => $material->detalle->descripcion,
-                            'detalle_producto_id' => $material->detalle_producto_id,
-                            'categoria' => $material->detalle->producto->categoria->nombre,
-                            'stock_actual' => intval($material->cantidad_stock),
-                            'despachado' => intval($material->despachado),
-                            'devuelto' => intval($material->devuelto),
-                            'medida' => $material->detalle->producto->unidadMedida?->simbolo,
-                            'serial' => $material->detalle->serial,
-                            'cliente' => Cliente::find($material->cliente_id)?->empresa->razon_social,
-                            'cliente_id' => $material->cliente_id,
-                        ];
+                        $this->actualizarCantidad($material, $request->cantidad);
+                        $modelo = $this->empaquetarMaterialSingular($material);
+                    }
+                    break;
+                case 'PARA_CLIENTE_FINAL':
+                    $material = MaterialEmpleadoTarea::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->detalle_producto_id)
+                        ->where('cliente_id', $request->cliente_id)
+                        ->where('tarea_id', $request->tarea_id)
+                        ->first();
+                    Log::channel('testing')->info('Log', ['mate encontrado', $material]);
+                    if ($material) {
+                        $this->actualizarCantidad($material, $request->cantidad);
+                        $modelo = $this->empaquetarMaterialSingular($material);
                     }
                     break;
                 default:
@@ -441,5 +434,60 @@ class InventarioController extends Controller
         }
         $mensaje = 'Cantidad actualizada correctamente!';
         return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    /**
+     * La función `actualizarCantidad` actualiza la cantidad de stock de un material y ajusta los
+     * valores de `devuelto` o `despachado` en función de la nueva cantidad.
+     * 
+     * @param MaterialEmpleado|MaterialEmpleadoTarea $material El parámetro `material` es
+     * de tipo `MaterialEmpleado` o `MaterialEmpleadoTarea`. Representa un objeto que contiene
+     * información sobre un material de un empleado de stock o de tarea. 
+     * @param int $cantidad Es un valor entero que determina la nueva cantidad de stock para 
+     * el material. La función compara esta cantidad con la cantidad de stock actual del
+     * material y actualiza el "devuelto" o "despachado" según sea el caso
+     */
+    private function actualizarCantidad(MaterialEmpleado|MaterialEmpleadoTarea $material, int $cantidad)
+    {
+        if ($cantidad < $material->cantidad_stock) {
+            $material->devuelto += $material->cantidad_stock - $cantidad;
+            $material->cantidad_stock = $cantidad;
+            $material->save();
+        } else {
+            $material->despachado += $cantidad - $material->cantidad_stock;
+            $material->cantidad_stock = $cantidad;
+            $material->save();
+        }
+    }
+
+    /**
+     * La función `empaquetarMaterialSingular` crea un modelo de matriz con detalles específicos de un
+     * elemento material para un empleado o una tarea.
+     * 
+     * @param MaterialEmpleado|MaterialEmpleadoTarea $material puede ser una instancia de la clase `MaterialEmpleado` o
+     * `MaterialEmpleadoTarea`.
+     * 
+     * @return array La función `empaquetarMaterialSingular` está devolviendo un array con los valores casteados.
+     */
+    private function empaquetarMaterialSingular(MaterialEmpleado|MaterialEmpleadoTarea $material)
+    {
+        $modelo = [];
+
+        $modelo = [
+            'id' => $material->detalle_producto_id,
+            'producto' => $material->detalle->producto->nombre,
+            'detalle_producto' => $material->detalle->descripcion,
+            'detalle_producto_id' => $material->detalle_producto_id,
+            'categoria' => $material->detalle->producto->categoria->nombre,
+            'stock_actual' => intval($material->cantidad_stock),
+            'despachado' => intval($material->despachado),
+            'devuelto' => intval($material->devuelto),
+            'medida' => $material->detalle->producto->unidadMedida?->simbolo,
+            'serial' => $material->detalle->serial,
+            'cliente' => Cliente::find($material->cliente_id)?->empresa->razon_social,
+            'cliente_id' => $material->cliente_id,
+        ];
+
+        return $modelo;
     }
 }

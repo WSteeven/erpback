@@ -46,7 +46,7 @@ class VehiculoResource extends JsonResource
             $modelo['propietario'] = $this->propietario;
             $modelo['conductor_externo'] = $this->conductor_externo;
             $modelo['identificacion_conductor_externo'] = $this->identificacion_conductor_externo;
-            $modelo['seguro'] = $this->seguro?->nombre;
+            $modelo['seguro'] = $this->seguro_id;
         }
 
         return $modelo;

@@ -56,7 +56,7 @@ class OrdenCompraRequest extends FormRequest
         if ($this->autorizacion === null) $this->merge(['autorizacion' => 1, 'estado' => 1]);
         if ($this->autorizacion === 1) $this->merge(['estado' => 1]);
 
-        if ($this->completada) $this->merge(['estado' => 2, 'revisada_compras' => true]);
+        if ($this->completada) $this->merge(['autorizacion' => 2, 'estado' => 2, 'revisada_compras' => true]);
 
         // Modificar los datos cuando es actualizar
         // if ($this->route()->getActionMethod() == 'update') {

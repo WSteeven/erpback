@@ -110,7 +110,7 @@ class ProductoTareaEmpleadoService
         if (!$this->tieneCliente()) $consulta = $consulta->where('cliente_id', '=', null);
 
         $results = $consulta->get();
-        Log::channel('testing')->info('Log', compact('results'));
+        // Log::channel('testing')->info('Log', compact('results'));
         return $results;
     }
 
