@@ -9,11 +9,13 @@ use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
 use App\Http\Resources\ItemDetallePreingresoMaterialResource;
 use App\Http\Resources\VistaInventarioPerchaResource;
+use App\Models\Cliente;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
+use App\Models\MaterialEmpleado;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
@@ -23,6 +25,7 @@ use Carbon\Carbon;
 use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use OwenIt\Auditing\Models\Audit;
@@ -251,7 +254,7 @@ class InventarioController extends Controller
                     ])
                     ->first();
                 // Log::channel('testing')->info('Log', ['audit', $audit]);
-                if ($audit) $cantAudit = count($audit->old_values)>0? $audit->old_values['cantidad']:0;
+                if ($audit) $cantAudit = count($audit->old_values) > 0 ? $audit->old_values['cantidad'] : 0;
             }
             $row['id'] = $movimiento->inventario->detalle->id;
             $row['id'] = $cont + 1;
@@ -349,5 +352,94 @@ class InventarioController extends Controller
         $results = $this->servicio->obtenerDashboard($request);
 
         return response()->json(compact('results'));
+    }
+
+
+    public function actualizarMaterialesEmpleado(Request $request)
+    {
+        $modelo = [];
+        try {
+            switch ($request->tipo) {
+                case 'PERSONAL':
+                    //busca y actualiza en la tabla de materiales_empleados
+                    //Buscamos el registro antiguo con los datos sin modificar
+                    MaterialEmpleado::actualizarMaterialesEmpleado($request->registroOld, $request->registro, $request->empleado);
+                    $material = MaterialEmpleado::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->registro['detalle_producto_id'])
+                        ->where('cliente_id', $request->registro['cliente'])->first();
+                    if ($material)
+                        $modelo = [
+                            'id' => $material->detalle_producto_id,
+                            'producto' => $material->detalle->producto->nombre,
+                            'detalle_producto' => $material->detalle->descripcion,
+                            'detalle_producto_id' => $material->detalle_producto_id,
+                            'categoria' => $material->detalle->producto->categoria->nombre,
+                            'stock_actual' => intval($material->cantidad_stock),
+                            'despachado' => intval($material->despachado),
+                            'devuelto' => intval($material->devuelto),
+                            'medida' => $material->detalle->producto->unidadMedida?->simbolo,
+                            'serial' => $material->detalle->serial,
+                            'cliente' => Cliente::find($material->cliente_id)?->empresa->razon_social,
+                            'cliente_id' => $material->cliente_id,
+                        ];
+                    break;
+                default:
+                    //busca y actualiza en la tabla de materiales_empleados_tareas
+
+            }
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        $mensaje = 'Item actualizado correctamente';
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+    public function actualizarCantidadMaterialEmpleado(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['recibidoo', $request->all()]);
+        $modelo = [];
+        try {
+            DB::beginTransaction();
+            switch ($request->tipo) {
+                case 'PERSONAL':
+                    $material = MaterialEmpleado::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->detalle_producto_id)
+                        ->where('cliente_id', $request->cliente_id)
+                        ->where('cantidad_stock', '>', 0)->first();
+
+                    if ($material) {
+                        if ($request->cantidad < $material->cantidad_stock) {
+                            $material->devuelto += $material->cantidad_stock - $request->cantidad;
+                            $material->cantidad_stock = $request->cantidad;
+                            $material->save();
+                        } else {
+                            $material->despachado += $request->cantidad - $material->cantidad_stock;
+                            $material->cantidad_stock = $request->cantidad;
+                        }
+
+                        $modelo = [
+                            'id' => $material->detalle_producto_id,
+                            'producto' => $material->detalle->producto->nombre,
+                            'detalle_producto' => $material->detalle->descripcion,
+                            'detalle_producto_id' => $material->detalle_producto_id,
+                            'categoria' => $material->detalle->producto->categoria->nombre,
+                            'stock_actual' => intval($material->cantidad_stock),
+                            'despachado' => intval($material->despachado),
+                            'devuelto' => intval($material->devuelto),
+                            'medida' => $material->detalle->producto->unidadMedida?->simbolo,
+                            'serial' => $material->detalle->serial,
+                            'cliente' => Cliente::find($material->cliente_id)?->empresa->razon_social,
+                            'cliente_id' => $material->cliente_id,
+                        ];
+                    }
+                    break;
+                default:
+                    //busca y actualiza en la tabla de materiales_empleados_tareas
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        $mensaje = 'Cantidad actualizada correctamente!';
+        return response()->json(compact('modelo', 'mensaje'));
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -70,7 +71,9 @@ class MaterialEmpleado extends Model implements Auditable
     public static function cargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int $cliente_id)
     {
         try {
-            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)->where('empleado_id', $empleado_id)->where('cliente_id', $cliente_id)->first();
+            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
+                ->where('empleado_id', $empleado_id)
+                ->where('cliente_id', $cliente_id)->first();
             if ($material) {
                 $material->cantidad_stock += $cantidad;
                 $material->despachado += $cantidad;
@@ -100,14 +103,19 @@ class MaterialEmpleado extends Model implements Auditable
     public static function descargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id, int|null $transaccion_cliente_id)
     {
         try {
-            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)->where('empleado_id', $empleado_id)->where('cliente_id', $cliente_id)->first();
+            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
+                ->where('empleado_id', $empleado_id)
+                ->where('cliente_id', $cliente_id)
+                ->where('cantidad_stock', '>=', $cantidad)->first();
             if ($material) {
                 $material->cantidad_stock -= $cantidad;
                 $material->devuelto += $cantidad;
                 $material->save();
             } else {
                 $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
-                    ->where('empleado_id', $empleado_id)->where('cliente_id', $transaccion_cliente_id)->first();
+                    ->where('empleado_id', $empleado_id)
+                    ->where('cliente_id', $transaccion_cliente_id)
+                    ->where('cantidad_stock', '>=', $cantidad)->first();
                 if ($material) {
                     $material->cantidad_stock -= $cantidad;
                     $material->devuelto += $cantidad;
@@ -144,6 +152,20 @@ class MaterialEmpleado extends Model implements Auditable
             } else throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado para descontar lo devuelto');
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage() . '. ' . $th->getLine());
+        }
+    }
+    public static function actualizarMaterialesEmpleado($registroAntiguo, $registro, $empleado)
+    {
+        try {
+            DB::beginTransaction();
+            //descontamos al registro antiguo
+            self::descargarMaterialEmpleado($registro['detalle_producto_id'], $empleado, $registro['stock_actual'], $registroAntiguo['cliente_id'], $registroAntiguo['cliente_id']);
+            //asignamos al nuevo registro
+            self::cargarMaterialEmpleado($registro['detalle_producto_id'], $empleado, $registro['stock_actual'], $registro['cliente']);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
         }
     }
 }

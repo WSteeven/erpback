@@ -39,6 +39,7 @@ class Vehiculo extends Model implements Auditable
         'tiene_rastreo',
         'propietario',
         'custodio_id',
+        'seguro_id',
         'conductor_externo',
         'identificacion_conductor_externo',
     ];
@@ -91,6 +92,11 @@ class Vehiculo extends Model implements Auditable
     public function combustible()
     {
         return $this->belongsTo(Combustible::class);
+    }
+
+    public function seguro()
+    {
+        return $this->belongsTo(SeguroVehicular::class);
     }
 
     /**

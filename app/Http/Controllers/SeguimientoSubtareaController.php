@@ -444,6 +444,7 @@ class SeguimientoSubtareaController extends Controller
         $results = DB::table('materiales_empleados')
             ->select('materiales_empleados.cliente_id', 'empresas.razon_social')
             ->where('empleado_id', request('empleado_id'))
+            ->where('cantidad_stock', '>', 0)
             ->join('clientes', 'cliente_id', '=', 'clientes.id')
             ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
             ->groupBy('cliente_id')

@@ -45,6 +45,7 @@ class VehiculoRequest extends FormRequest
             'tiene_rastreo' => 'boolean',
             'propietario' => 'required|string',
             'custodio_id' => 'sometimes|nullable|exists:empleados,id',
+            'seguro_id' => 'sometimes|nullable|exists:veh_seguros_vehiculares,id',
             'conductor_externo' => 'sometimes|nullable|string',
             'identificacion_conductor_externo' => 'sometimes|nullable|string',
         ];
@@ -68,6 +69,7 @@ class VehiculoRequest extends FormRequest
             'combustible_id' => $this->combustible,
             'tipo_vehiculo_id' => $this->tipo_vehiculo,
             'custodio_id' => $this->custodio,
+            'seguro_id' => $this->seguro,
         ]);
     }
 }
