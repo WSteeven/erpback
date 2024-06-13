@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\ConductorRequest;
 use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Models\Vehiculos\Conductor;
+use App\Models\Vehiculos\Licencia;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +45,7 @@ class ConductorController extends Controller
      */
     public function store(ConductorRequest $request)
     {
-        // Log::channel('testing')->info('Log', ['¿Todo bien en casa?', $request->all()]);
+        Log::channel('testing')->info('Log', ['¿Todo bien en casa?', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();
@@ -59,7 +60,7 @@ class ConductorController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
-                '500' => [Utils::obtenerMensajeError($e,'Error al guardar el conductor')],
+                '500' => [Utils::obtenerMensajeError($e, 'Error al guardar el conductor')],
             ]);
         }
     }
@@ -85,6 +86,7 @@ class ConductorController extends Controller
      */
     public function update(ConductorRequest $request, Conductor $conductor)
     {
+        Log::channel('testing')->info('Log', ['¿Todo bien en casa actualizacion?', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();
@@ -92,6 +94,22 @@ class ConductorController extends Controller
             $datos['tipo_licencia'] = Utils::convertArrayToString($request->tipo_licencia, ',');
 
             $conductor->update($datos);
+            Log::channel('testing')->info('Log', [$datos['licencias']]);
+            $tiposLicencias = array_column($datos['licencias'], 'tipo_licencia');
+            $datos['licencias'] = array_map(function ($licencia) use ($conductor) {
+                return [
+                    'conductor_id' => $conductor->empleado_id,
+                    'tipo_licencia' => $licencia['tipo_licencia'],
+                    'inicio_vigencia' => $licencia['inicio_vigencia'],
+                    'fin_vigencia' => $licencia['fin_vigencia'],
+                ];
+            }, $datos['licencias']);
+            Licencia::upsert(
+                $datos['licencias'],
+                uniqueBy: ['conductor_id', 'tipo_licencia'],
+                update: ['tipo_licencia', 'inicio_vigencia', 'fin_vigencia']
+            );
+            Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
             $modelo = new ConductorResource($conductor);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();

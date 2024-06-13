@@ -59,6 +59,14 @@ class Conductor extends Model implements Auditable
 
     /**
      * Relación uno a muchos.
+     * Un conductor tiene varias licencias.
+     */
+    public function licencias()
+    {
+        return $this->hasMany(Licencia::class, 'conductor_id');
+    }
+    /**
+     * Relación uno a muchos.
      * Un Conductor tiene una o varias multas
      */
     public function multas()

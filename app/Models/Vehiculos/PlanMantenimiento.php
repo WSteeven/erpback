@@ -37,7 +37,8 @@ class PlanMantenimiento extends Model implements Auditable
      */
     public static function eliminarObsoletos($vehiculo_id, $ids_servicios)
     {
-        $itemsNoEncontrados = PlanMantenimiento::where('vehiculo_id', $vehiculo_id)->whereNotIn('servicio_id', $ids_servicios)->delete();
+        $itemsNoEncontrados = PlanMantenimiento::where('vehiculo_id', $vehiculo_id)
+            ->whereNotIn('servicio_id', $ids_servicios)->delete();
         Log::channel('testing')->info('Log', ['items para eliminar', $itemsNoEncontrados]);
     }
 }

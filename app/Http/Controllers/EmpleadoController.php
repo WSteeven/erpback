@@ -10,6 +10,7 @@ use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\User;
 use App\Models\Vehiculos\Conductor;
+use App\Models\Vehiculos\Licencia;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
@@ -141,7 +142,7 @@ class EmpleadoController extends Controller
                 $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
                 $conductor = Conductor::create($datos_conductor);
             }
-            
+
 
 
 
@@ -236,8 +237,41 @@ class EmpleadoController extends Controller
             $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
             //buscamos un conductor
             $conductor = Conductor::find($empleado->id);
-            if ($conductor) $conductor->update($datos_conductor);
-            else Conductor::create($datos_conductor);
+            if ($conductor) {
+                $conductor->update($datos_conductor);
+                $datos['licencias'] = array_map(function ($licencia) use ($conductor) {
+                    return [
+                        'conductor_id' => $conductor->empleado_id,
+                        'tipo_licencia' => $licencia['tipo_licencia'],
+                        'inicio_vigencia' => $licencia['inicio_vigencia'],
+                        'fin_vigencia' => $licencia['fin_vigencia'],
+                    ];
+                }, $request->conductor['licencias']);
+                $tiposLicencias = array_column($datos['licencias'], 'tipo_licencia');
+                Licencia::upsert(
+                    $datos['licencias'],
+                    uniqueBy: ['conductor_id', 'tipo_licencia'],
+                    update: ['tipo_licencia', 'inicio_vigencia', 'fin_vigencia']
+                );
+                Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
+            } else {
+                $conductor = Conductor::create($datos_conductor);
+                $datos['licencias'] = array_map(function ($licencia) use ($conductor) {
+                    return [
+                        'conductor_id' => $conductor->empleado_id,
+                        'tipo_licencia' => $licencia['tipo_licencia'],
+                        'inicio_vigencia' => $licencia['inicio_vigencia'],
+                        'fin_vigencia' => $licencia['fin_vigencia'],
+                    ];
+                }, $request->conductor['licencias']);
+                $tiposLicencias = array_column($datos['licencias'], 'tipo_licencia');
+                Licencia::upsert(
+                    $datos['licencias'],
+                    uniqueBy: ['conductor_id', 'tipo_licencia'],
+                    update: ['tipo_licencia', 'inicio_vigencia', 'fin_vigencia']
+                );
+                Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
+            }
         }
 
         if (!is_null($request->password)) {

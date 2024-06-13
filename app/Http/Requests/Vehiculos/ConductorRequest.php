@@ -27,20 +27,18 @@ class ConductorRequest extends FormRequest
         $rules = [
             'empleado' => 'required|exists:empleados,id|unique:veh_conductores,empleado_id',
             'tipo_licencia' => 'required|array',
-            'inicio_vigencia' => 'required',
-            'fin_vigencia' => 'required',
+            // 'inicio_vigencia' => 'required',
+            // 'fin_vigencia' => 'required',
             'puntos' => 'required',
+            'licencias' => 'required|array',
+            'licencias.*.tipo_licencia' => 'required',
+            'licencias.*.inicio_vigencia' => 'required',
+            'licencias.*.fin_vigencia' => 'required',
         ];
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $rules['empleado'] = ['required'];
         }
 
         return $rules;
-    }
-
-    protected function prepareForValidation()
-    {
-        $this->merge(['inicio_vigencia' => date('Y-m-d', strtotime($this->inicio_vigencia))]);
-        $this->merge(['fin_vigencia' => date('Y-m-d', strtotime($this->fin_vigencia))]);
     }
 }
