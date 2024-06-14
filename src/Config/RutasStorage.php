@@ -28,6 +28,7 @@ enum RutasStorage: string
     case PEDIDOS = 'public/pedidos/evidencias';
     case CLIENTES = 'public/clientes/logos';
     case TICKETS = 'public/tickets';
+    case FOTOGRAFIAS_ACTIVIDADES_REALIZADAS = 'public/fotografias_actividades_realizadas';
     case FOTOGRAFIAS_SEGUIMIENTOS_TICKETS = 'public/fotografias_seguimiento_tickets';
     case ARCHIVOS_SEGUIMIENTO_TICKETS = 'public/archivos_seguimiento_tickets';
     case FOTOGRAFIAS_PRESTAMO_EMPRESARIAL = 'public/fotografias_prestamo_empresarial';
@@ -42,10 +43,21 @@ enum RutasStorage: string
     case FOTOGRAFIAS_NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/fotografias_novedades_ventas_claro';
     case NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/novedades_ventas_claro';
     case NOVEDADES_ORDENES_COMPRAS  = 'public/novedades_ordenes_compras';
+
+    /**
+     * MODULO DE VEHICULOS
+     */
+    case VEHICULOS = 'public/vehiculos/';
     case PREINGRESOS  = 'public/preingresos/archivos';
     case FOTOGRAFIAS_ITEMS_PREINGRESOS  = 'public/fotografias_preingresos';
     case TRANSFERENCIAS_PRODUCTOS_EMPLEADOS  = 'public/transferencias_productos_empleados/archivos';
     case DOCUMENTOS_DIGITALIZADOS_EMPLEADOS = 'public/carpeta_digital_empleados/';
+    case FOTOGRAFIAS_DIARIAS_VEHICULOS = 'public/vehiculos/fotografias_diarias';
+    case EVIDENCIAS_INCIDENTES_VEHICULOS = 'public/vehiculos/evidencias_incidentes/';
+    case EVIDENCIAS_ORDENES_REPARACIONES = 'public/vehiculos/evidencias_ordenes_reparaciones/';
+    case EVIDENCIAS_TANQUEOS_COMBUSTIBLES = 'public/vehiculos/evidencias_tanqueo_combustible';
+    case EVIDENCIAS_VEHICULOS_ASIGNADOS = 'public/vehiculos/evidencias_vehiculos_asignados/';
+    case EVIDENCIAS_VEHICULOS_TRANSFERIDOS = 'public/vehiculos/evidencias_vehiculos_transferidos/';
     // Medico
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
     case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';

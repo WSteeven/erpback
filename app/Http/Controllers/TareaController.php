@@ -40,7 +40,7 @@ class TareaController extends Controller
 
     public function listar()
     {
-        $campos = explode(',', request('campos'));
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
 

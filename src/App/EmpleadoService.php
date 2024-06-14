@@ -29,7 +29,7 @@ class EmpleadoService
         })->pluck('id');
 
         // return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
-        return Empleado::whereIn('usuario_id', $idUsers)->get($campos);
+        return Empleado::whereIn('usuario_id', $idUsers)->where('estado', true)->get($campos);
 
         // return $users;
     }
@@ -138,7 +138,7 @@ class EmpleadoService
 
     public function obtenerTodosSinEstado()
     {
-        $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual','empleados_autorizadores_gasto'])->filter()->where('id', '>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual', 'empleados_autorizadores_gasto'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 
@@ -183,7 +183,7 @@ class EmpleadoService
         $row['ajustes_saldos_negativo'] = AjusteSaldoFondoRotativo::where('destinatario_id', $empleado->id)->where('tipo', AjusteSaldoFondoRotativo::EGRESO)->sum('monto');
         $row['ajustes_saldos'] = $row['ajustes_saldos_positivo'] - $row['ajustes_saldos_negativo'];
         $saldo_actual = Saldo::where('empleado_id', $empleado->id)->orderBy('id', 'desc')->first();
-        $row['saldo_actual'] = $saldo_actual?$saldo_actual->saldo_actual:0;
+        $row['saldo_actual'] = $saldo_actual ? $saldo_actual->saldo_actual : 0;
         $row['diferencia'] = round(($row['saldo_inicial'] + $row['acreditaciones'] + $row['transferencias_recibidas']  - $row['gastos'] - $row['transferencias_enviadas']), 2); //la suma de ingresos menos egresos, al final este valor debe coincidir con saldo_actual
         $row['inconsistencia'] = $row['diferencia'] == $row['saldo_actual'] ? 'NO' : 'SI'; //false : true;
         return $row;
@@ -235,14 +235,38 @@ class EmpleadoService
         }
     }
 
-    public static function obtenerEmpleadosAutorizadoresGasto(){
+    public static function obtenerEmpleadosAutorizadoresGasto()
+    {
         $ids_autorizadores = Gasto::pluck('aut_especial');
-        $results = Empleado::whereIn('id', $ids_autorizadores)->ignoreRequest(['campos','empleados_autorizadores_gasto'])->filter()->get();
+        $results = Empleado::whereIn('id', $ids_autorizadores)->ignoreRequest(['campos', 'empleados_autorizadores_gasto'])->filter()->get();
         $results = EmpleadoResource::collection($results);
         return $results;
     }
 
-    public function agregarDiscapacidades(Empleado $empleado,array $discapacidades){
+    /**
+     * Esta función PHP recupera un empleado con un rol específico y un estado opcional.
+     * 
+     * @param string $rol El parámetro `rol` es una cadena que representa el rol de un empleado. 
+     * @param bool $estado Parámetro booleano que especifica si el empleado debe estar en estado 
+     * activo (`true`) o no (`false`). De forma predeterminada, si no se proporciona ningún valor
+     *  para este parámetro al llamar a la función, se establece en `true`
+     * 
+     * @return Empleado Una instancia del modelo `Empleado` que tiene un modelo `Usuario` relacionado 
+     * con un rol específico.
+     */
+    public static function obtenerEmpleadoRolEspecifico(string $rol, bool $estado = true)
+    {
+        try {
+            return Empleado::whereHas('user', function ($query) use ($rol) {
+                $query->role($rol);
+            })->where('estado', $estado)->first();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function agregarDiscapacidades(Empleado $empleado, array $discapacidades)
+    {
         $discapacidades_collection = collect($discapacidades);
         $mappedCollection = $discapacidades_collection->map(function ($object) {
             $object['tipo_discapacidad_id'] =  $object['tipo_discapacidad'];

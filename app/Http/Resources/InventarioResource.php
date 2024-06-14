@@ -31,7 +31,7 @@ class InventarioResource extends JsonResource
             'cliente_id'=> $this->cliente->empresa->razon_social,
             'serial'=>$this->detalle->serial,
             'sucursal'=>$this->sucursal_id,
-            'sucursal_id'=>$this->sucursal->lugar,
+            'sucursal_id'=>$this->sucursal?->lugar,
             'condiciones'=> $this->condicion->nombre,
             'cantidad'=> $this->cantidad,
             'por_recibir'=> $this->por_recibir,

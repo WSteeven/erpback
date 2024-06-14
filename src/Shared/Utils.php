@@ -5,14 +5,20 @@ namespace Src\Shared;
 use App\Models\ComprasProveedores\DatoBancarioProveedor;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Type\Integer;
+use Throwable;
 
 class Utils
 {
+
+    const MASKFECHA = 'Y-m-d';
+    const MASKFECHAHORA = 'Y-m-d H:i:s';
     public static $meses = array(
         "January" => "Enero",
         "February" => "Febrero",
@@ -113,6 +119,41 @@ class Utils
         ];
 
         return $mensajes[$metodo];
+    }
+    /**
+     * La función `obtenerMensajeErrorLanzable` devuelve una ValidationException con un mensaje de
+     * error personalizado basado en la excepción o Throwable proporcionado.
+     * 
+     * @param Exception $e El parámetro `e` es objeto de una instancia de la clase `Exception` o interfaz `Throwable`.
+     * @param string $textoPersonalizado El parámetro `textoPersonalizado` es una cadena que le permite
+     * proporcionar un mensaje personalizado o información adicional que se puede agregar al mensaje de
+     * error. Es opcional y se puede utilizar para personalizar aún más el mensaje de error según
+     * requisitos o contexto específicos.
+     * 
+     * @return ValidationException Se devuelve una `ValidationException` con un mensaje que contiene un error obtenido del
+     * método `obtenerMensajeError`, que toma un objeto `Exception` o `Throwable` y un texto
+     * personalizado como parámetros.
+     */
+    public static function obtenerMensajeErrorLanzable(Exception|Throwable $e, string $textoPersonalizado=''){
+        return ValidationException::withMessages(['error'=> self::obtenerMensajeError($e, $textoPersonalizado)]);
+    }
+    /**
+     * La función "obtenerMensajeError" en PHP devuelve un mensaje de error formateado que incluye el
+     * número de línea, el texto personalizado y el mensaje de excepción.
+     * 
+     * @param Exception $e El parámetro `e` es un objeto de tipo `Exception`. La función recupera 
+     * información de este objeto de excepción, como el mensaje y número de línea donde ocurrió la excepción.
+     * @param string $textoPersonalizado Le permite
+     * proporcionar un mensaje personalizado o información adicional para incluir en el mensaje de
+     * error. 
+     * 
+     * @return string mensaje de error formateado que incluye el número de línea donde ocurrió la
+     * excepción, cualquier texto personalizado proporcionado y el mensaje de excepción en sí.
+     */
+    public static function obtenerMensajeError(Exception|Throwable $e, string $textoPersonalizado = '')
+    {
+        $mensaje = '[ERROR][' . $e->getLine() . ']: ' . $textoPersonalizado . ' .' . $e->getMessage();
+        return $mensaje;
     }
 
     /**
@@ -366,7 +407,7 @@ class Utils
         return $diferencia;
     }
 
-    public static function convertArrayToString($array, $separator)
+    public static function convertArrayToString($array, $separator=',')
     {
         // Log::channel('testing')->info('Log', ['Array recibido', $array, 'separator', $separator]);
         if (is_array($array) && count($array) > 0) {
@@ -584,6 +625,62 @@ class Utils
         ];
     }
 
+    /**
+     * La función "obtenerMesMatricula" devuelve el mes correspondiente (como un número) según el
+     * dígito dado.
+     * 
+     * @param digito El parámetro "digito" representa el último dígito de la placa de un vehículo.
+     * 
+     * @return int el mes correspondiente a un dígito determinado.
+     */
+    public static function obtenerMesMatricula($digito)
+    {
+        switch ($digito) {
+            case '1':
+                return 2; //febrero
+            case '2':
+                return 3; //marzo
+            case '3':
+                return 4; //abril
+            case '4':
+                return 5; //mayo
+            case '5':
+                return 6; //junio
+            case '6':
+                return 7; //julio
+            case '7':
+                return 8; //agosto
+            case '8':
+                return 9; //septiembre
+            case '9':
+                return 10; //octubre
+            case '0':
+                return 11; //noviembre
+                // case '11': return null //diciembre, se retorna null por los rezagados
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * La función "obtenerUltimoDigito" en PHP devuelve el último dígito encontrado en una cadena
+     * de texto.
+     * 
+     * @param texto El parámetro "texto" es una cadena que representa el texto de entrada del que
+     * queremos extraer el último dígito.
+     * 
+     * @return el último dígito encontrado en el texto dado. Si no se encuentra ningún dígito, devuelve
+     * nulo.
+     */
+    public static function obtenerUltimoDigito($texto)
+    {
+        preg_match('/\d(?!.*\d)/', $texto, $matches);
+        if (!empty($matches)) {
+            return $matches[0]; // Devuelve el último dígito encontrado
+        } else {
+            return null;
+        }
+    }
     /**
      * ______________________________________________________________________________________
      * FUNCIONES (tomadas del codigo de Yefraina)

@@ -108,7 +108,7 @@ class Notificacion extends Model implements Auditable
             return $notificacion;
         } catch (Throwable $th) {
             DB::rollBack();
-            throw new Exception($th->getMessage().'. [LINE CODE ERROR]: '.$th->getLine(), $th->getCode());
+            throw new Exception($th->getMessage().'. [LINE CODE ERROR]: '.$th->getLine(). $th->getCode());
         }
     }
 }

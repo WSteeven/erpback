@@ -13,22 +13,25 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('bitacora_vehiculos', function (Blueprint $table) {
+        Schema::create('veh_bitacoras_vehiculos', function (Blueprint $table) {
             $table->id();
             $table->date('fecha');
             $table->string('hora_salida');
-            $table->string('hora_llegada');
-            $table->double('km_inicial',9,2,true);
-            $table->double('km_final',9,2,true);
-            $table->unsignedInteger('tanque_incio');
-            $table->unsignedInteger('tanque_final');
+            $table->string('hora_llegada')->nullable();
+            $table->double('km_inicial', 9, 2, true);
+            $table->double('km_final', 9, 2, true)->nullable();
+            $table->unsignedInteger('tanque_inicio');
+            $table->unsignedInteger('tanque_final')->nullable();
             $table->boolean('firmada')->default(false);
-            $table->unsignedBigInteger('chofer_id');
-            $table->unsignedBigInteger('vehiculo_id');
+            $table->timestamp('fecha_finalizacion')->nullable();
+            $table->unsignedBigInteger('chofer_id')->nullable();
+            $table->unsignedBigInteger('vehiculo_id')->nullable();
+            $table->text('tareas')->nullable();
+            $table->text('tickets')->nullable();
             $table->timestamps();
 
-            $table->foreign('chofer_id')->references('id')->on('empleados')->onUpdate('cascade')->onDelete(null);
-            $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->onUpdate('cascade')->onDelete(null);
+            $table->foreign('chofer_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 
@@ -39,6 +42,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bitacora_vehiculos');
+        Schema::dropIfExists('veh_bitacoras_vehiculos');
     }
 };

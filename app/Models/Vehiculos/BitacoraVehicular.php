@@ -2,6 +2,9 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\ActividadRealizada;
+use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +17,7 @@ class BitacoraVehicular extends Pivot implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'bitacora_vehiculos';
+    protected $table = 'veh_bitacoras_vehiculos';
     protected $fillable = [
         'fecha',
         'hora_salida',
@@ -26,12 +29,26 @@ class BitacoraVehicular extends Pivot implements Auditable
         'firmada',
         'chofer_id',
         'vehiculo_id',
+        'tareas',
+        'tickets',
     ];
     public $incrementing = true;
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'firmada' => 'boolean',
     ];
+
+    const LLENO = 'LLENO';
+    const VACIO = 'VACIO';
+    const CADUCADO = 'CADUCADO';
+    const BUENO = 'BUENO';
+    const MALO = 'MALO';
+    const CORRECTO = 'CORRECTO';
+    const ADVERTENCIA = 'ADVERTENCIA';
+    const PELIGRO = 'PELIGRO';
+
+
 
     private static $whiteListFilter = ['*'];
     /**
@@ -39,12 +56,51 @@ class BitacoraVehicular extends Pivot implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
-    public function chofer(){
-        return $this->belongsTo(Empleado::class);
+    public function chofer()
+    {
+        return $this->belongsTo(Empleado::class, 'chofer_id', 'id');
     }
-    public function vehiculo(){
+    public function vehiculo()
+    {
         return $this->belongsTo(Vehiculo::class);
     }
+
+    public function actividades()
+    {
+        return $this->morphMany(ActividadRealizada::class, 'actividable');
+    }
+
+    public function checklistAccesoriosVehiculo()
+    {
+        return $this->hasOne(ChecklistAccesoriosVehiculo::class, 'bitacora_id');
+    }
+
+    public function checklistVehiculo()
+    {
+        return $this->hasOne(ChecklistVehiculo::class, 'bitacora_id');
+    }
+
+    public function checklistImagenVehiculo()
+    {
+        return $this->hasOne(ChecklistImagenVehiculo::class, 'bitacora_id');
+    }
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una orden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
 
     /**
      * ______________________________________________________________________________________

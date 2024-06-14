@@ -17,6 +17,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\TipoDiscapacidad;
 use App\Models\Vehiculos\BitacoraVehicular;
+use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;
 use App\Models\Ventas\Vendedor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -314,7 +315,7 @@ class Empleado extends Model implements Auditable
      */
     public function bitacoras()
     {
-        return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'chofer_id', 'vehiculo_id')
+        return $this->belongsToMany(Vehiculo::class, 'veh_bitacoras_vehiculos', 'chofer_id', 'vehiculo_id')
             ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
     public function ultimaBitacora()
@@ -536,6 +537,10 @@ class Empleado extends Model implements Auditable
     public function vendedor()
     {
         return $this->hasOne(Vendedor::class);
+    }
+    public function conductor()
+    {
+        return $this->hasOne(Conductor::class);
     }
 
     /**

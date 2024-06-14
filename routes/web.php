@@ -59,7 +59,6 @@ Route::get('social-network/{driver}',[LoginSocialNetworkController::class, 'hand
 // Route::get('verificar', function(){
 //     $empleado = Empleado::find(24);
 
-//     Log::channel('testing')->info('Log', ['Empleado', $empleado]);
 //     Log::channel('testing')->info('Log', ['Recibe fondos', $empleado->acumula_fondos_reserva==0]);
 // });
 
