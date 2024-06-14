@@ -52,11 +52,11 @@ class PermisosModuloVehiculosSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'conductores'])->syncRoles($admin);
 
         // Multas de conductores
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'conductores'])->syncRoles([$admin, $rrhh]);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'conductores'])->syncRoles([$admin, $rrhh, $empleado]);
-        Permission::firstOrCreate(['name' => Permisos::CREAR . 'conductores'])->syncRoles($admin);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'conductores'])->syncRoles($admin);
-        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'conductores'])->syncRoles($admin);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'multas_conductores'])->syncRoles([$admin, $rrhh]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'multas_conductores'])->syncRoles([$admin, $rrhh, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'multas_conductores'])->syncRoles($admin);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'multas_conductores'])->syncRoles($admin);
+        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'multas_conductores'])->syncRoles($admin);
 
         // Asignaciones de Vehiculos
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'asignaciones_vehiculos'])->syncRoles([$admin, $chofer]);

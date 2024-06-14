@@ -90,7 +90,8 @@ class MultaConductorController extends Controller
         }
     }
 
-    public function destroy(MultaConductor $multa){
+    public function destroy(MultaConductor $multa)
+    {
         //Primero aumentamos los puntos de la multa eliminada a la licencia de la persona.
         $conductor = Conductor::find($multa->empleado_id);
         $conductor->puntos = $conductor->puntos + $multa->puntos;
