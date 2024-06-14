@@ -21,6 +21,7 @@ class TanqueoResource extends JsonResource
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'fecha_hora' => $this->fecha_hora,
             'km_tanqueo' => $this->km_tanqueo,
+            'monto' => $this->monto,
         ];
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {

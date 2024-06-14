@@ -59,7 +59,7 @@ class MaterialEmpleado extends Model implements Auditable
      * La función "cargarMaterialEmpleado" se utiliza para cargar materiales para un empleado, mediante un despacho de bodega o preingreso,
      * actualizando las cantidades de stock y despacho si el material ya existe, o creando una nueva
      * entrada de material si no existe.
-     * 
+     *
      * @param int $detalle_id El ID del detalle_producto al que pertenece el material.
      * @param int $empleado_id El parámetro empleado_id representa el ID del empleado. Se utiliza para
      * identificar al empleado específico para quien se carga el material.
@@ -132,7 +132,7 @@ class MaterialEmpleado extends Model implements Auditable
      * La función "cargarMaterialEmpleadoPorAnulacionDevolucion" actualiza el stock y cantidad de
      * devolución de un material asignado a un empleado en función de la anulación de una devolución de
      * producto.
-     * 
+     *
      * @param int detalle_id El parámetro detalle_id es un número entero que representa el ID del
      * detalle_producto que está asociado con el material que se carga para el empleado.
      * @param int empleado_id El parámetro empleado_id representa el ID del empleado.

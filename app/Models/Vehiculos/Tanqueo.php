@@ -24,6 +24,7 @@ class Tanqueo extends Model implements Auditable
         'solicitante_id',
         'fecha_hora',
         'km_tanqueo',
+        'monto',
         'imagen_comprobante',
         'imagen_tablero'
     ];

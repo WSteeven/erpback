@@ -439,11 +439,11 @@ class InventarioController extends Controller
     /**
      * La función `actualizarCantidad` actualiza la cantidad de stock de un material y ajusta los
      * valores de `devuelto` o `despachado` en función de la nueva cantidad.
-     * 
+     *
      * @param MaterialEmpleado|MaterialEmpleadoTarea $material El parámetro `material` es
      * de tipo `MaterialEmpleado` o `MaterialEmpleadoTarea`. Representa un objeto que contiene
-     * información sobre un material de un empleado de stock o de tarea. 
-     * @param int $cantidad Es un valor entero que determina la nueva cantidad de stock para 
+     * información sobre un material de un empleado de stock o de tarea.
+     * @param int $cantidad Es un valor entero que determina la nueva cantidad de stock para
      * el material. La función compara esta cantidad con la cantidad de stock actual del
      * material y actualiza el "devuelto" o "despachado" según sea el caso
      */
@@ -463,10 +463,10 @@ class InventarioController extends Controller
     /**
      * La función `empaquetarMaterialSingular` crea un modelo de matriz con detalles específicos de un
      * elemento material para un empleado o una tarea.
-     * 
+     *
      * @param MaterialEmpleado|MaterialEmpleadoTarea $material puede ser una instancia de la clase `MaterialEmpleado` o
      * `MaterialEmpleadoTarea`.
-     * 
+     *
      * @return array La función `empaquetarMaterialSingular` está devolviendo un array con los valores casteados.
      */
     private function empaquetarMaterialSingular(MaterialEmpleado|MaterialEmpleadoTarea $material)

@@ -94,7 +94,6 @@ class TanqueoController extends Controller
         //Adaptación de foreign keys
         $datos = $request->validated();
         if ($datos['imagen_comprobante'] && Utils::esBase64($datos['imagen_comprobante'])) {
-            Log::channel('testing')->info('Log', ['Grupo asignado ', $request['imagen_comprobante']]);
             $datos['imagen_comprobante'] = (new GuardarImagenIndividual($datos['imagen_comprobante'], RutasStorage::EVIDENCIAS_TANQUEOS_COMBUSTIBLES))->execute();
         } else unset($datos['imagen_comprobante']);
         if ($datos['imagen_tablero'] && Utils::esBase64($datos['imagen_tablero'])) {

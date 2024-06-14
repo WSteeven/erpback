@@ -28,6 +28,7 @@ class TanqueoRequest extends FormRequest
             'solicitante_id' => 'required|exists:empleados,id',
             'fecha_hora' => 'required|date_format:Y-m-d H:i:s',
             'km_tanqueo' => 'required|integer|numeric',
+            'monto' => 'required|numeric',
             'imagen_comprobante' => 'string|nullable',
             'imagen_tablero' => 'string|nullable',
         ];
