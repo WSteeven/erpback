@@ -13,20 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_respuestas_cuestionarios_empleados', function (Blueprint $table) {
+        // Respuestas a los cuestionarios publicos
+        Schema::create('med_cuestionarios_publicos', function (Blueprint $table) {
             $table->id();
-            $table->text('respuesta_texto')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('cuestionario_id');
             $table->foreign('cuestionario_id')->on('med_cuestionarios')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
-            $table->unsignedBigInteger('empleado_id');
-            $table->foreign('empleado_id')->on('empleados')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('persona_id');
+            $table->foreign('persona_id')->on('med_personas')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->text('respuesta_texto')->nullable();
 
             $table->timestamps();
-
-            // $table->unsignedBigInteger('respuesta');
         });
     }
 
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_respuestas_cuestionarios_empleados');
+        Schema::dropIfExists('med_cuestionarios_publicos');
     }
 };

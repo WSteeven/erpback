@@ -18,7 +18,7 @@ class TipoCuestionarioController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipos_cuestionarios')->only('index', 'show');
+        // $this->middleware('can:puede.ver.tipos_cuestionarios')->only('index', 'show');
         $this->middleware('can:puede.crear.tipos_cuestionarios')->only('store');
         $this->middleware('can:puede.editar.tipos_cuestionarios')->only('update');
         $this->middleware('can:puede.eliminar.tipos_cuestionarios')->only('destroy');

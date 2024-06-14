@@ -5,30 +5,33 @@ namespace Src\App\Medico;
 use App\Exports\Medico\ReporteCuestionarioAlcoholDrogasExport;
 use App\Exports\Medico\ReporteCuestionarioPisicosocialExport;
 use App\Exports\Medico\RespuestasCuestionarioExport;
+use App\Models\Medico\Cuestionario;
+use App\Models\Medico\CuestionarioPublico;
+use App\Models\Medico\Persona;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\Medico\TipoCuestionario;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Excel as ExcelCosnstant;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\ValidationException;
 
-class CuestionarioPisicosocialService implements CuestionarioInterface
+class CuestionarioPublicoService implements CuestionarioInterface
 {
-    private $empleado_id;
+    private int $persona_id;
 
-    public function __construct($empleado_id)
+    public function __construct(int $persona_id)
     {
-
-        $this->empleado_id = $empleado_id;
+        $this->persona_id = $persona_id;
     }
 
     public function guardarCuestionario($respuestas_cuestionario)
     {
         foreach ($respuestas_cuestionario as $cuestionario_respuesta) {
-            RespuestaCuestionarioEmpleado::create([
+            CuestionarioPublico::create([
                 'cuestionario_id' => !is_string($cuestionario_respuesta['id_cuestionario']) ? $cuestionario_respuesta['id_cuestionario'] : null,
-                'respuesta_texto' => $cuestionario_respuesta['respuesta_texto'], // is_string($cuestionario_respuesta['respuesta']) ? $cuestionario_respuesta['respuesta'] : null,
-                'empleado_id' => $this->empleado_id,
+                'respuesta_texto' => $cuestionario_respuesta['respuesta_texto'],
+                'persona_id' => $this->persona_id,
             ]);
         }
     }

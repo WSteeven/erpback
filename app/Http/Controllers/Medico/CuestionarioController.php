@@ -20,14 +20,16 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\CuestionarioPisicosocialService;
-use Src\App\Medico\CuestionarioService;
+use Src\App\Medico\ReporteCuestionarioInternoService;
+use Src\App\Medico\ReporteCuestionarioPublicoService;
 use Src\Shared\Utils;
 
 
 class CuestionarioController extends Controller
 {
     private $entidad = 'Cuestionario';
-    private CuestionarioService $cuestionario_service;
+    private ReporteCuestionarioInternoService $cuestionario_service;
+    private ReporteCuestionarioPublicoService $reporte_cuestionario_publico_service;
 
     public function __construct()
     {
@@ -36,7 +38,8 @@ class CuestionarioController extends Controller
         $this->middleware('can:puede.editar.cuestionarios')->only('update');
         $this->middleware('can:puede.eliminar.cuestionarios')->only('destroy');
 
-        $this->cuestionario_service = new CuestionarioService();
+        $this->cuestionario_service = new ReporteCuestionarioInternoService();
+        $this->reporte_cuestionario_publico_service = new ReporteCuestionarioPublicoService();
     }
     /**
      * Display a listing of the resource.
@@ -136,13 +139,18 @@ class CuestionarioController extends Controller
         }
     }
 
-    public function imprimirCuestionario()
+    /* public function imprimirCuestionario()
     {
         return $this->cuestionario_service->imprimirCuestionarioFPSICO();
-    }
+    } */
 
     public function reportesCuestionarios(Request $request)
     {
         return $this->cuestionario_service->reportesCuestionarios($request);
+    }
+
+    public function reportesCuestionariosPublicos(Request $request)
+    {
+        return $this->reporte_cuestionario_publico_service->reportesCuestionarios($request);
     }
 }

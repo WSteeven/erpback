@@ -61,7 +61,7 @@ Route::apiResources(
         'tipo_licencia' => TipoLicenciaController::class,
         'licencia_empleado' => LicenciaEmpleadoController::class,
         'vacacion' => VacacionController::class,
-        'estado_civil' => EstadoCivilController::class,
+        // 'estado_civil' => EstadoCivilController::class,
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,

@@ -49,7 +49,7 @@ class RespuestaCuestionarioEmpleadoController extends Controller
             DB::beginTransaction();
 
             $cuestionario_pisicosocial_service = new CuestionarioPisicosocialService($request->empleado_id);
-            $cuestionario_pisicosocial_service->guardarCuestionario($request->cuestionario);
+            $cuestionario_pisicosocial_service->guardarCuestionario(new RespuestaCuestionarioEmpleado(), $request->cuestionario);
             $modelo = [];
             $mensaje = 'Gracias por completar el cuestionario.';// Utils::obtenerMensaje($this->entidad, 'store');
 
