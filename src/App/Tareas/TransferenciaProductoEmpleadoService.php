@@ -121,7 +121,7 @@ class TransferenciaProductoEmpleadoService
 
                     // Si se encuentra el producto de destino se suma
                     if ($productoDestino) {
-                        Log::channel('testing')->info('se encontro el producto destino ');
+                        Log::channel('testing')->info('se encontro el producto destino');
                         $productoDestino->cantidad_stock += $producto['cantidad'];
                         $productoDestino->despachado += $producto['cantidad'];
                         $productoDestino->save();
@@ -179,17 +179,14 @@ class TransferenciaProductoEmpleadoService
             $tarea_destino_id = request('tarea_destino');
 
             foreach (request('listado_productos') as $producto) {
-                // $productoOrigen = $esOrigenStock ? $this->buscarProductoStock($empleado_origen_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_origen_id, $producto['id'], $proyecto_origen_id, $etapa_origen_id, $tarea_origen_id, $cliente_id);
+                try {
+                    if ($esOrigenStock) MaterialEmpleado::descargarMaterialEmpleado($producto['id'], $empleado_origen_id, $producto['cantidad'], $cliente_id, null); // -- Es origen stock
+                    else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($producto['id'], $empleado_origen_id, $tarea_origen_id, $producto['cantidad'], $cliente_id); // -- Es origen proyecto o tarea cliente final
 
-                // Log::channel('testing')->info('Log', compact('productoOrigen'));
-
-                if ($esOrigenStock) {
-                    try {
-                        MaterialEmpleado::descargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['cantidad'], $cliente_id, null);
-                        MaterialEmpleado::cargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['cantidad'], $cliente_id);
-                    } catch (\Throwable $th) {
-                        throw $th;
-                    }
+                    if (!$tarea_destino_id) MaterialEmpleado::cargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['cantidad'], $cliente_id); // -- Es destino stock
+                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['cantidad'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final   
+                } catch (\Throwable $th) {
+                    throw $th;
                 }
             }
         } catch (Exception $e) {
