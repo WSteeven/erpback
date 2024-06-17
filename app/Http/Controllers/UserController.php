@@ -6,6 +6,7 @@ use App\Http\Requests\UserRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\UserInfoResource;
 use App\Http\Resources\UserResource;
+use App\Models\ConfiguracionGeneral;
 use Illuminate\Support\Facades\DB;
 use App\Models\Empleado;
 use App\Models\User;
@@ -135,6 +136,7 @@ class UserController extends Controller
     }
     public function recuperarPassword(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $email = $request->input('email');
         $usuario = User::where('email', $email)->first();
         if ($usuario) {
@@ -145,9 +147,10 @@ class UserController extends Controller
                 'username' =>  $username,
                 'confirmation_code' => $confirmation_code
             ];
+
             $usuario->remember_token = $confirmation_code;
             $usuario->save();
-            Mail::send('email.recoveryPassword', $credenciales, function ($msj) use ($email, $username) {
+            Mail::send('email.recoveryPassword', [$credenciales, $configuracion], function ($msj) use ($email, $username) {
                 $msj->to($email, $username);
                 $msj->subject('Recuperacion de Contraseña de JPCONSTRUCRED');
             });
