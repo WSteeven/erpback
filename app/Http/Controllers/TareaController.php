@@ -159,7 +159,7 @@ class TareaController extends Controller
             $modelo = new TareaResource($tarea->refresh());
             $mensaje = 'Tarea finalizada exitosamente';
 
-            $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id');
+            $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id')->filter();
 
             foreach ($destinatarios as $destinatario) {
                 event(new TareaEvent($tarea, Auth::user()->empleado->id, $destinatario));
