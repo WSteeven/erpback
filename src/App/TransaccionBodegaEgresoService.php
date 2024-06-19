@@ -48,7 +48,9 @@ class TransaccionBodegaEgresoService
                                 $query->whereHas('comprobante', function ($q) {
                                     $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
                                 })->orWhereDoesntHave('comprobante');
-                            })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc')->get();
+                            })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc')
+                            ->whereYear('created_at', 2024)
+                            ->get();
                         break;
                     case 'ANULADA':
                         $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('estado_id', EstadosTransacciones::ANULADA)->orderBy('id', 'desc')->get();

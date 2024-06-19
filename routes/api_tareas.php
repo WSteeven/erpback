@@ -28,6 +28,7 @@ use App\Http\Controllers\Tareas\EtapaController;
 use App\Http\Controllers\Tareas\TransferenciaMaterialEmpleadoController;
 use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
 use App\Http\Controllers\Tareas\CentroCostoController;
+use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
 
@@ -94,6 +95,8 @@ Route::prefix('subtareas')->group(function () {
     Route::get('obtener-suspendidos/{subtarea}', [SubtareaController::class, 'obtenerSuspendidos']);
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
+
+Route::get('reporte-materiales-utilizados', [MaterialUtilizadoController::class, 'reporte'])->middleware('auth:sanctum');
 
 Route::post('etapas/desactivar/{etapa}', [EtapaController::class, 'desactivar']);
 //Centros de costos
