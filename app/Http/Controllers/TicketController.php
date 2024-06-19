@@ -243,7 +243,7 @@ class TicketController extends Controller
         $ticket->save();
 
         $modelo = new TicketResource($ticket->refresh());
-        $mensaje = 'Ticket finalizado exitosamente!' ;
+        $mensaje = 'Ticket finalizado exitosamente!';
 
         // Mail::to($ticket->solicitante->user->email)->send(new EnviarMailTicket($ticket->refresh()));
 
@@ -376,7 +376,8 @@ class TicketController extends Controller
         $modelo = Ticket::find($ticket_id);
         $auditoria = $modelo->audits()->get(['user_id', 'new_values', 'created_at']);
         $auditoria = $auditoria->map(function ($item) {
-            $empleado = User::find($item->user_id)->empleado;
+            $empleado = User::find($item->user_id)?->empleado;
+            if (!$empleado) return [];
             return [
                 'responsable' => Empleado::extraerNombresApellidos($empleado),
                 'estado' => array_key_exists('estado', $item->new_values) ? $item->new_values['estado'] : null,
