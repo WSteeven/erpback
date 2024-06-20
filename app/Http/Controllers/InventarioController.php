@@ -8,6 +8,7 @@ use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
 use App\Http\Resources\ItemDetallePreingresoMaterialResource;
+use App\Http\Resources\Tareas\DetalleTransferenciaProductoEmpleadoResource;
 use App\Http\Resources\VistaInventarioPerchaResource;
 use App\Models\Cliente;
 use App\Models\ConfiguracionGeneral;
@@ -18,6 +19,7 @@ use App\Models\ItemDetallePreingresoMaterial;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
+use App\Models\Tareas\DetalleTransferenciaProductoEmpleado;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\VistaInventarioPercha;
@@ -204,7 +206,8 @@ class InventarioController extends Controller
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
-        $results2 = [];
+        $preingresos = [];
+        $transferencias = [];
         $cont = 0;
         $cantAudit = 0;
         $row = [];
@@ -245,7 +248,6 @@ class InventarioController extends Controller
             ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
 
         foreach ($movimientos as $movimiento) {
-            Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
             // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
             if ($cont == 0) {
                 $audit = Audit::where('auditable_id', $movimiento->inventario_id)
@@ -309,9 +311,18 @@ class InventarioController extends Controller
         }
 
         //Aqui se filtra los preingresos donde ha sido visto el ítem
-        $results2 = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
-        $results2 = ItemDetallePreingresoMaterialResource::collection($results2);
+        $preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
+        $preingresos = ItemDetallePreingresoMaterialResource::collection($preingresos);
 
+        //Aquí se filtra las transferencias de productos
+        $transferencias = DetalleTransferenciaProductoEmpleado::where('detalle_producto_id', $request->detalle_id)
+            ->when($request->fecha_inicio, function ($q) use ($request) {
+                $q->where('created_at', '>=', $request->fecha_inicio);
+            })
+            ->when($request->fecha_fin, function ($q) use ($request) {
+                $q->where('created_at', '<=', $request->fecha_fin);
+            })->orderBy('created_at', 'desc')->get();
+        $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
 
         rsort($results); //aqui se ordena el array en forma descendente
         switch ($request->tipo_rpt) {
@@ -340,7 +351,7 @@ class InventarioController extends Controller
                 }
                 break;
             default:
-                return response()->json(compact('results', 'results2'));
+                return response()->json(compact('results', 'preingresos', 'transferencias'));
         }
     }
 

@@ -30,4 +30,7 @@ class DetalleTransferenciaProductoEmpleado extends Model implements Auditable
     {
         return $this->belongsTo(DetalleProducto::class);
     }
+    public function transferencia(){
+        return $this->belongsTo(TransferenciaProductoEmpleado::class, 'transf_produc_emplea_id');
+    }
 }
