@@ -128,7 +128,7 @@ class MaterialesUtilizadosTareaService
             // Log::channel('testing')->info('Log', ['Detalles', $transaccion->id, $detalles]);
             foreach ($detalles as $detalle) {
                 $detalleProducto = DetalleProducto::find(Inventario::find($detalle->inventario_id)?->detalle_id);
-                $results[$cont] = self::empaquetarDatosIndividual($transaccion->proyecto_id, $transaccion->tarea_id, $transaccion->responsable_id, $transaccion->motivo->nombre, $detalleProducto);
+                $results[$cont] = self::empaquetarDatosIndividual($transaccion->proyecto_id, $transaccion->tarea_id, $transaccion->responsable_id, $transaccion->motivo->nombre, $detalleProducto, $detalle->recibido);
                 $cont++;
             }
         }
@@ -293,14 +293,14 @@ class MaterialesUtilizadosTareaService
         foreach ($preingresos  as $preingreso) {
             $detalles = DetalleProducto::whereIn('id', ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->pluck('detalle_id'))->get();
             foreach ($detalles as $detalle) {
-                $results[$cont] = self::empaquetarDatosIndividual($preingreso->tarea->proyecto_id, $preingreso->tarea_id, $preingreso->responsable_id, $preingreso->observacion, $detalle);
+                $results[$cont] = self::empaquetarDatosIndividual($preingreso->tarea->proyecto_id, $preingreso->tarea_id, $preingreso->responsable_id, $preingreso->observacion, $detalle, ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first()?->cantidad);
                 $cont++;
             }
         }
         Log::channel('testing')->info('Log', ['empaquetarDatosPreingreso', $results]);
         return $results;
     }
-    
+
     private static function empaquetarDatosDevolucion($devoluciones)
     {
         $results = [];
@@ -308,7 +308,7 @@ class MaterialesUtilizadosTareaService
         foreach ($devoluciones  as $devolucion) {
             $detalles = DetalleProducto::whereIn('id', DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->pluck('detalle_id'))->get();
             foreach ($detalles as $detalle) {
-                $results[$cont] = self::empaquetarDatosIndividual($devolucion->tarea->proyecto_id, $devolucion->tarea_id, $devolucion->solicitante_id, $devolucion->justificacion, $detalle);
+                $results[$cont] = self::empaquetarDatosIndividual($devolucion->tarea->proyecto_id, $devolucion->tarea_id, $devolucion->solicitante_id, $devolucion->justificacion, $detalle, $detalle->devuelto);
                 $cont++;
             }
         }
@@ -342,7 +342,7 @@ class MaterialesUtilizadosTareaService
      * - 'empleado_id': el valor del parámetro 
      * - 'empleado': resultado de extraer los nombres y apellidos del empleado con el
      */
-    private static function empaquetarDatosIndividual(int|null $proyecto_id, int|null $tarea_id = null, int $responsable_id, string $motivo = null, DetalleProducto $detalle)
+    private static function empaquetarDatosIndividual(int|null $proyecto_id, int|null $tarea_id = null, int $responsable_id, string $motivo = null, DetalleProducto $detalle, int $cantidad)
     {
         $row = [];
         $row['proyecto_id'] = $proyecto_id;
@@ -353,7 +353,7 @@ class MaterialesUtilizadosTareaService
         $row['unidad_medida'] = $detalle->producto->unidadMedida->nombre;
         $row['detalle'] = $detalle->descripcion;
         $row['detalle_id'] = $detalle->id;
-        $row['cantidad'] = $detalle->recibido;
+        $row['cantidad'] = $cantidad;
 
         return $row;
     }
