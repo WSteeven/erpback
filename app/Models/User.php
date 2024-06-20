@@ -141,6 +141,10 @@ class User extends Authenticatable implements Auditable
         return $permissions;
     }
 
+    /**
+     * Este metodo no funciona, da errores.
+     * Por favor BORRARLO 
+     */
     public function obtenerPermisos($user_id)
     {
         $permissions = [];
