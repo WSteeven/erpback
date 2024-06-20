@@ -13,7 +13,7 @@ class PermisosModuloVehiculosSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
+     * php artisan db:seed --class=PermisosModuloVehiculosSeeder
      * @return void
      */
     public function run()

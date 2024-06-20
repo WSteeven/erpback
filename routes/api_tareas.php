@@ -96,7 +96,7 @@ Route::prefix('subtareas')->group(function () {
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
 
-Route::get('reporte-materiales-utilizados', [MaterialUtilizadoController::class, 'reporte'])->middleware('auth:sanctum');
+Route::get('reporte-materiales-utilizados', [MaterialUtilizadoController::class, 'reporte']);
 
 Route::post('etapas/desactivar/{etapa}', [EtapaController::class, 'desactivar']);
 //Centros de costos
