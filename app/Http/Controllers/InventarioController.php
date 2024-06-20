@@ -47,6 +47,7 @@ class InventarioController extends Controller
         $this->middleware('can:puede.crear.inventarios')->only('store');
         $this->middleware('can:puede.editar.inventarios')->only('update');
         $this->middleware('can:puede.eliminar.inventarios')->only('destroy');
+        $this->middleware('can:puede.modificar_stock.materiales_empleados')->only('actualizarCantidadMaterialEmpleado', 'actualizarMaterialesEmpleado');
     }
     /**
      * Listar

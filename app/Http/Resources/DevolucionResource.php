@@ -56,6 +56,7 @@ class DevolucionResource extends JsonResource
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['cliente'] = $this->cliente_id;
+            $modelo['causa_anulacion'] = $this->causa_anulacion;
             [$modelo['misma_condicion'], $modelo['condicion']] = Devolucion::obtenerCondicionListado($this->id);
         }
 
