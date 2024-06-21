@@ -41,6 +41,11 @@ class SeguimientoMaterialSubtarea extends Model implements Auditable
         return $this->belongsTo(DetalleProducto::class);
     }
 
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
+
     /*********
      * Scopes
      *********/

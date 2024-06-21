@@ -4,6 +4,7 @@ namespace App\Models\Tareas;
 
 use App\Models\Archivo;
 use App\Models\Autorizacion;
+use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\Notificacion;
@@ -89,6 +90,11 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     public function archivos()
     {
         return $this->morphMany(Archivo::class, 'archivable');
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 
     /************

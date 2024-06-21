@@ -25,8 +25,40 @@ use Src\Config\EstadosTransacciones;
 
 class MaterialesUtilizadosTareaService
 {
-    public function __construct()
+    private $reporte = [];
+
+    public function init()
     {
+        $proyecto_id = request('proyecto_id');
+        $tarea_id = request('tarea_id');
+
+        $this->reporte['materiales_utilizados_tarea'] = self::obtenerMaterialesUtilizadosSubtareas($tarea_id);
+        $this->reporte['materiales_utilizados_stock'] = self::obtenerMaterialesUtilizadosStock($tarea_id);
+        $this->reporte['transferencias_recibidas'] = self::obtenerMaterialesTransferenciasRecibidas($proyecto_id, $tarea_id);
+        $this->reporte['transferencias_enviadas'] = self::obtenerMaterialesTransferenciasEnviadas($proyecto_id, $tarea_id);
+        $this->reporte['ingresos_bodega'] = self::obtenerMaterialesIngresadosABodega($proyecto_id, $tarea_id);
+        $this->reporte['egresos_bodega'] = self::obtenerMaterialesEgresadosDeBodega($proyecto_id, $tarea_id);
+        $this->reporte['devoluciones'] = self::obtenerMaterialesDevueltosABodega($proyecto_id, $tarea_id);
+        $this->reporte['preingresos'] = self::obtenerMaterialesIngresadosPorPreingresos($proyecto_id, $tarea_id);
+
+        $this->reporte['encabezado_subtareas'] = collect($this->reporte['materiales_utilizados_tarea'])->map(fn ($item) => [
+            'id' => $item['subtarea_id'],
+            'codigo_subtarea' => $item['codigo_subtarea'],
+        ])->unique();
+
+        $this->reporte['encabezado_transferencias_recibidas'] = collect($this->reporte['transferencias_recibidas'])->map(fn ($item) => [
+            'id' => $item['transferencia_id'],
+            'codigo_transferencia' => 'TRANSF-PROD-' . $item['transferencia_id'],
+        ])->unique();
+
+        $this->reporte['encabezado_egresos_bodega'] = collect($this->reporte['egresos_bodega'])->map(fn ($item) => [
+            'id' => $item['egreso_id'],
+            'codigo_egreso' => $item['motivo'] . '-' . $item['egreso_id'],
+        ])->unique();
+
+        $this->reporte['todos_materiales'] = self::obtenerTodosMateriales();
+
+        return $this->reporte;
     }
 
     public static function obtenerMaterialesIngresadosABodega(int|null $proyecto_id = null, int|null $tarea_id = null)
@@ -72,6 +104,7 @@ class MaterialesUtilizadosTareaService
 
         return $results;
     }
+
     public static function obtenerMaterialesDevueltosABodega(int|null $proyecto_id = null, int|null $tarea_id = null)
     {
         $results = [];
@@ -128,7 +161,8 @@ class MaterialesUtilizadosTareaService
             // Log::channel('testing')->info('Log', ['Detalles', $transaccion->id, $detalles]);
             foreach ($detalles as $detalle) {
                 $detalleProducto = DetalleProducto::find(Inventario::find($detalle->inventario_id)?->detalle_id);
-                $results[$cont] = self::empaquetarDatosIndividual($transaccion->proyecto_id, $transaccion->tarea_id, $transaccion->responsable_id, $transaccion->motivo->nombre, $detalleProducto, $detalle->recibido);
+                $results[$cont] = self::empaquetarDatosIndividual($transaccion->proyecto_id, $transaccion->tarea_id, $transaccion->responsable_id, $transaccion->motivo->nombre, $detalleProducto, $detalle->recibido, $transaccion->cliente_id, $transaccion->id);
+                // $results[$cont] = self::empaquetarDatosIndividual($transaccion->proyecto_id, $transaccion->tarea_id, $transaccion->responsable_id, $transaccion->motivo->nombre, $detalleProducto, );
                 $cont++;
             }
         }
@@ -158,18 +192,7 @@ class MaterialesUtilizadosTareaService
         return self::empaquetarDatosTransferencias($transferencias);
     }
 
-    public static function obtenerMaterialesTransferenciasRecibidasSuma(int|null $proyecto_id = null, int|null $tarea_id = null)
-    {
-        $transferencias = TransferenciaProductoEmpleado::when($proyecto_id, function ($query) use ($proyecto_id) {
-            $query->where('proyecto_destino_id', $proyecto_id);
-        })->when($tarea_id, function ($query) use ($tarea_id) {
-            $query->where('tarea_destino_id', $tarea_id);
-        })->get();
-
-        return self::empaquetarSumaTransferencias($transferencias);
-    }
-
-    public static function obtenerMaterialesTransferenciasEnviadasSuma(int|null $proyecto_id = null, int|null $tarea_id = null)
+    public static function obtenerMaterialesTransferenciasEnviadas(int|null $proyecto_id = null, int|null $tarea_id = null)
     {
         $transferencias = TransferenciaProductoEmpleado::when($proyecto_id, function ($query) use ($proyecto_id) {
             $query->where('proyecto_origen_id', $proyecto_id);
@@ -177,7 +200,7 @@ class MaterialesUtilizadosTareaService
             $query->where('tarea_origen_id', $tarea_id);
         })->get();
 
-        return self::empaquetarSumaTransferencias($transferencias);
+        return self::empaquetarDatosTransferencias($transferencias);
     }
 
     private static function empaquetarDatosTransferencias($transferencias)
@@ -188,55 +211,24 @@ class MaterialesUtilizadosTareaService
             $detalles = DetalleTransferenciaProductoEmpleado::where('transf_produc_emplea_id', $transferencia->id)->get();
 
             foreach ($detalles as $detalle) {
-                $row['transferencia'] = $transferencia->id;
+                $row['transferencia_id'] = $transferencia->id;
                 $row['proyecto_id'] = $transferencia->proyecto_destino_id;
                 $row['tarea_id'] = $transferencia->tarea_destino_id;
                 $row['empleado_origen_id'] = $transferencia->empleado_origen_id;
                 $row['empleado_id'] = $transferencia->empleado_destino_id;
                 $row['empleado'] = Empleado::extraerNombresApellidos($transferencia->empleadoDestino);
                 $detalleProducto = $detalle->detalleProducto;
-                $row['detalle'] = $detalleProducto?->descripcion;
-                $row['detalle_id'] = $detalleProducto?->id;
+                $row['cliente'] = $transferencia->cliente?->empresa->razon_social;
                 $row['cliente_id'] = $transferencia->cliente_id;
+                $row['detalle_id'] = $detalleProducto?->id;
+                $row['detalle'] = $detalleProducto?->descripcion;
                 $row['cantidad'] = $detalle->cantidad;
+                $row['unidad'] = $detalleProducto->producto->unidadMedida->simbolo;
                 $results[$cont] = $row;
                 $cont++;
             }
         }
         return $results;
-    }
-
-    private static function empaquetarSumaTransferencias($transferencias)
-    {
-        $resultadosAgrupados = [];
-
-        foreach ($transferencias as $transferencia) {
-            $detalles = DetalleTransferenciaProductoEmpleado::where('transf_produc_emplea_id', $transferencia->id)->get();
-
-            foreach ($detalles as $detalle) {
-                $detalleProducto = $detalle->detalleProducto;
-
-                if ($detalleProducto) {
-                    $clave = $detalleProducto->id . '-' . $transferencia->cliente_id;
-
-                    if (!isset($resultadosAgrupados[$clave])) {
-                        $resultadosAgrupados[$clave] = [
-                            'detalle_id' => $detalleProducto->id,
-                            'cliente_id' => $transferencia->cliente_id,
-                            'detalle' => $detalleProducto->descripcion,
-                            'cantidad' => 0
-                        ];
-                    }
-
-                    $resultadosAgrupados[$clave]['cantidad'] += $detalle->cantidad;
-                }
-            }
-        }
-
-        // Convertir el array asociativo en un array numérico
-        $resultados = array_values($resultadosAgrupados);
-
-        return $resultados;
     }
 
 
@@ -271,12 +263,16 @@ class MaterialesUtilizadosTareaService
                     $resultadosAgrupados[$clave] = [
                         'detalle_id' => $detalleProducto->id,
                         'cliente_id' => $seguimiento->cliente_id,
+                        'cliente' => $seguimiento->cliente?->empresa->razon_social,
+                        'subtarea_id' => $seguimiento->subtarea_id,
+                        'codigo_subtarea' => $seguimiento->subtarea->codigo_subtarea,
                         'detalle' => $detalleProducto->descripcion,
-                        'total_cantidad' => 0
+                        'unidad' => $detalleProducto->producto->unidadMedida->simbolo,
+                        'cantidad' => 0,
                     ];
                 }
 
-                $resultadosAgrupados[$clave]['total_cantidad'] += $seguimiento->cantidad_utilizada;
+                $resultadosAgrupados[$clave]['cantidad'] += $seguimiento->cantidad_utilizada;
             }
         }
 
@@ -293,7 +289,8 @@ class MaterialesUtilizadosTareaService
         foreach ($preingresos  as $preingreso) {
             $detalles = DetalleProducto::whereIn('id', ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->pluck('detalle_id'))->get();
             foreach ($detalles as $detalle) {
-                $results[$cont] = self::empaquetarDatosIndividual($preingreso->tarea->proyecto_id, $preingreso->tarea_id, $preingreso->responsable_id, $preingreso->observacion, $detalle, ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first()?->cantidad);
+                $results[$cont] = self::empaquetarDatosIndividual($preingreso->tarea->proyecto_id, $preingreso->tarea_id, $preingreso->responsable_id, $preingreso->observacion, $detalle, ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first()?->cantidad, $preingreso->cliente_id, $preingreso->id);
+                // $results[$cont] = self::empaquetarDatosIndividual($preingreso->tarea->proyecto_id, $preingreso->tarea_id, $preingreso->responsable_id, $preingreso->observacion, $detalle);
                 $cont++;
             }
         }
@@ -308,7 +305,8 @@ class MaterialesUtilizadosTareaService
         foreach ($devoluciones  as $devolucion) {
             $detalles = DetalleProducto::whereIn('id', DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->pluck('detalle_id'))->get();
             foreach ($detalles as $detalle) {
-                $results[$cont] = self::empaquetarDatosIndividual($devolucion->tarea->proyecto_id, $devolucion->tarea_id, $devolucion->solicitante_id, $devolucion->justificacion, $detalle, $detalle->devuelto);
+                $results[$cont] = self::empaquetarDatosIndividual($devolucion->tarea->proyecto_id, $devolucion->tarea_id, $devolucion->solicitante_id, $devolucion->justificacion, $detalle, $detalle->devuelto, $devolucion->cliente_id, $devolucion->id);
+                // $results[$cont] = self::empaquetarDatosIndividual($devolucion->tarea->proyecto_id, $devolucion->tarea_id, $devolucion->solicitante_id, $devolucion->justificacion, $detalle, $devolucion->cliente_id, $devolucion->id);
                 $cont++;
             }
         }
@@ -342,9 +340,11 @@ class MaterialesUtilizadosTareaService
      * - 'empleado_id': el valor del parámetro 
      * - 'empleado': resultado de extraer los nombres y apellidos del empleado con el
      */
-    private static function empaquetarDatosIndividual(int|null $proyecto_id, int|null $tarea_id = null, int $responsable_id, string $motivo = null, DetalleProducto $detalle, int $cantidad)
+    // private static function empaquetarDatosIndividual(int|null $proyecto_id, int|null $tarea_id = null, int $responsable_id, string $motivo = null, DetalleProducto $detalle, int|null $cliente_id, $egreso_id)
+    private static function empaquetarDatosIndividual(int|null $proyecto_id, int|null $tarea_id = null, int $responsable_id, string $motivo = null, DetalleProducto $detalle, int $cantidad, int|null $cliente_id, $egreso_id)
     {
         $row = [];
+        $row['egreso_id'] = $egreso_id;
         $row['proyecto_id'] = $proyecto_id;
         $row['tarea_id'] = $tarea_id;
         $row['empleado_id'] = $responsable_id;
@@ -353,8 +353,96 @@ class MaterialesUtilizadosTareaService
         $row['unidad_medida'] = $detalle->producto->unidadMedida->nombre;
         $row['detalle'] = $detalle->descripcion;
         $row['detalle_id'] = $detalle->id;
+        $row['cliente_id'] = $cliente_id;
         $row['cantidad'] = $cantidad;
 
         return $row;
+    }
+
+    /***********************
+     * Calculos para tabla
+     ***********************/
+    public function obtenerCantidadMaterialPorEgreso($detalle_producto_id, $cliente_id, $egreso_id)
+    {
+        $encontrado = collect($this->reporte['egresos_bodega'])->first(fn ($material) =>
+        $material['detalle_id'] == $detalle_producto_id
+            && $material['cliente_id'] == $cliente_id
+            && $material['egreso_id'] == $egreso_id);
+
+        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $egreso_id]);
+        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        return $encontrado ? $encontrado['cantidad'] : '-';
+    }
+
+    public function obtenerCantidadMaterialPorSubtarea($detalle_producto_id, $cliente_id, $subtarea_id)
+    {
+        $encontrado = collect($this->reporte['materiales_utilizados_tarea'])->first(fn ($material) =>
+        $material['detalle_id'] == $detalle_producto_id
+            && $material['cliente_id'] == $cliente_id
+            && $material['subtarea_id'] == $subtarea_id);
+
+        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $subtarea_id]);
+        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        return $encontrado ? $encontrado['cantidad'] : '-';
+    }
+
+    public function obtenerSumaMaterialPorDetalleCliente($detalle_producto_id, $cliente_id)
+    {
+        $encontrado = collect($this->reporte['materiales_utilizados_tarea'])->filter(fn ($material) =>
+        $material['detalle_id'] == $detalle_producto_id
+            && $material['cliente_id'] == $cliente_id);
+
+        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id]);
+        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        return $encontrado ? $encontrado->sum('cantidad') : '-';
+    }
+
+    public function obtenerSumaTransferenciasRecibidas($detalle_producto_id, $cliente_id)
+    {
+        $encontrado = collect($this->reporte['transferencias_recibidas'])->filter(fn ($item) =>
+        $item['detalle_id'] == $detalle_producto_id
+            && $item['cliente_id'] == $cliente_id);
+
+        return $encontrado ? $encontrado->sum('cantidad') : '-';
+    }
+
+    public function obtenerSumaTransferenciasEnviadas($detalle_producto_id, $cliente_id)
+    {
+        $encontrado = collect($this->reporte['transferencias_enviadas'])->filter(fn ($item) =>
+        $item['detalle_id'] == $detalle_producto_id
+            && $item['cliente_id'] == $cliente_id);
+
+        return $encontrado ? $encontrado->sum('cantidad') : '-';
+    }
+
+    public function obtenerCantidadMaterialPorTransferencia($detalle_producto_id, $cliente_id, $transferencia_id)
+    {
+        $encontrado = collect($this->reporte['transferencias_recibidas'])->first(fn ($transferencia) =>
+        $transferencia['detalle_id'] == $detalle_producto_id
+            && $transferencia['cliente_id'] == $cliente_id
+            && $transferencia['transferencia_id'] == $transferencia_id);
+
+        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $transferencia_id]);
+        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        return $encontrado ? $encontrado['cantidad'] : '-';
+    }
+
+    private function obtenerTodosMateriales()
+    {
+        $materiales_utilizados_tareas = self::mapearMateriales($this->reporte['materiales_utilizados_tarea']);
+        $materiales_transferencias_recibidas = self::mapearMateriales($this->reporte['transferencias_recibidas']);
+        $egresos_bodega = self::mapearMateriales($this->reporte['egresos_bodega']);
+        return collect([...$materiales_utilizados_tareas, ...$materiales_transferencias_recibidas, ...$egresos_bodega])->unique();
+    }
+
+    private function mapearMateriales($array)
+    {
+        return collect($array)->map(fn ($item) => [
+            'detalle' => $item['detalle'],
+            'detalle_id' => $item['detalle_id'],
+            'cliente' => isset($item['cliente']) ? $item['cliente'] : '-',
+            'cliente_id' => $item['cliente_id'],
+            'unidad' => isset($item['unidad']) ? $item['unidad'] : '-',
+        ]);
     }
 }
