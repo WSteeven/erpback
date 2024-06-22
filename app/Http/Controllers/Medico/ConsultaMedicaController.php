@@ -15,11 +15,13 @@ use App\Models\User;
 use Src\Shared\Utils;
 use Exception;
 use Src\App\EmpleadoService;
+use Src\App\Medico\PolymorphicMedicoModelsService;
 
 class ConsultaMedicaController extends Controller
 {
     private $entidad = 'Consulta médica';
     private EmpleadoService $empleadoService;
+    private PolymorphicMedicoModelsService $polymorphicMedicoModelsService;
 
     public function __construct()
     {
@@ -28,6 +30,7 @@ class ConsultaMedicaController extends Controller
         $this->middleware('can:puede.editar.consultas_medicas')->only('update');
         $this->middleware('can:puede.eliminar.consultas_medicas')->only('destroy');
         $this->empleadoService = new EmpleadoService();
+        $this->polymorphicMedicoModelsService = new PolymorphicMedicoModelsService();
     }
 
     public function index()
@@ -46,19 +49,18 @@ class ConsultaMedicaController extends Controller
 
             $datos = $request->validated();
             $consulta_medica = ConsultaMedica::create([
-                'observacion' => $datos['observacion'],
+                'evolucion' => $datos['evolucion'],
+                'examen_fisico' => $datos['examen_fisico'],
                 'cita_medica_id' => $datos['cita_medica'],
                 'registro_empleado_examen_id' => isset($datos['registro_empleado_examen']) ? $datos['registro_empleado_examen'] : null,
                 'dado_alta' => $datos['dado_alta'],
-                'dias_descanso' => $datos['dias_descanso'],
+                'dias_descanso' => $datos['dias_descanso'] ?? 0,
             ]);
 
             $consulta_medica->receta()->create([
                 'rp' => $datos['receta']['rp'],
                 'prescripcion' => $datos['receta']['prescripcion'],
             ]);
-
-            Log::channel('testing')->info('Log', ['diagn', $datos]);
 
             foreach ($datos['diagnosticos'] as $diagnostico) {
                 Log::channel('testing')->info('Log', ['diagn', $diagnostico]);
@@ -67,6 +69,8 @@ class ConsultaMedicaController extends Controller
                     'cie_id' => $diagnostico['cie'],
                 ]);
             }
+
+            $this->polymorphicMedicoModelsService->crearConstanteVital($consulta_medica, $request->constante_vital);
 
             // cita atendida
             if ($datos['cita_medica']) {
@@ -130,6 +134,8 @@ class ConsultaMedicaController extends Controller
         // $emisor = 1;
         $idEmisor = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_MEDICO)[0];
         $idsDestinatarios = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_RECURSOS_HUMANOS);
+
+        if (!$idEmisor && !count($idsDestinatarios)) return;
 
         foreach ($idsDestinatarios as $destinatario) {
             event(new DiasDescansoEvent($consulta_medica, $idEmisor, $destinatario));

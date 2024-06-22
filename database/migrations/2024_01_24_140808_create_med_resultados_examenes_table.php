@@ -16,10 +16,10 @@ return new class extends Migration
         Schema::create('med_resultados_examenes', function (Blueprint $table) {
             $table->id();
 
-            $table->double('resultado');
+            $table->string('resultado')->nullable();
 
             $table->unsignedBigInteger('configuracion_examen_campo_id');
-            $table->foreign('configuracion_examen_campo_id','fk_config_exam')->references('id')->on('med_configuraciones_examenes_campos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('configuracion_examen_campo_id', 'fk_config_exam')->references('id')->on('med_configuraciones_examenes_campos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('examen_solicitado_id');
             $table->foreign('examen_solicitado_id')->references('id')->on('med_examenes_solicitados')->onDelete('cascade')->onUpdate('cascade');

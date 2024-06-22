@@ -49,7 +49,7 @@ class User extends Authenticatable implements Auditable
 
     //Roles de administración
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
-    const ROL_ADMINISTRADOR_VEHICULOS = 'ADMINISTRADOR VEHICULOS';
+    const ROL_ADMINISTRADOR_VEHICULOS = 'ADMINISTRADOR_VEHICULOS';
     const ROL_ADMINISTRADOR_TICKETS_1 = 'ADMINISTRADOR TICKETS 1';
     const ROL_ADMINISTRADOR_TICKETS_2 = 'ADMINISTRADOR TICKETS 2';
     const ROL_ADMINISTRADOR_SISTEMA = 'ADMINISTRADOR SISTEMA';
@@ -58,24 +58,26 @@ class User extends Authenticatable implements Auditable
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
     const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
     const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
-    const CHOFER = 'CHOFER';
-
+    
     const GERENCIA = 'GERENCIA';
     const JEFE_TECNICO = 'JEFE TECNICO';
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
-
+    
     // Modulo medico
     const ROL_MEDICO = 'MEDICO';
     //ventas claro
     const JEFE_VENTAS = 'JEFE_VENTAS';
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     const VENDEDOR = 'VENDEDOR';
-
+    
     //Fondos Rotativos
     const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
-
-
+    
+    // Modulo Vehiculos
+    const CHOFER = 'CHOFER';
+    const MECANICO_GENERAL = 'MECANICO_GENERAL';
+    
 
     /**
      * The attributes that are mass assignable.

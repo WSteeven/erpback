@@ -4,25 +4,31 @@ namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\FichaPreocupacionalRequest;
+use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\Medico\ConsultaMedicaResource;
 use App\Http\Resources\Medico\FichaPreocupacionalResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\Medico\AccidenteEnfermedadLaboral;
 use App\Models\Medico\AntecedentePersonal;
+use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\ConsultaMedica;
 use App\Models\Medico\FichaPreocupacional;
 use App\Models\Medico\ProfesionalSalud;
 use App\Models\Medico\RegistroEmpleadoExamen;
+use App\Models\Medico\ResultadoExamen;
+use App\Models\Medico\SolicitudExamen;
 use App\Models\Medico\TipoAptitudMedicaLaboral;
 use App\Models\Medico\TipoEvaluacionMedicaRetiro;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\FichaPreocupacionalService;
+use Src\App\Medico\SolicitudExamenService;
 use Src\Shared\Utils;
 
 class FichaPreocupacionalController extends Controller
@@ -116,12 +122,14 @@ class FichaPreocupacionalController extends Controller
         ]);
 
         $consulta_medica = ConsultaMedica::where('registro_empleado_examen_id', request('registro_empleado_examen_id'))->first();
+        $cargo_id = RegistroEmpleadoExamen::find(request('registro_empleado_examen_id'))->empleado->cargo_id;
         // $consulta_medica = new ConsultaMedicaResource($consulta_medica);
 
         $modelo = [
             'motivo_consulta' => 'Ficha preocupacional',
             'recomendaciones_tratamiento' => $consulta_medica?->receta->rp . '/' . $consulta_medica?->receta->prescripcion,
             'enfermedad_actual' => $consulta_medica?->diagnosticosCitaMedica->map(fn ($diagnostico) => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad)->implode(',', ' '),
+            'cargo' => $cargo_id,
         ];
 
         return response()->json(compact('modelo'));
@@ -134,6 +142,7 @@ class FichaPreocupacionalController extends Controller
         $empleado = Empleado::find($ficha_preocupacional->registroEmpleadoExamen->empleado_id);
         $profesionalSalud = ProfesionalSalud::find($ficha_preocupacional->profesional_salud_id);
         $idEmpleado = $empleado->id;
+        $registro_empleado_examen_id = $ficha_preocupacional->registro_empleado_examen_id;
 
         $respuestasTiposEvaluacionesMedicasRetiros = [
             ['SI', 'NO'],
@@ -141,13 +150,19 @@ class FichaPreocupacionalController extends Controller
             ['SI', 'NO', 'NO APLICA'],
         ];
 
-        $consultasMedicas = ConsultaMedica::whereHas('registroEmpleadoExamen', function ($query) use ($idEmpleado) {
+        // Historial
+        /* $consultasMedicas = ConsultaMedica::whereHas('registroEmpleadoExamen', function ($query) use ($idEmpleado) {
             $query->where('empleado_id', $idEmpleado);
         })->orWhereHas('citaMedica', function ($query) use ($idEmpleado) {
             $query->where('paciente_id', $idEmpleado);
-        })->latest()->get();
+        })->latest()->get(); */
 
-        $consultasMedicas = $consultasMedicas->map(function ($consulta) {
+        // Solo de la ficha actual
+        $consultasMedicas = ConsultaMedica::where('registro_empleado_examen_id', $registro_empleado_examen_id)->latest()->get();
+
+        Log::channel('testing')->info('Log', ['empleado', $empleado]);
+
+        $consultasMedicasMapeado = $consultasMedicas->map(function ($consulta) {
             return [
                 'observacion' => $consulta->observacion,
                 'diagnosticos' => $consulta->diagnosticosCitaMedica->map(function ($diagnostico) {
@@ -188,7 +203,9 @@ class FichaPreocupacionalController extends Controller
 
         // $ficha['tipos_aptitudes_medicas_laborales'] = $tipos_aptitudes_medicas_laborales;
 
-        $ficha['consultas_medicas'] = $consultasMedicas;
+        $ficha['consultas_medicas'] = $consultasMedicasMapeado;
+        $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : '';
+        $ficha['resultados_examenes'] = $this->consultarResultadosExamenes($registro_empleado_examen_id);
         $ficha['observaciones_aptitud_medica'] = 'observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica';
 
         $ficha['accidentes_trabajo'] = [
@@ -205,13 +222,13 @@ class FichaPreocupacionalController extends Controller
             'fecha' => Carbon::parse('2024-03-24'),
         ];
 
+        $ficha['observaciones_examen_fisico_regional'] = $this->mapearObservacionesExamenFisicoRegional($ficha['examenes_fisicos_regionales']); //'observaciones_examen_fisico_regional observaciones_examen_fisico_regional observaciones_examen_fisico_regional';
         $ficha['examenes_fisicos_regionales'] = $ficha['examenes_fisicos_regionales']->pluck('categoria_examen_fisico_id')->toArray();
-        $ficha['observaciones_examen_fisico_regional'] = 'observaciones_examen_fisico_regional observaciones_examen_fisico_regional observaciones_examen_fisico_regional';
 
         $datos = [
             'ficha_preocupacional' => $ficha,
             'configuracion' => $configuracion,
-            'empleado' => $empleado,
+            'empleado' => new EmpleadoResource($empleado),
             'profesionalSalud' => $profesionalSalud,
             'tipo_proceso_examen' => $ficha_preocupacional->registroEmpleadoExamen->tipo_proceso_examen,
             'tipos_aptitudes_medicas_laborales' => $tipos_aptitudes_medicas_laborales,
@@ -232,5 +249,54 @@ class FichaPreocupacionalController extends Controller
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'));
         }
+    }
+
+    private function consultarResultadosExamenes(int $registro_empleado_examen_id)
+    {
+        $examenes_solicitados = collect([]);
+        $solicitudesExamenes = SolicitudExamen::where('registro_empleado_examen_id', $registro_empleado_examen_id)->where('estado_solicitud_examen', SolicitudExamen::SOLICITADO)->latest()->get();
+        $resultadosExamenesRegistrados = $this->consultarResultadosExamenesRegistrados($registro_empleado_examen_id);
+        Log::channel('testing')->info('Log', ['resultadosExamenesRegistrados', $resultadosExamenesRegistrados]);
+
+        foreach ($solicitudesExamenes as $solicitudExamen) {
+            foreach ($solicitudExamen->examenesSolicitados as $examenSolicitado) {
+                // Log::channel('testing')->info('Log', ['consultarResultadosExamenes', $examenSolicitado->examen->nombre]);
+                $examenes_solicitados->push([
+                    'examen' => $examenSolicitado->examen->nombre,
+                    'fecha_asistencia' => Carbon::parse($examenSolicitado->fecha_hora_asistencia)->format('Y-m-d'),
+                    'resultados' => $this->filtrarResultadosExamenesRegistradosPorIdExamenSolicitado($resultadosExamenesRegistrados, $examenSolicitado->id),
+                ]);
+            }
+        }
+
+        Log::channel('testing')->info('Log', ['examenes_solicitados', $examenes_solicitados]);
+        return $examenes_solicitados;
+    }
+
+    private function consultarResultadosExamenesRegistrados(int $registro_empleado_examen_id)
+    {
+        $solicitudExamenService = new SolicitudExamenService();
+        $ids_examenes_solicitados = $solicitudExamenService->obtenerIdsExamenesSolicitados($registro_empleado_examen_id);
+
+        $results = ResultadoExamen::ignoreRequest(['campos', 'registro_empleado_examen_id'])->filter()->whereIn('examen_solicitado_id', $ids_examenes_solicitados)->get();
+        return $results;
+    }
+
+    private function filtrarResultadosExamenesRegistradosPorIdExamenSolicitado(Collection $resultadosExamenesRegistrados, int $examen_solicitado_id)
+    {
+        return $resultadosExamenesRegistrados->filter(fn ($resultado_examen_registrado) => $resultado_examen_registrado->examen_solicitado_id == $examen_solicitado_id)->map(fn ($resultado_examen_registrado) => [
+            'resultado' => $resultado_examen_registrado->resultado,
+            'configuracion_examen_campo' => $resultado_examen_registrado->configuracionExamenCampo->campo,
+            'unidad_medida' => $resultado_examen_registrado->configuracionExamenCampo->unidad_medida,
+            'observaciones' => $resultado_examen_registrado->observaciones,
+        ]);
+    }
+
+    private function mapearObservacionesExamenFisicoRegional($observaciones_examen_fisico_regional)
+    {
+        return $observaciones_examen_fisico_regional->map(fn ($item) => [
+            'categoria' => CategoriaExamenFisico::find($item['categoria_examen_fisico_id'])->nombre,
+            'observacion' => $item['observacion'],
+        ]); //->toArray();
     }
 }

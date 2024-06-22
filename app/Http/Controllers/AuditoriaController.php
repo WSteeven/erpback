@@ -26,11 +26,17 @@ class AuditoriaController extends Controller
                     $fecha_fin
                 ]
             )->orderBy('updated_at', 'desc')->get();
+        // $modelosAfectados = $results->unique('auditable_type')->pluck('auditable_type')->toArray();
+        // $modelos = array_map(function ($model) {
+        //     return class_basename($model);
+        // }, $modelosAfectados);
 
         // Log::channel('testing')->info('Log', ['Empleado audits', $results]);
+        // Log::channel('testing')->info('Log', ['Modelos', $modelos]);
 
         $results = AuditResource::collection($results);
 
+        // return response()->json(compact('results', 'modelos'));
         return response()->json(compact('results'));
     }
 }

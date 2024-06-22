@@ -17,6 +17,7 @@ use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
 use App\Http\Controllers\Medico\ConsultaMedicaController;
 use App\Http\Controllers\Medico\CuestionarioController;
+use App\Http\Controllers\Medico\CuestionarioPublicoController;
 use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\Medico\FactorRiesgoController;
 use App\Http\Controllers\Medico\FichaAptitudController;
 use App\Http\Controllers\Medico\FichaPeriodicaController;
 use App\Http\Controllers\Medico\FichaPreocupacionalController;
+use App\Http\Controllers\Medico\FichaReintegroController;
 use App\Http\Controllers\Medico\FichaRetiroController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LaboratorioClinicoController;
@@ -54,6 +56,7 @@ use App\Http\Controllers\Medico\TipoAntecedenteController;
 use App\Http\Controllers\Medico\TipoAntecedenteFamiliarController;
 use App\Http\Controllers\Medico\TipoAptitudController;
 use App\Http\Controllers\Medico\TipoAptitudMedicaLaboralController;
+use App\Http\Controllers\Medico\TipoCuestionarioController;
 use App\Http\Controllers\Medico\TipoEvaluacionController;
 use App\Http\Controllers\Medico\TipoEvaluacionMedicaRetiroController;
 use App\Http\Controllers\Medico\TipoExamenController;
@@ -117,14 +120,17 @@ Route::apiResources(
         'tipos-factores-riesgos' => TipoFactorRiesgoController::class,
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
         'tipos-vacunas' => TipoVacunaController::class,
-        'preguntas' => PreguntaController::class,
+        // 'tipos-cuestionarios' => TipoCuestionarioController::class,
+        // 'preguntas' => PreguntaController::class,
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
+        // 'cuestionarios-publicos' => CuestionarioPublicoController::class,
         'recetas' => RecetaController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
         'regiones-cuerpo' => RegionCuerpoController::class,
         'fichas-periodicas' => FichaPeriodicaController::class,
+        'fichas-reintegro' => FichaReintegroController::class,
         'fichas-preocupacionales' => FichaPreocupacionalController::class,
-        'fichas-retiro' => FichaRetiroController::class,
+        'fichas-retiros' => FichaRetiroController::class,
     ],
     [
         'parameters' => [
@@ -133,6 +139,7 @@ Route::apiResources(
             'tipos-evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
             'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
+            // 'cuestionarios-publicos' => 'cuestionario_publico',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
             'citas-medicas' => 'cita_medica',
             'solicitudes-examenes' => 'solicitud_examen',
@@ -145,13 +152,16 @@ Route::apiResources(
             'tipos-antecedentes' => 'tipo_antecedente',
             'tipos-antecedentes-familiares' => 'tipo_antecedente_familiar',
             'tipos-habitos_toxico' => 'tipo_habito_toxico',
+            // 'tipos-cuestionarios' => 'tipo_cuestionario',
             'fichas-aptitudes' => 'ficha_aptitud',
             'regiones-cuerpo' => 'region_cuerpo',
             'registros-empleados-examene' => 'registro_empleado_examen',
             'religiones' => 'religion',
-            'resultados-examene' => 'resultado_examen',
-            'fichas-periodicas' => 'ficha',
+            'resultados-examenes' => 'resultado_examen',
+            'fichas-periodicas' => 'ficha_periodica',
+            'fichas-reintegro' => 'ficha_reintegro',
             'fichas-preocupacionales' => 'ficha_preocupacional',
+            'fichas-retiros' => 'ficha_retiro',
             'orientaciones-sexuales' => 'orientacion_sexual',
             'identidades-generos' => 'identidad_genero',
             'tipos-habitos-toxicos' => 'tipo_habito_toxico',
@@ -161,13 +171,27 @@ Route::apiResources(
     ]
 );
 
+/***************
+ * Excepto GET
+ ***************/
+// Tipos de cuestionario
+Route::put('medico/tipos-cuestionarios/{tipo_cuestionario}', [TipoCuestionarioController::class, 'update']);
+Route::post('medico/tipos-cuestionarios', [TipoCuestionarioController::class, 'post']);
+// Preguntas
+Route::put('medico/preguntas/{pregunta}', [PreguntaController::class, 'update']);
+Route::post('medico/preguntas', [PreguntaController::class, 'post']);
+
 /********
  * Otros
  ********/
 Route::post('archivo-cie', [CieController::class, 'archivoCie']);
 Route::get('reporte-cuestionario', [CuestionarioController::class, 'reportesCuestionarios']);
-Route::get('imprimir-cuestionario', [CuestionarioController::class, 'imprimirCuestionario']);
+Route::get('reporte-cuestionario-publico', [CuestionarioController::class, 'reportesCuestionariosPublicos']);
+// Route::get('imprimir-cuestionario', [CuestionarioController::class, 'imprimirCuestionario']);
 Route::get('ficha-preocupacional-informacion-defecto', [FichaPreocupacionalController::class, 'consultarInformacionDefectoFicha']);
+Route::get('ficha-periodica-informacion-defecto', [FichaPeriodicaController::class, 'consultarInformacionDefectoFicha']);
+Route::get('ficha-reintegro-informacion-defecto', [FichaReintegroController::class, 'consultarInformacionDefectoFicha']);
+Route::get('ficha-retiro-informacion-defecto', [FichaRetiroController::class, 'consultarInformacionDefectoFicha']);
 
 /************************************
  * Cambiar estados de citas medicas
@@ -191,7 +215,9 @@ Route::post('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenCon
  * Imprimir PDFs
  *****************/
 Route::get('fichas-aptitudes/imprimir/{ficha_aptitud}', [FichaAptitudController::class, 'imprimirPDF']);
-Route::get('fichas-retiros/imprimir', [FichaRetiroController::class, 'imprimirPDF']);
 Route::get('fichas-preocupacionales/imprimir/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'imprimirPDF']);
+Route::get('fichas-periodicas/imprimir/{ficha_periodica}', [FichaPeriodicaController::class, 'imprimirPDF']);
+Route::get('fichas-reintegro/imprimir/{ficha_reintegro}', [FichaReintegroController::class, 'imprimirPDF']);
+Route::get('fichas-retiros/imprimir/{ficha_retiro}', [FichaRetiroController::class, 'imprimirPDF']);
 
 Route::put('resultados-examenes', [ResultadoExamenController::class, 'multipleUpdate']);

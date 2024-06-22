@@ -37,7 +37,7 @@ class ArchivoService
             $results =  $entidad->archivos()->get();
             return $results;
         } catch (Throwable $th) {
-            Log::channel('testing')->info('Log', ['Error en el listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['Error en el metodo listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
             throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine(), $th->getCode());
         }
     }

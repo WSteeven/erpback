@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Http\Resources\RecursosHumanos\EmpleadoTipoDiscapacidadPorcentajeResource;
+use App\Models\Empleado;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -32,7 +34,7 @@ class EmpleadoResource extends JsonResource
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'jefe_id' => $this->jefe_id,
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
-            'edad' => $this->obtenerEdad(),
+            'edad' => Empleado::obtenerEdad($this),
             // 'nombre_canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
             'cargo' => $this->cargo?->nombre,
@@ -59,17 +61,26 @@ class EmpleadoResource extends JsonResource
             'observacion' => $this->observacion,
             'esta_en_rol_pago' => $this->esta_en_rol_pago,
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
-            'familiares' => $this->familiares_info,
+            'familiares' => $this->familiares,
             'num_cuenta' => $this->num_cuenta_bancaria,
             'salario' => $this->salario,
             'supa' => $this->supa,
             'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
             'direccion' => $this->direccion,
             'discapacidades' => $this->tiposDiscapacidades,
+            'autoidentificacion_etnica' => $this->autoidentificacion_etnica,
+            'trabajador_sustituto' => $this->trabajador_sustituto,
+            'orientacion_sexual_info' => $this->orientacionSexual,
+            'orientacion_sexual' => $this->orientacion_sexual_id,
+            'identidad_genero' => $this->identidad_genero_id,
+            'identidad_genero_info' => $this->identidadGenero,
+            'religion' => $this->religion_id,
+            'religion_info' => $this->religion
 
         ];
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
+            $modelo['jefe_inmediato'] = Empleado::extraerNombresApellidos($this->jefe);
             $modelo['usuario'] = $this->user->name;
             $modelo['canton'] = $this->canton_id;
             $modelo['nombre_canton'] = $this->canton?->canton;
@@ -86,7 +97,7 @@ class EmpleadoResource extends JsonResource
             $modelo['salario'] = $this->salario;
             $modelo['num_cuenta'] = $this->num_cuenta_bancaria;
             $modelo['banco'] = $this->banco;
-            $modelo['banco_info'] = $this->banco_info ? $this->banco_info->nombre : null;
+            $modelo['banco_info'] = $this->bancoInfo ? $this->bancoInfo->nombre : null;
             $modelo['fecha_ingreso'] = $this->fecha_ingreso;
             $modelo['antiguedad'] = $this->antiguedad($this->fecha_ingreso);
             $modelo['fecha_salida'] = $this->fecha_salida;
@@ -103,6 +114,7 @@ class EmpleadoResource extends JsonResource
             $modelo['tipo_contrato_info'] = $this->tipoContrato ? $this->tipoContrato->nombre : null;
             $modelo['genero'] = $this->genero;
             $modelo['realiza_factura'] = $this->realiza_factura;
+            $modelo['conductor'] = $this->conductor;
             $modelo['discapacidades'] = $this->obtenerDiscapacidades($this->tiposDiscapacidades);
         }
 
@@ -142,11 +154,12 @@ class EmpleadoResource extends JsonResource
         return $diffYears . ' Años ' . $diffMonths . ' Meses ' . $diffDays . ' Días';
     }
 
-    public function obtenerDiscapacidades(Collection $tiposDiscapacidades) {
+    public function obtenerDiscapacidades(Collection $tiposDiscapacidades)
+    {
         $tiposDiscapacidades = $tiposDiscapacidades->map(function ($object) {
             $object['empleado_id'] = $object['pivot']['empleado_id'];
-            $object['tipo_discapacidad']=$object['pivot']['tipo_discapacidad_id'] ;
-            $object['porcentaje']= $object['pivot']['porcentaje'];
+            $object['tipo_discapacidad'] = $object['pivot']['tipo_discapacidad_id'];
+            $object['porcentaje'] = $object['pivot']['porcentaje'];
             unset($object['pivot']);
             unset($object['nombre']);
             unset($object['created_at']);
@@ -156,7 +169,7 @@ class EmpleadoResource extends JsonResource
         return $tiposDiscapacidades;
     }
 
-    private function obtenerEdad()
+    /* public static function obtenerEdad($empleado)
     {
         // Crear un objeto Carbon a partir de la fecha de nacimiento
         // $fechaNacimiento = Carbon::createFromFormat('Y-m-d', $fechaNacimiento);
@@ -165,8 +178,8 @@ class EmpleadoResource extends JsonResource
         $fechaActual = Carbon::now();
 
         // Calcular la diferencia de años
-        $edad = $fechaActual->diffInYears($this->fecha_nacimiento);
+        $edad = $fechaActual->diffInYears($empleado->fecha_nacimiento);
 
         return $edad;
-    }
+    } */
 }

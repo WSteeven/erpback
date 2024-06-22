@@ -25,8 +25,8 @@ class AntecedenteFamiliar extends Model implements Auditable
     {
         return $this->hasOne(TipoAntecedenteFamiliar::class);
     }
-    public function antecedentable(){
+    public function antecedentable()
+    {
         return $this->morphTo();
     }
 }
-

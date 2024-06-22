@@ -28,4 +28,14 @@ class ConfiguracionExamenCampo extends Model implements Auditable
     {
         return $this->hasOne(ConfiguracionExamenCategoria::class, 'id', 'configuracion_examen_categoria_id');
     }
+
+    public function getRangoInferiorFormateadoAttribute()
+    {
+        return number_format($this->attributes['rango_inferior'], 2);
+    }
+
+    public function getRangoSuperiorFormateadoAttribute()
+    {
+        return number_format($this->attributes['rango_superior'], 2);
+    }
 }

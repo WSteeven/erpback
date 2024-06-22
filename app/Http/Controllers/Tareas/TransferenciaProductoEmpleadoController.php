@@ -10,7 +10,6 @@ use App\Models\Tareas\TransferenciaProductoEmpleado;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
 use App\Http\Controllers\Controller;
 use App\Models\Autorizacion;
-use App\Models\MaterialEmpleadoTarea;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -130,7 +129,7 @@ class TransferenciaProductoEmpleadoController extends Controller
                 $emisor_id = $transferencia_producto_empleado->empleado_origen_id;
                 $destinatario_id = $transferencia_producto_empleado->empleado_destino_id;
 
-                if ($emisor_id !== $destinatario_id) event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
+                event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
             }
 
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());

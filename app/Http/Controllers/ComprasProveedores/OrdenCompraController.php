@@ -130,14 +130,14 @@ class OrdenCompraController extends Controller
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
-            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
-            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            // $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            // $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
+            // $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
+            // $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            // $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+            // if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
+            // if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+            // if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             // Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
             // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);

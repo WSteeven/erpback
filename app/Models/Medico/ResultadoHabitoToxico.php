@@ -22,6 +22,11 @@ class ResultadoHabitoToxico extends Model implements Auditable
         'habito_toxicable_id',
         'habito_toxicable_type',
     ];
+
+    protected $casts = [
+        'ex_consumidor' => 'boolean',
+    ];
+
     public function tipoHabitoToxico()
     {
         return $this->hasOne(TipoHabitoToxico::class, 'id', 'tipo_habito_toxico_id');

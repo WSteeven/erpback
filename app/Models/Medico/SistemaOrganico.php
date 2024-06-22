@@ -13,6 +13,17 @@ class SistemaOrganico extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
 
+    const PIEL_ANEXOS = 1;
+    const ORGANOS_DE_LOS_SENTIDOS = 2;
+    const RESPIRATORIO = 3;
+    const CARDIOVASCULAR = 4;
+    const DIGESTIVO = 5;
+    const GENITO_URINARIO = 6;
+    const MUSCULO_ESQUELETICO = 7;
+    const ENDOCRINO = 8;
+    const HEMOLINFATICO = 9;
+    const NERVIOSO = 10;
+
     protected $table = 'med_sistemas_organicos';
     protected $fillable = [
         'nombre',

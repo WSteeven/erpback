@@ -15,12 +15,18 @@ return new class extends Migration
     {
         Schema::create('med_cuestionarios', function (Blueprint $table) {
             $table->id();
+
+            $table->text('respuesta_texto')->nullable();
+
             $table->unsignedBigInteger('pregunta_id');
             $table->foreign('pregunta_id')->on('med_preguntas')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->unsignedBigInteger('respuesta_id')->nullable();
             $table->foreign('respuesta_id')->on('med_respuestas')->references('id')->nullOnDelete()->cascadeOnUpdate();
+
             $table->unsignedBigInteger('tipo_cuestionario_id');
             $table->foreign('tipo_cuestionario_id')->on('med_tipos_cuestionarios')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            
             $table->timestamps();
         });
     }

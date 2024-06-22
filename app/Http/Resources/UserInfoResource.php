@@ -31,6 +31,7 @@ class UserInfoResource extends JsonResource
             'fecha_ingreso' =>  $this->empleado != null ? $empleado->fecha_ingreso : '',
             'fecha_nacimiento' =>  $this->empleado != null ? $empleado->fecha_nacimiento : '',
             'jefe_id' => $this->empleado != null ? $empleado->jefe_id : 0,
+            'jefe_inmediato' => Empleado::extraerNombresApellidos($empleado->jefe),
             'usuario_id' => $this->id,
             'sucursal_id' =>  $this->empleado != null ? $empleado->sucursal_id : '',
             'grupo_id' => $this->empleado != null ? $empleado->grupo_id : 0,
@@ -47,6 +48,8 @@ class UserInfoResource extends JsonResource
             'tipo_sangre' => $empleado->tipo_sangre,
             'area_info' =>  $empleado->area?->nombre,
             'nombre_cargo' => $empleado->cargo?->nombre,
+            'genero' => $empleado->genero,
+            'edad' => Empleado::obtenerEdad($empleado),
         ];
     }
 }

@@ -36,7 +36,7 @@ class EsquemaVacunaController extends Controller
         else $results = EsquemaVacuna::ignoreRequest(['campos'])->filter()->get();
 
         Log::channel('testing')->info('Log', ['results', $results]);
-        $results = $results->map(function ($esquema) {
+        /* $results = $results->map(function ($esquema) {
             return [
                 'tipo_vacuna' => $esquema->tipoVacuna?->nombre,
                 'dosis_totales' => $esquema->tipoVacuna?->dosis_totales,
@@ -50,8 +50,8 @@ class EsquemaVacunaController extends Controller
                 'es_dosis_unica' => $esquema->es_dosis_unica,
                 'fecha_caducidad' => Carbon::parse($esquema->fecha_caducidad)->format('Y-m-d'),
             ];
-        });
-        // $results = EsquemaVacunaResource::collection($results);
+        }); */
+        $results = EsquemaVacunaResource::collection($results);
 
         // $results = EsquemaVacuna::where('pacie
         return response()->json(compact('results'));

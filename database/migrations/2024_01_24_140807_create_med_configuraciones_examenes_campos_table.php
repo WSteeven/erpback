@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('campo');
             $table->string('unidad_medida');
-            $table->integer('rango_superior');
-            $table->integer('rango_inferior');
+            $table->float('rango_superior');
+            $table->float('rango_inferior');
             $table->unsignedBigInteger('configuracion_examen_categoria_id');
 
             // Foreign keys

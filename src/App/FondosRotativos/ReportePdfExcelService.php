@@ -59,7 +59,7 @@ class ReportePdfExcelService
                     break;
             }
         } catch (Throwable $th) {
-            Log::channel('testing')->info('Log', ['Error en el listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['Error en imprimir_reporte', $th->getMessage(), $th->getCode(), $th->getLine()]);
             throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine());
         }
     }

@@ -10,7 +10,9 @@ use App\Models\Empleado;
 use App\Models\Medico\Cuestionario;
 use App\Models\Medico\Pregunta;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
+use App\Models\Medico\TipoCuestionario;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
@@ -18,12 +20,16 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\CuestionarioPisicosocialService;
+use Src\App\Medico\ReporteCuestionarioInternoService;
+use Src\App\Medico\ReporteCuestionarioPublicoService;
 use Src\Shared\Utils;
 
 
 class CuestionarioController extends Controller
 {
     private $entidad = 'Cuestionario';
+    private ReporteCuestionarioInternoService $cuestionario_service;
+    private ReporteCuestionarioPublicoService $reporte_cuestionario_publico_service;
 
     public function __construct()
     {
@@ -31,6 +37,9 @@ class CuestionarioController extends Controller
         $this->middleware('can:puede.crear.cuestionarios')->only('store');
         $this->middleware('can:puede.editar.cuestionarios')->only('update');
         $this->middleware('can:puede.eliminar.cuestionarios')->only('destroy');
+
+        $this->cuestionario_service = new ReporteCuestionarioInternoService();
+        $this->reporte_cuestionario_publico_service = new ReporteCuestionarioPublicoService();
     }
     /**
      * Display a listing of the resource.
@@ -62,34 +71,6 @@ class CuestionarioController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error en el servidor' => ['Mensaje: ' . $e->getMessage() . ' - Linea: ' . $e->getLine()],
-            ]);
-            // return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
-        }
-    }
-
-    public function reportesCuestionarios(Request $request)
-    {
-        try {
-            $results = [];
-            $empleados = Empleado::habilitado()
-                ->where('salario', '!=', 0)
-                ->orderBy('apellidos', 'asc')
-                ->with('canton', 'area')
-                ->get();
-
-            $results = CuestionarioEmpleadoResource::collection($empleados);
-
-            if ($request->imprimir) {
-                $preguntas = Pregunta::all(['id', 'pregunta', 'codigo']);
-                $reportes_empaquetado = RespuestaCuestionarioEmpleado::empaquetar($empleados);
-                $reporte = compact('preguntas', 'reportes_empaquetado');
-                return CuestionarioPisicosocialService::imprimir_reporte($reporte);
-            }
-
-            return response()->json(compact('results'));
-        } catch (Exception $e) {
             throw ValidationException::withMessages([
                 'Error en el servidor' => ['Mensaje: ' . $e->getMessage() . ' - Linea: ' . $e->getLine()],
             ]);
@@ -157,43 +138,19 @@ class CuestionarioController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function imprimirCuestionario()
+
+    /* public function imprimirCuestionario()
     {
-        // Crear el contenido del archivo .txt
-        $empleados = Empleado::habilitado()
-            ->where('salario', '!=', 0)
-            ->orderBy('apellidos', 'asc')
-            ->with('canton', 'area')
-            ->get();
-        $reportes_empaquetado = RespuestaCuestionarioEmpleado::empaquetar($empleados);
-        $datos = CuestionarioPisicosocialService::mapear_datos($reportes_empaquetado);
-        $contenido = "";
-        $contenido .= "a.  Género \n";
-        $contenido .= "> Mujer  \n";
-        $contenido .= "> Hombre  \n";
-        $contenido .= "b.  Antigüedad en el puesto \n";
-        $contenido .= ">Menor a un año  \n";
-        $contenido .= ">Entre 1 y 2 años  \n";
-        $contenido .= ">Entre 2 y 3 años  \n";
-        $contenido .= ">Entre 3 y 4 años  \n";
-        $contenido .= ">Entre 4 y 5 años  \n";
-        $contenido .= ">Entre 5 y 6 años  \n";
-        $contenido .= ">Entre 6 y 7 años  \n";
-        $contenido .= ">Entre 7 y 8 años  \n";
-        $contenido .= ">Entre 8 y 9 años  \n";
-        $contenido .= ">Entre 9 y 10 años  \n";
-        $contenido .= ">Mayor a 10 años   \n";
-        $contenido .= "****************************************   \n";
-        foreach ($datos as $dato) {
-            $contenido .= implode("", $dato) . "\n";
-        }
-        // Generar el nombre del archivo
-        $nombreArchivo = 'respuestas_cuestionario.txt';
-        // Crear el archivo .txt
-        $archivo = fopen($nombreArchivo, 'w');
-        fwrite($archivo, $contenido);
-        fclose($archivo);
-        // Enviar el archivo como respuesta HTTP
-        return Response::download($nombreArchivo)->deleteFileAfterSend(true);
+        return $this->cuestionario_service->imprimirCuestionarioFPSICO();
+    } */
+
+    public function reportesCuestionarios(Request $request)
+    {
+        return $this->cuestionario_service->reportesCuestionarios($request);
+    }
+
+    public function reportesCuestionariosPublicos(Request $request)
+    {
+        return $this->reporte_cuestionario_publico_service->reportesCuestionarios($request);
     }
 }

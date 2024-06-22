@@ -33,4 +33,11 @@ class LaboratorioClinicoRequest extends FormRequest
             'canton_id' => 'required|exists:cantones,id',
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'canton_id' => $this->canton,
+        ]);
+    }
 }

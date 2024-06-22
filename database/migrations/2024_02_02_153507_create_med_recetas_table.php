@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('med_recetas', function (Blueprint $table) {
             $table->id();
 
-            $table->string('rp');
-            $table->string('prescripcion');
+            $table->string('rp')->nullable();
+            $table->string('prescripcion')->nullable();
 
             // Foreign leys
             $table->unsignedBigInteger('consulta_medica_id');

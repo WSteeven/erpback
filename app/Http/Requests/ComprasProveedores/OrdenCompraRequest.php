@@ -27,20 +27,20 @@ class OrdenCompraRequest extends FormRequest
     {
         return [
             'codigo' => 'required|string',
-            'solicitante' => 'required|numeric|exists:empleados,id',
-            'proveedor' => 'nullable|numeric|exists:proveedores,id',
-            'autorizador' => 'required|numeric|exists:empleados,id',
-            'autorizacion' => 'required|numeric|exists:autorizaciones,id',
-            'preorden' => 'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
-            'pedido' => 'nullable|sometimes|numeric|exists:pedidos,id',
-            'tarea' => 'nullable|sometimes|numeric|exists:tareas,id',
+            'solicitante_id' => 'required|numeric|exists:empleados,id',
+            'proveedor_id' => 'nullable|numeric|exists:proveedores,id',
+            'autorizador_id' => 'required|numeric|exists:empleados,id',
+            'autorizacion_id' => 'required|numeric|exists:autorizaciones,id',
+            'preorden_id' => 'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
+            'pedido_id' => 'nullable|sometimes|numeric|exists:pedidos,id',
+            'tarea_id' => 'nullable|sometimes|numeric|exists:tareas,id',
             'observacion_aut' => 'nullable|sometimes|string',
             'observacion_est' => 'nullable|sometimes|string',
             'descripcion' => 'required|string',
             'forma' => 'nullable|string',
             'tiempo' => 'nullable|string',
             'fecha' => 'required|string',
-            'estado' => 'nullable|numeric|exists:estados_transacciones_bodega,id',
+            'estado_id' => 'nullable|numeric|exists:estados_transacciones_bodega,id',
             'categorias' => 'sometimes|nullable',
             'iva' => 'required|numeric',
             'listadoProductos.*.cantidad' => 'required',
@@ -56,7 +56,7 @@ class OrdenCompraRequest extends FormRequest
         if ($this->autorizacion === null) $this->merge(['autorizacion' => 1, 'estado' => 1]);
         if ($this->autorizacion === 1) $this->merge(['estado' => 1]);
 
-        if ($this->completada) $this->merge(['estado' => 2, 'revisada_compras' => true]);
+        if ($this->completada) $this->merge(['autorizacion' => 2, 'estado' => 2, 'revisada_compras' => true]);
 
         // Modificar los datos cuando es actualizar
         // if ($this->route()->getActionMethod() == 'update') {

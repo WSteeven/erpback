@@ -34,9 +34,9 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
-        'etapas' =>EtapaController::class,
-        'subcentros-costos' =>SubCentroCostoController::class,
-        'centros-costos' =>CentroCostoController::class,
+        'etapas' => EtapaController::class,
+        'subcentros-costos' => SubCentroCostoController::class,
+        'centros-costos' => CentroCostoController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
@@ -72,7 +72,7 @@ Route::apiResources(
             'rutas-tareas' => 'ruta_tarea',
             'archivos-seguimientos' => 'archivo_seguimiento',
             'actividades-realizadas-seguimientos-subtareas' => 'actividad_realizada',
-            'transferencias-productos-empleados' => 'transferencia_producto_empleado'
+            'transferencias-productos-empleados' => 'transferencia_producto_empleado',
         ],
     ]
 );

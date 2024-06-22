@@ -2,6 +2,7 @@
 
 namespace Src\App\RegistroTendido;
 
+use Illuminate\Support\Facades\Log;
 use Src\Config\RutasStorage;
 use Intervention\Image\Facades\Image;
 use Src\Shared\Utils;
@@ -37,6 +38,7 @@ class GuardarImagenIndividual
 
             return $ruta_relativa;
         } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['TH', Utils::obtenerMensajeError($th, 'GuardarImagenIndividual')]);
             return null;
         }
     }

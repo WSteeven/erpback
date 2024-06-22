@@ -32,7 +32,6 @@ class CitaMedicaController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = CitaMedica::ignoreRequest(['campos'])->filter()->get();
         $results = CitaMedicaResource::collection($results);
         return response()->json(compact('results'));

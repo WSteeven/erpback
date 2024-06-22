@@ -16,18 +16,27 @@ class Cuestionario extends Model implements Auditable
     protected $fillable = [
         'pregunta_id',
         'respuesta_id',
+        'tipo_cuestionario_id',
+        'respuesta_texto',
     ];
 
     public function pregunta()
     {
         return $this->belongsTo(Pregunta::class, 'pregunta_id');
     }
+
     public function respuesta()
     {
         return $this->belongsTo(Respuesta::class, 'respuesta_id');
     }
-    public function respuestasCuestionariosEmpleados(){
+
+    public function respuestasCuestionariosEmpleados()
+    {
         return $this->belongsTo(RespuestaCuestionarioEmpleado::class, 'pregunta_id')->with('cuestionario');
     }
 
+    public function tipoCuestionario()
+    {
+        return $this->belongsTo(TipoCuestionario::class);
+    }
 }

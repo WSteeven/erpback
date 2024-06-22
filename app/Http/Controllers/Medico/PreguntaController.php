@@ -11,22 +11,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Src\App\Medico\PreguntaService;
+use Src\App\Medico\CuestionariosRespondidosService;
 use Src\Shared\Utils;
 
 class PreguntaController extends Controller
 {
     private $entidad = 'Pregunta';
-    private PreguntaService $preguntaService;
+    private CuestionariosRespondidosService $preguntaService;
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.preguntas')->only('index', 'show');
+        // $this->middleware('can:puede.ver.preguntas')->only('index', 'show');
         $this->middleware('can:puede.crear.preguntas')->only('store');
         $this->middleware('can:puede.editar.preguntas')->only('update');
         $this->middleware('can:puede.eliminar.preguntas')->only('destroy');
 
-        $this->preguntaService = new PreguntaService();
+        $this->preguntaService = new CuestionariosRespondidosService();
     }
 
     /**
@@ -36,16 +36,18 @@ class PreguntaController extends Controller
      */
     public function index(Request $request)
     {
-        $empleado_id = Auth::user()->empleado->id;
+        if (Auth::check()) {
 
-        if ($this->preguntaService->empleadoYaLlenoCuestionario($empleado_id)) {
-            throw ValidationException::withMessages([
-                'cuestionario' => ['Ya completaste el cuestionario para éste período.'],
-            ]);
+            $empleado_id = Auth::user()->empleado->id;
+
+            if ($this->preguntaService->empleadoYaLlenoCuestionario($empleado_id, $request->tipo_cuestionario_id)) {
+                throw ValidationException::withMessages([
+                    'cuestionario' => ['Ya completaste el cuestionario para éste período.'],
+                ]);
+            }
         }
 
-        $results = [];
-        $results = Pregunta::ignoreRequest(['campos','tipo_cuestionario_id'])->filter()->whereHas('cuestionario', function($query) use($request) {
+        $results = Pregunta::ignoreRequest(['campos', 'tipo_cuestionario_id'])->filter()->whereHas('cuestionario', function ($query) use ($request) {
             $query->where('tipo_cuestionario_id', $request->tipo_cuestionario_id);
         })->get();
         $results = PreguntaResource::collection($results);

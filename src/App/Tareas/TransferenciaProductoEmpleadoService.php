@@ -73,12 +73,6 @@ class TransferenciaProductoEmpleadoService
 
         if ($tarea_id) $consulta = $consulta->where('tarea_id', $tarea_id);
 
-        // $sql = $consulta->toSql();
-        // $bin = $consulta->getBindings();
-
-        // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('sql', 'bin'));
-        // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('empleado_id', 'detalle_producto_id', 'proyecto_id', 'etapa_id', 'tarea_id', 'cliente_id'));
-
         return $consulta->first();
     }
 
@@ -89,25 +83,16 @@ class TransferenciaProductoEmpleadoService
             ->where('cliente_id', $cliente_id)
             ->tieneStock();
 
-        // $sql = $consulta->toSql();
-        // $bin = $consulta->getBindings();
-
-        // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('sql', 'bin'));
-        // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('empleado_id', 'detalle_producto_id', 'cliente_id'));
-
         return $consulta->first();
     }
 
     /********************************************************
      * Restar los productos del origen y sumar en el destino
      ********************************************************/
-    public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado, bool $esOrigenStock)
+    public function ajustarValoresProductoOld(TransferenciaProductoEmpleado $transferencia_producto_empleado, bool $esOrigenStock)
     {
         try {
-
-
-            $cliente_id = $transferencia_producto_empleado->cliente_id; // request('cliente');
-            // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ') Cliente: ' . $cliente_id);
+            $cliente_id = $transferencia_producto_empleado->cliente_id; // Trabaja con el cliente de la transferencia
 
             // Origen
             $empleado_origen_id = request('empleado_origen');
@@ -121,35 +106,29 @@ class TransferenciaProductoEmpleadoService
             $etapa_destino_id = request('etapa_destino');
             $tarea_destino_id = request('tarea_destino');
 
-            // tarea solo a tarea 11 preformados -6 =5
-            // 6164 -> jv
             foreach (request('listado_productos') as $producto) {
-                // Restar productos origen
                 $productoOrigen = $esOrigenStock ? $this->buscarProductoStock($empleado_origen_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_origen_id, $producto['id'], $proyecto_origen_id, $etapa_origen_id, $tarea_origen_id, $cliente_id);
 
+                Log::channel('testing')->info('Log', compact('productoOrigen'));
 
+                if ($productoOrigen) { // de aqui
+                    // Restar productos origen
+                    $productoOrigen->cantidad_stock -= $producto['cantidad']; // esto tambien
+                    $productoOrigen->save(); // y aqui
 
-                // Log::channel('testing')->info('Log', compact('productoOrigen'));
-
-                if ($productoOrigen) {
-                    $productoOrigen->cantidad_stock -= $producto['cantidad'];
-                    $productoOrigen->save();
                     // Sumar productos destino
-                    // $productoDestino = $esOrigenStock ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
                     $productoDestino = $esOrigenStock && !$tarea_destino_id ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
 
-                    // SUMAR a destino
+                    // Si se encuentra el producto de destino se suma
                     if ($productoDestino) {
-                        // $mensaje = 'Si se encuentra';
-                        // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('mensaje'));
+                        Log::channel('testing')->info('se encontro el producto destino');
                         $productoDestino->cantidad_stock += $producto['cantidad'];
                         $productoDestino->despachado += $producto['cantidad'];
                         $productoDestino->save();
                     } else {
-                        // $mensaje = 'Si no se encuentra, se crea';
-                        // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('mensaje'));
-
-                        // si el destino es stock
+                        Log::channel('testing')->info('se crea el producto destino ');
+                        // Caso contrario se crea el producto destino
+                        // Si no tiene tarea de destino el destino es stock
                         if (!$tarea_destino_id) {
                             $productoDestino = MaterialEmpleado::create([
                                 'empleado_id' => $empleado_destino_id,
@@ -171,10 +150,43 @@ class TransferenciaProductoEmpleadoService
                             ]);
                         }
                     }
+                } else { // esto tambien
+                    throw new Exception('No existe o no hay stock del producto ' . $producto['descripcion'] . ' del origen seleccionado.'); // esto tambien
+                } // esto tambien
+            }
+        } catch (Exception $e) {
+            throw $e; //ValidationException::withMessages(['error' => $e->getMessage()]);
+        }
+    }
 
-                    // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('productoDestino'));
-                } else {
-                    throw new Exception('No existe o no hay stock del producto ' . $producto['descripcion'] . ' del origen seleccionado.');
+
+    // ---------------------------------------------------------------------------------
+    public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado, bool $esOrigenStock)
+    {
+        try {
+            $cliente_id = $transferencia_producto_empleado->cliente_id; // Trabaja con el cliente de la transferencia
+
+            // Origen
+            $empleado_origen_id = request('empleado_origen');
+            $proyecto_origen_id = request('proyecto_origen');
+            $etapa_origen_id = request('etapa_origen');
+            $tarea_origen_id = request('tarea_origen');
+
+            // Destino
+            $empleado_destino_id = request('empleado_destino');
+            $proyecto_destino_id = request('proyecto_destino');
+            $etapa_destino_id = request('etapa_destino');
+            $tarea_destino_id = request('tarea_destino');
+
+            foreach (request('listado_productos') as $producto) {
+                try {
+                    if ($esOrigenStock) MaterialEmpleado::descargarMaterialEmpleado($producto['id'], $empleado_origen_id, $producto['cantidad'], $cliente_id, null); // -- Es origen stock
+                    else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($producto['id'], $empleado_origen_id, $tarea_origen_id, $producto['cantidad'], $cliente_id); // -- Es origen proyecto o tarea cliente final
+
+                    if (!$tarea_destino_id) MaterialEmpleado::cargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['cantidad'], $cliente_id); // -- Es destino stock
+                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['cantidad'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final   
+                } catch (\Throwable $th) {
+                    throw $th;
                 }
             }
         } catch (Exception $e) {

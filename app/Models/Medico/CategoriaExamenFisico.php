@@ -63,6 +63,6 @@ class CategoriaExamenFisico extends Model implements Auditable
 
     public function region()
     {
-        return $this->belongsTo(RegionCuerpo::class);
+        return $this->belongsTo(RegionCuerpo::class, 'region_cuerpo_id', 'id');
     }
 }
