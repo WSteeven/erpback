@@ -35,6 +35,7 @@ class DetalleProductoRequest extends FormRequest
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
+            'lote' => 'nullable|string|sometimes|unique:detalles_productos',
             'span' => 'nullable|integer|exists:spans,id',
             'tipo_fibra' => 'nullable|integer|exists:tipo_fibras,id',
             'hilos' => 'nullable|integer|exists:hilos,id',
@@ -49,6 +50,12 @@ class DetalleProductoRequest extends FormRequest
 
             'color' => 'sometimes|nullable|string',
             'talla' => 'sometimes|nullable|string',
+            'calibre' => 'sometimes|nullable|string',
+            'peso' => 'sometimes|nullable|string',
+            'dimensiones' => 'sometimes|nullable|string',
+            'permiso' => 'sometimes|nullable|string',
+            'caducidad' => 'sometimes|nullable|string',
+
             'es_fibra' => 'boolean',
             'tipo' => ['sometimes', 'nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
         ];

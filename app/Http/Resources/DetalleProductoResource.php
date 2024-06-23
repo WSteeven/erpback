@@ -30,6 +30,7 @@ class DetalleProductoResource extends JsonResource
             'marca' => $this->marca?->nombre,
             'modelo' => $this->modelo?->nombre,
             'serial' => $this->serial,
+            'lote' => $this->lote,
             'precio_compra' => $this->precio_compra,
             'stock' => $request->stock ? $this->detalle_stock($this->id, $request->sucursal_id)?->cantidad : 0,
 
@@ -57,9 +58,16 @@ class DetalleProductoResource extends JsonResource
             'color' => $this->color,
             'talla' => $this->talla,
             'tipo' => $this->tipo,
+            'calibre' => $this->calibre,
+            'peso' => $this->peso,
+            'dimensiones' => $this->dimensiones,
+            'permiso' => $this->permiso,
+            'caducidad' => $this->caducidad,
+
 
             //variables auxiliares
             'tiene_serial' => is_null($this->serial) ? false : true,
+            'tiene_lote' => is_null($this->lote) ? false : true,
             'es_computadora' => $this->producto->categoria->nombre == 'INFORMATICA' ? true : false,
             'es_fibra' => $this->fibra || $this->es_fibra ? true : false,
             'tiene_precio_compra' => $this->precio_compra > 0 ? true : false,
