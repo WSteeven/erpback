@@ -258,6 +258,7 @@ class SaldoController extends Controller
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
@@ -379,7 +380,7 @@ class SaldoController extends Controller
             $gastos_totales = 0;
             $total = 0;
             $saldo_old = 0;
-            $usuario_nombre='';
+            $usuario_nombre = '';
             $usuario_canton = '';
             switch ($request->tipo_filtro) {
                 case self::PROYECTO:
@@ -580,17 +581,17 @@ class SaldoController extends Controller
                     ->get();
                 $gastos_totales =  $gastos->sum('total');
                 $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->empleado)
-                ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado', Transferencias::APROBADO)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
-            $transferencia =  $transferencias_enviadas->sum('monto');
-            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->empleado)
-                ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado', Transferencias::APROBADO)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
-            $transferencia_recibida = $transferencias_recibidas->sum('monto');
+                    ->with('empleadoRecibe', 'empleadoEnvia')
+                    ->where('estado', Transferencias::APROBADO)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->get();
+                $transferencia =  $transferencias_enviadas->sum('monto');
+                $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->empleado)
+                    ->with('empleadoRecibe', 'empleadoEnvia')
+                    ->where('estado', Transferencias::APROBADO)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->get();
+                $transferencia_recibida = $transferencias_recibidas->sum('monto');
                 $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
                 $empleado = Empleado::where('id', $request->empleado)->first();
@@ -617,7 +618,7 @@ class SaldoController extends Controller
                 'transferencias_recibidas' => $transferencias_recibidas,
             ];
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
-            Log::channel('testing')->info('Log', ['gastos con imagen',count($reportes['gastos']), $reportes]);
+            Log::channel('testing')->info('Log', ['gastos con imagen', count($reportes['gastos']), $reportes]);
             $export_excel = new GastoConsolidadoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimir_reporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
@@ -629,10 +630,10 @@ class SaldoController extends Controller
      * La función `reporteEstadoCuenta` genera un informe consolidado de transacciones financieras para un
      * usuario específico dentro de un rango de fechas determinado.
      *
-     * @param Request request La función `reporteEstadoCuenta` parece generar un informe basado en los
+     * @param Request $request La función `reporteEstadoCuenta` parece generar un informe basado en los
      * datos de la solicitud proporcionados y un tipo de informe. Calcula diversos datos financieros, como
      * saldos, transacciones y gastos de un usuario determinado dentro de un rango de fechas específico.
-     * @param string tipo_reporte Tipo_reporte es un parámetro de cadena que especifica el tipo de informe
+     * @param string $tipo_reporte Tipo_reporte es un parámetro de cadena que especifica el tipo de informe
      * a generar. Podría ser algo como "PDF" o "Excel".
      *
      * @return La función `reporteEstadoCuenta` está devolviendo el resultado de llamar al método
@@ -643,8 +644,11 @@ class SaldoController extends Controller
     private function reporteEstadoCuenta(Request $request, string $tipo_reporte)
     {
         try {
+            // Log::channel('testing')->info('Log', ['reporteEstadoCuenta', $request->all(), $tipo_reporte]);
             $fecha_inicio = $request->fecha_inicio;
             $fecha_fin = $request->fecha_fin;
+            if ($fecha_inicio > $fecha_fin) throw new Exception('La fecha inicial no puede ser superior a la fecha final');
+
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
             $fecha_fin_aux = Carbon::parse($fecha_fin)->addDays(7)->format('Y-m-d');
@@ -654,7 +658,8 @@ class SaldoController extends Controller
             }
             $fecha_anterior =  $fecha->format('Y-m-d');
 
-            $es_nuevo_saldo = SaldoService::existeSaldoNuevaTabla($fecha_inicio, $request->empleado);
+            $es_nuevo_saldo = SaldoService::existeSaldoNuevaTabla($request->empleado);
+            // Log::channel('testing')->info('Log', ['es nuevo saldo', $fecha_anterior, $es_nuevo_saldo, $fecha_inicio, $request->empleado]);
             //Gastos
             $gastos = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'authEspecialUser')
                 ->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
@@ -713,7 +718,8 @@ class SaldoController extends Controller
 
             $saldos_fondos = Saldo::with('saldoable')->where('empleado_id', $request->empleado)->whereBetween('created_at', [$fecha_inicio, $fecha_fin_aux])->get();
             $reportes_unidos_historico = $gastos->merge($transferencias_enviadas)->merge($transferencias_recibidas)->merge($acreditaciones)->merge($ajuste_saldo);
-            $reportes_unidos = $es_nuevo_saldo ? $reportes_unidos = Saldo::empaquetarCombinado($nuevo_elemento, $saldos_fondos, $request->empleado, $fecha_inicio, $fecha_fin) : SaldoGrupo::empaquetarCombinado($nuevo_elemento, $reportes_unidos_historico, $request->empleado);
+            // Log::channel('testing')->info('Log', ['nuevo elemento', $saldo_anterior, $nuevo_elemento]);
+            $reportes_unidos = $es_nuevo_saldo ? Saldo::empaquetarCombinado($nuevo_elemento, $saldos_fondos, $request->empleado, $fecha_inicio, $fecha_fin) : SaldoGrupo::empaquetarCombinado($nuevo_elemento, $reportes_unidos_historico, $request->empleado);
             $sub_total = 0;
             $nuevo_saldo = $ultimo_saldo != null ?  $ultimo_saldo->saldo_actual : 0;
             $empleado = Empleado::where('id', $request->empleado)->first();
@@ -736,7 +742,8 @@ class SaldoController extends Controller
             $export_excel = new EstadoCuentaExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo_reporte, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ['error reporteEstadoCuenta', $e->getMessage(), $e->getLine()]);
+            throw $e;
         }
     }
     /**
