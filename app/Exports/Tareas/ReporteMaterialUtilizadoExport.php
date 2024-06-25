@@ -2,66 +2,41 @@
 
 namespace App\Exports\Tareas;
 
-use Maatwebsite\Excel\Concerns\FromView;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Illuminate\Contracts\View\View;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-// Styles
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithBackgroundColor;
+use Maatwebsite\Excel\Concerns\Exportable;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 use Src\App\Tareas\MaterialesUtilizadosTareaService;
 
-class ReporteMaterialUtilizadoExport implements FromView, WithStyles, ShouldAutoSize
+class ReporteMaterialUtilizadoExport implements WithMultipleSheets, WithBackgroundColor
 {
-    protected $reporte;
-    protected MaterialesUtilizadosTareaService $service;
-    const TOTAL_FILAS_ENCABEZADO = 2;
+    use Exportable;
 
-    function __construct($reporte, $service)
+    protected $reporteTarea;
+    protected $reporteStock;
+    protected $materialesUtilizadosTareaService;
+    protected $materialesUtilizadosStockService;
+
+    public function __construct($reporteTarea, $materialesUtilizadosTareaService, $reporteStock, $materialesUtilizadosStockService)
     {
-        $this->reporte = $reporte;
-        $this->service = $service;
+        $this->reporteTarea = $reporteTarea;
+        $this->reporteStock = $reporteStock;
+        $this->materialesUtilizadosTareaService = $materialesUtilizadosTareaService;
+        $this->materialesUtilizadosStockService = $materialesUtilizadosStockService;
     }
 
-    public function view(): View
+    public function backgroundColor()
     {
-        return view('tareas.excel.reporte_material_utilizado', ['reporte' => $this->reporte, 'service' => $this->service]);
+        return new Color(Color::COLOR_WHITE);
     }
 
-    public function styles(Worksheet $sheet)
+    // Agregar pestañas
+    public function sheets(): array
     {
-        $textoTitulo = [
-            'font' => [
-                'bold' => true,
-                'color' => [
-                    'argb' => '000000',
-                ],
-            ],
-            'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-            ],
-        ];
+        $sheets = [];
+        $sheets[1] = new ReporteMaterialUtilizadoTareaExport($this->reporteTarea, $this->materialesUtilizadosTareaService, 'Proyecto/Etapa/Tarea');
+        $sheets[2] = new ReporteMaterialUtilizadoTareaExport($this->reporteStock, $this->materialesUtilizadosStockService, 'Stock');
 
-        $textCenter = [
-            'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-            ],
-        ];
-
-        $bordeTabla = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    'color' => ['argb' => '000000'],
-                ],
-            ],
-        ];
-
-        $totalFilas = count($this->reporte['todos_materiales']) + self::TOTAL_FILAS_ENCABEZADO;
-
-        $sheet->getStyle('A1:GD2')->applyFromArray($textoTitulo);
-        $sheet->getStyle('A1:GD200')->applyFromArray($textCenter);
-        $sheet->getStyle('A1:GD' . $totalFilas)->applyFromArray($bordeTabla);
-        $sheet->getStyle('A1:GD' . $totalFilas)->getAlignment()->setWrapText(true);
-        $sheet->getStyle('A2:A1000')->getFont()->setBold(true);
+        return $sheets;
     }
 }

@@ -3,11 +3,13 @@
 namespace Src\App\Tareas;
 
 use App\Models\Autorizacion;
+use App\Models\Cliente;
 use App\Models\DetalleDevolucionProducto;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Devolucion;
 use App\Models\Empleado;
+use App\Models\Empresa;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
@@ -33,7 +35,7 @@ class MaterialesUtilizadosTareaService
         $tarea_id = request('tarea_id');
 
         $this->reporte['materiales_utilizados_tarea'] = self::obtenerMaterialesUtilizadosSubtareas($tarea_id);
-        $this->reporte['materiales_utilizados_stock'] = self::obtenerMaterialesUtilizadosStock($tarea_id);
+        // $this->reporte['materiales_utilizados_stock'] = self::obtenerMaterialesUtilizadosStock($tarea_id);
         $this->reporte['transferencias_recibidas'] = self::obtenerMaterialesTransferenciasRecibidas($proyecto_id, $tarea_id);
         $this->reporte['transferencias_enviadas'] = self::obtenerMaterialesTransferenciasEnviadas($proyecto_id, $tarea_id);
         $this->reporte['ingresos_bodega'] = self::obtenerMaterialesIngresadosABodega($proyecto_id, $tarea_id);
@@ -56,6 +58,16 @@ class MaterialesUtilizadosTareaService
             'codigo_egreso' => $item['motivo'] . '-' . $item['egreso_id'],
         ])->unique();
 
+        $this->reporte['encabezado_preingresos'] = collect($this->reporte['preingresos'])->map(fn ($item) => [
+            'id' => $item['egreso_id'],
+            'codigo_ingreso' => $item['motivo'] . '-' . $item['egreso_id'],
+        ])->unique();
+
+        $this->reporte['encabezado_devoluciones'] = collect($this->reporte['devoluciones'])->map(fn ($item) => [
+            'id' => $item['egreso_id'],
+            'codigo_devolucion' => $item['motivo'] . '-' . $item['egreso_id'],
+        ])->unique();
+
         $this->reporte['todos_materiales'] = self::obtenerTodosMateriales();
 
         return $this->reporte;
@@ -76,10 +88,12 @@ class MaterialesUtilizadosTareaService
         })->get();
         Log::channel('testing')->info('Log', ['Transacciones', $transacciones]);
 
-        foreach ($transacciones  as $transaccion) {
+        $results = self::empaquetarDatosTransaccion($transacciones);
+
+        /* foreach ($transacciones  as $transaccion) {
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
             Log::channel('testing')->info('Log', ['Detalles', $transaccion->id, $detalles]);
-        }
+        } */
 
         return $results;
     }
@@ -350,10 +364,11 @@ class MaterialesUtilizadosTareaService
         $row['empleado_id'] = $responsable_id;
         $row['empleado'] = Empleado::extraerNombresApellidos(Empleado::find($responsable_id));
         $row['motivo'] = $motivo;
-        $row['unidad_medida'] = $detalle->producto->unidadMedida->nombre;
+        $row['unidad'] = $detalle->producto->unidadMedida->simbolo;
         $row['detalle'] = $detalle->descripcion;
         $row['detalle_id'] = $detalle->id;
         $row['cliente_id'] = $cliente_id;
+        $row['cliente'] = Cliente::find($cliente_id)->empresa->razon_social;
         $row['cantidad'] = $cantidad;
 
         return $row;
@@ -372,6 +387,44 @@ class MaterialesUtilizadosTareaService
         Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $egreso_id]);
         Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
         return $encontrado ? $encontrado['cantidad'] : '-';
+    }
+
+    public function obtenerCantidadMaterialPorPreingreso($detalle_producto_id, $cliente_id, $preingreso_id)
+    {
+        $encontrado = collect($this->reporte['preingresos'])->first(fn ($material) =>
+        $material['detalle_id'] == $detalle_producto_id
+            && $material['cliente_id'] == $cliente_id
+            && $material['egreso_id'] == $preingreso_id);
+
+        return $encontrado ? $encontrado['cantidad'] : '-';
+    }
+
+    public function obtenerCantidadMaterialPorDevolucion($detalle_producto_id, $cliente_id, $devolucion_id)
+    {
+        $encontrado = collect($this->reporte['devoluciones'])->first(fn ($material) =>
+        $material['detalle_id'] == $detalle_producto_id
+            && $material['cliente_id'] == $cliente_id
+            && $material['egreso_id'] == $devolucion_id);
+
+        return $encontrado ? $encontrado['cantidad'] : '-';
+    }
+
+    public function obtenerSumaMaterialPorEgreso($detalle_producto_id, $cliente_id)
+    {
+        $encontrado = collect($this->reporte['egresos_bodega'])->filter(fn ($material) =>
+        $material['detalle_id'] == $detalle_producto_id
+            && $material['cliente_id'] == $cliente_id);
+
+        return $encontrado ? $encontrado->sum('cantidad') : '-';
+    }
+
+    public function obtenerSumaMaterialPorPreingreso($detalle_producto_id, $cliente_id)
+    {
+        $encontrado = collect($this->reporte['preingresos'])->filter(fn ($material) =>
+        $material['detalle_id'] == $detalle_producto_id
+            && $material['cliente_id'] == $cliente_id);
+
+        return $encontrado ? $encontrado->sum('cantidad') : '-';
     }
 
     public function obtenerCantidadMaterialPorSubtarea($detalle_producto_id, $cliente_id, $subtarea_id)
@@ -432,7 +485,10 @@ class MaterialesUtilizadosTareaService
         $materiales_utilizados_tareas = self::mapearMateriales($this->reporte['materiales_utilizados_tarea']);
         $materiales_transferencias_recibidas = self::mapearMateriales($this->reporte['transferencias_recibidas']);
         $egresos_bodega = self::mapearMateriales($this->reporte['egresos_bodega']);
-        return collect([...$materiales_utilizados_tareas, ...$materiales_transferencias_recibidas, ...$egresos_bodega])->unique();
+        $preingresos = self::mapearMateriales($this->reporte['preingresos']);
+        return collect([...$materiales_utilizados_tareas, ...$materiales_transferencias_recibidas, ...$egresos_bodega, ...$preingresos])->unique(function ($item) {
+            return $item['detalle_id'] . $item['cliente_id'];
+        })->sortBy('detalle');
     }
 
     private function mapearMateriales($array)

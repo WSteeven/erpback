@@ -7,21 +7,26 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Src\App\Tareas\MaterialesUtilizadosTareaService;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\Tareas\MaterialesUtilizadosStockService;
 
 class MaterialUtilizadoController extends Controller
 {
-    private $service;
+    private MaterialesUtilizadosTareaService $materialesUtilizadosTareaService;
+    private MaterialesUtilizadosStockService $materialesUtilizadosStockService;
 
     public function __construct()
     {
-        $this->service = new MaterialesUtilizadosTareaService();
+        $this->materialesUtilizadosTareaService = new MaterialesUtilizadosTareaService();
+        $this->materialesUtilizadosStockService = new MaterialesUtilizadosStockService();
     }
 
-    public function reporte(Request $request)
+    public function reporte()
     {
-        $reporte = $this->service->init();
-        $export = new ReporteMaterialUtilizadoExport($reporte, $this->service);
-        return $reporte;
+        $reporteTarea = $this->materialesUtilizadosTareaService->init();
+        $reporteStock = $this->materialesUtilizadosStockService->init();
+        $export = new ReporteMaterialUtilizadoExport($reporteTarea, $this->materialesUtilizadosTareaService, $reporteStock, $this->materialesUtilizadosStockService);
         return Excel::download($export, 'reporte_materiales_utilizados.xlsx');
+
+        // return $reporte;
     }
 }
