@@ -20,6 +20,7 @@ use App\Models\Subtarea;
 use App\Models\Tareas\DetalleTransferenciaProductoEmpleado;
 use App\Models\Tareas\TransferenciaProductoEmpleado;
 use App\Models\PreingresoMaterial;
+use App\Models\Tarea;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\Log;
@@ -35,7 +36,7 @@ class MaterialesUtilizadosStockService
         $tarea_id = request('tarea_id');
 
         // $this->reporte['materiales_utilizados_stock'] = self::obtenerMaterialesUtilizadosSubtareas($tarea_id);
-        $this->reporte['materiales_utilizados_stock'] = self::obtenerMaterialesUtilizadosStock($tarea_id);
+        $this->reporte['materiales_utilizados_stock'] = self::obtenerMaterialesUtilizadosStock($proyecto_id, $tarea_id);
         $this->reporte['transferencias_recibidas'] = []; // self::obtenerMaterialesTransferenciasRecibidas($proyecto_id, $tarea_id);
         $this->reporte['transferencias_enviadas'] = []; // self::obtenerMaterialesTransferenciasEnviadas($proyecto_id, $tarea_id);
         $this->reporte['ingresos_bodega'] = []; // self::obtenerMaterialesIngresadosABodega($proyecto_id, $tarea_id);
@@ -78,9 +79,16 @@ class MaterialesUtilizadosStockService
     /*************
      * Subtareas
      *************/
-    public static function obtenerMaterialesUtilizadosStock(int $tarea_id)
+    public static function obtenerMaterialesUtilizadosStock(int|null $proyecto_id, int|null $tarea_id)
     {
-        $subtareas_ids = Subtarea::where('tarea_id', $tarea_id)->pluck('id');
+        if ($proyecto_id) {
+            $tareas_ids = Tarea::where('proyecto_id', $proyecto_id)->pluck('id');
+            $subtareas_ids = Subtarea::whereIn('tarea_id', $tareas_ids)->pluck('id');
+        } else {
+            $subtareas_ids = Subtarea::where('tarea_id', $tarea_id)->pluck('id');
+        }
+
+//         $subtareas_ids = Subtarea::where('tarea_id', $tarea_id)->pluck('id');
         $seguimientos = SeguimientoMaterialStock::whereIn('subtarea_id', $subtareas_ids)->get();
         // Log::channel('testing')->info('Log', ['seguimientos stock', $seguimientos]);
         $data = self::empaquetarMaterialesUtilizados($seguimientos);

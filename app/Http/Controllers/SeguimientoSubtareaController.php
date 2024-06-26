@@ -120,54 +120,6 @@ class SeguimientoSubtareaController extends Controller
         return view($vista, compact('subtarea'));
     }
 
-    // Eliminar este metodo
-    public function obtenerHistorialMaterialTareaUsadoPorFechaOld(Request $request)
-    {
-        $request->validate([
-            'subtarea_id' => 'required|numeric|integer',
-            'empleado_id' => 'required|numeric|integer',
-            'fecha' => 'required|string',
-        ]);
-
-        $fecha_convertida = Carbon::createFromFormat('d-m-Y', $request['fecha'])->format('Y-m-d');
-        $idEmpleado = $request['empleado_id'];
-        $idSubtarea = $request['subtarea_id'];
-        $idTarea = Subtarea::find($idSubtarea)->tarea_id;
-
-        $results = DB::table('seguimientos_materiales_subtareas as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id')
-            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
-            ->join('materiales_empleados_tareas as met', function ($join) use ($idEmpleado, $idTarea) {
-                $join->on('dp.id', '=', 'met.detalle_producto_id')
-                    ->where('met.empleado_id', '=', $idEmpleado)
-                    ->where('met.tarea_id', '=', $idTarea);
-            })
-            ->leftJoin('clientes', 'met.cliente_id', '=', 'clientes.id')
-            ->LeftJoin('empresas', 'clientes.id', '=', 'empresas.id')
-            ->leftJoin('productos', 'dp.producto_id', '=', 'productos.id')
-            ->leftJoin('unidades_medidas', 'productos.unidad_medida_id', 'unidades_medidas.id')
-            ->whereDate('sms.created_at', $fecha_convertida)
-            ->where('sms.empleado_id', $idEmpleado)
-            ->where('sms.subtarea_id', $idSubtarea)
-            ->groupBy('detalle_producto_id')
-            ->get();
-
-        $servicio = new TransaccionBodegaEgresoService();
-        $materialesUsados = $servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
-
-        $results = $results->map(function ($material, $index) use ($materialesUsados) {
-            if ($materialesUsados->contains('detalle_producto_id', $material->detalle_producto_id)) {
-                $material->total_cantidad_utilizada = $materialesUsados->first(function ($item) use ($material) {
-                    return $item->detalle_producto_id === $material->detalle_producto_id;
-                })->suma_total;
-            }
-            $material->id = $index + 1;
-            return $material;
-        });
-
-        return response()->json(compact('results'));
-    }
-
     // Nuevo
     public function obtenerHistorialMaterialTareaUsadoPorFecha(Request $request)
     {
@@ -184,23 +136,6 @@ class SeguimientoSubtareaController extends Controller
         $idSubtarea = $request['subtarea_id'];
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
-        /* $materialesOcupadosFecha = DB::table('seguimientos_materiales_subtareas as sms')
-            ->select(detalle_producto_id'dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id')
-            ->leftJoin('materiales_empleados_tareas as met', function ($join) use ($idEmpleado, $idTarea) {
-                $join->on('sms.detalle_producto_id', '=', 'met.detalle_producto_id')
-                    ->on('sms.cliente_id', '=', 'met.cliente_id')
-                    ->where('met.empleado_id', '=', $idEmpleado)
-                    ->where('met.tarea_id', '=', $idTarea);
-            })
-            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
-            ->leftJoin('clientes', 'sms.cliente_id', '=', 'clientes.id')
-            ->leftJoin('empresas', 'clientes.empresa_id', '=', 'empresas.id')
-            ->join('productos', 'dp.producto_id', '=', 'productos.id')
-            ->join('unidades_medidas', 'productos.unidad_medida_id', 'unidades_medidas.id')
-            ->whereDate('sms.created_at', $fecha_convertida)
-            ->where('sms.empleado_id', $idEmpleado)
-            ->where('sms.subtarea_id', $idSubtarea)
-            ->get(); */
         $materialesOcupadosFecha =  DB::table('seguimientos_materiales_subtareas as sms')->select('cantidad_utilizada', 'met.detalle_producto_id', 'met.cliente_id', 'met.empleado_id', 'met.despachado', 'met.cantidad_stock as stock_actual', 'met.devuelto', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id', 'dp.descripcion as detalle_producto')
             ->join('materiales_empleados_tareas as met', function ($query) use ($idEmpleado, $idTarea) {
                 $query->on('met.detalle_producto_id', 'sms.detalle_producto_id')
@@ -236,8 +171,6 @@ class SeguimientoSubtareaController extends Controller
             ->where('sms.subtarea_id', $idSubtarea)
             ->get();
 
-        Log::channel('testing')->info('Log', compact('materialesOcupadosFecha', 'materialesOcupadosFechaSinCliente'));
-
         $results = $materialesOcupadosFecha->merge($materialesOcupadosFechaSinCliente);
         $sumaMaterialesUsados = $servicio->obtenerSumaMaterialTareaUsadoHistorial($request['subtarea_id'], $request['empleado_id']);
 
@@ -257,55 +190,6 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('results'));
     }
 
-    // Eliminar este metodo
-    public function obtenerHistorialMaterialStockUsadoPorFechaOld(Request $request)
-    {
-        $request->validate([
-            'subtarea_id' => 'required|numeric|integer',
-            'empleado_id' => 'required|numeric|integer',
-            'fecha' => 'required|string',
-        ]);
-
-        $fecha_convertida = Carbon::createFromFormat('d-m-Y', $request['fecha'])->format('Y-m-d');
-        $idEmpleado = $request['empleado_id'];
-        $idSubtarea = $request['subtarea_id'];
-        $idTarea = Subtarea::find($idSubtarea)->tarea_id;
-
-        $results = DB::table('seguimientos_materiales_stock as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id')
-            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
-            ->join('materiales_empleados as met', function ($join) use ($idEmpleado, $idTarea) {
-                $join->on('dp.id', '=', 'met.detalle_producto_id')
-                    ->where('met.empleado_id', '=', $idEmpleado);
-            })
-            ->leftJoin('clientes', 'met.cliente_id', '=', 'clientes.id')
-            ->LeftJoin('empresas', 'clientes.id', '=', 'empresas.id')
-            ->leftJoin('productos', 'dp.producto_id', '=', 'productos.id')
-            ->leftJoin('unidades_medidas', 'productos.unidad_medida_id', 'unidades_medidas.id')
-            ->whereDate('sms.created_at', $fecha_convertida)
-            ->where('sms.empleado_id', $idEmpleado)
-            ->where('sms.subtarea_id', $idSubtarea)
-            ->groupBy('detalle_producto_id')
-            ->get();
-
-        $servicio = new TransaccionBodegaEgresoService();
-        $materialesUsados = $servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id'], $request['cliente_id']);
-        Log::channel('testing')->info('Log', compact('materialesUsados'));
-
-        $results = $results->map(function ($material, $index) use ($materialesUsados) {
-            if ($materialesUsados->contains('detalle_producto_id', $material->detalle_producto_id)) {
-                $material->total_cantidad_utilizada = $materialesUsados->first(function ($item) use ($material) {
-                    return $item->detalle_producto_id === $material->detalle_producto_id;
-                })->suma_total;
-            }
-            $material->id = $index + 1;
-            return $material;
-        });
-
-        return response()->json(compact('results'));
-    }
-
-    // Nuevo
     public function obtenerHistorialMaterialStockUsadoPorFecha(Request $request)
     {
         $request->validate([
@@ -320,24 +204,6 @@ class SeguimientoSubtareaController extends Controller
         $idEmpleado = $request['empleado_id'];
         $idSubtarea = $request['subtarea_id'];
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
-        // Log::channel('testing')->info('Log', compact('fecha_convertida'));
-
-        /* $materialesOcupadosFecha = DB::table('seguimientos_materiales_stock as sms')
-            ->select('dp.descripcion as detalle_producto', 'me.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'me.despachado', 'me.devuelto', 'dp.id as detalle_producto_id', 'clientes.id as cliente_id', 'sms.created_at', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida')
-            ->leftJoin('materiales_empleados as me', function ($join) use ($idEmpleado) {
-                $join->on('sms.detalle_producto_id', '=', 'me.detalle_producto_id')
-                    ->on('sms.cliente_id', '=', 'me.cliente_id')
-                    ->where('me.empleado_id', '=', $idEmpleado);
-            })
-            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
-            ->join('clientes', 'sms.cliente_id', '=', 'clientes.id')
-            ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
-            ->join('productos', 'dp.producto_id', '=', 'productos.id')
-            ->join('unidades_medidas', 'productos.unidad_medida_id', 'unidades_medidas.id')
-            ->whereDate('sms.created_at', $fecha_convertida)
-            ->where('sms.empleado_id', $idEmpleado)
-            ->where('sms.subtarea_id', $idSubtarea)
-            ->get(); */
 
         $materialesOcupadosFecha =  DB::table('seguimientos_materiales_stock as sms')->select('cantidad_utilizada', 'met.detalle_producto_id', 'met.cliente_id', 'met.empleado_id', 'met.despachado', 'met.cantidad_stock as stock_actual', 'met.devuelto', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id', 'dp.descripcion as detalle_producto')
             ->join('materiales_empleados as met', function ($query) use ($idEmpleado) {
@@ -372,11 +238,7 @@ class SeguimientoSubtareaController extends Controller
             ->where('sms.subtarea_id', $idSubtarea)
             ->get();
 
-        Log::channel('testing')->info('Log', compact('materialesOcupadosFecha', 'materialesOcupadosFechaSinCliente'));
-
         $results = $materialesOcupadosFecha->merge($materialesOcupadosFechaSinCliente);
-        // $results = collect([...$materialesOcupadosFecha, ...$materialesOcupadosFechaSinCliente]);
-        Log::channel('testing')->info('Log', compact('results'));
 
         $sumaMaterialesUsados = $servicio->obtenerSumaMaterialStockUsadoHistorial($request['subtarea_id'], $request['empleado_id']);
 
@@ -392,7 +254,6 @@ class SeguimientoSubtareaController extends Controller
             return $materialOcupadoFecha;
         });
 
-    Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
 
@@ -463,9 +324,6 @@ class SeguimientoSubtareaController extends Controller
 
     public function obtenerClientesMaterialesTarea(Request $request)
     {
-        /* $empleado_id = request('empleado_id') ?? $empleado->id;
-        Log::channel('testing')->info('Log', compact('empleado_id')); */
-
         $results = MaterialEmpleadoTarea::select('cliente_id', 'empresas.razon_social')
             ->where('empleado_id', request('empleado_id'))
             ->where('cantidad_stock', '>', 0)
@@ -486,14 +344,4 @@ class SeguimientoSubtareaController extends Controller
 
         return response()->json(compact('results'));
     }
-
-    /* function devolverFiltroTareaEtapaProyecto($query)
-    {
-
-        // $query = MaterialEmpleadoTarea::query();
-
-        if(request('filtrar_por_tarea')) return $query->porTarea();
-        if(request('filtrar_por_etapa')) return $query->porEtapa();
-        if(request('filtrar_por_proyecto')) return $query->porProyecto();
-    } */
 }

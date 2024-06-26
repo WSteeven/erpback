@@ -17,22 +17,33 @@
                 <th rowspan="2" valign="center">{{ 'DESCRIPCIÓN' }}</th>
                 <th rowspan="2" valign="center">{{ 'UNIDAD' }}</th>
                 <th rowspan="2" valign="center">{{ 'CLIENTE' }}</th>
-                <td colspan="{{ count($reporte['encabezado_preingresos']) }}">INGRESOS BODEGA</td>
+                <td colspan="{{ count($reporte['encabezado_preingresos']) }}">PREINGRESOS</td>
+                <th rowspan="2" valign="center" bgcolor="#daf1f3">RECIBIDO</th>
+                <td colspan="{{ isset($reporte['encabezado_ingresos']) ? count($reporte['encabezado_ingresos']) : 1 }}">INGRESOS BODEGA</td>
                 <th rowspan="2" valign="center" bgcolor="#daf1f3">RECIBIDO</th>
                 <td colspan="{{ count($reporte['encabezado_egresos_bodega']) }}">EGRESOS BODEGA</td>
                 <th rowspan="2" valign="center" bgcolor="#daf1f3">RECIBIDO</th>
-                <td colspan="{{ count($reporte['encabezado_subtareas']) }}" >SUBTAREAS</td>
+                <td colspan="{{ count($reporte['encabezado_subtareas']) }}">SUBTAREAS</td>
                 <th rowspan="2" valign="center" bgcolor="#daf1f3">TOTAL UTILIZADO</th>
                 <td colspan="{{ count($reporte['encabezado_transferencias_recibidas']) }}">TRANSFERENCIAS RECIBIDAS</td>
                 <th rowspan="2" valign="center" bgcolor="#c6efce">TOTAL TRANSFERENCIAS RECIBIDAS</th>
                 <th rowspan="2" valign="center" bgcolor="#ffeb9c">TOTAL TRANSFERENCIAS ENVIADAS</th>
-                <th rowspan="2" valign="center" bgcolor="#ffeb9c">DEVOLUCIONES</th>
+                <th bgcolor="#daf1f3">DEVOLUCIONES</th>
             </tr>
 
             <tr>
-                {{-- Ingresos bodega --}}
+                {{-- Preingresos --}}
                 @if (count($reporte['encabezado_preingresos']))
                     @foreach ($reporte['encabezado_preingresos'] as $encabezado)
+                        <th>{{ $encabezado['codigo_preingreso'] }}</th>
+                    @endforeach
+                @else
+                    <td>{{ '-' }}</td>
+                @endif
+
+                {{-- Ingresos bodega --}}
+                @if (isset($reporte['encabezado_ingresos']) && count($reporte['encabezado_ingresos']))
+                    @foreach ($reporte['encabezado_ingresos'] as $encabezado)
                         <th>{{ $encabezado['codigo_ingreso'] }}</th>
                     @endforeach
                 @else
@@ -68,10 +79,10 @@
                 {{-- Devoluciones --}}
                 @if (count($reporte['encabezado_devoluciones']))
                     @foreach ($reporte['encabezado_devoluciones'] as $encabezado)
-                        <th>{{ $encabezado['codigo_devolucion'] }}</th>
+                        <th bgcolor="#daf1f3">{{ $encabezado['codigo_devolucion'] }}</th>
                     @endforeach
                 @else
-                    <td>{{ '-' }}</td>
+                    <td bgcolor="#daf1f3">{{ '-' }}</td>
                 @endif
             </tr>
         </thead>
@@ -84,7 +95,7 @@
                     <td>{{ $material['unidad'] }}</td>
                     <td>{{ $material['cliente'] }}</td>
 
-                    {{-- Preingresos bodega --}}
+                    {{-- Preingresos bodega ################################## --}}
                     @if (count($reporte['encabezado_preingresos']))
                         @foreach ($reporte['encabezado_preingresos'] as $ingreso)
                             <td>{{ $service->obtenerCantidadMaterialPorPreingreso($material['detalle_id'], $material['cliente_id'], $ingreso['id']) }}
@@ -94,10 +105,29 @@
                         <td>{{ '-' }}</td>
                     @endif
 
-                    {{-- TOTAL INGRESO BODEGA (RECIBIDO) --}}
+                    {{-- TOTAL PREINGRESO (RECIBIDO) --}}
                     @if (count($reporte['encabezado_preingresos']))
                         <td bgcolor="#daf1f3">
                             {{ $service->obtenerSumaMaterialPorPreingreso($material['detalle_id'], $material['cliente_id']) }}
+                        </td>
+                    @else
+                        <td bgcolor="#daf1f3">{{ '-' }}</td>
+                    @endif
+
+                    {{-- Ingreso bodega ##################################### --}}
+                    @if (count($reporte['encabezado_ingresos']))
+                        @foreach ($reporte['encabezado_ingresos'] as $ingreso)
+                            <td>{{ $service->obtenerCantidadMaterialPorIngreso($material['detalle_id'], $material['cliente_id'], $ingreso['id']) }}
+                            </td>
+                        @endforeach
+                    @else
+                        <td>{{ '-ingre' }}</td>
+                    @endif
+
+                    {{-- TOTAL INGRESO BODEGA (RECIBIDO) --}}
+                    @if (count($reporte['encabezado_ingresos']))
+                        <td bgcolor="#daf1f3">
+                            {{ $service->obtenerSumaMaterialPorIngreso($material['detalle_id'], $material['cliente_id']) }}
                         </td>
                     @else
                         <td bgcolor="#daf1f3">{{ '-' }}</td>
@@ -153,13 +183,15 @@
                         {{ $service->obtenerSumaTransferenciasEnviadas($material['detalle_id'], $material['cliente_id']) }}
                     </td>
 
+                    {{-- Devoluciones --}}
                     @if (count($reporte['encabezado_devoluciones']))
                         @foreach ($reporte['encabezado_devoluciones'] as $devolucion)
-                            <td>{{ $service->obtenerCantidadMaterialPorDevolucion($material['detalle_id'], $material['cliente_id'], $devolucion['id']) }}
+                            <td bgcolor="#daf1f3">
+                                {{ $service->obtenerCantidadMaterialPorDevolucion($material['detalle_id'], $material['cliente_id'], $devolucion['id']) }}
                             </td>
                         @endforeach
                     @else
-                        <td>{{ '-' }}</td>
+                        <td bgcolor="#daf1f3">{{ '-' }}</td>
                     @endif
                 </tr>
             @endforeach

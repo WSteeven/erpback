@@ -25,8 +25,8 @@ class MaterialUtilizadoController extends Controller
         $reporteTarea = $this->materialesUtilizadosTareaService->init();
         $reporteStock = $this->materialesUtilizadosStockService->init();
         $export = new ReporteMaterialUtilizadoExport($reporteTarea, $this->materialesUtilizadosTareaService, $reporteStock, $this->materialesUtilizadosStockService);
+        // return $reporteTarea;
         return Excel::download($export, 'reporte_materiales_utilizados.xlsx');
 
-        // return $reporte;
     }
 }
