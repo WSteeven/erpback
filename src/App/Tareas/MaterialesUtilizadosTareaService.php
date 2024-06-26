@@ -251,8 +251,11 @@ class MaterialesUtilizadosTareaService
      *************/
     public static function obtenerMaterialesUtilizadosSubtareas(int $tarea_id)
     {
+        // Log::channel('testing')->info('Log', ['tarea_id', $tarea_id]);
         $subtareas_ids = Subtarea::where('tarea_id', $tarea_id)->pluck('id');
-        $seguimientos = SeguimientoMaterialSubtarea::whereIn('subtarea_id', $subtareas_ids)->get();
+        // Log::channel('testing')->info('Log', ['subtareas', $subtareas_ids]);
+        $seguimientos = SeguimientoMaterialSubtarea::whereIn('subtarea_id', $subtareas_ids)->get(); 
+        // Log::channel('testing')->info('Log', ['seguimientos', $seguimientos]);
         return self::empaquetarMaterialesUtilizados($seguimientos);
     }
 
@@ -271,7 +274,7 @@ class MaterialesUtilizadosTareaService
             $detalleProducto = $seguimiento->detalleProducto;
 
             if ($detalleProducto) {
-                $clave = $detalleProducto->id . '-' . $seguimiento->cliente_id;
+                $clave = $detalleProducto->id . '-' . $seguimiento->cliente_id . '-' . $seguimiento->subtarea_id;
 
                 if (!isset($resultadosAgrupados[$clave])) {
                     $resultadosAgrupados[$clave] = [
@@ -308,7 +311,7 @@ class MaterialesUtilizadosTareaService
                 $cont++;
             }
         }
-        Log::channel('testing')->info('Log', ['empaquetarDatosPreingreso', $results]);
+        // Log::channel('testing')->info('Log', ['empaquetarDatosPreingreso', $results]);
         return $results;
     }
 
@@ -324,7 +327,7 @@ class MaterialesUtilizadosTareaService
                 $cont++;
             }
         }
-        Log::channel('testing')->info('Log', ['empaquetarDatosTransaccion', $results]);
+        // Log::channel('testing')->info('Log', ['empaquetarDatosTransaccion', $results]);
         return $results;
     }
 
@@ -384,8 +387,8 @@ class MaterialesUtilizadosTareaService
             && $material['cliente_id'] == $cliente_id
             && $material['egreso_id'] == $egreso_id);
 
-        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $egreso_id]);
-        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $egreso_id]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
         return $encontrado ? $encontrado['cantidad'] : '-';
     }
 
@@ -427,16 +430,18 @@ class MaterialesUtilizadosTareaService
         return $encontrado ? $encontrado->sum('cantidad') : '-';
     }
 
+    // columna subtarea
     public function obtenerCantidadMaterialPorSubtarea($detalle_producto_id, $cliente_id, $subtarea_id)
     {
-        $encontrado = collect($this->reporte['materiales_utilizados_tarea'])->first(fn ($material) =>
+        // Log::channel('testing')->info('Log', ['Materiales usados', $this->reporte['materiales_utilizados_tarea']]);
+        $encontrado = collect($this->reporte['materiales_utilizados_tarea'])->filter(fn ($material) =>
         $material['detalle_id'] == $detalle_producto_id
             && $material['cliente_id'] == $cliente_id
             && $material['subtarea_id'] == $subtarea_id);
 
-        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $subtarea_id]);
-        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
-        return $encontrado ? $encontrado['cantidad'] : '-';
+        // Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $subtarea_id]);
+        // Log::channel('testing')->info('Log', ['Encontrado 430:::', $encontrado]);
+        return $encontrado ? $encontrado->sum('cantidad') : '-';
     }
 
     public function obtenerSumaMaterialPorDetalleCliente($detalle_producto_id, $cliente_id)
@@ -445,8 +450,8 @@ class MaterialesUtilizadosTareaService
         $material['detalle_id'] == $detalle_producto_id
             && $material['cliente_id'] == $cliente_id);
 
-        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id]);
-        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
         return $encontrado ? $encontrado->sum('cantidad') : '-';
     }
 
@@ -475,8 +480,8 @@ class MaterialesUtilizadosTareaService
             && $transferencia['cliente_id'] == $cliente_id
             && $transferencia['transferencia_id'] == $transferencia_id);
 
-        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $transferencia_id]);
-        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $transferencia_id]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
         return $encontrado ? $encontrado['cantidad'] : '-';
     }
 

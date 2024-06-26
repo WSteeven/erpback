@@ -21,7 +21,7 @@
                 <th rowspan="2" valign="center" bgcolor="#daf1f3">RECIBIDO</th>
                 <td colspan="{{ count($reporte['encabezado_egresos_bodega']) }}">EGRESOS BODEGA</td>
                 <th rowspan="2" valign="center" bgcolor="#daf1f3">RECIBIDO</th>
-                <td colspan="{{ count($reporte['encabezado_subtareas']) }}">SUBTAREAS</td>
+                <td colspan="{{ count($reporte['encabezado_subtareas']) }}" >SUBTAREAS</td>
                 <th rowspan="2" valign="center" bgcolor="#daf1f3">TOTAL UTILIZADO</th>
                 <td colspan="{{ count($reporte['encabezado_transferencias_recibidas']) }}">TRANSFERENCIAS RECIBIDAS</td>
                 <th rowspan="2" valign="center" bgcolor="#c6efce">TOTAL TRANSFERENCIAS RECIBIDAS</th>
