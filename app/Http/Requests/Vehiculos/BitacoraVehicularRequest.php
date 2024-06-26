@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vehiculos;
 
+use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Vehiculo;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -28,6 +29,7 @@ class BitacoraVehicularRequest extends FormRequest
     {
         $rules = [
             'fecha' => 'date|required|date_format:Y-m-d',
+            'imagen_inicial' => 'required|string',
             'hora_salida' => 'string|required',
             'hora_llegada' => 'nullable|string|sometimes',
             'km_inicial' => 'numeric|required',
@@ -73,12 +75,20 @@ class BitacoraVehicularRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if (!is_null($this->km_final))
+            if (!is_null($this->km_final)) {
                 if (floatval($this->km_final) < floatval($this->km_inicial)) {
-
                     $validator->errors()->add('km_final', 'El kilometraje final debe ser superior al km inicial.');
                     $validator->errors()->add('km_final', 'Por favor verifica y corrige el formulario.');
                 }
+            }
+            //Verificamos si el km_inicial no es inferior al ultimo registrado
+            $ultimaBitacora = BitacoraVehicular::where('vehiculo_id', $this->vehiculo_id)->orderBy('id', 'desc')->first();
+            if ($ultimaBitacora) {
+                if ($this->km_inicial < $ultimaBitacora->km_final) {
+                    // $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final');
+                    $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final. Ultimo km_final: '.$ultimaBitacora->km_final);
+                }
+            }
         });
     }
 
@@ -89,8 +99,16 @@ class BitacoraVehicularRequest extends FormRequest
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
             // 'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
         ]);
+        // if (is_null($this->checklistAccesoriosVehiculo['observacion_accesorios_vehiculo']))
+        $this->merge(['checklistAccesoriosVehiculo' => array_merge($this->checklistAccesoriosVehiculo, [
+            'observacion_accesorios_vehiculo' => 'NINGUNA'
+        ])]);
 
-        
+        $this->merge(['checklistVehiculo' => array_merge($this->checklistVehiculo, [
+            'observacion_checklist_interior' => 'NINGUNA',
+            'observacion_checklist_bajo_capo' => 'NINGUNA',
+            'observacion_checklist_exterior' => 'NINGUNA',
+        ])]);
 
         if ($this->controller_method == 'update') {
             $this->merge([

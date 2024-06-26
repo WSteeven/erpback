@@ -25,6 +25,7 @@ class Tanqueo extends Model implements Auditable
         'fecha_hora',
         'km_tanqueo',
         'monto',
+        'combustible_id',
         'imagen_comprobante',
         'imagen_tablero'
     ];
@@ -38,6 +39,13 @@ class Tanqueo extends Model implements Auditable
         '*',
     ];
 
+    /**
+     * Relación uno a muchos (inversa).
+     */
+    public function combustible()
+    {
+        return $this->belongsTo(Combustible::class);
+    }
     /**
      * Relación uno a muchos
      */

@@ -20,6 +20,7 @@ class BitacoraVehicular extends Pivot implements Auditable
     protected $table = 'veh_bitacoras_vehiculos';
     protected $fillable = [
         'fecha',
+        'imagen_inicial',
         'hora_salida',
         'hora_llegada',
         'km_inicial',

@@ -37,6 +37,7 @@ class BitacoraVehicularResource extends JsonResource
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {
             // $modelo['vehiculo'] = $this->vehiculo_id;
+            $modelo['imagen_inicial'] = $this->imagen_inicial ? url($this->imagen_inicial) : null;
             $modelo['tareas'] = $this->tareas ? array_map('intval', Utils::convertirStringComasArray($this->tareas)) : null;
             $modelo['tickets'] = $this->tickets ? array_map('intval', Utils::convertirStringComasArray($this->tickets)) : null;
             $modelo['actividadesRealizadas'] = $this->actividades;
