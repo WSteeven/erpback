@@ -82,9 +82,9 @@ class MaterialesUtilizadosStockService
     {
         $subtareas_ids = Subtarea::where('tarea_id', $tarea_id)->pluck('id');
         $seguimientos = SeguimientoMaterialStock::whereIn('subtarea_id', $subtareas_ids)->get();
-        Log::channel('testing')->info('Log', ['seguimientos stock', $seguimientos]);
+        // Log::channel('testing')->info('Log', ['seguimientos stock', $seguimientos]);
         $data = self::empaquetarMaterialesUtilizados($seguimientos);
-        Log::channel('testing')->info('Log', ['data', $data]);
+        // Log::channel('testing')->info('Log', ['data', $data]);
         return $data;
     }
 
@@ -93,12 +93,10 @@ class MaterialesUtilizadosStockService
         $resultadosAgrupados = [];
 
         foreach ($seguimientos as $seguimiento) {
-            Log::channel('testing')->info('Log', ['seguim', $seguimiento]);
             $detalleProducto = $seguimiento->detalleProducto;
 
             if ($detalleProducto) {
-                $clave = $detalleProducto->id . '-' . $seguimiento->cliente_id;
-                Log::channel('testing')->info('Log', ['clave', $clave]);
+                $clave = $detalleProducto->id . '-' . $seguimiento->cliente_id . '-' . $seguimiento->subtarea_id;
 
                 if (!isset($resultadosAgrupados[$clave])) {
                     $resultadosAgrupados[$clave] = [
@@ -118,9 +116,7 @@ class MaterialesUtilizadosStockService
         }
 
         // Convertir el array asociativo en un array numérico
-        Log::channel('testing')->info('Log', ['resultadosAgrupados', $resultadosAgrupados]);
         $resultados = array_values($resultadosAgrupados);
-        Log::channel('testing')->info('Log', ['resultados', $resultados]);
         return $resultados;
     }
 
@@ -131,8 +127,6 @@ class MaterialesUtilizadosStockService
             && $material['cliente_id'] == $cliente_id
             && $material['subtarea_id'] == $subtarea_id);
 
-        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id, $subtarea_id]);
-        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
         return $encontrado ? $encontrado['cantidad'] : '-';
     }
 
@@ -142,8 +136,8 @@ class MaterialesUtilizadosStockService
         $material['detalle_id'] == $detalle_producto_id
             && $material['cliente_id'] == $cliente_id);
 
-        Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id]);
-        Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $detalle_producto_id, $cliente_id]);
+        // Log::channel('testing')->info('Log', ['Encontrado', $encontrado]);
         return $encontrado ? $encontrado->sum('cantidad') : '-';
     }
 
