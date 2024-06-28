@@ -39,7 +39,7 @@ class UserInfoResource extends JsonResource
             'roles' => $this->getRoleNames(), // ->toArray()),
             'estado' => $this->empleado != null ? $empleado->estado : false,
             'es_lider' => $this->esTecnicoLider(),
-            'permisos' => $this->obtenerPermisos($this->id),
+            'permisos' => $this->getAllPermissions()->pluck('name')->toArray(),
             'cargo' => $this->empleado != null ? $empleado->cargo?->nombre : '',
             'departamento' => $this->empleado ? $empleado->departamento_id : null,
             'es_responsable_departamento' => Departamento::where('responsable_id', $empleado->id)->exists(),

@@ -80,7 +80,8 @@ use Carbon\Carbon;
 */
 
 Route::get('tablero', [TableroController::class, 'index']);
-Route::get('auditorias', [AuditoriaController::class, 'index']);
+Route::get('auditorias', [AuditoriaController::class, 'index'])->middleware('auth:sanctum');
+Route::get('modelos-auditorias', [AuditoriaController::class, 'modelos']);
 Route::get('permisos_roles_usuario', [PermisoController::class, 'listarPermisosRoles']);
 Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos']);
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);

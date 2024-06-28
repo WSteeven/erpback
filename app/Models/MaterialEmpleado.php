@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\App\Tareas\MaterialesUtilizadosTareaService;
 
 class MaterialEmpleado extends Model implements Auditable
 {
@@ -168,4 +169,6 @@ class MaterialEmpleado extends Model implements Auditable
             throw $th;
         }
     }
+
+
 }

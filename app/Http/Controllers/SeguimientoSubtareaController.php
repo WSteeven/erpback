@@ -375,10 +375,12 @@ class SeguimientoSubtareaController extends Controller
         Log::channel('testing')->info('Log', compact('materialesOcupadosFecha', 'materialesOcupadosFechaSinCliente'));
 
         $results = $materialesOcupadosFecha->merge($materialesOcupadosFechaSinCliente);
+        // $results = collect([...$materialesOcupadosFecha, ...$materialesOcupadosFechaSinCliente]);
+        Log::channel('testing')->info('Log', compact('results'));
 
         $sumaMaterialesUsados = $servicio->obtenerSumaMaterialStockUsadoHistorial($request['subtarea_id'], $request['empleado_id']);
 
-        $results = $materialesOcupadosFecha->map(function ($materialOcupadoFecha, $index) use ($sumaMaterialesUsados) {
+        $results = $results->map(function ($materialOcupadoFecha, $index) use ($sumaMaterialesUsados) {
             if ($sumaMaterialesUsados->contains('detalle_producto_id', $materialOcupadoFecha->detalle_producto_id) && $sumaMaterialesUsados->contains('cliente_id', $materialOcupadoFecha->cliente_id)) {
                 $materialUsadoEncontrado = $sumaMaterialesUsados->first(function ($item) use ($materialOcupadoFecha) {
                     return $item->detalle_producto_id === $materialOcupadoFecha->detalle_producto_id && $item->cliente_id === $materialOcupadoFecha->cliente_id;
@@ -390,6 +392,7 @@ class SeguimientoSubtareaController extends Controller
             return $materialOcupadoFecha;
         });
 
+    Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
 

@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class CodigoCliente extends Model implements Auditable
+class CodigoCliente extends Model // implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;
-    use AuditableModel;
+    // use AuditableModel;
 
     protected $table = "codigo_cliente";
     protected $fillable = ['nombre_cliente','cliente_id', 'detalle_id', 'codigo'];
