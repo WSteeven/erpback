@@ -75,7 +75,8 @@ class EmpleadoResource extends JsonResource
             'identidad_genero' => $this->identidad_genero_id,
             'identidad_genero_info' => $this->identidadGenero,
             'religion' => $this->religion_id,
-            'religion_info' => $this->religion
+            'religion_info' => $this->religion,
+            'archivos'=>$this->archivos->count()
 
         ];
         if ($controller_method == 'show') {
