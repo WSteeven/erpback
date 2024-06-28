@@ -8,20 +8,25 @@ use App\Http\Resources\Vehiculos\OrdenReparacionResource;
 use App\Http\Resources\Vehiculos\RegistroIncidenteResource;
 use App\Http\Resources\Vehiculos\VehiculoResource;
 use App\Models\Autorizacion;
+use App\Models\Empleado;
 use App\Models\Vehiculos\AsignacionVehiculo;
+use App\Models\Vehiculos\Licencia;
 use App\Models\Vehiculos\MantenimientoVehiculo;
 use App\Models\Vehiculos\OrdenReparacion;
 use App\Models\Vehiculos\RegistroIncidente;
 use App\Models\Vehiculos\TransferenciaVehiculo;
 use App\Models\Vehiculos\Vehiculo;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class VehiculoService
 {
-
+    private $fecha_actual;
     public function __construct()
     {
+        $this->fecha_actual = Carbon::now();
     }
 
     public function obtenerHistorial(Vehiculo $vehiculo, Request $request)
@@ -146,13 +151,57 @@ class VehiculoService
      * el identificador del custodio (responsable del vehículo) que se desea asignar a un vehículo
      * específico. Es de tipo `int|null`, lo que significa que puede configurarse como null si es necesario.
      */
-    public function actualizarCustodioVehiculo(int $vehiculo_id, int|null $custodio_id=null)
+    public function actualizarCustodioVehiculo(int $vehiculo_id, int|null $custodio_id = null)
     {
         $vehiculo = Vehiculo::find($vehiculo_id);
         if ($vehiculo) {
             $vehiculo->custodio_id = $custodio_id;
             $vehiculo->save();
         }
+    }
+
+    public function empaquetarInformacionConductores(Collection $conductores, array|string|null $tipos_licencias)
+    {
+        $results = [];
+
+        foreach ($conductores as $conductor) {
+            if (is_null($tipos_licencias) || empty($tipos_licencias)) {
+                $licenciasConductor = $conductor->licencias;
+            } else {
+                $licenciasConductor = $conductor->licencias()->whereIn('tipo_licencia', $tipos_licencias)->get();
+                // $licenciasConductor = $conductor->licencias()->whereIn('tipo_licencia', ['A'])->get();
+            }
+            foreach ($licenciasConductor as $licencia) {
+                $row['conductor'] = Empleado::extraerNombresApellidos($conductor->empleado);
+                $row['puntos'] = $conductor->puntos;
+                $row['tipo_licencia'] = $licencia['tipo_licencia'];
+                $row['inicio_vigencia'] = $licencia['inicio_vigencia'];
+                $row['fin_vigencia'] = $licencia['fin_vigencia'];
+                $row['vence'] = $this->obtenerMensajeVigencia($licencia['fin_vigencia']);
+                $results[] = $row;
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * La función "obtenerMensajeVigencia" calcula la diferencia en meses entre una fecha determinada y
+     * la fecha actual, y devuelve un mensaje en función del resultado.
+     * 
+     * @param string $fecha El parámetro `fecha` es una cadena que representa una fecha. 
+     * 
+     * @return string Devuelve un mensaje basado en la diferencia en meses
+     * entre la fecha actual y la fecha proporcionada.
+     */
+    private function obtenerMensajeVigencia(string $fecha)
+    {
+        $fecha_final = Carbon::parse($fecha);
+        $meses = $this->fecha_actual->diffInMonths($fecha_final, false);
+        if ($meses < 0) {
+            return 'Vencida hace ' . abs($meses) . ' meses';
+        } elseif ($meses > 0) {
+            return 'Vence en ' . abs($meses) . ' meses';
+        } else return 'Vence este mes';
     }
 }
 

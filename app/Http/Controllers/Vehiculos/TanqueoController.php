@@ -9,16 +9,18 @@ use App\Models\User;
 use App\Models\Vehiculos\Tanqueo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\Vehiculos\TanqueoVehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class TanqueoController extends Controller
 {
     private $entidad = 'Tanqueo';
+    private $servicio;
     public function __construct()
     {
+        $this->servicio = new TanqueoVehiculoService();
         $this->middleware('can:puede.ver.tanqueos_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.tanqueos_vehiculos')->only('store');
         $this->middleware('can:puede.editar.tanqueos_vehiculos')->only('update');
@@ -119,5 +121,12 @@ class TanqueoController extends Controller
         $tanqueo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    public function reporteCombustibles(Request $request)
+    {
+        $results = $this->servicio->dashboard($request);
+
+        return response()->json(compact('results'));
     }
 }

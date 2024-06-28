@@ -2,23 +2,30 @@
 
 namespace App\Http\Controllers\Vehiculos;
 
+use App\Exports\Vehiculos\ConductorLicenciaExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\ConductorRequest;
 use App\Http\Resources\Vehiculos\ConductorResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Licencia;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\App\Vehiculos\VehiculoService;
 use Src\Shared\Utils;
 
 class ConductorController extends Controller
 {
     private $entidad = 'Conductor';
+    private $vehiculoService;
     public function __construct()
     {
+        $this->vehiculoService = new VehiculoService();
         $this->middleware('can:puede.ver.conductores')->only('index', 'show');
         $this->middleware('can:puede.crear.conductores')->only('store');
         $this->middleware('can:puede.editar.conductores')->only('update');
@@ -134,5 +141,50 @@ class ConductorController extends Controller
         $conductor->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /******************
+     * REPORTES
+     *****************/
+    public function reporteConductorLicencia(Request $request)
+    {
+        Log::channel('testing')->info('Log',  ['reporteConductorLicencia', $request->all()]);
+        $configuracion = ConfiguracionGeneral::first();
+        $results = [];
+        try {
+            $results = [];
+            if ($request->boolean('todos'))
+                $results = Conductor::all();
+            else
+                $results = Conductor::where('empleado_id', $request->conductor)->get();
+            $reporte = $results;
+            $results =$this->vehiculoService->empaquetarInformacionConductores($results, $request->tipo_licencia);
+            switch ($request->accion) {
+                case 'excel':
+                    throw new Exception('Esta caracteristica aún no está desarrollada');
+                    // return Excel::download(new ConductorLicenciaExport(), 'reporte_conductor_licencia.xlsx');
+                    break;
+                case 'pdf':
+                    throw new Exception('Esta caracteristica aún no está desarrollada');
+                    // try {
+                    //     $peticion = $request->all();
+                    //     $pdf = Pdf::loadView('vehiculos.conductores.reporte_conductor_licencia', compact(['reporte', 'peticion', 'configuracion']));
+                    //     $pdf->setPaper('A4', 'landscape');
+                    //     $pdf->render();
+                    //     return $pdf->stream();
+                    // } catch (\Throwable $ex) {
+                    //     throw $ex->getMessage() . '. ' . $ex->getLine();
+                    // }
+                    break;
+                default:
+                    // Log::channel('testing')->info('Log', ['reporteConductorLicencia->default', '¿Todo bien en casa?']);
+            }
+        } catch (Exception $ex) {
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$ex->getMessage()],
+            ]);
+        }
+
+        return response()->json(compact('results'));
     }
 }

@@ -85,6 +85,12 @@ Route::post('registros-incidentes/files/{registro}', [RegistroIncidenteControlle
 Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactivar'])->middleware('auth:sanctum');
 
 /**
+ * RUTAS PARA REPORTES
+ */
+Route::post('reporte-conductor-licencia', [ConductorController::class, 'reporteConductorLicencia'])->middleware('auth:sanctum');
+Route::post('reporte-combustibles', [TanqueoController::class, 'reporteCombustibles'])->middleware('auth:sanctum');
+Route::get('reporte-seguros-vehiculos', [SeguroVehicularController::class, 'reporte'])->middleware('auth:sanctum');
+/**
  * RUTAS PARA IMPRIMIR PDFs
  */
 Route::get('asignaciones-vehiculos/imprimir/{asignacion}', [AsignacionVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');

@@ -36,4 +36,13 @@ class SeguroVehicular extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+
+    /**
+     * Relación uno a uno.
+     * Un Seguro pertenece a un vehículo a su debido momento.
+     */
+    public function vehiculo()
+    {
+        return $this->hasOne(Vehiculo::class, 'seguro_id');
+    }
 }
