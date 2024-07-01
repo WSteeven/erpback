@@ -148,6 +148,8 @@ Route::get('obtener-fechas-historial-materiales-usados/{subtarea}', [Seguimiento
 Route::get('obtener-fechas-historial-materiales-stock-usados/{subtarea}', [SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesStockUsados']);
 Route::get('obtener-historial-material-tarea-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialTareaUsadoPorFecha']);
 Route::get('obtener-historial-material-stock-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialStockUsadoPorFecha']);
+Route::get('obtener-resumen-material-subtarea-usado', [SeguimientoSubtareaController::class, 'obtenerResumenMaterialSeguimientoSubtareaUsado']);
+Route::get('obtener-resumen-material-stock-usado', [SeguimientoSubtareaController::class, 'obtenerResumenMaterialSeguimientoStockUsado']);
 Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorial']);
 Route::post('actualizar-cantidad-utilizada-historial-stock', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorialStock']);
 
