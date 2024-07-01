@@ -25,6 +25,7 @@ class Tanqueo extends Model implements Auditable
         'fecha_hora',
         'km_tanqueo',
         'monto',
+        'combustible_id',
         'imagen_comprobante',
         'imagen_tablero'
     ];
@@ -38,13 +39,26 @@ class Tanqueo extends Model implements Auditable
         '*',
     ];
 
+    /** Se definen las constantes del tipo de reporte en la seccion de reporte de combustibles */
+    const TIPO_RPT_COMBUSTIBLE = 'COMBUSTIBLE';
+    const TIPO_RPT_VEHICULO = 'VEHICULO';
+
+    /**
+     * Relación uno a muchos (inversa).
+     */
+    public function combustible()
+    {
+        return $this->belongsTo(Combustible::class);
+    }
     /**
      * Relación uno a muchos
      */
-    public function vehiculo(){
+    public function vehiculo()
+    {
         return $this->belongsTo(Vehiculo::class);
     }
-    public function solicitante(){
+    public function solicitante()
+    {
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
 }

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
@@ -29,8 +29,10 @@ use Src\Shared\Utils;
 class PermisoEmpleadoController extends Controller
 {
     private $entidad = 'PERMISO_EMPLEADO';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.permiso_nomina')->only('index', 'show');
         $this->middleware('can:puede.crear.permiso_nomina')->only('store');
     }
@@ -51,15 +53,20 @@ class PermisoEmpleadoController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO, true, Auth::user()->empleado->id);
-        $permiso_empleado->documento = $archivoJSON;
-        $permiso_empleado->save();
-        return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);
+        // $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO, true, Auth::user()->empleado->id);
+        // $permiso_empleado->documento = $archivoJSON;
+        // $permiso_empleado->save();
+        $modelo = $this->archivoService->guardarArchivo($permiso_empleado, $request->file, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO->value . auth()->user()->empleado->identificacion);
+
+
+        // return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);
+        return response()->json(['modelo' => $modelo, 'mensaje' => 'Subido exitosamente!']);
     }
     public function index_archivo_permiso_empleado(Request $request)
     {
-        $results = PermisoEmpleado::where('id', $request->permiso_id)->get();
-        $results = ArchivoPermisoEmpleadoResource::collection($results);
+        $permiso = PermisoEmpleado::where('id', $request->permiso_id)->first();
+        // $results = ArchivoPermisoEmpleadoResource::collection($results);
+        $results = $this->archivoService->listarArchivos($permiso);
         return response()->json(compact('results'));
     }
     public function index(Request $request)

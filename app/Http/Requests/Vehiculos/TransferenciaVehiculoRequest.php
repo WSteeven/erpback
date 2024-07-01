@@ -45,6 +45,9 @@ class TransferenciaVehiculoRequest extends FormRequest
             'estado_carroceria' => 'nullable|sometimes|string',
             'estado_mecanico' => 'nullable|sometimes|string',
             'estado_electrico' => 'nullable|sometimes|string',
+            'garaje' => 'nullable|string',
+            'latitud' => 'nullable|string',
+            'longitud' => 'nullable|string',
         ];
     }
 
@@ -61,6 +64,8 @@ class TransferenciaVehiculoRequest extends FormRequest
             'estado_mecanico' => Utils::convertArrayToString($this->estado_mecanico,),
             'estado_electrico' => Utils::convertArrayToString($this->estado_electrico,),
             'devuelve_id' => $this->devuelve,
+            'latitud' => strval($this->latitud),
+            'longitud' => strval($this->longitud),
         ]);
 
         if (!is_null($this->asignacion)) $this->merge([

@@ -47,15 +47,18 @@ class TransferenciaVehiculoController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR_VEHICULOS])) {
-            $results = TransferenciaVehiculo::ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+        if (request()->filtro) {
+            $results = TransferenciaVehiculo::ignoreRequest(['filtro'])->filter()->orderBy('id', 'desc')->get();
         } else {
-            $results = TransferenciaVehiculo::where(function ($query) {
-                $query->where('entrega_id', auth()->user()->empleado->id)
-                    ->orWhere('responsable_id', auth()->user()->empleado->id);
-            })->ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+            if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR_VEHICULOS])) {
+                $results = TransferenciaVehiculo::ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+            } else {
+                $results = TransferenciaVehiculo::where(function ($query) {
+                    $query->where('entrega_id', auth()->user()->empleado->id)
+                        ->orWhere('responsable_id', auth()->user()->empleado->id);
+                })->ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+            }
         }
-
         $results = TransferenciaVehiculoResource::collection($results);
         return response()->json(compact('results'));
     }

@@ -94,10 +94,16 @@ class AsignacionVehiculoController extends Controller
     {
         $datos = $request->validated();
         try {
+            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             DB::beginTransaction();
-
+            if ($datos['estado'] === AsignacionVehiculo::ACEPTADO) {
+                $vehiculoDisponible = $this->vehiculoService->verificarDisponibilidadVehiculo($datos['vehiculo_id']);
+                if (!$vehiculoDisponible) throw new Exception('El vehículo seleccionado ya está asignado/transferido a un chofer, por favor anula esta asignación.');
+            }
             //Respuesta
             $asignacion->update($datos);
+            if ($asignacion->estado === AsignacionVehiculo::ACEPTADO)
+                $this->vehiculoService->actualizarCustodioVehiculo($asignacion->vehiculo_id, $asignacion->responsable_id);
             $modelo = new AsignacionVehiculoResource($asignacion->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             //Marcar como leída la notificación anterior y lanzar el evento de la notificación

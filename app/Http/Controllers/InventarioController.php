@@ -249,6 +249,7 @@ class InventarioController extends Controller
 
         foreach ($movimientos as $movimiento) {
             // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
+            // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
             if ($cont == 0) {
                 $audit = Audit::where('auditable_id', $movimiento->inventario_id)
                     ->where('auditable_type', Inventario::class)
@@ -370,7 +371,7 @@ class InventarioController extends Controller
 
     public function actualizarMaterialesEmpleado(Request $request)
     {
-        Log::channel('testing')->info('Log', ['actualizarMaterialesEmpleado', $request->all()]);
+        // Log::channel('testing')->info('Log', ['actualizarMaterialesEmpleado', $request->all()]);
         $modelo = [];
         try {
             switch ($request->tipo) {
@@ -409,7 +410,7 @@ class InventarioController extends Controller
     }
     public function actualizarCantidadMaterialEmpleado(Request $request)
     {
-        Log::channel('testing')->info('Log', ['recibidoo', $request->all()]);
+        // Log::channel('testing')->info('Log', ['recibidoo', $request->all()]);
         $modelo = [];
         try {
             DB::beginTransaction();
@@ -431,7 +432,7 @@ class InventarioController extends Controller
                         ->where('cliente_id', $request->cliente_id)
                         ->where('tarea_id', $request->tarea_id)
                         ->first();
-                    Log::channel('testing')->info('Log', ['mate encontrado', $material]);
+                    // Log::channel('testing')->info('Log', ['mate encontrado', $material]);
                     if ($material) {
                         $this->actualizarCantidad($material, $request->cantidad);
                         $modelo = $this->empaquetarMaterialSingular($material);

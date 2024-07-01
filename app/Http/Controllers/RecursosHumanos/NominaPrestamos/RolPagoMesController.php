@@ -13,6 +13,7 @@ use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -99,7 +100,7 @@ class RolPagoMesController extends Controller
                     'file' => ['Debe seleccionar al menos un archivo.'],
                 ]);
             }
-            Excel::import(new RolPagoImport($request->mes,$rolPago), $request->file);
+            Excel::import(new RolPagoImport($request->mes, $rolPago), $request->file);
             DB::commit();
             return response()->json(['mensaje' => 'Subido exitosamente!']);
         } catch (Exception $e) {
@@ -188,6 +189,7 @@ class RolPagoMesController extends Controller
             $es_quincena = $rol_pago->es_quincena;
             $reportes = $this->generate_report_data($roles_pagos, $rol_pago->nombre);
             $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
+            // Log::channel('testing')->info('Log', ['191 - reportes', $es_quincena, $reportes]);
             $export_excel = new RolPagoMesExport($reportes, $es_quincena);
             $orientacion = $es_quincena ? 'portail' : 'landscape';
             $tipo_pagina = $es_quincena ? 'A4' : 'A2';
@@ -307,12 +309,8 @@ class RolPagoMesController extends Controller
         $es_quincena = RolPagoMes::where('mes', $roles_pagos[0]->mes)->where('es_quincena', '1')->first() != null ? true : false;
         $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
         $departamento_gerencia = Departamento::where("nombre", Departamento::DEPARTAMENTO_GERENCIA)->first();
-        $responsable_gerencia= $departamento_gerencia ?  $departamento_gerencia?->responsable:Empleado::find(117);
-        $creador_rol_pago = Empleado::whereHas('user', function ($query) {
-            $query->whereHas('permissions', function ($q) {
-                $q->where('name', 'puede.elaborar.rol_pago');
-            });
-        })->first();
+        $responsable_gerencia = $departamento_gerencia ?  $departamento_gerencia?->responsable : Empleado::find(117);
+        $creador_rol_pago = User::role(User::ROL_RECURSOS_HUMANOS)->permission('puede.elaborar.rol_pago')->first()->empleado;
         $results = RolPago::empaquetarListado($roles_pagos);
         $results = collect($results)->map(function ($elemento, $index) {
             $elemento['item'] = $index + 1;
