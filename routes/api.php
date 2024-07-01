@@ -58,14 +58,8 @@ use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
-use App\Http\Resources\CantonResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Models\Provincia;
-use App\Models\Canton;
-use App\Models\DetalleProducto;
-use App\Models\Empleado;
-use App\Models\Pais;
 use Carbon\Carbon;
 
 /*
