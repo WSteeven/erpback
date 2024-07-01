@@ -76,8 +76,10 @@
             @foreach ($reportes_empaquetado as $reporte_empaquetado)
                 <tr>
                     <td valign="center">{{ $reporte_empaquetado['fecha_diagnostico'] }}</td>
-                    <td valign="center">{{ $configuracion['razon_social'] }}</td>
-                    <td valign="center">{{ $configuracion['ruc'] }}</td>
+                    <td valign="center">{{ $reporte_empaquetado['razon_social'] }}</td>
+                    <td valign="center">{{ $reporte_empaquetado['ruc'] }}</td>
+                    {{-- <td valign="center">{{ $configuracion['razon_social'] }}</td>
+                    <td valign="center">{{ $configuracion['ruc'] }}</td> --}}
                     <td valign="center">{{ $reporte_empaquetado['cargo'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['identificacion'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['anio_nacimiento'] }}</td>

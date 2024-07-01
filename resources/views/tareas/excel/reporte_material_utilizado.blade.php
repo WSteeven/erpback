@@ -121,7 +121,7 @@
                             </td>
                         @endforeach
                     @else
-                        <td>{{ '-ingre' }}</td>
+                        <td>{{ '-' }}</td>
                     @endif
 
                     {{-- TOTAL INGRESO BODEGA (RECIBIDO) --}}
@@ -145,7 +145,7 @@
 
                     {{-- TOTAL EGRESO BODEGA (RECIBIDO) --}}
                     <td bgcolor="#daf1f3">
-                        {{ $service->obtenerSumaMaterialPorEgreso($material['detalle_id'], $material['cliente_id']) }}
+                        {{ isset($service->obtenerSumaMaterialPorEgreso) ? $service->obtenerSumaMaterialPorEgreso($material['detalle_id'], $material['cliente_id']) : '' }}
                     </td>
 
                     {{-- Subtareas --}}
@@ -175,12 +175,12 @@
 
                     {{-- TOTAL TRANSFERENCIAS RECIBIDAS --}}
                     <td bgcolor="#c6efce">
-                        {{ $service->obtenerSumaTransferenciasRecibidas($material['detalle_id'], $material['cliente_id']) }}
+                        {{ isset($service->obtenerSumaTransferenciasRecibidas) ? $service->obtenerSumaTransferenciasRecibidas($material['detalle_id'], $material['cliente_id']) : '' }}
                     </td>
 
                     {{-- TOTAL TRANSFERENCIAS ENVIADAS --}}
                     <td bgcolor="#ffeb9c">
-                        {{ $service->obtenerSumaTransferenciasEnviadas($material['detalle_id'], $material['cliente_id']) }}
+                        {{ isset($service->obtenerSumaTransferenciasEnviadas) ? $service->obtenerSumaTransferenciasEnviadas($material['detalle_id'], $material['cliente_id']) : ''}}
                     </td>
 
                     {{-- Devoluciones --}}

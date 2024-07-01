@@ -61,6 +61,11 @@ class MaterialesUtilizadosStockService
             'codigo_egreso' => $item['motivo'] . '-' . $item['egreso_id'],
         ])->unique();
 
+        $this->reporte['encabezado_ingresos'] = collect($this->reporte['ingresos_bodega'])->map(fn ($item) => [
+            'id' => $item['egreso_id'],
+            'codigo_ingreso' => $item['motivo'] . '-' . $item['egreso_id'],
+        ])->unique();
+
         $this->reporte['encabezado_preingresos'] = collect($this->reporte['preingresos'])->map(fn ($item) => [
             'id' => $item['egreso_id'],
             'codigo_ingreso' => $item['motivo'] . '-' . $item['egreso_id'],
