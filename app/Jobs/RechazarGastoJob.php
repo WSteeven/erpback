@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Events\FondoRotativoEvent;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -35,12 +36,14 @@ class RechazarGastoJob implements ShouldQueue
     public function handle()
     {
         try {
-            $gasto_pendientes = Gasto::where('estado', 3)->get();
+            $mesAnterior = Carbon::now()->subMonth();
+            $gasto_pendientes = Gasto::where('estado', 3)->whereMonth('created_at', $mesAnterior->month)->get();
             foreach ($gasto_pendientes as $gasto) {
-                $gasto->estado =2;
                 event(new FondoRotativoEvent($gasto));
+                $gasto->estado = 2;
+                $gasto->detalle_estado = 'RECHAZADO POR EL SISTEMA';
+                $gasto->save();
             }
-            $gasto = Gasto::where('estado', 3)->update(array('estado' => 2, 'detalle_estado' => 'RECHAZADO POR EL SISTEMA'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

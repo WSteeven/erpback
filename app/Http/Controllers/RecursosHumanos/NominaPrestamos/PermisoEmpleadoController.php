@@ -96,11 +96,11 @@ class PermisoEmpleadoController extends Controller
     {
         try {
             $datos = $request->validated();
-            if ($request->tieneDocumento == false) {
-                throw ValidationException::withMessages([
-                    '404' => ['Debe seleccionar al menos un archivo.'],
-                ]);
-            }
+            // if ($request->tieneDocumento == false) {
+            //     throw ValidationException::withMessages([
+            //         '404' => ['Debe seleccionar al menos un archivo.'],
+            //     ]);
+            // }
             DB::beginTransaction();
             $datos['tipo_permiso_id'] =  $request->safe()->only(['tipo_permiso'])['tipo_permiso'];
             $datos['estado_permiso_id'] =  PermisoEmpleado::PENDIENTE;
