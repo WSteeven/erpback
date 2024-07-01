@@ -22,7 +22,7 @@ class AuditoriaController extends Controller
 
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Request', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Request', $request->all()]);
         $empleado = Empleado::find($request->empleado);
         $request['user_id'] = $empleado?->usuario_id;
 
@@ -51,7 +51,7 @@ class AuditoriaController extends Controller
         //         $q->whereBetween('created_at', [$fecha_inicio, $fecha_fin]);
         //     })
         //     ->orderBy('updated_at', 'desc')->get();
-        Log::channel('testing')->info('Log', ['Request antes de filtrar', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Request antes de filtrar', $request->all()]);
         $results = Audit::ignoreRequest(['empleado', 'fecha_inicio', 'fecha_fin', 'auditable_type'])->filter()
             ->when($request->auditable_type, function ($q) use ($request) {
                 $q->where('auditable_type', 'like', '%' . $request->auditable_type);
@@ -62,7 +62,7 @@ class AuditoriaController extends Controller
             return class_basename($model);
         }, $modelosAfectados);
 
-        Log::channel('testing')->info('Log', ['Empleado audits', $results->count()]);
+        // Log::channel('testing')->info('Log', ['Empleado audits', $results->count()]);
         // Log::channel('testing')->info('Log', ['Modelos', $modelos]);
 
         $results = AuditResource::collection($results);
@@ -79,7 +79,7 @@ class AuditoriaController extends Controller
             return class_basename($model);
         }, $modelos);
 
-        Log::channel('testing')->info('Log', ['metodo modelos', $results]);
+        // Log::channel('testing')->info('Log', ['metodo modelos', $results]);
         return response()->json(compact('results'));
     }
 }

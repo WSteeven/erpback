@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\MaterialesService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 
 /*
@@ -29,6 +30,11 @@ use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 |
 */
 
+Route::get('/materiales-intervalo', function () {
+    $materialService = new MaterialesService();
+    $results = $materialService->obtenerMaterialesEmpleadoIntervalo(53, '2024-05-01', '2024-06-30');
+    return response()->json(compact('results'));
+});
 Route::get('/qrcode', [PedidoController::class, 'qrview']);
 Route::get('/encabezado', [PedidoController::class, 'encabezado']);
 Route::get('/ejemplo', [PedidoController::class, 'example']);
@@ -53,13 +59,11 @@ Route::get('/notificar', function () {
 
     dump($response);
 });
-Route::get('login-social-network',[LoginSocialNetworkController::class, 'login']);
-Route::get('social-network/{driver}',[LoginSocialNetworkController::class, 'handleCallback']);
+Route::get('login-social-network', [LoginSocialNetworkController::class, 'login']);
+Route::get('social-network/{driver}', [LoginSocialNetworkController::class, 'handleCallback']);
 
 // Route::get('verificar', function(){
 //     $empleado = Empleado::find(24);
 
 //     Log::channel('testing')->info('Log', ['Recibe fondos', $empleado->acumula_fondos_reserva==0]);
 // });
-
-
