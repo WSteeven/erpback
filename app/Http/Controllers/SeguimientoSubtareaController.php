@@ -205,7 +205,7 @@ class SeguimientoSubtareaController extends Controller
             }
             $materialOcupadoFecha->id = $index + 1;
             return $materialOcupadoFecha;
-        });
+        })->filter(fn ($materialOcupadoFecha) => $materialOcupadoFecha->total_cantidad_utilizada > 0);
 
 
         return response()->json(compact('results'));
@@ -295,7 +295,7 @@ class SeguimientoSubtareaController extends Controller
             }
             $materialOcupadoFecha->id = $index + 1;
             return $materialOcupadoFecha;
-        });
+        })->filter(fn ($materialOcupadoFecha) => $materialOcupadoFecha->total_cantidad_utilizada > 0);
 
         return response()->json(compact('results'));
     }

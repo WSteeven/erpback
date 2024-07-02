@@ -311,4 +311,9 @@ class TareaController extends Controller
     //     $results = TareaResource::collection($results);
     //     return response()->json(compact('results'));
     // }
+
+    public function descargarReporteMateriales()
+    {
+        return $this->tareaService->descargarReporteMateriales();
+    }
 }

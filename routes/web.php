@@ -30,11 +30,7 @@ use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 |
 */
 
-Route::get('/materiales-intervalo', function () {
-    $materialService = new MaterialesService();
-    $results = $materialService->obtenerMaterialesEmpleadoIntervalo(53, '2024-05-01', '2024-06-30');
-    return response()->json(compact('results'));
-});
+
 Route::get('/qrcode', [PedidoController::class, 'qrview']);
 Route::get('/encabezado', [PedidoController::class, 'encabezado']);
 Route::get('/ejemplo', [PedidoController::class, 'example']);
