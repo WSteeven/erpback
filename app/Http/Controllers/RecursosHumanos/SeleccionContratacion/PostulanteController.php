@@ -35,7 +35,7 @@ class PostulanteController extends Controller
                 'password' => bcrypt($datos['password']),
             ]);
             $datos['usuario_external_id'] = $user->id;
-             Postulante::create($datos);
+            Postulante::create($datos);
             $token = $user->createToken('auth_token')->plainTextToken;
             $modelo_user = new UserExternalResource($user);
             $postData = ['access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo_user];

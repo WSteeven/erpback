@@ -47,7 +47,7 @@ class Oauth2Service
                 break;
         }
     }
-    private function obtenerParametos()
+    private function obtenerParametros()
     {
         $this->queryParams = [
             'client_id' => $this->clientId,
@@ -60,7 +60,7 @@ class Oauth2Service
     }
     public function obtenerUrl()
     {
-        $this->obtenerParametos();
+        $this->obtenerParametros();
         return $this->url . '?' . http_build_query($this->queryParams, '', '&', PHP_QUERY_RFC3986);
     }
 }

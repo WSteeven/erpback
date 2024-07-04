@@ -65,8 +65,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
-use App\Models\DetalleProducto;
-use App\Models\Empleado;
 use App\Models\Pais;
 use Carbon\Carbon;
 
@@ -88,17 +86,17 @@ Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos'])
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);
 Route::post('asignar-permisos-usuario', [PermisoRolController::class, 'asignarPermisosUsuario']);
 Route::post('crear-permiso', [PermisoRolController::class, 'crearPermisoRol']);
+Route::post('usuarios/login', [LoginController::class, 'login']);
+Route::post('usuarios-externos/login', [LoginSocialNetworkController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
 Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
-Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
+// Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
 Route::get('auth-social',[LoginSocialNetworkController::class, 'getDataFromSession']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('registrar', [UserController::class, 'store']);
-    Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LoginController::class, 'logout']);
-    Route::post('login-postulante', [LoginSocialNetworkController::class, 'login']);
     Route::post('logout-postulante', [LoginSocialNetworkController::class, 'logout']);
     Route::get('ver/{empleado}', [UserController::class, 'show']);
     Route::put('actualizar/{empleado}', [UserController::class, 'update']);

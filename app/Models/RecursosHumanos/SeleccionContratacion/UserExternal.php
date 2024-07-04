@@ -54,41 +54,13 @@ class UserExternal extends Authenticatable implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
-    // Permite a vue acceder a los roles y permisos
-    public function getAllPermissionsAttribute()
-    {
-        $permissions = [];
-        $user = UserExternal::find(Auth::id());
-        foreach (Permission::all() as $permission) {
-            if ($user->can($permission->name)) {
-                $permissions[] = $permission->name;
-            }
-        }
-        return $permissions;
-    }
-    public function obtenerPermisos($user_id)
-    {
-        $permissions = [];
-        $user = UserExternal::find($user_id);
-        foreach (Permission::all() as $permission) {
-            if ($user->can($permission->name)) {
-                $permissions[] = $permission->name;
-            }
-        }
-        return $permissions;
-    }
-        /**
-     * Relacion uno a muchos
-     * Un usuario es solicitante de varias transacciones
-     */
-    /*public function transacciones()
-    {
-        return $this->hasMany(TransaccionesBodega::class, 'solicitante_id');
-    } */
-
+    
+    
     // Relacion uno a uno
     public function postulante()
     {
         return $this->hasOne(Postulante::class, 'usuario_external_id');
     }
+    
+    
 }

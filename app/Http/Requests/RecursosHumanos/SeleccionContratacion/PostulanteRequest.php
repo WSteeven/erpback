@@ -29,7 +29,7 @@ class PostulanteRequest extends FormRequest
             'tipo_documento_identificacion' => 'required|string',
             'numero_documento_identificacion'=>'string|required|unique:rrhh_postulantes,numero_documento_identificacion|min:10',
             'telefono' => 'required|string' ,
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'required|email|max:255|unique:rrhh_users_externals,email',
             'password' => 'required|string|min:8',
         ];
     }

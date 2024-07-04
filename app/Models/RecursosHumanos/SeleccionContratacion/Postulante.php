@@ -2,19 +2,22 @@
 
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+
 class Postulante extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
+    use UppercaseValuesTrait;
     use Filterable;
     const CEDULA = 'CEDULA';
-    CONST RUC = 'RUC';
-    CONST PASAPORTE = 'PASAPORTE';
+    const RUC = 'RUC';
+    const PASAPORTE = 'PASAPORTE';
     protected $table = 'rrhh_postulantes';
     protected $fillable = [
         'nombres',
@@ -39,7 +42,8 @@ class Postulante extends Model implements Auditable
         'estado' => 'boolean',
     ];
 
-    public function usuario(){
-        return $this->hasOne(UserExternal::class,'id', 'usuario_external_id');
+    public function usuario()
+    {
+        return $this->hasOne(UserExternal::class, 'id', 'usuario_external_id');
     }
 }
