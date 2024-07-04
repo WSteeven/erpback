@@ -62,7 +62,8 @@ class DetalleProductoResource extends JsonResource
             'calibre' => $this->calibre,
             'peso' => $this->peso,
             'dimensiones' => $this->dimensiones,
-            'permiso' => $this->permiso,
+            'permiso' => $this->permisoArma?->nombre,
+
             'caducidad' => $this->caducidad,
 
 

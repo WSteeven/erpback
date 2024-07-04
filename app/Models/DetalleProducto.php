@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Bodega\PermisoArma;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
@@ -99,6 +100,10 @@ class DetalleProducto extends Model implements Auditable
     public function inventarios()
     {
         return $this->hasMany(Inventario::class, 'detalle_id');
+    }
+
+    public function permisoArma(){
+        return $this->hasOne(PermisoArma::class, 'id','permiso_id');
     }
 
     public function itemsPreingresos()
