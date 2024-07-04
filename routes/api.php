@@ -259,6 +259,8 @@ Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'show
 Route::get('comprobantes-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarComprobante'])->middleware('auth:sanctum');
 Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarEgresos'])->middleware('auth:sanctum');
 
+//Modificar egreso
+Route::patch('modificar-item-egreso',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);

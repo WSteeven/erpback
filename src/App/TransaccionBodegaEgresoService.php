@@ -4,14 +4,19 @@ namespace Src\App;
 
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
+use App\Models\Comprobante;
 use App\Models\DetalleProducto;
+use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
+use App\Models\Inventario;
 use App\Models\Motivo;
 use App\Models\Subtarea;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -394,7 +399,7 @@ class TransaccionBodegaEgresoService
             ->where('subtarea_id', $idSubtarea)
             ->groupBy('detalle_producto_id', 'cliente_id')
             ->get();
-            // ->groupBy('detalle_producto_id')
+        // ->groupBy('detalle_producto_id')
     }
 
     /***************************************************************************************************
@@ -436,7 +441,7 @@ class TransaccionBodegaEgresoService
             ->get();
     }
 
-     /*************************************************************************************
+    /*************************************************************************************
      * TAREA - Aqui se listan los productos utilizados de varios clientes, no solo de uno
      *************************************************************************************/
     public function obtenerSumaMaterialTareaUsadoHistorial($idSubtarea, $idEmpleado)
@@ -453,5 +458,135 @@ class TransaccionBodegaEgresoService
             ->where('subtarea_id', $idSubtarea)
             ->groupBy('detalle_producto_id', 'cliente_id')
             ->get();
+    }
+
+
+    public function modificarItemEgresoPendiente(Request $request)
+    {
+        $itemInventario = Inventario::find($request->item['id']);
+        $detalleProductoTransaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
+        try {
+            DB::beginTransaction();
+            //primero verificamos si se va a restar o no 
+            if ($request->item['cantidad'] > $request->item['pendiente']) {
+                // Esto significa que se va a despachar más cantidad
+                // En este caso se va a restar cantidad del inventario 
+
+                // 200 - 100 = 100 > 870 = false
+                if (($request->item['cantidad'] - $request->item['pendiente']) > $itemInventario->cantidad)
+                    throw new Exception('La cantidad para el item ' . $request->item['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $itemInventario->cantidad);
+
+                $itemInventario->cantidad -=  ($request->item['cantidad'] - $request->item['pendiente']);
+                $itemInventario->save();
+                $detalleProductoTransaccion->cantidad_inicial =  $request->item['cantidad'];
+                $detalleProductoTransaccion->save();
+            } else {
+                // Esto significa que se va a despachar menos cantidad o a quitar el item 
+                // En este caso se va a sumar cantidad al inventario
+                if ($request->item['cantidad'] === 0) { //Significa que se va a eliminar el item del despacho, la cantidad inicial regresa al inventario
+                    $itemInventario->cantidad  += $detalleProductoTransaccion->cantidad_inicial;
+                    $itemInventario->save();
+                    $detalleProductoTransaccion->delete();
+                    DB::commit();
+                    return;
+                }
+                // cuando cantidad > 0 se suma al inventario la diferencia entre pendiente y cantidad 
+                $itemInventario->cantidad += ($request->item['pendiente'] - $request->item['cantidad']);
+                $itemInventario->save();
+                $detalleProductoTransaccion->cantidad_inicial = $request->item['cantidad'];
+                $detalleProductoTransaccion->save();
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+    public function modificarItemEgresoParcial(Request $request)
+    {
+        $itemInventario = Inventario::find($request->item['id']);
+        $detalleProductoTransaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
+        if ($detalleProductoTransaccion->recibido > 0 && $request->item['cantidad'] > $detalleProductoTransaccion->cantidad_inicial) throw new Exception('No se puede despachar más cantidad a un ítem que ya tiene una cantidad recibida mayor a 0');
+        if ($request->item['cantidad'] === 0 && $detalleProductoTransaccion->recibido > 0) throw new Exception('No puede establecer cantidad cero para un item que ya tiene un valor de recibido');
+        try {
+            DB::beginTransaction();
+            //primero verificamos si se va a restar o no 
+            /**
+             * Que pasa si:
+             * cantidad  = 10
+             * pendiente = 6
+             * recibido  = 4 
+             */
+            // item['cantidad'] = 8
+
+            if ($request->item['cantidad'] > $request->item['pendiente']) {
+                // Esto significa que se va a despachar más cantidad
+                // En este caso se va a restar cantidad del inventario 
+                // 10 - 1 = 9 > 2 = true
+                // 2 - 1 = 1 > 2 = false
+                if (($request->item['cantidad'] - $request->item['pendiente']) > $itemInventario->cantidad)
+                    throw new Exception('La cantidad para el item ' . $request->item['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $itemInventario->cantidad);
+
+                $itemInventario->cantidad -=  ($request->item['cantidad'] - $request->item['pendiente']);
+                $itemInventario->save();
+                $detalleProductoTransaccion->cantidad_inicial = $request->item['cantidad'];
+                $detalleProductoTransaccion->save();
+                $this->actualizarTransaccionEgreso($request->transaccion_id);
+            } else {
+                // Esto significa que se va a despachar menos cantidad o a quitar el item 
+                // En este caso se va a sumar cantidad al inventario
+                if ($request->item['cantidad'] === 0 && $detalleProductoTransaccion->recibido === 0) { //Significa que se va a eliminar el item del despacho, la cantidad inicial regresa al inventario
+                    $itemInventario->cantidad  += $detalleProductoTransaccion->cantidad_inicial;
+                    $itemInventario->save();
+                    $detalleProductoTransaccion->delete();
+                    $this->actualizarTransaccionEgreso($request->transaccion_id);
+                    DB::commit();
+                    return;
+                }
+                //Ejemplo de cantidad_inicial=10 y recibido=5
+                // En su momento se restó 10 al inventario
+                // La transaccion tiene recibido 5, entonces en el frontend se muesta: cantidad=10, pendiente=5 y recibido=5
+                if ($request->item['cantidad'] === $detalleProductoTransaccion->recibido) {
+                    $itemInventario->cantidad += ($detalleProductoTransaccion->cantidad_inicial - $detalleProductoTransaccion->recibido);
+                    $itemInventario->save();
+                    $detalleProductoTransaccion->cantidad_inicial = $detalleProductoTransaccion->recibido;
+                    $detalleProductoTransaccion->save();
+                    $this->actualizarTransaccionEgreso($request->transaccion_id);
+                    DB::commit();
+                    return;
+                }
+                // Otro ejemplo de cantidad_inicial=10 y recibido=3, nos mostraria pendiente=7
+                // Desde el front viene 
+                // cantidad = 6 
+                // pendiente= 7  
+                // recibido = 3
+                // cuando cantidad > 0 se suma al inventario la diferencia entre pendiente y cantidad 
+                $itemInventario->cantidad += ($detalleProductoTransaccion->cantidad_inicial - $detalleProductoTransaccion->recibido - $detalleProductoTransaccion->recibido);
+                $itemInventario->save();
+                $detalleProductoTransaccion->cantidad_inicial = $request->item['cantidad'];
+                $detalleProductoTransaccion->save();
+                $this->actualizarTransaccionEgreso($request->transaccion_id);
+            }
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    private function actualizarTransaccionEgreso(int $transaccion_id)
+    {
+        //Verificación de la transacción para saber si se actualizó correctamente
+        $transaccion = TransaccionBodega::find($transaccion_id);
+        if (Comprobante::verificarEgresoCompletado($transaccion->id)) {
+            $transaccion->estado_id = EstadosTransacciones::COMPLETA;
+            $transaccion->save();
+            $comprobante = Comprobante::where('transaccion_id', $transaccion->id)->first();
+            $comprobante->estado = TransaccionBodega::ACEPTADA;
+            $comprobante->observacion = $transaccion->observacion_est;
+            $comprobante->firmada = !$comprobante->firmada;
+            $comprobante->save();
+        }
     }
 }

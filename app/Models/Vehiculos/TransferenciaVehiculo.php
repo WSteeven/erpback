@@ -40,7 +40,7 @@ class TransferenciaVehiculo extends Model implements Auditable
         'estado_carroceria',
         'estado_mecanico',
         'estado_electrico',
-        'garaje',
+        'garaje_id',
         'latitud',
         'longitud',
     ];

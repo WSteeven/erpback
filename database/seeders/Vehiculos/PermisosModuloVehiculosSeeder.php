@@ -13,7 +13,7 @@ class PermisosModuloVehiculosSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * php artisan db:seed --class=PermisosModuloVehiculosSeeder
+     * php artisan db:seed --class=Database\Seeders\Vehiculos\PermisosModuloVehiculosSeeder
      * @return void
      */
     public function run()
@@ -43,6 +43,13 @@ class PermisosModuloVehiculosSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'vehiculos'])->syncRoles([$admin]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'vehiculos'])->syncRoles([$admin]);
         Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'vehiculos'])->syncRoles([$admin]);
+
+        //Garajes
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'garajes'])->syncRoles([$admin, $mecanico]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'garajes'])->syncRoles([$admin, $chofer, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'garajes'])->syncRoles([$admin, $mecanico]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'garajes'])->syncRoles([$admin]);
+        // Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'garajes'])->syncRoles([$admin]);
 
         //Conductores
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'conductores'])->syncRoles([$admin, $rrhh]);
