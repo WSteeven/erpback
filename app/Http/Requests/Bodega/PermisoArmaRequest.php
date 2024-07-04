@@ -25,8 +25,8 @@ class PermisoArmaRequest extends FormRequest
     {
         return [
             'nombre' => 'string|required',
-            'caducidad' => 'string|required',
-            'emision' => 'string|required',
+            'fecha_emision' => 'string|required',
+            'fecha_caducidad' => 'string|required',
             'imagen_permiso' => 'string|required',
         ];
     }

@@ -194,6 +194,7 @@ Route::apiResources(
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
             'notificaciones' => 'notificacion',
+            'permisos-armas' => 'permiso',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',

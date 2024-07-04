@@ -54,6 +54,7 @@ class DetalleProductoRequest extends FormRequest
             'peso' => 'sometimes|nullable|string',
             'dimensiones' => 'sometimes|nullable|string',
             'permiso' => 'sometimes|nullable|string',
+            'permiso_id' => 'sometimes|nullable|exists:bod_permisos_armas,id',
             'caducidad' => 'sometimes|nullable|string',
 
             'es_fibra' => 'boolean',

@@ -17,8 +17,8 @@ class PermisoArmaResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'caducidad' => $this->caducidad,
-            'emision' => $this->emision,
+            'fecha_emision' => $this->fecha_emision,
+            'fecha_caducidad' => $this->fecha_caducidad,
             'imagen_permiso' => $this->imagen_permiso,
         ];
     }

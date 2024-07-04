@@ -86,6 +86,7 @@ class DetalleProductoResource extends JsonResource
             $modelo['ram'] = $this->computadora ? $this->computadora->memoria->id : null;
             $modelo['disco'] = $this->computadora ? $this->computadora->disco->id : null;
             $modelo['procesador'] = $this->computadora ? $this->computadora->procesador->id : null;
+            $modelo['permiso_id'] = $this->permiso_id;
         }
         return $modelo;
     }

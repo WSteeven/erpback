@@ -20,8 +20,8 @@ class PermisoArma extends Model implements Auditable
     protected $table = 'bod_permisos_armas';
     protected $fillable = [
         'nombre',
-        'caducidad',
-        'emision',
+        'fecha_emision',
+        'fecha_caducidad',
         'imagen_permiso',
     ];
     protected $casts = [

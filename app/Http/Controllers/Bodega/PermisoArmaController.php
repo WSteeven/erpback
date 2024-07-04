@@ -8,6 +8,8 @@ use App\Http\Resources\Bodega\PermisoArmaResource;
 use App\Models\Bodega\PermisoArma;
 use Exception;
 use Illuminate\Http\Request;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class PermisoArmaController extends Controller
@@ -42,7 +44,11 @@ class PermisoArmaController extends Controller
     public function store(PermisoArmaRequest $request)
     {
         //Respuesta
-        $modelo = PermisoArma::create($request->validated());
+        $datos = $request->validated();
+        if ($datos['imagen_permiso']) {
+            $datos['imagen_permiso'] = (new GuardarImagenIndividual($datos['imagen_permiso'], RutasStorage::IMAGENES_PERMISOS_ARMAS))->execute();
+        }
+        $modelo = PermisoArma::create($datos);
         $modelo = new PermisoArmaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -71,7 +77,13 @@ class PermisoArmaController extends Controller
     public function update(PermisoArmaRequest $request, PermisoArma $permiso)
     {
         //Respuesta
-        $permiso->update($request->validated());
+        $datos = $request->validated();
+        if ($datos['imagen_permiso'] && Utils::esBase64($datos['imagen_permiso'])) {
+            $datos['imagen_permiso'] = (new GuardarImagenIndividual($datos['imagen_permiso'], RutasStorage::IMAGENES_PERMISOS_ARMAS))->execute();
+        } else {
+            unset($datos['imagen_permiso']);
+        }
+        $permiso->update($datos);
         $modelo = new PermisoArmaResource($permiso->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

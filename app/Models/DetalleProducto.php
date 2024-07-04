@@ -50,6 +50,7 @@ class DetalleProducto extends Model implements Auditable
         'peso',
         'dimensiones',
         'permiso',
+        'permiso_id',
         'caducidad',
         'tipo',
         'url_imagen',
