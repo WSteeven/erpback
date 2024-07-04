@@ -20,6 +20,7 @@ use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\Bodega\PermisoArmaController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -161,6 +162,7 @@ Route::apiResources(
         'permisos' => PermisoController::class,
         'pisos' => PisoController::class,
         'detalles' => DetalleProductoController::class,
+        'permisos-armas' => PermisoArmaController::class,
         'preingresos' => PreingresoMaterialController::class,
         'proveedores' => ProveedorController::class,
         'rams' => RamController::class,
