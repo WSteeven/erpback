@@ -41,7 +41,7 @@ class AsignacionVehiculoResource extends JsonResource
             $modelo['entrega'] = $this->entrega_id;
             $modelo['responsable'] = $this->responsable_id;
             $modelo['canton'] = $this->canton_id;
-            $modelo['garaje'] = $this->garaje;
+            $modelo['garaje'] = $this->garaje_id;
             $modelo['latitud'] = $this->latitud;
             $modelo['longitud'] = $this->longitud;
         }

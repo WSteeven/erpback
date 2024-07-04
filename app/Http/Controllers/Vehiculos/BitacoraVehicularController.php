@@ -51,9 +51,9 @@ class BitacoraVehicularController extends Controller
             else {
                 // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
                 $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
-                $results = BitacoraVehicularResource::collection($results);
             }
         }
+        $results = BitacoraVehicularResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -68,8 +68,6 @@ class BitacoraVehicularController extends Controller
         $datos = $request->validated();
         $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
         $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
-        Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
-        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
         
         //imagen del inicio de jornada
         if ($datos['imagen_inicial']) {

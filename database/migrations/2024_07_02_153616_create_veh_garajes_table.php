@@ -13,7 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('estado_acreditaciones', function (Blueprint $table) {
+        Schema::create('veh_garajes', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }
@@ -25,9 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('estado_acreditaciones', function (Blueprint $table) {
-            $table->dropColumn('created_at');
-            $table->dropColumn('updated_at');
-        });
+        Schema::dropIfExists('veh_garajes');
     }
 };

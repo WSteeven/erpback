@@ -108,7 +108,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
     }
 
     // Suma los productos del stock
-    public static function cargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id, int|null $proyecto_id, int|null $etapa_id)
+    public static function cargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int|null $cliente_id, int|null $proyecto_id, int|null $etapa_id)
     {
         try {
             $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)

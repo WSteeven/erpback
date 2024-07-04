@@ -82,11 +82,11 @@ class BitacoraVehicularRequest extends FormRequest
                 }
             }
             //Verificamos si el km_inicial no es inferior al ultimo registrado
-            $ultimaBitacora = BitacoraVehicular::where('vehiculo_id', $this->vehiculo_id)->orderBy('id', 'desc')->first();
+            $ultimaBitacora = BitacoraVehicular::where('vehiculo_id', $this->vehiculo_id)->where('firmada', true)->orderBy('id', 'desc')->first();
             if ($ultimaBitacora) {
                 if ($this->km_inicial < $ultimaBitacora->km_final) {
                     // $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final');
-                    $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final. Ultimo km_final: '.$ultimaBitacora->km_final);
+                    $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final. Ultimo km_final: ' . $ultimaBitacora->km_final);
                 }
             }
         });
