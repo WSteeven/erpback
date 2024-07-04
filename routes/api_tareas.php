@@ -31,6 +31,7 @@ use App\Http\Controllers\Tareas\CentroCostoController;
 use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
+use Src\App\MaterialesService;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
@@ -155,12 +156,18 @@ Route::post('actualizar-cantidad-utilizada-historial-stock', [SeguimientoSubtare
 
 // Editar cantidad utilizada el dia actual
 Route::post('actualizar-cantidad-utilizada-tarea', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaMaterialTarea']);
+/* The `Route::get('obtener-fechas-historial-materiales-usados/{subtarea}',
+[SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesUsados']);` route is
+defining a GET route in Laravel that is mapped to the `obtenerFechasHistorialMaterialesUsados`
+method within the `SeguimientoSubtareaController` controller. */
 Route::post('actualizar-cantidad-utilizada-stock', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaMaterialStock']);
 
 
 // Clientes dueños de materiales
 Route::get('obtener-clientes-materiales-empleado', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesEmpleado']);
 Route::get('obtener-clientes-materiales-tarea', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesTarea']);
+
+Route::get('/reporte-materiales', [TareaController::class, 'descargarReporteMateriales']);
 
 /***********
  * Reportes
