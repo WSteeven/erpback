@@ -54,6 +54,7 @@ class DetalleProducto extends Model implements Auditable
         'tipo',
         'url_imagen',
         'es_fibra',
+        'esActivo',
 
     ];
     protected $casts = [

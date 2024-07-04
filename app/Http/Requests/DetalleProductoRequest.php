@@ -57,6 +57,7 @@ class DetalleProductoRequest extends FormRequest
             'caducidad' => 'sometimes|nullable|string',
 
             'es_fibra' => 'boolean',
+            'esActivo' => 'boolean',
             'tipo' => ['sometimes', 'nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
         ];
 
