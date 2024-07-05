@@ -86,15 +86,14 @@ Route::apiResources(
         'solicitud-puesto-empleo' => SolicitudPuestoEmpleoController::class,
         'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
         'postulantes' => PostulanteController::class,
-        'tipos-discapacidades' =>TipoDiscapacidadController::class,
+        'tipos-discapacidades' => TipoDiscapacidadController::class,
     ],
     [
         'parameters' => [
             'descuentos_generales' => 'descuento_general',
             'descuentos_ley' => 'descuento_ley',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo'
-        ],
-
+        ]
     ]
 );
 Route::post('registro', [PostulanteController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
