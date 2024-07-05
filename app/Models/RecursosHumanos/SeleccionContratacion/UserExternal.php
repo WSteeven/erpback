@@ -57,7 +57,7 @@ class UserExternal extends Authenticatable implements Auditable
     
     
     // Relacion uno a uno
-    public function postulante()
+    public function persona()
     {
         return $this->hasOne(Postulante::class, 'usuario_external_id');
     }

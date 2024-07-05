@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Externos\UserExternalInfoResource;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use App\Http\Resources\UserInfoResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
@@ -53,9 +54,10 @@ class LoginSocialNetworkController extends Controller
                 ]);
             }
 
-            if ($user->empleado->estado) {
+            // if ($user->empleado->estado) {
+            if ($user) {
                 $token = $user->createToken('auth_token')->plainTextToken;
-                $modelo = new UserInfoResource($user);
+                $modelo = new UserExternalInfoResource($user);
                 return response()->json([
                     'mensaje' => 'Usuario autenticado con éxito',
                     'access_token' => $token, 'token_type' => 'Bearer',

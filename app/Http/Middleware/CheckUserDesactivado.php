@@ -2,15 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Controllers\UserController;
+use App\Models\User;
 use Closure;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Throwable;
-
-use function PHPUnit\Framework\isNull;
 
 class CheckUserDesactivado
 {
@@ -23,37 +17,47 @@ class CheckUserDesactivado
      */
     public function handle(Request $request, Closure $next)
     {
-        $user = auth()->user();
+        if (auth()->check()) {
+            $user = auth()->user();
 
-        if (is_null($user?->empleado)) {
-            if ($user && !$user->postulante->estado) {
-                return $this->invalidateSession($request, 'Tu cuenta ha sido desactivada');
+            if ($user instanceof User && !$this->tieneEmpleadoActivo($user)) {
+                $this->invalidarSesion($request);
             }
-        } elseif ($user && !$user->empleado->estado) {
-            return $this->invalidateSession($request, 'Tu cuenta ha sido desactivada');
         }
 
         return $next($request);
     }
 
-  /**
-   * La función `invalidateSession` invalida la sesión actual, regenera el token de sesión y devuelve
-   * una respuesta JSON con un mensaje específico y un código de estado 401.
-   *
-   * @param Request request El parámetro `` es una instancia de la clase
-   * `Illuminate\Http\Request` en Laravel. Representa una solicitud HTTP y contiene información sobre
-   * la solicitud, como el método de solicitud, los encabezados y los datos de entrada.
-   * @param message El parámetro `` en la función `invalidateSession` es un mensaje
-   * personalizado que se devolverá en la respuesta JSON. Se utiliza para proporcionar información o
-   * comentarios al cliente sobre por qué se invalidó la sesión.
-   *
-   * @return La función `invalidateSession` devuelve una respuesta JSON con un mensaje y un código de
-   * estado 401 (no autorizado).
-   */
-    private function invalidateSession(Request $request, $message)
+    /**
+     * La función comprueba si un usuario tiene un empleado activo asociado.
+     * 
+     * @param User $user instancia de `App\Models\User` sobre la que se verifica.
+     * 
+     * @return bool Devuelve un valor booleano si user tiene un objeto `empleado`
+     * asociado y si la propiedad `estado` del objeto `empleado` es veraz.
+     */
+    private function tieneEmpleadoActivo(User $user)
+    {
+        return $user->empleado && $user->empleado->estado;
+    }
+
+    /**
+     * La función invalida la sesión, regenera el token y devuelve una respuesta JSON que indica que la
+     * cuenta ha sido desactivada.
+     * 
+     * @param Request $request El parámetro `request` en la función `invalidarSesion` es una instancia
+     * de la clase `Illuminate\Http\Request`. Se utiliza para acceder a la solicitud HTTP entrante,
+     * incluidos los datos o parámetros enviados con la solicitud.
+     * 
+     * @return json  La función `invalidarSesion` devuelve una respuesta JSON con un mensaje que indica que
+     * la cuenta del usuario ha sido desactivada. El código de estado HTTP para esta respuesta es 401,
+     * lo que significa acceso no autorizado.
+     */
+    private function invalidarSesion(Request $request)
     {
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return response()->json(['mensaje' => $message], 401);
+        $error = 'Tu cuenta ha sido desactivada';
+        return response()->json(['mensaje' => $error], 401);
     }
 }

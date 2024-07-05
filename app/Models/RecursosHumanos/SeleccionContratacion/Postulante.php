@@ -46,4 +46,9 @@ class Postulante extends Model implements Auditable
     {
         return $this->hasOne(UserExternal::class, 'id', 'usuario_external_id');
     }
+
+    public static function extraerNombresApellidos(Postulante $persona)
+    {
+        return $persona->nombres . ' ' . $persona->apellidos;
+    }
 }
