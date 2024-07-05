@@ -205,7 +205,7 @@ class SeguimientoSubtareaController extends Controller
             }
             $materialOcupadoFecha->id = $index + 1;
             return $materialOcupadoFecha;
-        })->filter(fn ($materialOcupadoFecha) => $materialOcupadoFecha->total_cantidad_utilizada > 0);
+        }); // ->filter(fn ($materialOcupadoFecha) => $materialOcupadoFecha->total_cantidad_utilizada > 0);
 
 
         return response()->json(compact('results'));
@@ -291,11 +291,13 @@ class SeguimientoSubtareaController extends Controller
                     return $item->detalle_producto_id === $materialOcupadoFecha->detalle_producto_id && $item->cliente_id === $materialOcupadoFecha->cliente_id;
                 });
 
-                $materialOcupadoFecha->total_cantidad_utilizada = $materialUsadoEncontrado->suma_total;
+                $materialOcupadoFecha->total_cantidad_utilizada = intval($materialUsadoEncontrado->suma_total);
             }
             $materialOcupadoFecha->id = $index + 1;
             return $materialOcupadoFecha;
-        })->filter(fn ($materialOcupadoFecha) => $materialOcupadoFecha->total_cantidad_utilizada > 0);
+        }); // ->filter(fn ($materialOcupadoFecha) => $materialOcupadoFecha->total_cantidad_utilizada > 0);
+
+        // $results = $results->filter(fn ($materialOcupadoFecha) => true $materialOcupadoFecha->total_cantidad_utilizada > 0);
 
         return response()->json(compact('results'));
     }
