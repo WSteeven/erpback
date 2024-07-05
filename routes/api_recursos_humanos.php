@@ -80,18 +80,13 @@ Route::apiResources(
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
-<<<<<<< HEAD
         /*************************************************
          *  Modulo de Seleción y contratación de personal
          *************************************************/
         'solicitud-puesto-empleo' => SolicitudPuestoEmpleoController::class,
         'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
         'postulantes' => PostulanteController::class,
-        'tipos-discapacidades' =>TipoDiscapacidadController::class
-=======
-        'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
-        'tipos-discapacidades' => TipoDiscapacidadController::class,
->>>>>>> origin/desarrollo
+        'tipos-discapacidades' =>TipoDiscapacidadController::class,
     ],
     [
         'parameters' => [
