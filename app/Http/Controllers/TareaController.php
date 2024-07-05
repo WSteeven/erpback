@@ -40,7 +40,7 @@ class TareaController extends Controller
 
     public function listar()
     {
-        $campos = explode(',', request('campos'));
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
 
@@ -159,7 +159,7 @@ class TareaController extends Controller
             $modelo = new TareaResource($tarea->refresh());
             $mensaje = 'Tarea finalizada exitosamente';
 
-            $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id');
+            $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id')->filter();
 
             foreach ($destinatarios as $destinatario) {
                 event(new TareaEvent($tarea, Auth::user()->empleado->id, $destinatario));
@@ -311,4 +311,9 @@ class TareaController extends Controller
     //     $results = TareaResource::collection($results);
     //     return response()->json(compact('results'));
     // }
+
+    public function descargarReporteMateriales()
+    {
+        return $this->tareaService->descargarReporteMateriales();
+    }
 }

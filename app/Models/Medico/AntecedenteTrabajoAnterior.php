@@ -28,6 +28,6 @@ class AntecedenteTrabajoAnterior extends Model implements Auditable
 
     public function riesgos()
     {
-        return $this->hasMany(RiesgoAntecedenteEmpleoAnterior::class);
+        return $this->hasMany(RiesgoAntecedenteEmpleoAnterior::class, 'antecedente_id', 'id');
     }
 }

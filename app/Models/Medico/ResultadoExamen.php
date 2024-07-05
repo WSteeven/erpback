@@ -25,7 +25,7 @@ class ResultadoExamen extends Model implements Auditable
 
     public function configuracionExamenCampo()
     {
-        return $this->hasOne(ConfiguracionExamenCampo::class);
+        return $this->belongsTo(ConfiguracionExamenCampo::class);
     }
 
     public function estadoSolicitudExamen()

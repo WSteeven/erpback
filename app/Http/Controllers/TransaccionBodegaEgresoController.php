@@ -34,18 +34,11 @@ use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
-use App\Models\Producto;
-use App\Models\SeguimientoMaterialStock;
-use App\Models\SeguimientoMaterialSubtarea;
-use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
-use Src\App\MaterialesService;
 use Src\App\Tareas\ProductoEmpleadoService;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\Autorizaciones;
-use Src\Config\ClientesCorporativos;
 
 class TransaccionBodegaEgresoController extends Controller
 {
@@ -451,5 +444,26 @@ class TransaccionBodegaEgresoController extends Controller
         }
         $results = TransaccionBodegaResource::collection($datos);
         return response()->json(compact('results'));
+    }
+
+    public function modificarItemEgreso(Request $request)
+    {
+        // Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
+        try {
+            switch ($request->tipo) {
+                case 'PENDIENTE':
+                    $this->servicio->modificarItemEgresoPendiente($request);
+                    break;
+                case 'PARCIAL':
+                    $this->servicio->modificarItemEgresoParcial($request);
+                    break;
+            }
+            
+
+            $modelo = [];
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        return response()->json(compact('modelo'));
     }
 }

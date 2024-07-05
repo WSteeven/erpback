@@ -42,6 +42,27 @@ class RespuestaCuestionarioEmpleadoController extends Controller
      * @param  \Illuminate\Http\RespuestaCuestionarioEmpleadoRequest  $request
      * @return \Illuminate\Http\Response
      */
+    public function storeOld(RespuestaCuestionarioEmpleadoRequest $request)
+    {
+        try {
+            $datos = $request->validated();
+            DB::beginTransaction();
+
+            $cuestionario_pisicosocial_service = new CuestionarioPisicosocialService($request->empleado_id);
+            $cuestionario_pisicosocial_service->guardarCuestionario(new RespuestaCuestionarioEmpleado(), $request->cuestionario);
+            $modelo = [];
+            $mensaje = 'Gracias por completar el cuestionario.';// Utils::obtenerMensaje($this->entidad, 'store');
+
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+        }
+    }
+
     public function store(RespuestaCuestionarioEmpleadoRequest $request)
     {
         try {

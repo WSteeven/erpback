@@ -56,7 +56,8 @@ class ProductoTareaEmpleadoService
     private function listarMaterialesSeguimiento()
     {
         $ignoreRequest = ['subtarea_id'];
-        if (!request('etapa_id'))  array_push($ignoreRequest, 'etapa_id');
+
+        if (!request('etapa_id')) array_push($ignoreRequest, 'etapa_id');
         if (!request('cliente_id')) {
             if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->where('etapa_id', null)->materiales()->get();
             else $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->materiales()->get();
@@ -109,7 +110,7 @@ class ProductoTareaEmpleadoService
         if (!$this->tieneCliente()) $consulta = $consulta->where('cliente_id', '=', null);
 
         $results = $consulta->get();
-        Log::channel('testing')->info('Log', compact('results'));
+        // Log::channel('testing')->info('Log', compact('results'));
         return $results;
     }
 
@@ -147,14 +148,15 @@ class ProductoTareaEmpleadoService
 
     private function mapearSumaMaterialUtilizadoSeguimiento($materialesTarea)
     {
-        $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado(request('subtarea_id'), request('empleado_id'));
-        $results = $materialesTarea->map(function ($material) use ($materialesUsados) {
-            if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
-                $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
-                    return $item->detalle_producto_id === $material['detalle_producto_id'];
+        $sumaMaterialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado(request('subtarea_id'), request('empleado_id'));
+
+        $results = $materialesTarea->map(function ($materialOcupadoFecha) use ($sumaMaterialesUsados) {
+            if ($sumaMaterialesUsados->contains('detalle_producto_id', $materialOcupadoFecha['detalle_producto_id']) && $sumaMaterialesUsados->contains('cliente_id', $materialOcupadoFecha['cliente_id'])) {
+                $materialOcupadoFecha['total_cantidad_utilizada'] = $sumaMaterialesUsados->first(function ($item) use ($materialOcupadoFecha) {
+                    return $item->detalle_producto_id === $materialOcupadoFecha['detalle_producto_id'] && $item->cliente_id === $materialOcupadoFecha['cliente_id'];
                 })->suma_total;
             }
-            return $material;
+            return $materialOcupadoFecha;
         });
 
         $results = $results->sortByDesc(function ($elemento) {
@@ -168,6 +170,10 @@ class ProductoTareaEmpleadoService
     // Obtener los materiales utilizados en el dia actual
     private function obtenerMaterialesUsadosHoy()
     {
-        return SeguimientoMaterialSubtarea::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->where('cliente_id', request('cliente_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+        return SeguimientoMaterialSubtarea::where('empleado_id', request('empleado_id'))
+            ->where('subtarea_id', request('subtarea_id'))
+            ->where('cliente_id', request('cliente_id'))
+            ->whereDate('created_at', Carbon::now()->format('Y-m-d'))
+            ->get();
     }
 }

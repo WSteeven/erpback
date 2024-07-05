@@ -10,7 +10,7 @@ class EstadoCivilController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('can:puede.ver.estado_civil')->only('index', 'show');
+        // $this->middleware('can:puede.ver.estado_civil')->only('index', 'show');
         $this->middleware('can:puede.crear.estado_civil')->only('store');
         $this->middleware('can:puede.editar.estado_civil')->only('update');
         $this->middleware('can:puede.eliminar.estado_civil')->only('update');

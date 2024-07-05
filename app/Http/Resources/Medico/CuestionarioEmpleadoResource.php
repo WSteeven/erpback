@@ -6,6 +6,7 @@ use App\Models\Medico\Cuestionario;
 use App\Models\Medico\Pregunta;
 use App\Models\Medico\Respuesta;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -14,7 +15,7 @@ class CuestionarioEmpleadoResource extends JsonResource
     private  $respuesta_cuestionario = null;
     /**
      * Transform the resource into an array.
-     *
+     *  Recibe collection Empleados
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
@@ -33,7 +34,10 @@ class CuestionarioEmpleadoResource extends JsonResource
     // Empleado completó el cuestionario del periodo actual
     private function tieneCuestionario(int $empleado_id)
     {
-        return $this->respuesta_cuestionario = RespuestaCuestionarioEmpleado::where('empleado_id', $empleado_id)->with('cuestionario')->exists();
+        $tipo_cuestionario_id = request('tipo_cuestionario_id');
+        return $this->respuesta_cuestionario = RespuestaCuestionarioEmpleado::where('empleado_id', $empleado_id)->whereYear('created_at', request('anio'))->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
+            $q->where('tipo_cuestionario_id', $tipo_cuestionario_id);
+        })->exists();
         // return  $this->respuesta_cuestionario->count() > 0 ? true : false;
     }
 

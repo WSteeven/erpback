@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('med_resultados_habitos_toxicos', function (Blueprint $table) {
             $table->id();
             $table->string('tiempo_consumo_meses');
-            $table->string('tiempo_abstinencia_meses');
+            $table->integer('tiempo_abstinencia_meses')->nullable();
             $table->string('cantidad');
             $table->boolean('ex_consumidor')->default(false);
             $table->unsignedBigInteger('habito_toxicable_id');

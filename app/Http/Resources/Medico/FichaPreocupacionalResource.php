@@ -6,7 +6,10 @@ use App\Models\Medico\AccidenteEnfermedadLaboral;
 use App\Models\Medico\ExamenOrganoReproductivo;
 use App\Models\Medico\RevisionActualOrganoSistema;
 use App\Models\Medico\SistemaOrganico;
+use App\Models\Medico\TipoHabitoToxico;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\App\Medico\FichasMedicasService;
 
 class FichaPreocupacionalResource extends JsonResource
 {
@@ -35,7 +38,8 @@ class FichaPreocupacionalResource extends JsonResource
             'motivo_consulta' => $this->motivo_consulta,
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado !== null ? $this->empleado?->nombres . '' . $this->empleado?->apellidos : ' ',
-            'actividad_fisica' => $this->actividad_fisica,
+            'actividades_fisicas' => $this->actividadesFisicas,
+            'medicaciones' => $this->medicaciones,
             'enfermedad_actual' => $this->enfermedad_actual,
             'recomendaciones_tratamiento' => $this->recomendaciones_tratamiento,
             'grupo_sanguineo' => $this->grupo_sanguineo,
@@ -78,7 +82,7 @@ class FichaPreocupacionalResource extends JsonResource
             /****************************
              * Habito Toxico
              * **************************/
-            'habitos_toxicos' => $this->habitosToxicos,
+            'habitos_toxicos' => $this->mapearHabitosToxicos(),
 
             /********************************
              * Fin Habito Toxico
@@ -93,15 +97,19 @@ class FichaPreocupacionalResource extends JsonResource
             /*************************************
              * Antecedentes de Trabajos Anteriores
              * ***********************************/
-            'antecedentes_trabajos_anteriores' => $this->antecedentesTrabajosAnteriores,
+            /*'antecedentes_empleos_anteriores' => $this->antecedentesTrabajosAnteriores()->with(['riesgos' => function ($query) {
+                $query->pluck('tipo_riesgo_id');
+            }])->get(),*/
+
+            'antecedentes_empleos_anteriores' => $this->mapearAntecedentesEmpleosAnteriores(),
             /*****************************************
              * Fin Antecedentes de Trabajos Anteriores
              * ***************************************/
             /*****************************************
              * Descripcion de Antecedentes de Trabajo
              * ***************************************/
-            'accidentesTrabajo' => $this->accidentesEnfermedades()->where('tipo', AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO)->orderBy('id', 'desc')->first(),
-            'enfermedadesProfesionales' => $this->accidentesEnfermedades()->where('tipo', AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL)->orderBy('id', 'desc')->first(),
+            'accidente_trabajo' => $this->mapearAccidenteTrabajo($this->accidentesEnfermedades()->where('tipo', AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO)->orderBy('id', 'desc')->first()),
+            'enfermedad_profesional' => $this->mapearAccidenteTrabajo($this->accidentesEnfermedades()->where('tipo', AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL)->orderBy('id', 'desc')->first()),
             /*********************************************
              * Fin Descripcion de Antecedentes de Trabajo
              * *******************************************/
@@ -129,7 +137,7 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Revision  actual de organos y sistemas
              * ***************************************/
-            'revisiones_actuales_organos_sistemas' => [$this->mapearRevisionActual()], //)->map(fn($item) => [
+            'revisiones_actuales_organos_sistemas' => $this->mapearRevisionesActualesOrganosSistemas(), //)->map(fn($item) => [
             // 'descripcion' => $item,
             // 'organo_id' => $item->organo_id,
             // 'organo' => $item->organoSistema->nombre,
@@ -158,10 +166,12 @@ class FichaPreocupacionalResource extends JsonResource
             /*****************************************
              *Examenes fisicos regionales
              * ***************************************/
-            'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->get()->map(fn ($item) => [
+            /*'examenes_fisicos_regionales' => $this->examenesFisicosRegionales()->get()->map(fn ($item) => [
                 'categoria_examen_fisico_id' => $item->categoria_examen_fisico_id,
+                'categoria_examen_fisico' => $item->categoriaexamenFisico->nombre,
                 'observacion' => $item['observacion'],
-            ]),
+            ]),*/
+            'examenes_fisicos_regionales' => FichasMedicasService::mapearExamenesFisicosRegionales($this),
             /*********************************************
              * Fin Examenes fisicos regionales
              * *******************************************/
@@ -190,15 +200,21 @@ class FichaPreocupacionalResource extends JsonResource
         ];
     }
 
-    private function mapearRevisionActual()
+    private function mapearRevisionesActualesOrganosSistemas()
     {
-        $revision = $this->revisionesActualesOrganosSistemas()->first();
-        if (!$revision) return null;
-        return [
+        return $this->revisionesActualesOrganosSistemas()->get()->map(fn($revision) => 
+            [
+                'descripcion' => $revision->descripcion,
+                'organo_id' => $revision->organo_id,
+                'organo' => SistemaOrganico::find($revision->organo_id)->nombre,
+            ]
+        );
+        // if (!$revision) return null;
+        /*return [
             'descripcion' => $revision->descripcion,
             'organo_id' => $revision->organo_id,
             'organo' => SistemaOrganico::find($revision->organo_id)->nombre,
-        ];
+        ];*/
     }
 
     private function mapearExamenesRealizados()
@@ -213,5 +229,58 @@ class FichaPreocupacionalResource extends JsonResource
             'tipo' => ExamenOrganoReproductivo::find($examen_realizado->examen_id)->tipo,
             // 'organo' => SistemaOrganico::find($revision->organo_id)->nombre,
         ]);
+    }
+
+    private function mapearAccidenteTrabajo(AccidenteEnfermedadLaboral|null $accidente_enfermedad_laboral)
+    {
+        if (!$accidente_enfermedad_laboral) return null;
+        return [
+            'id' => $accidente_enfermedad_laboral->id,
+            'calificado_iss' => boolval($accidente_enfermedad_laboral?->calificado_iss),
+            'instituto_seguridad_social' => $accidente_enfermedad_laboral?->instituto_seguridad_social,
+            'fecha' => $accidente_enfermedad_laboral?->fecha ? Carbon::parse($accidente_enfermedad_laboral?->fecha)?->format('Y-m-d') : null,
+            'observacion' => $accidente_enfermedad_laboral?->observacion,
+            'tipo_descripcion_antecedente_trabajo' => $accidente_enfermedad_laboral?->tipo,
+            'ficha_preocupacional_id' => $accidente_enfermedad_laboral?->ficha_preocupacional_id,
+        ];
+    }
+
+    private function mapearHabitosToxicos()
+    {
+        $tiposHabitos = TipoHabitoToxico::get(['id', 'nombre']);
+        $habitosToxicos = $this->habitosToxicos;
+
+        return $tiposHabitos->map(function ($tipo_habito) use ($habitosToxicos) {
+            $habito = $habitosToxicos->first(fn ($h) => $h->tipo_habito_toxico_id == $tipo_habito->id);
+
+            return [
+                'tipo_habito_toxico' => $habito ? $habito->tipoHabitoToxico->nombre : $tipo_habito->nombre,
+                'tipo_habito_toxico_id' => $habito ? $habito['tipo_habito_toxico_id'] : $tipo_habito->id,
+                'tiempo_consumo_meses' => $habito ? $habito['tiempo_consumo_meses'] : '',
+                'cantidad' => $habito ? $habito['cantidad'] : '',
+                'ex_consumidor' => $habito ? $habito['ex_consumidor'] : false,
+                'tiempo_abstinencia_meses' => $habito ? $habito['tiempo_abstinencia_meses'] : '',
+                'aplica' => $habito ? !!$habito['tiempo_consumo_meses'] : '',
+            ];
+        });
+
+        /*return $this->habitosToxicos->map(fn ($habito) => [
+            'tipo_habito_toxico' => $habito->tipoHabitoToxico->nombre,
+            'tipo_habito_toxico_id' => $habito['tipo_habito_toxico_id'],
+            'tiempo_consumo_meses' => $habito['tiempo_consumo_meses'],
+            'cantidad' => $habito['cantidad'],
+            'ex_consumidor' => $habito['ex_consumidor'],
+            'tiempo_abstinencia_meses' => $habito['tiempo_abstinencia_meses'],
+            'aplica' => $habito['tiempo_consumo_meses'] || $habito['tiempo_abstinencia_meses'] || $habito['cantidad'],
+        ]);*/
+    }
+
+    private function mapearAntecedentesEmpleosAnteriores()
+    {
+        return $this->antecedentesTrabajosAnteriores->map(function ($antecedente) {
+            $antecedente->observaciones = $antecedente->observacion;
+            $antecedente->tipos_riesgos_ids = $antecedente->riesgos->pluck('tipo_riesgo_id')->toArray();
+            return $antecedente;
+        });
     }
 }

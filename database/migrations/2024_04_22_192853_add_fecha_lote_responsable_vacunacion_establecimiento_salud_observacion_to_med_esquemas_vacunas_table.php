@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('med_esquemas_vacunas', function (Blueprint $table) {
             $table->dateTime('fecha');
-            $table->integer('lote')->nullable();
+            $table->string('lote')->nullable();
             $table->string('responsable_vacunacion');
             $table->string('establecimiento_salud');
         });

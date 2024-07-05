@@ -63,7 +63,7 @@ Route::apiResources(
         'tipo_licencia' => TipoLicenciaController::class,
         'licencia_empleado' => LicenciaEmpleadoController::class,
         'vacacion' => VacacionController::class,
-        'estado_civil' => EstadoCivilController::class,
+        // 'estado_civil' => EstadoCivilController::class,
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,
@@ -80,6 +80,7 @@ Route::apiResources(
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
+<<<<<<< HEAD
         /*************************************************
          *  Modulo de Seleción y contratación de personal
          *************************************************/
@@ -87,6 +88,10 @@ Route::apiResources(
         'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
         'postulantes' => PostulanteController::class,
         'tipos-discapacidades' =>TipoDiscapacidadController::class
+=======
+        'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
+        'tipos-discapacidades' => TipoDiscapacidadController::class,
+>>>>>>> origin/desarrollo
     ],
     [
         'parameters' => [

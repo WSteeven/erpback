@@ -40,7 +40,6 @@ class SolicitudExamenController extends Controller
      */
     public function index()
     {
-        Log::channel('testing')->info('Log', ['listado', 'Dentro de index solicitud examen']);
         $results = SolicitudExamen::ignoreRequest(['campos'])->filter()->latest()->get();
         $results = SolicitudExamenResource::collection($results);
         return response()->json(compact('results'));

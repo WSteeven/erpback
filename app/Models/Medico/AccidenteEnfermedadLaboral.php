@@ -27,6 +27,10 @@ class AccidenteEnfermedadLaboral extends Model implements Auditable
     const ACCIDENTE_TRABAJO = 'ACCIDENTE DE TRABAJO';
     const ENFERMEDAD_PROFESIONAL = 'ENFERMEDAD PROFESIONAL';
 
+    protected $casts = [
+        'calificado_iss' => 'boolean',
+    ];
+
     // Relación polimórfica
     public function accidentable()
     {

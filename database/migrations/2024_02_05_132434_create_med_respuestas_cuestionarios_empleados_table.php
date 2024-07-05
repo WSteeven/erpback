@@ -15,11 +15,18 @@ return new class extends Migration
     {
         Schema::create('med_respuestas_cuestionarios_empleados', function (Blueprint $table) {
             $table->id();
+            $table->text('respuesta_texto')->nullable();
+
+            // Foreign keys
             $table->unsignedBigInteger('cuestionario_id');
             $table->foreign('cuestionario_id')->on('med_cuestionarios')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->on('empleados')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
+
+            // $table->unsignedBigInteger('respuesta');
         });
     }
 

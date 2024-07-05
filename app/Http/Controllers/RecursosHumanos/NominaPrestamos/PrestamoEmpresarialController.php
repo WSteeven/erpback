@@ -9,9 +9,12 @@ use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class PrestamoEmpresarialController extends Controller
@@ -54,12 +57,21 @@ class PrestamoEmpresarialController extends Controller
     }
     public function store(PrestamoEmpresarialRequest $request)
     {
-        $datos = $request->validated();
-        $prestamoEmpresarial = PrestamoEmpresarial::create($datos);
-        $this->crear_plazos($prestamoEmpresarial, $request->plazos);
-        $modelo = new PrestamoEmpresarialResource($prestamoEmpresarial);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        return response()->json(compact('mensaje', 'modelo'));
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+            $prestamoEmpresarial = PrestamoEmpresarial::create($datos);
+            $this->crear_plazos($prestamoEmpresarial, $request->plazos);
+            $modelo = new PrestamoEmpresarialResource($prestamoEmpresarial);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al generra prestamo' => [$e->getMessage()],
+            ]);
+        }
     }
     public function update(PrestamoEmpresarialRequest $request, PrestamoEmpresarial $prestamoEmpresarial)
     {
@@ -92,12 +104,11 @@ class PrestamoEmpresarialController extends Controller
     public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
     {
         $plazosActualizados = collect($plazos)->map(function ($plazo) use ($prestamoEmpresarial) {
-            $fecha = Carbon::createFromFormat('d-m-Y', $plazo['fecha_vencimiento']);
             return [
                 'id_prestamo_empresarial' => $prestamoEmpresarial->id,
                 'pago_couta' => false,
                 'num_cuota' => $plazo['num_cuota'],
-                'fecha_vencimiento' => $fecha->format('Y-m-d'),
+                'fecha_vencimiento' =>  $plazo['fecha_vencimiento'],
                 'valor_couta' => $plazo['valor_couta'],
                 'valor_a_pagar' => $plazo['valor_couta']
 

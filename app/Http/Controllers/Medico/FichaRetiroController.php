@@ -21,17 +21,21 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Src\App\Medico\FichasMedicasService;
 
 class FichaRetiroController extends Controller
 {
     private $entidad = 'Ficha de Retiro';
+    private FichasMedicasService $fichas_medicas_service;
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.fichas_periodicas_preocupacionales')->only('index', 'show');
-        $this->middleware('can:puede.crear.fichas_periodicas_preocupacionales')->only('store');
-        $this->middleware('can:puede.editar.fichas_periodicas_preocupacionales')->only('update');
-        $this->middleware('can:puede.eliminar.fichas_periodicas_preocupacionales')->only('destroy');
+        $this->middleware('can:puede.ver.fichas_retiros')->only('index', 'show');
+        $this->middleware('can:puede.crear.fichas_retiros')->only('store');
+        $this->middleware('can:puede.editar.fichas_retiros')->only('update');
+        $this->middleware('can:puede.eliminar.fichas_retiros')->only('destroy');
+
+        $this->fichas_medicas_service = new FichasMedicasService();
     }
 
     /**
@@ -57,8 +61,8 @@ class FichaRetiroController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
             $ficha = FichaRetiro::create($datos);
-            $ficha_service = new fichaRetiroService($ficha);
-            $ficha_service->guardarDatosFichaPreocupacional($request);
+            $ficha_service = new FichaRetiroService($ficha);
+            $ficha_service->guardarDatosFichaRetiro($request);
 
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new FichaRetiroResource($ficha);
@@ -78,9 +82,10 @@ class FichaRetiroController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(FichaRetiro $ficha_retiro)
     {
-        //
+        $modelo = new FichaRetiroResource($ficha_retiro);
+        return response()->json(compact('modelo'));
     }
 
     /**
@@ -106,27 +111,53 @@ class FichaRetiroController extends Controller
         //
     }
 
-    public function imprimirPDF()
+    public function consultarInformacionDefectoFicha()
     {
         request()->validate([
             'registro_empleado_examen_id' => 'required|numeric|integer|exists:med_registros_empleados_examenes,id'
         ]);
 
-        $registro_empleado_examen_id = request('registro_empleado_examen_id');
-        $registro_empleado_examen = RegistroEmpleadoExamen::find($registro_empleado_examen_id);
+        $consulta_medica = ConsultaMedica::where('registro_empleado_examen_id', request('registro_empleado_examen_id'))->first();
+        $empleado = RegistroEmpleadoExamen::find(request('registro_empleado_examen_id'))->empleado;
+        $cargo_id = $empleado->cargo_id;
+        $fecha_inicio_labores = $empleado->fecha_ingreso ? Carbon::parse($empleado->fecha_ingreso)->format('Y-m-d') : null;
+        $fecha_salida = $empleado->fecha_salida ? Carbon::parse($empleado->fecha_salida)->format('Y-m-d') : null;
+
+        $modelo = [
+            'motivo_consulta' => 'Ficha reintegro',
+            'cargo' => $cargo_id,
+            'fecha_inicio_labores' => $fecha_inicio_labores,
+            'fecha_salida' => $fecha_salida,
+        ];
+
+        return response()->json(compact('modelo'));
+    }
+
+    public function imprimirPDF(FichaRetiro $ficha_retiro)
+    {
+        /* request()->validate([
+            'registro_empleado_examen_id' => 'required|numeric|integer|exists:med_registros_empleados_examenes,id'
+        ]); */
+
+        // $registro_empleado_examen_id = request('registro_empleado_examen_id');
+        // $registro_empleado_examen = RegistroEmpleadoExamen::find($registro_empleado_examen_id);
+        $registro_empleado_examen_id = $ficha_retiro->registro_empleado_examen_id;
 
         $configuracion = ConfiguracionGeneral::first();
 
         $ficha_retiro_service = new fichaRetiroService();
-        $resultados_examenes = $ficha_retiro_service->consultarResultadosExamenes($registro_empleado_examen);
+        // $ficha['resultados_examenes'] = $this->fichas_medicas_service->consultarResultadosExamenes($registro_empleado_examen_id);
+        // $resultados_examenes = $ficha_retiro_service->consultarResultadosExamenes($registro_empleado_examen);
         // Log::channel('testing')->info($resultados_examenes);
 
         // $resource = new FichaAptitudResource($ficha_aptitud);
-        $empleado = Empleado::find($registro_empleado_examen->empleado_id); // $ficha_aptitud->registroEmpleadoExamen->empleado_id);
+        // $empleado = Empleado::find($registro_empleado_examen->empleado_id); // $ficha_aptitud->registroEmpleadoExamen->empleado_id);
+        $empleado = Empleado::find($ficha_retiro->registroEmpleadoExamen->empleado_id);
         $profesionalSalud = ProfesionalSalud::find(116); //$ficha_aptitud->profesional_salud_id);
-        $idEmpleado = $registro_empleado_examen->empleado_id;
+        // $idEmpleado = $registro_empleado_examen->empleado_id;
+        $idEmpleado = $empleado->id;
 
-        $consultasMedicas = ConsultaMedica::whereHas('registroEmpleadoExamen', function ($query) use ($idEmpleado) {
+        /* $consultasMedicas = ConsultaMedica::whereHas('registroEmpleadoExamen', function ($query) use ($idEmpleado) {
             $query->where('empleado_id', $idEmpleado);
         })->orWhereHas('citaMedica', function ($query) use ($idEmpleado) {
             $query->where('paciente_id', $idEmpleado);
@@ -144,25 +175,26 @@ class FichaRetiroController extends Controller
                     ];
                 }),
             ];
-        });
+        }); */
 
         $actividadesFactorRiesgo = [
             [
-                'actividad' => 'Actividad 1',
-                'factor_riesgo' => 'Fisico',
+                'actividad' => '',
+                'factor_riesgo' => '',
             ],
             [
-                'actividad' => 'Actividad 2',
-                'factor_riesgo' => 'Quimico',
+                'actividad' => '',
+                'factor_riesgo' => '',
             ],
             [
-                'actividad' => 'Actividad 3',
-                'factor_riesgo' => 'Biologico',
+                'actividad' => '',
+                'factor_riesgo' => '',
             ],
         ];
 
-        $fichaRetiro = [
+        /* $fichaRetiro = [
             'consultasMedicas' => $consultasMedicas,
+            'resultados_examenes' => $this->fichas_medicas_service->consultarResultadosExamenes($registro_empleado_examen_id),
             'antecedentes_clinicos_quirurjicos' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
             'accidentes_trabajo' => [
                 'especificar' => 'IESS',
@@ -210,7 +242,7 @@ class FichaRetiroController extends Controller
             'recomendaciones_tratamientos' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has.',
             'fecha_creacion' => Carbon::parse('2024-04-20')->format('Y-m-d'),
             'hora_creacion' => Carbon::parse('2024-04-20 10:54:14')->format('H:i:s'),
-        ];
+        ]; */
 
 
         $regiones = CategoriaExamenFisico::with('region')->select('id', 'nombre', 'region_cuerpo_id')->get()->groupBy(function ($item) {
@@ -236,15 +268,46 @@ class FichaRetiroController extends Controller
                 ],
             ],
         ];*/
+        $resource = new FichaRetiroResource($ficha_retiro);
+        $ficha = $resource->resolve();
+
+        $ficha['observaciones_examen_fisico_regional'] = $this->fichas_medicas_service->mapearObservacionesExamenFisicoRegional($ficha['examenes_fisicos_regionales']); // primero va esto
+        $ficha['examenes_fisicos_regionales'] = $ficha['examenes_fisicos_regionales']->pluck('categoria_examen_fisico_id')->toArray(); // Luego esto
+        // Log::channel('testing')->info('Examenes', ['', $ficha['examenes_fisicos_regionales']]);
+        $ficha['resultados_examenes'] = $this->fichas_medicas_service->consultarResultadosExamenes($registro_empleado_examen_id);
+
+        // Solo de la ficha actual
+        $consultasMedicas = ConsultaMedica::where('registro_empleado_examen_id', $registro_empleado_examen_id)->latest()->get();
+
+        Log::channel('testing')->info('Log', ['empleado', $empleado]);
+
+        $consultasMedicasMapeado = $consultasMedicas->map(function ($consulta) {
+            return [
+                'observacion' => $consulta->observacion,
+                'diagnosticos' => $consulta->diagnosticosCitaMedica->map(function ($diagnostico) {
+                    return [
+                        'recomendacion' => $diagnostico->recomendacion,
+                        'cie' => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad,
+                        'pre' => null,
+                        'def' => null,
+                    ];
+                }),
+            ];
+        });
+
+        $ficha['consultas_medicas'] = $consultasMedicasMapeado;
+        $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : '';
 
         $datos = [
             'configuracion' => $configuracion,
             'empleado' => $empleado,
             'profesionalSalud' => $profesionalSalud,
-            'firmaProfesionalMedico' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->empleado->firma_url, 1))),
+            // 'firmaProfesionalMedico' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->empleado->firma_url, 1))),
             'actividadesFactorRiesgo' => $actividadesFactorRiesgo,
-            'fichaRetiro' => $fichaRetiro,
+            'ficha_retiro' => $ficha,
             'regiones' => $regiones,
+            'fecha_creacion' => Carbon::parse($ficha_retiro->created_at)->format('Y-m-d'),
+            'hora_creacion' => Carbon::parse($ficha_retiro->created_at)->format('H:i:s'),
         ];
 
         try {

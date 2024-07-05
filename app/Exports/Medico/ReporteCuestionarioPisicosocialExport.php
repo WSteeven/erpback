@@ -7,8 +7,12 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 
-class ReporteCuestionarioPisicosocialExport implements FromView,ShouldAutoSize,WithColumnWidths
+class ReporteCuestionarioPisicosocialExport implements FromView, ShouldAutoSize, WithColumnWidths, WithStyles
 {
     protected $reporte;
 
@@ -18,7 +22,7 @@ class ReporteCuestionarioPisicosocialExport implements FromView,ShouldAutoSize,W
     }
     public function view(): View
     {
-        return view('medico.cuestionario_psicosocial',$this->reporte);
+        return view('medico.cuestionario_psicosocial', $this->reporte);
     }
     public function columnWidths(): array
     {
@@ -29,5 +33,23 @@ class ReporteCuestionarioPisicosocialExport implements FromView,ShouldAutoSize,W
             'D' => 20,
             'E' => 45
         ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        $textoTitulo = [
+            'font' => [
+                'color' => [
+                    'argb' => 'FFFFFFFF',
+                ],
+                'bold' => true,
+            ],
+            'fill' => [
+                'fillType'   => Fill::FILL_SOLID,
+                'startColor' => ['argb' => Color::COLOR_DARKBLUE],
+            ],
+        ];
+
+        $sheet->getStyle('A1:CT1')->applyFromArray($textoTitulo);
     }
 }

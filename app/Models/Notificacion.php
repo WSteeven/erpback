@@ -12,10 +12,10 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use Throwable;
 
-class Notificacion extends Model implements Auditable
+class Notificacion extends Model //implements Auditable
 {
     use HasFactory;
-    use AuditableModel;
+    // use AuditableModel;
     use Filterable;
     protected $table = 'notificaciones';
     protected $fillable = [
@@ -108,7 +108,7 @@ class Notificacion extends Model implements Auditable
             return $notificacion;
         } catch (Throwable $th) {
             DB::rollBack();
-            throw new Exception($th->getMessage().'. [LINE CODE ERROR]: '.$th->getLine(), $th->getCode());
+            throw new Exception($th->getMessage().'. [LINE CODE ERROR]: '.$th->getLine(). $th->getCode());
         }
     }
 }

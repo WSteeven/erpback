@@ -27,6 +27,7 @@ class TipoAntecedenteController extends Controller
     public function index()
     {
         $results = TipoAntecedente::ignoreRequest(['campos'])->filter()->get();
+        $results = TipoAntecedenteResource::collection($results);
         return response()->json(compact('results'));
     }
 

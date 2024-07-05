@@ -15,13 +15,18 @@ class DescripcionAntecedenteTrabajo extends Model implements Auditable
 
     protected $table = 'med_descripciones_antecedentes_trabajos';
     protected $fillable = [
-        'calificado_iess',
+        'calificado_iss',
         'descripcion',
         'fecha',
         'observacion',
         'tipo_descripcion_antecedente_trabajo',
         'ficha_preocupacional_id'
     ];
+
+    protected $casts = [
+        'calificado_iss' => 'bool',
+    ];
+
     public function fichaPreocupacional()
     {
         return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');

@@ -25,15 +25,18 @@ class RespuestaCuestionarioEmpleadoRequest extends FormRequest
     public function rules()
     {
         return [
-            'cuestionario_id'=> 'nullable|exists:med_cuestionarios,id',
-            'empleado_id'=> 'required|exists:empleados,id',
+            'cuestionario_id' => 'nullable|exists:med_cuestionarios,id',
+            'cuestionario.*.id_cuestionario' => 'required|numeric|integer', // exists:med_cuestionarios,id',
+            'cuestionario.*.respuesta' => 'nullable|string', // exists:med_cuestionarios,id',
+            'cuestionario.*.respuesta_texto' => 'nullable|string', // exists:med_cuestionarios,id',
+            'empleado_id' => 'required|exists:empleados,id',
         ];
     }
     protected function prepareForValidation()
     {
-        
-            $this->merge([
-                'empleado_id' =>  Auth::user()->empleado->id
-            ]);
+
+        $this->merge([
+            'empleado_id' =>  Auth::user()->empleado->id
+        ]);
     }
 }

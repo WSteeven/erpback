@@ -4,6 +4,7 @@ namespace Src\App\Medico;
 
 use App\Http\Requests\Medico\FichaPreocupacionalRequest;
 use App\Models\Empleado;
+use App\Models\Medico\AccidenteEnfermedadLaboral;
 use App\Models\Medico\ActividadFisica;
 use App\Models\Medico\AntecedenteFamiliar;
 use App\Models\Medico\AntecedenteGinecoObstetrico;
@@ -42,13 +43,13 @@ class FichaPreocupacionalService
             $this->servicioPolimorfico->crearAntecedenteClinico($this->ficha, $request->antecedente_clinico_quirurgico);
             $this->insertarAntecedentePersonal($request);
             $this->insertarExamenesRealizados($request->examenes_realizados);
-            $this->servicioPolimorfico->crearHabitosToxicos($this->ficha, $request->habitosToxicos);
-            $this->servicioPolimorfico->crearActividadesFisicas($this->ficha, $request->actividadesFisicas);
+            $this->servicioPolimorfico->crearHabitosToxicos($this->ficha, $request->habitos_toxicos);
+            $this->servicioPolimorfico->crearActividadesFisicas($this->ficha, $request->actividades_fisicas);
             $this->servicioPolimorfico->crearMedicaciones($this->ficha, $request->medicaciones);
-            $this->agregarAntecedentesEmpleosAnteriores($request->antecedentesEmpleosAnteriores);
-            $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->accidentesTrabajo);
-            $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->enfermedadesProfesionales);
-            $this->servicioPolimorfico->crearAntecedentesFamiliares($this->ficha, $request->antecedentesFamiliares);
+            $this->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
+            $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->accidente_trabajo, AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO);
+            $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->enfermedad_profesional, AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL);
+            $this->servicioPolimorfico->crearAntecedentesFamiliares($this->ficha, $request->antecedentes_familiares);
             $this->servicioPolimorfico->crearFactoresRiesgoPuestoTrabajoActual($this->ficha, $request->factoresRiesgoPuestoActual);
             $this->servicioPolimorfico->crearRevisionesActualesOrganosSistemas($this->ficha, $request->revisiones_actuales_organos_sistemas);
             $this->servicioPolimorfico->crearConstanteVital($this->ficha, $request->constante_vital);
@@ -124,10 +125,11 @@ class FichaPreocupacionalService
                             'puesto_trabajo' => $antecedente['puesto_trabajo'],
                             'actividades'   => $antecedente['actividades'],
                             'tiempo_trabajo' => $antecedente['tiempo_trabajo'],
+                            'observacion' => $antecedente['observaciones'],
                             'ficha_preocupacional_id' => $this->ficha->id
                         ]
                     );
-                    foreach ($antecedente['riesgos'] as $riesgo) {
+                    foreach ($antecedente['tipos_riesgos_ids'] as $riesgo) {
                         RiesgoAntecedenteEmpleoAnterior::create([
                             'tipo_riesgo_id' => $riesgo,
                             'antecedente_id' => $antecedenteCreado->id

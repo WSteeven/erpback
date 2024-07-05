@@ -32,11 +32,22 @@ class VehiculoRequest extends FormRequest
             'anio_fabricacion' => 'required|numeric',
             'cilindraje' => 'required|numeric',
             'rendimiento' => 'sometimes|numeric',
-            'modelo' => 'required|exists:modelos,id',
-            'combustible' => 'required|exists:combustibles,id',
+            'modelo_id' => 'required|exists:modelos,id',
+            'combustible_id' => 'required|exists:combustibles,id',
             'traccion' => ['required', Rule::in([Vehiculo::AWD, Vehiculo::TODOTERRENO, Vehiculo::SENCILLA_DELANTERA, Vehiculo::SENCILLA_TRASERA, Vehiculo::FOUR_WD, Vehiculo::DOSXDOS, Vehiculo::DOSXUNO])],
+            'color' => 'required|string',
             'aire_acondicionado' => 'required|boolean',
             'capacidad_tanque' => 'required|numeric',
+            'tipo_vehiculo_id' => 'required|exists:veh_tipos_vehiculos,id',
+            'tiene_gravamen' => 'boolean',
+            'prendador' => 'required_if:tiene_gravamen,true',
+            'tipo' => ['required', 'string', Rule::in([Vehiculo::PROPIO, Vehiculo::ALQUILADO])],
+            'tiene_rastreo' => 'boolean',
+            'propietario' => 'required|string',
+            'custodio_id' => 'sometimes|nullable|exists:empleados,id',
+            'seguro_id' => 'sometimes|nullable|exists:veh_seguros_vehiculares,id',
+            'conductor_externo' => 'sometimes|nullable|string',
+            'identificacion_conductor_externo' => 'sometimes|nullable|string',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -48,5 +59,17 @@ class VehiculoRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    protected function prepareForValidation()
+    {
+        //se castea las llaves foraneas
+        $this->merge([
+            'modelo_id' => $this->modelo,
+            'combustible_id' => $this->combustible,
+            'tipo_vehiculo_id' => $this->tipo_vehiculo,
+            'custodio_id' => $this->custodio,
+            'seguro_id' => $this->seguro,
+        ]);
     }
 }

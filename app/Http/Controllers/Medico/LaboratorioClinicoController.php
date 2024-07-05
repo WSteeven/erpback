@@ -32,7 +32,7 @@ class LaboratorioClinicoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function store(Request $request)
+    public function store(LaboratorioClinicoRequest $request)
     {
         try {
             $datos = $request->validated();

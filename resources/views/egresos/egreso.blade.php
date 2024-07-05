@@ -249,7 +249,7 @@
                 @foreach ($transaccion['listadoProductosTransaccion'] as $listado)
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
-                        <td>{{ $listado['descripcion'] }}</td>
+                        <td>{{ strtoupper($listado['descripcion']) }}</td>
                         <td>{{ $listado['categoria'] }}</td>
                         <td>{{ $listado['serial'] }}</td>
                         <td>{{ $listado['condiciones'] }}</td>

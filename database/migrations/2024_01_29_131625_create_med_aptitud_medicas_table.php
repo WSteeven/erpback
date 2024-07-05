@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('med_aptitudes_medicas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('tipo_aptitud_id');
-            $table->text('observacion');
-            $table->text('limitacion');
+            $table->text('observacion')->nullable();
+            $table->text('limitacion')->nullable();
             $table->unsignedBigInteger('aptitudable_id');
             $table->string('aptitudable_type');
             $table->timestamps();

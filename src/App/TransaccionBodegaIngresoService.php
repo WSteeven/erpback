@@ -14,7 +14,6 @@ use App\Models\TransaccionBodega;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Src\App\Bodega\DevolucionService;
 use Src\Config\ClientesCorporativos;
 

@@ -36,6 +36,7 @@ class VacacionRequest extends FormRequest
             'fecha_inicio_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
             'fecha_fin_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
             'descuento_vacaciones' => 'required|integer',
+            'numero_rangos' => 'required|integer',
             'numero_dias' => 'nullable|integer',
             'numero_dias_rango1' => 'nullable|integer',
             'numero_dias_rango2' => 'nullable|integer'
@@ -63,7 +64,7 @@ class VacacionRequest extends FormRequest
         }
         $this->merge([
             'periodo_id' => $this->periodo,
-            'fecha_inicio' => $this->fecha_inicio,
+            'fecha_inicio' => is_null($this->fecha_inicio) ?  $this->fecha_inicio_rango1_vacaciones:$this->fecha_inicio,
             'fecha_fin' =>  is_null($this->fecha_fin) ? $this->fecha_fin_rango2_vacaciones :$this->fecha_fin,
             'descuento_vacaciones' => $this->descuento_vacaciones?$this->descuento_vacaciones:0
         ]);
