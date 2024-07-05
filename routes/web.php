@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\MaterialesService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 
 /*
@@ -29,6 +30,7 @@ use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 
 Route::get('/qrcode', [PedidoController::class, 'qrview']);
 Route::get('/encabezado', [PedidoController::class, 'encabezado']);
@@ -56,11 +58,11 @@ Route::get('/notificar', function () {
 });
 
 Route::get('social-network/{driver}',[LoginSocialNetworkController::class, 'handleCallback']);
+Route::get('login-social-network', [LoginSocialNetworkController::class, 'login']);
+Route::get('social-network/{driver}', [LoginSocialNetworkController::class, 'handleCallback']);
 
 // Route::get('verificar', function(){
 //     $empleado = Empleado::find(24);
 
 //     Log::channel('testing')->info('Log', ['Recibe fondos', $empleado->acumula_fondos_reserva==0]);
 // });
-
-

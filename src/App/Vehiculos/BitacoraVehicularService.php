@@ -4,6 +4,7 @@ namespace Src\App\Vehiculos;
 
 use App\Events\Vehiculos\NotificarAdvertenciasVehiculoBitacora;
 use App\Events\Vehiculos\NotificarBajoNivelCombustible;
+use App\Events\vehiculos\NotificarDiferenciaKmToAdmin;
 use App\Events\vehiculos\NotificarMantenimientoCreado;
 use App\Events\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
@@ -44,6 +45,21 @@ class BitacoraVehicularService
 
     public function guardarDatosRelacionadosBitacora()
     {
+    }
+    public function notificarDiferenciasKmBitacoras(BitacoraVehicular $bitacora)
+    {
+        $penultimaBitacora = BitacoraVehicular::where('vehiculo_id', $bitacora->vehiculo_id)
+            ->whereNot('id', $bitacora->id)
+            ->orderBy('id', 'desc')->first();
+        if ($penultimaBitacora) {
+            //Aquí pondemos una holgura de 3km para calcular la diferencia en el km 
+            // (156 + 3) < 180 =true
+            if (($penultimaBitacora->km_final+3) < $bitacora->km_inicial) {
+                //Notificar al admin que el vehículo tiene una diferencia grande en el ultimo km
+                $diferencia = $bitacora->km_inicial-$penultimaBitacora->km_final-3;
+                event(new NotificarDiferenciaKmToAdmin($bitacora, $this->admin_vehiculos->id, $diferencia));
+            }
+        }
     }
 
     public function actualizarDatosRelacionadosBitacora(BitacoraVehicular $bitacora, Request $request)

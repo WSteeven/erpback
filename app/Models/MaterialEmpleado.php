@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\App\Tareas\MaterialesUtilizadosTareaService;
 
 class MaterialEmpleado extends Model implements Auditable
 {
@@ -68,7 +69,7 @@ class MaterialEmpleado extends Model implements Auditable
      * @param int $cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
      * cargando el material.
      */
-    public static function cargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int $cliente_id)
+    public static function cargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id)
     {
         try {
             $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)

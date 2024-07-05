@@ -39,10 +39,19 @@ class OrdenReparacionRequest extends FormRequest
 
     public function prepareForValidation()
     {
+        if(auth()->user()->hasRole(User::MECANICO_GENERAL)){
+            $this->merge([
+                'autorizador_id'=>auth()->user()->empleado->id,
+                'vehiculo_id' =>  $this->vehiculo
+            ]);
+        }else{
+            $this->merge([
+                'autorizador_id' => EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS)->id,
+                'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
+            ]);
+        }
         $this->merge([
-            'autorizador_id' => EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS)->id,
             'autorizacion_id' => $this->autorizacion,
-            'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
             'servicios' => Utils::convertArrayToString($this->servicios),
         ]);
     }

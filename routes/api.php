@@ -64,11 +64,6 @@ use App\Http\Resources\CantonResource;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Models\Provincia;
-use App\Models\Canton;
-use App\Models\DetalleProducto;
-use App\Models\Empleado;
-use App\Models\Pais;
 use Carbon\Carbon;
 
 /*
@@ -83,7 +78,8 @@ use Carbon\Carbon;
 */
 
 Route::get('tablero', [TableroController::class, 'index']);
-Route::get('auditorias', [AuditoriaController::class, 'index']);
+Route::get('auditorias', [AuditoriaController::class, 'index'])->middleware('auth:sanctum');
+Route::get('modelos-auditorias', [AuditoriaController::class, 'modelos']);
 Route::get('permisos_roles_usuario', [PermisoController::class, 'listarPermisosRoles']);
 Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos']);
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);
@@ -273,6 +269,8 @@ Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'show
 Route::get('comprobantes-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarComprobante'])->middleware('auth:sanctum');
 Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarEgresos'])->middleware('auth:sanctum');
 
+//Modificar egreso
+Route::patch('modificar-item-egreso',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);

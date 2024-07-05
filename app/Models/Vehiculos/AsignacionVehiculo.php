@@ -40,6 +40,9 @@ class AsignacionVehiculo extends Model implements Auditable
         'estado_carroceria',
         'estado_mecanico',
         'estado_electrico',
+        'garaje_id',
+        'latitud',
+        'longitud',
     ];
 
     //estados

@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('estado_acreditaciones', function (Blueprint $table) {
-            $table->timestamps();
+        Schema::table('veh_bitacoras_vehiculos', function (Blueprint $table) {
+            $table->text('imagen_inicial')->after('fecha');
         });
     }
 
@@ -25,9 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('estado_acreditaciones', function (Blueprint $table) {
-            $table->dropColumn('created_at');
-            $table->dropColumn('updated_at');
+        Schema::table('veh_bitacoras_vehiculos', function (Blueprint $table) {
+            $table->dropColumn(['imagen_inicial']);
         });
     }
 };

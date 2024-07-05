@@ -17,7 +17,7 @@ class AuditResource extends JsonResource
         return [
             'id'=>$this->id,
             'user_id'=>$this->user_id,
-            'user_name'=>$this->user->name,
+            'user_name'=>$this->user?->name,
             'event'=>$this->event,
             'auditable_type'=>$this->auditable_type,
             'auditable_id'=>$this->auditable_id,

@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ActividadRealizadaService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Vehiculos\BitacoraVehicularService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class BitacoraVehicularController extends Controller
@@ -49,9 +51,9 @@ class BitacoraVehicularController extends Controller
             else {
                 // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
                 $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
-                $results = BitacoraVehicularResource::collection($results);
             }
         }
+        $results = BitacoraVehicularResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -66,9 +68,11 @@ class BitacoraVehicularController extends Controller
         $datos = $request->validated();
         $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
         $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
-        Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
-        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
-
+        
+        //imagen del inicio de jornada
+        if ($datos['imagen_inicial']) {
+            $datos['imagen_inicial'] = (new GuardarImagenIndividual($datos['imagen_inicial'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+        }
         //Respuesta
         try {
             $chofer = Empleado::find($request->chofer_id);
@@ -78,6 +82,7 @@ class BitacoraVehicularController extends Controller
                 $datos['vehiculo_id'],
                 [
                     'fecha' => $datos['fecha'],
+                    'imagen_inicial' => $datos['imagen_inicial'],
                     'hora_salida' => $datos['hora_salida'],
                     'hora_llegada' => $datos['hora_llegada'],
                     'km_inicial' => $datos['km_inicial'],
@@ -87,6 +92,7 @@ class BitacoraVehicularController extends Controller
                     'firmada' => $datos['firmada'],
                 ]
             );
+            $this->service->notificarDiferenciasKmBitacoras($chofer->ultimaBitacora, $request);
             $this->service->actualizarDatosRelacionadosBitacora($chofer->ultimaBitacora, $request);
             // $bitacora = BitacoraVehicular::create($datos);
             Log::channel('testing')->info('Log', ['BitacoraVehicularRecienCreada', $chofer->ultimaBitacora]);
@@ -139,6 +145,12 @@ class BitacoraVehicularController extends Controller
             $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
             $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
 
+            if ($datos['imagen_inicial'] && Utils::esBase64($datos['imagen_inicial'])) {
+                $datos['imagen_inicial'] = (new GuardarImagenIndividual($datos['imagen_inicial'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+            } else {
+                unset($datos['imagen_inicial']);
+            }
+            
             DB::beginTransaction();
             $bitacora->update($datos);
             $this->service->actualizarDatosRelacionadosBitacora($bitacora, $request);

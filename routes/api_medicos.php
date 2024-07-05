@@ -37,6 +37,7 @@ use App\Http\Controllers\Medico\FichaReintegroController;
 use App\Http\Controllers\Medico\FichaRetiroController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LaboratorioClinicoController;
+use App\Http\Controllers\Medico\LinkCuestionarioPublicoController;
 use App\Http\Controllers\Medico\MedicacionController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\PreguntaController;
@@ -100,6 +101,7 @@ Route::apiResources(
         'factores-riesgos' => FactorRiesgoController::class,
         'fichas-aptitudes' => FichaAptitudController::class,
         'habitos-toxicos' => ResultadoHabitoToxicoController::class,
+        'links-cuestionarios-publicos' => LinkCuestionarioPublicoController::class,
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
@@ -120,10 +122,7 @@ Route::apiResources(
         'tipos-factores-riesgos' => TipoFactorRiesgoController::class,
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
         'tipos-vacunas' => TipoVacunaController::class,
-        // 'tipos-cuestionarios' => TipoCuestionarioController::class,
-        // 'preguntas' => PreguntaController::class,
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
-        // 'cuestionarios-publicos' => CuestionarioPublicoController::class,
         'recetas' => RecetaController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
         'regiones-cuerpo' => RegionCuerpoController::class,
@@ -139,9 +138,9 @@ Route::apiResources(
             'tipos-evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
             'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
-            // 'cuestionarios-publicos' => 'cuestionario_publico',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
             'citas-medicas' => 'cita_medica',
+            'links-cuestionarios-publicos' => 'link_cuestionario_publico',
             'solicitudes-examenes' => 'solicitud_examen',
             'diagnosticos-recetas' => 'diagnostico_receta',
             'consultas-medicas' => 'consulta_medica',
@@ -152,7 +151,6 @@ Route::apiResources(
             'tipos-antecedentes' => 'tipo_antecedente',
             'tipos-antecedentes-familiares' => 'tipo_antecedente_familiar',
             'tipos-habitos_toxico' => 'tipo_habito_toxico',
-            // 'tipos-cuestionarios' => 'tipo_cuestionario',
             'fichas-aptitudes' => 'ficha_aptitud',
             'regiones-cuerpo' => 'region_cuerpo',
             'registros-empleados-examene' => 'registro_empleado_examen',
@@ -167,7 +165,6 @@ Route::apiResources(
             'tipos-habitos-toxicos' => 'tipo_habito_toxico',
             'examenes-organos-reproductivos' => 'examen',
         ],
-
     ]
 );
 

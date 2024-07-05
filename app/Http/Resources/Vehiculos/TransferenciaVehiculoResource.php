@@ -21,6 +21,7 @@ class TransferenciaVehiculoResource extends JsonResource
             'vehiculo' => $this->vehiculo->placa,
             'vehiculo_id' => $this->vehiculo_id,
             'entrega' => $this->entrega->nombres . ' ' . $this->entrega->apellidos,
+            'entrega_id' => $this->entrega_id,
             'responsable' => $this->responsable->nombres . ' ' . $this->responsable->apellidos,
             'responsable_id' => $this->responsable_id,
             'canton' => $this->canton->canton,
@@ -48,8 +49,10 @@ class TransferenciaVehiculoResource extends JsonResource
             $modelo['entrega'] = $this->entrega_id;
             $modelo['responsable'] = $this->responsable_id;
             $modelo['canton'] = $this->canton_id;
+            $modelo['garaje'] = $this->garaje_id;
+            $modelo['latitud'] = $this->latitud;
+            $modelo['longitud'] = $this->longitud;
         }
         return $modelo;
     }
-
 }

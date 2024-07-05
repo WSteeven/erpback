@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\SeguroVehicularRequest;
 use App\Http\Resources\Vehiculos\SeguroVehicularResource;
 use App\Models\Vehiculos\SeguroVehicular;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -73,5 +74,22 @@ class SeguroVehicularController extends Controller
             ]);
             return response()->json(compact('mensaje'), 500);
         }
+    }
+
+    public function reporte(Request $request)
+    {
+        $results = [];
+        $seguros = SeguroVehicular::with('vehiculo')->get();
+        foreach ($seguros as $r) {
+            $row['nombre'] = $r->nombre;
+            $row['num_poliza'] = $r->num_poliza;
+            $row['fecha_caducidad'] = $r->fecha_caducidad;
+            $row['vigente'] = Carbon::parse($r->fecha_caducidad)->lessThan(Carbon::now()) ? 'CADUCADO' : 'VIGENTE';
+            $row['estado'] = $r->estado;
+            $row['vehiculo'] = $r->vehiculo ? $r->vehiculo->placa : 'NO ASIGNADO';
+            $results[]  = $row;
+        }
+
+        return response()->json(compact('results'));
     }
 }

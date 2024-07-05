@@ -4,6 +4,7 @@ namespace App\Http\Requests\Vehiculos;
 
 use App\Models\Vehiculos\AsignacionVehiculo;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class AsignacionVehiculoRequest extends FormRequest
@@ -38,8 +39,12 @@ class AsignacionVehiculoRequest extends FormRequest
             'estado_carroceria' => 'nullable|sometimes|string',
             'estado_mecanico' => 'nullable|sometimes|string',
             'estado_electrico' => 'nullable|sometimes|string',
+            'garaje_id' => 'required|exists:veh_garajes,id',
+            'latitud' => 'nullable|string',
+            'longitud' => 'nullable|string',
         ];
     }
+
     // public function withValidator($validator){
     //     $validator->after(function($validator){
     //         $vehiculoAsignado = AsignacionVehiculo::where('vehiculo_id', $this->vehiculo_id)->where('responsable_id')->first();
@@ -54,10 +59,13 @@ class AsignacionVehiculoRequest extends FormRequest
             'entrega_id' => $this->entrega,
             'responsable_id' => $this->responsable,
             'canton_id' => $this->canton,
+            'garaje_id' => $this->garaje,
             'accesorios' => Utils::convertArrayToString($this->accesorios, ','),
             'estado_carroceria' => Utils::convertArrayToString($this->estado_carroceria,),
             'estado_mecanico' => Utils::convertArrayToString($this->estado_mecanico,),
             'estado_electrico' => Utils::convertArrayToString($this->estado_electrico,),
+            'latitud' => strval($this->latitud),
+            'longitud' => strval($this->longitud),
         ]);
     }
 }

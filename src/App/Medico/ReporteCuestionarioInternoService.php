@@ -2,7 +2,6 @@
 
 namespace Src\App\Medico;
 
-use App\Http\Resources\Medico\CuestionarioEmpleadoResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use Illuminate\Validation\ValidationException;
@@ -19,14 +18,25 @@ use Exception;
 
 class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
 {
+    private $configuracion;
+
+    public function __construct()
+    {
+        $this->configuracion = ConfiguracionGeneral::first();
+    }
+
     public function reportesCuestionarios(Request $request)
     {
         $request->validate([
-            'anio' => 'required|string',
+            'fecha_inicio' => 'required|string',
+            'fecha_fin' => 'required|string',
             'tipo_cuestionario_id' => 'required|numeric|string|exists:med_tipos_cuestionarios,id',
         ]);
 
+        // Parametros
         $tipo_cuestionario_id = $request['tipo_cuestionario_id'];
+        $fecha_inicio = request('fecha_inicio');
+        $fecha_fin = request('fecha_fin');
 
         try {
             $results = [];
@@ -36,11 +46,9 @@ class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
                 ->with('canton', 'area')
                 ->get();
 
-            $empleados = $empleados->filter(fn ($empleado) => $empleado->respuestaCuestionarioEmpleado()->whereYear('created_at', $request['anio'])->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
+            $empleados = $empleados->filter(fn ($empleado) => $empleado->respuestaCuestionarioEmpleado()->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
                 $q->where('tipo_cuestionario_id', $tipo_cuestionario_id);
             })->exists());
-
-            Log::channel('testing')->info('Log', ['EF: ', $empleados]);
 
             // Tabla visualizar si llenaron el cuestionario
             $results = $empleados->values()->map(fn ($empleado) => [
@@ -75,8 +83,8 @@ class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
                     }
 
                     // Log::channel('testing')->info('Log', ['Preguntas: ', $preguntas]);
-                    if ($tipo_cuestionario_id == TipoCuestionario::CUESTIONARIO_PSICOSOCIAL) $reportes_empaquetado = $this->empaquetarPsicosocial($empleados, $request['anio'], $tipo_cuestionario_id);
-                    elseif ($tipo_cuestionario_id == TipoCuestionario::CUESTIONARIO_DIAGNOSTICO_CONSUMO_DE_DROGAS) $reportes_empaquetado = $this->empaquetarAlcoholDrogas($empleados, $request['anio'], $tipo_cuestionario_id);
+                    if ($tipo_cuestionario_id == TipoCuestionario::CUESTIONARIO_PSICOSOCIAL) $reportes_empaquetado = $this->empaquetarPsicosocial($empleados, $fecha_inicio, $fecha_fin, $tipo_cuestionario_id);
+                    elseif ($tipo_cuestionario_id == TipoCuestionario::CUESTIONARIO_DIAGNOSTICO_CONSUMO_DE_DROGAS) $reportes_empaquetado = $this->empaquetarAlcoholDrogas($empleados, $fecha_inicio, $fecha_fin, $tipo_cuestionario_id);
 
                     $configuracion = ConfiguracionGeneral::first();
                     $reporte = compact('preguntas', 'reportes_empaquetado', 'configuracion');
@@ -103,7 +111,7 @@ class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
             ->orderBy('apellidos', 'asc')
             ->with('canton', 'area')
             ->get();
-        $reportes_empaquetado = $this->empaquetarPsicosocial($empleados, request('anio'), TipoCuestionario::CUESTIONARIO_PSICOSOCIAL);
+        $reportes_empaquetado = $this->empaquetarPsicosocial($empleados, request('fecha_inicio'), request('fecha_fin'), TipoCuestionario::CUESTIONARIO_PSICOSOCIAL);
         $datos = CuestionarioPisicosocialService::mapear_datos($reportes_empaquetado);
         $contenido = "";
         $contenido .= "a. Género\n";
@@ -135,13 +143,13 @@ class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
         return Response::download($nombreArchivo)->deleteFileAfterSend(true);
     }
 
-    public function empaquetarPsicosocial($empleados, $anio, int $tipo_cuestionario_id) // Recibe Collection Empleados
+    public function empaquetarPsicosocial($empleados, $fecha_inicio, $fecha_fin, int $tipo_cuestionario_id) // Recibe Collection Empleados
     {
         Log::channel('testing')->info('Log', ['respuesta_cuestionario', 'empaquetar']);
         $results = [];
         $cont = 0;
         foreach ($empleados as $result) {
-            $cuestionarios = $this->obtenerCuestionarios($result->id, $anio, $tipo_cuestionario_id);
+            $cuestionarios = $this->obtenerCuestionarios($result->id, $fecha_inicio, $fecha_fin, $tipo_cuestionario_id);
             $row['id'] =  $result->id;
             $row['empleado'] = $result->apellidos . ' ' .  $result->nombres;
             $row['ciudad'] = $result->canton->canton;
@@ -166,13 +174,13 @@ class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
         // return $results;
     }
 
-    public function empaquetarAlcoholDrogas($empleados, $anio, int $tipo_cuestionario_id) // Recibe Collection Empleados
+    public function empaquetarAlcoholDrogas($empleados, $fecha_inicio, $fecha_fin, int $tipo_cuestionario_id) // Recibe Collection Empleados
     {
         $results = [];
         $cont = 0;
         foreach ($empleados as $empleado) {
             Log::channel('testing')->info('Log', ['Cuestionario DROGAS', 'SDA']);
-            $cuestionario = $this->obtenerCuestionarios($empleado->id, $anio, $tipo_cuestionario_id);
+            $cuestionario = $this->obtenerCuestionarios($empleado->id, $fecha_inicio, $fecha_fin, $tipo_cuestionario_id);
             Log::channel('testing')->info('Log', ['Cuestionario DROGAS', $cuestionario]);
 
             $row['id'] =  $empleado->id;
@@ -201,6 +209,8 @@ class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
             $row['personal_recibio_capacitacion'] = 'SI';
             $row['cuenta_con_examen_preocupacional'] = 'SI';
             $row['cuestionario'] = $cuestionario;
+            $row['razon_social'] = $this->configuracion->razon_social;
+            $row['ruc'] = $this->configuracion->ruc;
 
             $results[$cont] = $row;
             $cont++;
@@ -218,13 +228,11 @@ class ReporteCuestionarioInternoService extends ReporteCuestionarioAbstract
         return implode(', ', $tipos->toArray());
     }
 
-    private function obtenerCuestionarios($empleado_id, string $anio, int $tipo_cuestionario_id)
+    private function obtenerCuestionarios($empleado_id, string $fecha_inicio, string $fecha_fin, int $tipo_cuestionario_id)
     {
-        Log::channel('testing')->info('Log', ['respuesta_cuestionario', 'bebe']);
-        $respuesta_cuestionario = RespuestaCuestionarioEmpleado::where('empleado_id', $empleado_id)->whereYear('created_at', $anio)->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
+        $respuesta_cuestionario = RespuestaCuestionarioEmpleado::where('empleado_id', $empleado_id)->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
             $q->where('tipo_cuestionario_id', $tipo_cuestionario_id);
         })->get();
-        Log::channel('testing')->info('Log', ['respuesta_cuestionario', $respuesta_cuestionario]);
 
         if ($respuesta_cuestionario) {
             $cuestionarios = $respuesta_cuestionario->map(function ($cuestionario) {

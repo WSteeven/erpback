@@ -10,7 +10,9 @@ use App\Models\Pais;
 use App\Models\Provincia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Src\App\Medico\CuestionariosRespondidosService;
 use Src\Shared\ValidarIdentificacion;
+use Illuminate\Validation\ValidationException;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +48,11 @@ Route::prefix('medico')->group(function () {
     // Rutas normales
     Route::get('tipos-cuestionarios', [TipoCuestionarioController::class, 'index']);
     Route::get('preguntas', [PreguntaController::class, 'index']);
+    Route::post('/verificar-cuestionario-publico-lleno', function (Request $request) {
+        if ((new CuestionariosRespondidosService())->personaYaLlenoCuestionario($request['identificacion'], $request['tipo_cuestionario_id']))
+            throw ValidationException::withMessages(['cuestionario_completado' => ['Usted ya completó el cuestionario para este año. </br> Su respuesta no se guardará.']]);
+        // return response()->json(['mensaje' => 'Usted ya completó el cuestionario para este año. </br> Su respuesta no se guardará.']);
+    });
 
     // ApiResources
     Route::apiResources(

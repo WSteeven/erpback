@@ -49,7 +49,7 @@ class CuestionarioPublicoController extends Controller
             $tipo_cuestionario_id = Cuestionario::find($datos['cuestionario'][0]['id_cuestionario'])->tipo_cuestionario_id;
 
             if ((new CuestionariosRespondidosService())->personaYaLlenoCuestionario($datos['persona']['identificacion'], $tipo_cuestionario_id))
-                throw ValidationException::withMessages(['cuestionario_completado' => ['Usted ya completó el cuestionario para este año.']]);
+                throw ValidationException::withMessages(['cuestionario_completado' => ['Usted ya completó el cuestionario para este año. </br> Su respuesta no se guardará.']]);
             // throw new Exception('Usted ya completó el cuestionario para este año.');
 
             $datos['persona']['tipo_cuestionario_id'] = $tipo_cuestionario_id;

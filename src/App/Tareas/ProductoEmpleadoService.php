@@ -6,22 +6,18 @@ use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
-use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
 use App\Models\MaterialEmpleado;
 use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\SeguimientoMaterialStock;
-use App\Models\Tareas\TransferenciaProductoEmpleado;
 use App\Models\TransaccionBodega;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
+
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\EstadosTransacciones;
-use Src\Shared\Utils;
 
 class ProductoEmpleadoService
 {

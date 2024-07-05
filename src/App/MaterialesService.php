@@ -3,9 +3,17 @@
 namespace Src\App;
 
 use App\Models\DetalleProducto;
+use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
+use App\Models\PreingresoMaterial;
+use App\Models\Subtarea;
+use App\Models\Tarea;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use OwenIt\Auditing\Models\Audit;
 
 class MaterialesService
 {
@@ -50,5 +58,102 @@ class MaterialesService
         ]);
 
         return response()->json(compact('results'));
+    }
+
+
+    public function obtenerMaterialesEmpleadoIntervalo(int $empleado_id, string  $fecha_inicio, string $fecha_fin = null)
+    {
+        $fecha_fin = $fecha_fin != null ? $fecha_fin : Carbon::now();
+        $results = [];
+        $cont = 0;
+
+        $materiales = MaterialEmpleado::with('audits')->where('empleado_id', $empleado_id)->whereHas('audits', function ($q) use ($fecha_inicio, $fecha_fin) {
+            $q->whereBetween('created_at', [$fecha_inicio, $fecha_fin]);
+        })->orderBy('detalle_producto_id', 'asc')->get();
+
+        foreach ($materiales as $material) {
+            // Se realiza el casteo de cada elemento
+            foreach ($material->audits as $audit) {
+                $row['fecha_hora'] = Carbon::parse($audit->created_at)->format('Y-m-d H:i:s');
+                $row['empleado'] = Empleado::extraerNombresApellidos(User::find($audit->user_id)->empleado);
+                $row['detalle_producto_id'] = $material->detalle_producto_id;
+                $row['detalle_producto'] = $material->detalle->descripcion;
+                $row['cliente'] = $material->cliente?->empresa?->razon_social;
+                $row['evento'] = $audit->event;
+                $row['movimiento'] = $this->obtenerSegmentoRuta($audit->url);
+                $row['cantidad_anterior'] = array_key_exists('cantidad_stock', $audit->old_values) ? $audit->old_values['cantidad_stock'] : 0;
+                $row['cantidad_actual'] = array_key_exists('cantidad_stock', $audit->new_values) ? $audit->new_values['cantidad_stock'] : 0;
+                $row['cantidad_afectada'] = abs($row['cantidad_anterior'] - $row['cantidad_actual']);
+                // $row['movimiento'] = $audit->url;
+                $url =  parse_url($audit->url);
+                // if (array_key_exists('query', $url)) {
+                //     $row['URL'] = $url;
+                // } else {
+                $segmentos = explode('/', $url['path']);
+                $segmentos = array_filter($segmentos);
+                $id = end($segmentos);
+                switch ($segmentos[2]) {
+                    case 'preingresos':
+                        $row['transaccion'] = 'PREINGRESO';
+                        $row['descripcion'] = PreingresoMaterial::find($id)->observacion;
+                        break;
+                    case 'transacciones-ingresos':
+                        $row['transaccion'] = 'INGRESO A BODEGA';
+                        $row['descripcion'] = '';
+                        break;
+                    case 'transacciones-egresos':
+                        $row['transaccion'] = 'EGRESO DE BODEGA';
+                        $row['descripcion'] = '';
+                        break;
+                    case 'tareas':
+                        $row['transaccion'] = 'TAREA';
+                        $tarea =  Tarea::find($id);
+                        $row['descripcion'] = $tarea ? $tarea?->titulo : Subtarea::find($id)?->titulo;
+                        break;
+                    default:
+                        $row['segmentos'] = $segmentos;
+                        $row['segmentos_id'] = $id;
+                }
+                // }
+
+                $results[] = $row;
+            }
+        }
+        // Log::channel('testing')->info('Log', ['results', $results]);
+
+        $eventos = ['created' => 'CREADO', 'updated' => 'ACTUALIZADO'];
+        $results = collect($results)->map(function ($item) use ($eventos) {
+            $item['evento'] = $eventos[$item['evento']];
+            return $item;
+        });
+        return $results;
+    }
+
+    private function obtenerSegmentoRuta($url)
+    {
+        // Log::channel('testing')->info('Log', compact('url'));
+
+        // Parseamos la URL para obtener los segmentos
+        $parsedUrl = parse_url($url);
+        // Log::channel('testing')->info('Log', compact('parsedUrl'));
+
+        // Obtenemos la ruta de la URL
+        $ruta = $parsedUrl['path'];
+        Log::channel('testing')->info('Log', compact('ruta'));
+
+        // Obtenemos el nombre del segmento deseado
+        $ruta = explode('/', $ruta);
+        // $longitud = count($ruta);
+        // Log::channel('testing')->info('Log', ['longitud' => $longitud]);
+        // Log::channel('testing')->info('Log', ['-> item' => $ruta[3]]);
+        Log::channel('testing')->info('Log', ['****' => '********************************']);
+
+        // $segmento = $longitud > 3 ? $ruta[3] : $ruta[1]; // last(explode('/', $ruta));
+        // Log::channel('testing')->info('Log', compact('segmento'));
+
+        // Retornamos el segmento encontrado
+        array_shift($ruta);
+        array_shift($ruta);
+        return implode('/', $ruta);
     }
 }
