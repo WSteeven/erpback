@@ -34,7 +34,7 @@ class DevolucionService
         if ($request->estado) {
             switch ($request->estado) {
                 case 'PENDIENTE':
-                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_AUDITOR, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                         $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
                     } else {
                         $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)
@@ -45,7 +45,7 @@ class DevolucionService
                     }
                     break;
                 case 'APROBADO':
-                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_AUDITOR, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                         $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PENDIENTE)->orderBy('updated_at', 'desc')->get();
                     } else {
                         $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PENDIENTE)
@@ -56,7 +56,7 @@ class DevolucionService
                     }
                     break;
                 case 'PARCIAL':
-                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_AUDITOR, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                         $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PARCIAL)->orderBy('updated_at', 'desc')->get();
                     } else {
                         $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PARCIAL)
@@ -67,9 +67,9 @@ class DevolucionService
                     }
                     break;
                 case 'CANCELADO':
-                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_AUDITOR, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                         $results = Devolucion::where('autorizacion_id', 3)->orWhere('estado_bodega', EstadoTransaccion::ANULADA)->orderBy('updated_at', 'desc')->get();
-                    } else { 
+                    } else {
                         $results = Devolucion::where('autorizacion_id', 3)->orWhere('estado_bodega', EstadoTransaccion::ANULADA)
                             ->where(function ($query) {
                                 $query->where('solicitante_id', auth()->user()->empleado->id)
@@ -78,7 +78,7 @@ class DevolucionService
                     }
                     break;
                 case 'COMPLETA':
-                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_AUDITOR, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                         $results = Devolucion::where('estado_bodega', EstadoTransaccion::COMPLETA)->orderBy('updated_at', 'desc')->get();
                     } else {
                         $results = Devolucion::where('estado_bodega', EstadoTransaccion::COMPLETA)
