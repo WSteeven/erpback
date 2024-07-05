@@ -19,7 +19,7 @@ class PermisoArmaResource extends JsonResource
             'nombre' => $this->nombre,
             'fecha_emision' => $this->fecha_emision,
             'fecha_caducidad' => $this->fecha_caducidad,
-            'imagen_permiso' => $this->imagen_permiso,
+            'imagen_permiso' => $this->imagen_permiso ? url($this->imagen_permiso) : null,
         ];
     }
 }
