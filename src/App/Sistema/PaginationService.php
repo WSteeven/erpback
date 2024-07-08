@@ -17,7 +17,7 @@ class PaginationService
      * @param int $page
      * @return LengthAwarePaginator
      */
-    public function paginate(Builder $query, $perPage = 50, $page = null)
+    public function paginate(Builder $query, $perPage = 100, $page = null)
     {
         $page = $page ?: LengthAwarePaginator::resolveCurrentPage();
 

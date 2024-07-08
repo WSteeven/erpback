@@ -15,6 +15,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Src\App\Bodega\DevolucionService;
+use Src\App\Sistema\PaginationService;
 use Src\Config\ClientesCorporativos;
 
 class TransaccionBodegaIngresoService
@@ -687,31 +688,40 @@ class TransaccionBodegaIngresoService
      * o `ROL_ADMINISTRADOR` para un conjunto de condiciones, o `ROL_BODEGA_TELCONET` para otro
      * conjunto de condiciones).
      */
-    public static function listar($fecha_inicio = null, $fecha_fin = null)
+    public static function listar($fecha_inicio = null, $fecha_fin = null, $paginate = false)
     {
+        $paginationService = new PaginationService();
         $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
         $ids_motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
+        $query = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
+            ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
+                $q->where('created_at', '>=', $fecha_inicio);
+            })
+            ->when($fecha_fin, function ($q) use ($fecha_fin) {
+                $q->where('created_at', '<=', $fecha_fin);
+            })
+            ->orderBy('id', 'desc');
+        $queryTelconet = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
+            ->where('cliente_id', ClientesCorporativos::TELCONET)
+            ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
+                $q->where('created_at', '>=', $fecha_inicio);
+            })
+            ->when($fecha_fin, function ($q) use ($fecha_fin) {
+                $q->where('created_at', '<=', $fecha_fin);
+            })
+            ->orderBy('id', 'desc');
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
-                ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
-                    $q->where('created_at', '>=', $fecha_inicio);
-                })
-                ->when($fecha_fin, function ($q) use ($fecha_fin) {
-                    $q->where('created_at', '<=', $fecha_fin);
-                })
-                ->orderBy('id', 'desc')->get();
+            if ($paginate) {
+                return $paginationService->paginate($query, null, request('page'));
+            } else
+                return $query->get();
         }
         if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
-                ->where('cliente_id', ClientesCorporativos::TELCONET)
-                ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
-                    $q->where('created_at', '>=', $fecha_inicio);
-                })
-                ->when($fecha_fin, function ($q) use ($fecha_fin) {
-                    $q->where('created_at', '<=', $fecha_fin);
-                })
-                ->orderBy('id', 'desc')->get();
+            if ($paginate) {
+                return $paginationService->paginate($queryTelconet, null, request('page'));
+            } else
+                return $query->get();
         }
         return $results;
     }
