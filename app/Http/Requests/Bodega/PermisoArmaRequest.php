@@ -28,6 +28,7 @@ class PermisoArmaRequest extends FormRequest
             'fecha_emision' => 'string|required',
             'fecha_caducidad' => 'string|required',
             'imagen_permiso' => 'string|required',
+            'imagen_permiso_reverso' => 'string|required',
         ];
     }
 }

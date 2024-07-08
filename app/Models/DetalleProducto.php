@@ -64,6 +64,7 @@ class DetalleProducto extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_fibra' => 'boolean',
         'esActivo' => 'boolean',
+        'activo' => 'boolean',
     ];
 
     private static $whiteListFilter = [

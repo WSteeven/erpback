@@ -35,7 +35,7 @@ class DetalleProductoResource extends JsonResource
             'stock' => $request->stock ? $this->detalle_stock($this->id, $request->sucursal_id)?->cantidad : 0,
 
             'activo' => $this->activo,
-            'esActivo'=>$this->esActivo,
+            'esActivo'=>$this->esActivo ?? false,
 
             'ram' => $this->computadora ? $this->computadora->memoria->nombre : null,
             'disco' => $this->computadora ? $this->computadora->disco->nombre : null,

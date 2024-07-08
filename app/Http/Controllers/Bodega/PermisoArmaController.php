@@ -48,6 +48,9 @@ class PermisoArmaController extends Controller
         if ($datos['imagen_permiso']) {
             $datos['imagen_permiso'] = (new GuardarImagenIndividual($datos['imagen_permiso'], RutasStorage::IMAGENES_PERMISOS_ARMAS))->execute();
         }
+        if ($datos['imagen_permiso_reverso']) {
+            $datos['imagen_permiso_reverso'] = (new GuardarImagenIndividual($datos['imagen_permiso_reverso'], RutasStorage::IMAGENES_PERMISOS_ARMAS))->execute();
+        }
         $modelo = PermisoArma::create($datos);
         $modelo = new PermisoArmaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -82,6 +85,11 @@ class PermisoArmaController extends Controller
             $datos['imagen_permiso'] = (new GuardarImagenIndividual($datos['imagen_permiso'], RutasStorage::IMAGENES_PERMISOS_ARMAS))->execute();
         } else {
             unset($datos['imagen_permiso']);
+        }
+        if ($datos['imagen_permiso_reverso'] && Utils::esBase64($datos['imagen_permiso_reverso'])) {
+            $datos['imagen_permiso_reverso'] = (new GuardarImagenIndividual($datos['imagen_permiso_reverso'], RutasStorage::IMAGENES_PERMISOS_ARMAS))->execute();
+        } else {
+            unset($datos['imagen_permiso_reverso']);
         }
         $permiso->update($datos);
         $modelo = new PermisoArmaResource($permiso->refresh());

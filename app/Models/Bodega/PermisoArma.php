@@ -23,6 +23,7 @@ class PermisoArma extends Model implements Auditable
         'fecha_emision',
         'fecha_caducidad',
         'imagen_permiso',
+        'imagen_permiso_reverso',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
