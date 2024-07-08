@@ -107,12 +107,12 @@ class DevolucionService
      * La función "verificarItemsDevolucion" comprueba si hay artículos en una devolución que no hayan
      * sido devueltos en su totalidad y actualiza el estado de la devolución en consecuencia.
      * 
-     * @param detalleDevolucionProducto El parámetro "detalleDevolucionProducto" es un objeto que
+     * @param DetalleDevolucionProducto $detalleDevolucionProducto Es un objeto que
      * representa un detalle específico de la devolución de un producto. Probablemente contenga
      * información como el ID de devolución, el ID del producto, la cantidad devuelta y la cantidad ya
      * procesada.
      */
-    public static function verificarItemsDevolucion($detalleDevolucionProducto)
+    public static function verificarItemsDevolucion(DetalleDevolucionProducto $detalleDevolucionProducto)
     {
         $resultados = DB::select('select count(*) as cantidad from detalle_devolucion_producto dpp where dpp.devolucion_id=' . $detalleDevolucionProducto->devolucion_id . ' and dpp.cantidad!=dpp.devuelto');
         $devolucion = Devolucion::find($detalleDevolucionProducto->devolucion_id);

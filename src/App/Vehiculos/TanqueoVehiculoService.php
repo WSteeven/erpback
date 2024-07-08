@@ -44,7 +44,7 @@ class TanqueoVehiculoService
         // Log::channel('testing')->info('Log', ['resultados agrupados:', $resultados_agrupados]);
         foreach ($resultados_agrupados as $index => $resultado) {
             $data = [];
-            $data['combustible'] = Combustible::find($index)->nombre;
+            $data['combustible'] = Combustible::find($index)?->nombre;
             $data['monto'] = round($resultado->sum('monto'), 2);
             $data['recorrido'] = $this->obtenerKilometrosRecorridos($resultado);
             $results[] = $data;
