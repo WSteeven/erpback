@@ -272,6 +272,10 @@ class EmpleadoController extends Controller
                 );
                 Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
             }
+        }else{
+            //Eliminamos el conductor
+            $conductor = Conductor::find($empleado->id);
+            if($conductor) $conductor->delete();
         }
 
         if (!is_null($request->password)) {
