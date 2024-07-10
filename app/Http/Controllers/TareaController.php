@@ -59,8 +59,8 @@ class TareaController extends Controller
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
 
         if (request('search')) {
-            if ($esCoordinadorBackup) $query = Tarea::search($search);
-            if ($esCoordinador) $query = Tarea::search($search)->porCoordinador();
+            // if ($esCoordinadorBackup) $query = Tarea::search($search);
+            if ($esCoordinador) $query = Tarea::search($search)->where('coordinador_id', Auth::user()->empleado->id); // ->porCoordinador();
             else $query = Tarea::search($search);
 
             if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
