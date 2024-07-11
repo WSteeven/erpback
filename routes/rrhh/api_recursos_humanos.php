@@ -17,7 +17,6 @@ use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionControl
 use App\Http\Controllers\RecursosHumanos\Alimentacion\DetalleAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
-use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EgresoRolPagoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\FamiliaresControler;
@@ -80,13 +79,7 @@ Route::apiResources(
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
-        /*************************************************
-         *  Modulo de Seleción y contratación de personal
-         *************************************************/
-        'solicitud-puesto-empleo' => SolicitudPuestoEmpleoController::class,
-        'tipos_puestos_trabajos' => TipoPuestoTrabajoController::class,
-        'postulantes' => PostulanteController::class,
-        'tipos-discapacidades' => TipoDiscapacidadController::class,
+        
     ],
     [
         'parameters' => [

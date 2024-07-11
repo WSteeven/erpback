@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CargoResource extends JsonResource
+class VacanteResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,11 +14,6 @@ class CargoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id' => $this->id,
-            'nombre' => $this->nombre,
-            'estado' => $this->estado,
-            'aprobado_rrhh' => $this->aprobado_rrhh,
-        ];
+        return parent::toArray($request);
     }
 }

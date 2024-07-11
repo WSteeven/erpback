@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SolicitudPuestoEmpleoResource extends JsonResource
@@ -14,16 +15,26 @@ class SolicitudPuestoEmpleoResource extends JsonResource
      */
     public function toArray($request)
     {
-        $modelo = [ 'id' => $this->id,
-        'descripcion' => $this->descripcion,
-        'anos_experiencia' => $this->anos_experiencia,
-        'tipo_puesto' => $this->tipo_puesto_id,
-        'tipo_puesto_info' => $this->tipoPuesto,
-        'cargo' => $this->cargo_id,
-        'cargo_info' => $this->cargo,
-        'autorizacion' => $this->autorizacion_id,
-        'autorizacion_info' => $this->autorizacion
-    ];
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'descripcion' => $this->descripcion,
+            'anios_experiencia' => $this->anios_experiencia,
+            'tipo_puesto' => $this->tipoPuesto->nombre,
+            'tipo_puesto_info' => $this->tipoPuesto,
+            'cargo' => $this->cargo_id,
+            'cargo_info' => $this->cargo,
+            'autorizador' => Empleado::extraerNombresApellidos($this->autorizador),
+            'autorizacion' => $this->autorizacion->nombre,
+        ];
+        if ($controller_method == 'show') {
+            $modelo['tipo_puesto'] = $this->tipo_puesto_id;
+            $modelo['autorizador'] = $this->autorizador_id;
+            $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['cargo'] = $this->cargo_id;
+            $modelo['requiere_experiencia'] = !!$this->anios_experiencia;
+        }
         return $modelo;
     }
 }

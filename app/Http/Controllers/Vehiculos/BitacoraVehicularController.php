@@ -68,7 +68,7 @@ class BitacoraVehicularController extends Controller
         $datos = $request->validated();
         $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
         $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
-        
+
         //imagen del inicio de jornada
         if ($datos['imagen_inicial']) {
             $datos['imagen_inicial'] = (new GuardarImagenIndividual($datos['imagen_inicial'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
@@ -150,7 +150,7 @@ class BitacoraVehicularController extends Controller
             } else {
                 unset($datos['imagen_inicial']);
             }
-            
+
             DB::beginTransaction();
             $bitacora->update($datos);
             $this->service->actualizarDatosRelacionadosBitacora($bitacora, $request);

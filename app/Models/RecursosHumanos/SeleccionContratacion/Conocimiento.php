@@ -1,62 +1,44 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
-use App\Traits\UppercaseValuesTrait;
+use App\Models\Cargo;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Cargo extends Model implements Auditable
+class Conocimiento extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    use UppercaseValuesTrait;
-
-    protected $table = 'cargos';
+    protected $table = 'rrhh_contratacion_conocimientos';
     protected $fillable = [
+        'cargo_id',
         'nombre',
-        'estado',
-        'aprobado_rrhh'
+        'activo'
     ];
-
-    private static $whiteListFilter = [
-        'id',
-        'nombre',
-        'estado',
-        'aprobado_rrhh',
-    ];
-
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'estado' => 'boolean',
-        'aprobado_rrhh' => 'boolean',
+        'activo' => 'boolean',
     ];
 
-    public function toSearchableArray()
-    {
-        return [
-            'nombres' => $this->nombres,
-        ];
-    }
-
+    private static $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
-
     /**
-     * Relación uno a uno (inversa).
-     * Un cargo pertenece a un empleado.
+     * Relación uno a muchos (inversa)
+     * Un conocimiento pertenece a un cargo y un cargo tiene varios conocimientos.
      */
-    public function empleados()
+    public function cargo()
     {
-        return $this->hasMany(Empleado::class);
+        return $this->belongsTo(Cargo::class);
     }
 }
