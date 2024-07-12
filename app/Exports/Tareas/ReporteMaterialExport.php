@@ -90,6 +90,6 @@ class ReporteMaterialExport implements FromView, WithStyles, WithTitle, WithColu
         $sheet->getStyle('A1:J' . $totalFilas)->applyFromArray($bordeTabla);
         $sheet->getStyle('A1:J' . $totalFilas)->getAlignment()->setWrapText(true);
         $sheet->getStyle('A1:A' . $totalFilas)->getFont()->setBold(true);
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:K1');
     }
 }
