@@ -28,7 +28,7 @@ class ConocimientoController extends Controller
     public function index()
     {
         $results = Conocimiento::filter()->orderBy('nombre', 'asc')->get();
-        ConocimientoResource::collection($results);
+        $results = ConocimientoResource::collection($results);
         return response()->json(compact('results'));
     }
 
