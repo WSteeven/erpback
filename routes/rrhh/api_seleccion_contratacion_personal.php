@@ -16,14 +16,14 @@ Route::apiResources(
         'postulantes' => PostulanteController::class,
         'vacantes' => VacanteController::class,
         'solicitudes-nuevo-personal' => SolicitudPuestoEmpleoController::class,
-        'tipos-puestos-trabajos' => TipoPuestoTrabajoController::class,
+        'tipos-puestos' => TipoPuestoTrabajoController::class,
         'tipos-discapacidades' => TipoDiscapacidadController::class,
         'conocimientos'=>ConocimientoController::class
     ],
     [
         'parameters' => [
             'solicitudes-nuevo-personal' => 'solicitud',
-            'tipos-puestos-trabajos' => 'tipo'
+            'tipos-puestos' => 'tipo'
         ]
     ]
 );

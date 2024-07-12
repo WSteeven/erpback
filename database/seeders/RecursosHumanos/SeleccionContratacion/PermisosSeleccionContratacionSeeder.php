@@ -49,10 +49,12 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::VER . 'publicacion_puesto_empleo'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'publicacion_puesto_empleo'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'publicacion_puesto_empleo'])->syncRoles([$rrhh, $administrador]);
+        
         // tipos de puestos de trabajo        
-        Permission::firstOrCreate(['name' => Permisos::VER . 'tipos_puestos_trabajos'])->syncRoles([$rrhh, $administrador, $empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tipos_puestos_trabajos'])->syncRoles([$rrhh, $administrador]);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'tipos_puestos_trabajos'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_tipos_puestos'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_tipos_puestos'])->syncRoles([$rrhh, $administrador, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_tipos_puestos'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_tipos_puestos'])->syncRoles([$rrhh, $administrador]);
 
         // areas de conocimientos        
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador]);

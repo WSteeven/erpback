@@ -14,10 +14,10 @@ class TipoPuestoTrabajoController extends Controller
     private $entidad = 'TipoPuestoTrabajo';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipos_puestos_trabajos')->only('index', 'show');
-        $this->middleware('can:puede.crear.tipos_puestos_trabajos')->only('store');
-        $this->middleware('can:puede.editar.tipos_puestos_trabajos')->only('update');
-        $this->middleware('can:puede.eliminar.tipos_puestos_trabajos')->only('update');
+        $this->middleware('can:puede.ver.rrhh_tipos_puestos')->only('index', 'show');
+        $this->middleware('can:puede.crear.rrhh_tipos_puestos')->only('store');
+        $this->middleware('can:puede.editar.rrhh_tipos_puestos')->only('update');
+        $this->middleware('can:puede.eliminar.rrhh_tipos_puestos')->only('update');
     }
 
     public function index()
