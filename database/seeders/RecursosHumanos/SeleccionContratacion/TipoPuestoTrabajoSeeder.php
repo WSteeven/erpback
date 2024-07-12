@@ -15,10 +15,10 @@ class TipoPuestoTrabajoSeeder extends Seeder
      */
     public function run()
     {
-        TipoPuestoTrabajo::insert([
+        TipoPuestoTrabajo::upsert([
             ['nombre' => 'NUEVO'],
             ['nombre' => 'VACANTE'],
             ['nombre' => 'PASANTE'],
-        ]);
+        ], uniqueBy:['id'], update:['nombre']);
     }
 }

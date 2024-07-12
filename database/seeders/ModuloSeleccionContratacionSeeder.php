@@ -19,6 +19,7 @@ class ModuloSeleccionContratacionSeeder extends Seeder
         /*****************
          * Modulo Seleccion y contratacion  de personal
          *****************/
+        // php artisan db:seed --class=ModuloSeleccionContratacionSeeder
         $this->call([
             PermisosSeleccionContratacionSeeder::class,
             TipoPuestoTrabajoSeeder::class

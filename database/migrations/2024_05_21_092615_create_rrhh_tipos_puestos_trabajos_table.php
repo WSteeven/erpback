@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('rrhh_tipos_puestos_trabajos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre')->unique();
+            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }

@@ -25,6 +25,7 @@ class TipoPuestoTrabajoRequest extends FormRequest
     {
         return [
             'nombre'=>'required|string',
+            'activo'=>'boolean'
         ];
     }
 }

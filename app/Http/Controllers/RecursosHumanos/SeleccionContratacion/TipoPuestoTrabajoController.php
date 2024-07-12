@@ -17,13 +17,14 @@ class TipoPuestoTrabajoController extends Controller
         $this->middleware('can:puede.ver.rrhh_tipos_puestos')->only('index', 'show');
         $this->middleware('can:puede.crear.rrhh_tipos_puestos')->only('store');
         $this->middleware('can:puede.editar.rrhh_tipos_puestos')->only('update');
-        $this->middleware('can:puede.eliminar.rrhh_tipos_puestos')->only('update');
+        $this->middleware('can:puede.eliminar.rrhh_tipos_puestos')->only('destroy');
     }
 
     public function index()
     {
         $results = [];
         $results = TipoPuestoTrabajo::ignoreRequest(['campos'])->filter()->get();
+        $results = TipoPuestoTrabajoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -32,8 +33,8 @@ class TipoPuestoTrabajoController extends Controller
      */
     public function store(TipoPuestoTrabajoRequest $request)
     {
-        $TipoPuestoTrabajo = TipoPuestoTrabajo::create($request->validated());
-        $modelo = new TipoPuestoTrabajoResource($TipoPuestoTrabajo);
+        $tipo = TipoPuestoTrabajo::create($request->validated());
+        $modelo = new TipoPuestoTrabajoResource($tipo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -42,9 +43,9 @@ class TipoPuestoTrabajoController extends Controller
     /**
      * Consultar
      */
-    public function show(TipoPuestoTrabajo $TipoPuestoTrabajo)
+    public function show(TipoPuestoTrabajo $tipo)
     {
-        $modelo = new TipoPuestoTrabajoResource($TipoPuestoTrabajo);
+        $modelo = new TipoPuestoTrabajoResource($tipo);
         return response()->json(compact('modelo'));
     }
 
@@ -52,10 +53,10 @@ class TipoPuestoTrabajoController extends Controller
     /**
      * Actualizar
      */
-    public function update(TipoPuestoTrabajoRequest $request, TipoPuestoTrabajo $TipoPuestoTrabajo)
+    public function update(TipoPuestoTrabajoRequest $request, TipoPuestoTrabajo $tipo)
     {
-        $TipoPuestoTrabajo->update($request->validated());
-        $modelo = new TipoPuestoTrabajoResource($TipoPuestoTrabajo->refresh());
+        $tipo->update($request->validated());
+        $modelo = new TipoPuestoTrabajoResource($tipo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -64,9 +65,9 @@ class TipoPuestoTrabajoController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(TipoPuestoTrabajo $TipoPuestoTrabajo)
+    public function destroy(TipoPuestoTrabajo $tipo)
     {
-        $TipoPuestoTrabajo->delete();
+        $tipo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
 
         return response()->json(compact('mensaje'));
