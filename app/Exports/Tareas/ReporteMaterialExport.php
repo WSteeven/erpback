@@ -45,7 +45,7 @@ class ReporteMaterialExport implements FromView, WithStyles, WithTitle, WithColu
             'H' => 50,
             'I' => 25,
             'J' => 25,
-            'K' => 25,
+            'K' => 35,
         ];
     }
 
@@ -85,10 +85,10 @@ class ReporteMaterialExport implements FromView, WithStyles, WithTitle, WithColu
 
         $totalFilas = count($this->reporte) + self::TOTAL_FILAS_ENCABEZADO;
 
-        $sheet->getStyle('A1:J1')->applyFromArray($textoTitulo);
-        $sheet->getStyle('A1:J' . $totalFilas)->applyFromArray($textCenter);
-        $sheet->getStyle('A1:J' . $totalFilas)->applyFromArray($bordeTabla);
-        $sheet->getStyle('A1:J' . $totalFilas)->getAlignment()->setWrapText(true);
+        $sheet->getStyle('A1:K1')->applyFromArray($textoTitulo);
+        $sheet->getStyle('A1:K' . $totalFilas)->applyFromArray($textCenter);
+        $sheet->getStyle('A1:K' . $totalFilas)->applyFromArray($bordeTabla);
+        $sheet->getStyle('A1:K' . $totalFilas)->getAlignment()->setWrapText(true);
         $sheet->getStyle('A1:A' . $totalFilas)->getFont()->setBold(true);
         $sheet->setAutoFilter('A1:K1');
     }

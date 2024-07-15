@@ -22,7 +22,7 @@
                 <th rowspan="1" valign="center" bgcolor="#daf1f3">{{ 'MOVIMIENTO' }}</th>
                 <th rowspan="1" valign="center" bgcolor="#daf1f3">{{ 'CANTIDAD ANTERIOR' }}</th>
                 <th rowspan="1" valign="center" bgcolor="#daf1f3">{{ 'CANTIDAD ACTUAL' }}</th>
-                <th rowspan="1" valign="center" bgcolor="#daf1f3">{{ 'CANTIDAD AFECTADA' }}</th>
+                <th rowspan="1" valign="center" bgcolor="#daf1f3">{{ 'CANTIDAD AFECTADA (Diferencia)' }}</th>
             </tr>
         </thead>
 
@@ -34,7 +34,7 @@
                     <td valign="center">{{ $producto['cliente'] }}</td>
                     <td valign="center">{{ $producto['evento'] }}</td>
                     <td valign="center">{{ $producto['empleado'] }}</td>
-                    <td valign="center">{{ isset($producto['transaccion']) ? $producto['transaccion'] : '' }}</td>
+                    <td valign="center">{{ isset($producto['transaccion']) ? $producto['transaccion'] . ' ' . $producto['entidad_id'] : '' }}</td>
                     <td valign="center">{{ isset($producto['descripcion']) ? $producto['descripcion'] : '' }}</td>
                     <td valign="center">{{ $producto['movimiento'] }}</td>
                     <td valign="center">{{ $producto['cantidad_anterior'] }}</td>
