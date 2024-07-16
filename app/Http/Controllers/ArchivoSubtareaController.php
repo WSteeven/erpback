@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ArchivoSubtarea;
 use App\Models\Subtarea;
-use App\Models\Trabajo;
 use Illuminate\Http\Request;
 use Src\Config\RutasStorage;
 use Src\Shared\EliminarArchivo;

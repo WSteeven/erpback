@@ -81,6 +81,14 @@ class EmpleadoRequest extends FormRequest
             'acumula_fondos_reserva' => 'nullable',
             'realiza_factura' => 'required',
             'observacion' => 'nullable',
+            'discapacidades.*.tipo_discapacidad' => 'required_if:tiene_discapacidad,true|exists:rrhh_tipos_discapacidades,id',
+            'discapacidades.*.porcentaje' => 'required_if:tiene_discapacidad,true|numeric',
+            'familiares' => 'nullable',
+            // 'autoidentificacion_etnica' => 'required',
+            'trabajador_sustituto' => 'required',
+            'orientacion_sexual_id' => 'nullable|exists:med_orientaciones_sexuales,id',
+            'identidad_genero_id' => 'nullable|exists:med_identidades_generos,id',
+            'religion_id' => 'nullable|exists:med_religiones,id',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -128,7 +136,10 @@ class EmpleadoRequest extends FormRequest
             'estado_civil_id' => $this->estado_civil,
             'area_id' => $this->area,
             'tipo_contrato_id' => $this->tipo_contrato,
-            'num_cuenta_bancaria' => $this->num_cuenta
+            'num_cuenta_bancaria' => $this->num_cuenta,
+            'orientacion_sexual_id' => $this->orientacion_sexual,
+            'identidad_genero_id' => $this->identidad_genero,
+            'religion_id' => $this->religion,
         ]);
     }
 }

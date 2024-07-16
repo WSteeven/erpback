@@ -8,13 +8,18 @@ use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
 use App\Http\Resources\ItemDetallePreingresoMaterialResource;
+use App\Http\Resources\Tareas\DetalleTransferenciaProductoEmpleadoResource;
 use App\Http\Resources\VistaInventarioPerchaResource;
+use App\Models\Cliente;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
+use App\Models\MaterialEmpleado;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
+use App\Models\Tareas\DetalleTransferenciaProductoEmpleado;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\VistaInventarioPercha;
@@ -23,6 +28,7 @@ use Carbon\Carbon;
 use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use OwenIt\Auditing\Models\Audit;
@@ -43,6 +49,7 @@ class InventarioController extends Controller
         $this->middleware('can:puede.crear.inventarios')->only('store');
         $this->middleware('can:puede.editar.inventarios')->only('update');
         $this->middleware('can:puede.eliminar.inventarios')->only('destroy');
+        $this->middleware('can:puede.modificar_stock.materiales_empleados')->only('actualizarCantidadMaterialEmpleado', 'actualizarMaterialesEmpleado');
     }
     /**
      * Listar
@@ -199,7 +206,8 @@ class InventarioController extends Controller
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
-        $results2 = [];
+        $preingresos = [];
+        $transferencias = [];
         $cont = 0;
         $cantAudit = 0;
         $row = [];
@@ -241,6 +249,7 @@ class InventarioController extends Controller
 
         foreach ($movimientos as $movimiento) {
             // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
+            // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
             if ($cont == 0) {
                 $audit = Audit::where('auditable_id', $movimiento->inventario_id)
                     ->where('auditable_type', Inventario::class)
@@ -250,8 +259,9 @@ class InventarioController extends Controller
                     ])
                     ->first();
                 // Log::channel('testing')->info('Log', ['audit', $audit]);
-                if ($audit) $cantAudit =  $audit->old_values['cantidad'];
+                if ($audit) $cantAudit = count($audit->old_values) > 0 ? $audit->old_values['cantidad'] : 0;
             }
+            $row['id'] = $movimiento->inventario->detalle->id;
             $row['id'] = $cont + 1;
             $row['detalle'] = $movimiento->inventario->detalle->descripcion;
             $row['num_transaccion'] = $movimiento->transaccion->id;
@@ -302,9 +312,18 @@ class InventarioController extends Controller
         }
 
         //Aqui se filtra los preingresos donde ha sido visto el ítem
-        $results2 = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
-        $results2 = ItemDetallePreingresoMaterialResource::collection($results2);
+        $preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
+        $preingresos = ItemDetallePreingresoMaterialResource::collection($preingresos);
 
+        //Aquí se filtra las transferencias de productos
+        $transferencias = DetalleTransferenciaProductoEmpleado::where('detalle_producto_id', $request->detalle_id)
+            ->when($request->fecha_inicio, function ($q) use ($request) {
+                $q->where('created_at', '>=', $request->fecha_inicio);
+            })
+            ->when($request->fecha_fin, function ($q) use ($request) {
+                $q->where('created_at', '<=', $request->fecha_fin);
+            })->orderBy('created_at', 'desc')->get();
+        $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
 
         rsort($results); //aqui se ordena el array en forma descendente
         switch ($request->tipo_rpt) {
@@ -333,7 +352,7 @@ class InventarioController extends Controller
                 }
                 break;
             default:
-                return response()->json(compact('results', 'results2'));
+                return response()->json(compact('results', 'preingresos', 'transferencias'));
         }
     }
 
@@ -347,5 +366,141 @@ class InventarioController extends Controller
         $results = $this->servicio->obtenerDashboard($request);
 
         return response()->json(compact('results'));
+    }
+
+
+    public function actualizarMaterialesEmpleado(Request $request)
+    {
+        // Log::channel('testing')->info('Log', ['actualizarMaterialesEmpleado', $request->all()]);
+        $modelo = [];
+        try {
+            switch ($request->tipo) {
+                case 'PERSONAL':
+                    //busca y actualiza en la tabla de materiales_empleados
+                    //Buscamos el registro antiguo con los datos sin modificar
+                    MaterialEmpleado::actualizarMaterialesEmpleado($request->registroOld, $request->registro, $request->empleado);
+                    $material = MaterialEmpleado::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->registro['detalle_producto_id'])
+                        ->where('cliente_id', $request->registro['cliente'])
+                        ->where('cantidad_stock', '>', 0)
+                        ->first();
+                    if ($material)
+                        $modelo = $this->empaquetarMaterialSingular($material);
+                    break;
+                case 'PARA_CLIENTE_FINAL':
+                    //busca y actualiza en la tabla de materiales_empleados_tareas
+                    MaterialEmpleadoTarea::actualizarMaterialesEmpleadoTarea($request->registroOld, $request->registro, $request->empleado);
+                    $material = MaterialEmpleadoTarea::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->registro['detalle_producto_id'])
+                        ->where('cliente_id', $request->registro['cliente'])
+                        ->where('cantidad_stock', '>', 0)
+                        ->first();
+                    if ($material)
+                        $modelo = $this->empaquetarMaterialSingular($material);
+                    break;
+                default:
+                    //busca y actualiza en la tabla de materiales_empleados_tareas
+
+            }
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        $mensaje = 'Item actualizado correctamente';
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+    public function actualizarCantidadMaterialEmpleado(Request $request)
+    {
+        // Log::channel('testing')->info('Log', ['recibidoo', $request->all()]);
+        $modelo = [];
+        try {
+            DB::beginTransaction();
+            switch ($request->tipo) {
+                case 'PERSONAL':
+                    $material = MaterialEmpleado::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->detalle_producto_id)
+                        ->where('cliente_id', $request->cliente_id)
+                        ->where('cantidad_stock', '>', 0)->first();
+
+                    if ($material) {
+                        $this->actualizarCantidad($material, $request->cantidad);
+                        $modelo = $this->empaquetarMaterialSingular($material);
+                    }
+                    break;
+                case 'PARA_CLIENTE_FINAL':
+                    $material = MaterialEmpleadoTarea::where('empleado_id', $request->empleado)
+                        ->where('detalle_producto_id', $request->detalle_producto_id)
+                        ->where('cliente_id', $request->cliente_id)
+                        ->where('tarea_id', $request->tarea_id)
+                        ->first();
+                    // Log::channel('testing')->info('Log', ['mate encontrado', $material]);
+                    if ($material) {
+                        $this->actualizarCantidad($material, $request->cantidad);
+                        $modelo = $this->empaquetarMaterialSingular($material);
+                    }
+                    break;
+                default:
+                    //busca y actualiza en la tabla de materiales_empleados_tareas
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        $mensaje = 'Cantidad actualizada correctamente!';
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    /**
+     * La función `actualizarCantidad` actualiza la cantidad de stock de un material y ajusta los
+     * valores de `devuelto` o `despachado` en función de la nueva cantidad.
+     *
+     * @param MaterialEmpleado|MaterialEmpleadoTarea $material El parámetro `material` es
+     * de tipo `MaterialEmpleado` o `MaterialEmpleadoTarea`. Representa un objeto que contiene
+     * información sobre un material de un empleado de stock o de tarea.
+     * @param int $cantidad Es un valor entero que determina la nueva cantidad de stock para
+     * el material. La función compara esta cantidad con la cantidad de stock actual del
+     * material y actualiza el "devuelto" o "despachado" según sea el caso
+     */
+    private function actualizarCantidad(MaterialEmpleado|MaterialEmpleadoTarea $material, int $cantidad)
+    {
+        if ($cantidad < $material->cantidad_stock) {
+            $material->devuelto += $material->cantidad_stock - $cantidad;
+            $material->cantidad_stock = $cantidad;
+            $material->save();
+        } else {
+            $material->despachado += $cantidad - $material->cantidad_stock;
+            $material->cantidad_stock = $cantidad;
+            $material->save();
+        }
+    }
+
+    /**
+     * La función `empaquetarMaterialSingular` crea un modelo de matriz con detalles específicos de un
+     * elemento material para un empleado o una tarea.
+     *
+     * @param MaterialEmpleado|MaterialEmpleadoTarea $material puede ser una instancia de la clase `MaterialEmpleado` o
+     * `MaterialEmpleadoTarea`.
+     *
+     * @return array La función `empaquetarMaterialSingular` está devolviendo un array con los valores casteados.
+     */
+    private function empaquetarMaterialSingular(MaterialEmpleado|MaterialEmpleadoTarea $material)
+    {
+        $modelo = [];
+
+        $modelo = [
+            'id' => $material->detalle_producto_id,
+            'producto' => $material->detalle->producto->nombre,
+            'detalle_producto' => $material->detalle->descripcion,
+            'detalle_producto_id' => $material->detalle_producto_id,
+            'categoria' => $material->detalle->producto->categoria->nombre,
+            'stock_actual' => intval($material->cantidad_stock),
+            'despachado' => intval($material->despachado),
+            'devuelto' => intval($material->devuelto),
+            'medida' => $material->detalle->producto->unidadMedida?->simbolo,
+            'serial' => $material->detalle->serial,
+            'cliente' => Cliente::find($material->cliente_id)?->empresa->razon_social,
+            'cliente_id' => $material->cliente_id,
+        ];
+
+        return $modelo;
     }
 }

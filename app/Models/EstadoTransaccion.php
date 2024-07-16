@@ -25,6 +25,8 @@ class EstadoTransaccion extends Model implements Auditable
     const PARCIAL ='PARCIAL';
     const ANULADA ='NO REALIZADA';
 
+    const PENDIENTE_ID = 1;
+
     private static $whiteListFilter = [
         '*',
     ];

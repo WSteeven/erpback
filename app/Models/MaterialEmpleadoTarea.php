@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -32,6 +33,10 @@ class MaterialEmpleadoTarea extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
+    public function detalle()
+    {
+        return $this->belongsTo(DetalleProducto::class,  'detalle_producto_id', 'id');
+    }
     public function scopeResponsable($query)
     {
         return $query->where('empleado_id', Auth::user()->empleado->id);
@@ -103,7 +108,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
     }
 
     // Suma los productos del stock
-    public static function cargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id, int|null $proyecto_id, int|null $etapa_id)
+    public static function cargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int|null $cliente_id, int|null $proyecto_id, int|null $etapa_id)
     {
         try {
             $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
@@ -210,6 +215,21 @@ class MaterialEmpleadoTarea extends Model implements Auditable
                 $material->save();
             } else throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado para descontar lo devuelto');
         } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public static function actualizarMaterialesEmpleadoTarea($registroAntiguo, $registro, $empleado)
+    {
+        try {
+            DB::beginTransaction();
+            //descontamos al registro antiguo
+            self::descargarMaterialEmpleadoTarea($registro['detalle_producto_id'], $empleado, $registroAntiguo['tarea_id'], $registro['stock_actual'], $registroAntiguo['cliente_id']);
+            //asignamos al nuevo registro
+            self::cargarMaterialEmpleadoTarea($registro['detalle_producto_id'], $empleado, $registroAntiguo['tarea_id'], $registro['stock_actual'], $registro['cliente'], null, null);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }

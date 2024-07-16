@@ -23,18 +23,30 @@ class VehiculoResource extends JsonResource
             'anio_fabricacion' => $this->anio_fabricacion,
             'cilindraje' => $this->cilindraje,
             'rendimiento' => $this->rendimiento,
-            'marca' => $this->modelo->marca->nombre,
-            'modelo' => $this->modelo->nombre,
-            'combustible' => $this->combustible->nombre,
+            'marca' => $this->modelo?->marca?->nombre,
+            'modelo' => $this->modelo?->nombre,
+            'combustible' => $this->combustible?->nombre,
             'traccion' => $this->traccion,
+            'tipo_vehiculo' => $this->tipoVehiculo?->nombre,
             'aire_acondicionado' => $this->aire_acondicionado,
             'capacidad_tanque' => $this->capacidad_tanque,
+            'color' => $this->color,
+            'custodio' => $this->custodio?->nombres . ' ' . $this->custodio?->apellidos,
         ];
 
         if ($controller_method == 'show') {
             $modelo['marca'] = $this->modelo->marca->id;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['combustible'] = $this->combustible_id;
+            $modelo['tipo_vehiculo'] = $this->tipo_vehiculo_id;
+            $modelo['tiene_gravamen'] = $this->tiene_gravamen;
+            $modelo['prendador'] = $this->prendador;
+            $modelo['tipo'] = $this->tipo;
+            $modelo['tiene_rastreo'] = $this->tiene_rastreo;
+            $modelo['propietario'] = $this->propietario;
+            $modelo['conductor_externo'] = $this->conductor_externo;
+            $modelo['identificacion_conductor_externo'] = $this->identificacion_conductor_externo;
+            $modelo['seguro'] = $this->seguro_id;
         }
 
         return $modelo;

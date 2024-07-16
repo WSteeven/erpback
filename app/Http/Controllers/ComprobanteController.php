@@ -138,6 +138,7 @@ class ComprobanteController extends Controller
 
                 $comprobante = Comprobante::where('transaccion_id', $transaccion->id)->first();
                 $comprobante->estado = TransaccionBodega::PARCIAL;
+                $transaccion->observacion_est = $request->observacion;
                 $comprobante->save();
             }
             $modelo = new ComprobanteResource($comprobante);

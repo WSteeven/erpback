@@ -104,7 +104,7 @@
 
                                     @foreach ($reporte as $rpt)
                                         <tr>
-                                            <td>{{ $rpt['codigo'] }} - {{ $rpt['sum_total'] }}</td>
+                                            <td>{{ $rpt['codigo'] }}</td>
                                             <td>{{ $rpt['solicitante']['nombres'] }}
                                                 {{ $rpt['solicitante']['apellidos'] }}</td>
                                             <td>{{ $rpt['pedido']['id'] ?? '' }}</td>

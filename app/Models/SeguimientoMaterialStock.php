@@ -22,6 +22,29 @@ class SeguimientoMaterialStock extends Model implements Auditable
         'cliente_id',
     ];
 
+    /*************
+     * Relaciones
+     *************/
+    public function subtarea()
+    {
+        return $this->hasOne(Subtarea::class, 'id', 'subtarea_id');
+    }
+
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class);
+    }
+
+    public function detalleProducto()
+    {
+        return $this->belongsTo(DetalleProducto::class);
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
+
     public function scopeResponsable($query)
     {
         return $query->where('empleado_id', Auth::user()->empleado->id);

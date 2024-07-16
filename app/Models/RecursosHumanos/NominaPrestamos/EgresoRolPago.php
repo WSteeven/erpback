@@ -52,7 +52,7 @@ class EgresoRolPago extends Model implements Auditable
      *
      * @return the newly created "egreso_rol_pago" egreso object.
      */
-    public static function crearEgresoRol($rol_pago, $monto, $entidad)
+    public static function crearEgresoRol(RolPago $rol_pago, $monto, $entidad)
     {
         $egreso = $entidad->egreso_rol_pago()->create([
             'id_rol_pago' => $rol_pago->id,

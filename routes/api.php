@@ -58,14 +58,8 @@ use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
-use App\Http\Resources\CantonResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Models\Provincia;
-use App\Models\Canton;
-use App\Models\DetalleProducto;
-use App\Models\Empleado;
-use App\Models\Pais;
 use Carbon\Carbon;
 
 /*
@@ -80,7 +74,8 @@ use Carbon\Carbon;
 */
 
 Route::get('tablero', [TableroController::class, 'index']);
-Route::get('auditorias', [AuditoriaController::class, 'index']);
+Route::get('auditorias', [AuditoriaController::class, 'index'])->middleware('auth:sanctum');
+Route::get('modelos-auditorias', [AuditoriaController::class, 'modelos']);
 Route::get('permisos_roles_usuario', [PermisoController::class, 'listarPermisosRoles']);
 Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos']);
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);
@@ -209,7 +204,7 @@ Route::get('empleados-roles',  [EmpleadoController::class, 'empleadosRoles'])->m
 /**
  * Ruta para obtener empleados por cierto permiso
  */
-Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos'] )->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
+Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos'])->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
 
 
 /**
@@ -264,6 +259,8 @@ Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'show
 Route::get('comprobantes-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarComprobante'])->middleware('auth:sanctum');
 Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarEgresos'])->middleware('auth:sanctum');
 
+//Modificar egreso
+Route::patch('modificar-item-egreso',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
@@ -294,17 +291,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
     Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
-    Route::get('paises', fn () => ['results' => Pais::filter()->get()]);
-    Route::get('provincias', fn (Request $request) => ['results' => Provincia::filter()->get()]);
-    Route::get('cantones', function () {
-        $results = Canton::ignoreRequest(['campos'])->filter()->get();
-        $results = CantonResource::collection($results);
-        //  return 'results' => Canton::ignoreRequest(['campos'])->filter()->get());
-        return response()->json(compact('results'));
-    });
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
-
 });
 /***********
  * Dashboard
@@ -339,3 +327,10 @@ Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFile
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');
+
+/**
+ * Actualizar materiales de empleados
+ */
+
+Route::post('actualizar-materiales-empleados', [InventarioController::class, 'actualizarMaterialesEmpleado'])->middleware('auth:sanctum');
+Route::post('actualizar-cantidad-material-empleado', [InventarioController::class, 'actualizarCantidadMaterialEmpleado'])->middleware('auth:sanctum');

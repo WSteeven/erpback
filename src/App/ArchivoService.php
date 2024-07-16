@@ -37,7 +37,7 @@ class ArchivoService
             $results =  $entidad->archivos()->get();
             return $results;
         } catch (Throwable $th) {
-            Log::channel('testing')->info('Log', ['Error en el listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['Error en el metodo listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
             throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine(), $th->getCode());
         }
     }
@@ -46,16 +46,16 @@ class ArchivoService
      * La función guarda un archivo una vez en una ubicación de almacenamiento específica y crea una entrada
      * correspondiente en la base de datos.
      *
-     * @param Model entidad El parámetro "entidad" es una instancia de una clase modelo. Representa la
+     * @param Model $entidad El parámetro "entidad" es una instancia de una clase modelo. Representa la
      * entidad u objeto con el que desea asociar el archivo cargado.
-     * @param UploadedFile archivo El parámetro "archivo" es una instancia de la clase UploadedFile,
+     * @param UploadedFile $archivo El parámetro "archivo" es una instancia de la clase UploadedFile,
      * que representa un archivo que ha sido subido a través de un formulario. Contiene información
      * sobre el archivo, como su nombre, tamaño y ubicación de almacenamiento temporal.
-     * @param RutasStorage|string ruta El parámetro `` es una instancia de la clase `RutasStorage`, que
+     * @param RutasStorage|string $ruta El parámetro `` es una instancia de la clase `RutasStorage`, que
      * representa la ruta de almacenamiento donde se guardará el archivo. Contiene una propiedad
      * `value` que contiene el valor real de la ruta de almacenamiento.
      *
-     * @return el objeto modelo creado.
+     * @return Model el objeto modelo creado.
      */
     public static function guardarArchivo(Model $entidad, UploadedFile $archivo, string $ruta)
     {

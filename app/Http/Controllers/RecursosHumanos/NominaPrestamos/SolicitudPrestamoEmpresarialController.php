@@ -44,7 +44,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
             $results = SolicitudPrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         } else {
-            $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->id)->ignoreRequest(['campos'])->filter()->get();
+            $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->empleado->id)->ignoreRequest(['campos'])->filter()->get();
             $results = SolicitudPrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         }
@@ -58,15 +58,20 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $datos = $request->validated();
         $rubro = Rubros::where('nombre_rubro', 'Sueldo Basico')->first();
+        $empleado = Auth::user()->empleado;
+        $fechaActual = Carbon::now();
+        $fechaIngreso = Carbon::parse($empleado->fecha_ingreso);
+        $diff = $fechaActual->diff($fechaIngreso);
+        if($diff->y <1){
+            throw ValidationException::withMessages([
+                '404' => ['Solo se puede solicitar prestamos una vez cumplido 1 año de trabajo'],
+            ]);
+        }
         $sbu_doble = $rubro->valor_rubro * 2;
         if ($request->monto >= $sbu_doble) {
             throw ValidationException::withMessages([
                 '404' => ['Solo se permite prestamo menor o igual a 2 SBU ($' . ($rubro->valor_rubro * 2) . ')'],
             ]);
-        }
-
-        if ($request->foto) {
-            $datos['foto'] = (new GuardarImagenIndividual($request->foto, RutasStorage::FOTOGRAFIAS_PRESTAMO_EMPRESARIAL))->execute();
         }
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::create($datos);
         event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
@@ -101,11 +106,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
         $salario = $empleado->salario;
         $anticipo = $salario *  $porcentaje_anticipo;
-        /* if ($valor_pago <= $anticipo) {
-            throw ValidationException::withMessages([
-                '404' => ['No se puede generar coutas menores o iguales  ' . ($valor_pago / 100) . '%'],
-            ]);
-        }*/
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
@@ -131,7 +131,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $PrestamoEmpresarial->fecha = $request->fecha;
         $PrestamoEmpresarial->monto = $request->monto;
         $PrestamoEmpresarial->plazo = $request->plazo;
-        $PrestamoEmpresarial->estado = $request->estado;
+        $PrestamoEmpresarial->estado = PrestamoEmpresarial::ACTIVO;
         $PrestamoEmpresarial->periodo_id = $request->periodo_id;
         $PrestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
         $PrestamoEmpresarial->id_solicitud_prestamo_empresarial = $SolicitudPrestamoEmpresarial->id;
