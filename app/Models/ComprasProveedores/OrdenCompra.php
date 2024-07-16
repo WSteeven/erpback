@@ -5,7 +5,6 @@ namespace App\Models\ComprasProveedores;
 use App\Models\Archivo;
 use App\Models\Autorizacion;
 use App\Models\CorreoEnviado;
-use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
@@ -22,8 +21,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use Src\Shared\Utils;
 
 class OrdenCompra extends Model implements Auditable
@@ -73,7 +72,7 @@ class OrdenCompra extends Model implements Auditable
     'completada' => 'boolean',
   ];
 
-  private static $whiteListFilter = ['*'];
+  private static array $whiteListFilter = ['*'];
 
   /**
    * ______________________________________________________________________________________
@@ -177,7 +176,7 @@ class OrdenCompra extends Model implements Auditable
   }
 
   /**
-   * Relación para obtener la ultima notificacion de un modelo dado.
+   * Relación para obtener la última notificacion de un modelo dado.
    */
   public function latestNotificacion()
   {
@@ -240,7 +239,7 @@ class OrdenCompra extends Model implements Auditable
    *
    * @param int $id El parámetro "id" es el ID de la orden de compra.
    *
-   * @return una matriz con los valores de subtotal, el total, el descuento y IVA.
+   * @return mixed una matriz con los valores de subtotal, el total, el descuento y IVA.
    */
   public static function obtenerSumaListado($id)
   {

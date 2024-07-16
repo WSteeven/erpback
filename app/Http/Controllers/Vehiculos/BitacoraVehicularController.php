@@ -5,40 +5,39 @@ namespace App\Http\Controllers\Vehiculos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\BitacoraVehicularRequest;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
-use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Empleado;
 use App\Models\User;
+use App\Models\Vehiculos\BitacoraVehicular;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Src\App\ActividadRealizadaService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Vehiculos\BitacoraVehicularService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class BitacoraVehicularController extends Controller
 {
-    private $entidad = 'Bitacora Vehicular';
-    private $actividadService;
-    private $service;
+    private string $entidad = 'Bitacora Vehicular';
+    private BitacoraVehicularService $service;
 
     public function __construct()
     {
-        $this->actividadService = new ActividadRealizadaService();
         $this->service = new BitacoraVehicularService();
         $this->middleware('can:puede.ver.bitacoras_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.bitacoras_vehiculos')->only('store');
         $this->middleware('can:puede.editar.bitacoras_vehiculos')->only('update');
         $this->middleware('can:puede.eliminar.bitacoras_vehiculos')->only('destroy');
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -60,14 +59,16 @@ class BitacoraVehicularController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param BitacoraVehicularRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function store(BitacoraVehicularRequest $request)
     {   //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
-        $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
+        $datos['tareas'] = Utils::convertArrayToString($request->tareas);
+        $datos['tickets'] = Utils::convertArrayToString($request->tickets);
 
         //imagen del inicio de jornada
         if ($datos['imagen_inicial']) {
@@ -76,8 +77,8 @@ class BitacoraVehicularController extends Controller
         //Respuesta
         try {
             $chofer = Empleado::find($request->chofer_id);
-            $bitacoraActiva = BitacoraVehicular::where('chofer_id', $chofer->id)->where('firmada', false)->get();
-            if (count($bitacoraActiva) > 0) throw new Exception('Ya tienes una bitacora activa, por favor finalizala para poder crear otra');
+            $bitacora_activa = BitacoraVehicular::where('chofer_id', $chofer->id)->where('firmada', false)->get();
+            if (count($bitacora_activa) > 0) throw new Exception('Ya tienes una bitacora activa, por favor finalizala para poder crear otra');
             $chofer->bitacoras()->attach(
                 $datos['vehiculo_id'],
                 [
@@ -92,7 +93,7 @@ class BitacoraVehicularController extends Controller
                     'firmada' => $datos['firmada'],
                 ]
             );
-            $this->service->notificarDiferenciasKmBitacoras($chofer->ultimaBitacora, $request);
+            $this->service->notificarDiferenciasKmBitacoras($chofer->ultimaBitacora);
             $this->service->actualizarDatosRelacionadosBitacora($chofer->ultimaBitacora, $request);
             // $bitacora = BitacoraVehicular::create($datos);
             Log::channel('testing')->info('Log', ['BitacoraVehicularRecienCreada', $chofer->ultimaBitacora]);
@@ -102,14 +103,14 @@ class BitacoraVehicularController extends Controller
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al guardar la bitacora', $ex->getMessage(), $ex->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
-        return response()->json(compact('mensaje', 'modelo'), 200);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
-     * @return \Illuminate\Http\Response
+     * @param BitacoraVehicular $bitacora
+     * @return JsonResponse
      */
     public function show(BitacoraVehicular $bitacora)
     {
@@ -122,9 +123,9 @@ class BitacoraVehicularController extends Controller
         $modelo = [];
         if (request()->filtrar) {
             $bitacora = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->first();
-        }
-        if ($bitacora) {
-            $modelo = new BitacoraVehicularResource($bitacora);
+            if ($bitacora) {
+                $modelo = new BitacoraVehicularResource($bitacora);
+            }
         }
         return response()->json(compact('modelo'));
     }
@@ -132,9 +133,10 @@ class BitacoraVehicularController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
-     * @return \Illuminate\Http\Response
+     * @param BitacoraVehicularRequest $request
+     * @param BitacoraVehicular $bitacora
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
@@ -142,8 +144,8 @@ class BitacoraVehicularController extends Controller
             Log::channel('testing')->info('Log', ['request', $request->all()]);
             //Validacion de datos
             $datos = $request->validated();
-            $datos['tareas'] = Utils::convertArrayToString($request->tareas, ',');
-            $datos['tickets'] = Utils::convertArrayToString($request->tickets, ',');
+            $datos['tareas'] = Utils::convertArrayToString($request->tareas);
+            $datos['tickets'] = Utils::convertArrayToString($request->tickets);
 
             if ($datos['imagen_inicial'] && Utils::esBase64($datos['imagen_inicial'])) {
                 $datos['imagen_inicial'] = (new GuardarImagenIndividual($datos['imagen_inicial'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
@@ -162,7 +164,7 @@ class BitacoraVehicularController extends Controller
             $modelo = new BitacoraVehicularResource($bitacora->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['error', $th->getLine(), $th->getMessage()]);
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
@@ -173,37 +175,26 @@ class BitacoraVehicularController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
-     * @return \Illuminate\Http\Response
+     * @param BitacoraVehicular $bitacora
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function destroy(BitacoraVehicular $bitacora)
     {
         if (!$bitacora->firmada) {
             $bitacora->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-            return response()->json(compact('mensaje'), 200);
+            return response()->json(compact('mensaje'));
         } else {
             throw ValidationException::withMessages([
                 'firmada' => ['No se puede eliminar una bitacora firmada!']
             ]);
-            // return response()->json(['mensaje' => 'No se puede eliminar un registro ya firmado '], 422);
         }
     }
 
-    public function indexActividades(BitacoraVehicular $bitacora)
-    {
-        try {
-            $results = $this->actividadService->index($bitacora);
-            return response()->json(compact('results'));
-        } catch (\Throwable $th) {
-            throw Utils::obtenerMensajeErrorLanzable($th);
-        }
-    }
-
-    public function storeActividades(Request $request, BitacoraVehicular $bitacora)
-    {
-    }
-
+    /**
+     * @throws ValidationException
+     */
     public function firmar(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
         try {
@@ -219,26 +210,27 @@ class BitacoraVehicularController extends Controller
             } else {
                 throw new Exception('No se puede finalizar la bitacora, ya ha sido finalizada previamente');
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
-        return response()->json(compact('mensaje'), 200);
+        return response()->json(compact('mensaje'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function imprimir(BitacoraVehicular $bitacora)
     {
         try {
-            return $this->service->generarPdf($bitacora, true, true);
-        } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $e->getMessage(), $e->getLine()]);
+            return $this->service->generarPdf($bitacora);
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages(
                 [
-                    'error' => $e->getMessage(),
+                    'error' => $ex->getMessage(),
                     'Por si acaso' => 'Error duplicado',
                 ]
             );
-            $mensaje = $e->getMessage() . '. ' . $e->getLine();
-            return response()->json(compact('mensaje'));
         }
     }
 }

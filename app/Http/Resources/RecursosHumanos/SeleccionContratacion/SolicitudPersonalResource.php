@@ -3,15 +3,17 @@
 namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Empleado;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SolicitudPuestoEmpleoResource extends JsonResource
+
+class SolicitudPersonalResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -33,7 +35,11 @@ class SolicitudPuestoEmpleoResource extends JsonResource
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['cargo'] = $this->cargo_id;
+            $modelo['areas_conocimiento'] = json_decode($this->areas_conocimiento);
             $modelo['requiere_experiencia'] = !!$this->anios_experiencia;
+            $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
+            $modelo['requiere_formacion_academica'] = !!$this->formacionesAcademicas;
+
         }
         return $modelo;
     }

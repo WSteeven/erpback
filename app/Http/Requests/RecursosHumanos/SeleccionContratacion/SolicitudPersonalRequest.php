@@ -4,14 +4,20 @@ namespace App\Http\Requests\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Autorizacion;
 use App\Models\Departamento;
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
-use Src\App\EmpleadoService;
-use Src\Config\Departamentos;
 
-class SolicitudPuestoEmpleoRequest extends FormRequest
+/**
+ * Estas propiedades son las llaves foraneas obtenidas desde el front
+ * y casteadas en el metodo `prepareForValidation`
+ * @property mixed $autorizacion
+ * @property mixed $autorizador
+ * @property mixed $tipo_puesto
+ * @property mixed $cargo
+ */
+class SolicitudPersonalRequest extends FormRequest
 {
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -33,13 +39,13 @@ class SolicitudPuestoEmpleoRequest extends FormRequest
             'nombre' => 'required|string',
             'descripcion' => 'required|string',
             'anios_experiencia' => 'required|string',
-            'tipo_puesto_id' => 'required|exists:rrhh_tipos_puestos_trabajos,id',
+            'tipo_puesto_id' => 'required|exists:rrhh_contratacion_tipos_puestos,id',
             'cargo_id' => 'sometimes|nullable|exists:cargos,id',
             'autorizador_id' => 'required|exists:empleados,id',
             'autorizacion_id' => 'required|exists:autorizaciones,id',
+            'areas_conocimiento'=>'required|array'
         ];
     }
-
     public function prepareForValidation()
     {
         //Obtenemos el gerente de acuerdo al departamento, no al rol
@@ -48,7 +54,7 @@ class SolicitudPuestoEmpleoRequest extends FormRequest
         Log::channel('testing')->info('Log', ['request en store', $this->all()]);
         $this->merge([
             'autorizador_id' => $this->autorizador,
-            'cargo_id' => $this->puesto,
+            'cargo_id' => $this->cargo,
             'tipo_puesto_id' => $this->tipo_puesto,
         ]);
         if (is_null($this->autorizacion)) {

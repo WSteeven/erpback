@@ -17,7 +17,7 @@ class ModuloSeleccionContratacionSeeder extends Seeder
     public function run()
     {
         /*****************
-         * Modulo Seleccion y contratacion  de personal
+         * Módulo Seleccion y contratacion de personal
          *****************/
         // php artisan db:seed --class=ModuloSeleccionContratacionSeeder
         $this->call([

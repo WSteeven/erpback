@@ -2,8 +2,7 @@
 
 namespace Database\Seeders\RecursosHumanos\SeleccionContratacion;
 
-use App\Models\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajo;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\RecursosHumanos\SeleccionContratacion\TipoPuesto;
 use Illuminate\Database\Seeder;
 
 class TipoPuestoTrabajoSeeder extends Seeder
@@ -15,7 +14,7 @@ class TipoPuestoTrabajoSeeder extends Seeder
      */
     public function run()
     {
-        TipoPuestoTrabajo::upsert([
+        TipoPuesto::upsert([
             ['nombre' => 'NUEVO'],
             ['nombre' => 'VACANTE'],
             ['nombre' => 'PASANTE'],

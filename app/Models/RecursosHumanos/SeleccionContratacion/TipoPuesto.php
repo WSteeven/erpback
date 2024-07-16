@@ -9,13 +9,18 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class TipoPuestoTrabajo extends Model implements Auditable
+/**
+ * @method static create(mixed $validated)
+ * @method static ignoreRequest(string[] $array)
+ * @method static upsert(array[] $array, string[] $uniqueBy, string[] $update)
+ */
+class TipoPuesto extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
     use UppercaseValuesTrait;
-    protected $table = 'rrhh_tipos_puestos_trabajos';
+    protected $table = 'rrhh_contratacion_tipos_puestos';
     protected $fillable = [
         'nombre',
         'activo',
@@ -26,7 +31,7 @@ class TipoPuestoTrabajo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'activo' => 'boolean',
     ];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*'
     ];
 }

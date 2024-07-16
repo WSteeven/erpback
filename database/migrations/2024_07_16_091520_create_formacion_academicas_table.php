@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_contratacion_tipos_puestos', function (Blueprint $table) {
+        Schema::create('rrhh_contratacion_formaciones_academicas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre')->unique();
-            $table->boolean('activo')->default(true);
+            $table->string('nivel');
+            $table->string('nombre');
+            $table->text('formacionable_type');
+            $table->unsignedBigInteger('formacionable_id');
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_contratacion_tipos_puestos');
+        Schema::dropIfExists('rrhh_contratacion_formaciones_academicas');
     }
 };

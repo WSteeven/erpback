@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ConocimientoController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
-use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\SolicitudPuestoEmpleoController;
-use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\SolicitudPersonalController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\VacanteController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
 use Illuminate\Support\Facades\Route;
@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources(
     [
         /*************************************************
-         *  Modulo de Seleción y contratación de personal
+         *  Módulo de Selección y contratación de personal
          *************************************************/
         'postulantes' => PostulanteController::class,
         'vacantes' => VacanteController::class,
-        'solicitudes-nuevo-personal' => SolicitudPuestoEmpleoController::class,
-        'tipos-puestos' => TipoPuestoTrabajoController::class,
+        'solicitudes-nuevo-personal' => SolicitudPersonalController::class,
+        'tipos-puestos' => TipoPuestoController::class,
         'tipos-discapacidades' => TipoDiscapacidadController::class,
         'conocimientos'=>ConocimientoController::class
     ],
@@ -27,3 +27,8 @@ Route::apiResources(
         ]
     ]
 );
+
+//listar archivos
+Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);
+//guardar archivos
+Route::post('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'storeFiles']);

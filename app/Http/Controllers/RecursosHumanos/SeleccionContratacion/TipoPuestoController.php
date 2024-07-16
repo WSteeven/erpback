@@ -5,13 +5,13 @@ namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoResource;
-use App\Models\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajo;
-use Illuminate\Http\Request;
+use App\Models\RecursosHumanos\SeleccionContratacion\TipoPuesto;
+use Illuminate\Http\JsonResponse;
 use Src\Shared\Utils;
 
-class TipoPuestoTrabajoController extends Controller
+class TipoPuestoController extends Controller
 {
-    private $entidad = 'TipoPuestoTrabajo';
+    private string $entidad = 'TipoPuesto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.rrhh_tipos_puestos')->only('index', 'show');
@@ -20,10 +20,9 @@ class TipoPuestoTrabajoController extends Controller
         $this->middleware('can:puede.eliminar.rrhh_tipos_puestos')->only('destroy');
     }
 
-    public function index()
+    public function index(): JsonResponse
     {
-        $results = [];
-        $results = TipoPuestoTrabajo::ignoreRequest(['campos'])->filter()->get();
+        $results = TipoPuesto::ignoreRequest(['campos'])->filter()->get();
         $results = TipoPuestoTrabajoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -31,10 +30,10 @@ class TipoPuestoTrabajoController extends Controller
     /**
      * Guardar
      */
-    public function store(TipoPuestoTrabajoRequest $request)
+    public function store(TipoPuestoTrabajoRequest $request): JsonResponse
     {
-        $tipo = TipoPuestoTrabajo::create($request->validated());
-        $modelo = new TipoPuestoTrabajoResource($tipo);
+        $tipo_puesto = TipoPuesto::create($request->validated());
+        $modelo = new TipoPuestoTrabajoResource($tipo_puesto);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -43,7 +42,7 @@ class TipoPuestoTrabajoController extends Controller
     /**
      * Consultar
      */
-    public function show(TipoPuestoTrabajo $tipo)
+    public function show(TipoPuesto $tipo): JsonResponse
     {
         $modelo = new TipoPuestoTrabajoResource($tipo);
         return response()->json(compact('modelo'));
@@ -53,7 +52,7 @@ class TipoPuestoTrabajoController extends Controller
     /**
      * Actualizar
      */
-    public function update(TipoPuestoTrabajoRequest $request, TipoPuestoTrabajo $tipo)
+    public function update(TipoPuestoTrabajoRequest $request, TipoPuesto $tipo): JsonResponse
     {
         $tipo->update($request->validated());
         $modelo = new TipoPuestoTrabajoResource($tipo->refresh());
@@ -65,7 +64,7 @@ class TipoPuestoTrabajoController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(TipoPuestoTrabajo $tipo)
+    public function destroy(TipoPuesto $tipo): JsonResponse
     {
         $tipo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');

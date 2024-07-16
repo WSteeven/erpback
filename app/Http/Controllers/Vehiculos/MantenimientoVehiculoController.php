@@ -6,18 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\MantenimientoVehiculoRequest;
 use App\Http\Resources\Vehiculos\MantenimientoVehiculoResource;
 use App\Models\Vehiculos\MantenimientoVehiculo;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Src\App\ArchivoService;
 use Src\Shared\Utils;
 
 class MantenimientoVehiculoController extends Controller
 {
-    private $entidad = 'Mantenimiento';
-    private $archivoService;
+    private string $entidad = 'Mantenimiento';
+//    private $archivoService;
+
     public function __construct()
     {
-        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.mantenimientos_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.mantenimientos_vehiculos')->only('store');
         $this->middleware('can:puede.editar.mantenimientos_vehiculos')->only('update');
@@ -28,7 +25,7 @@ class MantenimientoVehiculoController extends Controller
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         //  $results = Vehiculo::get($campos);
-        $results = MantenimientoVehiculo::filter()->get();
+        $results = MantenimientoVehiculo::filter()->get($campos);
         $results = MantenimientoVehiculoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -48,7 +45,7 @@ class MantenimientoVehiculoController extends Controller
         $mantenimiento->update($datos);
         $mantenimiento->latestNotificacion()->update(['leida' => true]);
         $modelo = new MantenimientoVehiculoResource($mantenimiento->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update', 'M');
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }

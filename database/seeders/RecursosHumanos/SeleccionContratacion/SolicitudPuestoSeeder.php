@@ -28,7 +28,7 @@ class SolicitudPuestoSeeder extends Seeder
 
 
 foreach($datos as $fila){
-    DB::insert('INSERT INTO `rrhh_solicitudes_puestos_empleos` ( `nombre`, `tipo_puesto_id`, `autorizador_id`, `autorizacion_id`, `cargo_id`, `descripcion`, `anios_experiencia`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?,?,?)', $fila);
+    DB::insert('INSERT INTO `rrhh_contratacion_solicitudes_nuevas_vacantes` ( `nombre`, `tipo_puesto_id`, `autorizador_id`, `autorizacion_id`, `cargo_id`, `descripcion`, `anios_experiencia`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?,?,?)', $fila);
 }
     }
 }
