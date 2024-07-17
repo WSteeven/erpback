@@ -54,10 +54,12 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function index(Request $request)
     {
+        Log::channel('testing')->info('Log', ['request', $request->paginate, $request->all()]);
         $estado = $request['estado'];
-        $results = $this->servicio->listar();
+        $results = $this->servicio->listar(null, null, $request->paginate);
         $results = TransaccionBodegaResource::collection($results);
-        return response()->json(compact('results'));
+        return $results;
+        // return response()->json(compact('results'));
     }
 
     /**
@@ -134,21 +136,21 @@ class TransaccionBodegaIngresoController extends Controller
                     }
                 }
 
-                
-                
+
+
                 //se entiende que si hay un ingreso por transferencia es porque la transferencia llegó a su destino,
                 // entonces procedemos a actualizar la transferencia
                 if ($transaccion->transferencia_id) {
-                    if(TransaccionBodega::verificarTransferenciaEnEgreso($transaccion->id, $transaccion->transferencia_id)){
+                    if (TransaccionBodega::verificarTransferenciaEnEgreso($transaccion->id, $transaccion->transferencia_id)) {
                         $transferencia = Transferencia::find($transaccion->transferencia_id);
                         $transferencia->estado = Transferencia::COMPLETADO;
                         $transferencia->recibida = true;
                         $transferencia->save();
-                    }else{
+                    } else {
                         throw new Exception('Primero debes realizar el EGRESO POR TRANSFERENCIA ENTRE BODEGAS en la bodega de origen');
                     }
                 }
-                
+
                 DB::commit(); //Se registra la transaccion y sus detalles exitosamente
                 if ($transaccion->motivo_id == 1) {
                     //en caso de que sea ingreso por COMPRA A PROVEEDOR se notifica a contabilidad
@@ -265,7 +267,7 @@ class TransaccionBodegaIngresoController extends Controller
                     $itemInventario = Inventario::find($detalle['inventario_id']);
                     $itemInventario->cantidad -= $detalle['cantidad_inicial'];
                     $itemInventario->save();
-                    if($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
+                    if ($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
                 }
 
                 $transaccion->estado_id = $estadoAnulado->id;

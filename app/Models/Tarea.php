@@ -13,10 +13,11 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Scout\Searchable;
 
 class Tarea extends Model implements Auditable
 {
-    use HasFactory, Filterable, AuditableModel, UppercaseValuesTrait;
+    use HasFactory, Filterable, AuditableModel, UppercaseValuesTrait, Searchable;
 
     const PARA_PROYECTO = 'PARA_PROYECTO';
     const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
@@ -56,6 +57,17 @@ class Tarea extends Model implements Auditable
     protected $casts = ['finalizado' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
+
+    public function toSearchableArray()
+    {
+        return [
+            'codigo_tarea' => $this->codigo_tarea,
+            'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
+            'titulo' => $this->titulo,
+        ]; 
+        // $array = $this->toArray();
+        // return $array;
+    }
 
     /**
      * ______________________________________________________________________________________

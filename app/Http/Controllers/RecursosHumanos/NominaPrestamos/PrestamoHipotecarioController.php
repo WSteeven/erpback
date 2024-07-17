@@ -7,7 +7,7 @@ use App\Http\Requests\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioRequest
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioResource;
 use App\Imports\PrestamoHipotecarioImport;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

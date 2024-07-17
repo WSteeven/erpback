@@ -65,21 +65,21 @@ class MaterialesService
     {
         $fecha_fin = $fecha_fin != null ? $fecha_fin : Carbon::now();
         $results = [];
-        $cont = 0;
 
-        $materiales = MaterialEmpleado::with('audits')->where('empleado_id', $empleado_id)->whereHas('audits', function ($q) use ($fecha_inicio, $fecha_fin) {
-            $q->whereBetween('created_at', [$fecha_inicio, $fecha_fin]);
-        })->orderBy('detalle_producto_id', 'asc')->get();
+        $materiales = MaterialEmpleado::with(['audits' => function ($query) use ($fecha_inicio, $fecha_fin) {
+            $query->whereBetween('created_at', [$fecha_inicio, $fecha_fin]);
+        }])->where('empleado_id', $empleado_id)->orderBy('detalle_producto_id', 'asc')->get();
 
         foreach ($materiales as $material) {
             // Se realiza el casteo de cada elemento
             foreach ($material->audits as $audit) {
-                $row['fecha_hora'] = Carbon::parse($audit->created_at)->format('Y-m-d H:i:s');
+                $row['fecha_hora'] = Carbon::parse($audit->created_at)->format('Y-m-d');
                 $row['empleado'] = Empleado::extraerNombresApellidos(User::find($audit->user_id)->empleado);
                 $row['detalle_producto_id'] = $material->detalle_producto_id;
                 $row['detalle_producto'] = $material->detalle->descripcion;
                 $row['cliente'] = $material->cliente?->empresa?->razon_social;
                 $row['evento'] = $audit->event;
+                $row['auditable_id'] = $audit->auditable_id;
                 $row['movimiento'] = $this->obtenerSegmentoRuta($audit->url);
                 $row['cantidad_anterior'] = array_key_exists('cantidad_stock', $audit->old_values) ? $audit->old_values['cantidad_stock'] : 0;
                 $row['cantidad_actual'] = array_key_exists('cantidad_stock', $audit->new_values) ? $audit->new_values['cantidad_stock'] : 0;
@@ -92,10 +92,23 @@ class MaterialesService
                 $segmentos = explode('/', $url['path']);
                 $segmentos = array_filter($segmentos);
                 $id = end($segmentos);
-                switch ($segmentos[2]) {
+                /* Log::channel('testing')->info('Log', ['-> Url', $url]);
+                Log::channel('testing')->info('Log', ['-> ID', $id]);
+                Log::channel('testing')->info('Log', ['-> Auditable ID', $audit->auditable_id]);
+                Log::channel('testing')->info('Log', ['-> Tarea', Tarea::find($audit->auditable_id)]);
+                Log::channel('testing')->info('Log', ['-> Preingreso', PreingresoMaterial::find($audit->auditable_id)]); */
+
+                $modelo = $segmentos[2];
+
+                $entidad = $this->obtenerEntidad($modelo, $url);
+                Log::channel('testing')->info('Log', ['-> Entidad', $entidad]);
+                $row['entidad_id'] = $entidad?->id;
+
+                switch ($modelo) {
                     case 'preingresos':
                         $row['transaccion'] = 'PREINGRESO';
-                        $row['descripcion'] = PreingresoMaterial::find($id)->observacion;
+                        $row['descripcion'] = $entidad->observacion;
+                        // $row['descripcion'] = PreingresoMaterial::find($id)->observacion;
                         break;
                     case 'transacciones-ingresos':
                         $row['transaccion'] = 'INGRESO A BODEGA';
@@ -107,8 +120,7 @@ class MaterialesService
                         break;
                     case 'tareas':
                         $row['transaccion'] = 'TAREA';
-                        $tarea =  Tarea::find($id);
-                        $row['descripcion'] = $tarea ? $tarea?->titulo : Subtarea::find($id)?->titulo;
+                        $row['descripcion'] = $entidad->titulo;
                         break;
                     default:
                         $row['segmentos'] = $segmentos;
@@ -127,6 +139,38 @@ class MaterialesService
             return $item;
         });
         return $results;
+    }
+
+    private function obtenerEntidad(string $modelo, $url)
+    {
+        Log::channel('testing')->info('Log', ['Modelo...', $modelo]);
+        Log::channel('testing')->info('Log', ['url...', $url]);
+        $segmentos = explode('/', $url['path']);
+        $endpoint = isset($segmentos[3]) ? $segmentos[3] : $segmentos[2];
+        Log::channel('testing')->info('Log', ['Endpoint ->...', $endpoint]);
+        // Log::channel('testing')->info('Log', ['url []...', $url['path']]);
+        switch ($modelo) {
+            case 'tareas':
+                if (isset($url['query'])) {
+                    if ($endpoint == 'actualizar-cantidad-utilizada-stock' || $endpoint == 'actualizar-cantidad-utilizada-historial-stock') {
+                        parse_str($url['query'], $queryParams);
+                        $subtarea_id = $queryParams['subtarea_id'];
+                        return Subtarea::find($subtarea_id)->tarea;
+                    }
+                } else {
+                    if ($endpoint == 'tareas') {
+                        return Tarea::find(end($segmentos));
+                    }
+                    // $segmentos = array_filter($segmentos);
+                }
+            case 'preingresos':
+                return PreingresoMaterial::find(end($segmentos));
+            default:
+                return null; // end($segmentos);
+        }
+        // "App\\Models\\Tarea"
+        // "path":"/api/tareas/actualizar-cantidad-utilizada-stock",
+        // "query":"cantidad_anterior=0&cantidad_utilizada=1&cliente_id=3&detalle_producto_id=265&empleado_id=53&subtarea_id=8072"}] 
     }
 
     private function obtenerSegmentoRuta($url)

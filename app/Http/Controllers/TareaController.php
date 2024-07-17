@@ -23,6 +23,7 @@ use Src\Shared\Utils;
 use stdClass;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\Sistema\PaginationService;
 use Src\App\TareaService;
 use Src\Config\ClientesCorporativos;
 use Src\Config\RutasStorage;
@@ -32,44 +33,57 @@ class TareaController extends Controller
 {
     private $entidad = 'Tarea';
     private TareaService $tareaService;
+    protected PaginationService $paginationService;
 
     public function __construct()
     {
         $this->tareaService = new TareaService();
+        $this->paginationService = new PaginationService();
     }
 
     public function listar()
     {
+        // Parametros
         $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $search = request('search');
+        $paginate = request('paginate');
+        $ignoreRequest = ['campos', 'paginate'];
+
+        // Roles
         $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
 
-        // mejorar codigo
-        // Lista las tareas disponibles junto con las que hayan finalizado.
-        // Las tareas finalizadas estan disponibles un dia luego de finalizarse
-        /* if (request('formulario')) {
-            return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
-                $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-            })->latest()->get();
-        } */
 
-        if (request('formulario')) {
-            // return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
-            //     $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-            // })->latest()->get();
-            return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
-        }
+        if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
 
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
-        if (request('campos')) {
+
+        if (request('search')) {
+            // if ($esCoordinadorBackup) $query = Tarea::search($search);
+            if ($esCoordinador) $query = Tarea::search($search)->where('coordinador_id', Auth::user()->empleado->id); // ->porCoordinador();
+            else $query = Tarea::search($search);
+
+            if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+            else return $query->get();
+        } else {
+            if ($esCoordinadorBackup) $query = Tarea::ignoreRequest($ignoreRequest)->filter()->latest();
+            if ($esCoordinador) $query = Tarea::ignoreRequest($ignoreRequest)->filter()->porCoordinador()->latest();
+            else $query = Tarea::ignoreRequest($ignoreRequest)->filter()->latest();
+
+            if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+            else return $query->get();
+        }
+
+        /* if (request('campos')) {
             if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
             if ($esCoordinador) return Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->latest()->get($campos);
             else return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+            // else return $this->paginationService->paginate(Tarea::ignoreRequest(['campos'])->filter()->latest(), 100, request('page')); // Jefe tecnico
         } else {
             if ($esCoordinadorBackup) return Tarea::filter()->latest()->get();
             if ($esCoordinador) return Tarea::filter()->porCoordinador()->latest()->get();
-            else return Tarea::filter()->latest()->get(); // Cualquier usuario en el sistema debe tener acceso a las tareas
-        }
+            else return $this->paginationService->paginate(Tarea::filter()->latest(), 100, request('page')); // Jefe tecnico
+        } */
     }
 
     /*********
@@ -77,10 +91,8 @@ class TareaController extends Controller
      *********/
     public function index()
     {
-        $results = $this->listar();
-        // if (!request('campos')) $results = TareaResource::collection($results);
-        $results = TareaResource::collection($results);
-        return response()->json(compact('results'));
+        $paginated = $this->listar();
+        return TareaResource::collection($paginated);
     }
 
     /**********

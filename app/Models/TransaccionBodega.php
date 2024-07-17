@@ -338,7 +338,7 @@ class TransaccionBodega extends Model implements Auditable
                     $valor = $detalleTransaccion->cantidad_inicial - $detalleTransaccion->recibido;
                     $detalleTransaccion->recibido += $valor;
                     $detalleTransaccion->save();
-                    $itemInventario = Inventario::find($detalle['inventario_id']);
+                    $itemInventario = Inventario::find($detalle['inventario_id']); 
 
                     // Si es material para tarea
                     if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.

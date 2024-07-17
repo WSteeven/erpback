@@ -3,13 +3,13 @@
 namespace App\Imports;
 
 use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class PrestamoQuirorafarioImport implements ToModel, WithHeadingRow, WithValidation
+class PrestamoQuirografarioImport implements ToModel, WithHeadingRow, WithValidation
 {
     public $mes = "";
     private $empleados;
@@ -25,7 +25,7 @@ class PrestamoQuirorafarioImport implements ToModel, WithHeadingRow, WithValidat
      */
     public function model(array $row)
     {
-        return new PrestamoQuirorafario([
+        return new PrestamoQuirografario([
             "mes" => $this->mes,
             "empleado_id" => $this->empleados[$row['cedula']],
             "nut" => $row['nut'],

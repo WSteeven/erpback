@@ -222,6 +222,8 @@ class DevolucionController extends Controller
                 $detalle = DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->where('detalle_id', $listado['id'])->first();
                 $detalle->cantidad = $listado['cantidad'];
                 $detalle->save();
+                //Actualizar el estado de la devolucion, segun la correccion del item 
+                $this->servicio->verificarItemsDevolucion($detalle);
             }
         }
     }

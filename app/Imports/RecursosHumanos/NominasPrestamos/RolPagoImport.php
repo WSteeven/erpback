@@ -8,7 +8,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Multas;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use Carbon\Carbon;
