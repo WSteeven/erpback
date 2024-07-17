@@ -16,6 +16,7 @@ enum RutasStorage: string
     case SUBTAREAS = 'public/subtareas';
     case REGISTROS_TENDIDOS = 'public/registrosTendidos';
     case FOTOS_PERFILES = 'public/fotosPerfiles';
+    case IMAGENES_PERMISOS_ARMAS = 'public/bodega/imagenesPermisosArmas';
     case FIRMAS = 'public/firmas';
     case TRABAJOS = 'public/trabajos';
     case COMPROBANTES_GASTOS = 'public/comprobantesViaticos';

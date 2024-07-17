@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Bodega\PermisoArma;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
@@ -30,6 +31,7 @@ class DetalleProducto extends Model implements Auditable
     const MUJER = 'MUJER';
 
 
+
     /**
      * The attributes that are mass assignable.
      *
@@ -41,18 +43,28 @@ class DetalleProducto extends Model implements Auditable
         'marca_id',
         'modelo_id',
         'serial',
+        'lote',
         'precio_compra',
         'color',
         'talla',
+        'calibre',
+        'peso',
+        'dimensiones',
+        'permiso',
+        'permiso_id',
+        'caducidad',
         'tipo',
         'url_imagen',
         'es_fibra',
+        'esActivo',
 
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_fibra' => 'boolean',
+        'esActivo' => 'boolean',
+        'activo' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -90,6 +102,10 @@ class DetalleProducto extends Model implements Auditable
     public function inventarios()
     {
         return $this->hasMany(Inventario::class, 'detalle_id');
+    }
+
+    public function permisoArma(){
+        return $this->hasOne(PermisoArma::class, 'id','permiso_id');
     }
 
     public function itemsPreingresos()
@@ -307,7 +323,7 @@ class DetalleProducto extends Model implements Auditable
     /**
      * La función `obtenerDetalle` en PHP recupera detalles del producto en función de los parámetros
      * proporcionados, como el producto_id, la descripción y el número de serie.
-     * 
+     *
      * @param producto_id El ID del producto que desea buscar. Si se proporciona, la búsqueda se
      * limitará a este producto específico.
      * @param descripcion El parámetro "descripcion" es una cadena que representa la descripción del
@@ -315,7 +331,7 @@ class DetalleProducto extends Model implements Auditable
      * @param serial El parámetro "serie" se utiliza para buscar un producto específico por su número
      * de serie. Si se proporciona un número de serie, la función buscará un producto con un número de
      * serie y una descripción coincidentes.
-     * 
+     *
      * @return DetalleProducto el resultado de la consulta a la base de datos.
      */
     public static function obtenerDetalle($producto_id = null, $descripcion, $serial = null)

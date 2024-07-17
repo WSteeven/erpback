@@ -20,6 +20,7 @@ use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\Bodega\PermisoArmaController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -50,6 +51,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ParroquiaController;
 use App\Http\Resources\UserInfoResource;
@@ -58,6 +60,8 @@ use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Resources\CantonResource;
+use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -85,10 +89,13 @@ Route::post('usuarios/login', [LoginController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
 Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
+Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
+Route::get('auth-social',[LoginSocialNetworkController::class, 'getDataFromSession']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('registrar', [UserController::class, 'store']);
     Route::post('logout', [LoginController::class, 'logout']);
+    Route::post('logout-postulante', [LoginSocialNetworkController::class, 'logout']);
     Route::get('ver/{empleado}', [UserController::class, 'show']);
     Route::put('actualizar/{empleado}', [UserController::class, 'update']);
     Route::post('cambiar-contrasena', [UserController::class, 'updatePassword']);
@@ -101,6 +108,7 @@ Route::group(['prefix' => '/permisos'], function () {
 
 // El frontend usa esta ruta para verificar si está autenticado
 Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => new UserInfoResource($request->user()));
+Route::middleware('auth:sanctum')->get('/user-postulante', fn (Request $request) => new UserExternalResource($request->user()));
 
 // El frontend usa esta ruta para obtener los roles y permisos del usuario autenticado
 // Route::middleware('auth:sanctum')->get('/user/roles', fn (Request $request) => $request->user()->getRoleNames());
@@ -150,6 +158,7 @@ Route::apiResources(
         'permisos' => PermisoController::class,
         'pisos' => PisoController::class,
         'detalles' => DetalleProductoController::class,
+        'permisos-armas' => PermisoArmaController::class,
         'preingresos' => PreingresoMaterialController::class,
         'proveedores' => ProveedorController::class,
         'rams' => RamController::class,
@@ -181,6 +190,7 @@ Route::apiResources(
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
             'notificaciones' => 'notificacion',
+            'permisos-armas' => 'permiso',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',

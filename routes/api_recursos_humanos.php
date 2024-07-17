@@ -32,6 +32,8 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpres
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\SolicitudPuestoEmpleoController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
@@ -69,6 +71,9 @@ Route::apiResources(
         'rol_pago' => RolPagosController::class,
         'egreso_rol_pago' => EgresoRolPagoController::class,
         'ingreso_rol_pago' => IngresoRolPagoController::class,
+        /*******************************
+         *  Modulo de Alimentacion
+         ******************************/
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
@@ -86,7 +91,7 @@ Route::apiResources(
 
     ]
 );
-
+Route::post('registro', [PostulanteController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
     Route::post('rol_pago/estado/{rolPagoId}', [RolPagosController::class, 'cambiar_estado']);
@@ -122,14 +127,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'FinalizarRolPago']);
     Route::get('habilitar-empleado', [EmpleadoController::class, 'HabilitaEmpleado']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_reporte_general']);
-    Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
-    Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
-    Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crear_cash_rol_pago']);
-    Route::get('actualizar-rol-pago/{rolPagoId}',[RolPagoMesController::class, 'refrescar_rol_pago']);
-    Route::get('agregar-nuevos-empleados/{rol}',[RolPagoMesController::class, 'agregar_nuevos_empleados']);
-    Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
-    Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
-    Route::get('crear-cash-alimentacion/{alimentacion_id}',[AlimentacionController::class, 'crear_cash_alimentacion']);
-    Route::get('imprimir-reporte-general-alimentacion/{id}',[AlimentacionController::class, 'reporte_alimentacion']);
+    Route::get('enviar-roles-pago/{rolPagoId}', [RolPagoMesController::class, 'enviarRoles']);
+    Route::get('enviar-rol-pago-empleado/{rolPagoId}', [RolPagosController::class, 'enviar_rolPago_empleado']);
+    Route::get('crear-cash-roles-pago/{rolPagoId}', [RolPagoMesController::class, 'crear_cash_rol_pago']);
+    Route::get('actualizar-rol-pago/{rolPagoId}', [RolPagoMesController::class, 'refrescar_rol_pago']);
+    Route::get('agregar-nuevos-empleados/{rol}', [RolPagoMesController::class, 'agregar_nuevos_empleados']);
+    Route::get('generar-username', [EmpleadoController::class, 'obtenerNombreUsuario']);
+    Route::post('anular-prestamo-empresarial', [PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
+    Route::get('crear-cash-alimentacion/{alimentacion_id}', [AlimentacionController::class, 'crear_cash_alimentacion']);
+    Route::get('imprimir-reporte-general-alimentacion/{id}', [AlimentacionController::class, 'reporte_alimentacion']);
     Route::get('finalizar-asignacion-alimentacion', [AlimentacionController::class, 'finalizarAsignacionAlimentacion']);
 });

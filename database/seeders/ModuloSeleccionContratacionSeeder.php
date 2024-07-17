@@ -20,7 +20,7 @@ class ModuloSeleccionContratacionSeeder extends Seeder
          * Modulo Seleccion y contratacion  de personal
          *****************/
         $this->call([
-           // PermisosSeleccionContratacionSeeder::class,
+            PermisosSeleccionContratacionSeeder::class,
             TipoPuestoTrabajoSeeder::class
         ]);
     }
