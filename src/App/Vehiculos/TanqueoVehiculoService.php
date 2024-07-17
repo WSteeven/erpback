@@ -7,6 +7,7 @@ use App\Models\Vehiculos\Tanqueo;
 use App\Models\Vehiculos\Vehiculo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class TanqueoVehiculoService
@@ -20,8 +21,8 @@ class TanqueoVehiculoService
     {
         // Log::channel('testing')->info('Log', ['obtenerReporteCombustibles:', $request->all()]);
         $results = [];
-        $fecha_inicio = Carbon::parse($request->fecha_inicio);
-        $fecha_fin = Carbon::parse($request->fecha_fin);
+        $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
         switch ($request->tipo) {
             case Tanqueo::TIPO_RPT_COMBUSTIBLE:
                 $results = $this->obtenerReporteCombustibles($fecha_inicio, $fecha_fin, $request->combustible);
@@ -59,11 +60,11 @@ class TanqueoVehiculoService
             $values[] = $item['monto'];
         }
 
-        $tituloGrafico = 'Consumo de combustible';
+        $titulo_grafico = 'Consumo de combustible';
         $graficos = [];
 
-        $grafico = Utils::configurarGrafico(1, 'COMBUSTIBLE', $tituloGrafico, $labels, Utils::coloresAleatorios(), $tituloGrafico, $values);
-        array_push($graficos, $grafico);
+        $grafico = Utils::configurarGrafico(1, 'COMBUSTIBLE', $titulo_grafico, $labels, Utils::coloresAleatorios(), $titulo_grafico, $values);
+        $graficos[] = $grafico;
         return compact(
             'graficos',
             'results'
@@ -72,6 +73,7 @@ class TanqueoVehiculoService
     private function obtenerKilometrosRecorridos($tanqueos)
     {
         $vehiculos_agrupados = $tanqueos->groupBy('vehiculo_id');
+        $data = [];
         foreach ($vehiculos_agrupados as $index => $resultado) {
             $data[Vehiculo::find($index)->placa] = $resultado->last()->km_tanqueo - $resultado->first()->km_tanqueo;
         }
@@ -80,7 +82,22 @@ class TanqueoVehiculoService
     private function obtenerReporteVehiculos($fecha_inicio, $fecha_fin)
     {
         $results = [];
+        $tanqueos = Tanqueo::whereBetween('fecha_hora', [$fecha_inicio, $fecha_fin])->get();
+        $resultados_agrupados = $tanqueos->groupBy('vehiculo_id');
+
+         Log::channel('testing')->info('Log', ['resultados:', $tanqueos]);
+         Log::channel('testing')->info('Log', ['results agrupados:', $resultados_agrupados]);
+        foreach ($resultados_agrupados as $index => $resultado) {
+         Log::channel('testing')->info('Log', ['combustible:',$index, $resultado->pluck('combustible_id')]);
+            $data = [];
+            $data['vehiculo'] = Vehiculo::find($index)?->placa;
+            $data['combustible'] = Combustible::find($resultado->pluck('combustible_id')[0])?->nombre;
+            $data['monto'] = round($resultado->sum('monto'), 2);
+            $data['recorrido'] = $this->obtenerKilometrosRecorridos($resultado);
+            $results[] = $data;
+        }
         $graficos = [];
+         Log::channel('testing')->info('Log', ['results:', $results, $graficos]);
         return compact(
             'graficos',
             'results'
