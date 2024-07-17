@@ -4,6 +4,7 @@ namespace App\Imports\ComprasProveedores;
 
 use App\Models\ComprasProveedores\ItemPagoProveedores;
 use App\Models\ComprasProveedores\PagoProveedores;
+use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\ToModel;
 
 class PagoProveedoresImport implements ToModel
@@ -17,7 +18,7 @@ class PagoProveedoresImport implements ToModel
     /**
      * @param array $row
      *
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @return void
      */
     public function model(array $row)
     {
@@ -42,7 +43,7 @@ class PagoProveedoresImport implements ToModel
                         'fecha_emision' => $row[4],
                         'fecha_vencimiento' => $row[5],
                         'centro_costo' => $row[7],
-                        'plazo' => $this->obtenerPlazo($row), 
+                        'plazo' => $this->obtenerPlazo($row),
                         'total' => $row[15],
                         'descripcion' => $row[16],
                         'valor_documento' => $row[17],
