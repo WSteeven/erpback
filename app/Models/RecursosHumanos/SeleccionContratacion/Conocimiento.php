@@ -26,7 +26,7 @@ class Conocimiento extends Model implements Auditable
         'activo' => 'boolean',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________

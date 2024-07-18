@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarSolicitudNuevoPersonalAprobadaEvent;
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarSolicitudNuevoPersonalEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\SolicitudPersonalRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\SolicitudPersonalResource;
+use App\Models\Autorizacion;
 use App\Models\RecursosHumanos\SeleccionContratacion\SolicitudPersonal;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -59,7 +62,8 @@ class SolicitudPersonalController extends Controller
             $solicitud = SolicitudPersonal::create($request->validated());
             //Crear o actualizar formaciones academicas
             $this->polymorficSeleccionContratacionService->actualizarFormacionAcademicaPolimorfica($solicitud, $request->formaciones_academicas);
-
+            //Notificar a Gerencia
+            event(new NotificarSolicitudNuevoPersonalEvent($solicitud));
             $modelo = new SolicitudPersonalResource($solicitud);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -93,6 +97,7 @@ class SolicitudPersonalController extends Controller
      */
     public function update(SolicitudPersonalRequest $request, SolicitudPersonal $solicitud)
     {
+        $autorizacion_id_old = $solicitud->autorizacion_id;
         try {
             DB::beginTransaction();
             $datos = $request->validated();
@@ -100,6 +105,12 @@ class SolicitudPersonalController extends Controller
 
             //Crear o actualizar formaciones academicas
             $this->polymorficSeleccionContratacionService->actualizarFormacionAcademicaPolimorfica($solicitud, $request->formaciones_academicas);
+            if ($solicitud->autorizacion_id !== $autorizacion_id_old)
+                event(new NotificarSolicitudNuevoPersonalEvent($solicitud));
+
+            if ($solicitud->autorizacion_id == Autorizacion::APROBADO_ID)
+                //Aquí se notifica a RRHH para que cree la vacante
+                event(new NotificarSolicitudNuevoPersonalAprobadaEvent($solicitud));
 
             $modelo = new SolicitudPersonalResource($solicitud->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

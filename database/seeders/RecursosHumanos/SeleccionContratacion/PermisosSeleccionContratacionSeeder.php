@@ -35,7 +35,7 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_solicitudes_nuevas_vacantes'])->syncRoles([$rrhh, $administrador, $gerente]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_solicitudes_nuevas_vacantes'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_solicitudes_nuevas_vacantes'])->syncRoles([$rrhh, $administrador, $gerente]);
-        // Permission::firstOrCreate(['name' => Permisos::AUTORIZAR . 'rrhh_solicitudes_puestos_empleos'])->syncRoles([$gerente]);
+        Permission::firstOrCreate(['name' => Permisos::AUTORIZAR . 'rrhh_solicitudes_nuevas_vacantes'])->syncRoles([$gerente]);
 
         // Vacantes
         Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_vacantes'])->syncRoles([$rrhh, $administrador, $gerente]);
@@ -58,7 +58,7 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         // areas de conocimientos
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador, $empleado]);
-        Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador, $empleado]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador]);
     }
 }

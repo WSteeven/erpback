@@ -17,16 +17,20 @@ class Vacante extends Model implements Auditable
     use UppercaseValuesTrait;
     use Filterable;
     protected $table = 'rrhh_contratacion_vacantes';
+    private static array $whiteListFilter = ['*'];
+
     protected $fillable = [
         'nombre',
+        'tipo_puesto_id',
+        'imagen_referencia',
+        'imagen_publicidad',
+        'fecha_caducidad',
         'descripcion',
         'anios_experiencia',
-        'tipo_puesto_id',
-        'autorizador_id',
-        'autorizacion_id',
-        'cargo_id',
+        'areas_conocimiento',
+        'solicitante_id',
+        'publicante_id',
+        'solicitud_id',
     ];
-    
-    private static $whiteListFilter = ['*'];
 
 }

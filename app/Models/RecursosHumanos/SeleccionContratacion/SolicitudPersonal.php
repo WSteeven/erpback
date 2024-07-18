@@ -6,6 +6,7 @@ use App\Models\Archivo;
 use App\Models\Autorizacion;
 use App\Models\Cargo;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,12 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 /**
  * @method static create($validated)
  * @method static ignoreRequest(string[] $array)
+ * @property mixed $autorizacion_id
+ * @property mixed $solicitante
+ * @property mixed $solicitante_id
+ * @property mixed $autorizador_id
+ * @property mixed $autorizador
+ * @property mixed $id
  */
 class SolicitudPersonal extends Model implements Auditable
 {
@@ -29,6 +36,7 @@ class SolicitudPersonal extends Model implements Auditable
         'nombre',
         'publicada',
         'tipo_puesto_id',
+        'solicitante_id',
         'autorizador_id',
         'autorizacion_id',
         'cargo_id',
@@ -47,6 +55,10 @@ class SolicitudPersonal extends Model implements Auditable
     public function cargo()
     {
         return $this->hasOne(Cargo::class, 'id', 'cargo_id');
+    }
+    public function solicitante()
+    {
+        return $this->belongsTo(Empleado::class);
     }
     public function autorizador()
     {
@@ -69,4 +81,14 @@ class SolicitudPersonal extends Model implements Auditable
     {
         return $this->morphMany(Archivo::class, 'archivable');
     }
+
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una orden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
 }

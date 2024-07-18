@@ -25,13 +25,15 @@ class SolicitudPersonalResource extends JsonResource
             'anios_experiencia' => $this->anios_experiencia,
             'tipo_puesto' => $this->tipoPuesto->nombre,
             'tipo_puesto_info' => $this->tipoPuesto,
-            'cargo' => $this->cargo_id,
+            'cargo' => $this->cargo?->nombre,
             'cargo_info' => $this->cargo,
+            'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
             'autorizador' => Empleado::extraerNombresApellidos($this->autorizador),
             'autorizacion' => $this->autorizacion->nombre,
         ];
         if ($controller_method == 'show') {
             $modelo['tipo_puesto'] = $this->tipo_puesto_id;
+            $modelo['solicitante'] = $this->solicitante_id;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['cargo'] = $this->cargo_id;

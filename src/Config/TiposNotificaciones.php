@@ -42,4 +42,7 @@ enum TiposNotificaciones: string{
     // medico
     case SOLICITUD_EXAMEN = 'SOLICITUD DE EXAMEN';
     case DIAS_DESCANSO = 'DIAS DE DESCANSO';
+
+    // Seleccion y contratacion
+    case SOLICITUD_NUEVO_EMPLEADO = 'SOLICITUD DE NUEVO EMPLEADO';
 }
