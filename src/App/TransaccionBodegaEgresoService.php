@@ -27,6 +27,25 @@ use Src\Config\EstadosTransacciones;
 
 class TransaccionBodegaEgresoService
 {
+    public function obtenerEgresos()
+    {
+        $responsable_id = request('responsable_id');
+        $detalle_producto_id = request('detalle_producto_id');
+
+        // Egresos completos
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)
+            ->where(function ($query) {
+                $query->whereHas('comprobante', function ($q) {
+                    $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
+                })->orWhereDoesntHave('comprobante');
+            })->where('autorizacion_id', Autorizaciones::APROBADO)
+            ->where('responsable_id', $responsable_id)
+            ->orderBy('id', 'desc')->get();
+
+        return $results;
+    }
 
     public static function listar($request)
     {
@@ -54,7 +73,6 @@ class TransaccionBodegaEgresoService
                                     $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
                                 })->orWhereDoesntHave('comprobante');
                             })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc')
-                            ->whereYear('created_at', 2024)
                             ->get();
                         break;
                     case 'ANULADA':

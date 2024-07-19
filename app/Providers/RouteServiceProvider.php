@@ -71,12 +71,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api/ventas-claro')
                 ->group(base_path('routes/api_ventas_claro.php'));
 
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
-
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/activos-fijos')
                 ->group(base_path('routes/api_activos_fijos.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
         });
     }
 

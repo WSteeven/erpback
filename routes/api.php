@@ -125,7 +125,7 @@ Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
 Route::apiResource('archivos', ArchivoController::class)->only('destroy');
 Route::apiResources(
     [
-        'activos-fijos' => ActivoFijoController::class,
+        // 'activos-fijos' => ActivoFijoController::class, Revisar si queda o se a
         'autorizaciones' => AutorizacionController::class,
         'cargos' => CargoController::class,
         'categorias' => CategoriaController::class,
@@ -181,7 +181,7 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'activos-fijos' => 'activo',
+            // 'activos-fijos' => 'activo',
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',
@@ -220,7 +220,7 @@ Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos']
 /**
  * Rutas para imprimir PDFs
  */
-Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
+// Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('devoluciones/imprimir/{devolucion}', [DevolucionController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimir'])->middleware('auth:sanctum');
@@ -344,3 +344,4 @@ Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'st
 
 Route::post('actualizar-materiales-empleados', [InventarioController::class, 'actualizarMaterialesEmpleado'])->middleware('auth:sanctum');
 Route::post('actualizar-cantidad-material-empleado', [InventarioController::class, 'actualizarCantidadMaterialEmpleado'])->middleware('auth:sanctum');
+Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));

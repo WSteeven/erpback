@@ -65,8 +65,6 @@ class Tarea extends Model implements Auditable
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'titulo' => $this->titulo,
         ]; 
-        // $array = $this->toArray();
-        // return $array;
     }
 
     /**

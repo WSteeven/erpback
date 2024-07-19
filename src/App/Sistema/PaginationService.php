@@ -21,7 +21,7 @@ class PaginationService
     {
         $page = $page ?: LengthAwarePaginator::resolveCurrentPage();
 
-        return $query->paginate($perPage, ['*'], 'page', $page);
+        return $query->paginate($perPage, 'page', $page);
         // return $this->formatPaginatedResults($paginated);
     }
 

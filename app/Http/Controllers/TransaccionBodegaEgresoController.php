@@ -58,6 +58,19 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
+    public function obtenerEgresos(Request $request)
+    {
+        // Log::channel('testing')->info('Log', ['Dentro de obtener egresos']);
+
+        /*$ee = request()->validate([
+            'responsable_id' => 'required|numeric|integer|exists:empleados,id',
+            'detalle_producto_id' => 'required|numeric|integer|exists:detalles_productos,id',
+        ]);*/
+
+        $results = $this->servicio->obtenerEgresos();
+        $results = TransaccionBodegaResource::collection($results);
+        return response()->json(compact('results')); 
+    }
 
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado(Request $request)
@@ -458,7 +471,7 @@ class TransaccionBodegaEgresoController extends Controller
                     $this->servicio->modificarItemEgresoParcial($request);
                     break;
             }
-            
+
 
             $modelo = [];
         } catch (\Throwable $th) {
