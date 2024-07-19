@@ -2,6 +2,7 @@
 
 namespace Src\App\Sistema;
 
+use App\Http\Resources\TareaResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
