@@ -38,25 +38,7 @@ class PermisoEmpleado extends Model implements Auditable
         'documento'
     ];
 
-    private static array $whiteListFilter = [
-        'id',
-        'empleado',
-        'tipo_permiso',
-        'estado_permiso',
-        'estado_permiso_id',
-        'justificacion',
-        'fecha_hora_inicio',
-        'fecha_hora_fin',
-        'fecha_recuperacion',
-        'hora_recuperacion',
-        'fecha_hora_reagendamiento',
-        'justificacion',
-        'observacion',
-        'documento',
-        'cargo_vacaciones',
-        'aceptar_sugerencia'
-
-    ];
+    private static array $whiteListFilter = ['*'];
     protected $casts = [
         'cargo_vacaciones' => 'boolean',
         'aceptar_sugerencia' => 'boolean',
