@@ -12,17 +12,16 @@ class PaginationService
     /**
      * Pagina una consulta y devuelve los resultados paginados.
      *
-     * @param Builder $query
-     * @param int $perPage
-     * @param int $page
+     * @param \Laravel\Scout\Builder|Builder $query
+     * @param int|null $perPage
+     * @param int|null $page
      * @return LengthAwarePaginator
      */
-    public function paginate($query, $perPage = 100, $page = null)
+    public function paginate(Builder|\Laravel\Scout\Builder $query, ?int $perPage = 100, int|null $page = null)
     {
         $page = $page ?: LengthAwarePaginator::resolveCurrentPage();
 
-        return $query->paginate($perPage, 'page', $page);
-        // return $this->formatPaginatedResults($paginated);
+        return $query->paginate($perPage,  'page', $page);
     }
 
     public static function formatPaginatedResults($paginated) //, $collectionResource)

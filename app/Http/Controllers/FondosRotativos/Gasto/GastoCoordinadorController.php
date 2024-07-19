@@ -158,7 +158,7 @@ class GastoCoordinadorController extends Controller
             $vista = 'exports.reportes.solicitud_fondos';
             $reportes = compact('solicitudes', 'usuario', 'fecha_inicio', 'fecha_fin');
             $export_excel = new SolicitudFondosExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

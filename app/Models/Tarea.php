@@ -64,7 +64,7 @@ class Tarea extends Model implements Auditable
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'titulo' => $this->titulo,
-        ]; 
+        ];
     }
 
     /**
@@ -181,6 +181,12 @@ class Tarea extends Model implements Auditable
     /*********
      * Scopes
      *********/
+    public function scopePorRol($query)
+    {
+        if (User::find(Auth::id())->hasRole(User::ROL_COORDINADOR)) return $this->scopePorCoordinador($query);
+        else return $query;
+    }
+
     public function scopePorCoordinador($query)
     {
         return $query->where('coordinador_id', Auth::user()->empleado->id);
