@@ -27,7 +27,7 @@ class Postulante extends Model implements Auditable
         'telefono',
         'usuario_external_id'
     ];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'nombres',
         'apellidos',
         'tipo_documento_identificacion',

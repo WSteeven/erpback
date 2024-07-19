@@ -15,7 +15,24 @@ return new class extends Migration
     {
         Schema::create('rrhh_contratacion_vacantes', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
+            $table->longText('descripcion');
+            $table->date('fecha_caducidad');
+            $table->string('imagen_referencia');
+            $table->string('imagen_publicidad');
+            $table->string('anios_experiencia')->nullable();
+            $table->text('areas_conocimiento')->nullable();
+            $table->integer('numero_postulantes')->default(0);
+            $table->unsignedBigInteger('tipo_puesto_id');
+            $table->unsignedBigInteger('publicante_id');
+            $table->unsignedBigInteger('solicitud_id')->nullable();
+            $table->boolean('activo')->default(true);
             $table->timestamps();
+
+            //Laves foraneas
+            $table->foreign('tipo_puesto_id', 'fk_vacante_tipo_puesto')->references('id')->on('rrhh_contratacion_tipos_puestos')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('publicante_id', 'fk_publicante_id')->references('id')->on('empleados')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('solicitud_id', 'fk_vacante_autorizacion_id')->references('id')->on('rrhh_contratacion_solicitudes_nuevas_vacantes')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 

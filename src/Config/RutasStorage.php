@@ -63,5 +63,10 @@ enum RutasStorage: string
     case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';
     case SOLICITUD_EXAMEN  = 'public/solicitudes_examenes/archivos';
 
+    /**
+     * MODULO DE SELECCION Y CONTRATACION
+     */
     case SOLICITUD_NUEVO_EMPLEADO = 'public/SeleccionContratacionPersonal/solicitudes_personal';
+    case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
+
 }

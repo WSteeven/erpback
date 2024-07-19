@@ -2,26 +2,29 @@
 
 namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class UserExternalResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
-        $postulante = $this->postulante;
+        Log::channel('testing')->info('Log', ['UserExternalResource', $this->persona]);
+
         return [
             'id' => $this->id,
-            'nombres' => $this->postulante  ? $postulante->nombres : '',
-            'apellidos' => $this->postulante  ? $postulante->apellidos : '',
-            'tipo_documento_identificacion' => $this->postulante ? $postulante->tipo_documento_identificacion : '',
-            'numero_documento_identificacion' => $this->postulante ? $postulante->numero_documento_identificacion : '',
-            'telefono' => $this->postulante  ? $postulante->telefono : '',
+            'nombres' => $this->persona  ?$this->persona->nombres : '',
+            'apellidos' => $this->persona  ? $this->persona->apellidos : '',
+            'tipo_documento_identificacion' => $this->persona ? $this->persona->tipo_documento_identificacion : '',
+            'numero_documento_identificacion' => $this->persona ? $this->persona->numero_documento_identificacion : '',
+            'telefono' => $this->persona  ? $this->persona->telefono : '',
         ];
     }
 }

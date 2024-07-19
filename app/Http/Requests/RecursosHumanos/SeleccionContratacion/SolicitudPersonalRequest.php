@@ -5,7 +5,7 @@ namespace App\Http\Requests\RecursosHumanos\SeleccionContratacion;
 use App\Models\Autorizacion;
 use App\Models\Departamento;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 
 /**
  * Estas propiedades son las llaves foraneas obtenidas desde el front
@@ -44,7 +44,7 @@ class SolicitudPersonalRequest extends FormRequest
             'solicitante_id' => 'required|exists:empleados,id',
             'autorizador_id' => 'required|exists:empleados,id',
             'autorizacion_id' => 'required|exists:autorizaciones,id',
-            'areas_conocimiento' => 'required|array'
+            'areas_conocimiento' => 'required|string'
         ];
     }
 
@@ -56,6 +56,7 @@ class SolicitudPersonalRequest extends FormRequest
             'autorizador_id' => $this->autorizador,
             'cargo_id' => $this->cargo,
             'tipo_puesto_id' => $this->tipo_puesto,
+            'areas_conocimiento' => Utils::convertArrayToString($this->areas_conocimiento),
         ]);
 
         //Obtenemos el gerente de acuerdo al departamento, no al rol

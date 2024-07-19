@@ -35,7 +35,7 @@ class Tanqueo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
 

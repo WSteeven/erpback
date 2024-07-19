@@ -4,17 +4,18 @@ namespace App\Http\Resources;
 
 use App\Models\Departamento;
 use App\Models\Empleado;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class UserInfoResource extends JsonResource
 {
     public static $wrap = null;
+
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -26,14 +27,14 @@ class UserInfoResource extends JsonResource
             'nombres' => $this->empleado != null ? $empleado->nombres : '',
             'apellidos' => $this->empleado != null ? $empleado->apellidos : '',
             'email' => $this->email,
-            'identificacion' =>  $this->empleado != null ? $empleado->identificacion : '',
-            'telefono' =>  $this->empleado != null ? $empleado->telefono : '',
-            'fecha_ingreso' =>  $this->empleado != null ? $empleado->fecha_ingreso : '',
-            'fecha_nacimiento' =>  $this->empleado != null ? $empleado->fecha_nacimiento : '',
+            'identificacion' => $this->empleado != null ? $empleado->identificacion : '',
+            'telefono' => $this->empleado != null ? $empleado->telefono : '',
+            'fecha_ingreso' => $this->empleado != null ? $empleado->fecha_ingreso : '',
+            'fecha_nacimiento' => $this->empleado != null ? $empleado->fecha_nacimiento : '',
             'jefe_id' => $this->empleado != null ? $empleado->jefe_id : 0,
-            'jefe_inmediato' => Empleado::extraerNombresApellidos($empleado->jefe),
+            'jefe_inmediato' => $empleado->jefe ? Empleado::extraerNombresApellidos($empleado->jefe) : null,
             'usuario_id' => $this->id,
-            'sucursal_id' =>  $this->empleado != null ? $empleado->sucursal_id : '',
+            'sucursal_id' => $this->empleado != null ? $empleado->sucursal_id : '',
             'grupo_id' => $this->empleado != null ? $empleado->grupo_id : 0,
             'grupo' => $this->empleado != null ? $empleado->grupo?->nombre : '',
             'roles' => $this->getRoleNames(), // ->toArray()),
@@ -46,7 +47,7 @@ class UserInfoResource extends JsonResource
             'foto_url' => $empleado->foto_url ? url($empleado->foto_url) : url('/storage/sinfoto.png'),
             'nombre_canton' => $empleado->canton?->canton,
             'tipo_sangre' => $empleado->tipo_sangre,
-            'area_info' =>  $empleado->area?->nombre,
+            'area_info' => $empleado->area?->nombre,
             'nombre_cargo' => $empleado->cargo?->nombre,
             'genero' => $empleado->genero,
             'edad' => Empleado::obtenerEdad($empleado),
