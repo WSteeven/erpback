@@ -2,8 +2,6 @@
 
 namespace Src\App;
 
-use App\Http\Resources\TransaccionBodegaResource;
-use App\Models\Autorizacion;
 use App\Models\Comprobante;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
@@ -17,49 +15,78 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Ramsey\Uuid\Type\Integer;
+use Src\App\Sistema\PaginationService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
 use Src\Config\EstadosTransacciones;
+use Throwable;
 
 class TransaccionBodegaEgresoService
 {
 
-    public static function listar($request)
+    public static function listar($request, $paginate = false)
     {
+        $pagination_service = new PaginationService();
         $estado = $request->estado;
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD, User::ROL_CONSULTA])) { //si es bodeguero
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
-                            $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
-                        })->orderBy('id', 'desc')->get();
-                        break;
+                        $query = TransaccionBodega::search(request('search'))
+                            ->query(function ($query) use ($motivos) {
+                                $query->whereIn('motivo_id', $motivos)
+                                    ->whereHas('comprobante', function ($q) {
+                                        $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
+                                    })
+                                    ->with('comprobante')
+                                    ->orderBy('id', 'desc');
+                            });
+
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 100, request('page'));
+                        } else
+                            return $query->get();
                     case EstadoTransaccion::PARCIAL:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
-                            $q->where('estado', EstadoTransaccion::PARCIAL);
-                        })->orderBy('id', 'desc')->get();
-                        break;
+                        $query = TransaccionBodega::search(request('search'))
+                            ->query(function ($query) use ($motivos) {
+                                $query->with('comprobante')
+                                    ->whereIn('motivo_id', $motivos)
+                                    ->whereHas('comprobante', function ($q) {
+                                        $q->where('estado', EstadoTransaccion::PARCIAL);
+                                    })
+                                    ->orderBy('id', 'desc');
+                            });
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 100, request('page'));
+                        } else
+                            return $query->get();
                     case EstadoTransaccion::COMPLETA:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)
-                            ->where(function ($query) {
-                                $query->whereHas('comprobante', function ($q) {
-                                    $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
-                                })->orWhereDoesntHave('comprobante');
-                            })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc')
-                            ->whereYear('created_at', 2024)
-                            ->get();
-                        break;
+                        $query = TransaccionBodega::search(request('search'))
+                            ->query(function ($query) use ($motivos) {
+                                $query->with('comprobante')->whereIn('motivo_id', $motivos)
+                                    ->where(function ($query) {
+                                        $query->whereHas('comprobante', function ($q) {
+                                            $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
+                                        })->orWhereDoesntHave('comprobante');
+                                    })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc');
+                            });
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 100, request('page'));
+                        } else
+                            return $query->get();
                     case 'ANULADA':
-                        $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('estado_id', EstadosTransacciones::ANULADA)->orderBy('id', 'desc')->get();
-                        break;
+                        $query = TransaccionBodega::search(request('search'))
+                            ->whereIn('motivo_id', $motivos->toArray())
+                            ->where('estado_id', EstadosTransacciones::ANULADA)
+                            ->orderBy('id', 'desc');
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 100, request('page'));
+                        } else
+                            return $query->get();
                     default:
                 }
             } else {
@@ -115,7 +142,7 @@ class TransaccionBodegaEgresoService
 
     public static function obtenerTransaccionesPorTarea($tarea_id)
     {
-        $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+        return TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
             ->where('tarea_id', '=', $tarea_id)
             ->join('tiempo_estado_transaccion', function ($join) {
                 $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
@@ -125,12 +152,6 @@ class TransaccionBodegaEgresoService
             ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
             ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
             ->get();
-
-        /* forarch($transaccion) {
-
-        } */
-
-        return $results;
     }
 
 
@@ -138,18 +159,16 @@ class TransaccionBodegaEgresoService
     {
         // Log::channel('testing')->info('Log', ['resultados de obtener listado materiales por tarea', $results]);
         $results = DB::table('detalle_producto_transaccion')
-            ->select(DB::raw('sum(cantidad_inicial) as cantidad', 'detalle_id'), 'detalle_id')
+            ->select(DB::raw('sum(cantidad_inicial) as cantidad'), 'detalle_id')
             ->join('transacciones_bodega', 'detalle_producto_transaccion.transaccion_id', '=', 'transacciones_bodega.id')
             ->where('transacciones_bodega.tarea_id', '=', $tarea_id)
             ->groupBy('detalle_id')
             ->get();
 
-        $results  = $results->map(fn ($items) => [
+        return $results->map(fn($items) => [
             'cantidad_despachada' => intval($items->cantidad),
             'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,
         ]);
-
-        return $results;
     }
 
 
@@ -170,11 +189,10 @@ class TransaccionBodegaEgresoService
         //     ->whereNot('detalles_productos.id', '=', 'fibras.detalle_id')
         //     ->groupBy('detalle_id')
         //     ->get();
-        $results = collect($results)->map(fn ($items) => [
+        return collect($results)->map(fn($items) => [
             'cantidad_despachada' => intval($items->cantidad),
             'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,
         ]);
-        return $results;
     }
 
     /**
@@ -195,20 +213,18 @@ class TransaccionBodegaEgresoService
 
         $results = DB::select('select sum(cantidad_inicial) as cantidad, detalle_id from detalle_producto_transaccion dpt where dpt.transaccion_id in(select id from transacciones_bodega tb where tb.tarea_id=' . $tarea_id . ') and dpt.detalle_id in(select id from detalles_productos dp where id in(select detalle_id from fibras f)) group by detalle_id');
 
-        $results = collect($results)->map(fn ($items) => [
+        return collect($results)->map(fn($items) => [
             'cantidad_despachada' => intval($items->cantidad),
             'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,
         ]);
-        return $results;
     }
 
 
     public static function filtrarEgresoPorTipoFiltro($request)
     {
         // Log::channel('testing')->info('Log', ['Request', $request->all()]);
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $results = [];
+        $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         switch ($request->tipo) {
             case 0: //persona que solicita el ingreso
                 // Log::channel('testing')->info('Log', ['Entró en solicitante']);
@@ -295,7 +311,7 @@ class TransaccionBodegaEgresoService
                 break;
             case 6: //bodega o sucursal
                 // Log::channel('testing')->info('Log', ['Entró en bodega o sucursal']);
-                if ($request->sucursal != 0)  $results = TransaccionBodega::with('comprobante')
+                if ($request->sucursal != 0) $results = TransaccionBodega::with('comprobante')
                     ->whereIn('motivo_id', $motivos)->where('sucursal_id', $request->sucursal)
                     ->whereBetween(
                         'created_at',
@@ -461,84 +477,84 @@ class TransaccionBodegaEgresoService
     }
 
 
+    /**
+     * @throws Throwable
+     */
     public function modificarItemEgresoPendiente(Request $request)
     {
-        $itemInventario = Inventario::find($request->item['id']);
-        $detalleProductoTransaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
+        $item_inventario = Inventario::find($request->item['id']);
+        $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
         try {
             DB::beginTransaction();
-            //primero verificamos si se va a restar o no 
+            //primero verificamos si se va a restar o no
             if ($request->item['cantidad'] > $request->item['pendiente']) {
                 // Esto significa que se va a despachar más cantidad
-                // En este caso se va a restar cantidad del inventario 
+                // En este caso se va a restar cantidad del inventario
 
                 // 200 - 100 = 100 > 870 = false
-                if (($request->item['cantidad'] - $request->item['pendiente']) > $itemInventario->cantidad)
-                    throw new Exception('La cantidad para el item ' . $request->item['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $itemInventario->cantidad);
+                if (($request->item['cantidad'] - $request->item['pendiente']) > $item_inventario->cantidad)
+                    throw new Exception('La cantidad para el item ' . $request->item['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $item_inventario->cantidad);
 
-                $itemInventario->cantidad -=  ($request->item['cantidad'] - $request->item['pendiente']);
-                $itemInventario->save();
-                $detalleProductoTransaccion->cantidad_inicial =  $request->item['cantidad'];
-                $detalleProductoTransaccion->save();
+                $item_inventario->cantidad -= ($request->item['cantidad'] - $request->item['pendiente']);
             } else {
-                // Esto significa que se va a despachar menos cantidad o a quitar el item 
+                // Esto significa que se va a despachar menos cantidad o a quitar el item
                 // En este caso se va a sumar cantidad al inventario
                 if ($request->item['cantidad'] === 0) { //Significa que se va a eliminar el item del despacho, la cantidad inicial regresa al inventario
-                    $itemInventario->cantidad  += $detalleProductoTransaccion->cantidad_inicial;
-                    $itemInventario->save();
-                    $detalleProductoTransaccion->delete();
+                    $item_inventario->cantidad += $detalle_producto_transaccion->cantidad_inicial;
+                    $item_inventario->save();
+                    $detalle_producto_transaccion->delete();
                     DB::commit();
                     return;
                 }
-                // cuando cantidad > 0 se suma al inventario la diferencia entre pendiente y cantidad 
-                $itemInventario->cantidad += ($request->item['pendiente'] - $request->item['cantidad']);
-                $itemInventario->save();
-                $detalleProductoTransaccion->cantidad_inicial = $request->item['cantidad'];
-                $detalleProductoTransaccion->save();
+                // cuando cantidad > 0 se suma al inventario la diferencia entre pendiente y cantidad
+                $item_inventario->cantidad += ($request->item['pendiente'] - $request->item['cantidad']);
             }
+            $item_inventario->save();
+            $detalle_producto_transaccion->cantidad_inicial = $request->item['cantidad'];
+            $detalle_producto_transaccion->save();
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
+
+    /**
+     * @throws Throwable
+     */
     public function modificarItemEgresoParcial(Request $request)
     {
-        $itemInventario = Inventario::find($request->item['id']);
-        $detalleProductoTransaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
-        if ($detalleProductoTransaccion->recibido > 0 && $request->item['cantidad'] > $detalleProductoTransaccion->cantidad_inicial) throw new Exception('No se puede despachar más cantidad a un ítem que ya tiene una cantidad recibida mayor a 0');
-        if ($request->item['cantidad'] === 0 && $detalleProductoTransaccion->recibido > 0) throw new Exception('No puede establecer cantidad cero para un item que ya tiene un valor de recibido');
+        $item_inventario = Inventario::find($request->item['id']);
+        $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
+        if ($detalle_producto_transaccion->recibido > 0 && $request->item['cantidad'] > $detalle_producto_transaccion->cantidad_inicial) throw new Exception('No se puede despachar más cantidad a un ítem que ya tiene una cantidad recibida mayor a 0');
+        if ($request->item['cantidad'] === 0 && $detalle_producto_transaccion->recibido > 0) throw new Exception('No puede establecer cantidad cero para un item que ya tiene un valor de recibido');
         try {
             DB::beginTransaction();
-            //primero verificamos si se va a restar o no 
+            //primero verificamos si se va a restar o no
             /**
              * Que pasa si:
-             * cantidad  = 10
+             * cantidad = 10
              * pendiente = 6
-             * recibido  = 4 
+             * recibido = 4
              */
             // item['cantidad'] = 8
 
             if ($request->item['cantidad'] > $request->item['pendiente']) {
                 // Esto significa que se va a despachar más cantidad
-                // En este caso se va a restar cantidad del inventario 
+                // En este caso se va a restar cantidad del inventario
                 // 10 - 1 = 9 > 2 = true
                 // 2 - 1 = 1 > 2 = false
-                if (($request->item['cantidad'] - $request->item['pendiente']) > $itemInventario->cantidad)
-                    throw new Exception('La cantidad para el item ' . $request->item['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $itemInventario->cantidad);
+                if (($request->item['cantidad'] - $request->item['pendiente']) > $item_inventario->cantidad)
+                    throw new Exception('La cantidad para el item ' . $request->item['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $item_inventario->cantidad);
 
-                $itemInventario->cantidad -=  ($request->item['cantidad'] - $request->item['pendiente']);
-                $itemInventario->save();
-                $detalleProductoTransaccion->cantidad_inicial = $request->item['cantidad'];
-                $detalleProductoTransaccion->save();
-                $this->actualizarTransaccionEgreso($request->transaccion_id);
+                $item_inventario->cantidad -= ($request->item['cantidad'] - $request->item['pendiente']);
             } else {
-                // Esto significa que se va a despachar menos cantidad o a quitar el item 
+                // Esto significa que se va a despachar menos cantidad o a quitar el item
                 // En este caso se va a sumar cantidad al inventario
-                if ($request->item['cantidad'] === 0 && $detalleProductoTransaccion->recibido === 0) { //Significa que se va a eliminar el item del despacho, la cantidad inicial regresa al inventario
-                    $itemInventario->cantidad  += $detalleProductoTransaccion->cantidad_inicial;
-                    $itemInventario->save();
-                    $detalleProductoTransaccion->delete();
+                if ($request->item['cantidad'] === 0 && $detalle_producto_transaccion->recibido === 0) { //Significa que se va a eliminar el item del despacho, la cantidad inicial regresa al inventario
+                    $item_inventario->cantidad += $detalle_producto_transaccion->cantidad_inicial;
+                    $item_inventario->save();
+                    $detalle_producto_transaccion->delete();
                     $this->actualizarTransaccionEgreso($request->transaccion_id);
                     DB::commit();
                     return;
@@ -546,30 +562,30 @@ class TransaccionBodegaEgresoService
                 //Ejemplo de cantidad_inicial=10 y recibido=5
                 // En su momento se restó 10 al inventario
                 // La transaccion tiene recibido 5, entonces en el frontend se muesta: cantidad=10, pendiente=5 y recibido=5
-                if ($request->item['cantidad'] === $detalleProductoTransaccion->recibido) {
-                    $itemInventario->cantidad += ($detalleProductoTransaccion->cantidad_inicial - $detalleProductoTransaccion->recibido);
-                    $itemInventario->save();
-                    $detalleProductoTransaccion->cantidad_inicial = $detalleProductoTransaccion->recibido;
-                    $detalleProductoTransaccion->save();
+                if ($request->item['cantidad'] === $detalle_producto_transaccion->recibido) {
+                    $item_inventario->cantidad += ($detalle_producto_transaccion->cantidad_inicial - $detalle_producto_transaccion->recibido);
+                    $item_inventario->save();
+                    $detalle_producto_transaccion->cantidad_inicial = $detalle_producto_transaccion->recibido;
+                    $detalle_producto_transaccion->save();
                     $this->actualizarTransaccionEgreso($request->transaccion_id);
                     DB::commit();
                     return;
                 }
                 // Otro ejemplo de cantidad_inicial=10 y recibido=3, nos mostraria pendiente=7
-                // Desde el front viene 
-                // cantidad = 6 
-                // pendiente= 7  
+                // Desde el front viene
+                // cantidad = 6
+                // pendiente= 7
                 // recibido = 3
-                // cuando cantidad > 0 se suma al inventario la diferencia entre pendiente y cantidad 
-                $itemInventario->cantidad += ($detalleProductoTransaccion->cantidad_inicial - $detalleProductoTransaccion->recibido - $detalleProductoTransaccion->recibido);
-                $itemInventario->save();
-                $detalleProductoTransaccion->cantidad_inicial = $request->item['cantidad'];
-                $detalleProductoTransaccion->save();
-                $this->actualizarTransaccionEgreso($request->transaccion_id);
+                // cuando cantidad > 0 se suma al inventario la diferencia entre pendiente y cantidad
+                $item_inventario->cantidad += ($detalle_producto_transaccion->cantidad_inicial - $detalle_producto_transaccion->recibido - $detalle_producto_transaccion->recibido);
             }
+            $item_inventario->save();
+            $detalle_producto_transaccion->cantidad_inicial = $request->item['cantidad'];
+            $detalle_producto_transaccion->save();
+            $this->actualizarTransaccionEgreso($request->transaccion_id);
 
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw $th;
         }

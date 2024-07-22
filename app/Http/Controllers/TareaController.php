@@ -43,47 +43,22 @@ class TareaController extends Controller
 
     public function listar()
     {
-        // Parametros
-        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $search = request('search');
         $paginate = request('paginate');
-        $ignoreRequest = ['campos', 'paginate'];
-
-        // Roles
-        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
-        $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
-
 
         if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
-
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
 
-        if (request('search')) {
-            // if ($esCoordinadorBackup) $query = Tarea::search($search);
-            if ($esCoordinador) $query = Tarea::search($search)->where('coordinador_id', Auth::user()->empleado->id); // ->porCoordinador();
-            else $query = Tarea::search($search);
-
-            if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
-            else return $query->get();
+        if ($search) {
+            $query = Tarea::search($search)->query(function ($q) {
+                $q->where('finalizado', request('finalizado'))->porRol();
+            });
         } else {
-            if ($esCoordinadorBackup) $query = Tarea::ignoreRequest($ignoreRequest)->filter()->latest();
-            if ($esCoordinador) $query = Tarea::ignoreRequest($ignoreRequest)->filter()->porCoordinador()->latest();
-            else $query = Tarea::ignoreRequest($ignoreRequest)->filter()->latest();
-
-            if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
-            else return $query->get();
+            $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol();
         }
 
-        /* if (request('campos')) {
-            if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
-            if ($esCoordinador) return Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->latest()->get($campos);
-            else return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
-            // else return $this->paginationService->paginate(Tarea::ignoreRequest(['campos'])->filter()->latest(), 100, request('page')); // Jefe tecnico
-        } else {
-            if ($esCoordinadorBackup) return Tarea::filter()->latest()->get();
-            if ($esCoordinador) return Tarea::filter()->porCoordinador()->latest()->get();
-            else return $this->paginationService->paginate(Tarea::filter()->latest(), 100, request('page')); // Jefe tecnico
-        } */
+        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();
     }
 
     /*********

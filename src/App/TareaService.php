@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Exports\Tareas\ReporteMaterialExport;
+use App\Exports\Tareas\ReporteMaterialLibroExport;
 use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
@@ -106,7 +107,7 @@ class TareaService
         $materialService = new MaterialesService();
         $reporte = $materialService->obtenerMaterialesEmpleadoIntervalo(request('empleado_id'), request('fecha_inicio'), request('fecha_fin'));
 
-        $export = new ReporteMaterialExport($reporte);
+        $export = new ReporteMaterialLibroExport($reporte);
         // return response()->json(compact('reporte'));
         return Excel::download($export, 'reporte_materiales.xlsx');
     }

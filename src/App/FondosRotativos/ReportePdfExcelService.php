@@ -5,8 +5,10 @@ namespace Src\App\FondosRotativos;
 use App\Models\ConfiguracionGeneral;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 class ReportePdfExcelService
@@ -34,10 +36,10 @@ class ReportePdfExcelService
      * configurado en 'excel'. El método Excel::download() se llama con el objeto  y el
      *
      *
-     * @return ya sea una descarga de un archivo Excel o una secuencia de un archivo PDF, dependiendo
+     * @return Response|BinaryFileResponse
      * del valor del parámetro ``.
      */
-    public function imprimir_reporte($tipo_archivo, $tamanio_pagina, $orientacion_pagina, $reportes, $nombre_reporte, $vista, object $export_excel = null)
+    public function imprimirReporte($tipo_archivo, $tamanio_pagina, $orientacion_pagina, $reportes, $nombre_reporte, $vista, object $export_excel = null)
     {
         try {
             $configuracion = ConfiguracionGeneral::first();

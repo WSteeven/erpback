@@ -301,7 +301,7 @@ class RolPagosController extends Controller
             $reportes =  ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $export_excel = new RolPagoExport($reportes);
-            return $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
