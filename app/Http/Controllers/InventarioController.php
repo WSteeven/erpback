@@ -165,11 +165,11 @@ class InventarioController extends Controller
         $configuracion = ConfiguracionGeneral::first();
         $items = [];
         if ($id == 0) {
-            $items = Inventario::where('cantidad', '>', 0)
-                ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
+            $items = Inventario::where('cantidad', '!=', 0)
+                ->orWhere('por_recibir', '!=', 0)->orWhere('por_entregar', '!=', 0)->get();
         } else {
-            $items = Inventario::where('sucursal_id',  $id)->where('cantidad', '>', 0)
-                ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
+            $items = Inventario::where('sucursal_id',  $id)->where('cantidad', '!=', 0)
+                ->orWhere('por_recibir', '!=', 0)->orWhere('por_entregar', '!=', 0)->get();
         }
         $resource = InventarioResourceExcel::collection($items);
         // Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
@@ -180,9 +180,7 @@ class InventarioController extends Controller
             $pdf->setPaper('A4', 'landscape');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
-            $file = $pdf->output();
-
-            return $file;
+            return $pdf->output();
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([

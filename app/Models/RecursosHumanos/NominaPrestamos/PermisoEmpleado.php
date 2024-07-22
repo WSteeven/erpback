@@ -12,11 +12,16 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @property mixed $empleado
+ */
 class PermisoEmpleado extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
+
+
     protected $table = 'permiso_empleados';
     const PENDIENTE = 1;
     const APROBADO = 2;
@@ -52,9 +57,10 @@ class PermisoEmpleado extends Model implements Auditable
     {
         return $this->belongsTo(Autorizacion::class, 'estado_permiso_id', 'id');
     }
-    public function empleadoInfo()
+    public function empleado()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
+//        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
     public function notificaciones()
     {
