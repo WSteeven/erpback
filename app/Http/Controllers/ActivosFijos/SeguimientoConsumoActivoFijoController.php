@@ -3,20 +3,10 @@
 namespace App\Http\Controllers\ActivosFijos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ActivosFijos\ActivoFijoResource;
-use App\Models\ActivosFijos\ActivoFijo;
 use Illuminate\Http\Request;
-use Src\App\Sistema\PaginationService;
 
-class ActivoFijoController extends Controller
+class SeguimientoConsumoActivoFijoController extends Controller
 {
-    private $entidad = 'Tarea';
-    protected PaginationService $paginationService;
-
-    public function __construct()
-    {
-        $this->paginationService = new PaginationService();
-    }
     /**
      * Display a listing of the resource.
      *
@@ -24,15 +14,7 @@ class ActivoFijoController extends Controller
      */
     public function index()
     {
-        $search = request('search');
-        $paginate = request('paginate');
-
-        $query = ActivoFijo::search($search);
-
-        if ($paginate) $paginated = $this->paginationService->paginate($query, 100, request('page'));
-        else $paginated = $query->get();
-
-        return ActivoFijoResource::collection($paginated);
+        //
     }
 
     /**
@@ -52,10 +34,9 @@ class ActivoFijoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(ActivoFijo $activo_fijo)
+    public function show($id)
     {
-        $modelo = new ActivoFijoResource($activo_fijo);
-        return response()->json(compact('modelo'));
+        //
     }
 
     /**

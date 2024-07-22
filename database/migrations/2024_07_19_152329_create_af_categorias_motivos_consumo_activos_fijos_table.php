@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('af_activos_fijos', function (Blueprint $table) {
+        Schema::create('af_categorias_motivos_consumo_activos_fijos', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('detalle_producto_id');
-            $table->unsignedBigInteger('cliente_id');
+            $table->string('nombre');
 
             $table->timestamps();
         });
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('af_activos_fijos');
+        Schema::dropIfExists('af_categorias_motivos_consumo_activos_fijos');
     }
 };

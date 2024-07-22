@@ -14,6 +14,18 @@ class ActivoFijoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $detalleProducto = $this->detalleProducto;
+
+        return [
+            'id' => $this->id,
+            'codigo' => 'AF' . $this->id,
+            'descripcion' => $detalleProducto->descripcion,
+            'serie' => $detalleProducto->serial,
+            'fecha_caducidad' => $this->fecha_caducidad,
+            'unidad_medida' => $detalleProducto->producto->unidadMedida->nombre,
+            'ingresos' => $this->ingresos,
+            'egresos' => $this->egresos,
+            'diferencia' => $this->diferencia,
+        ];
     }
 }

@@ -77,7 +77,7 @@ class ComprobanteController extends Controller
                 $transaccion->estado_id = EstadosTransacciones::COMPLETA;
                 $transaccion->save();
                 $transaccion->latestNotificacion()->update(['leida' => true]);
-                $esEgresoLiquidacionMateriales = TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales);
+                $esEgresoLiquidacionMateriales = TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales->value);
                 $noGeneraComprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
                 if (!$esEgresoLiquidacionMateriales && !$noGeneraComprobante) TransaccionBodega::asignarMateriales($transaccion);
             }
