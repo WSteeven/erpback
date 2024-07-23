@@ -41,7 +41,20 @@ class TareaController extends Controller
         $this->paginationService = new PaginationService();
     }
 
-    public function listar()
+    public function listsar()
+    {
+        $search = request('search');
+        $paginate = request('paginate');
+
+
+        $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter(); //->porRol();
+
+
+        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();
+    }
+
+     public function listar()
     {
         $search = request('search');
         $paginate = request('paginate');
@@ -59,7 +72,7 @@ class TareaController extends Controller
 
         if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
         else return $query->get();
-    }
+    } 
 
     /*********
      * Listar

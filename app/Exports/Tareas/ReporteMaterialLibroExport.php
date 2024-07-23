@@ -2,6 +2,7 @@
 
 namespace App\Exports\Tareas;
 
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -39,15 +40,28 @@ class ReporteMaterialLibroExport implements WithMultipleSheets, WithBackgroundCo
     private function obtenerResumen($results)
     {
         $unicos = collect([]);
-        foreach ($results as $item) {
-            if ($unicos->contains(function ($unico) use ($item) {
-                return $unico['detalle_producto_id'] == $item['detalle_producto_id']
-                    && $unico['cliente_id'] == $item['cliente'];
+        foreach ($results as $result) {
+            if (count($unicos) == 0) {
+                $unicos->push($result);
+            } else if ($unicos->contains(function ($unico) use ($result) {
+                // Log::channel('testing')->info('Log', ['Item', $unico['detalle_producto_id'] == $item['detalle_producto_id']]);
+                // Log::channel('testing')->info('Log', ['Item', $unico['cliente_id'] == $item['cliente']]);
+                return !($unico['detalle_producto_id'] == $result['detalle_producto_id']); // && $unico['cliente'] == $result['cliente']);
             })) {
-                $unicos->push($item);
+                $unicos->contains(function ($unico) use ($result) {
+                    // Log::channel('testing')->info('Log', ['Item', $unico['detalle_producto_id'] == $item['detalle_producto_id']]);
+                    // Log::channel('testing')->info('Log', ['Item', $unico['cliente_id'] == $item['cliente']]);
+                    return !($unico['detalle_producto_id'] == $result['detalle_producto_id']); // && $unico['cliente'] == $result['cliente']);
+                });
+                Log::channel('testing')->info('Log', ['Item', $result]);
+                Log::channel('testing')->info('Log', ['Dentro de if']);
+                // Log::channel('testing')->info('Log', ['Unicos', $unicos]);
+                $unicos->push($result);
             }
         };
 
+        Log::channel('testing')->info('Log', ['Return']);
+        Log::channel('testing')->info('Log', ['Unicos', $unicos]);
         return $unicos;
     }
 }

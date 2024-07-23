@@ -21,7 +21,8 @@ class PaginationService
     {
         $page = $page ?: LengthAwarePaginator::resolveCurrentPage();
 
-        return $query->paginate($perPage,  'page', $page);
+        if ($query instanceof \Laravel\Scout\Builder) return $query->paginate($perPage, 'page', $page);
+        else return $query->paginate($perPage, ['*'], 'page', $page); // Illuminate\\Database\\Eloquent\\Builder
     }
 
     public static function formatPaginatedResults($paginated) //, $collectionResource)
