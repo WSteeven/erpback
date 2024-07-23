@@ -39,20 +39,7 @@ class TareaController extends Controller
     {
         $this->tareaService = new TareaService();
         $this->paginationService = new PaginationService();
-    }
-
-    public function listsar()
-    {
-        $search = request('search');
-        $paginate = request('paginate');
-
-
-        $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter(); //->porRol();
-
-
-        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
-        else return $query->get();
-    }
+    } // 96 - 102 // pregunta 90
 
      public function listar()
     {
@@ -64,10 +51,10 @@ class TareaController extends Controller
 
         if ($search) {
             $query = Tarea::search($search)->query(function ($q) {
-                $q->where('finalizado', request('finalizado'))->porRol();
+                $q->where('finalizado', request('finalizado'))->porRol()->orderBy('id', 'desc');
             });
         } else {
-            $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol();
+            $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol()->orderBy('id', 'desc');
         }
 
         if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
@@ -170,7 +157,7 @@ class TareaController extends Controller
         }
 
         return response()->json(compact('modelo', 'mensaje'));
-    }
+    } // 103 a 112 // pregunta 93
 
     /**
      * Eliminar
