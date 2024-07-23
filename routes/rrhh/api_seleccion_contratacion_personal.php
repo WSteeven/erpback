@@ -28,6 +28,8 @@ Route::apiResources(
     ]
 );
 
+Route::get('vacantes/show-preview/{vacante}', [VacanteController::class, 'showPreview']);
+
 //listar archivos
 Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);
 //guardar archivos

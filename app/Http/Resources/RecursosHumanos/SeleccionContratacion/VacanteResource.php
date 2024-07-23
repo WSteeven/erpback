@@ -3,6 +3,7 @@
 namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\SeleccionContratacion\Conocimiento;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
@@ -30,10 +31,18 @@ class VacanteResource extends JsonResource
             'tipo_puesto' => $this->tipoPuesto->nombre,
             'publicante' => Empleado::extraerNombresApellidos($this->publicante),
             'solicitud' => $this->solicitud->nombre,
+            'tipo_empleo' => 'Presencial',
             'activo' => $this->activo,
+            'areas_conocimiento' => Conocimiento::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->areas_conocimiento)))->pluck('nombre'),
+            'requiere_experiencia' => !!$this->anios_experiencia,
+            'requiere_formacion_academica' => !!count($this->formacionesAcademicas)
         ];
         if ($controller_method == 'show') {
+            $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
+        }
+        if ($controller_method == 'show') {
             $modelo['tipo_puesto'] = $this->tipo_puesto_id;
+            $modelo['descripcion'] = $this->descripcion;
             $modelo['publicante'] = $this->publicante_id;
             $modelo['solicitud'] = $this->solicitud_id;
             $modelo['areas_conocimiento'] = array_map('intval', Utils::convertirStringComasArray($this->areas_conocimiento));

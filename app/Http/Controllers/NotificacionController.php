@@ -7,7 +7,6 @@ use App\Http\Resources\NotificacionResource;
 use App\Models\Notificacion;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\NotificacionService;
@@ -15,7 +14,7 @@ use Src\Shared\Utils;
 
 class NotificacionController extends Controller
 {
-    private $entidad = 'Notificacion';
+    private string $entidad = 'Notificacion';
     private NotificacionService $servicio;
     public function __construct()
     {
@@ -29,10 +28,9 @@ class NotificacionController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        $results = [];
         if (auth()->user()->hasRole(User::ROL_COORDINADOR_BODEGA)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_COORDINADOR_BODEGA, $campos);
         } else if (auth()->user()->hasRole(User::ROL_BODEGA)) {
@@ -86,9 +84,9 @@ class NotificacionController extends Controller
     /**
      * Actualizar
      */
-    public function update(NotificacionRequest $request, Notificacion $notificacion)
+    public function update(Notificacion $notificacion)
     {
-        //En esta parte se hace la actualización de la notificacion de leída=false a leída=true
+        //En esta parte se hace la actualización de la notificacion de leída=falso a leída=verdadero
         $notificacion->leida = true; //se marca como leída
         $notificacion->save(); //se guarda la notificacion actualizada
 
@@ -117,6 +115,6 @@ class NotificacionController extends Controller
         $notificacion->save();
         $modelo = $notificacion;
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 }

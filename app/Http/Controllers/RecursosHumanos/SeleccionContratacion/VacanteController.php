@@ -94,6 +94,12 @@ class VacanteController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    public function showPreview(Vacante $vacante)
+    {
+        $modelo = new VacanteResource($vacante);
+        return response()->json(compact('modelo'));
+    }
+
     /**
      * Update the specified resource in storage.
      *

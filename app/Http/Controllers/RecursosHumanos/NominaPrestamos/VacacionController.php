@@ -27,7 +27,7 @@ class VacacionController extends Controller
         $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
         $this->middleware('can:puede.crear.vacacion')->only('store');
         $this->middleware('can:puede.editar.vacacion')->only('update');
-        $this->middleware('can:puede.eliminar.vacacion')->only('update');
+        $this->middleware('can:puede.eliminar.vacacion')->only('destroy');
     }
 
     /**
