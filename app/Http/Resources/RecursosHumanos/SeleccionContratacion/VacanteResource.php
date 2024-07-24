@@ -35,9 +35,10 @@ class VacanteResource extends JsonResource
             'activo' => $this->activo,
             'areas_conocimiento' => Conocimiento::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->areas_conocimiento)))->pluck('nombre'),
             'requiere_experiencia' => !!$this->anios_experiencia,
-            'requiere_formacion_academica' => !!count($this->formacionesAcademicas)
+            'requiere_formacion_academica' => !!count($this->formacionesAcademicas),
+            'created_at'=> $this->created_at,
         ];
-        if ($controller_method == 'show') {
+        if ($controller_method == 'showPreview') {
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
         }
         if ($controller_method == 'show') {
