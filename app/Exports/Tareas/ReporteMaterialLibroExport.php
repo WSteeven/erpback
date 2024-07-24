@@ -30,8 +30,8 @@ class ReporteMaterialLibroExport implements WithMultipleSheets, WithBackgroundCo
     public function sheets(): array
     {
         $sheets = [];
-        $sheets[1] = new ReporteMaterialExport($this->reporte);
-        $sheets[2] = new ReporteMaterialExport($this->obtenerResumen($this->reporte));
+        $sheets[1] = new ReporteMaterialExport($this->reporte, 'Reporte de materiales');
+        $sheets[2] = new ReporteMaterialExport($this->obtenerResumen($this->reporte), 'Resumen reporte de materiales');
 
         return $sheets;
     }
