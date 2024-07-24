@@ -14,7 +14,7 @@ Route::apiResources(
          *  Módulo de Selección y contratación de personal
          *************************************************/
         'postulantes' => PostulanteController::class,
-        'vacantes' => VacanteController::class,
+//        'vacantes' => VacanteController::class,
         'solicitudes-nuevo-personal' => SolicitudPersonalController::class,
         'tipos-puestos' => TipoPuestoController::class,
         'tipos-discapacidades' => TipoDiscapacidadController::class,
@@ -27,8 +27,9 @@ Route::apiResources(
         ]
     ]
 );
+Route::post('vacantes', [VacanteController::class, 'store']);
+Route::put('vacantes/{vacante}', [VacanteController::class, 'update']);
 
-Route::get('vacantes/show-preview/{vacante}', [VacanteController::class, 'showPreview']);
 
 //listar archivos
 Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);
