@@ -65,6 +65,7 @@ class CuestionarioPublicoRequest extends FormRequest
                 'estado_civil_id' => $this->persona['estado_civil'] ?? null,
                 'provincia_id' => $this->persona['provincia'] ?? null,
                 'canton_id' => $this->persona['canton'] ?? null,
+                'enfermedades_preexistentes' => implode($this->persona['enfermedades_preexistentes'] ?? null),
             ]),
         ]);
     }

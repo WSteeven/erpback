@@ -35,12 +35,12 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
 
         // Parametros
         $tipo_cuestionario_id = $request['tipo_cuestionario_id'];
-        $fecha_inicio = request('fecha_inicio');
-        $fecha_fin = request('fecha_fin');
+        $fecha_inicio = Carbon::parse(request('fecha_inicio'))->startOfDay();
+        $fecha_fin = Carbon::parse(request('fecha_fin'))->endOfDay();
 
         try {
             $results = [];
-            $personas = Persona::query()->tipoCuestionario($tipo_cuestionario_id)->where('nombre_empresa', $request['link'])->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->orderBy('primer_apellido', 'asc')->get();
+            $personas = Persona::query()->tipoCuestionario($tipo_cuestionario_id)->where('nombre_empresa', 'like', '%' . $request['link'] . '%')->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->orderBy('primer_apellido', 'asc')->get();
             // $personas = $personas->filter(fn ($persona) => $persona->cuestionarioPublico()->whereYear('created_at', $request['anio'])->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
             $personas = $personas->filter(fn ($persona) => $persona->cuestionarioPublico()->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
                 $q->where('tipo_cuestionario_id', $tipo_cuestionario_id);
