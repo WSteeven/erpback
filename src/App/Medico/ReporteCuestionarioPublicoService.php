@@ -59,11 +59,14 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
                     $preguntas = Pregunta::select(['id', 'pregunta', 'codigo'])->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
                         $q->where('tipo_cuestionario_id', $tipo_cuestionario_id);
                     })->get();
-
+                    Log::channel('testing')->info('Log', compact('preguntas'));
+                    Log::channel('testing')->info('Log', ['count' => count($preguntas)]);
                     $codigos = self::CODIGOS_ALCOHOL_DROGAS;
 
                     if ($tipo_cuestionario_id == TipoCuestionario::CUESTIONARIO_DIAGNOSTICO_CONSUMO_DE_DROGAS) {
+                        Log::channel('testing')->info('Log', ['mensaje' => 'Dentro del if']);
                         $preguntas = $preguntas->map(function ($pregunta, $index) use ($codigos) {
+                            Log::channel('testing')->info('Log', ['index' => $index]);
                             $pregunta->codigo = $codigos[$index];
                             return $pregunta;
                         });
@@ -85,7 +88,7 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
 
             return response()->json(compact('results'));
         } catch (Exception $e) {
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => '' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -167,10 +170,10 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
 
     public function empaquetarAlcoholDrogas($personas, $fecha_inicio, $fecha_fin, int $tipo_cuestionario_id) // Recibe Collection
     {
-        $results = [];
+        $results = []; //TAREA 8199 -- 4781
         $cont = 0;
         foreach ($personas as $persona) {
-            $cuestionario = $this->obtenerCuestionarios($persona->id, $fecha_inicio, $fecha_fin, $tipo_cuestionario_id);
+            $cuestionario = $this->obtenerCuestionarios($persona->id, $fecha_inicio, $fecha_fin, $tipo_cuestionario_id); // MACHALA/CONOCEL - CLIENTE CONECEL - CLIENTE JP 
 
             $row['id'] =  $persona->id;
             $row['fecha_diagnostico'] = count($cuestionario) ? Carbon::parse($cuestionario[0]['fecha_creacion'])->format('d/m/Y') : '';
@@ -178,25 +181,25 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
             $row['cargo'] = $persona->cargo;
             $row['identificacion'] = $persona->identificacion;
             $row['anio_nacimiento'] = Carbon::parse($persona->fecha_nacimiento)->format('Y');
-            $row['tipo_afiliacion_seguridad_social'] = 'PÚBLICA';
+            $row['tipo_afiliacion_seguridad_social'] = '';
             $row['estado_civil'] = $persona->estadoCivil->nombre;
-            $row['genero'] = $persona->genero === 'M' ? 'MASCULINO' : 'FEMENINO';
+            $row['genero'] = in_array($persona->genero, ['M', 'MASCULINO']) ? 'MASCULINO' : 'FEMENINO';
             $row['nivel_academico'] = $persona->nivel_academico;
             $row['numero_hijos'] = $persona->numero_hijos ?? '0';
             $row['autoidentificacion_etnica'] = $persona->autoidentificacion_etnica ?? 'MESTIZO';
-            $row['discapacidad'] = $persona->discapacidad ? 'APLICA' : 'NO APLICA';
+            $row['discapacidad'] = $persona->porcentaje_discapacidad ? 'APLICA' : 'NO APLICA';
             $row['porcentaje_discapacidad'] = $persona->porcentaje_discapacidad;
-            $row['trabajador_sustituto'] = $persona->trabajador_sustituto ? 'SI' : 'NO';
-            $row['enfermedades_preexistentes'] = 'NO DIAGNOSTICADA';
+            $row['trabajador_sustituto'] = $persona->es_trabajador_sustituto ? 'SI' : 'NO';
+            $row['enfermedades_preexistentes'] = $persona->enfermedades_preexistentes;
             $row['principal_droga_consume'] = $cuestionario[0]['respuesta']['valor'];
             $row['otra_droga_especifique'] = $cuestionario[1]['respuesta_texto'];
-            $row['otra_droga_consume'] = $cuestionario[2]['respuesta']['valor'];
-            $row['frecuencia_consumo'] = $cuestionario[3]['respuesta']['valor'];
-            $row['reconoce_tener_problema_consumo'] = $cuestionario[4]['respuesta']['valor'];
-            $row['factores_psicosociales_consumo'] = $cuestionario[5]['respuesta']['valor'];
-            $row['tratamiento'] = 'NO APLICA';
-            $row['personal_recibio_capacitacion'] = 'SI';
-            $row['cuenta_con_examen_preocupacional'] = 'SI';
+            $row['frecuencia_consumo'] = $cuestionario[2]['respuesta']['valor'];
+            $row['reconoce_tener_problema_consumo'] = $cuestionario[3]['respuesta']['valor'];
+            $row['factores_psicosociales_consumo'] = $cuestionario[4]['respuesta_texto'];
+            $row['otros_factores_psicosociales_consumo'] = $cuestionario[5]['respuesta_texto'];
+            $row['tratamiento'] = count($cuestionario) > 6 ? $cuestionario[6]['respuesta']['valor'] : '';
+            $row['personal_recibio_capacitacion'] = $persona->ha_recibido_capacitacion ? 'SI' : 'NO';
+            $row['cuenta_con_examen_preocupacional'] = $persona->tiene_examen_preocupacional ? 'SI' : 'NO';
             $row['cuestionario'] = $cuestionario;
             $row['razon_social'] = $persona->nombre_empresa;
             $row['ruc'] = $persona->ruc;
@@ -205,7 +208,7 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
             $cont++;
         }
 
-        $resultsCollect = collect($results);
+        $resultsCollect = collect($results)->sortBy('fecha_diagnostico');
         return $resultsCollect->filter(fn ($item) => !!$item['cuestionario']);
     }
 
