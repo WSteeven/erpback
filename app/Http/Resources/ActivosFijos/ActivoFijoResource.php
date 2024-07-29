@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\ActivosFijos;
 
+use App\Http\Resources\Bodega\PermisoArmaResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ActivoFijoResource extends JsonResource
@@ -14,18 +15,31 @@ class ActivoFijoResource extends JsonResource
      */
     public function toArray($request)
     {
+        $controller_method = request()->route()->getActionMethod();
+
         $detalleProducto = $this->detalleProducto;
 
-        return [
+        $modelo = [
             'id' => $this->id,
-            'codigo' => 'AF' . $this->id,
+            'codigo_inventario' => 'AF' . $this->id, // PENDIENTE
             'descripcion' => $detalleProducto->descripcion,
             'serie' => $detalleProducto->serial,
             'fecha_caducidad' => $this->fecha_caducidad,
             'unidad_medida' => $detalleProducto->producto->unidadMedida->nombre,
-            'ingresos' => $this->ingresos,
             'egresos' => $this->egresos,
-            'diferencia' => $this->diferencia,
+            'etiqueta_personalizada' => $this->etiqueta_personalizada,
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['tipo'] = $detalleProducto->tipo;
+            $modelo['marca'] = $detalleProducto->marca?->nombre;
+            $modelo['modelo'] = $detalleProducto->modelo?->nombre;
+            $modelo['calibre'] = $detalleProducto->calibre;
+            $modelo['fotografia'] = $detalleProducto->fotografia ? url($detalleProducto->fotografia) : null;
+            $modelo['fotografia_detallada'] = $detalleProducto->fotografia_detallada ? url($detalleProducto->fotografia_detallada) : null;
+            $modelo['permiso_arma'] = new PermisoArmaResource($this->detalleProducto->permisoArma);
+        }
+
+        return $modelo;
     }
 }
