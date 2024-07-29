@@ -4,7 +4,6 @@ namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-use Log;
 
 class PermisoEmpleadoRequest extends FormRequest
 {
@@ -27,8 +26,8 @@ class PermisoEmpleadoRequest extends FormRequest
     {
         return [
             'tipo_permiso' => 'required',
-            'fecha_hora_inicio' => 'required|string',
-            'fecha_hora_fin' => 'required|string',
+            'fecha_hora_inicio' => 'required|date',
+            'fecha_hora_fin' => 'required|date',
             'fecha_recuperacion' => 'nullable|date_format:Y-m-d',
             'hora_recuperacion' => 'nullable|string',
             'justificacion' => 'required|string',
@@ -45,13 +44,14 @@ class PermisoEmpleadoRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $mask = 'Y-m-d H:i:s';
+//        $mask = 'Y-m-d H:i:s';
         $controller_method = $this->route()->getActionMethod();
-        $fecha_inicio = Carbon::createFromFormat($mask, $this->fecha_hora_inicio);
-        $fecha_fin = Carbon::createFromFormat($mask, $this->fecha_hora_fin);
+        $fecha_inicio = Carbon::parse($this->fecha_hora_inicio);
+        $fecha_fin = Carbon::parse($this->fecha_hora_fin);
         if ($this->fecha_hora_reagendamiento != null) {
 //            $fecha_hora_reagendamiento = Carbon::createFromFormat('d-m-Y H:i', $this->fecha_hora_reagendamiento);
-            $fecha_hora_reagendamiento = Carbon::createFromFormat($mask, $this->fecha_hora_reagendamiento);
+//            $fecha_hora_reagendamiento = Carbon::createFromFormat($mask, $this->fecha_hora_reagendamiento);
+            $fecha_hora_reagendamiento = Carbon::parse($this->fecha_hora_reagendamiento);
         }
         if ($this->fecha_recuperacion != null) {
             $fecha_recuperacion = $this->fecha_recuperacion;

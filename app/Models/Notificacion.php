@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\Config\TiposNotificaciones;
 use Throwable;
 
 class Notificacion extends Model //implements Auditable
@@ -32,7 +30,7 @@ class Notificacion extends Model //implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ]; */
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________
@@ -71,17 +69,17 @@ class Notificacion extends Model //implements Auditable
     /**
      * La función `crearNotificacion` crea una notificación con los parámetros dados y devuelve la
      * notificación creada.
-     * 
+     *
      * @param string $mensaje El parámetro "mensaje" es una cadena que representa el mensaje de la
      * notificación. Puede ser cualquier texto que desee mostrar en la notificación.
-     * @param string $ruta El parámetro "ruta" representa el enlace o URL asociado a la notificación. Es el
-     * destino al que se redirigirá al usuario cuando haga clic en la notificación.
-     * @param string $tipo El parámetro "tipo" representa el tipo de notificación. Esto permite indicar 
-     * el tipo de icono a mostrase en la notifcación.
+     * @param string $ruta El parámetro "ruta" representa el enlace o URL asociado a la notificación. Es el destino al
+     * que se redirigirá al usuario cuando haga clic en la notificación.
+     * @param string|TiposNotificaciones $tipo El parámetro "tipo" representa el tipo de notificación. Esto permite indicar
+     * el tipo de icono a mostrarse en la notifcación.
      * @param int|null $originador El parámetro "originador" hace referencia al ID de la persona que envía la
      * notificación.
      * @param int|null $destinatario El parámetro "destinatario" se refiere al destinatario de la notificación.
-     * Es el id de la persona que recibirá la notificación.
+     * Es el ID de la persona que recibirá la notificación.
      * @param mixed $entidad El parámetro "entidad" se refiere a una instancia de una clase de modelo que
      * tiene una relación con el modelo "Notificación". Esta relación permite la creación de una nueva
      * notificación asociada a la instancia del modelo "entidad".
@@ -89,10 +87,11 @@ class Notificacion extends Model //implements Auditable
      * es informativa o no. Si se establece en verdadero, significa que la notificación es informativa
      * y no requiere ninguna acción por parte del destinatario. Si se establece en falso, significa que
      * la notificación requiere alguna acción o respuesta
-     * 
+     *
      * @return Notificacion $notificacion el objeto de notificación creado.
+     * @throws Exception
      */
-    public static function crearNotificacion($mensaje, $ruta, $tipo, $originador, $destinatario, $entidad, $informativa)
+    public static function crearNotificacion(string $mensaje, string $ruta, string|TiposNotificaciones $tipo, ?int $originador, ?int $destinatario, Model $entidad, bool $informativa)
     {
         try {
             DB::beginTransaction();

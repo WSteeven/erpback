@@ -10,7 +10,6 @@ use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
 use App\Models\Autorizacion;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
-use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -75,9 +74,7 @@ class PermisoEmpleadoController extends Controller
 
     public function index()
     {
-        $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
+        if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
             $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
@@ -122,6 +119,9 @@ class PermisoEmpleadoController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(PermisoEmpleadoRequest $request, PermisoEmpleado $permiso)
     {
         $autorizacion_id_old = $permiso->estado_permiso_id;

@@ -5,7 +5,6 @@ namespace App\Exports\Tareas;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Illuminate\Contracts\View\View;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -15,11 +14,13 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 class ReporteMaterialExport implements FromView, WithStyles, WithTitle, WithColumnWidths, WithBackgroundColor
 {
     protected $reporte;
+    protected $title;
     const TOTAL_FILAS_ENCABEZADO = 1;
 
-    function __construct($reporte)
+    function __construct($reporte, $title)
     {
         $this->reporte = $reporte;
+        $this->title = $title;
     }
 
     public function backgroundColor()
@@ -29,7 +30,7 @@ class ReporteMaterialExport implements FromView, WithStyles, WithTitle, WithColu
 
     public function title(): string
     {
-        return 'Reporte de materiales';
+        return $this->title;
     }
 
     public function columnWidths(): array

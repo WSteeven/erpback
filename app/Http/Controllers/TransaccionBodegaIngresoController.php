@@ -50,7 +50,7 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function index(Request $request)
     {
-//        Log::channel('testing')->info('Log', ['request', $request->paginate, $request->all()]);
+        // Log::channel('testing')->info('Log', ['request', $request->paginate, $request->all()]);
         $results = $this->servicio->listar(null, null, $request->paginate);
         return TransaccionBodegaResource::collection($results);
         // return response()->json(compact('results'));
@@ -66,17 +66,17 @@ class TransaccionBodegaIngresoController extends Controller
             if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
                 $datos = $request->validated();
                 DB::beginTransaction();
-//                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-//                $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-//                $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
-//                $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-//                $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-//                $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-//                $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-//                $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-//                if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-//                $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-//                $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
+                //                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
+                //                $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+                //                $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
+                //                $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+                //                $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+                //                $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+                //                $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+                //                $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+                //                if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+                //                $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+                //                $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
                 // Crear la transaccion
                 $transaccion = TransaccionBodega::create($datos);
@@ -179,24 +179,24 @@ class TransaccionBodegaIngresoController extends Controller
     {
         $datos = $request->validated();
         // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-//        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
-//        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-//        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-//        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-//        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-//        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+        //        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
+        //        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+        //        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+        //        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        //        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+        //        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
         //datos de las relaciones muchos a muchos
-//        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-//        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+        //        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+        //        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
         //Comprobar si hay tarea
-//        if ($request->tarea) {
-//            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-//        }
+        //        if ($request->tarea) {
+        //            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+        //        }
         //Comprobar si hay subtarea
-//        if ($request->subtarea) {
-//            $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-//        }
+        //        if ($request->subtarea) {
+        //            $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        //        }
 
         if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
             try {
@@ -289,7 +289,7 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function showPreview(TransaccionBodega $transaccion)
     {
-//        $detalles = TransaccionBodega::listadoProductos($transaccion->id);
+        //        $detalles = TransaccionBodega::listadoProductos($transaccion->id);
 
         $modelo = new TransaccionBodegaResource($transaccion);
 
@@ -316,7 +316,7 @@ class TransaccionBodegaIngresoController extends Controller
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             //            $filename = 'ingreso_' . $transaccion['id'] . '_' . time() . '.pdf';
-//            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'ingresos' . DIRECTORY_SEPARATOR . $filename;
+            //            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'ingresos' . DIRECTORY_SEPARATOR . $filename;
             // file_put_contents($ruta, $file); //en caso de que se quiera guardar el documento en el backend
             return $pdf->output();
         } catch (Exception $ex) {

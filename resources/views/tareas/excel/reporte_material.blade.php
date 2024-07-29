@@ -29,16 +29,18 @@
         <tbody>
             @foreach ($reporte as $producto)
                 <tr>
-                    <td valign="center">{{ $producto['fecha_hora'] }}</td>
+                    <td valign="center">{{ \Carbon\Carbon::parse($producto['fecha_hora'])->format('Y-m-d') }}</td>
                     <td valign="center">{{ $producto['detalle_producto'] }}</td>
                     <td valign="center">{{ $producto['cliente'] }}</td>
                     <td valign="center">{{ $producto['evento'] }}</td>
                     <td valign="center">{{ $producto['empleado'] }}</td>
-                    <td valign="center">{{ isset($producto['transaccion']) ? $producto['transaccion'] . ' ' . $producto['entidad_id'] : '' }}</td>
+                    <td valign="center">
+                        {{ isset($producto['transaccion']) ? $producto['transaccion'] . ' ' . $producto['entidad_id'] : '' }}
+                    </td>
                     <td valign="center">{{ isset($producto['descripcion']) ? $producto['descripcion'] : '' }}</td>
                     <td valign="center">{{ $producto['movimiento'] }}</td>
                     <td valign="center">{{ $producto['cantidad_anterior'] }}</td>
-                    <td valign="center">{{ $producto['cantidad_actual'] }}</td>
+                    <td valign="center" bgcolor="#c6efce"><b>{{ $producto['cantidad_actual'] }}</b></td>
                     <td valign="center">{{ $producto['cantidad_afectada'] }}</td>
                 </tr>
             @endforeach

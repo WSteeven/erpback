@@ -14,6 +14,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\Config\MotivosTransaccionesBodega;
 use Throwable;
 
 
@@ -426,11 +427,11 @@ class TransaccionBodega extends Model implements Auditable
      *
      * @param int $id
      * @param int $tipo
-     * @param string $motivo
+     * @param string|MotivosTransaccionesBodega $motivo
      * @return bool boolean value indicating whether the id parameter matches the id of the Motivo object
      * that has the given nombre and tipo_transaccion_id parameters.
      */
-    public static function verificarEgresoLiquidacionMateriales(int $id, int $tipo, string $motivo)
+    public static function verificarEgresoLiquidacionMateriales(int $id, int $tipo, string|MotivosTransaccionesBodega $motivo)
     {
         $motivo_seleccionado = Motivo::where('nombre', $motivo)->where('tipo_transaccion_id', $tipo)->first();
         return $motivo_seleccionado->id === $id;

@@ -73,7 +73,7 @@ class MaterialesService
         foreach ($materiales as $material) {
             // Se realiza el casteo de cada elemento
             foreach ($material->audits as $audit) {
-                $row['fecha_hora'] = Carbon::parse($audit->created_at)->format('Y-m-d');
+                $row['fecha_hora'] = Carbon::parse($audit->created_at)->format('Y-m-d H:i:s');
                 $row['empleado'] = Empleado::extraerNombresApellidos(User::find($audit->user_id)->empleado);
                 $row['detalle_producto_id'] = $material->detalle_producto_id;
                 $row['detalle_producto'] = $material->detalle->descripcion;
@@ -101,7 +101,7 @@ class MaterialesService
                 $modelo = $segmentos[2];
 
                 $entidad = $this->obtenerEntidad($modelo, $url);
-                Log::channel('testing')->info('Log', ['-> Entidad', $entidad]);
+                // Log::channel('testing')->info('Log', ['-> Entidad', $entidad]);
                 $row['entidad_id'] = $entidad?->id;
 
                 switch ($modelo) {
@@ -138,16 +138,19 @@ class MaterialesService
             $item['evento'] = $eventos[$item['evento']];
             return $item;
         });
+
+        $results = $results->sortByDesc('fecha_hora');
+
         return $results;
     }
 
     private function obtenerEntidad(string $modelo, $url)
     {
-        Log::channel('testing')->info('Log', ['Modelo...', $modelo]);
-        Log::channel('testing')->info('Log', ['url...', $url]);
+        // Log::channel('testing')->info('Log', ['Modelo...', $modelo]);
+        // Log::channel('testing')->info('Log', ['url...', $url]);
         $segmentos = explode('/', $url['path']);
         $endpoint = isset($segmentos[3]) ? $segmentos[3] : $segmentos[2];
-        Log::channel('testing')->info('Log', ['Endpoint ->...', $endpoint]);
+        // Log::channel('testing')->info('Log', ['Endpoint ->...', $endpoint]);
         // Log::channel('testing')->info('Log', ['url []...', $url['path']]);
         switch ($modelo) {
             case 'tareas':
@@ -183,14 +186,14 @@ class MaterialesService
 
         // Obtenemos la ruta de la URL
         $ruta = $parsedUrl['path'];
-        Log::channel('testing')->info('Log', compact('ruta'));
+        // Log::channel('testing')->info('Log', compact('ruta'));
 
         // Obtenemos el nombre del segmento deseado
         $ruta = explode('/', $ruta);
         // $longitud = count($ruta);
         // Log::channel('testing')->info('Log', ['longitud' => $longitud]);
         // Log::channel('testing')->info('Log', ['-> item' => $ruta[3]]);
-        Log::channel('testing')->info('Log', ['****' => '********************************']);
+        // Log::channel('testing')->info('Log', ['****' => '********************************']);
 
         // $segmento = $longitud > 3 ? $ruta[3] : $ruta[1]; // last(explode('/', $ruta));
         // Log::channel('testing')->info('Log', compact('segmento'));

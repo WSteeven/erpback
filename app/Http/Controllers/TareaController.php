@@ -39,9 +39,9 @@ class TareaController extends Controller
     {
         $this->tareaService = new TareaService();
         $this->paginationService = new PaginationService();
-    }
+    } // 96 - 102 // pregunta 90
 
-    public function listar()
+     public function listar()
     {
         $search = request('search');
         $paginate = request('paginate');
@@ -49,13 +49,17 @@ class TareaController extends Controller
         if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
 
-        $query = Tarea::search($search)->query(function ($q) {
-            $q->where('finalizado', request('finalizado'))->porRol();
-        });
+        if ($search) {
+            $query = Tarea::search($search)->query(function ($q) {
+                $q->where('finalizado', request('finalizado'))->porRol()->orderBy('id', 'desc');
+            });
+        } else {
+            $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol()->orderBy('id', 'desc');
+        }
 
         if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
         else return $query->get();
-    }
+    } 
 
     /*********
      * Listar
@@ -153,7 +157,7 @@ class TareaController extends Controller
         }
 
         return response()->json(compact('modelo', 'mensaje'));
-    }
+    } // 103 a 112 // pregunta 93
 
     /**
      * Eliminar

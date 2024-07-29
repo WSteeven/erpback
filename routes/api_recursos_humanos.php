@@ -85,6 +85,7 @@ Route::apiResources(
             'descuentos_generales' => 'descuento_general',
             'extension_cobertura_salud' => 'extension',
             'descuentos_ley' => 'descuento_ley',
+            'prestamo_empresarial' => 'prestamo',
             'prestamos_quirografarios' => 'prestamo',
             'permiso_empleado' => 'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
@@ -120,7 +121,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);
-    Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtener_prestamo_empleado']);
+    Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtenerPrestamoEmpleado']);
     Route::get('otener_saldo_empleado_mes', [SaldoGrupoController::class, 'otener_saldo_empleado_mes']);
     Route::get('imprimir_rol_pago/{rolPagoId}', [RolPagosController::class, 'imprimir_rol_pago']);
     Route::get('imprimir_rol_pago_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirRolPagoGeneral']);
