@@ -59,14 +59,10 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
                     $preguntas = Pregunta::select(['id', 'pregunta', 'codigo'])->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
                         $q->where('tipo_cuestionario_id', $tipo_cuestionario_id);
                     })->get();
-                    Log::channel('testing')->info('Log', compact('preguntas'));
-                    Log::channel('testing')->info('Log', ['count' => count($preguntas)]);
                     $codigos = self::CODIGOS_ALCOHOL_DROGAS;
 
                     if ($tipo_cuestionario_id == TipoCuestionario::CUESTIONARIO_DIAGNOSTICO_CONSUMO_DE_DROGAS) {
-                        Log::channel('testing')->info('Log', ['mensaje' => 'Dentro del if']);
                         $preguntas = $preguntas->map(function ($pregunta, $index) use ($codigos) {
-                            Log::channel('testing')->info('Log', ['index' => $index]);
                             $pregunta->codigo = $codigos[$index];
                             return $pregunta;
                         });
