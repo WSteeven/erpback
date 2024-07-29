@@ -96,19 +96,16 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
     public function imprimirCuestionarioFPSICO()
     {
         // Crear el contenido del archivo .txt
-        /*  $empleados = Empleado::habilitado()
-            ->where('salario', '!=', 0)
-            ->orderBy('apellidos', 'asc')
-            ->with('canton', 'area')
-            ->get(); */
         $tipo_cuestionario_id = request('tipo_cuestionario_id');
+        $fecha_inicio = Carbon::parse(request('fecha_inicio'))->startOfDay();
+        $fecha_fin = Carbon::parse(request('fecha_fin'))->endOfDay();
 
-        $personas = Persona::query()->tipoCuestionario($tipo_cuestionario_id)->orderBy('primer_apellido', 'asc')->get();
-        $empleados = $personas->filter(fn ($persona) => $persona->cuestionarioPublico()->whereYear('created_at', request('anio'))->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
+        $personas = Persona::query()->tipoCuestionario($tipo_cuestionario_id)->where('nombre_empresa', 'like', '%' . request('link') . '%')->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->orderBy('primer_apellido', 'asc')->get();
+        $personas = $personas->filter(fn ($persona) => $persona->cuestionarioPublico()->whereHas('cuestionario', function (Builder $q) use ($tipo_cuestionario_id) {
             $q->where('tipo_cuestionario_id', $tipo_cuestionario_id);
         })->exists());
 
-        $reportes_empaquetado = $this->empaquetarPsicosocial($empleados, request('fecha_inicio'), request('fecha_fin'), TipoCuestionario::CUESTIONARIO_PSICOSOCIAL);
+        $reportes_empaquetado = $this->empaquetarPsicosocial($personas, $fecha_inicio, $fecha_fin, TipoCuestionario::CUESTIONARIO_PSICOSOCIAL);
         $datos = CuestionarioPisicosocialService::mapear_datos($reportes_empaquetado);
         $contenido = "";
         $contenido .= "a. Género\n";
@@ -140,11 +137,11 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
         return Response::download($nombreArchivo)->deleteFileAfterSend(true);
     }
 
-    public function empaquetarPsicosocial($empleados, $fecha_inicio, $fecha_fin, int $tipo_cuestionario_id) // Recibe Collection Empleados
+    public function empaquetarPsicosocial($personas, $fecha_inicio, $fecha_fin, int $tipo_cuestionario_id) // Recibe Collection Personas
     {
         $results = [];
         $cont = 0;
-        foreach ($empleados as $result) {
+        foreach ($personas as $result) {
             $cuestionarios = $this->obtenerCuestionarios($result->id, $fecha_inicio, $fecha_fin, $tipo_cuestionario_id);
             $row['id'] =  $result->id;
             $row['empleado'] = Persona::extraerNombresApellidos($result);
@@ -183,7 +180,7 @@ class ReporteCuestionarioPublicoService extends ReporteCuestionarioAbstract
             $row['anio_nacimiento'] = Carbon::parse($persona->fecha_nacimiento)->format('Y');
             $row['tipo_afiliacion_seguridad_social'] = '';
             $row['estado_civil'] = $persona->estadoCivil->nombre;
-            $row['genero'] = in_array($persona->genero, ['M', 'MASCULINO']) ? 'MASCULINO' : 'FEMENINO';
+            $row['genero'] = (in_array($persona->genero, ['M', 'MASCULINO']) ? 'MASCULINO' : ($persona->genero == 'OTROS' ? 'OTROS' : 'FEMENINO'));
             $row['nivel_academico'] = $persona->nivel_academico;
             $row['numero_hijos'] = $persona->numero_hijos ?? '0';
             $row['autoidentificacion_etnica'] = $persona->autoidentificacion_etnica ?? 'MESTIZO';
