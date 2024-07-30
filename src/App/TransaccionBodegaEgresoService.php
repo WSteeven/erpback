@@ -30,18 +30,18 @@ class TransaccionBodegaEgresoService
         $detalle_producto_id = request('detalle_producto_id');
 
         // Egresos completos
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        /* $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)
+        $transacciones = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)
             ->where(function ($query) {
                 $query->whereHas('comprobante', function ($q) {
                     $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
-                })->orWhereDoesntHave('comprobante');
+                }); // ->orWhereDoesntHave('comprobante');
             })->where('autorizacion_id', Autorizaciones::APROBADO)
             ->where('responsable_id', $responsable_id)
-            ->orderBy('id', 'desc')->get();
+            ->orderBy('id', 'desc')->get(); */
 
-        return $results;
+        // return $transacciones;
     }
 
     public static function listar($request, $paginate = false)

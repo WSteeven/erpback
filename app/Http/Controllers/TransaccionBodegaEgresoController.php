@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Events\TransaccionEgresoEvent;
 use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
+use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Cliente;
@@ -55,20 +56,6 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.crear.transacciones_egresos')->only('store');
         $this->middleware('can:puede.editar.transacciones_egresos')->only('update');
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
-    }
-
-    public function obtenerEgresos(Request $request)
-    {
-        // Log::channel('testing')->info('Log', ['Dentro de obtener egresos']);
-
-        /*$ee = request()->validate([
-            'responsable_id' => 'required|numeric|integer|exists:empleados,id',
-            'detalle_producto_id' => 'required|numeric|integer|exists:detalles_productos,id',
-        ]);*/
-
-        $results = $this->servicio->obtenerEgresos();
-        $results = TransaccionBodegaResource::collection($results);
-        return response()->json(compact('results')); 
     }
 
     // Stock personal: solo materiales excepto bobinas

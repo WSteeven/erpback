@@ -47,6 +47,7 @@ trait UppercaseValuesTrait
         }
 
         if ($key === 'fotografia' && is_string($value)) $this->attributes[$key] = trim($value);
+        if ($key === 'fotografia_detallada' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'evidencia1' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'evidencia2' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'logo_url' && is_string($value)) $this->attributes[$key] = trim($value);

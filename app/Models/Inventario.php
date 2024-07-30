@@ -101,6 +101,7 @@ class Inventario extends Model implements Auditable
     {
         return $this->hasMany(MovimientoProducto::class);
     }
+    
     /**
      * Relacion uno a muchos (inversa)
      * Muchos inventarios tienen un mismo detalle

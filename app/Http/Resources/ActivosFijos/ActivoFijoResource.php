@@ -3,6 +3,7 @@
 namespace App\Http\Resources\ActivosFijos;
 
 use App\Http\Resources\Bodega\PermisoArmaResource;
+use App\Http\Resources\DetalleProductoResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ActivoFijoResource extends JsonResource
@@ -22,10 +23,8 @@ class ActivoFijoResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'codigo_inventario' => 'AF' . $this->id, // PENDIENTE
-            'descripcion' => $detalleProducto->descripcion,
-            'serie' => $detalleProducto->serial,
-            'fecha_caducidad' => $this->fecha_caducidad,
-            'unidad_medida' => $detalleProducto->producto->unidadMedida->nombre,
+            'detalle_producto' => new DetalleProductoResource($detalleProducto),
+            'cliente' => $this->cliente->nombre,
             'egresos' => $this->egresos,
             'etiqueta_personalizada' => $this->etiqueta_personalizada,
         ];
@@ -35,6 +34,7 @@ class ActivoFijoResource extends JsonResource
             $modelo['marca'] = $detalleProducto->marca?->nombre;
             $modelo['modelo'] = $detalleProducto->modelo?->nombre;
             $modelo['calibre'] = $detalleProducto->calibre;
+            $modelo['cliente'] = $this->cliente_id;
             $modelo['fotografia'] = $detalleProducto->fotografia ? url($detalleProducto->fotografia) : null;
             $modelo['fotografia_detallada'] = $detalleProducto->fotografia_detallada ? url($detalleProducto->fotografia_detallada) : null;
             $modelo['permiso_arma'] = new PermisoArmaResource($this->detalleProducto->permisoArma);

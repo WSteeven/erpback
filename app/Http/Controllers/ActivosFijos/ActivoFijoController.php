@@ -4,19 +4,23 @@ namespace App\Http\Controllers\ActivosFijos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ActivosFijos\ActivoFijoResource;
+use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Models\ActivosFijos\ActivoFijo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
 
 class ActivoFijoController extends Controller
 {
-    private $entidad = 'Tarea';
+    private $entidad = 'Activo fijo';
     protected PaginationService $paginationService;
 
     public function __construct()
     {
         $this->paginationService = new PaginationService();
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -79,5 +83,14 @@ class ActivoFijoController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function entregas(Request $request)
+    {
+        $inventarioService = new InventarioService();
+        $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now());
+        $results = collect($transacciones['results'])->filter(fn ($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'])->values();
+        $results = EntregaActivoFijoResource::collection($results);
+        return response()->json(compact('results'));
     }
 }

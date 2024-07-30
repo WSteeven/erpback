@@ -45,9 +45,9 @@ enum RutasStorage: string
     case NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/novedades_ventas_claro';
     case NOVEDADES_ORDENES_COMPRAS  = 'public/novedades_ordenes_compras';
 
-    /**
+    /***********************
      * MODULO DE VEHICULOS
-     */
+     ***********************/
     case VEHICULOS = 'public/vehiculos/';
     case PREINGRESOS  = 'public/preingresos/archivos';
     case FOTOGRAFIAS_ITEMS_PREINGRESOS  = 'public/fotografias_preingresos';
@@ -59,8 +59,16 @@ enum RutasStorage: string
     case EVIDENCIAS_TANQUEOS_COMBUSTIBLES = 'public/vehiculos/evidencias_tanqueo_combustible';
     case EVIDENCIAS_VEHICULOS_ASIGNADOS = 'public/vehiculos/evidencias_vehiculos_asignados/';
     case EVIDENCIAS_VEHICULOS_TRANSFERIDOS = 'public/vehiculos/evidencias_vehiculos_transferidos/';
-    // Medico
+
+    /**********
+     * Medico
+     **********/
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
     case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';
     case SOLICITUD_EXAMEN  = 'public/solicitudes_examenes/archivos';
+
+    /**********
+     * Bodega
+     **********/
+    case FOTOGRAFIAS_DETALLE_PRODUCTO  = 'public/bodega/fotografiasDetalleProducto';
 }

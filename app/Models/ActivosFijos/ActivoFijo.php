@@ -2,6 +2,7 @@
 
 namespace App\Models\ActivosFijos;
 
+use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,11 @@ class ActivoFijo extends Model implements Auditable
     public function detalleProducto()
     {
         return $this->belongsTo(DetalleProducto::class, 'detalle_producto_id', 'id');
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 
     /*************

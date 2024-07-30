@@ -17,5 +17,4 @@ Route::apiResources(
     ]
 );
 
-Route::get('egresos', [TransaccionBodegaEgresoController::class, 'obtenerEgresos']);
-Route::get('ingresos', [TransaccionBodegaIngresoController::class, 'obtenerIngresos']);
+Route::get('entregas', [ActivoFijoController::class, 'entregas']);

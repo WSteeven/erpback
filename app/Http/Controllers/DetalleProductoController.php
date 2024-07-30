@@ -121,7 +121,7 @@ class DetalleProductoController extends Controller
             $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
             $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
             if (count($request->seriales) > 0) {
-                Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
+                // Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
                 foreach ($request->seriales as $item) {
                     Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
                     //aqui se pondria la siguiente linea
@@ -138,7 +138,7 @@ class DetalleProductoController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage() . $e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));

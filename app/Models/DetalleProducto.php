@@ -15,6 +15,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 
 class DetalleProducto extends Model implements Auditable
 {
@@ -57,7 +59,9 @@ class DetalleProducto extends Model implements Auditable
         'url_imagen',
         'es_fibra',
         'esActivo',
-
+        'fecha_caducidad',
+        'fotografia',
+        'fotografia_detallada',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -104,8 +108,9 @@ class DetalleProducto extends Model implements Auditable
         return $this->hasMany(Inventario::class, 'detalle_id');
     }
 
-    public function permisoArma(){
-        return $this->hasOne(PermisoArma::class, 'id','permiso_id');
+    public function permisoArma()
+    {
+        return $this->hasOne(PermisoArma::class, 'id', 'permiso_id');
     }
 
     public function itemsPreingresos()
@@ -289,6 +294,9 @@ class DetalleProducto extends Model implements Auditable
         Log::channel('testing')->info('Log', ['Lo que se recibe para crear:', $request, $datos]);
         try {
             DB::beginTransaction();
+
+            if (isset($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            if (isset($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
 
             $detalle = DetalleProducto::create($datos);
             if ($request->categoria === 'INFORMATICA') {

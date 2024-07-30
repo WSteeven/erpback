@@ -79,8 +79,10 @@ class DetalleProductoResource extends JsonResource
             Log::channel('testing')->info('Log', ['Entró aquí']);
             $modelo['producto'] = $this->producto_id;
             $modelo['marca'] = $this->modelo->marca_id;
+            $modelo['nombre_marca'] = $this->modelo->marca->nombre;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['modelo_id'] = $this->modelo->nombre;
+            $modelo['nombre_modelo'] = $this->modelo->nombre;
             $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
             $modelo['tipo_fibra'] =  $this->fibra ? $this->fibra->tipo_fibra_id : null;
             $modelo['hilos'] = $this->fibra ? $this->fibra->hilo_id : null;
@@ -88,6 +90,8 @@ class DetalleProductoResource extends JsonResource
             $modelo['disco'] = $this->computadora ? $this->computadora->disco->id : null;
             $modelo['procesador'] = $this->computadora ? $this->computadora->procesador->id : null;
             $modelo['permiso_id'] = $this->permiso_id;
+            $modelo['fotografia'] = $this->fotografia ? url($this->fotografia) : null;
+            $modelo['fotografia_detallada'] = $this->fotografia_detallada ? url($this->fotografia_detallada) : null;
         }
         return $modelo;
     }

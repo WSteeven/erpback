@@ -60,6 +60,10 @@ class DetalleProductoRequest extends FormRequest
             'es_fibra' => 'boolean',
             'esActivo' => 'boolean',
             'tipo' => ['sometimes', 'nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
+
+            'fecha_caducidad' => 'nullable|date_format:Y-m-d',
+            'fotografia' => 'nullable|string',
+            'fotografia_detallada' => 'nullable|string',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

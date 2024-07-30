@@ -200,6 +200,8 @@ class InventarioController extends Controller
 
     public function kardex(Request $request)
     {
+        return $this->servicio->kardex($request['detalle_id'], $request['fecha_inicio'], $request['fecha_fin'], $request['tipo_rpt'], $request['sucursal_id']);
+
         // Log::channel('testing')->info('Log', ['Request kardex', $request->all()]);
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
