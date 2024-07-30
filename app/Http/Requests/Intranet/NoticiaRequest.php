@@ -28,7 +28,7 @@ class NoticiaRequest extends FormRequest
             'descripcion'=>'required|string',
             'autor_id'=>'required|exists:empleados,id',
             'categoria_id'=>'required|exists:empleados,id',
-            'etiquetas'=>'required|string',
+            'etiquetas'=>'sometimes|nullable|string',
             'imagen_noticia'=>'required|string',
             'fecha_vencimiento'=>'required|string',
         ];

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Database\Seeders\Intranet\CategoriaSeeder;
 use Database\Seeders\Intranet\EtiquetasSeeder;
+use Database\Seeders\Intranet\PermisosModuloIntranetSeeder;
 use Database\Seeders\Intranet\TipoEventoSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -22,6 +23,7 @@ class ModuloIntranetSeeder extends Seeder
             CategoriaSeeder::class,
             EtiquetasSeeder::class,
             TipoEventoSeeder::class,
+            PermisosModuloIntranetSeeder::class,
         ]);
     }
 }

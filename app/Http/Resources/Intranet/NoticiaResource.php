@@ -27,15 +27,14 @@ class NoticiaResource extends JsonResource
             'autor' => Empleado::extraerNombresApellidos($this->autor),
             'categoria_id' => $this->categoria_id,
             'categoria' => $this->categoria->nombre,
-//            'etiquetas'=>array_map('intval', Utils::convertirStringComasArray($this->etiquetas)),
-            'etiquetas' => Etiqueta::whereIn('id', Utils::convertirStringComasArray($this->etiquetas))->pluck('nombre'),
+            'etiquetas' => $this->etiquetas ? Etiqueta::whereIn('id', Utils::convertirStringComasArray($this->etiquetas))->pluck('nombre') : [],
             'imagen_noticia' => url($this->imagen_noticia) ?? null,
             'fecha_vencimiento' => $this->fecha_vencimiento,
         ];
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {
             $modelo['categoria'] = $this->categoria_id;
-            $modelo['etiquetas'] = Etiqueta::whereIn('id', Utils::convertirStringComasArray($this->etiquetas))->pluck('nombre');
+            $modelo['etiquetas'] = $this->etiquetas ? array_map('intval', Utils::convertirStringComasArray($this->etiquetas)) : [];
         }
 
         return $modelo;
