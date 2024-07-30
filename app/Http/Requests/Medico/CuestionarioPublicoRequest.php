@@ -42,7 +42,7 @@ class CuestionarioPublicoRequest extends FormRequest
             'persona.ruc' => 'nullable|string',
             'persona.cargo' => 'nullable|string',
             'persona.identificacion' => 'nullable|string',
-            'persona.fecha_nacimiento' => 'nullable|string',
+            'persona.fecha_nacimiento' => 'nullable|string|date_format:Y-m-d',
             'persona.tipo_afiliacion_seguridad_social' => 'nullable|string',
             'persona.nivel_instruccion' => 'nullable|string',
             'persona.numero_hijos' => 'nullable|numeric|integer',
@@ -65,7 +65,15 @@ class CuestionarioPublicoRequest extends FormRequest
                 'estado_civil_id' => $this->persona['estado_civil'] ?? null,
                 'provincia_id' => $this->persona['provincia'] ?? null,
                 'canton_id' => $this->persona['canton'] ?? null,
+                'enfermedades_preexistentes' => isset($this->persona['enfermedades_preexistentes']) ? implode(', ', $this->persona['enfermedades_preexistentes'] ?? null) : '',
             ]),
         ]);
+    }
+
+    public function messages()
+    {
+        return [
+            'persona.fecha_nacimiento' => 'La fecha debe cumplir el formato YYYY-MM-DD (2000-04-16).'
+        ];
     }
 }

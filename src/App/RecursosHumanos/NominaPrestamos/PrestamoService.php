@@ -5,7 +5,7 @@ namespace Src\App\RecursosHumanos\NominaPrestamos;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -86,7 +86,7 @@ class PrestamoService
     public function prestamosQuirografarios($todos = false, $pluck = false)
     {
         $mes_convertido = Carbon::createFromFormat('Y-m', $this->mes)->format('m-Y');
-        $query = $this->query(PrestamoQuirorafario::where('mes', $mes_convertido), $todos);
+        $query = $this->query(PrestamoQuirografario::where('mes', $mes_convertido), $todos);
         return $this->getPrestamos($query, $todos, $pluck);
     }
 

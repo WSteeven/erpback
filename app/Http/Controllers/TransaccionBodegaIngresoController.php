@@ -12,15 +12,10 @@ use App\Models\Condicion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
-use App\Models\Devolucion;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
-use App\Models\MaterialEmpleado;
-use App\Models\MaterialEmpleadoTarea;
-use App\Models\Motivo;
 use App\Models\Producto;
-use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\Transferencia;
 use App\Models\User;
@@ -32,13 +27,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaIngresoService;
-use Src\Config\ClientesCorporativos;
 use Src\Shared\Utils;
+use Throwable;
 
 class TransaccionBodegaIngresoController extends Controller
 {
-    private $entidad = 'Transacción';
+    private string $entidad = 'Transacción';
     private TransaccionBodegaIngresoService $servicio;
+
     public function __construct()
     {
         $this->servicio = new TransaccionBodegaIngresoService();
@@ -54,34 +50,33 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['request', $request->paginate, $request->all()]);
-        $estado = $request['estado'];
+        // Log::channel('testing')->info('Log', ['request', $request->paginate, $request->all()]);
         $results = $this->servicio->listar(null, null, $request->paginate);
-        $results = TransaccionBodegaResource::collection($results);
-        return $results;
+        return TransaccionBodegaResource::collection($results);
         // return response()->json(compact('results'));
     }
 
     /**
      * Guardar
+     * @throws Throwable
      */
     public function store(TransaccionBodegaRequest $request)
     {
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
-            try {
+        try {
+            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
                 $datos = $request->validated();
                 DB::beginTransaction();
-                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-                $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-                $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
-                $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-                $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-                $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-                $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-                $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-                if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-                $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-                $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
+                //                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
+                //                $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+                //                $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
+                //                $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+                //                $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+                //                $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+                //                $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+                //                $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+                //                if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+                //                $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+                //                $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
                 // Crear la transaccion
                 $transaccion = TransaccionBodega::create($datos);
@@ -93,15 +88,15 @@ class TransaccionBodegaIngresoController extends Controller
                         $producto = Producto::where('nombre', $listado['producto'])->first();
                         $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
                         if ($listado['serial'] != null) $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
-                        TransaccionBodega::activarDetalle($detalle); //Aquí se activa el ítem del detalle 
-                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $request->condicion)->where('sucursal_id', $request->sucursal)->where('cliente_id', $request->cliente)->first();
-                        if (!$itemInventario) {
+                        TransaccionBodega::activarDetalle($detalle); //Aquí se activa el ítem del detalle
+                        $item_inventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $request->condicion)->where('sucursal_id', $request->sucursal)->where('cliente_id', $request->cliente)->first();
+                        if (!$item_inventario) {
                             $fila = Inventario::estructurarItem($detalle->id, $request->sucursal, $request->cliente, $request->condicion, $listado['cantidad']);
-                            $itemInventario = Inventario::create($fila);
+                            $item_inventario = Inventario::create($fila);
                         } else {
-                            $itemInventario->update(['cantidad' => $itemInventario->cantidad + $listado['cantidad']]);
+                            $item_inventario->update(['cantidad' => $item_inventario->cantidad + $listado['cantidad']]);
                         }
-                        $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad'],]);
+                        $transaccion->items()->attach($item_inventario->id, ['cantidad_inicial' => $listado['cantidad'],]);
 
                         //cuando se produce una devolucion de tarea se resta el material del stock de tarea del empleado
                         if ($transaccion->devolucion_id) {
@@ -118,16 +113,15 @@ class TransaccionBodegaIngresoController extends Controller
                         if ($listado['serial'] != null) $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
                         // $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
                         // $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
-                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
-                        if ($itemInventario) {
-                            $itemInventario->cantidad = $itemInventario->cantidad + $listado['cantidad'];
-                            $itemInventario->save();
-                            $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+                        $item_inventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
+                        if ($item_inventario) {
+                            $item_inventario->cantidad = $item_inventario->cantidad + $listado['cantidad'];
+                            $item_inventario->save();
                         } else {
                             $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $condicion->id, $listado['cantidad']);
-                            $itemInventario = Inventario::create($fila);
-                            $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+                            $item_inventario = Inventario::create($fila);
                         }
+                        $transaccion->items()->attach($item_inventario->id, ['cantidad_inicial' => $listado['cantidad']]);
 
                         if ($transaccion->devolucion_id) {
                             $this->servicio->actualizarDevolucion($transaccion, $detalle, $listado['cantidad']);
@@ -135,7 +129,6 @@ class TransaccionBodegaIngresoController extends Controller
                         }
                     }
                 }
-
 
 
                 //se entiende que si hay un ingreso por transferencia es porque la transferencia llegó a su destino,
@@ -159,15 +152,14 @@ class TransaccionBodegaIngresoController extends Controller
 
                 $modelo = new TransaccionBodegaResource($transaccion);
                 $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            } catch (Exception $e) {
-                DB::rollBack();
-                Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
-                throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
-                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
-            }
 
-            return response()->json(compact('mensaje', 'modelo'));
-        } else return response()->json(compact('Este usuario no puede realizar ingreso de materiales'), 421);
+                return response()->json(compact('mensaje', 'modelo'));
+            } else throw new Exception('Este usuario no puede realizar ingreso de materiales');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
+        }
     }
 
     /**
@@ -187,24 +179,24 @@ class TransaccionBodegaIngresoController extends Controller
     {
         $datos = $request->validated();
         // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
-        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+        //        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
+        //        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+        //        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+        //        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        //        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+        //        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
         //datos de las relaciones muchos a muchos
-        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+        //        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+        //        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
         //Comprobar si hay tarea
-        if ($request->tarea) {
-            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-        }
+        //        if ($request->tarea) {
+        //            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+        //        }
         //Comprobar si hay subtarea
-        if ($request->subtarea) {
-            $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-        }
+        //        if ($request->subtarea) {
+        //            $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        //        }
 
         if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
             try {
@@ -254,23 +246,24 @@ class TransaccionBodegaIngresoController extends Controller
 
     /**
      * Anular una transacción de ingreso y revertir el stock del inventario
+     * @throws Throwable
      */
     public function anular(TransaccionBodega $transaccion)
     {
         // Log::channel('testing')->info('Log', ['Estamos en el metodo de anular el ingreso']);
-        $estadoAnulado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
-        if ($transaccion->estado_id !== $estadoAnulado->id) {
+        $estado_anulado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
+        if ($transaccion->estado_id !== $estado_anulado->id) {
             try {
                 DB::beginTransaction();
                 $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
                 foreach ($detalles as $detalle) {
-                    $itemInventario = Inventario::find($detalle['inventario_id']);
-                    $itemInventario->cantidad -= $detalle['cantidad_inicial'];
-                    $itemInventario->save();
-                    if ($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
+                    $item_inventario = Inventario::find($detalle['inventario_id']);
+                    $item_inventario->cantidad -= $detalle['cantidad_inicial'];
+                    $item_inventario->save();
+                    if ($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $item_inventario->detalle_id, $detalle['cantidad_inicial']);
                 }
 
-                $transaccion->estado_id = $estadoAnulado->id;
+                $transaccion->estado_id = $estado_anulado->id;
                 $transaccion->save();
                 DB::commit();
                 $mensaje = 'Transacción anulada correctamente';
@@ -296,12 +289,13 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function showPreview(TransaccionBodega $transaccion)
     {
-        $detalles = TransaccionBodega::listadoProductos($transaccion->id);
+        //        $detalles = TransaccionBodega::listadoProductos($transaccion->id);
 
         $modelo = new TransaccionBodegaResource($transaccion);
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
+
     /**
      * Imprimir
      */
@@ -316,18 +310,18 @@ class TransaccionBodegaIngresoController extends Controller
             // Log::channel('testing')->info('Log', ['ingreso a imprimir', ['transaccion' => $resource->resolve(), 'persona_entrega' => $persona_entrega, 'persona_atiende' => $persona_atiende, 'cliente' => $cliente]]);
             $transaccion = $resource->resolve();
             // Log::channel('testing')->info('Log', ['resource a imprimir', $transaccion]);
-            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductos($transaccion['id']);;
+            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductos($transaccion['id']);
             // Log::channel('testing')->info('Log', ['resource a completo', $transaccion]);
             $pdf = Pdf::loadView('ingresos.ingreso', compact(['transaccion', 'persona_entrega', 'persona_atiende', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
-            $file = $pdf->output();
-            $filename = 'ingreso_' . $resource->id . '_' . time() . '.pdf';
-            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'ingresos' . DIRECTORY_SEPARATOR . $filename;
+            //            $filename = 'ingreso_' . $transaccion['id'] . '_' . time() . '.pdf';
+            //            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'ingresos' . DIRECTORY_SEPARATOR . $filename;
             // file_put_contents($ruta, $file); //en caso de que se quiera guardar el documento en el backend
-            return $file;
+            return $pdf->output();
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
 
@@ -339,7 +333,6 @@ class TransaccionBodegaIngresoController extends Controller
         // Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         $configuracion = ConfiguracionGeneral::first();
         $results = [];
-        $registros = [];
         switch ($request->accion) {
             case 'excel':
                 Log::channel('testing')->info('Log', ['Entró en excel']);
@@ -347,7 +340,6 @@ class TransaccionBodegaIngresoController extends Controller
                 $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
                 //imprimir el excel
                 return Excel::download(new TransaccionBodegaIngresoExport(collect($registros)), 'reporte.xlsx');
-                break;
             case 'pdf':
                 Log::channel('testing')->info('Log', ['Entró en pdf']);
                 try {

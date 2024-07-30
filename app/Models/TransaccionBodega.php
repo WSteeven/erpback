@@ -6,18 +6,22 @@ use App\Events\PedidoCreadoEvent;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\Config\MotivosTransaccionesBodega;
+use Throwable;
 
 class TransaccionBodega extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
     use Filterable;
+    use Searchable;
 
     const PENDIENTE = 'PENDIENTE';
     const ACEPTADA = 'ACEPTADA';
@@ -54,8 +58,18 @@ class TransaccionBodega extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'justificacion' => $this->justificacion,
+            'devolucion_id'=>$this->devolucion_id,
+            'pedido_id'=>$this->pedido_id,
+            'transferencia_id'=>$this->transferencia_id,
+        ];
+    }
 
     /**
      * ______________________________________________________________________________________
@@ -90,14 +104,6 @@ class TransaccionBodega extends Model implements Auditable
             ->orderByPivot('created_at', 'desc');
     } */
 
-    /* Una transaccion tiene varios estados durante su ciclo de vida */
-    /* public function estados()
-    {
-        return $this->belongsToMany(EstadoTransaccion::class, 'tiempo_estado_transaccion', 'transaccion_id', 'estado_id')
-            ->withPivot('observacion')
-            ->withTimestamps()
-            ->orderByPivot('created_at', 'desc');
-    } */
 
     //Una transaccion tiene varios productos solicitados
     public function items()
@@ -106,6 +112,7 @@ class TransaccionBodega extends Model implements Auditable
             ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
+
     /**
      * Relación uno a muchos.
      * Una transaccion tiene varios detalle_producto_transaccion.
@@ -114,11 +121,13 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->hasMany(DetalleProductoTransaccion::class, 'id');
     }
+
     /* Una o varias transacciones tienen un solo motivo*/
     public function motivo()
     {
         return $this->belongsTo(Motivo::class);
     }
+
     /**
      * Relación uno a muchos(inversa).
      * Una transacción de EGRESO pertenece a una o ninguna tarea
@@ -136,6 +145,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(TipoTransaccion::class);
     }
+
     /**
      * Relacion uno a uno(inversa)
      * Una o varias transacciones pertenecen a una sucursal
@@ -162,6 +172,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
+
     /**
      * Relacion uno a muchos (inversa).
      * Una y solo una persona puede autorizar la transaccion
@@ -188,6 +199,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
     }
+
     /**
      * Relacion uno a muchos (inversa).
      * Una y solo una persona puede autorizar la transaccion
@@ -196,6 +208,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
+
     /**
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a un pedido.
@@ -204,6 +217,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Pedido::class, 'pedido_id', 'id');
     }
+
     /**
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a una devolución.
@@ -212,6 +226,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Devolucion::class);
     }
+
     /**
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a una transferencia.
@@ -238,6 +253,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
+
     public function latestNotificacion()
     {
         return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
@@ -260,9 +276,9 @@ class TransaccionBodega extends Model implements Auditable
      * the items dispatched, then it returns an array with the data.
      * </code>
      *
-     * @param id The id of the transaction
+     * @param int $id The id of the transaction
      *
-     * @return <code>{
+     * @return array <code>{</code>
      *     "id": 1,
      *     "producto": "CAMARA",
      *     "detalle_id": 1,
@@ -271,14 +287,14 @@ class TransaccionBodega extends Model implements Auditable
      *     "condiciones": "BUENO",
      *     "cantidad": 1,
      */
-    public static function listadoProductos($id)
+    public static function listadoProductos(int $id)
     {
         $items = TransaccionBodega::find($id)->items()->get();
         $results = [];
         $id = 0;
         $row = [];
         foreach ($items as $item) {
-            $detalleProductoTransaccion = DetalleProductoTransaccion::withSum('devoluciones', 'cantidad')
+            $detalle_producto_transaccion = DetalleProductoTransaccion::withSum('devoluciones', 'cantidad')
                 ->where('transaccion_id', $item->pivot->transaccion_id)
                 ->where('inventario_id', $item->pivot->inventario_id)->first();
             $row['id'] = $item->id;
@@ -292,7 +308,7 @@ class TransaccionBodega extends Model implements Auditable
             $row['recibido'] = $item->pivot->recibido;
             $row['pendiente'] = $item->pivot->cantidad_inicial - $item->pivot->recibido;
             $row['despachado'] = $item->pivot->cantidad_final;
-            $row['devuelto'] = $detalleProductoTransaccion->devoluciones_sum_cantidad;
+            $row['devuelto'] = $detalle_producto_transaccion->devoluciones_sum_cantidad;
             $results[$id] = $row;
             $id++;
         }
@@ -300,52 +316,33 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
-    /**
-     * It takes an array of objects, and returns an array of objects
-     *
-     * @param results
-     *
-     * @return <code>array:1 [▼
-     *   0 =&gt; array:2 [▼
-     *     "id" =&gt; 1
-     *     "detalles" =&gt; array:1 [▼
-     *       0 =&gt; array:2 [▼
-     *         "id" =&gt; 1
-     *         "producto"
-     */
-    public static function listadoProductosTarea($results)
-    {
-        $listado = [];
-        $id = 0;
-        $row = [];
-        foreach ($results as $result) {
-            foreach ($result->detalles as $detalle) {
-            }
-        }
 
-        return $listado;
-    }
+
 
     // Registro de materiales despachados en materiales_empleado_tarea
+
+    /**
+     * @throws Throwable
+     */
     public static function asignarMateriales(TransaccionBodega $transaccion)
     {
         try {
             DB::beginTransaction();
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
-                $detalleTransaccion = DetalleProductoTransaccion::find($detalle['id']);
+                $detalle_transaccion = DetalleProductoTransaccion::find($detalle['id']);
                 if ($detalle) {
-                    $valor = $detalleTransaccion->cantidad_inicial - $detalleTransaccion->recibido;
-                    $detalleTransaccion->recibido += $valor;
-                    $detalleTransaccion->save();
-                    $itemInventario = Inventario::find($detalle['inventario_id']); 
+                    $valor = $detalle_transaccion->cantidad_inicial - $detalle_transaccion->recibido;
+                    $detalle_transaccion->recibido += $valor;
+                    $detalle_transaccion->save();
+                    $item_inventario = Inventario::find($detalle['inventario_id']);
 
                     // Si es material para tarea
                     if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($item_inventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
                     } else {
                         // Stock personal
-                        MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
+                        MaterialEmpleado::cargarMaterialEmpleado($item_inventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
                     }
                 } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }
@@ -358,9 +355,9 @@ class TransaccionBodega extends Model implements Auditable
 
     public static function restarDespachoPedido($pedido_id, $detalle_id, $cantidad)
     {
-        $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido_id)->where('detalle_id', $detalle_id)->first();
-        $detallePedido->despachado -= $cantidad;
-        $detallePedido->save();
+        $detalle_pedido = DetallePedidoProducto::where('pedido_id', $pedido_id)->where('detalle_id', $detalle_id)->first();
+        $detalle_pedido->despachado -= $cantidad;
+        $detalle_pedido->save();
     }
 
     /**
@@ -370,49 +367,48 @@ class TransaccionBodega extends Model implements Auditable
     {
         Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
         $url_pedido = '/pedidos';
-        $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
-        $detallePedido = [];
+        $estado_completa = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $estado_parcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             // Log::channel('testing')->info('Log', ['Detalles despachados en el egreso son: ', $detalles]);
             foreach ($detalles as $detalle) { //filtra los detalles que se despacharon en el egreso
-                $itemInventario = Inventario::find($detalle['inventario_id']);
-                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $itemInventario]);
-                $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
-                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detallePedido]);
-                if ($detallePedido) {
-                    $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
-                    $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
+                $item_inventario = Inventario::find($detalle['inventario_id']);
+                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $item_inventario]);
+                $detalle_pedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $item_inventario->detalle_id)->first();
+                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detalle_pedido]);
+                if ($detalle_pedido) {
+                    $detalle_pedido->despachado = $detalle_pedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
+                    $detalle_pedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
                 } else {
-                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detallePedido]);
-                    // $d = DetalleProducto::find($itemInventario->detalle_id); //detalle producto completo para obtener el producto_id y encontrar los otros detalles relacionados a dicho producto_id
+                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detalle_pedido]);
+
                     // Log::channel('testing')->info('Log', ['DetalleProducto: ', $d]);
                     // $ids_detalles = DetalleProducto::where('producto_id', $d->producto_id)->get('id'); //ids relacionados que pertenecen al mismo producto_id
                     // Log::channel('testing')->info('Log', ['Todos los DetalleProductos hermanos del detalle despachado: ', DetalleProducto::where('producto_id', $d->producto_id)->get()]);
 
-                    $detallePedido = DetallePedidoProducto::create([
-                        'detalle_id' => $itemInventario->detalle_id,
+                    $detalle_pedido = DetallePedidoProducto::create([
+                        'detalle_id' => $item_inventario->detalle_id,
                         'pedido_id' => $pedido->id,
                         'cantidad' => $detalle['cantidad_inicial'],
-                        'despachado' =>  $detalle['cantidad_inicial'],
+                        'despachado' => $detalle['cantidad_inicial'],
                         'solicitante_id' => auth()->user()->empleado->id
                     ]);
 
                     // $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
-                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detallePedido]);
+                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detalle_pedido]);
                     // $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
                     // $detallePedido->save();
                 }
             }
 
             //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial //ojo con esto porque no se está ejecutando en el flujo correcto, primero se ejecuta esto y luego el observer; y debe ser al contrario.
-            if ($pedido->estado_id === $estadoCompleta->id) {
+            if ($pedido->estado_id === $estado_completa->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega y está completado';
                 event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
-            if ($pedido->estado_id === $estadoParcial->id) {
+            if ($pedido->estado_id === $estado_parcial->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
                 event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
@@ -426,21 +422,16 @@ class TransaccionBodega extends Model implements Auditable
      * This function verifies if a given reason for a material transaction matches the specified type
      * and ID.
      *
-     * @param id The ID of the motivo (reason) to be verified.
-     * @param tipo The "tipo" parameter is a variable that represents the type of transaction being
-     * performed. It is used to filter the "Motivo" model to find a specific reason for the
-     * transaction.
-     * @param motivo The "motivo" parameter is a string that represents the reason or cause for a
-     * transaction. In this function, it is used to search for a specific "Motivo" object in the
-     * database that matches the given name and transaction type.
-     *
-     * @return a boolean value indicating whether the id parameter matches the id of the Motivo object
+     * @param int $id
+     * @param int $tipo
+     * @param string|MotivosTransaccionesBodega $motivo
+     * @return bool boolean value indicating whether the id parameter matches the id of the Motivo object
      * that has the given nombre and tipo_transaccion_id parameters.
      */
-    public static function verificarEgresoLiquidacionMateriales($id, $tipo, $motivo)
+    public static function verificarEgresoLiquidacionMateriales(int $id, int $tipo, string|MotivosTransaccionesBodega $motivo)
     {
-        $motivoSeleccionado = Motivo::where('nombre', $motivo)->where('tipo_transaccion_id', $tipo)->first();
-        return $motivoSeleccionado->id === $id;
+        $motivo_seleccionado = Motivo::where('nombre', $motivo)->where('tipo_transaccion_id', $tipo)->first();
+        return $motivo_seleccionado->id === $id;
     }
 
     /**
@@ -453,10 +444,10 @@ class TransaccionBodega extends Model implements Auditable
      * @return boolean Si la variable transacción no es nula devolverá verdadero. De lo
      * contrario, devolverá falso.
      */
-    public static function verificarTransferenciaEnEgreso($id, $transferencia_id)
+    public static function verificarTransferenciaEnEgreso(int $id, int $transferencia_id)
     {
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
-        $ids_motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $ids_motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         $transaccion = TransaccionBodega::whereIn('motivo_id', $ids_motivos)->where('id', '<>', $id)->where('transferencia_id', $transferencia_id)->first();
         if ($transaccion) return true;
         else return false;
@@ -473,7 +464,7 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function verificarMotivosEgreso(int $id)
     {
-        $motivosDeEgresoQueNoGeneranComprobante = [
+        $motivos_egreso_no_generan_comprobante = [
             ['id' => 15, 'nombre' => 'VENTA'],
             ['id' => 18, 'nombre' => 'DESTRUCCION'],
             ['id' => 23, 'nombre' => 'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
@@ -481,7 +472,7 @@ class TransaccionBodega extends Model implements Auditable
             ['id' => 25, 'nombre' => 'AJUSTE DE EGRESO POR REGULARIZACION'],
             ['id' => 28, 'nombre' => 'ROBO'],
         ];
-        $ids_motivos = array_column($motivosDeEgresoQueNoGeneranComprobante, 'id');
+        $ids_motivos = array_column($motivos_egreso_no_generan_comprobante, 'id');
 
         return in_array($id, $ids_motivos);
     }
@@ -490,9 +481,9 @@ class TransaccionBodega extends Model implements Auditable
     /**
      * If the product has a serial number and is active, then set it to inactive
      *
-     * @param id The id of the product
+     * @param int $id
      */
-    public static function desactivarDetalle($id)
+    public static function desactivarDetalle(int $id)
     {
         $detalle = DetalleProducto::find($id);
         if ($detalle->serial && $detalle->activo) {
@@ -500,10 +491,11 @@ class TransaccionBodega extends Model implements Auditable
             $detalle->save();
         }
     }
+
     /**
      * It finds a record in the database, and if it's not active, it sets it to active and saves it
      *
-     * @param id The id of the model you want to update.
+     * @param DetalleProducto $detalle
      */
     public static function activarDetalle(DetalleProducto $detalle)
     {
@@ -520,7 +512,7 @@ class TransaccionBodega extends Model implements Auditable
         $cont = 0;
         foreach ($data as $d) {
             $items = DetalleProductoTransaccion::where('transaccion_id', $d->id)->get();
-            foreach ($items as $i => $item) {
+            foreach ($items as $item) {
                 $row['inventario_id'] = $item->inventario_id;
                 $row['descripcion'] = $item->inventario->detalle->descripcion;
                 $row['serial'] = $item->inventario->detalle->serial;
@@ -547,7 +539,7 @@ class TransaccionBodega extends Model implements Auditable
         $cont = 0;
         foreach ($data as $d) {
             $items = DetalleProductoTransaccion::where('transaccion_id', $d->id)->get();
-            foreach ($items as $i => $item) {
+            foreach ($items as $item) {
                 $row['inventario_id'] = $item->inventario_id;
                 $row['descripcion'] = $item->inventario->detalle->descripcion;
                 $row['serial'] = $item->inventario->detalle->serial;

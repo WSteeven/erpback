@@ -12,11 +12,16 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @property mixed $empleado
+ */
 class PermisoEmpleado extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
+
+
     protected $table = 'permiso_empleados';
     const PENDIENTE = 1;
     const APROBADO = 2;
@@ -33,49 +38,35 @@ class PermisoEmpleado extends Model implements Auditable
         'estado_permiso_id',
         'empleado_id',
         'cargo_vacaciones',
-        'aceptar_sugerencia'
+        'aceptar_sugerencia',
+        'recupero',
+        'documento'
     ];
 
-    private static $whiteListFilter = [
-        'id',
-        'empleado',
-        'tipo_permiso',
-        'estado_permiso',
-        'estado_permiso_id',
-        'justificacion',
-        'fecha_hora_inicio',
-        'fecha_hora_fin',
-        'fecha_recuperacion',
-        'hora_recuperacion',
-        'fecha_hora_reagendamiento',
-        'justificacion',
-        'observacion',
-        'documento',
-        'cargo_vacaciones',
-        'aceptar_sugerencia'
-
-    ];
+    private static array $whiteListFilter = ['*'];
     protected $casts = [
         'cargo_vacaciones' => 'boolean',
         'aceptar_sugerencia' => 'boolean',
+        'recupero' => 'boolean',
     ];
-    public function tipo_permiso_info()
+    public function tipoPermiso()
     {
         return $this->belongsTo(MotivoPermisoEmpleado::class, 'tipo_permiso_id', 'id');
     }
-    public function estado_permiso_info()
+    public function estadoPermiso()
     {
         return $this->belongsTo(Autorizacion::class, 'estado_permiso_id', 'id');
     }
-    public function empleado_info()
+    public function empleado()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
+//        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
-    
+
     /**
      * Relacion polimorfica con Archivos uno a muchos.
      *

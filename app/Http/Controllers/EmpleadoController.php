@@ -473,7 +473,7 @@ class EmpleadoController extends Controller
         $results = Empleado::empaquetarListado($reportes);
         $nombre_reporte = 'lista_empleados';
         $vista = 'recursos-humanos.empleados';
-        return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
+        return $this->reporteService->imprimirReporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
     }
     /**
      * La función genera un nombre de usuario único basado en el nombre de pila y verifica si ya existe

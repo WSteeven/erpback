@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class PrestamoQuirorafario extends Model implements Auditable
+class PrestamoQuirografario extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
@@ -21,14 +21,14 @@ class PrestamoQuirorafario extends Model implements Auditable
     protected $casts = [
         'valor' => 'decimal:2'
     ];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'id',
         'empleado',
         'mes',
         'nut',
         'valor',
     ];
-    public function empleado_info(){
+    public function empleado(){
         return $this->hasOne(Empleado::class,'id', 'empleado_id');
     }
 }

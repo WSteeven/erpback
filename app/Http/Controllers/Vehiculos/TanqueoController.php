@@ -7,17 +7,19 @@ use App\Http\Requests\Vehiculos\TanqueoRequest;
 use App\Http\Resources\Vehiculos\TanqueoResource;
 use App\Models\User;
 use App\Models\Vehiculos\Tanqueo;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Vehiculos\TanqueoVehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class TanqueoController extends Controller
 {
-    private $entidad = 'Tanqueo';
-    private $servicio;
+    private string $entidad = 'Tanqueo';
+    private TanqueoVehiculoService $servicio;
     public function __construct()
     {
         $this->servicio = new TanqueoVehiculoService();
@@ -29,7 +31,7 @@ class TanqueoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -46,8 +48,8 @@ class TanqueoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param TanqueoRequest $request
+     * @return JsonResponse
      */
     public function store(TanqueoRequest $request)
     {
@@ -63,9 +65,9 @@ class TanqueoController extends Controller
             DB::beginTransaction();
             $tanqueo = Tanqueo::create($datos);
             $modelo = new TanqueoResource($tanqueo);
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'M');
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
@@ -75,8 +77,8 @@ class TanqueoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Tanqueo $tanqueo
+     * @return JsonResponse
      */
     public function show(Tanqueo $tanqueo)
     {
@@ -87,9 +89,9 @@ class TanqueoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param TanqueoRequest $request
+     * @param Tanqueo $tanqueo
+     * @return JsonResponse
      */
     public function update(TanqueoRequest $request, Tanqueo $tanqueo)
     {
@@ -105,7 +107,7 @@ class TanqueoController extends Controller
         //Respuesta
         $tanqueo->update($datos);
         $modelo = new TanqueoResource($tanqueo->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update', 'M');
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -113,8 +115,8 @@ class TanqueoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Tanqueo $tanqueo
+     * @return JsonResponse
      */
     public function destroy(Tanqueo $tanqueo)
     {

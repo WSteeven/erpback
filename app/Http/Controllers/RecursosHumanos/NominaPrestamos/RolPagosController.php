@@ -15,7 +15,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
@@ -60,7 +60,7 @@ class RolPagosController extends Controller
 
         return response()->json(compact('results'));
     }
-   
+
     public function archivo_rol_pago_empleado(Request $request)
     {
         $request->validate([
@@ -95,13 +95,13 @@ class RolPagosController extends Controller
 
         return response()->json(['modelo' => $rolpago, 'mensaje' => 'Subido exitosamente!']);
     }
-    
+
     /**
      * La función recupera un registro rol_pago específico y lo devuelve como una respuesta JSON.
-     * 
+     *
      * @param Request $request El parámetro  es una instancia de la clase Request, que
      * representa la solicitud HTTP actual.
-     * 
+     *
      * @return una respuesta JSON que contiene los resultados de la consulta. Los resultados se están
      * transformando en una colección de recursos de ArchivoRolPago utilizando la clase
      * ArchivoRolPagoResource.
@@ -118,10 +118,10 @@ class RolPagosController extends Controller
      * La función "enviar_rolPago_empleado" recupera un pago de rol e información del empleado, luego
      * envía el pago de rol por email al empleado usando el método "enviar_rol_pago" de la clase "nominaService",
      * y finalmente devuelve una respuesta JSON con un mensaje de éxito.
-     * 
+     *
      * @param int $rolPagoId El parámetro "rolPagoId" es el ID del rolPago (nómina) que desea enviar a un
      * empleado.
-     * 
+     *
      * @return una respuesta JSON con un mensaje indicando que la nómina ha sido enviada exitosamente.
      */
     public function enviar_rolPago_empleado($rolPagoId)
@@ -138,7 +138,7 @@ class RolPagosController extends Controller
      * guarda la identificación del empleado asociado y establece el estado en 'EJECUTANDO', luego
      * comienza una transacción en la base de datos, crea el registro RolPago y llama a un servicio
      * para guardar los ingresos y gastos asociados a la solicitud.
-     * 
+     *
      */
     public function store(RolPagoRequest $request)
     {
@@ -172,9 +172,9 @@ class RolPagosController extends Controller
     /**
      * La función "show" devuelve una respuesta JSON que contiene el objeto "modelo", que se crea a
      * partir del objeto "RolPago" dado.
-     * 
-     * @param RolPago rolPago El parámetro `rolPago` es una instancia de la clase `RolPago`. 
-     * 
+     *
+     * @param RolPago rolPago El parámetro `rolPago` es una instancia de la clase `RolPago`.
+     *
      * @return una respuesta JSON con la variable "modelo" como dato.
      */
     public function show(RolPago $rolPago)
@@ -195,7 +195,7 @@ class RolPagosController extends Controller
         $salario =  $empleado->salario;
         $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
         $supa = $empleado->supa;
-        $prestamo_quirorafario = PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
+        $prestamo_quirorafario = PrestamoQuirografario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
         $prestamo_hipotecario = PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
         $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('aporte');
         $sueldo = $salario;
@@ -235,9 +235,9 @@ class RolPagosController extends Controller
 
     /**
      * La función destruye un objeto RolPago buscándolo usando su ID y luego eliminándolo.
-     * 
+     *
      * @param rolPagoId El parámetro `rolPagoId` es el ID del objeto `RolPago` que debe eliminarse.
-     * 
+     *
      * @return el objeto RolPago eliminado.
      */
     public function destroy($rolPagoId)
@@ -250,12 +250,12 @@ class RolPagosController extends Controller
     /**
      * La función `cambiar_estado` actualiza el estado de un objeto `RolPago` basado en el valor del
      * parámetro `estado` y devuelve una respuesta JSON con el modelo actualizado y un mensaje.
-     * 
+     *
      * @param Request request El parámetro  es una instancia de la clase Request, que
      * representa la solicitud HTTP actual. Contiene información sobre la solicitud, como el método de
      * solicitud, encabezados y datos de entrada.
      * @param rolPagoId Es el ID del objeto `RolPago` cuyo estado desea actualizar.
-     * 
+     *
      * @return una respuesta JSON que contiene las variables "modelo" y "mensaje".
      */
     public function cambiar_estado(Request $request, $rolPagoId)
@@ -284,10 +284,10 @@ class RolPagosController extends Controller
     /**
      * La función `imprimir_rol_pago` genera un informe en PDF para el pago de un rol específico
      * utilizando datos de la base de datos.
-     * 
+     *
      * @param rolPagoId El parámetro `rolPagoId` es el ID del rol_pago (nómina) específico que desea
      * imprimir.
-     * 
+     *
      * @return el resultado del método `imprimir_reporte` del objeto `reporteService`.
      */
     public function imprimir_rol_pago($rolPagoId)
@@ -301,7 +301,7 @@ class RolPagosController extends Controller
             $reportes =  ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $export_excel = new RolPagoExport($reportes);
-            return $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -313,11 +313,11 @@ class RolPagosController extends Controller
     /**
      * La función "actualizar_masivo" actualiza el estado de un grupo de objetos "RolPago" de "CREADO"
      * a "EJECUTANDO"
-     * 
+     *
      * @param Request request El parámetro  es una instancia de la clase Request, que se
      * utiliza para recuperar datos de la solicitud HTTP. En este caso, se utiliza para recuperar el
      * valor del parámetro 'rol_pago_id' de la solicitud.
-     * 
+     *
      * @return una respuesta JSON con un mensaje que indica que se ha iniciado la ejecución de todo el
      * rol.
      */
@@ -333,11 +333,11 @@ class RolPagosController extends Controller
      * La función "finalizar_masivo" actualiza el estado de un grupo de objetos "RolPago" a
      * "FINALIZADO" en base a un "rol_pago_id" determinado y devuelve una respuesta JSON con un mensaje
      * de éxito.
-     * 
+     *
      * @param Request request El parámetro  es una instancia de la clase Request, que
      * representa una solicitud HTTP. Contiene todos los datos y la información sobre la solicitud
      * actual, como el método de solicitud, los encabezados y los parámetros de la solicitud.
-     * 
+     *
      * @return una respuesta JSON con un mensaje que indica que se ha finalizado todo el "rol".
      */
     public function finalizar_masivo(Request $request)

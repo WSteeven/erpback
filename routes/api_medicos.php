@@ -101,7 +101,6 @@ Route::apiResources(
         'factores-riesgos' => FactorRiesgoController::class,
         'fichas-aptitudes' => FichaAptitudController::class,
         'habitos-toxicos' => ResultadoHabitoToxicoController::class,
-        'links-cuestionarios-publicos' => LinkCuestionarioPublicoController::class,
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
@@ -140,7 +139,6 @@ Route::apiResources(
             'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
             'citas-medicas' => 'cita_medica',
-            'links-cuestionarios-publicos' => 'link_cuestionario_publico',
             'solicitudes-examenes' => 'solicitud_examen',
             'diagnosticos-recetas' => 'diagnostico_receta',
             'consultas-medicas' => 'consulta_medica',
@@ -177,6 +175,10 @@ Route::post('medico/tipos-cuestionarios', [TipoCuestionarioController::class, 'p
 // Preguntas
 Route::put('medico/preguntas/{pregunta}', [PreguntaController::class, 'update']);
 Route::post('medico/preguntas', [PreguntaController::class, 'post']);
+// Links publicos
+Route::put('links-cuestionarios-publicos/{link_cuestionario_publico}', [LinkCuestionarioPublicoController::class, 'update']);
+Route::patch('links-cuestionarios-publicos/{link_cuestionario_publico}', [LinkCuestionarioPublicoController::class, 'update']);
+Route::post('links-cuestionarios-publicos', [LinkCuestionarioPublicoController::class, 'post']);
 
 /********
  * Otros

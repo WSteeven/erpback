@@ -142,7 +142,7 @@ class AlimentacionController extends Controller
             $export_excel = new AlimentacionExport($reportes);
             $orientacion = 'portail';
             $tipo_pagina =  'A4' ;
-            return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([

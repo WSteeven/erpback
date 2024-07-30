@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\NewMessagePruebaEvent;
-use App\Events\PruebaEvent;
 use App\Http\Requests\CategoriaRequest;
 use App\Http\Resources\CategoriaResource;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
 
 class CategoriaController extends Controller
 {
-    private $entidad = 'Categoria';
+    private string $entidad = 'Categoria';
     public function __construct()
     {
         $this->middleware('can:puede.ver.categorias')->only('index', 'show');
@@ -29,7 +26,6 @@ class CategoriaController extends Controller
     {
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
-        $results = [];
         if ($request['campos']) {
             $results = Categoria::ignoreRequest(['campos'])->filter()->get($campos);
             return response()->json(compact('results'));
