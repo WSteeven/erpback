@@ -33,7 +33,7 @@ class CategoriaController extends Controller
         if ($request['campos']) {
             $results = Categoria::ignoreRequest(['campos'])->filter()->get($campos);
             return response()->json(compact('results'));
-        } else 
+        } else
         if ($page) {
             $results = Categoria::simplePaginate($request['offset']);
         } else {

@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Intranet;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Intranet\EventoRequest;
-use App\Http\Resources\Intranet\EventoResource;
-use App\Models\Intranet\Evento;
+use App\Http\Requests\Intranet\CategoriaNoticiaRequest;
+use App\Http\Resources\Intranet\CategoriaNoticiaResource;
+use App\Models\Intranet\CategoriaNoticia;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
-class EventoController extends Controller
+class CategoriaNoticiaController extends Controller
 {
-    private $entidad = 'Evento';
+    private $entidad = 'Categoria';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.intra_eventos')->only('index', 'show');
-        $this->middleware('can:puede.crear.intra_eventos')->only('store');
-        $this->middleware('can:puede.editar.intra_eventos')->only('update');
-        $this->middleware('can:puede.eliminar.intra_eventos')->only('destroy');
+        $this->middleware('can:puede.ver.intra_categorias')->only('index', 'show');
+        $this->middleware('can:puede.crear.intra_categorias')->only('store');
+        $this->middleware('can:puede.editar.intra_categorias')->only('update');
+        $this->middleware('can:puede.eliminar.intra_categorias')->only('destroy');
     }
     /**
      * Display a listing of the resource.
@@ -26,8 +26,8 @@ class EventoController extends Controller
      */
     public function index()
     {
-        $results = Evento::filter()->orderBy('titulo', 'desc')->get();
-        $results = EventoResource::collection($results);
+        $results = CategoriaNoticia::filter()->orderBy('nombre', 'desc')->get();
+        $results = CategoriaNoticiaResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -38,11 +38,11 @@ class EventoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(EventoRequest $request)
+    public function store(CategoriaNoticiaRequest $request)
     {
         //Respuesta
-        $modelo = Evento::create($request->validated());
-        $modelo = new EventoResource($modelo);
+        $modelo = CategoriaNoticia::create($request->validated());
+        $modelo = new CategoriaNoticiaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -54,9 +54,9 @@ class EventoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Evento $evento)
+    public function show(CategoriaNoticia $categoria)
     {
-        $modelo = new EventoResource($evento);
+        $modelo = new CategoriaNoticiaResource($categoria);
         return response()->json(compact('modelo'));
     }
 
@@ -67,11 +67,11 @@ class EventoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(EventoRequest $request, Evento $evento)
+    public function update(CategoriaNoticiaRequest $request, CategoriaNoticia $categoria)
     {
         //Respuesta
-        $evento->update($request->validated());
-        $modelo = new EventoResource($evento->refresh());
+        $categoria->update($request->validated());
+        $modelo = new CategoriaNoticiaResource($categoria->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -83,9 +83,9 @@ class EventoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Evento $evento)
+    public function destroy(CategoriaNoticia $categoria)
     {
-        $evento->delete();
+        $categoria->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }

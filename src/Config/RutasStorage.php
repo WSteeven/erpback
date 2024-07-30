@@ -62,4 +62,6 @@ enum RutasStorage: string
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
     case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';
     case SOLICITUD_EXAMEN  = 'public/solicitudes_examenes/archivos';
+
+    case IMAGENES_NOTICIAS  = 'public/intranet/imagenesNoticias';
 }

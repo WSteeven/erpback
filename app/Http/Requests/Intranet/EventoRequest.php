@@ -13,7 +13,7 @@ class EventoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,23 @@ class EventoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'titulo'=>'required|string',
+            'tipo_evento_id'=>'required|exists:intra_tipos_eventos,id',
+            'anfitrion_id'=>'required|exists:empleados,id',
+            'descripcion'=>'required|string',
+            'fecha_hora_inicio'=>'required|string',
+            'fecha_hora_fin'=>'required|string',
+            'es_editable'=>'required|string',
+            'es_personalizado'=>'required|string',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'tipo_evento_id'=>$this->tipo_evento,
+            // 'anfitrion_id'=>$this->anfitrion,
+            'anfitrion_id'=>auth()->user()->empleado->id,
+        ]);
     }
 }

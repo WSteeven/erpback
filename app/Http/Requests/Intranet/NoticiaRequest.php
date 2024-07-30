@@ -13,7 +13,7 @@ class NoticiaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,27 @@ class NoticiaRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'titulo'=>'required|string',
+            'descripcion'=>'required|string',
+            'autor_id'=>'required|exists:empleados,id',
+            'categoria_id'=>'required|exists:empleados,id',
+            'etiquetas'=>'required|string',
+            'imagen_noticia'=>'required|string',
+            'fecha_vencimiento'=>'required|string',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'categoria_id'=>$this->categoria,
+            // 'autor_id'=>$this->autor,
+            'autor_id'=>auth()->user()->empleado->id,
+        ]);
+        if (count($this->etiquetas) == 0) {
+            $this->merge(['etiquetas' => null]);
+        } else {
+            $this->merge(['etiquetas' => implode(',', $this->etiquetas)]);
+        }
     }
 }

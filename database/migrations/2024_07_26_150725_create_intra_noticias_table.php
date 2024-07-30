@@ -15,7 +15,17 @@ return new class extends Migration
     {
         Schema::create('intra_noticias', function (Blueprint $table) {
             $table->id();
+            $table->string('titulo');
+            $table->longText('descripcion');
+            $table->unsignedBigInteger('autor_id');
+            $table->unsignedBigInteger('categoria_id')->nullable();
+            $table->string('etiquetas');
+            $table->string('imagen_noticia');
+            $table->date('fecha_vencimiento');
             $table->timestamps();
+
+            $table->foreign('autor_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('categoria_id')->references('id')->on('intra_categorias_noticias')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 
