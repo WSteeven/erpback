@@ -6,14 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Intranet\NoticiaRequest;
 use App\Http\Resources\Intranet\NoticiaResource;
 use App\Models\Intranet\Noticia;
-use Illuminate\Http\Request;
+use DB;
+use Illuminate\Http\JsonResponse;
+use Mockery\Exception;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class NoticiaController extends Controller
 {
-    private $entidad = 'Noticia';
+    private string $entidad = 'Noticia';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.intra_noticias')->only('index', 'show');
@@ -25,7 +29,7 @@ class NoticiaController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -38,30 +42,37 @@ class NoticiaController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param NoticiaRequest $request
+     * @return JsonResponse
      */
     public function store(NoticiaRequest $request)
     {
-         //Respuesta
-         $datos = $request->validated();
+        try {
+            DB::beginTransaction();
+            //Respuesta
+            $datos = $request->validated();
 
-        if ($datos['imagen_noticia']) {
-            $datos['imagen_noticia'] = (new GuardarImagenIndividual($datos['imagen_noticia'], RutasStorage::IMAGENES_NOTICIAS))->execute();
+            if ($datos['imagen_noticia']) {
+                $datos['imagen_noticia'] = (new GuardarImagenIndividual($datos['imagen_noticia'], RutasStorage::IMAGENES_NOTICIAS))->execute();
+            }
+
+            $modelo = Noticia::create($datos);
+            $modelo = new NoticiaResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+            DB::commit();
+        } catch (Throwable $th) {
+            DB::rollBack();
+            throw  Utils::obtenerMensajeErrorLanzable($th);
         }
-
-         $modelo = Noticia::create($datos);
-         $modelo = new NoticiaResource($modelo);
-         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
-         return response()->json(compact('mensaje', 'modelo'));
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Noticia $noticia
+     * @return JsonResponse
      */
     public function show(Noticia $noticia)
     {
@@ -72,23 +83,30 @@ class NoticiaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param NoticiaRequest $request
+     * @param Noticia $noticia
+     * @return JsonResponse
      */
     public function update(NoticiaRequest $request, Noticia $noticia)
     {
-        //Respuesta
-        $datos = $request->validated();
+        try {
+            DB::beginTransaction();
+            //Respuesta
+            $datos = $request->validated();
 
-        if ($datos['imagen_noticia'] && Utils::esBase64($datos['imagen_noticia'])) {
-            $datos['imagen_noticia'] = (new GuardarImagenIndividual($datos['imagen_noticia'], RutasStorage::IMAGENES_NOTICIAS))->execute();
-        } else {
-            unset($datos['imagen_noticia']);
+            if ($datos['imagen_noticia'] && Utils::esBase64($datos['imagen_noticia'])) {
+                $datos['imagen_noticia'] = (new GuardarImagenIndividual($datos['imagen_noticia'], RutasStorage::IMAGENES_NOTICIAS))->execute();
+            } else {
+                unset($datos['imagen_noticia']);
+            }
+            $noticia->update($datos);
+            $modelo = new NoticiaResource($noticia->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        } catch (Throwable $th) {
+            DB::rollBack();
+            throw  Utils::obtenerMensajeErrorLanzable($th);
         }
-        $noticia->update($datos);
-        $modelo = new NoticiaResource($noticia->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -96,13 +114,19 @@ class NoticiaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Noticia $noticia
+     * @return JsonResponse
+     * @throws Throwable
      */
     public function destroy(Noticia $noticia)
     {
-        $noticia->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
+//        $noticia->delete();
+//        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        try {
+            throw new Exception('Método no definido, comunicate con el departamento informático para más información');
+        } catch (Throwable $th) {
+            throw  Utils::obtenerMensajeErrorLanzable($th);
+        }
+//        return response()->json(compact('mensaje'));
     }
 }

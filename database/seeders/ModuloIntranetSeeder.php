@@ -12,6 +12,7 @@ class ModuloIntranetSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * php artisan db:seed --class=ModuloIntranetSeeder
      *
      * @return void
      */
