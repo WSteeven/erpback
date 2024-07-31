@@ -27,6 +27,14 @@ class Evento extends Model implements Auditable
         'es_personalizado',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i',
+        'updated_at' => 'datetime:Y-m-d h:i',
+        'es_editable'=>'boolean',
+        'es_personalizado'=>'boolean',
+    ];
+
+
     private static array $whiteListFilter = [
         '*',
     ];

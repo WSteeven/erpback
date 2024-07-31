@@ -30,8 +30,8 @@ class EventoRequest extends FormRequest
             'descripcion'=>'required|string',
             'fecha_hora_inicio'=>'required|string',
             'fecha_hora_fin'=>'required|string',
-            'es_editable'=>'required|string',
-            'es_personalizado'=>'required|string',
+            'es_editable'=>'boolean',
+            'es_personalizado'=>'boolean',
         ];
     }
 
