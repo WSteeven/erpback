@@ -31,7 +31,7 @@ class ModeloRequest extends FormRequest
 
             //Configuracion para el front
             'nombre' => 'required|string|unique:modelos,nombre,NULL,id,marca_id,'.$this->marca,
-            'marca' => 'required|exists:marcas,id|unique:modelos,nombre',
+            'marca' => 'required|exists:marcas,id',
         ];
     }
     public function messages()
