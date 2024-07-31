@@ -71,10 +71,10 @@ class PedidoRequest extends FormRequest
                         $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
                     }
                 }
-                foreach($this->listadoProductos as $listado){
+                foreach ($this->listadoProductos as $listado) {
                     $esFibra = !!Fibra::find($listado['id']);
-                    if(array_key_exists('serial', $listado)){
-                        if($listado['serial'] && $listado['cantidad']>1 && !$esFibra) $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
+                    if (array_key_exists('serial', $listado)) {
+                        if ($listado['serial'] && $listado['cantidad'] > 1 && !$esFibra) $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
                     }
                 }
             });
@@ -94,16 +94,16 @@ class PedidoRequest extends FormRequest
         if (is_null($this->solicitante) || $this->solicitante === '') {
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }
-        if($this->proyecto){// cambio del autorizador si selecciona proyecto o etapa
-            if($this->etapa){
+        if ($this->proyecto) { // cambio del autorizador si selecciona proyecto o etapa
+            if ($this->etapa) {
                 $etapa = Etapa::find($this->etapa);
                 $this->merge(['per_autoriza' => $etapa->responsable_id]);
-            }else{
+            } else {
                 $proyecto = Proyecto::find($this->proyecto);
                 $this->merge(['per_autoriza' => $proyecto->coordinador_id]);
             }
         }
-        if ((is_null($this->per_autoriza) || $this->per_autoriza === '')&& !$this->tarea) {
+        if ((is_null($this->per_autoriza) || $this->per_autoriza === '') && !$this->tarea) {
             $this->merge(['per_autoriza' => auth()->user()->empleado->jefe_id]);
         }
         if (is_null($this->autorizacion) || $this->autorizacion === '') {
@@ -119,17 +119,17 @@ class PedidoRequest extends FormRequest
         //         'per_autoriza' => auth()->user()->empleado->id,
         //     ]);
         // }
-        if (auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS]) && $this->route()->getActionMethod() =='store') {
+        if (auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS]) && $this->route()->getActionMethod() == 'store') {
             $this->merge([
                 'autorizacion' => 2,
                 'per_autoriza' => auth()->user()->empleado->id,
             ]);
         }
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO]) && $this->tarea) {
+        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, User::ROL_BODEGA_TELCONET]) && $this->tarea) {
             $this->merge([
                 'autorizacion' => 2,
             ]);
-            if(is_null($this->per_autoriza) || $this->per_autoriza === ''){
+            if (is_null($this->per_autoriza) || $this->per_autoriza === '') {
                 $this->merge([
                     'per_autoriza' => auth()->user()->empleado->id,
                 ]);
