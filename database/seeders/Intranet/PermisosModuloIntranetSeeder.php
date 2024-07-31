@@ -37,7 +37,7 @@ class PermisosModuloIntranetSeeder extends Seeder
         Permission::firstOrCreate(['name'=> Permisos::EDITAR.'intra_tipos_eventos'])->syncRoles([User::ROL_ADMINISTRADOR, User::ROL_RECURSOS_HUMANOS]);
 
         Permission::firstOrCreate(['name'=> Permisos::ACCEDER.'intra_noticias'])->syncRoles([User::ROL_ADMINISTRADOR, User::ROL_RECURSOS_HUMANOS]);
-        Permission::firstOrCreate(['name'=> Permisos::VER.'intra_noticias'])->syncRoles([User::ROL_ADMINISTRADOR, User::ROL_RECURSOS_HUMANOS]);
+        Permission::firstOrCreate(['name'=> Permisos::VER.'intra_noticias'])->syncRoles([User::ROL_ADMINISTRADOR, User::ROL_RECURSOS_HUMANOS, User::ROL_EMPLEADO]);
         Permission::firstOrCreate(['name'=> Permisos::CREAR.'intra_noticias'])->syncRoles([User::ROL_ADMINISTRADOR, User::ROL_RECURSOS_HUMANOS]);
         Permission::firstOrCreate(['name'=> Permisos::EDITAR.'intra_noticias'])->syncRoles([User::ROL_ADMINISTRADOR, User::ROL_RECURSOS_HUMANOS]);
 
