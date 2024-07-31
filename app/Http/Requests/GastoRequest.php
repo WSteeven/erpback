@@ -139,12 +139,15 @@ class GastoRequest extends FormRequest
     }*/
 
 
+    /**
+     * @throws Exception
+     */
     private function comprobarRuc(Validator $validator, $ruc)
     {
         if (substr_count($ruc, '9') < 9) {
             $validador = new ValidarIdentificacion();
-            $existeRUC = $validador->validarRUCSRI($ruc);
-            if (!(($validador->validarCedula($ruc)) || $existeRUC)) {
+            $existe_ruc = $validador->validarRUCSRI($ruc);
+            if (!($validador->validarCedula($ruc) || $existe_ruc)) {
                 $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
             }
         }
