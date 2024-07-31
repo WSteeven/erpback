@@ -48,17 +48,19 @@ class ActivoFijo extends Model implements Auditable
     /*************
      * Funciones
      *************/
-    public static function cargar(int $detalle_producto_id, int|null $cliente_id)
+    public static function cargarComoActivo(DetalleProducto $detalle_producto, int|null $cliente_id)
     {
         try {
-            $existe = ActivoFijo::where('detalle_producto_id', $detalle_producto_id)->where('cliente_id', $cliente_id)->exists();
+            if (!$detalle_producto->esActivo) return;
 
-            if (!$existe) {
-                ActivoFijo::create([
-                    'detalle_producto_id' => $detalle_producto_id,
-                    'cliente_id' => $cliente_id,
-                ]);
-            }
+            $existe = ActivoFijo::where('detalle_producto_id', $detalle_producto->id)->where('cliente_id', $cliente_id)->exists();
+
+            if ($existe) return;
+
+            ActivoFijo::create([
+                'detalle_producto_id' => $detalle_producto->id,
+                'cliente_id' => $cliente_id,
+            ]);
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage() . '. ' . $th->getLine());
         }

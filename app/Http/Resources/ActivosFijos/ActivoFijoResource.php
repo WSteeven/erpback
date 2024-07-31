@@ -22,10 +22,13 @@ class ActivoFijoResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'codigo_inventario' => 'AF' . $this->id, // PENDIENTE
+            'codigo' => 'AF' . $this->id,
+            'descripcion' => $detalleProducto->descripcion,
+            'serie' => $detalleProducto->serial,
+            'fecha_caducidad' => $detalleProducto->fecha_caducidad,
+            'unidad_medida' => $detalleProducto->producto->unidadMedida->nombre,
             'detalle_producto' => new DetalleProductoResource($detalleProducto),
-            'cliente' => $this->cliente->nombre,
-            'egresos' => $this->egresos,
+            'cliente' => $this->cliente->empresa->razon_social,
             'etiqueta_personalizada' => $this->etiqueta_personalizada,
         ];
 

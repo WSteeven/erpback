@@ -90,6 +90,7 @@ class DetalleProductoResource extends JsonResource
             $modelo['disco'] = $this->computadora ? $this->computadora->disco->id : null;
             $modelo['procesador'] = $this->computadora ? $this->computadora->procesador->id : null;
             $modelo['permiso_id'] = $this->permiso_id;
+            $modelo['fecha_caducidad'] = $this->fecha_caducidad;
             $modelo['fotografia'] = $this->fotografia ? url($this->fotografia) : null;
             $modelo['fotografia_detallada'] = $this->fotografia_detallada ? url($this->fotografia_detallada) : null;
         }
