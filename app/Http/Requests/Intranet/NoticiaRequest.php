@@ -29,7 +29,7 @@ class NoticiaRequest extends FormRequest
             'autor_id'=>'required|exists:empleados,id',
             'categoria_id'=>'required|exists:empleados,id',
             'etiquetas'=>'sometimes|nullable|string',
-            'imagen_noticia'=>'required|string',
+            'imagen_noticia'=>'sometimes|nullable|string',
             'fecha_vencimiento'=>'required|string',
         ];
     }

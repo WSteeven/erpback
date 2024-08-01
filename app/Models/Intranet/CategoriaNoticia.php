@@ -22,8 +22,14 @@ class CategoriaNoticia extends Model implements Auditable
         'activo',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'activo'=>'boolean',
+    ];
+
     private static array $whiteListFilter = [
         '*',
     ];
-    
+
 }

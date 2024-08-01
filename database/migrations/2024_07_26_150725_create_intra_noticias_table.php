@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('autor_id');
             $table->unsignedBigInteger('categoria_id')->nullable();
             $table->string('etiquetas')->nullable();
-            $table->string('imagen_noticia');
+            $table->string('imagen_noticia')->nullable();
             $table->date('fecha_vencimiento');
             $table->timestamps();
 
