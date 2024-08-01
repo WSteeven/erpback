@@ -4,7 +4,7 @@ namespace App\Http\Resources\ActivosFijos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SeguimientoConsumoActivoFijoResource extends JsonResource
+class SeguimientoConsumoActivosFijosResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

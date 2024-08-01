@@ -5,7 +5,7 @@ namespace App\Http\Controllers\ActivosFijos;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class SeguimientoConsumoActivoFijoController extends Controller
+class SeguimientoConsumoActivosFijosController extends Controller
 {
     /**
      * Display a listing of the resource.

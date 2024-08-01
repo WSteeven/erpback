@@ -10,15 +10,18 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
+use Src\App\Tareas\ProductoEmpleadoService;
 
 class ActivoFijoController extends Controller
 {
     private $entidad = 'Activo fijo';
     protected PaginationService $paginationService;
+    protected ProductoEmpleadoService $productoEmpleadoService;
 
     public function __construct()
     {
         $this->paginationService = new PaginationService();
+        $this->productoEmpleadoService = new ProductoEmpleadoService();
     }
 
     /**
@@ -91,6 +94,19 @@ class ActivoFijoController extends Controller
         $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now());
         $results = collect($transacciones['results'])->filter(fn ($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'])->values();
         $results = EntregaActivoFijoResource::collection($results);
+        return response()->json(compact('results'));
+    }
+
+    public function obtenerAsignacionesProductos()
+    {
+        request()->validate([
+            'detalle_producto_id' => 'required|numeric|integer|exists:detalles_productos,id',
+            'cliente_id' => 'required|numeric|integer|exists:clientes,id',
+            'resumen' => 'nullable|boolean',
+            'seguimiento' => 'nullable|boolean',
+        ]);
+
+        $results = $this->productoEmpleadoService->obtenerAsignacionesProductos(request('detalle_producto_id'), request('cliente_id'), request('seguimiento'), request('resumen'));
         return response()->json(compact('results'));
     }
 }

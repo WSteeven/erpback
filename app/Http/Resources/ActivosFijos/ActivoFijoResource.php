@@ -37,7 +37,7 @@ class ActivoFijoResource extends JsonResource
             $modelo['marca'] = $detalleProducto->marca?->nombre;
             $modelo['modelo'] = $detalleProducto->modelo?->nombre;
             $modelo['calibre'] = $detalleProducto->calibre;
-            $modelo['cliente'] = $this->cliente_id;
+            $modelo['cliente_id'] = $this->cliente_id;
             $modelo['fotografia'] = $detalleProducto->fotografia ? url($detalleProducto->fotografia) : null;
             $modelo['fotografia_detallada'] = $detalleProducto->fotografia_detallada ? url($detalleProducto->fotografia_detallada) : null;
             $modelo['permiso_arma'] = new PermisoArmaResource($this->detalleProducto->permisoArma);

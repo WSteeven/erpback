@@ -20,3 +20,4 @@ Route::apiResources(
 Route::get('entregas', [ActivoFijoController::class, 'entregas']);
 Route::get('categorias-motivos-consumo-activos-fijos', [CategoriaMotivoConsumoActivoFijoController::class, 'index']);
 Route::get('motivos-consumo-activos-fijos', [MotivoConsumoActivoFijoController::class, 'index']);
+Route::get('asignaciones-productos', [ActivoFijoController::class, 'obtenerAsignacionesProductos']);
