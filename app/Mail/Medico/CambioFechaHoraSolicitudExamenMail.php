@@ -24,7 +24,7 @@ class CambioFechaHoraSolicitudExamenMail extends Mailable
      * Create a new message instance.
      *
      * @return void
-     */Ñ
+     */
     public function __construct(SolicitudExamen $solicitud_examen)
     {
         $this->solicitud_examen = $solicitud_examen;

@@ -106,10 +106,8 @@ class EmpleadoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $validador = new ValidarIdentificacion();
-            /* if(Utils::validarNumeroCuenta($this->num_cuenta_bancaria)==false){
-                $validator->errors()->add('num_cuenta_bancaria', 'El número de cuenta no pudo ser validado, verifica que sea un numero de cuenta válido');
-            }*/
             if (!$validador->validarCedula($this->identificacion)) {
+                Log::channel('testing')->info('Log', ['Dentro del if']);
                 $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
             }
             // if(substr_count($this->identificacion, '9')<9){

@@ -24,7 +24,6 @@ class OrdenCompraExport extends DefaultValueBinder implements FromView, ShouldAu
 
     public function __construct($data)
     {
-        // $this->ordenes = OrdenCompraResource::collection($data);
         $this->ordenes = $data;
         $this->configuracion = ConfiguracionGeneral::first();
     }

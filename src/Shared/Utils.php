@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Ramsey\Uuid\Type\Integer;
+use Src\Config\PaisesOperaciones;
 use Throwable;
 
 class Utils
@@ -19,7 +19,7 @@ class Utils
 
     const MASKFECHA = 'Y-m-d';
     const MASKFECHAHORA = 'Y-m-d H:i:s';
-    public static $meses = array(
+    public static array $meses = array(
         "January" => "Enero",
         "February" => "Febrero",
         "March" => "Marzo",
@@ -96,7 +96,7 @@ class Utils
      * "public" antes de eliminar el archivo del servidor
      * @return void
      */
-    public static function eliminarArchivoServidor($url, $reemplazar = true)
+    public static function eliminarArchivoServidor(string $url, bool $reemplazar = true)
     {
         if ($reemplazar) {
             $ruta = str_replace('storage', 'public', $url);
@@ -120,16 +120,17 @@ class Utils
 
         return $mensajes[$metodo];
     }
+
     /**
      * La función `obtenerMensajeErrorLanzable` devuelve una ValidationException con un mensaje de
      * error personalizado basado en la excepción o Throwable proporcionado.
-     * 
-     * @param Exception $e El parámetro `e` es objeto de una instancia de la clase `Exception` o interfaz `Throwable`.
+     *
+     * @param Exception|Throwable $e El parámetro `e` es objeto de una instancia de la clase `Exception` o interfaz `Throwable`.
      * @param string $textoPersonalizado El parámetro `textoPersonalizado` es una cadena que le permite
      * proporcionar un mensaje personalizado o información adicional que se puede agregar al mensaje de
      * error. Es opcional y se puede utilizar para personalizar aún más el mensaje de error según
      * requisitos o contexto específicos.
-     * 
+     *
      * @return ValidationException Se devuelve una `ValidationException` con un mensaje que contiene un error obtenido del
      * método `obtenerMensajeError`, que toma un objeto `Exception` o `Throwable` y un texto
      * personalizado como parámetros.
@@ -137,23 +138,23 @@ class Utils
     public static function obtenerMensajeErrorLanzable(Exception|Throwable $e, string $textoPersonalizado=''){
         return ValidationException::withMessages(['error'=> self::obtenerMensajeError($e, $textoPersonalizado)]);
     }
+
     /**
      * La función "obtenerMensajeError" en PHP devuelve un mensaje de error formateado que incluye el
      * número de línea, el texto personalizado y el mensaje de excepción.
-     * 
-     * @param Exception $e El parámetro `e` es un objeto de tipo `Exception`. La función recupera 
+     *
+     * @param Exception|Throwable $e El parámetro `e` es un objeto de tipo `Exception`. La función recupera
      * información de este objeto de excepción, como el mensaje y número de línea donde ocurrió la excepción.
      * @param string $textoPersonalizado Le permite
      * proporcionar un mensaje personalizado o información adicional para incluir en el mensaje de
-     * error. 
-     * 
+     * error.
+     *
      * @return string mensaje de error formateado que incluye el número de línea donde ocurrió la
      * excepción, cualquier texto personalizado proporcionado y el mensaje de excepción en sí.
      */
     public static function obtenerMensajeError(Exception|Throwable $e, string $textoPersonalizado = '')
     {
-        $mensaje = '[ERROR][' . $e->getLine() . ']: ' . $textoPersonalizado . ' .' . $e->getMessage();
-        return $mensaje;
+        return '[ERROR][' . $e->getLine() . ']: ' . $textoPersonalizado . ' .' . $e->getMessage();
     }
 
     /**
@@ -168,7 +169,7 @@ class Utils
         while (strlen($codigo) < ($longitud - strlen($id))) {
             $codigo .= "0";
         }
-        $codigo .= strval($id);
+        $codigo .= $id;
         return $codigo;
     }
 
@@ -186,21 +187,20 @@ class Utils
         return false;
     }
 
-    public static function validarNumeroCuenta($numeroCuenta)
+    public static function validarNumeroCuenta($numero_cuenta)
     {
-        if (strlen($numeroCuenta) != 11) {
+        if (strlen($numero_cuenta) != 11) {
             return false;
         }
 
-        $codigoBanco = substr($numeroCuenta, 0, 4);
-        $numeroCuenta = substr($numeroCuenta, 4, 6);
-        $digitoControl = intval(substr($numeroCuenta, -1));
+        $numero_cuenta = substr($numero_cuenta, 4, 6);
+        $digito_control = intval(substr($numero_cuenta, -1));
 
         // Validar la lógica del dígito de control (por ejemplo, suma de ciertos dígitos)
-        $sumaDigitos = array_sum(str_split($numeroCuenta));
-        Log::channel('testing')->info('Log', ['key', $numeroCuenta, $digitoControl, $sumaDigitos]);
+        $suma_digitos = array_sum(str_split($numero_cuenta));
+        Log::channel('testing')->info('Log', ['key', $numero_cuenta, $digito_control, $suma_digitos]);
 
-        if ($sumaDigitos % 10 == $digitoControl) {
+        if ($suma_digitos % 10 == $digito_control) {
             return true;
         } else {
             return false;
@@ -291,21 +291,19 @@ class Utils
 
     /**
      * La función `obtenerTipoCta` devuelve la abreviatura del tipo de cuenta según el tipo de entrada.
-     * Esto se realiza para obtener datos para el cash de pagos. 
-     * 
+     * Esto se realiza para obtener datos para el cash de pagos.
+     *
      * @param string $tipo El tipo de cuenta (CORRIENTE o AHORROS)
-     * 
+     *
      * @return string Si el valor es igual a `CORRIENTE`, la
      * función devuelve 'CTE'. De lo contrario, devuelve 'AHO'.
      */
     public static function obtenerTipoCta(string $tipo)
     {
-        switch ($tipo) {
-            case DatoBancarioProveedor::CORRIENTE:
-                return 'CTE';
-            default:
-                return 'AHO';
-        }
+        return match ($tipo) {
+            DatoBancarioProveedor::CORRIENTE => 'CTE',
+            default => 'AHO',
+        };
     }
 
     /**
@@ -315,7 +313,7 @@ class Utils
      *
      * @return String el valor de entrada convertido a mayúsculas.
      */
-    public static function mayusc($value)
+    public static function mayusc(string $value)
     {
         return strtoupper($value);
     }
@@ -339,10 +337,10 @@ class Utils
     /**
      * La función `configurarGrafico` crea un objeto de configuración pie de gráfico estadistico con parámetros
      * específicos.
-     * 
+     *
      * @param int $id El parámetro `id` es un número entero que representa el identificador único del
      * gráfico. Esto se usa para enviar varios graficos en la respuesta y puedan graficarse en un for|foreach.
-     * @param string $identificador El parámetro `identificador` es una cadena que representa el identificador del gráfico. 
+     * @param string $identificador El parámetro `identificador` es una cadena que representa el identificador del gráfico.
      * Se utiliza para identificar de forma única el gráfico dentro del sistema o aplicación donde se utiliza la función.
      * @param string $encabezado El parámetro `encabezado`  es una
      * cadena que representa el encabezado o título del cuadro/gráfico. Es el texto que se mostrará en
@@ -363,14 +361,14 @@ class Utils
      * @param array $dataArray El parámetro `dataArray` es una matriz
      * que contiene los puntos de datos para el gráfico. Cada elemento de la matriz representa un punto
      * de datos que se mostrará en el gráfico.
-     * 
-     * @return mixed Una instancia de un objeto Colección con las propiedades especificadas como 'id',
+     *
+     * @return Collection Una instancia de un objeto Colección con las propiedades especificadas como 'id',
      * 'identificador', 'encabezado', 'labels' y 'datasets'. La propiedad 'conjuntos de datos' contiene
      * una matriz con propiedades de color de fondo, etiqueta y datos.
      */
     public static function configurarGrafico(int $id, string $identificador, string $encabezado, array $labelsArray, array $colorsArray, string $label, array $dataArray)
     {
-        $grafico = new Collection([
+        return new Collection([
             'id' => $id,
             'identificador' => $identificador,
             'encabezado' => $encabezado,
@@ -383,8 +381,6 @@ class Utils
                 ]
             ],
         ]);
-
-        return $grafico;
     }
 
 
@@ -394,17 +390,16 @@ class Utils
      *
      * @param DateTime $fecha El parámetro  es un objeto DateTime que representa la fecha de
      * inicio.
-     * @param int diasAsumar El parámetro "diasAsumar" es un número entero que representa el número de
+     * @param int $diasAsumar El parámetro "diasAsumar" es un número entero que representa el número de
      * días a sumar a la fecha dada.
      *
      * @return int el número de días que quedan entre la fecha actual y la suma de las fechas dadas
      */
     public static function obtenerDiasRestantes(DateTime $fecha, int $diasAsumar)
     {
-        $nuevaFecha = $fecha->addDays($diasAsumar);
+        $nueva_fecha = $fecha->addDays($diasAsumar);
 
-        $diferencia = Carbon::now()->diffInDays($nuevaFecha, false);
-        return $diferencia;
+        return Carbon::now()->diffInDays($nueva_fecha, false);
     }
 
     public static function convertArrayToString($array, $separator=',')
@@ -628,12 +623,11 @@ class Utils
     /**
      * La función "obtenerMesMatricula" devuelve el mes correspondiente (como un número) según el
      * dígito dado.
-     * 
-     * @param digito El parámetro "digito" representa el último dígito de la placa de un vehículo.
-     * 
+     *
+     * @param string $digito
      * @return int el mes correspondiente a un dígito determinado.
      */
-    public static function obtenerMesMatricula($digito)
+    public static function obtenerMesMatricula(string $digito)
     {
         switch ($digito) {
             case '1':
@@ -665,14 +659,14 @@ class Utils
     /**
      * La función "obtenerUltimoDigito" en PHP devuelve el último dígito encontrado en una cadena
      * de texto.
-     * 
-     * @param texto El parámetro "texto" es una cadena que representa el texto de entrada del que
+     *
+     * @param string $texto $texto El parámetro "texto" es una cadena que representa el texto de entrada del que
      * queremos extraer el último dígito.
-     * 
-     * @return el último dígito encontrado en el texto dado. Si no se encuentra ningún dígito, devuelve
+     *
+     * @return string|null último dígito encontrado en el texto dado. Si no se encuentra ningún dígito, devuelve
      * nulo.
      */
-    public static function obtenerUltimoDigito($texto)
+    public static function obtenerUltimoDigito(string $texto)
     {
         preg_match('/\d(?!.*\d)/', $texto, $matches);
         if (!empty($matches)) {
@@ -708,14 +702,14 @@ class Utils
                 return "DOS";
             case 1:
                 return "UNO";
-            case 0:
+            default:
                 return "";
         }
     }
 
     private static function decena($numero)
     {
-
+        $numd = "";
         if ($numero >= 90 && $numero <= 99) {
             $numd = "NOVENTA ";
             if ($numero > 90)
@@ -779,6 +773,7 @@ class Utils
 
     private static function centena($numc)
     {
+        $numce="";
         if ($numc >= 100) {
             if ($numc >= 900 && $numc <= 999) {
                 $numce = "NOVECIENTOS ";
@@ -812,7 +807,7 @@ class Utils
                 $numce = "DOSCIENTOS ";
                 if ($numc > 200)
                     $numce = $numce . (self::decena($numc - 200));
-            } else if ($numc >= 100 && $numc <= 199) {
+            } else if ($numc <= 199) {
                 if ($numc == 100)
                     $numce = "CIEN ";
                 else
@@ -930,13 +925,19 @@ class Utils
      */
     public static function  obtenerValorMonetarioTexto($numero)
     {
+        $pais = config('app.pais');
+
         $num = str_replace(",", "", $numero);
         $num = number_format($num, 2, '.', '');
         $cents = substr($num, strlen($num) - 2, strlen($num) - 1);
         $num = (int)$num;
 
         $numf = self::milmillon($num);
-
-        return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+        switch($pais){
+            case PaisesOperaciones::PERU:
+                return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
+            default:
+                return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+        }
     }
 }
