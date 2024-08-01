@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Src\Config\PaisesOperaciones;
 use Throwable;
 
 class Utils
@@ -924,13 +925,19 @@ class Utils
      */
     public static function  obtenerValorMonetarioTexto($numero)
     {
+        $pais = config('app.pais');
+
         $num = str_replace(",", "", $numero);
         $num = number_format($num, 2, '.', '');
         $cents = substr($num, strlen($num) - 2, strlen($num) - 1);
         $num = (int)$num;
 
         $numf = self::milmillon($num);
-
-        return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+        switch($pais){
+            case PaisesOperaciones::PERU:
+                return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
+            default:
+                return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+        }
     }
 }
