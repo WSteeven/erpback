@@ -6,6 +6,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | País de Operaciones
+    |--------------------------------------------------------------------------
+    | Este valor es el pais de operaciones. Este valor es requerido cuando se
+    | necesite mostrar moneda o validaciones en servicios de paises especificos.
+    | La lista de paises en los que tenemos operaciones está definida en
+    | Src/config/PaisesOperaciones.php
+    |
+     */
+    'pais' => env('COUNTRY', 'ECUADOR'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Name
     |--------------------------------------------------------------------------
     |
