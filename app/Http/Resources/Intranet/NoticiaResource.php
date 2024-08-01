@@ -30,6 +30,7 @@ class NoticiaResource extends JsonResource
             'etiquetas' => $this->etiquetas ? Etiqueta::whereIn('id', Utils::convertirStringComasArray($this->etiquetas))->pluck('nombre') : [],
             'imagen_noticia' => url($this->imagen_noticia) ?? null,
             'fecha_vencimiento' => $this->fecha_vencimiento,
+            'created_at' => date('d/m/Y H:i:s', strtotime($this->created_at)),
         ];
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {
