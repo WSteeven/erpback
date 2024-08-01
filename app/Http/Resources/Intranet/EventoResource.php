@@ -24,8 +24,8 @@ class EventoResource extends JsonResource
             'anfitrion_id'=>$this->anfitrion_id,
             'anfitrion'=>Empleado::extraerNombresApellidos($this->anfitrion),
             'descripcion'=>$this->descripcion,
-            'fecha_hora_inicio'=>date('Y-m-d h:i',strtotime($this->fecha_hora_inicio)),
-            'fecha_hora_fin'=>date('Y-m-d h:i', strtotime($this->fecha_hora_fin)),
+            'fecha_hora_inicio'=>date('Y-m-d H:i',strtotime($this->fecha_hora_inicio)),
+            'fecha_hora_fin'=>date('Y-m-d H:i', strtotime($this->fecha_hora_fin)),
             'es_editable'=>$this->es_editable,
             'es_personalizado'=>$this->es_personalizado,
         ];
