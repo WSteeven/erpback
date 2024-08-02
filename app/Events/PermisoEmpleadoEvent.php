@@ -2,18 +2,15 @@
 
 namespace App\Events;
 
-use App\Http\Resources\PermisoResource;
 use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
+use Exception;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class PermisoEmpleadoEvent implements ShouldBroadcast
@@ -22,12 +19,13 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
 
     public PermisoEmpleado $permisoEmpleado;
     public Notificacion $notificacion;
-    public  $jefeInmediato=0;
+    public  int $jefeInmediato=0;
 
     /**
      * Create a new event instance.
      *
      * @return void
+     * @throws Exception
      */
     public function __construct($permisoEmpleado)
     {
@@ -36,7 +34,7 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
         $informativa = false;
         switch ($permisoEmpleado->estado_permiso_id) {
             case 1:
-                $mensaje = $this->mostrar_mensaje($permisoEmpleado);
+                $mensaje = $this->obtenerMensaje($permisoEmpleado);
                 break;
             case 2:
                 $informativa = true;
@@ -55,18 +53,17 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
         $remitente = $permisoEmpleado->estado_permiso_id!=1? $permisoEmpleado->empleado_id: $this->jefeInmediato;
       $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::PERMISO_EMPLEADO, $destinatario, $remitente,$permisoEmpleado,$informativa);
     }
-    public function mostrar_mensaje($gasto)
+    public function obtenerMensaje($permiso)
     {
-        $empleado = Empleado::find($gasto->empleado_id);
-        $mensaje = $empleado->nombres.' '.$empleado->apellidos.' ha solicitado un permiso por el siguiente motivo: '.$gasto->justificacion;
-        return $mensaje;
+        $empleado = Empleado::find($permiso->empleado_id);
+        return $empleado->nombres.' '.$empleado->apellidos.' ha solicitado un permiso por el siguiente motivo: '.$permiso->justificacion;
     }
 
    /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
+     * @return Channel
+    */
     public function broadcastOn()
     {
         $nombre_chanel =  $this->permisoEmpleado->estado_permiso_id==1? 'permiso-empleado-'. $this->jefeInmediato:'permiso-empleado-'. $this->permisoEmpleado->empleado_id;

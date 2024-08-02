@@ -69,4 +69,5 @@ enum RutasStorage: string
     case SOLICITUD_NUEVO_EMPLEADO = 'public/SeleccionContratacionPersonal/solicitudes_personal';
     case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
 
+    case IMAGENES_NOTICIAS  = 'public/intranet/imagenesNoticias';
 }

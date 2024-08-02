@@ -80,6 +80,10 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/activos-fijos')
                 ->group(base_path('routes/api_activos_fijos.php'));
+            Route::middleware('api', 'auth:sanctum')
+                ->prefix('api/intranet')
+                ->group(base_path('routes/api_intranet.php'));
+
         });
     }
 

@@ -21,7 +21,7 @@ use Src\Shared\Utils;
 
 class VacacionController extends Controller
 {
-    private $entidad = 'Solicitudde vacación';
+    private $entidad = 'Solicitud de vacación';
     public function __construct()
     {
         $this->middleware('can:puede.ver.vacacion')->only('index', 'show');

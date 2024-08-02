@@ -24,7 +24,7 @@ class PlazoPrestamoEmpresarial extends Model implements Auditable
         'pago_couta'
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'id',
         'num_cuota',
         'fecha_pago',

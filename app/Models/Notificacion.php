@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,7 +33,7 @@ class Notificacion extends Model //implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ]; */
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________
@@ -76,8 +75,8 @@ class Notificacion extends Model //implements Auditable
      *
      * @param string $mensaje El parámetro "mensaje" es una cadena que representa el mensaje de la
      * notificación. Puede ser cualquier texto que desee mostrar en la notificación.
-     * @param string $ruta El parámetro "ruta" representa el enlace o URL asociado a la notificación. Es el
-     * destino al que se redirigirá al usuario cuando haga clic en la notificación.
+     * @param string $ruta El parámetro "ruta" representa el enlace o URL asociado a la notificación. Es el destino al
+     * que se redirigirá al usuario cuando haga clic en la notificación.
      * @param string|TiposNotificaciones $tipo El parámetro "tipo" representa el tipo de notificación. Esto permite indicar
      * el tipo de icono a mostrarse en la notifcación.
      * @param int|null $originador El parámetro "originador" hace referencia al ID de la persona que envía la
@@ -95,7 +94,7 @@ class Notificacion extends Model //implements Auditable
      * @return Notificacion $notificacion el objeto de notificación creado.
      * @throws Exception
      */
-    public static function crearNotificacion(string $mensaje, string $ruta, TiposNotificaciones|string $tipo, ?int $originador, ?int $destinatario, Model $entidad, bool $informativa)
+    public static function crearNotificacion(string $mensaje, string $ruta, string|TiposNotificaciones $tipo, ?int $originador, ?int $destinatario, Model $entidad, bool $informativa)
     {
         try {
             DB::beginTransaction();

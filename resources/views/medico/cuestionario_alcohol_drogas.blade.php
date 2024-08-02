@@ -37,7 +37,8 @@
             <tr height="50"></tr>
             <tr></tr>
             <tr>
-                <th valign="center" height="60" style="background-color: #808080; padding: 8px;" color="#fff">1. FECHA
+                <th valign="center" height="60" style="background-color: #808080; padding: 8px;" color="#fff">1.
+                    FECHA
                     DEL DIAGNÓSTICO</th>
                 <th valign="center" style="background-color: #305496; padding: 8px;">2. NOMBRE DE LA EMPRESA /
                     INSTITUCIÓN</th>
@@ -65,7 +66,7 @@
                     <th valign="center" style="background-color: #305496; color: #fff; padding: 8px;">
                         {{ $pregunta->codigo . '.- ' . $pregunta->pregunta }}</th>
                 @endforeach
-                <th valign="center" style="background-color: #c65911; color: #fff; padding: 8px;">5. TRATAMIENTO</th>
+                {{-- <th valign="center" style="background-color: #c65911; color: #fff; padding: 8px;">5. TRATAMIENTO</th> --}}
                 <th valign="center" style="background-color: #808080; color: #fff; padding: 8px;">6. PERSONAL HA
                     RECIBIDO SENSIBILIZACIÓN, CAPACITACIÓN, CHARLAS</th>
                 <th valign="center" style="background-color: #bf8f00; color: #fff; padding: 8px;">7. EMPLEADO CUENTA CON
@@ -78,8 +79,6 @@
                     <td valign="center">{{ $reporte_empaquetado['fecha_diagnostico'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['razon_social'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['ruc'] }}</td>
-                    {{-- <td valign="center">{{ $configuracion['razon_social'] }}</td>
-                    <td valign="center">{{ $configuracion['ruc'] }}</td> --}}
                     <td valign="center">{{ $reporte_empaquetado['cargo'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['identificacion'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['anio_nacimiento'] }}</td>
@@ -95,10 +94,10 @@
                     <td valign="center">{{ $reporte_empaquetado['enfermedades_preexistentes'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['principal_droga_consume'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['otra_droga_especifique'] }}</td>
-                    <td valign="center">{{ $reporte_empaquetado['otra_droga_consume'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['frecuencia_consumo'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['reconoce_tener_problema_consumo'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['factores_psicosociales_consumo'] }}</td>
+                    <td valign="center">{{ $reporte_empaquetado['otros_factores_psicosociales_consumo'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['tratamiento'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['personal_recibio_capacitacion'] }}</td>
                     <td valign="center">{{ $reporte_empaquetado['cuenta_con_examen_preocupacional'] }}</td>

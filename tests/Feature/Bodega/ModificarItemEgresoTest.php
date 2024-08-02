@@ -11,13 +11,13 @@ use Tests\TestCase;
 class ModificarItemEgresoTest extends TestCase
 {
 
-    public function test_verificar_egreso_completado()
+    public function testVerificarEgresoCompletado()
     {
         $completado = Comprobante::verificarEgresoCompletado(3734);
         $this->assertTrue($completado);
     }
 
-    public function test_verificar_egreso_incompleto()
+    public function testVerificarEgresoIncompleto()
     {
         $completado = Comprobante::verificarEgresoCompletado(4625);
         $this->assertTrue(!$completado);

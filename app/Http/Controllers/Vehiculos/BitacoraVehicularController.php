@@ -46,7 +46,7 @@ class BitacoraVehicularController extends Controller
         } else {
 
             if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
-                $results = BitacoraVehicular::orderBy('updated_at', 'desc')->get();
+                $results = BitacoraVehicular::ignoreRequest(['chofer_id'])->filter()->orderBy('updated_at', 'desc')->get();
             else {
                 // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
                 $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
@@ -61,7 +61,6 @@ class BitacoraVehicularController extends Controller
      *
      * @param BitacoraVehicularRequest $request
      * @return JsonResponse
-     * @throws ValidationException
      * @throws Throwable
      */
     public function store(BitacoraVehicularRequest $request)
@@ -123,9 +122,9 @@ class BitacoraVehicularController extends Controller
         $modelo = [];
         if (request()->filtrar) {
             $bitacora = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->first();
-            if ($bitacora) {
+
+            if ($bitacora)
                 $modelo = new BitacoraVehicularResource($bitacora);
-            }
         }
         return response()->json(compact('modelo'));
     }
@@ -192,16 +191,12 @@ class BitacoraVehicularController extends Controller
         }
     }
 
-    /**
-     * @throws ValidationException
-     */
-    public function firmar(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
+    public function firmar(BitacoraVehicular $bitacora)
     {
         try {
             if (is_null($bitacora->km_final) || $bitacora->km_final < $bitacora->km_inicial)
                 throw new Exception("Debes ingresar un kilometraje final que sea superior al kilometraje inicial. Por favor corrige y vuelve a intentarlo");
             if (!$bitacora->firmada) {
-                $datos = $request->validated();
                 $bitacora->firmada = true;
                 $bitacora->fecha_finalizacion = Carbon::now();
                 $bitacora->save();
@@ -223,14 +218,9 @@ class BitacoraVehicularController extends Controller
     {
         try {
             return $this->service->generarPdf($bitacora);
-        } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $ex->getMessage(), $ex->getLine()]);
-            throw ValidationException::withMessages(
-                [
-                    'error' => $ex->getMessage(),
-                    'Por si acaso' => 'Error duplicado',
-                ]
-            );
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 }

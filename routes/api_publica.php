@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Medico\CuestionarioPublicoController;
+use App\Http\Controllers\Medico\LinkCuestionarioPublicoController;
 use App\Http\Controllers\Medico\PreguntaController;
 use App\Http\Controllers\Medico\TipoCuestionarioController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
@@ -49,6 +50,7 @@ Route::prefix('medico')->group(function () {
     // Rutas normales
     Route::get('tipos-cuestionarios', [TipoCuestionarioController::class, 'index']);
     Route::get('preguntas', [PreguntaController::class, 'index']);
+    Route::get('links-cuestionarios-publicos', [LinkCuestionarioPublicoController::class, 'index']);
     Route::post('/verificar-cuestionario-publico-lleno', function (Request $request) {
         if ((new CuestionariosRespondidosService())->personaYaLlenoCuestionario($request['identificacion'], $request['tipo_cuestionario_id']))
             throw ValidationException::withMessages(['cuestionario_completado' => ['Usted ya completó el cuestionario para este año. </br> Su respuesta no se guardará.']]);
