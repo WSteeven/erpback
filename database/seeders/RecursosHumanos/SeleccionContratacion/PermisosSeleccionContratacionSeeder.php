@@ -28,8 +28,8 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         $coordinador = Role::firstOrCreate(['name' => User::ROL_COORDINADOR]);
 
         // Módulo Seleccion y Contratacion
-        Permission::firstOrCreate(['name' => Permisos::VER . 'modulo.seleccion_contratacion'])->syncRoles([$rrhh, $administrador, $gerente]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo.seleccion_contratacion'])->syncRoles([$rrhh, $administrador, $gerente]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'modulo_seleccion_contratacion'])->syncRoles([$rrhh, $administrador, $gerente]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_seleccion_contratacion'])->syncRoles([$rrhh, $administrador, $gerente]);
         // solicitud de puestos
         Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_solicitudes_nuevas_vacantes'])->syncRoles([$rrhh, $administrador, $gerente]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_solicitudes_nuevas_vacantes'])->syncRoles([$rrhh, $administrador, $gerente]);
@@ -60,5 +60,15 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador, $empleado]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador, $empleado]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_areas_conocimientos'])->syncRoles([$rrhh, $administrador]);
+
+        // modalidades
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_modalidades_trabajo'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_modalidades_trabajo'])->syncRoles([$rrhh, $administrador, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_modalidades_trabajo'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_modalidades_trabajo'])->syncRoles([$rrhh, $administrador]);
+
+
+
+
     }
 }

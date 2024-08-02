@@ -36,6 +36,7 @@ class SolicitudPersonal extends Model implements Auditable
         'nombre',
         'publicada',
         'tipo_puesto_id',
+        'modalidad_id',
         'solicitante_id',
         'autorizador_id',
         'autorizacion_id',
@@ -43,6 +44,8 @@ class SolicitudPersonal extends Model implements Auditable
         'anios_experiencia',
         'areas_conocimiento',
         'descripcion',
+        'disponibilidad_viajar',
+        'requiere_licencia',
 
     ];
     private static array $whiteListFilter = ['*'];

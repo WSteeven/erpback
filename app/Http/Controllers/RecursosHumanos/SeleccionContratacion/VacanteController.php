@@ -48,7 +48,7 @@ class VacanteController extends Controller
      *
      * @param VacanteRequest $request
      * @return JsonResponse
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function store(VacanteRequest $request)
     {
@@ -106,6 +106,7 @@ class VacanteController extends Controller
      * @param VacanteRequest $request
      * @param Vacante $vacante
      * @return JsonResponse
+     * @throws Throwable
      */
     public function update(VacanteRequest $request, Vacante $vacante)
     {

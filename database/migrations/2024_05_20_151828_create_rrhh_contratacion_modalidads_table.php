@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('actividades_realizadas_seguimientos_tickets', function (Blueprint $table) {
-            $table->fullText('observacion')->change();
+        Schema::create('rrhh_contratacion_modalidades', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre')->unique();
+            $table->boolean('activo')->default(true);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('actividades_realizadas_seguimientos_tickets', function (Blueprint $table) {
-            $table->string('observacion')->change();
-        });
+        Schema::dropIfExists('rrhh_contratacion_modalidades');
     }
 };
