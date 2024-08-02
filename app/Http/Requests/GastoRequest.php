@@ -16,7 +16,7 @@ use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
 {
-    private string $pais;
+    private ?string $pais;
 
     public function __construct()
     {
