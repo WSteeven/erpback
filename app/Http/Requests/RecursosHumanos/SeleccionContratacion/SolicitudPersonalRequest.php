@@ -38,13 +38,16 @@ class SolicitudPersonalRequest extends FormRequest
         return [
             'nombre' => 'required|string',
             'descripcion' => 'required|string',
-            'anios_experiencia' => 'required|string',
+            'anios_experiencia' => 'sometimes|nullable|string',
             'tipo_puesto_id' => 'required|exists:rrhh_contratacion_tipos_puestos,id',
             'cargo_id' => 'sometimes|nullable|exists:cargos,id',
             'solicitante_id' => 'required|exists:empleados,id',
             'autorizador_id' => 'required|exists:empleados,id',
             'autorizacion_id' => 'required|exists:autorizaciones,id',
-            'areas_conocimiento' => 'required|string'
+            'modalidad_id' => 'required|exists:rrhh_contratacion_modalidades,id',
+            'areas_conocimiento' => 'required|string',
+            'disponibilidad_viajar' => 'boolean',
+            'requiere_licencia' => 'boolean',
         ];
     }
 
@@ -54,6 +57,7 @@ class SolicitudPersonalRequest extends FormRequest
 
         $this->merge([
             'autorizador_id' => $this->autorizador,
+            'modalidad_id' => $this->modalidad,
             'cargo_id' => $this->cargo,
             'tipo_puesto_id' => $this->tipo_puesto,
             'areas_conocimiento' => Utils::convertArrayToString($this->areas_conocimiento),

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders\RecursosHumanos\SeleccionContratacion;
 
+use App\Http\Resources\Ventas\ModalidadResource;
+use App\Models\RecursosHumanos\SeleccionContratacion\Modalidad;
 use App\Models\RecursosHumanos\SeleccionContratacion\TipoPuesto;
 use Illuminate\Database\Seeder;
 
@@ -19,5 +21,9 @@ class TipoPuestoTrabajoSeeder extends Seeder
             ['nombre' => 'VACANTE'],
             ['nombre' => 'PASANTE'],
         ], uniqueBy:['id'], update:['nombre']);
+
+        Modalidad::firstOrCreate(['nombre' => 'PRESENCIAL']);
+        Modalidad::firstOrCreate(['nombre' => 'HIBRIDO']);
+        Modalidad::firstOrCreate(['nombre' => 'REMOTO']);
     }
 }

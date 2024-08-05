@@ -144,4 +144,11 @@ class VacanteController extends Controller
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
     }
+
+    public  function favorite(Vacante $vacante)
+    {
+        $es_favorita=$vacante->favorita()->first();
+        if($es_favorita)  $vacante->favorita()->delete();
+        else $vacante->favorita()->create();
+    }
 }

@@ -31,9 +31,12 @@ class SolicitudPersonalResource extends JsonResource
             'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
             'autorizador' => Empleado::extraerNombresApellidos($this->autorizador),
             'autorizacion' => $this->autorizacion->nombre,
+            'disponibilidad_viajar'=>$this->disponibilidad_viajar,
+            'requiere_licencia'=>$this->requiere_licencia,
         ];
         if ($controller_method == 'show') {
             $modelo['tipo_puesto'] = $this->tipo_puesto_id;
+            $modelo['modalidad'] = $this->modalidad_id;
             $modelo['solicitante'] = $this->solicitante_id;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;

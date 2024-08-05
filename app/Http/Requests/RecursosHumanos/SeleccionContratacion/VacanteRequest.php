@@ -31,7 +31,7 @@ class VacanteRequest extends FormRequest
             'fecha_caducidad' => 'required|string',
             'imagen_referencia' => 'required|string',
             'imagen_publicidad' => 'required|string',
-            'anios_experiencia' => 'required|string',
+            'anios_experiencia' => 'sometimes|nullable|string',
             'areas_conocimiento' => 'required|string',
             'numero_postulantes' => 'required|numeric|integer',
             'tipo_puesto_id' => 'required|exists:rrhh_contratacion_tipos_puestos,id',

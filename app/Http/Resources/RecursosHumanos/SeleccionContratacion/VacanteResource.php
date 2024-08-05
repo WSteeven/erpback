@@ -31,11 +31,13 @@ class VacanteResource extends JsonResource
             'tipo_puesto' => $this->tipoPuesto->nombre,
             'publicante' => Empleado::extraerNombresApellidos($this->publicante),
             'solicitud' => $this->solicitud->nombre,
-            'tipo_empleo' => 'Presencial',
+            'modalidad' => $this->solicitud->modalidad->nombre,
             'activo' => $this->activo,
             'areas_conocimiento' => Conocimiento::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->areas_conocimiento)))->pluck('nombre'),
             'requiere_experiencia' => !!$this->anios_experiencia,
             'requiere_formacion_academica' => !!count($this->formacionesAcademicas),
+            'disponibilidad_viajar'=>$this->solicitud->disponibilidad_viajar,
+            'requiere_licencia'=>$this->solicitud->requiere_licencia,
             'created_at'=> $this->created_at,
         ];
         if ($controller_method == 'showPreview') {

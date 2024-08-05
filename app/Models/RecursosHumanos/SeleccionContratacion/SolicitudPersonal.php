@@ -30,6 +30,7 @@ class SolicitudPersonal extends Model implements Auditable
     use AuditableModel;
     use UppercaseValuesTrait;
     use Filterable;
+
     protected $table = 'rrhh_contratacion_solicitudes_nuevas_vacantes';
 
     protected $fillable = [
@@ -48,6 +49,14 @@ class SolicitudPersonal extends Model implements Auditable
         'requiere_licencia',
 
     ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'activo' => 'boolean',
+        'disponibilidad_viajar' => 'boolean',
+        'requiere_licencia' => 'boolean',
+    ];
+
     private static array $whiteListFilter = ['*'];
 
     public function tipoPuesto()
@@ -55,22 +64,31 @@ class SolicitudPersonal extends Model implements Auditable
         return $this->hasOne(TipoPuesto::class, 'id', 'tipo_puesto_id');
     }
 
+    public function modalidad()
+    {
+        return $this->belongsTo(Modalidad::class);
+    }
+
     public function cargo()
     {
         return $this->hasOne(Cargo::class, 'id', 'cargo_id');
     }
+
     public function solicitante()
     {
         return $this->belongsTo(Empleado::class);
     }
+
     public function autorizador()
     {
         return $this->belongsTo(Empleado::class);
     }
+
     public function autorizacion()
     {
         return $this->hasOne(Autorizacion::class, 'id', 'autorizacion_id');
     }
+
     public function formacionesAcademicas()
     {
         return $this->morphMany(FormacionAcademica::class, 'formacionable');

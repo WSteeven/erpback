@@ -17,6 +17,7 @@ class Vacante extends Model implements Auditable
     use AuditableModel;
     use UppercaseValuesTrait;
     use Filterable;
+
     protected $table = 'rrhh_contratacion_vacantes';
 
     //Agregar la modalidad
@@ -54,13 +55,19 @@ class Vacante extends Model implements Auditable
         return $this->belongsTo(Empleado::class);
     }
 
-    public function solicitud(){
+    public function solicitud()
+    {
         return $this->belongsTo(SolicitudPersonal::class);
     }
 
     public function formacionesAcademicas()
     {
         return $this->morphMany(FormacionAcademica::class, 'formacionable');
+    }
+
+    public function favorita()
+    {
+        return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
     }
 
 }

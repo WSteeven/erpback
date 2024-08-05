@@ -1,27 +1,23 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
-use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ActividadRealizada extends Model implements Auditable
+class Favorita extends Model implements Auditable
 {
-    use HasFactory, Filterable, AuditableModel;
-    protected $table = 'actividades_realizadas';
-    protected $fillable = [
-        'fecha_hora',
-        'actividad_realizada',
-        'observacion',
-        'fotografia',
-        'empleado_id',
-        'actividable_id',
-        'actividable_type'
-    ];
+    use HasFactory;
+    use AuditableModel;
 
+    protected $table = 'rrhh_contratacion_vacante_favorita_usuario';
+    protected $fillable = [
+        'vacante_id',
+        'user_id',
+        'user_type',
+    ];
 
     private static array $whiteListFilter = ['*'];
 
@@ -32,8 +28,10 @@ class ActividadRealizada extends Model implements Auditable
      */
 
     // Relación polimorfica
-    public function actividable() //actividad => activid + able
+    public function favoritable() //actividad => activid + able
     {
         return $this->morphTo();
     }
+
+
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ConocimientoController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ModalidadController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\SolicitudPersonalController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
@@ -18,18 +19,21 @@ Route::apiResources(
         'solicitudes-nuevo-personal' => SolicitudPersonalController::class,
         'tipos-puestos' => TipoPuestoController::class,
         'tipos-discapacidades' => TipoDiscapacidadController::class,
-        'conocimientos'=>ConocimientoController::class
+        'conocimientos'=>ConocimientoController::class,
+        'modalidades'=> ModalidadController::class,
+
     ],
     [
         'parameters' => [
             'solicitudes-nuevo-personal' => 'solicitud',
-            'tipos-puestos' => 'tipo'
+            'tipos-puestos' => 'tipo',
+            'modalidades'=>'modalidad',
         ]
     ]
 );
 Route::post('vacantes', [VacanteController::class, 'store']);
 Route::put('vacantes/{vacante}', [VacanteController::class, 'update']);
-
+Route::post('vacante_favorita/vacante', [VacanteController::class, 'favorite']);
 
 //listar archivos
 Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);

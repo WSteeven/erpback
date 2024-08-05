@@ -24,7 +24,7 @@ class ModalidadRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre'=>'required|string|unique:rrhh_contratacion_modalidades,nombre',
+            'nombre'=>'required|string|unique:rrhh_contratacion_modalidades,nombre,'.$this->id,
             'activo'=>'boolean'
         ];
     }
