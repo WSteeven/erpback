@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models\Intranet;
+
+use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+
+class CategoriaNoticia extends Model implements Auditable
+{
+    use HasFactory;
+    use AuditableModel;
+    use UppercaseValuesTrait;
+    use Filterable;
+
+    protected $table = 'intra_categorias_noticias';
+    protected $fillable = [
+        'nombre',
+        'activo',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'activo'=>'boolean',
+    ];
+
+    private static array $whiteListFilter = [
+        '*',
+    ];
+
+}

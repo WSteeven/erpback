@@ -11,10 +11,18 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
+use Src\Config\PaisesOperaciones;
 use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
 {
+    private ?string $pais;
+
+    public function __construct()
+    {
+        $this->pais = config('app.pais');
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -38,7 +46,7 @@ class GastoRequest extends FormRequest
             'subTarea' => 'nullable',
             'beneficiarios' => 'nullable',
             'ruc' => 'nullable|string',
-            'factura' => 'nullable|string|max:30|min:15',
+            'factura' => 'nullable|string|max:30|min:13',
             'num_comprobante' => 'nullable|string|max:13',
             'aut_especial' => 'required',
             'detalle' => 'required|exists:detalle_viatico,id',
@@ -63,7 +71,7 @@ class GastoRequest extends FormRequest
                 'subTarea' => 'nullable',
                 'beneficiarios' => 'nullable',
                 'ruc' => 'nullable|string',
-                'factura' => 'nullable|string|max:30|min:15',
+                'factura' => 'nullable|string|max:30|min:13',
                 'num_comprobante' => 'nullable|string|max:13',
                 'aut_especial' => 'required',
                 'detalle' => 'required|exists:detalle_viatico,id',
@@ -139,12 +147,15 @@ class GastoRequest extends FormRequest
     }*/
 
 
+    /**
+     * @throws Exception
+     */
     private function comprobarRuc(Validator $validator, $ruc)
     {
         if (substr_count($ruc, '9') < 9) {
             $validador = new ValidarIdentificacion();
-            $existeRUC = $validador->validarRUCSRI($ruc);
-            if (!(($validador->validarCedula($ruc)) || $existeRUC)) {
+            $existe_ruc = $validador->validarRUCSRI($ruc);
+            if (!($validador->validarCedula($ruc) || $existe_ruc)) {
                 $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
             }
         }
@@ -188,29 +199,34 @@ class GastoRequest extends FormRequest
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
         }
         if ($this->factura !== null) {
-            $numFacturaObjeto = [
-                [
-                    "detalle" => DetalleViatico::PEAJE,
-                    "cantidad" => 22,
-                ],
-                [
-                    "detalle" => DetalleViatico::ENVIO_ENCOMIENDA,
-                    "cantidad" => 17,
-                ],
-            ];
-            $index = array_search($this->detalle, array_column($numFacturaObjeto, 'detalle'));
-            $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
-            $num_fact = str_replace(' ', '',  $this->factura);
-            if (!!$this->factura) {
-                if ($this->detalle == DetalleViatico::PEAJE) {
-                    if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
-                        throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+            switch($this->pais){
+                case PaisesOperaciones::PERU:
+                    return true;
+                default:
+                    $numFacturaObjeto = [
+                        [
+                            "detalle" => DetalleViatico::PEAJE,
+                            "cantidad" => 22,
+                        ],
+                        [
+                            "detalle" => DetalleViatico::ENVIO_ENCOMIENDA,
+                            "cantidad" => 17,
+                        ],
+                    ];
+                    $index = array_search($this->detalle, array_column($numFacturaObjeto, 'detalle'));
+                    $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
+                    $num_fact = str_replace(' ', '',  $this->factura);
+                    if (!!$this->factura) {
+                        if ($this->detalle == DetalleViatico::PEAJE) {
+                            if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
+                                throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+                            }
+                        } else {
+                            if (strlen($num_fact) < $cantidad) {
+                                throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+                            }
+                        }
                     }
-                } else {
-                    if (strlen($num_fact) < $cantidad) {
-                        throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
-                    }
-                }
             }
         }
     }

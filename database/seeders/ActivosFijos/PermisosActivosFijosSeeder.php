@@ -22,12 +22,19 @@ class PermisosActivosFijosSeeder extends Seeder
          * Modulo de Activos Fijos
          ***************************/
         $activos_fijos = Role::firstOrCreate(['name' => User::ROL_ACTIVOS_FIJOS]);
+        $empleado = Role::firstOrCreate(['name' => User::ROL_EMPLEADO]);
 
         // Modulo activos fijos
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_activos_fijos'])->syncRoles([$activos_fijos]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_activos_fijos'])->syncRoles([$activos_fijos, $empleado]);
 
         // Control de activos fijos
         Permission::firstOrCreate(['name' => Permisos::VER . 'control_activos_fijos'])->syncRoles([$activos_fijos]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'control_activos_fijos'])->syncRoles([$activos_fijos]);
+
+        // Seguimiento consumo activos fijos
+        Permission::firstOrCreate(['name' => Permisos::VER . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
     }
 }

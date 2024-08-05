@@ -9,6 +9,7 @@ enum RutasStorage: string
         // Private
     case GESTOR_ARCHIVOS = 'private/GestorArchivos';
     case COMPROBANTES = 'private/comprobantes';
+
         // Public
     case SERVICIOS = 'public/servicios';
     case POPUP = 'public/popup';
@@ -71,4 +72,5 @@ enum RutasStorage: string
      * Bodega
      **********/
     case FOTOGRAFIAS_DETALLE_PRODUCTO  = 'public/bodega/fotografiasDetalleProducto';
+    case IMAGENES_NOTICIAS  = 'public/intranet/imagenesNoticias';
 }

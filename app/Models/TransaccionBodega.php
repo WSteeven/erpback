@@ -67,9 +67,10 @@ class TransaccionBodega extends Model implements Auditable
         return [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
-            'devolucion_id' => $this->devolucion_id,
-            'pedido_id' => $this->pedido_id,
-            'transferencia_id' => $this->transferencia_id,
+            'devolucion_id'=>$this->devolucion_id,
+            'pedido_id'=>$this->pedido_id,
+            'transferencia_id'=>$this->transferencia_id,
+            'comprobante'=>$this->comprobante,
         ];
     }
 

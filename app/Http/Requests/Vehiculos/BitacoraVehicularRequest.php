@@ -2,14 +2,15 @@
 
 namespace App\Http\Requests\Vehiculos;
 
+use App\Models\User;
 use App\Models\Vehiculos\BitacoraVehicular;
-use App\Models\Vehiculos\Vehiculo;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BitacoraVehicularRequest extends FormRequest
 {
 
-    public $controller_method;
+    private string $controllerMethod;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -50,7 +51,7 @@ class BitacoraVehicularRequest extends FormRequest
             'tickets' => 'nullable|array',
         ];
 
-        if ($this->controller_method == 'update') {
+        if ($this->controllerMethod == 'update') {
             $rules['checklistAccesoriosVehiculo.observacion_accesorios_vehiculo'] = 'required|string';
             $rules['checklistVehiculo.observacion_checklist_interior'] = 'required|string';
             $rules['checklistVehiculo.observacion_checklist_bajo_capo'] = 'required|string';
@@ -81,12 +82,13 @@ class BitacoraVehicularRequest extends FormRequest
                     $validator->errors()->add('km_final', 'Por favor verifica y corrige el formulario.');
                 }
             }
-            //Verificamos si el km_inicial no es inferior al ultimo registrado
-            $ultimaBitacora = BitacoraVehicular::where('vehiculo_id', $this->vehiculo_id)->where('firmada', true)->orderBy('id', 'desc')->first();
-            if ($ultimaBitacora) {
-                if ($this->km_inicial < $ultimaBitacora->km_final) {
-                    // $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final');
-                    $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final. Ultimo km_final: ' . $ultimaBitacora->km_final);
+            if (!auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS)) { // Si no es administrador de vehiculos, verifica el ultimo KM
+                //Verificamos si el km_inicial no es inferior al ultimo registrado
+                $ultima_bitacora = BitacoraVehicular::where('vehiculo_id', $this->vehiculo_id)->where('firmada', true)->orderBy('id', 'desc')->first();
+                if ($ultima_bitacora) {
+                    if ($this->km_inicial < $ultima_bitacora->km_final) {
+                        $validator->errors()->add('km_inicial', 'El kilometraje inicial no debe ser superior al último km final. Ultimo km_final: ' . $ultima_bitacora->km_final);
+                    }
                 }
             }
         });
@@ -94,7 +96,7 @@ class BitacoraVehicularRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        $this->controller_method = $this->route()->getActionMethod();
+        $this->controllerMethod = $this->route()->getActionMethod();
         $this->merge([
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
             // 'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
@@ -110,7 +112,7 @@ class BitacoraVehicularRequest extends FormRequest
             'observacion_checklist_exterior' => 'NINGUNA',
         ])]);
 
-        if ($this->controller_method == 'update') {
+        if ($this->controllerMethod == 'update') {
             $this->merge([
                 'checklistAccesoriosVehiculo.bitacora_id' => $this->id,
                 'checklistVehiculo.bitacora_id' => $this->id,

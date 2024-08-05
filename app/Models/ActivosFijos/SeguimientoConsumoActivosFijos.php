@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class SeguimientoConsumoActivosFijos extends Model implements Auditable
 {
-    use HasFactory, AuditableModel;
+    use HasFactory, Filterable, AuditableModel;
 
     protected $table = 'af_seguimientos_consumo_activos_fijos';
     protected $fillable = [
@@ -24,6 +25,8 @@ class SeguimientoConsumoActivosFijos extends Model implements Auditable
         'cliente_id',
         'motivo_consumo_activo_fijo_id',
     ];
+
+    private static $whiteListFilter = ['*'];
 
     /*************
      * Relaciones

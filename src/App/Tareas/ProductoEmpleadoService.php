@@ -58,6 +58,7 @@ class ProductoEmpleadoService
              ************************/
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
+            
             // Buscamos los egresos donde el producto conste para el empleado y el cliente dado
             $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
             $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->where('estado_id', EstadosTransacciones::COMPLETA)->pluck('id');

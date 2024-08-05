@@ -4,9 +4,16 @@ namespace App\Http\Controllers\ActivosFijos;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Src\App\ActivosFijos\SeguimientoConsumoActivosFijosService;
 
 class SeguimientoConsumoActivosFijosController extends Controller
 {
+    private SeguimientoConsumoActivosFijosService $seguimientoConsumoActivosFijosService;
+
+    public function __construct()
+    {
+        $this->seguimientoConsumoActivosFijosService = new SeguimientoConsumoActivosFijosService();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +21,15 @@ class SeguimientoConsumoActivosFijosController extends Controller
      */
     public function index()
     {
-        //
+        /* request()->validate([
+            'detalle_producto_id' => 'required|numeric|integer|exists:detalles_productos,id',
+            'cliente_id' => 'required|numeric|integer|exists:clientes,id',
+            'resumen' => 'nullable|boolean',
+            'seguimiento' => 'nullable|boolean',
+        ]); */
+
+        $results = $this->seguimientoConsumoActivosFijosService->seguimientoConsumoActivosFijos();
+        return response()->json(compact('results'));
     }
 
     /**
