@@ -4,26 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Externos\UserExternalInfoResource;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
-use App\Http\Resources\UserInfoResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
-use Src\App\RecursosHumanos\SeleccionContratacion\Oauth2Service;
 
 class LoginSocialNetworkController extends Controller
 {
     public function login(Request $request)
     {
-        if ($request->boolean('oauth')) {
+        if($request->boolean('oauth')) {
             // Entra aquí cuando es un inicio de sesión por aplicaciones de terceros como: facebook, google, twitter, linkedin
             Log::channel('testing')->info('Log', ['autenticacion de 3ros', request()->all()]);
 
-            return response()->json(["mensaje" => "El usuario no esta activo"], 401);
             // $oauth2Service = new Oauth2Service($driver);
 
             // return response()->json(['url' => $oauth2Service->obtenerUrl()], 200);
@@ -48,32 +44,30 @@ class LoginSocialNetworkController extends Controller
             //     ])->status(412);
             // }
 
-            if (!$user || !Hash::check($request->password, $user->password)) {
+            if (!Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages([
                     'email' => ['Usuario o contraseña incorrectos'],
                 ]);
             }
 
             // if ($user->empleado->estado) {
-            if ($user) {
-                $token = $user->createToken('auth_token')->plainTextToken;
-                $modelo = new UserExternalInfoResource($user);
-                return response()->json([
-                    'mensaje' => 'Usuario autenticado con éxito',
-                    'access_token' => $token, 'token_type' => 'Bearer',
-                    'user_type' => 'externo', 'modelo' => $modelo
-                ], 200);
-            }
+            $token = $user->createToken('auth_token')->plainTextToken;
+            $modelo = new UserExternalInfoResource($user);
+            return response()->json([
+                'mensaje' => 'Usuario autenticado con éxito',
+                'access_token' => $token, 'token_type' => 'Bearer',
+                'user_type' => 'externo', 'modelo' => $modelo
+            ]);
 
-            return response()->json(["mensaje" => "El usuario no esta activo"], 401);
         }
+        return response()->json(["mensaje" => "El usuario no esta activo"], 401);
     }
     public function handleCallback($driver)
     {
         $user_social = Socialite::driver($driver)->stateless()->user();
-        $userDB = UserExternal::where('email', $user_social->email)->first();
-        if ($userDB) {
-            return $this->iniciarSesion($userDB, $user_social->id);
+        $user_db = UserExternal::where('email', $user_social->email)->first();
+        if ($user_db) {
+            return $this->iniciarSesion($user_db, $user_social->id);
         } else {
             $user =  $this->registrar($user_social);
             return $this->iniciarSesion($user, $user_social->id);
@@ -106,14 +100,14 @@ class LoginSocialNetworkController extends Controller
     }
     public function iniciarSesion(UserExternal $user, $password)
     {
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (!Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Usuario o contraseña incorrectos'],
             ]);
         }
         Cache::put('autenticacion', $user->id);
-        $externalUrl = 'http://localhost:8080/puestos-disponibles';
-        return redirect()->away($externalUrl);
+        $external_url = 'http://localhost:8080/puestos-disponibles';
+        return redirect()->away($external_url);
     }
     public function getDataFromSession()
     {
@@ -122,7 +116,7 @@ class LoginSocialNetworkController extends Controller
         $modelo = new UserExternalResource($user);
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'bearer', 'user_type' => 'postulante', 'modelo' => $modelo], 200);
+        return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'bearer', 'user_type' => 'postulante', 'modelo' => $modelo]);
     }
     public function logout(Request $request)
     {

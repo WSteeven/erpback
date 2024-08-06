@@ -60,9 +60,9 @@ class VacanteController extends Controller
             $datos['imagen_publicidad'] = (new GuardarImagenIndividual($datos['imagen_publicidad'], RutasStorage::VACANTES_TRABAJO))->execute();
 
         try {
-            if (!is_null($datos['solicitud_id'])){
+            if (!is_null($datos['solicitud_id'])) {
                 $solicitud = SolicitudPersonal::where('id', $datos['solicitud_id'])->where('publicada', false)->first();
-                if(!$solicitud) throw new Exception('No se puede crear la vacante, la solicitud proporcinada ya ha sido publicada');
+                if (!$solicitud) throw new Exception('No se puede crear la vacante, la solicitud proporcinada ya ha sido publicada');
             }
             DB::beginTransaction();
             $vacante = Vacante::create($datos);
@@ -145,10 +145,19 @@ class VacanteController extends Controller
         }
     }
 
-    public  function favorite(Vacante $vacante)
+    public function favorite(Vacante $vacante)
     {
-        $es_favorita=$vacante->favorita()->first();
-        if($es_favorita)  $vacante->favorita()->delete();
-        else $vacante->favorita()->create();
+        if (auth()->user()) {
+            $es_favorita = $vacante->favorita()->first();
+            if ($es_favorita) $vacante->favorita()->delete();
+            else auth()->user()->favorita()->create([
+                'vacante_id' => $vacante->id,
+            ]);
+        } elseif (auth()->guard('user_external')->user()) {
+            $es_favorita = $vacante->favorita()->first();
+            if ($es_favorita) $vacante->favorita()->delete();
+            else auth()->guard('user_external')->user()->favorita()->create([
+                'vacante_id' => $vacante->id]);
+        }
     }
 }

@@ -33,7 +33,7 @@ Route::apiResources(
 );
 Route::post('vacantes', [VacanteController::class, 'store']);
 Route::put('vacantes/{vacante}', [VacanteController::class, 'update']);
-Route::post('vacante_favorita/vacante', [VacanteController::class, 'favorite']);
+Route::post('vacante-favorita/{vacante}', [VacanteController::class, 'favorite']);
 
 //listar archivos
 Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);

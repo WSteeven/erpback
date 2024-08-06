@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'user_external'=>[
+            'driver' => 'session',
+            'provider' => 'user_externals',
+        ],
+
+        // Otros guards...
     ],
 
     /*
@@ -64,6 +70,12 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
+        'user_externals'=>[
+            'driver' => 'eloquent',
+            'model'=> App\Models\RecursosHumanos\SeleccionContratacion\UserExternal::class,
+        ],
+
+        // Otros providers
 
         // 'users' => [
         //     'driver' => 'database',

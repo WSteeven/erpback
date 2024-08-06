@@ -38,6 +38,7 @@ class VacanteResource extends JsonResource
             'requiere_formacion_academica' => !!count($this->formacionesAcademicas),
             'disponibilidad_viajar'=>$this->solicitud->disponibilidad_viajar,
             'requiere_licencia'=>$this->solicitud->requiere_licencia,
+            'es_favorita'=>!!$this->favorita,
             'created_at'=> $this->created_at,
         ];
         if ($controller_method == 'showPreview') {

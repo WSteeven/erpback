@@ -54,13 +54,17 @@ class UserExternal extends Authenticatable implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
-    
-    
+
+
     // Relacion uno a uno
     public function persona()
     {
         return $this->hasOne(Postulante::class, 'usuario_external_id');
     }
-    
-    
+
+    public function favorita()
+    {
+        return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
+    }
+
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -59,26 +60,26 @@ class User extends Authenticatable implements Auditable
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
     const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
     const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
-    
+
     const GERENCIA = 'GERENCIA';
     const JEFE_TECNICO = 'JEFE TECNICO';
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
-    
+
     // Modulo medico
     const ROL_MEDICO = 'MEDICO';
     //ventas claro
     const JEFE_VENTAS = 'JEFE_VENTAS';
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     const VENDEDOR = 'VENDEDOR';
-    
+
     //Fondos Rotativos
     const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
-    
+
     // Modulo Vehiculos
     const CHOFER = 'CHOFER';
     const MECANICO_GENERAL = 'MECANICO_GENERAL';
-    
+
 
     /**
      * The attributes that are mass assignable.
@@ -144,7 +145,7 @@ class User extends Authenticatable implements Auditable
 
     /**
      * Este metodo no funciona, da errores.
-     * Por favor BORRARLO 
+     * Por favor BORRARLO
      */
     public function obtenerPermisos($user_id)
     {
@@ -163,5 +164,10 @@ class User extends Authenticatable implements Auditable
     {
         return $this->hasRole(User::ROL_LIDER_DE_GRUPO);
         // return $this->empleado->cargo === User::ROL_TECNICO_LIDER_DE_GRUPO;
+    }
+
+    public function favorita()
+    {
+        return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
     }
 }

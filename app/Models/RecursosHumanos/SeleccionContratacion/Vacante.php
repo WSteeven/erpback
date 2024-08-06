@@ -7,6 +7,8 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -67,7 +69,27 @@ class Vacante extends Model implements Auditable
 
     public function favorita()
     {
-        return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
+        $user_id = null;
+        $user_type = null;
+
+        Log::channel('testing')->info('Log', ['usuario: ', Auth::guard('web')->check()]);
+        Log::channel('testing')->info('Log', ['usuario externo: ', Auth::guard('user_external')->check()]);
+        Log::channel('testing')->info('Log', ['usuario sam: ', Auth::guard('sanctum')->check()]);
+        Log::channel('testing')->info('Log', ['usuario limpio: ', auth()->user()]);
+        Log::channel('testing')->info('Log', ['usuario limpio: ', auth()->guard('user_external')->user()]);
+        // Determina el tipo de usuario autenticado
+       if (Auth::guard('web')->check()) {
+            $user_id = Auth::guard('web')->user()->id;
+            $user_type = \App\Models\User::class;
+        } elseif (Auth::guard('user_external')->check()) {
+            $user_id = Auth::guard('user_external')->user()->id;
+            $user_type = \App\Models\UserExternal::class;
+        }
+
+        // Si hay un usuario autenticado, retorna una instancia de la relación
+        return $this->hasOne(Favorita::class, 'vacante_id')
+            ->where('user_id', $user_id)
+            ->where('user_type', $user_type);
     }
 
 }
