@@ -22,6 +22,7 @@ class UserExternalResource extends JsonResource
             'id' => $this->id,
             'nombres' => $this->persona  ?$this->persona->nombres : '',
             'apellidos' => $this->persona  ? $this->persona->apellidos : '',
+            'email'=>$this->email,
             'tipo_documento_identificacion' => $this->persona ? $this->persona->tipo_documento_identificacion : '',
             'numero_documento_identificacion' => $this->persona ? $this->persona->numero_documento_identificacion : '',
             'telefono' => $this->persona  ? $this->persona->telefono : '',

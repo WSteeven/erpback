@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ConocimientoController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ModalidadController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulacionController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\SolicitudPersonalController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
@@ -21,6 +22,7 @@ Route::apiResources(
         'tipos-discapacidades' => TipoDiscapacidadController::class,
         'conocimientos'=>ConocimientoController::class,
         'modalidades'=> ModalidadController::class,
+        'postulaciones-vacantes'=> PostulacionController::class,
 
     ],
     [
@@ -28,6 +30,7 @@ Route::apiResources(
             'solicitudes-nuevo-personal' => 'solicitud',
             'tipos-puestos' => 'tipo',
             'modalidades'=>'modalidad',
+            'postulaciones-vacantes'=>'postulacion',
         ]
     ]
 );

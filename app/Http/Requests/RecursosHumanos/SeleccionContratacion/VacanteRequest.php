@@ -3,7 +3,7 @@
 namespace App\Http\Requests\RecursosHumanos\SeleccionContratacion;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VacanteRequest extends FormRequest
@@ -35,8 +35,11 @@ class VacanteRequest extends FormRequest
             'areas_conocimiento' => 'required|string',
             'numero_postulantes' => 'required|numeric|integer',
             'tipo_puesto_id' => 'required|exists:rrhh_contratacion_tipos_puestos,id',
+            'modalidad_id' => 'required|exists:rrhh_contratacion_modalidades,id',
             'publicante_id' => 'required|exists:empleados,id',
             'solicitud_id' => 'required|exists:rrhh_contratacion_solicitudes_nuevas_vacantes,id',
+            'disponibilidad_viajar' => 'boolean',
+            'requiere_licencia' => 'boolean',
             'activo' => 'boolean',
         ];
     }
@@ -46,6 +49,7 @@ class VacanteRequest extends FormRequest
         $this->merge(['publicante_id' => is_null($this->publicante) ? auth()->user()->empleado->id : $this->publicante]);
         $this->merge([
             'tipo_puesto_id' => $this->tipo_puesto,
+            'modalidad_id' => $this->modalidad,
             'solicitud_id' => $this->solicitud,
             'areas_conocimiento' => Utils::convertArrayToString($this->areas_conocimiento),
         ]);

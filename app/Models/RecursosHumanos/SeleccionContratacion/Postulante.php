@@ -22,6 +22,12 @@ class Postulante extends Model implements Auditable
     protected $fillable = [
         'nombres',
         'apellidos',
+        'correo_personal',
+        'direccion',
+        'fecha_nacimiento',
+        'genero',
+        'identidad_genero_id',
+        'pais_id',
         'tipo_documento_identificacion',
         'numero_documento_identificacion',
         'telefono',

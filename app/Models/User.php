@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
+use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -169,5 +170,10 @@ class User extends Authenticatable implements Auditable
     public function favorita()
     {
         return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
+    }
+
+    public function postulacion(){
+        return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
+
     }
 }

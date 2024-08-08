@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('nivel');
             $table->string('nombre');
-            $table->text('formacionable_type');
             $table->unsignedBigInteger('formacionable_id');
+            $table->string('formacionable_type');
             $table->timestamps();
         });
     }

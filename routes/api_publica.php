@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Medico\CuestionarioPublicoController;
+use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LinkCuestionarioPublicoController;
 use App\Http\Controllers\Medico\PreguntaController;
 use App\Http\Controllers\Medico\TipoCuestionarioController;
@@ -48,6 +49,7 @@ Route::get('cantones', function () {
  ***************************/
 Route::prefix('medico')->group(function () {
     // Rutas normales
+    Route::get('identidades-generos', [IdentidadGeneroController::class, 'index']);
     Route::get('tipos-cuestionarios', [TipoCuestionarioController::class, 'index']);
     Route::get('preguntas', [PreguntaController::class, 'index']);
     Route::get('links-cuestionarios-publicos', [LinkCuestionarioPublicoController::class, 'index']);

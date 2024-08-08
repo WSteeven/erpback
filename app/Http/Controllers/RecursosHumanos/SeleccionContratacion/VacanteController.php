@@ -7,9 +7,9 @@ use App\Http\Requests\RecursosHumanos\SeleccionContratacion\VacanteRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\VacanteResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\SolicitudPersonal;
 use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
-use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\RecursosHumanos\SeleccionContratacion\PolymorphicSeleccionContratacionModelsService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -25,7 +25,7 @@ class VacanteController extends Controller
     public function __construct()
     {
         $this->polymorficSeleccionContratacionService = new PolymorphicSeleccionContratacionModelsService();
-//        $this->middleware('can:puede.ver.rrhh_vacantes')->only('index', 'show');
+        //        $this->middleware('can:puede.ver.rrhh_vacantes')->only('index', 'show');
         $this->middleware('can:puede.crear.rrhh_vacantes')->only('store');
         $this->middleware('can:puede.editar.rrhh_vacantes')->only('update');
         $this->middleware('can:puede.eliminar.rrhh_vacantes')->only('destroy');
@@ -147,17 +147,28 @@ class VacanteController extends Controller
 
     public function favorite(Vacante $vacante)
     {
-        if (auth()->user()) {
-            $es_favorita = $vacante->favorita()->first();
-            if ($es_favorita) $vacante->favorita()->delete();
-            else auth()->user()->favorita()->create([
-                'vacante_id' => $vacante->id,
-            ]);
-        } elseif (auth()->guard('user_external')->user()) {
-            $es_favorita = $vacante->favorita()->first();
-            if ($es_favorita) $vacante->favorita()->delete();
-            else auth()->guard('user_external')->user()->favorita()->create([
-                'vacante_id' => $vacante->id]);
+        try {
+            DB::beginTransaction();
+            if (auth()->user()) {
+                $es_favorita = $vacante->favorita()->first();
+                if ($es_favorita) $vacante->favorita()->delete();
+                else auth()->user()->favorita()->create([
+                    'vacante_id' => $vacante->id,
+                ]);
+            } elseif (auth()->guard('user_external')->user()) {
+                $es_favorita = $vacante->favorita()->first();
+                if ($es_favorita) $vacante->favorita()->delete();
+                else auth()->guard('user_external')->user()->favorita()->create([
+                    'vacante_id' => $vacante->id
+                ]);
+            }else throw new Exception('Debes iniciar sesión para poder marcar como favorita esta opción');
+            DB::commit();
+            $modelo = new VacanteResource($vacante->refresh());
+            $mensaje = 'Vacante favorita actualizada correctamente!';
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $ex) {
+            DB::rollback();
+            throw Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
 }

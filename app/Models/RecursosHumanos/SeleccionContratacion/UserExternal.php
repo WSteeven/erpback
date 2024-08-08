@@ -62,9 +62,24 @@ class UserExternal extends Authenticatable implements Auditable
         return $this->hasOne(Postulante::class, 'usuario_external_id');
     }
 
+    /**
+     * Obtiene las vacantes favoritas del usuario.
+     *
+     * Este método recupera las vacantes favoritas del usuario de la base de datos.
+     * Utiliza Laravel's Eloquent ORM para establecer una relación polimórfica con el modelo Favorita.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Collection|\App\Models\RecursosHumanos\SeleccionContratacion\Favorita[]
+     *
+     * @see \App\Models\RecursosHumanos\SeleccionContratacion\Favorita
+     */
     public function favorita()
     {
         return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
     }
 
+    public function postulacion(){
+        return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
+
+    }
 }

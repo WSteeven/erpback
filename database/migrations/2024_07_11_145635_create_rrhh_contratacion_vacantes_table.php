@@ -24,8 +24,11 @@ return new class extends Migration
             $table->text('areas_conocimiento')->nullable();
             $table->integer('numero_postulantes')->default(0);
             $table->unsignedBigInteger('tipo_puesto_id');
+            $table->unsignedBigInteger('modalidad_id');
             $table->unsignedBigInteger('publicante_id');
             $table->unsignedBigInteger('solicitud_id')->nullable();
+            $table->boolean('disponibilidad_viajar')->default(false);
+            $table->boolean('requiere_licencia')->default(false);
             $table->boolean('activo')->default(true);
             $table->timestamps();
 
@@ -33,6 +36,7 @@ return new class extends Migration
             $table->foreign('tipo_puesto_id', 'fk_vacante_tipo_puesto')->references('id')->on('rrhh_contratacion_tipos_puestos')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('publicante_id', 'fk_publicante_id')->references('id')->on('empleados')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('solicitud_id', 'fk_vacante_autorizacion_id')->references('id')->on('rrhh_contratacion_solicitudes_nuevas_vacantes')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('modalidad_id', 'fk_vacante_modalidad')->references('id')->on('rrhh_contratacion_modalidades')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 

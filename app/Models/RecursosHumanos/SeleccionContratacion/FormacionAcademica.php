@@ -18,8 +18,8 @@ class FormacionAcademica extends Model implements Auditable
     protected $fillable = [
         'nivel',
         'nombre',
-        'formacionable_type',
         'formacionable_id',
+        'formacionable_type',
     ];
 
     public function formacionable()

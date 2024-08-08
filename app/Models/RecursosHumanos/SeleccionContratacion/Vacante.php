@@ -3,6 +3,7 @@
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Empleado;
+use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,9 +22,6 @@ class Vacante extends Model implements Auditable
     use Filterable;
 
     protected $table = 'rrhh_contratacion_vacantes';
-
-    //Agregar la modalidad
-
     protected $fillable = [
         'nombre',
         'descripcion',
@@ -34,15 +32,20 @@ class Vacante extends Model implements Auditable
         'areas_conocimiento',
         'numero_postulantes',
         'tipo_puesto_id',
+        'modalidad_id',
         'publicante_id',
         'solicitud_id',
-        'activo'
+        'activo',
+        'disponibilidad_viajar',
+        'requiere_licencia',
     ];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'activo' => 'boolean',
+        'disponibilidad_viajar' => 'boolean',
+        'requiere_licencia' => 'boolean',
     ];
 
     private static array $whiteListFilter = ['*'];
@@ -62,6 +65,11 @@ class Vacante extends Model implements Auditable
         return $this->belongsTo(SolicitudPersonal::class);
     }
 
+    public function modalidad()
+    {
+        return $this->belongsTo(Modalidad::class);
+    }
+
     public function formacionesAcademicas()
     {
         return $this->morphMany(FormacionAcademica::class, 'formacionable');
@@ -72,18 +80,14 @@ class Vacante extends Model implements Auditable
         $user_id = null;
         $user_type = null;
 
-        Log::channel('testing')->info('Log', ['usuario: ', Auth::guard('web')->check()]);
-        Log::channel('testing')->info('Log', ['usuario externo: ', Auth::guard('user_external')->check()]);
-        Log::channel('testing')->info('Log', ['usuario sam: ', Auth::guard('sanctum')->check()]);
-        Log::channel('testing')->info('Log', ['usuario limpio: ', auth()->user()]);
-        Log::channel('testing')->info('Log', ['usuario limpio: ', auth()->guard('user_external')->user()]);
-        // Determina el tipo de usuario autenticado
-       if (Auth::guard('web')->check()) {
-            $user_id = Auth::guard('web')->user()->id;
-            $user_type = \App\Models\User::class;
-        } elseif (Auth::guard('user_external')->check()) {
-            $user_id = Auth::guard('user_external')->user()->id;
-            $user_type = \App\Models\UserExternal::class;
+       // Determina el tipo de usuario autenticado
+        if (Auth::guard('sanctum')->check()) {
+            $user_id = Auth::guard('sanctum')->user()->id;
+
+            if (Auth::guard('sanctum')->user() instanceof User)
+                $user_type = User::class;
+            else if (Auth::guard('sanctum')->user() instanceof UserExternal)
+                $user_type = UserExternal::class;
         }
 
         // Si hay un usuario autenticado, retorna una instancia de la relación
@@ -91,5 +95,4 @@ class Vacante extends Model implements Auditable
             ->where('user_id', $user_id)
             ->where('user_type', $user_type);
     }
-
 }
