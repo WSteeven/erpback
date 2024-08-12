@@ -7,7 +7,9 @@ use App\Http\Requests\RecursosHumanos\SeleccionContratacion\PostulacionRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulante;
+use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
 use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,16 +52,14 @@ class PostulacionController extends Controller
      */
     public function store(PostulacionRequest $request)
     {
-        Log::channel('testing')->info('Log', ['request en Postulacion->store', $request->all()]);
         $datos = $request->validated();
 
         try {
             DB::beginTransaction();
-            if (auth()->user()) {
+            if (auth()->user() instanceof User) {
                 $postulacion = auth()->user()->postulacion()->create($datos);
-            } elseif (auth()->guard('user_external')->user()) {
-                $postulacion = auth()->guard('user_external')->user()->postulacion()->create($datos);
-
+            } elseif (auth()->user() instanceof UserExternal) {
+                $postulacion = auth()->user()->postulacion()->create($datos);
                 //Postulante hace referencia a la tabla postulante, que es equivalente a la tabla empleados, solo que en este caso es para usuarios externos
                 $postulante = Postulante::find($postulacion->user_id);
                 if (is_null($postulante->correo_personal)) $postulante->correo_personal = $datos['correo_personal'];

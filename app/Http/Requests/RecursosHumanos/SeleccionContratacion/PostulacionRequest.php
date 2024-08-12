@@ -47,7 +47,7 @@ class PostulacionRequest extends FormRequest
             'tengo_experiencia_requerida' => 'boolean',
             'tengo_disponibilidad_viajar' => 'boolean',
             'tengo_licencia_conducir' => 'boolean',
-            'tipo_licencia' => 'required|string',
+            'tipo_licencia' => 'sometimes|nullable|string',
         ];
     }
 
