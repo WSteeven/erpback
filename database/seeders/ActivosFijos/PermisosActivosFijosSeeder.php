@@ -31,6 +31,12 @@ class PermisosActivosFijosSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::VER . 'control_activos_fijos'])->syncRoles([$activos_fijos]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'control_activos_fijos'])->syncRoles([$activos_fijos]);
 
+        // Categorias motivos consumo activos fijos
+        Permission::firstOrCreate(['name' => Permisos::VER . 'categorias_motivos_consumo_activos_fijos'])->syncRoles([$activos_fijos]);
+
+        // Motivos consumo activos fijos
+        Permission::firstOrCreate(['name' => Permisos::VER . 'motivos_consumo_activos_fijos'])->syncRoles([$activos_fijos]);
+
         // Seguimiento consumo activos fijos
         Permission::firstOrCreate(['name' => Permisos::VER . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);

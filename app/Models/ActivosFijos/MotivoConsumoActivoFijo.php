@@ -20,4 +20,9 @@ class MotivoConsumoActivoFijo extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function categoriaMotivoConsumoActivoFijo()
+    {
+        return $this->belongsTo(CategoriaMotivoConsumoActivoFijo::class);
+    }
 }

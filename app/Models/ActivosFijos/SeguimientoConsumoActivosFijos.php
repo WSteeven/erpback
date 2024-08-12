@@ -2,6 +2,8 @@
 
 namespace App\Models\ActivosFijos;
 
+use App\Models\Archivo;
+use App\Models\Canton;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
@@ -23,17 +25,24 @@ class SeguimientoConsumoActivosFijos extends Model implements Auditable
         'empleado_id',
         'detalle_producto_id',
         'cliente_id',
+        'canton_id',
         'motivo_consumo_activo_fijo_id',
+        'observacion',
     ];
 
     private static $whiteListFilter = ['*'];
+
+    /***********************
+     * Constantes archivos
+     ***********************/
+    const JUSTIFICATIVO_USO = 'JUSTIFICATIVO USO';
 
     /*************
      * Relaciones
      *************/
     public function motivoConsumoActivoFijo()
     {
-        return $this->hasOne(MotivoConsumoActivoFijo::class, 'id', 'subtarea_id');
+        return $this->belongsTo(MotivoConsumoActivoFijo::class);
     }
 
     public function empleado()
@@ -51,8 +60,22 @@ class SeguimientoConsumoActivosFijos extends Model implements Auditable
         return $this->belongsTo(Cliente::class);
     }
 
+    public function canton()
+    {
+        return $this->belongsTo(Canton::class);
+    }
+
     public function scopeResponsable($query)
     {
         return $query->where('empleado_id', Auth::user()->empleado->id);
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }

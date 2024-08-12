@@ -12,7 +12,7 @@ class Archivo extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable;
     protected $table = 'archivos';
-    protected $fillable = ['nombre', 'ruta', 'tamanio_bytes', 'archivable_id', 'archivable_type'];
+    protected $fillable = ['nombre', 'ruta', 'tamanio_bytes', 'archivable_id', 'archivable_type', 'tipo'];
 
     private static $whiteListFilter = ['*'];
 

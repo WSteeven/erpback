@@ -30,6 +30,12 @@ class TransaccionBodega extends Model implements Auditable
     const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
 
+    /***********************
+     * Constantes archivos
+     ***********************/
+    const JUSTIFICATIVO_USO = 'JUSTIFICATIVO USO';
+    const ACTA_ENTREGA_RECEPCION = 'ACTA ENTREGA RECEPCION';
+
     public $table = 'transacciones_bodega';
     public $fillable = [
         'justificacion',
@@ -67,10 +73,10 @@ class TransaccionBodega extends Model implements Auditable
         return [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
-            'devolucion_id'=>$this->devolucion_id,
-            'pedido_id'=>$this->pedido_id,
-            'transferencia_id'=>$this->transferencia_id,
-            'comprobante'=>$this->comprobante,
+            'devolucion_id' => $this->devolucion_id,
+            'pedido_id' => $this->pedido_id,
+            'transferencia_id' => $this->transferencia_id,
+            'comprobante' => $this->comprobante,
         ];
     }
 
@@ -260,6 +266,15 @@ class TransaccionBodega extends Model implements Auditable
     public function latestNotificacion()
     {
         return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 
 

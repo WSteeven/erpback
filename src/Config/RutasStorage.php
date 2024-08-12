@@ -73,4 +73,11 @@ enum RutasStorage: string
      **********/
     case FOTOGRAFIAS_DETALLE_PRODUCTO  = 'public/bodega/fotografiasDetalleProducto';
     case IMAGENES_NOTICIAS  = 'public/intranet/imagenesNoticias';
+
+    /****************
+     * Activos Fijos
+     ****************/
+    case SEGUIMIENTO_CONSUMO_ACTIVOS_FIJOS  = 'public/activos_fijos/seguimientoConsumoActivosFijos';
+    case ACTIVOS_FIJOS_ACTA_ENTREGA_RECEPCION  = 'public/activos_fijos/actaEntregaRecepcion';
+    case ACTIVOS_FIJOS_JUSTIFICATIVO_USO  = 'public/activos_fijos/justificativoUso';
 }

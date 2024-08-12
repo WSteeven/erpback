@@ -8,6 +8,7 @@ use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Models\ActivosFijos\ActivoFijo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
 use Src\App\Tareas\ProductoEmpleadoService;
@@ -91,8 +92,8 @@ class ActivoFijoController extends Controller
     public function entregas(Request $request)
     {
         $inventarioService = new InventarioService();
-        $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now());
-        $results = collect($transacciones['results'])->filter(fn ($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'])->values();
+        $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now()->addDay(1));
+        $results = collect($transacciones['results'])->filter(fn ($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && !!$transaccion['comprobante_firmado'])->values();
         $results = EntregaActivoFijoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -102,11 +103,23 @@ class ActivoFijoController extends Controller
         request()->validate([
             'detalle_producto_id' => 'required|numeric|integer|exists:detalles_productos,id',
             'cliente_id' => 'required|numeric|integer|exists:clientes,id',
-            'resumen' => 'nullable|boolean',
+            'resumen_seguimiento' => 'nullable|boolean',
             'seguimiento' => 'nullable|boolean',
         ]);
 
-        $results = $this->productoEmpleadoService->obtenerAsignacionesProductos(request('detalle_producto_id'), request('cliente_id'), request('seguimiento'), request('resumen'));
+        $results = $this->productoEmpleadoService->obtenerProductosPorDetalleCliente(request('detalle_producto_id'), request('cliente_id')); //, request('seguimiento'), request('resumen_seguimiento'));
+        return response()->json(compact('results'));
+    }
+
+    public function obtenerActivosFijosAsignados()
+    {
+        // if (!request('empleado_id')) {
+            /* throw ValidationException::withMessages([
+                'empleado_id' => ['El campo empleado_id es requerido'],
+            ]); */
+        // }
+
+        $results = $this->productoEmpleadoService->obtenerActivosFijosAsignados(request('empleado_id'));
         return response()->json(compact('results'));
     }
 }

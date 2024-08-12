@@ -13,17 +13,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class TransaccionBodegaController extends Controller
 {
     private $entidad = 'Transaccion';
+    private ArchivoService $archivoService;
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.transacciones')->only('index', 'show');
         $this->middleware('can:puede.crear.transacciones')->only('store');
         $this->middleware('can:puede.editar.transacciones')->only('update');
         $this->middleware('can:puede.eliminar.transacciones')->only('destroy');
+        $this->archivoService = new ArchivoService();
     }
 
     /**
@@ -148,5 +154,39 @@ class TransaccionBodegaController extends Controller
         $transaccion->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, TransaccionBodega $transaccion_bodega)
+    {
+        Log::channel('testing')->info('Log', ['Request: ', $request['tipo']]);
+        try {
+            $results = $this->archivoService->listarArchivos($transaccion_bodega);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, TransaccionBodega $transaccion_bodega)
+    {
+        if (!$request['tipo']) throw ValidationException::withMessages(['tipo' => ['Debe proporcionar un tipo de archivo.']]);
+
+        try {
+            $ruta = match ($request['tipo']) {
+                TransaccionBodega::JUSTIFICATIVO_USO => RutasStorage::ACTIVOS_FIJOS_JUSTIFICATIVO_USO->value,
+                TransaccionBodega::ACTA_ENTREGA_RECEPCION => RutasStorage::ACTIVOS_FIJOS_ACTA_ENTREGA_RECEPCION->value,
+            };
+            $modelo  = $this->archivoService->guardarArchivo($transaccion_bodega, $request->file, $ruta, $request['tipo']);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (Exception $ex) {
+            return $ex;
+        }
+        return response()->json(compact('mensaje', 'modelo'), 200);
     }
 }

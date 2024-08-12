@@ -3,7 +3,9 @@
 namespace Src\App\ActivosFijos;
 
 use App\Models\ActivosFijos\SeguimientoConsumoActivosFijos;
+use App\Models\MaterialEmpleado;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class SeguimientoConsumoActivosFijosService
 {
@@ -14,7 +16,16 @@ class SeguimientoConsumoActivosFijosService
      */
     public function seguimientoConsumoActivosFijos(): Collection
     {
-        $results = SeguimientoConsumoActivosFijos::filter()->get();
+        $results = SeguimientoConsumoActivosFijos::filter()->latest()->get();
         return $results;
+    }
+
+    public function actualizarStockActivoFijoOcupado($request)
+    {
+        $materialEmpleado = MaterialEmpleado::where('empleado_id', $request['empleado_id'])->where('detalle_producto_id', $request['detalle_producto_id'])->where('cliente_id', $request['cliente_id'])->first();
+        if (!$materialEmpleado) throw ValidationException::withMessages(['404' => 'No se puede actualizar el stock porque no cuenta con este activo fijo.']);
+
+        $materialEmpleado->cantidad_stock += (isset($request['cantidad_anterior']) ? $request['cantidad_anterior'] : 0)  - $request['cantidad_utilizada'];
+        $materialEmpleado->save();
     }
 }

@@ -58,7 +58,7 @@ class ProductoEmpleadoService
              ************************/
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
-            
+
             // Buscamos los egresos donde el producto conste para el empleado y el cliente dado
             $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
             $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->where('estado_id', EstadosTransacciones::COMPLETA)->pluck('id');
@@ -75,7 +75,7 @@ class ProductoEmpleadoService
                 'stock_actual' => intval($item->cantidad_stock),
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
-                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
                 'transacciones' => count($ids_egresos) > 0 ? 'Egresos:' . $ids_egresos . '; ' . (count($ids_items_preingresos) > 0 ? 'Preingresos:' . $ids_items_preingresos : '') : '',
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
@@ -109,22 +109,62 @@ class ProductoEmpleadoService
     }
 
     /**
+     * Lista los productos de stock del empleado seleccionado que son activos fijos
+     * @param int $empleado_id es el id del empleado responsanble
+     * @return array contiene el listado de productos activos fijos del empleado
+     */
+    public function obtenerActivosFijosAsignados(int $empleado_id)
+    {
+        $productos_asignados = $this->obtenerProductosPorEmpleado($empleado_id);
+        return $productos_asignados->filter(fn($material_empleado) => $material_empleado['es_activo_fijo'])->values();
+    }
+
+    /**
+     * Recibe $detalle y $cliente entonces lista todos los responsables que tiene asignado ese materiales con sus cantidades correspondientes
      * @param int $detalle_producto_id id del detalle de producto
      * @param int $cliente_id id del cliente propietario del producto
      * @return array listado de asignaciones actuales del producto
      */
-    public function obtenerAsignacionesProductos(int $detalle_producto_id, int $cliente_id, bool $seguimiento = null, bool $resumen = null)
+    public function obtenerProductosPorDetalleCliente(int $detalle_producto_id = null, int $cliente_id = null)
     {
-        $empleadosConEseDetalleProductoCliente = MaterialEmpleado::ignoreRequest(['resumen', 'seguimiento'])->filter()->tieneStock()->get();
+        $materialesEmpleados = MaterialEmpleado::where('detalle_producto_id', $detalle_producto_id)->where('cliente_id', $cliente_id)->get(); //tieneStock()->get();
+        // Log::channel('testing')->info('Log', ['materiales', $materialesEmpleados]);
+        // $materialesUtilizadosHoy = SeguimientoMaterialStock::whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+
+        $materiales = $this->mapearProductos($materialesEmpleados, request('cliente_id'));
+
+        // Agrega total de cantidad utilizada // reemplazar variable por total_cantidad_utilizada = true
+        if (request('resumen_seguimiento')) $materiales = $this->mapearTotalCantidadUtilizadaAF($materiales, request('detalle_producto_id'), request('cliente_id'));
+        // if (request('resumen_seguimiento')) $materiales = $this->mapearTotalCantidadUtilizadaAF($materiales, request('detalle_producto_id'), request('cliente_id'), request('empleado_id'));
+        return $materiales;
+    }
+
+    /**
+     * Recibe solo $empleado_id entonces se listan todos los materiales que tiene asignado el responsable
+     * @param int $empleado_id id del empleado responsable
+     */
+    public function obtenerProductosPorEmpleado(int $empleado_id)
+    {
+        $materialesEmpleados = MaterialEmpleado::where('empleado_id', $empleado_id)->get(); //tieneStock()->get();
 
         // $materialesUtilizadosHoy = SeguimientoMaterialStock::whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
-        $materiales = collect($empleadosConEseDetalleProductoCliente)->map(function ($materialEmpleado) use ($detalle_producto_id, $cliente_id) {
+        $materiales = $this->mapearProductos($materialesEmpleados);
+
+        // Agrega total de cantidad utilizada // reemplazar variable por total_cantidad_utilizada = true
+        if (request('resumen_seguimiento')) $materiales = $this->mapearTotalCantidadUtilizadaAF($materiales, request('detalle_producto_id'), request('cliente_id'), request('empleado_id'));
+        return $materiales;
+    }
+
+    private function mapearProductos($materialesEmpleados)
+    {
+        return collect($materialesEmpleados)->map(function ($materialEmpleado) {
             /************************
              * Campo: Transacciones
              ************************/
-            $detalle = DetalleProducto::find($detalle_producto_id);
-            $producto = Producto::find($detalle->producto_id);
+            $detalle = $materialEmpleado->detalle;
+            $producto = $detalle->producto;
+
             // Buscamos los egresos donde el producto conste para el empleado y el cliente dado
             $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
             $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->where('estado_id', EstadosTransacciones::COMPLETA)->pluck('id');
@@ -132,11 +172,12 @@ class ProductoEmpleadoService
             $ids_preingresos = PreingresoMaterial::where('responsable_id', request()->empleado_id)->where('autorizacion_id', Autorizacion::APROBADO_ID)->pluck('id');
             $ids_items_preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $detalle->id)->whereIn('preingreso_id', $ids_preingresos)->pluck('preingreso_id');
 
+            // Cantidad utilizada en el dia
             return [
                 'id' => $detalle->id,
                 'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
-                'detalle_producto_id' => $detalle_producto_id,
+                'detalle_producto_id' => $detalle->id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($materialEmpleado->cantidad_stock),
                 'despachado' => intval($materialEmpleado->despachado),
@@ -147,34 +188,33 @@ class ProductoEmpleadoService
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($materialEmpleado->cliente_id)?->empresa->razon_social,
                 'responsable' => Empleado::extraerNombresApellidos($materialEmpleado->empleado),
-                'cliente_id' => $cliente_id,
+                'responsable_id' => $materialEmpleado->empleado_id,
+                'cliente_id' => $materialEmpleado->cliente_id,
+                'es_activo_fijo' => $detalle->esActivo,
             ];
         });
+    }
 
-        if ($resumen) {
-            $materialesUsados = $this->obtenerSumaActivoFijoConsumido($detalle_producto_id, $cliente_id);
-            Log::channel('testing')->info('Log', ['materialesUsados', $materialesUsados]);
-            $results = $materiales->map(function ($material) use ($materialesUsados) {
-                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
-                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
-                        return $item->detalle_producto_id === $material['detalle_producto_id'];
-                    })->suma_total;
-                } else {
-                    $material['total_cantidad_utilizada'] = 0;
-                }
-                return $material;
-            });
+    // private function mapearTotalCantidadUtilizadaAF($materiales, int $detalle_producto_id, int $cliente_id, int $empleado_id = null)
+    private function mapearTotalCantidadUtilizadaAF($materiales, int $detalle_producto_id, int $cliente_id)
+    {
+        // $materialesUsados = $detalle_producto_id ? $this->obtenerSumaActivoFijoConsumido($detalle_producto_id, $cliente_id) : $this->obtenerSumaConsumoActivoFijoPorEmpleado($empleado_id);
+        $materialesUsados = $this->obtenerSumaActivoFijoConsumido($detalle_producto_id, $cliente_id);
 
-            return $results;
-        }
-
-        // $results = $materiales->toArray();
-        // return array_values($results);
-        return $empleadosConEseDetalleProductoCliente;
+        return $materiales->map(function ($material) use ($materialesUsados) {
+            if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
+                $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
+                    return $item->detalle_producto_id === $material['detalle_producto_id'] && $item->empleado_id === $material['responsable_id'];
+                })?->suma_total;
+            } else {
+                $material['total_cantidad_utilizada'] = 0;
+            }
+            return $material;
+        });
     }
 
     /***************************************************************************************************
-     * Devuelve un listado de los materiales de stock usados y su suma total por producto - Seguimiento
+     * Devuelve un listado de los materiales de stock usados y su suma total por producto - Seguimiento administrador af
      ***************************************************************************************************/
     private function obtenerSumaActivoFijoConsumido(int $detalle_producto_id, int $cliente_id)
     {
@@ -183,11 +223,21 @@ class ProductoEmpleadoService
         // $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->addDay()->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
 
         return DB::table('af_seguimientos_consumo_activos_fijos as sms')
-            ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', 'sms.cliente_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))
+            ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', 'sms.cliente_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'), 'sms.empleado_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->where('detalle_producto_id', $detalle_producto_id)
             ->where('cliente_id', $cliente_id)
             ->groupBy('empleado_id')
             ->get();
     }
+
+    /*private function obtenerSumaConsumoActivoFijoPorEmpleado(int $empleado_id)
+    {
+        return DB::table('af_seguimientos_consumo_activos_fijos as sms')
+            ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', 'sms.cliente_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))
+            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
+            ->where('empleado_id', $empleado_id)
+            ->groupBy('detalle_producto_id', 'cliente_id')
+            ->get();
+    } */
 }

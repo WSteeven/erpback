@@ -329,6 +329,7 @@ Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])
 Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
 Route::get('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('transacciones/files/{transaccion_bodega}/{tipo?}', [TransaccionBodegaController::class, 'indexFiles']);
 
 /**
  * Subidas de archivos
@@ -337,6 +338,7 @@ Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFile
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');
+Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaController::class, 'storeFiles']);
 
 /**
  * Actualizar materiales de empleados

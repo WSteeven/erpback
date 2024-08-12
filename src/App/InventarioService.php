@@ -372,6 +372,7 @@ class InventarioService
 
     public function kardex(int $detalle_id, $fecha_inicio, $fecha_fin, $tipo_rpt = null, int $sucursal_id = null)
     {
+        $fecha_fin = Carbon::parse($fecha_fin)->endOfDay();
         // Log::channel('testing')->info('Log', ['Request kardex', $request->all()]);
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
@@ -434,6 +435,7 @@ class InventarioService
             $row['id'] = $movimiento->inventario->detalle->id;
             $row['id'] = $cont + 1;
             $row['detalle'] = $movimiento->inventario->detalle->descripcion;
+            $row['detalle_producto_id'] = $movimiento->inventario->detalle_id;
             $row['num_transaccion'] = $movimiento->transaccion->id;
             $row['motivo'] = $movimiento->transaccion->motivo->nombre;
             $row['cliente_id'] = $movimiento->transaccion->cliente_id;
@@ -447,6 +449,7 @@ class InventarioService
             // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
             $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
             $row['fecha_hora'] = date('Y-m-d H:i:s', strtotime($movimiento->created_at));
+            $row['comprobante_firmado'] = !!Comprobante::where('transaccion_id', $movimiento->transaccion->id)->first()?->firmada;
             $results[$cont] = $row;
             $cont++;
             //Aqui se verifica si contiene el id actual la collection de ingresos anulados
@@ -500,6 +503,7 @@ class InventarioService
         $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
 
         rsort($results); //aqui se ordena el array en forma descendente
+        Log::channel('testing')->info('Log', ['Results', $results]);
         switch ($tipo_rpt) {
             case 'excel':
                 try {
