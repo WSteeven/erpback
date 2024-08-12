@@ -618,7 +618,7 @@ class SaldoController extends Controller
                 'transferencias_recibidas' => $transferencias_recibidas,
             ];
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
-            Log::channel('testing')->info('Log', ['gastos con imagen', count($reportes['gastos']), $reportes]);
+            // Log::channel('testing')->info('Log', ['gastos con imagen', count($reportes['gastos']), $reportes]);
             $export_excel = new GastoConsolidadoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
