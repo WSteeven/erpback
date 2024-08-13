@@ -3,10 +3,12 @@
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Pais;
+use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -50,6 +52,8 @@ class Postulacion extends Model implements Auditable
         'activo' => 'boolean',
     ];
 
+    private static array $whiteListFilter = ['*'];
+
     public function vacante()
     {
         return $this->belongsTo(Vacante::class);
@@ -63,5 +67,16 @@ class Postulacion extends Model implements Auditable
     public function postulacionable()
     {
         return $this->morphTo();
+    }
+
+    public function usuario()
+    {
+        // Determina el tipo de usuario autenticado
+        if ($this->user_type instanceof User) {
+            return $this->belongsTo(User::class, 'user_id', 'id');
+        }
+        if ($this->user_type instanceof UserExternal) {
+            return $this->belongsTo(UserExternal::class, 'user_id', 'id');
+        }
     }
 }

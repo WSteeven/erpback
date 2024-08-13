@@ -43,6 +43,12 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_vacantes'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_vacantes'])->syncRoles([$rrhh, $administrador, $gerente]);
 
+        // Postulaciones
+        Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_postulaciones'])->syncRoles([$rrhh, $administrador, $gerente]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_postulaciones'])->syncRoles([$rrhh, $administrador, $gerente]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_postulaciones'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_postulaciones'])->syncRoles([$rrhh, $administrador, $gerente]);
+
         Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'formaciones_academicas'])->syncRoles([$coordinador, $rrhh]);
         // publicar de puestos de trabajo
         Permission::firstOrCreate(['name' => Permisos::VER . 'publicacion_puesto_empleo'])->syncRoles([$rrhh, $administrador]);

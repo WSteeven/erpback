@@ -36,6 +36,7 @@ Route::apiResources(
 );
 Route::post('vacantes', [VacanteController::class, 'store']);
 Route::put('vacantes/{vacante}', [VacanteController::class, 'update']);
+Route::get('vacantes-favoritas', [VacanteController::class, 'indexFavoritas']);
 Route::post('vacante-favorita/{vacante}', [VacanteController::class, 'favorite']);
 
 //listar archivos

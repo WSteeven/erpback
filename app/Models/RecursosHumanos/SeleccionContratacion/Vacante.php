@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
-
+use Src\Shared\ObtenerInstanciaUsuario;
 
 class Vacante extends Model implements Auditable
 {
@@ -80,7 +80,7 @@ class Vacante extends Model implements Auditable
         $user_id = null;
         $user_type = null;
 
-       // Determina el tipo de usuario autenticado
+        // Determina el tipo de usuario autenticado
         if (Auth::guard('sanctum')->check()) {
             $user_id = Auth::guard('sanctum')->user()->id;
 
@@ -92,6 +92,15 @@ class Vacante extends Model implements Auditable
 
         // Si hay un usuario autenticado, retorna una instancia de la relación
         return $this->hasOne(Favorita::class, 'vacante_id')
+            ->where('user_id', $user_id)
+            ->where('user_type', $user_type);
+    }
+
+    public function postulacion()
+    {
+        [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+
+        return $this->hasOne(Postulacion::class, 'vacante_id')
             ->where('user_id', $user_id)
             ->where('user_type', $user_type);
     }

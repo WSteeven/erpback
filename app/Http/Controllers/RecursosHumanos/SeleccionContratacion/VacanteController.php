@@ -5,8 +5,11 @@ namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\VacanteRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\VacanteResource;
+use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Models\RecursosHumanos\SeleccionContratacion\SolicitudPersonal;
+use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
 use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +46,22 @@ class VacanteController extends Controller
         return response()->json(compact('results'));
     }
 
+    public function indexFavoritas()
+    {
+        $ids_favoritas = [];
+
+        if (auth()->user() instanceof User) {
+            $ids_favoritas = Favorita::where('user_id', auth()->user()->id)->where('user_type', User::class)->pluck('vacante_id');
+        } else {
+            $ids_favoritas = Favorita::where('user_id', auth()->user()->id)->where('user_type', UserExternal::class)->pluck('vacante_id');
+        }
+
+        $results = Vacante::whereIn('id', $ids_favoritas)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+        $results = VacanteResource::collection($results);
+
+        return response()->json(compact('results'));
+    }
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -161,7 +180,7 @@ class VacanteController extends Controller
                 else auth()->guard('user_external')->user()->favorita()->create([
                     'vacante_id' => $vacante->id
                 ]);
-            }else throw new Exception('Debes iniciar sesión para poder marcar como favorita esta opción');
+            } else throw new Exception('Debes iniciar sesión para poder marcar como favorita esta opción');
             DB::commit();
             $modelo = new VacanteResource($vacante->refresh());
             $mensaje = 'Vacante favorita actualizada correctamente!';

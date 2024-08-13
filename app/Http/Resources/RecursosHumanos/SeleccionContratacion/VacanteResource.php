@@ -42,6 +42,7 @@ class VacanteResource extends JsonResource
             'created_at'=> $this->created_at,
         ];
         if ($controller_method == 'showPreview') {
+            $modelo['ya_postulada'] = !!$this->postulacion;
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
         }
         if ($controller_method == 'show') {
