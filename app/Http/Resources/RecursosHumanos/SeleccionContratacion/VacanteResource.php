@@ -6,6 +6,7 @@ use App\Models\Empleado;
 use App\Models\RecursosHumanos\SeleccionContratacion\Conocimiento;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VacanteResource extends JsonResource
@@ -19,6 +20,7 @@ class VacanteResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
+        // Log::channel('testing')->info('Log', ['metodo', $controller_method]);
         $modelo = [
             'id' => $this->id,
             'nombre' => $this->nombre,
@@ -41,7 +43,7 @@ class VacanteResource extends JsonResource
             'es_favorita'=>!!$this->favorita,
             'created_at'=> $this->created_at,
         ];
-        if ($controller_method == 'showPreview') {
+        if ($controller_method == 'showPreview'||$controller_method == 'favorite') {
             $modelo['ya_postulada'] = !!$this->postulacion;
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
         }

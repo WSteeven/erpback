@@ -61,7 +61,7 @@ class VacanteController extends Controller
 
         return response()->json(compact('results'));
     }
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -185,6 +185,7 @@ class VacanteController extends Controller
             $modelo = new VacanteResource($vacante->refresh());
             $mensaje = 'Vacante favorita actualizada correctamente!';
             return response()->json(compact('mensaje', 'modelo'));
+            // return response()->json(compact('modelo'));
         } catch (Exception $ex) {
             DB::rollback();
             throw Utils::obtenerMensajeErrorLanzable($ex);
