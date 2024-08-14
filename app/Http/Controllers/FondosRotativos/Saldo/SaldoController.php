@@ -172,7 +172,7 @@ class SaldoController extends Controller
     public function saldoActualUsuario($id)
     {
         $saldo_actual = Saldo::where('empleado_id', $id)->orderBy('id', 'desc')->first();
-        $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
+        $saldo_actual = $saldo_actual != null ? round($saldo_actual->saldo_actual, 2) : 0;
 
         return response()->json(compact('saldo_actual'));
     }
