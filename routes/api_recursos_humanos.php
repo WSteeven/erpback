@@ -89,7 +89,8 @@ Route::apiResources(
             'prestamos_quirografarios' => 'prestamo',
             'permiso_empleado' => 'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
-            'rol_pago_mes'=>'rol'
+            'rol_pago_mes'=>'rol',
+            'tipo_licencia'=>'tipo',
         ],
 
     ]

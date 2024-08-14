@@ -4,9 +4,9 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
 use App\Models\RecursosHumanos\NominaPrestamos\TipoLicencia;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class TipoLicenciaController extends Controller
 {
@@ -31,7 +31,11 @@ class TipoLicenciaController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user()->empleado;
-        $results = TipoLicencia::ignoreRequest(['campos'])->where('id', '!=', $user->genero == 'F' ? 2 : 1)->filter()->get();
+        if(Auth::user()->hasRole(User::ROL_RECURSOS_HUMANOS)){
+            $results = TipoLicencia::ignoreRequest(['campos'])->filter()->get();
+        }else{
+            $results = TipoLicencia::ignoreRequest(['campos'])->where('id', '!=', $user->genero == 'F' ? 2 : 1)->filter()->get();
+        }
         if ($user->genero == 'F') {
             $results = $results->map(function ($tipoLicencia) {
                 if ($tipoLicencia->id === 11) {
@@ -43,9 +47,10 @@ class TipoLicenciaController extends Controller
 
         return response()->json(compact('results'));
     }
-    public function show(Request $request, TipoLicencia $tipo_licencia)
+    public function show(Request $request, TipoLicencia $tipo)
     {
-        return response()->json(compact('tipo_licencia'));
+        $modelo = $tipo;
+        return response()->json(compact('modelo'));
     }
     public function store(Request $request)
     {
@@ -54,15 +59,15 @@ class TipoLicenciaController extends Controller
         $tipo_licencia->save();
         return $tipo_licencia;
     }
-    public function update(Request $request, TipoLicencia $tipo_licencia)
+    public function update(Request $request, TipoLicencia $tipo)
     {
-        $tipo_licencia->nombre = $request->nombre;
-        $tipo_licencia->save();
-        return $tipo_licencia;
+        $tipo->nombre = $request->nombre;
+        $tipo->save();
+        return $tipo;
     }
-    public function destroy(Request $request, TipoLicencia $tipo_licencia)
+    public function destroy(Request $request, TipoLicencia $tipo)
     {
-        $tipo_licencia->delete();
-        return response()->json(compact('tipo_licencia'));
+        $tipo->delete();
+        return response()->json(compact('tipo'));
     }
 }
