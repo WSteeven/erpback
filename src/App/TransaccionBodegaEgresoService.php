@@ -94,7 +94,7 @@ class TransaccionBodegaEgresoService
                                     })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc');
                             });
                         if ($paginate) {
-                            return $pagination_service->paginate($query, 100, request('page'));
+                            return $pagination_service->paginate($query, 1000, request('page'));
                         } else
                             return $query->get();
                     case 'ANULADA':
