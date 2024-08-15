@@ -21,12 +21,12 @@ class PostulacionResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'vacante' => $this->vacante,
-            // 'usuario'=> $this->usuario->empleado??$this->usuario->persona,
-            'imagen_referencia' => $this->vacante->imagen_referencia?url($this->vacante->imagen_referencia):null,
+            'vacante' => new VacanteResource($this->vacante),
+            'usuario'=>$this->usuario,
+            'imagen_referencia' => $this->vacante->imagen_referencia ? url($this->vacante->imagen_referencia) : null,
             'nombre' => $this->vacante->nombre,
-            'postulante' => $this->user_id,
-            'tipo_postulante' => $this->user_type,
+            'user_id' => $this->user_id,
+            'user_type' => $this->user_type,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'identificacion' => $this->identificacion,
@@ -46,8 +46,7 @@ class PostulacionResource extends JsonResource
             'tengo_experiencia_requerida' => $this->tengo_experiencia_requerida,
             'tengo_disponibilidad_viajar' => $this->tengo_disponibilidad_viajar,
             'tengo_licencia_conducir' => $this->tengo_licencia_conducir,
-            // 'tipo_licencia' => $this->tipo_licencia,
-            'tipo_licencia' =>$this->tipo_licencia? Utils::convertirStringComasArray($this->tipo_licencia):null,
+            'tipo_licencia' => $this->tipo_licencia ? Utils::convertirStringComasArray($this->tipo_licencia) : null,
         ];
 
         if ($controller_method == 'show') {

@@ -9,16 +9,14 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 
 class Postulacion extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel;
-    use Filterable;
-    use UppercaseValuesTrait;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
     protected $table = 'rrhh_contratacion_postulaciones';
 
@@ -35,7 +33,6 @@ class Postulacion extends Model implements Auditable
         'tengo_licencia_conducir',
         'tipo_licencia',
         'activo',
-
         'user_id',
         'user_type',
     ];
@@ -71,12 +68,28 @@ class Postulacion extends Model implements Auditable
 
     public function usuario()
     {
+        // Obtén la instancia polimórfica asociada
+        $relatedModel = $this->postulacionable;
+        $postulacion = Postulacion::find($this->id);
+        $relatedModel2 = $postulacion->postulacionable;
+
+        // Registra el modelo relacionado para depuración
+        Log::channel('testing')->info('Log', ['modelo relacionado', $this->id,  $relatedModel]);
+        Log::channel('testing')->info('Log', ['modelo relacionado 2', $this->id, $postulacion->id, $relatedModel2]);
+
+        // Verifica si la instancia asociada es una instancia de UserExternal
+        $isUserExternal = $relatedModel instanceof UserExternal;
+        Log::channel('testing')->info('Log', ['es instancia de UserExternal', $isUserExternal]);
+
+        // Registra el nombre de la clase UserExternal para depuración
+        Log::channel('testing')->info('Log', ['userExternal', UserExternal::class]);
+
         // Determina el tipo de usuario autenticado
-        if ($this->user_type instanceof User) {
-            return $this->belongsTo(User::class, 'user_id', 'id');
-        }
-        if ($this->user_type instanceof UserExternal) {
-            return $this->belongsTo(UserExternal::class, 'user_id', 'id');
-        }
+        // if ($this->user_type instanceof User) {
+        //     return $this->belongsTo(User::class, 'user_id', 'id');
+        // }
+        // if ($this->user_type instanceof UserExternal) {
+        return $this->belongsTo(UserExternal::class, 'user_id', 'id');
+        // }
     }
 }
