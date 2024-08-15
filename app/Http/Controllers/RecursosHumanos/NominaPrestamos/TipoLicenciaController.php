@@ -15,7 +15,7 @@ class TipoLicenciaController extends Controller
         $this->middleware('can:puede.ver.tipo_licencia')->only('index', 'show');
         $this->middleware('can:puede.crear.tipo_licencia')->only('store');
         $this->middleware('can:puede.editar.tipo_licencia')->only('update');
-        $this->middleware('can:puede.eliminar.tipo_licencia')->only('update');
+        $this->middleware('can:puede.eliminar.tipo_licencia')->only('destroy');
     }
 
   /**
