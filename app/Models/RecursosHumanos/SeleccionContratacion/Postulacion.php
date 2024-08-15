@@ -66,30 +66,14 @@ class Postulacion extends Model implements Auditable
         return $this->morphTo();
     }
 
-    public function usuario()
+    public function user()
     {
-        // Obtén la instancia polimórfica asociada
-        $relatedModel = $this->postulacionable;
-        $postulacion = Postulacion::find($this->id);
-        $relatedModel2 = $postulacion->postulacionable;
-
-        // Registra el modelo relacionado para depuración
-        Log::channel('testing')->info('Log', ['modelo relacionado', $this->id,  $relatedModel]);
-        Log::channel('testing')->info('Log', ['modelo relacionado 2', $this->id, $postulacion->id, $relatedModel2]);
-
-        // Verifica si la instancia asociada es una instancia de UserExternal
-        $isUserExternal = $relatedModel instanceof UserExternal;
-        Log::channel('testing')->info('Log', ['es instancia de UserExternal', $isUserExternal]);
-
-        // Registra el nombre de la clase UserExternal para depuración
-        Log::channel('testing')->info('Log', ['userExternal', UserExternal::class]);
-
         // Determina el tipo de usuario autenticado
-        // if ($this->user_type instanceof User) {
-        //     return $this->belongsTo(User::class, 'user_id', 'id');
-        // }
-        // if ($this->user_type instanceof UserExternal) {
-        return $this->belongsTo(UserExternal::class, 'user_id', 'id');
-        // }
+        if ($this->user_type === User::class) {
+            return $this->belongsTo(User::class, 'user_id', 'id');
+        }
+        if ($this->user_type === UserExternal::class) {
+            return $this->belongsTo(UserExternal::class, 'user_id', 'id');
+        }
     }
 }

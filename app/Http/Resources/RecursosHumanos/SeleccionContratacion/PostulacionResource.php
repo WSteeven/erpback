@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
@@ -17,12 +18,15 @@ class PostulacionResource extends JsonResource
     public function toArray($request)
     {
         // return parent::toArray($request);
+        // La variable $persona hace referencia al modelo Empleado o a Postulante, y tiene el valor de sus respectivas asignaciones
+        $persona = $this->user_type === User::class ? $this->user->empleado: $this->user->persona;
 
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
             'vacante' => new VacanteResource($this->vacante),
-            'usuario'=>$this->usuario,
+            'usuario'=>$this->user,
+            'persona'=>$persona,
             'imagen_referencia' => $this->vacante->imagen_referencia ? url($this->vacante->imagen_referencia) : null,
             'nombre' => $this->vacante->nombre,
             'user_id' => $this->user_id,
