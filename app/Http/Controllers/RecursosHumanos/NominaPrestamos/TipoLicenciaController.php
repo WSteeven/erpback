@@ -7,15 +7,24 @@ use App\Models\RecursosHumanos\NominaPrestamos\TipoLicencia;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Src\Shared\Utils;
 
 class TipoLicenciaController extends Controller
 {
+    private string $entidad = 'Tipo de Licencia';
+    private $reglas = [
+        'nombre' =>'required|string',
+        'num_dias' =>'required|integer|min:1|max:365',
+        'estado'=>'boolean'
+    ];
+
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipo_licencia')->only('index', 'show');
-        $this->middleware('can:puede.crear.tipo_licencia')->only('store');
-        $this->middleware('can:puede.editar.tipo_licencia')->only('update');
-        $this->middleware('can:puede.eliminar.tipo_licencia')->only('update');
+        $this->middleware('can:puede.ver.tipos_licencias')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_licencias')->only('store');
+        $this->middleware('can:puede.editar.tipos_licencias')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_licencias')->only('destroy');
     }
 
   /**
@@ -47,27 +56,36 @@ class TipoLicenciaController extends Controller
 
         return response()->json(compact('results'));
     }
+
+    public function store(Request $request)
+    {
+
+        $datos = $request->validate($this->reglas);
+
+        $tipo = TipoLicencia::create($datos);
+        $modelo = $tipo;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
     public function show(Request $request, TipoLicencia $tipo)
     {
         $modelo = $tipo;
         return response()->json(compact('modelo'));
     }
-    public function store(Request $request)
-    {
-        $tipo_licencia = new TipoLicencia();
-        $tipo_licencia->nombre = $request->nombre;
-        $tipo_licencia->save();
-        return $tipo_licencia;
-    }
+
     public function update(Request $request, TipoLicencia $tipo)
     {
-        $tipo->nombre = $request->nombre;
-        $tipo->save();
-        return $tipo;
+        $tipo->update($request->validate($this->reglas));
+        $modelo = $tipo->refresh();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
-    public function destroy(Request $request, TipoLicencia $tipo)
+
+    public function destroy(TipoLicencia $tipo)
     {
-        $tipo->delete();
-        return response()->json(compact('tipo'));
+        throw ValidationException::withMessages(['error'=>'Método no desarrollado, por favor contacta al departamento de Informática para más información.']);
     }
 }
