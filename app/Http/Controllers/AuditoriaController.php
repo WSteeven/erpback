@@ -52,7 +52,7 @@ class AuditoriaController extends Controller
         //     })
         //     ->orderBy('updated_at', 'desc')->get();
         // Log::channel('testing')->info('Log', ['Request antes de filtrar', $request->all()]);
-        $results = Audit::ignoreRequest(['empleado', 'fecha_inicio', 'fecha_fin', 'auditable_type'])->filter()
+        $results = Audit::ignoreRequest(['isComponentFilesModified','empleado', 'fecha_inicio', 'fecha_fin', 'auditable_type'])->filter()
             ->when($request->auditable_type, function ($q) use ($request) {
                 $q->where('auditable_type', 'like', '%' . $request->auditable_type);
             })
