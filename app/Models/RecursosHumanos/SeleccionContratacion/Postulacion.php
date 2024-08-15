@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\Archivo;
 use App\Models\Pais;
 use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
@@ -60,6 +61,16 @@ class Postulacion extends Model implements Auditable
     {
         return $this->belongsTo(Pais::class, 'pais_residencia_id', 'id');
     }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
+
 
     public function postulacionable()
     {

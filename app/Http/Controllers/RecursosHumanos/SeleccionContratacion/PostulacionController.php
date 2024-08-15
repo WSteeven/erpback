@@ -14,15 +14,19 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
 
 class PostulacionController extends Controller
 {
     private string $entidad = 'Postulación';
+    private ArchivoService $archivoService;
 
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         // Asegura que el usuario esté autenticado en todas las acciones
         $this->middleware('check.user.logged.in');
 
@@ -137,4 +141,40 @@ class PostulacionController extends Controller
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
     }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Postulacion $postulacion)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($postulacion);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Postulacion $postulacion)
+    {
+        try {
+
+            // Hay que configurar para que se guarden los CV´s de los postulantes con su respectivo numero de cedula
+            // para luego poder buscarlos y versionarlos así como LinkedIn
+
+            $modelo = $this->archivoService->guardarArchivo($postulacion, $request->file, RutasStorage::DOCUMENTOS_POSTULANTES->value);
+            $mensaje = 'Archivo subido correctamente';
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
+    }
+
 }

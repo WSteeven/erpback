@@ -41,5 +41,7 @@ Route::post('vacante-favorita/{vacante}', [VacanteController::class, 'favorite']
 
 //listar archivos
 Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);
+Route::get('postulaciones-vacantes/files/{postulacion}', [PostulacionController::class, 'indexFiles']);
 //guardar archivos
 Route::post('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'storeFiles']);
+Route::post('postulaciones-vacantes/files/{postulacion}', [PostulacionController::class, 'storeFiles']);

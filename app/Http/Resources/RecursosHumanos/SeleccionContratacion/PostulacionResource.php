@@ -19,24 +19,25 @@ class PostulacionResource extends JsonResource
     {
         // return parent::toArray($request);
         // La variable $persona hace referencia al modelo Empleado o a Postulante, y tiene el valor de sus respectivas asignaciones
-        $persona = $this->user_type === User::class ? $this->user->empleado: $this->user->persona;
+        $persona = $this->user_type === User::class ? $this->user?->empleado : $this->user?->persona;
 
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
             'vacante' => new VacanteResource($this->vacante),
-            'usuario'=>$this->user,
-            'persona'=>$persona,
-            'imagen_referencia' => $this->vacante->imagen_referencia ? url($this->vacante->imagen_referencia) : null,
-            'nombre' => $this->vacante->nombre,
+            'usuario' => $this->user,
+            'persona' => $persona,
+            'imagen_referencia' => $this->vacante ? url($this->vacante->imagen_referencia) : null,
+            'nombre' => $this->vacante?->nombre,
             'user_id' => $this->user_id,
             'user_type' => $this->user_type,
-            'nombres' => $this->nombres,
-            'apellidos' => $this->apellidos,
+            'nombres' => $persona?->nombres,
+            'nombres_apellidos' => $persona?->nombres . ' ' . $persona?->apellidos,
+            'apellidos' => $persona?->apellidos,
             'identificacion' => $this->identificacion,
-            'tipo_identificacion' => $this->tipo_identificacion,
+            'tipo_identificacion' => $persona->tipo_documento_identificacion ?? 'CEDULA',
             'telefono' => $this->telefono,
-            'correo_personal' => $this->correo_personal,
+            'correo_personal' => $persona->correo_personal,
             'genero' => $this->genero,
             'identidad_genero' => $this->identidad_genero,
             'pais' => $this->pais,

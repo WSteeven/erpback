@@ -67,6 +67,7 @@ enum RutasStorage: string
      * MODULO DE SELECCION Y CONTRATACION
      */
     case SOLICITUD_NUEVO_EMPLEADO = 'public/SeleccionContratacionPersonal/solicitudes_personal';
+    case DOCUMENTOS_POSTULANTES = 'public/SeleccionContratacionPersonal/postulantes/';
     case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
 
     case IMAGENES_NOTICIAS  = 'public/intranet/imagenesNoticias';
