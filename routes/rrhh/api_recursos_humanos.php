@@ -33,7 +33,9 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
+use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -75,6 +77,8 @@ Route::apiResources(
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
 
+        'tipos_puestos_trabajos' => TipoPuestoController::class,
+        'tipos-discapacidades' => TipoDiscapacidadController::class,
     ],
     [
         'parameters' => [
@@ -84,6 +88,8 @@ Route::apiResources(
             'prestamo_empresarial' => 'prestamo',
             'prestamos_quirografarios' => 'prestamo',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
+            'rol_pago_mes'=>'rol',
+            'tipo_licencia'=>'tipo',
         ],
 
     ]
@@ -124,6 +130,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'finalizarRolPago']);
     Route::get('habilitar-empleado', [EmpleadoController::class, 'HabilitaEmpleado']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_reporte_general']);
+    Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirReporteGeneral']);
     Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
     Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
     Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crear_cash_rol_pago']);

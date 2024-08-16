@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Bodega\PermisoArma;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
@@ -14,6 +15,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 
 class DetalleProducto extends Model implements Auditable
 {
@@ -30,6 +33,7 @@ class DetalleProducto extends Model implements Auditable
     const MUJER = 'MUJER';
 
 
+
     /**
      * The attributes that are mass assignable.
      *
@@ -41,18 +45,30 @@ class DetalleProducto extends Model implements Auditable
         'marca_id',
         'modelo_id',
         'serial',
+        'lote',
         'precio_compra',
         'color',
         'talla',
+        'calibre',
+        'peso',
+        'dimensiones',
+        'permiso',
+        'permiso_id',
+        'caducidad',
         'tipo',
         'url_imagen',
         'es_fibra',
-
+        'esActivo',
+        'fecha_caducidad',
+        'fotografia',
+        'fotografia_detallada',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_fibra' => 'boolean',
+        'esActivo' => 'boolean',
+        'activo' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -90,6 +106,11 @@ class DetalleProducto extends Model implements Auditable
     public function inventarios()
     {
         return $this->hasMany(Inventario::class, 'detalle_id');
+    }
+
+    public function permisoArma()
+    {
+        return $this->hasOne(PermisoArma::class, 'id', 'permiso_id');
     }
 
     public function itemsPreingresos()
@@ -274,6 +295,9 @@ class DetalleProducto extends Model implements Auditable
         try {
             DB::beginTransaction();
 
+            if (isset($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            if (isset($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+
             $detalle = DetalleProducto::create($datos);
             if ($request->categoria === 'INFORMATICA') {
 
@@ -307,7 +331,7 @@ class DetalleProducto extends Model implements Auditable
     /**
      * La función `obtenerDetalle` en PHP recupera detalles del producto en función de los parámetros
      * proporcionados, como el producto_id, la descripción y el número de serie.
-     * 
+     *
      * @param producto_id El ID del producto que desea buscar. Si se proporciona, la búsqueda se
      * limitará a este producto específico.
      * @param descripcion El parámetro "descripcion" es una cadena que representa la descripción del
@@ -315,7 +339,7 @@ class DetalleProducto extends Model implements Auditable
      * @param serial El parámetro "serie" se utiliza para buscar un producto específico por su número
      * de serie. Si se proporciona un número de serie, la función buscará un producto con un número de
      * serie y una descripción coincidentes.
-     * 
+     *
      * @return DetalleProducto el resultado de la consulta a la base de datos.
      */
     public static function obtenerDetalle($producto_id = null, $descripcion, $serial = null)

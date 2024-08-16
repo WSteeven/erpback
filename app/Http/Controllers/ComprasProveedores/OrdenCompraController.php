@@ -191,7 +191,7 @@ class OrdenCompraController extends Controller
         $orden->estado_id = $estado->id;
         if ($orden->preorden_id) {
             $preorden = PreordenCompra::find($orden->preorden_id);
-            $preorden->estado = EstadoTransaccion::PENDIENTE;
+            $preorden->estado = EstadoTransaccion::ANULADA;
             $preorden->save();
         }
         $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente

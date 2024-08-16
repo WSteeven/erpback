@@ -16,9 +16,7 @@ use Throwable;
 class ArchivoService
 {
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * La función "listarArchivos" recupera una lista de archivos asociados con una entidad modelo
@@ -32,9 +30,12 @@ class ArchivoService
      */
     public static function listarArchivos(Model $entidad)
     {
+        Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
         $results = [];
         try {
-            $results =  $entidad->archivos()->get();
+            $results =  $entidad->archivos()->when(request('tipo'), function ($q) {
+                return $q->where('tipo', request('tipo'));
+            })->get();
             return $results;
         } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['Error en el metodo listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
@@ -54,10 +55,13 @@ class ArchivoService
      * @param RutasStorage|string $ruta El parámetro `` es una instancia de la clase `RutasStorage`, que
      * representa la ruta de almacenamiento donde se guardará el archivo. Contiene una propiedad
      * `value` que contiene el valor real de la ruta de almacenamiento.
+     * @param string|null $tipo este campo se agrego luego de un tiempo por lo que sus valores fueron null
+     * a partir de que se agrego con fecha 09/08/2024 este campo debe tener valor obligatoriamente asi exista
+     * un único tipo para su modelo (MAYUSCULAS).
      *
      * @return Model el objeto modelo creado.
      */
-    public static function guardarArchivo(Model $entidad, UploadedFile $archivo, string $ruta)
+    public static function guardarArchivo(Model $entidad, UploadedFile $archivo, string $ruta, string $tipo = null)
     {
         try {
             DB::beginTransaction();
@@ -68,6 +72,7 @@ class ArchivoService
                 'nombre' => $archivo->getClientOriginalName(),
                 'ruta' => $ruta_relativa,
                 'tamanio_bytes' => filesize($archivo),
+                'tipo' => $tipo,
             ]);
             DB::commit();
             // Log::channel('testing')->info('Log', ['Archivo nuevo creado en Archivo Service', $modelo]);

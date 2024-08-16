@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\PedidoCreadoEvent;
+use App\Models\ActivosFijos\ActivoFijo;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Src\Config\MotivosTransaccionesBodega;
 use Throwable;
 
+
 class TransaccionBodega extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
@@ -27,6 +29,12 @@ class TransaccionBodega extends Model implements Auditable
     const ACEPTADA = 'ACEPTADA';
     const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
+
+    /***********************
+     * Constantes archivos
+     ***********************/
+    const JUSTIFICATIVO_USO = 'JUSTIFICATIVO USO';
+    const ACTA_ENTREGA_RECEPCION = 'ACTA ENTREGA RECEPCION';
 
     public $table = 'transacciones_bodega';
     public $fillable = [
@@ -65,9 +73,10 @@ class TransaccionBodega extends Model implements Auditable
         return [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
-            'devolucion_id'=>$this->devolucion_id,
-            'pedido_id'=>$this->pedido_id,
-            'transferencia_id'=>$this->transferencia_id,
+            'devolucion_id' => $this->devolucion_id,
+            'pedido_id' => $this->pedido_id,
+            'transferencia_id' => $this->transferencia_id,
+            'comprobante' => $this->comprobante,
         ];
     }
 
@@ -259,6 +268,15 @@ class TransaccionBodega extends Model implements Auditable
         return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
     }
 
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
+
 
     /**
      * ______________________________________________________________________________________
@@ -343,6 +361,8 @@ class TransaccionBodega extends Model implements Auditable
                     } else {
                         // Stock personal
                         MaterialEmpleado::cargarMaterialEmpleado($item_inventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
+                        ActivoFijo::cargarComoActivo($item_inventario->detalle, $transaccion->cliente_id);
+                        // ActivoFijo::cargarStockActivos($item_inventario->detalle_id, $transaccion->cliente_id);
                     }
                 } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }

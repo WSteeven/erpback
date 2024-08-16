@@ -38,6 +38,10 @@ class MaterialEmpleado extends Model implements Auditable
     {
         return $this->belongsTo(DetalleProducto::class,  'detalle_producto_id', 'id');
     }
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class);
+    }
 
     public function scopeResponsable($query)
     {

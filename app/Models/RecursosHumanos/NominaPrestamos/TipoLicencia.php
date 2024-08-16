@@ -16,8 +16,16 @@ class TipoLicencia extends Model implements Auditable
     protected $table = 'tipo_licencias';
     protected $fillable = [
         'nombre',
+        'num_dias',
         'estado',
     ];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'estado' => 'boolean',
+    ];
+
     private static $whiteListFilter = [
         'id',
         'nombre',

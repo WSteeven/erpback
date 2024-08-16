@@ -20,6 +20,7 @@ use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\Bodega\PermisoArmaController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -59,6 +60,7 @@ use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Resources\CantonResource;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -124,7 +126,7 @@ Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
 Route::apiResource('archivos', ArchivoController::class)->only('destroy');
 Route::apiResources(
     [
-        'activos-fijos' => ActivoFijoController::class,
+        // 'activos-fijos' => ActivoFijoController::class, Revisar si queda o se a
         'autorizaciones' => AutorizacionController::class,
         'cargos' => CargoController::class,
         'categorias' => CategoriaController::class,
@@ -157,6 +159,7 @@ Route::apiResources(
         'permisos' => PermisoController::class,
         'pisos' => PisoController::class,
         'detalles' => DetalleProductoController::class,
+        'permisos-armas' => PermisoArmaController::class,
         'preingresos' => PreingresoMaterialController::class,
         'proveedores' => ProveedorController::class,
         'rams' => RamController::class,
@@ -179,7 +182,7 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'activos-fijos' => 'activo',
+            // 'activos-fijos' => 'activo',
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',
@@ -188,6 +191,7 @@ Route::apiResources(
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
             'notificaciones' => 'notificacion',
+            'permisos-armas' => 'permiso',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',
@@ -217,7 +221,7 @@ Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos']
 /**
  * Rutas para imprimir PDFs
  */
-Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
+// Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('devoluciones/imprimir/{devolucion}', [DevolucionController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimir'])->middleware('auth:sanctum');
@@ -326,6 +330,7 @@ Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])
 Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
 Route::get('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('transacciones/files/{transaccion_bodega}/{tipo?}', [TransaccionBodegaController::class, 'indexFiles']);
 
 /**
  * Subidas de archivos
@@ -334,6 +339,7 @@ Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFile
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');
+Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaController::class, 'storeFiles']);
 
 /**
  * Actualizar materiales de empleados
@@ -341,3 +347,4 @@ Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'st
 
 Route::post('actualizar-materiales-empleados', [InventarioController::class, 'actualizarMaterialesEmpleado'])->middleware('auth:sanctum');
 Route::post('actualizar-cantidad-material-empleado', [InventarioController::class, 'actualizarCantidadMaterialEmpleado'])->middleware('auth:sanctum');
+Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));

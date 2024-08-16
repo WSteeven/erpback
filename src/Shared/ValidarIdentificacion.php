@@ -54,7 +54,7 @@ use Src\Config\PaisesOperaciones;
  */
 class ValidarIdentificacion
 {
-    private string $pais;
+    private ?string $pais;
 
     public function __construct()
     {
