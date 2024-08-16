@@ -174,7 +174,7 @@ class SubtareaController extends Controller
     public function realizar(Request $request, Subtarea $subtarea)
     {
         // Validar si se puede realizar
-        $this->subtareaService->puedeRealizar($subtarea);
+        // $this->subtareaService->puedeRealizar($subtarea); // A peticion de Marilú el dia 16/08/2024 se quita
 
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
