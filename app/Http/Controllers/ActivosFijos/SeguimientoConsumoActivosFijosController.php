@@ -31,13 +31,6 @@ class SeguimientoConsumoActivosFijosController extends Controller
      */
     public function index()
     {
-        /* request()->validate([
-            'detalle_producto_id' => 'required|numeric|integer|exists:detalles_productos,id',
-            'cliente_id' => 'required|numeric|integer|exists:clientes,id',
-            'resumen' => 'nullable|boolean',
-            'seguimiento' => 'nullable|boolean',
-        ]); */
-
         $results = $this->seguimientoConsumoActivosFijosService->seguimientoConsumoActivosFijos();
         $results = SeguimientoConsumoActivosFijosResource::collection($results);
         return response()->json(compact('results'));
@@ -84,13 +77,15 @@ class SeguimientoConsumoActivosFijosController extends Controller
     {
         $validado = $request->validated();
 
-        $seguimiento_consumo_activo_fijo->cantidad_utilizada = $validado['cantidad_utilizada'];
-        $seguimiento_consumo_activo_fijo->save();
+        if (isset($validado['cantidad_anterior']) || isset($validado['cantidad_utilizada'])) {
+            $seguimiento_consumo_activo_fijo->cantidad_utilizada = $validado['cantidad_utilizada'];
+            $seguimiento_consumo_activo_fijo->save();
 
-        // if ($validado['justificativo_uso']) // Guardar archivo
+            // Descontar y sumar valores
+            $this->seguimientoConsumoActivosFijosService->actualizarStockActivoFijoOcupado($request);
+        }
 
-        // Descontar y sumar valores
-        $this->seguimientoConsumoActivosFijosService->actualizarStockActivoFijoOcupado($request);
+        $seguimiento_consumo_activo_fijo->update($validado);
 
         $modelo = new SeguimientoConsumoActivosFijosResource($seguimiento_consumo_activo_fijo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

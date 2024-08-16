@@ -6,18 +6,31 @@ use App\Models\ActivosFijos\SeguimientoConsumoActivosFijos;
 use App\Models\MaterialEmpleado;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
+use Src\App\Sistema\PaginationService;
 
 class SeguimientoConsumoActivosFijosService
 {
+    protected PaginationService $paginationService;
+
+    public function __construct()
+    {
+        $this->paginationService = new PaginationService();
+    }
     /**
      * Devuelve el historial de consumo de un activo fijo ($detalle_producto_id, $cliente_id)
      * @param int $detalle_producto_id
      * @param int $cliente_id
      */
-    public function seguimientoConsumoActivosFijos(): Collection
+    public function seguimientoConsumoActivosFijos() //: Collection
     {
-        $results = SeguimientoConsumoActivosFijos::filter()->latest()->get();
-        return $results;
+        $search = request('search');
+        $paginate = request('paginate');
+
+        if ($search) $query = SeguimientoConsumoActivosFijos::search()->latest(); //->get();
+        else $query = SeguimientoConsumoActivosFijos::ignoreRequest(['paginate'])->filter()->latest(); //->get();
+
+        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();
     }
 
     public function actualizarStockActivoFijoOcupado($request)

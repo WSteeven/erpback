@@ -39,9 +39,9 @@ class TareaController extends Controller
     {
         $this->tareaService = new TareaService();
         $this->paginationService = new PaginationService();
-    } // 96 - 102 // pregunta 90
+    }
 
-     public function listar()
+    public function listar()
     {
         $search = request('search');
         $paginate = request('paginate');
@@ -59,7 +59,7 @@ class TareaController extends Controller
 
         if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
         else return $query->get();
-    } 
+    }
 
     /*********
      * Listar
@@ -131,15 +131,15 @@ class TareaController extends Controller
 
         try {
             if ($request->isMethod('patch')) {
+                if ($tarea->cliente_id == ClientesCorporativos::TELCONET) $this->verificarMaterialTareaDevuelto($tarea->id);
+                else if ($tarea->cliente_id != ClientesCorporativos::TELCONET) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
+
                 if ($request['imagen_informe']) {
                     $guardar_imagen = new GuardarImagenIndividual($request['imagen_informe'], RutasStorage::TAREAS);
                     $request['imagen_informe'] = $guardar_imagen->execute();
                 }
 
                 $actualizado = $tarea->update($request->except(['id']));
-
-                if ($actualizado && $tarea->cliente_id != ClientesCorporativos::TELCONET) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
-                // if ($actualizado) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
             }
 
             // Respuesta
@@ -154,6 +154,7 @@ class TareaController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            throw $e;
         }
 
         return response()->json(compact('modelo', 'mensaje'));
@@ -245,17 +246,25 @@ class TareaController extends Controller
         return response()->json(compact('estan_finalizadas'));
     }
 
-    public function verificarMaterialTareaDevuelto()
+    /**
+     * Para que las tareas del cliente TELCONET pueda finalizar las tareas
+     * primero deberá devolver los materiales asignados a la misma.
+     * A diferencia que NEDETEL y los demás clientes que a ellos se les transfiere automáticamente
+     * el material de tarea al stock personal del empleado(s) responsable(s) de la tarea.
+     */
+    public function verificarMaterialTareaDevuelto(int $tarea_id)
     {
         // $idEmpleado = request('empleado_id');
-        $idTarea = request('tarea_id');
+        // $idTarea = request('tarea_id');
 
-        $materiales = MaterialEmpleadoTarea::where('tarea_id', $idTarea)->get();
-        $materialesConStock = $materiales->filter(fn ($material) => $material->cantidad_stock > 0);
-        $materiales_devueltos = $materialesConStock->count() == 0;
+
+        $tieneMaterialPendieteDevolucion = MaterialEmpleadoTarea::where('tarea_id', $tarea_id)->where('cantidad_stock', '>', 0)->exists();
+        if ($tieneMaterialPendieteDevolucion) throw ValidationException::withMessages(['402' => ['Tiene materiales pendiente de devolución para finalizar la tarea!']]);
+        // $materialesConStock = $materiales->filter(fn($material) => $material->cantidad_stock > 0);
+        // $materiales_devueltos = $materialesConStock->count() == 0;
         //        Log::channel('testing')->info('Log', compact('materialesConStock'));
         //      Log::channel('testing')->info('Log', compact('materiales_devueltos'));
-        return response()->json(compact('materiales_devueltos'));
+        // return response()->json(compact('materiales_devueltos'));
     }
 
     /**

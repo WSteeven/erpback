@@ -42,5 +42,11 @@ class PermisosActivosFijosSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'seguimiento_consumo_activos_fijos'])->syncRoles([$empleado]);
+
+        // Transferencia activos fijos - Pendiente de desarrollar
+        /* Permission::firstOrCreate(['name' => Permisos::VER . 'transferencia_activos_fijos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'transferencia_activos_fijos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'transferencia_activos_fijos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'transferencia_activos_fijos'])->syncRoles([$empleado]); */
     }
 }

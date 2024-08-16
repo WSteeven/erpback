@@ -42,6 +42,6 @@ class LicenciaEmpleadoResource extends JsonResource
         $fechaInicio = Carbon::parse($fecha_inicio);
         $fechaFin = Carbon::parse($fecha_fin);
         // Calcular la diferencia en días
-        return  $fechaInicio->diffInDays($fechaFin);
+        return  $fechaInicio->diffInDays($fechaFin) + 1;
     }
 }

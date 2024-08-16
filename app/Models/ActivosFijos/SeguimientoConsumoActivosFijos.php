@@ -28,9 +28,12 @@ class SeguimientoConsumoActivosFijos extends Model implements Auditable
         'canton_id',
         'motivo_consumo_activo_fijo_id',
         'observacion',
+        'se_reporto_sicosep'
     ];
 
     private static $whiteListFilter = ['*'];
+
+    protected $casts = ['se_reporto_sicosep' => 'boolean'];
 
     /***********************
      * Constantes archivos

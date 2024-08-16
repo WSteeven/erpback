@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\ActivosFijos;
 
+use App\Http\Resources\ArchivoResource;
 use App\Models\Empleado;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,6 +30,8 @@ class SeguimientoConsumoActivosFijosResource extends JsonResource
             'motivo_consumo' => $this->motivoConsumoActivoFijo?->nombre,
             'observacion' => $this->observacion,
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
+            'se_reporto_sicosep' => $this->se_reporto_sicosep,
+            'archivos' => ArchivoResource::collection($this->archivos),
         ];
     }
 }

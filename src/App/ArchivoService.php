@@ -33,9 +33,10 @@ class ArchivoService
         Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
         $results = [];
         try {
-            $results =  $entidad->archivos()->when(request('tipo'), function ($q) {
+            $results =  $entidad->archivos()->filter()->get();
+           /*  $results =  $entidad->archivos()->when(request('tipo'), function ($q) {
                 return $q->where('tipo', request('tipo'));
-            })->get();
+            })->get(); */
             return $results;
         } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['Error en el metodo listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
