@@ -36,6 +36,8 @@ class Postulacion extends Model implements Auditable
         'activo',
         'user_id',
         'user_type',
+        'ruta_cv',
+        'estado',
     ];
 
     protected $casts = [
@@ -49,6 +51,10 @@ class Postulacion extends Model implements Auditable
         'tengo_licencia_conducir' => 'boolean',
         'activo' => 'boolean',
     ];
+    // --------------------------------
+    // ESTADOS
+    // --------------------------------
+    const POSTULADO = 'POSTULADO';
 
     private static array $whiteListFilter = ['*'];
 

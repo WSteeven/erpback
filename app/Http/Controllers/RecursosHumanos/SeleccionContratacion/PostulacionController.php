@@ -12,10 +12,12 @@ use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
+use Src\Shared\ObtenerInstanciaUsuario;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -62,8 +64,10 @@ class PostulacionController extends Controller
             DB::beginTransaction();
             if (auth()->user() instanceof User) {
                 $postulacion = auth()->user()->postulacion()->create($datos);
+                // Log::channel('testing')->info('Log', ['store::postulacion->user', $postulacion,]);
             } elseif (auth()->user() instanceof UserExternal) {
                 $postulacion = auth()->user()->postulacion()->create($datos);
+                // Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
                 //Postulante hace referencia a la tabla postulante, que es equivalente a la tabla empleados, solo que en este caso es para usuarios externos
                 $postulante = Postulante::find($postulacion->user_id);
                 if (is_null($postulante->correo_personal)) $postulante->correo_personal = $datos['correo_personal'];
@@ -82,7 +86,7 @@ class PostulacionController extends Controller
                 }
             }
             // throw new Exception('Excepcion controlada');
-            $modelo = new PostulacionResource($vacante);
+            $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Throwable $e) {
@@ -147,6 +151,7 @@ class PostulacionController extends Controller
      */
     public function indexFiles(Postulacion $postulacion)
     {
+        Log::channel('testing')->info('Log', ['indexFiles de postulacion', $postulacion, request()->all()]);
         try {
             $results = $this->archivoService->listarArchivos($postulacion);
 
@@ -162,19 +167,33 @@ class PostulacionController extends Controller
      */
     public function storeFiles(Request $request, Postulacion $postulacion)
     {
+        Log::channel('testing')->info('Log', ['storeFiles de postulacion', $postulacion, request()->all()]);
         try {
+            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+            if (!is_null($user_id)) {
+                $user = match ($user_type) {
+                    User::class => User::find($user_id),
+                    UserExternal::class => UserExternal::find($user_id),
+                    default => null,
+                };
+                Log::channel('testing')->info('Log', ['user es', $user]);
+                // Hay que configurar para que se guarden los CV´s de los postulantes con su respectivo numero de cedula
+                // para luego poder buscarlos y versionarlos así como LinkedIn
 
-            // Hay que configurar para que se guarden los CV´s de los postulantes con su respectivo numero de cedula
-            // para luego poder buscarlos y versionarlos así como LinkedIn
+                $modelo = $this->archivoService->guardarArchivo($user, $request->file, RutasStorage::CURRICULUM->value . $user->empleado->identificacion ??RutasStorage::CURRICULUM->value . $user->persona->numero_documento_identificacion, $request->tipo);
+                Log::channel('testing')->info('Log', ['modelo obtenido es', $modelo]);
+                // se actualiza la postulación para anexar el archivo del CV
+                $postulacion->ruta_cv = $modelo->ruta;
+                $postulacion->save();
 
-            $modelo = $this->archivoService->guardarArchivo($postulacion, $request->file, RutasStorage::DOCUMENTOS_POSTULANTES->value);
-            $mensaje = 'Archivo subido correctamente';
+                $mensaje = 'Archivo subido correctamente';
+            } else {
+                throw new Exception('Usuario no logueado');
+            }
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
-            Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
         }
     }
-
 }

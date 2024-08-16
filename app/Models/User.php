@@ -161,6 +161,15 @@ class User extends Authenticatable implements Auditable
         return $permissions;
     }
 
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
+
     public function esTecnicoLider()
     {
         return $this->hasRole(User::ROL_LIDER_DE_GRUPO);

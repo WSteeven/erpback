@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -28,6 +29,8 @@ return new class extends Migration
             $table->boolean('tengo_formacion_academica_requerida')->default(false);
             $table->boolean('tengo_licencia_conducir')->default(false);
             $table->string('tipo_licencia')->nullable();
+            $table->string('estado')->default(Postulacion::POSTULADO);
+            $table->text('ruta_cv')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();
 

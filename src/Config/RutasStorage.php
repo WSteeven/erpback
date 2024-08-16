@@ -73,6 +73,7 @@ enum RutasStorage: string
      */
     case SOLICITUD_NUEVO_EMPLEADO = 'public/SeleccionContratacionPersonal/solicitudes_personal';
     case DOCUMENTOS_POSTULANTES = 'public/SeleccionContratacionPersonal/postulantes/';
+    case CURRICULUM = 'public/SeleccionContratacionPersonal/curriculums/';
     case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
 
     /**********

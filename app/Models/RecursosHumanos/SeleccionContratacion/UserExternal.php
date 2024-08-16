@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\Archivo;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -60,6 +61,15 @@ class UserExternal extends Authenticatable implements Auditable
     public function persona()
     {
         return $this->hasOne(Postulante::class, 'usuario_external_id');
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 
     /**
