@@ -38,13 +38,13 @@ class VacanteResource extends JsonResource
             'areas_conocimiento' => Conocimiento::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->areas_conocimiento)))->pluck('nombre'),
             'requiere_experiencia' => !!$this->anios_experiencia,
             'requiere_formacion_academica' => !!count($this->formacionesAcademicas),
-            'disponibilidad_viajar'=>$this->disponibilidad_viajar,
-            'requiere_licencia'=>$this->requiere_licencia,
-            'es_favorita'=>!!$this->favorita,
-            'created_at'=> $this->created_at,
+            'disponibilidad_viajar' => $this->disponibilidad_viajar,
+            'requiere_licencia' => $this->requiere_licencia,
+            'es_favorita' => !!$this->favorita,
+            'created_at' => $this->created_at,
+            'ya_postulada' => !!$this->postulacion,
         ];
-        if ($controller_method == 'showPreview'||$controller_method == 'favorite') {
-            $modelo['ya_postulada'] = !!$this->postulacion;
+        if ($controller_method == 'showPreview' || $controller_method == 'favorite') {
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
         }
         if ($controller_method == 'show') {

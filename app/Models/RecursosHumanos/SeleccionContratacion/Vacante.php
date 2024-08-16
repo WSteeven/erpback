@@ -98,6 +98,7 @@ class Vacante extends Model implements Auditable
 
     public function postulacion()
     {
+        
         [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
 
         return $this->hasOne(Postulacion::class, 'vacante_id')
