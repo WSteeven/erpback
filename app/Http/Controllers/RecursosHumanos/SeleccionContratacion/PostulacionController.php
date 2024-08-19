@@ -105,6 +105,9 @@ class PostulacionController extends Controller
      */
     public function show(Postulacion $postulacion)
     {
+        $leido_old = $postulacion->leido;
+
+
         $modelo = new PostulacionResource($postulacion);
         return response()->json(compact('modelo'));
     }
@@ -147,13 +150,48 @@ class PostulacionController extends Controller
     }
 
     /**
+     * Listar todos los CV del usuario logueado
+     */
+    public function curriculumUsuario(){
+        // se trabaja con la sesión del usuario logueado
+        try{
+            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+
+            $user = match ($user_type) {
+                User::class => User::find($user_id),
+                UserExternal::class => UserExternal::find($user_id),
+                default => null,
+            };
+            $results = $this->archivoService->listarArchivos($user);
+            return response()->json(compact('results'));
+        }catch(Exception $ex){
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+    }
+
+    /**
      * Listar archivos
      */
     public function indexFiles(Postulacion $postulacion)
     {
-        Log::channel('testing')->info('Log', ['indexFiles de postulacion', $postulacion, request()->all()]);
+        // Log::channel('testing')->info('Log', ['indexFiles de postulacion', $postulacion, request()->all()]);
         try {
-            $results = $this->archivoService->listarArchivos($postulacion);
+            $user_id = $postulacion->user_id;
+            $user_type = $postulacion->user_type;
+
+            $user = match ($user_type) {
+                User::class => User::find($user_id),
+                UserExternal::class => UserExternal::find($user_id),
+                default => null,
+            };
+            $results = $this->archivoService->listarArchivos($user);
+
+            $filtrados = $results->filter(function($archivo) use ($postulacion){
+                return $archivo->ruta == $postulacion->ruta_cv;
+            });
+
+            $results = $filtrados->values()->toArray();
 
             return response()->json(compact('results'));
         } catch (Exception $ex) {
@@ -167,7 +205,8 @@ class PostulacionController extends Controller
      */
     public function storeFiles(Request $request, Postulacion $postulacion)
     {
-        Log::channel('testing')->info('Log', ['storeFiles de postulacion', $postulacion, request()->all()]);
+        $ruta = '';
+        // Log::channel('testing')->info('Log', ['storeFiles de postulacion', $postulacion, request()->all()]);
         try {
             [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
             if (!is_null($user_id)) {
@@ -176,12 +215,18 @@ class PostulacionController extends Controller
                     UserExternal::class => UserExternal::find($user_id),
                     default => null,
                 };
-                Log::channel('testing')->info('Log', ['user es', $user]);
+                // Log::channel('testing')->info('Log', ['user es', $user]);
                 // Hay que configurar para que se guarden los CV´s de los postulantes con su respectivo numero de cedula
                 // para luego poder buscarlos y versionarlos así como LinkedIn
+                $ruta = match ($user_type) {
+                    User::class =>  RutasStorage::CURRICULUM->value . $user->empleado->identificacion,
+                    UserExternal::class =>  RutasStorage::CURRICULUM->value . $user->persona->numero_documento_identificacion,
+                    default => null,
+                };
 
-                $modelo = $this->archivoService->guardarArchivo($user, $request->file, RutasStorage::CURRICULUM->value . $user->empleado->identificacion ??RutasStorage::CURRICULUM->value . $user->persona->numero_documento_identificacion, $request->tipo);
-                Log::channel('testing')->info('Log', ['modelo obtenido es', $modelo]);
+                $modelo = $this->archivoService->guardarArchivo($user, $request->file, $ruta, $request->tipo);
+                // Log::channel('testing')->info('Log', ['modelo obtenido es', $modelo]);
+
                 // se actualiza la postulación para anexar el archivo del CV
                 $postulacion->ruta_cv = $modelo->ruta;
                 $postulacion->save();

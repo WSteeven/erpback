@@ -26,7 +26,11 @@ class UserExternalResource extends JsonResource
             'tipo_documento_identificacion' => $this->persona ? $this->persona->tipo_documento_identificacion : '',
             'numero_documento_identificacion' => $this->persona ? $this->persona->numero_documento_identificacion : '',
             'telefono' => $this->persona  ? $this->persona->telefono : '',
-            'genero' => $this->persona ? $this->persona->genero : null
+            'genero' => $this->persona ? $this->persona->genero : null,
+            'pais' => $this->persona ? $this->persona->pais_id : null,
+            'fecha_nacimiento' => $this->persona->fecha_nacimiento ?? null,
+            'identidad_genero' => $this->persona->identidad_genero_id ?? null,
+            'direccion' => $this->persona->direccion ?? null,
         ];
     }
 }

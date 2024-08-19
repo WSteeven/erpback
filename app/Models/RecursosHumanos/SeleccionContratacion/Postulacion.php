@@ -37,6 +37,7 @@ class Postulacion extends Model implements Auditable
         'user_id',
         'user_type',
         'ruta_cv',
+        'leido_rrhh',
         'estado',
     ];
 

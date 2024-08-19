@@ -19,7 +19,7 @@ class ObtenerInstanciaUsuario
  */
 public static function tipoUsuario()
 {
-    Log::channel('testing')->info('Log', ['ObtenerInstanciaUsuario::tipoUsuario', Auth::guard('sanctum')->check(), Auth::guard('sanctum')->user() ]);
+    // Log::channel('testing')->info('Log', ['ObtenerInstanciaUsuario::tipoUsuario', Auth::guard('sanctum')->check(), Auth::guard('sanctum')->user() ]);
     $user_id = null;
     $user_type = null;
 

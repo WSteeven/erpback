@@ -88,7 +88,7 @@ class UserExternal extends Authenticatable implements Auditable
         return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
     }
 
-    public function postulaciones(){
+    public function postulacion(){
         return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
 
     }

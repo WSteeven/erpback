@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('tipo_licencia')->nullable();
             $table->string('estado')->default(Postulacion::POSTULADO);
             $table->text('ruta_cv')->nullable();
+            $table->boolean('leido_rrhh')->default(false);
             $table->boolean('activo')->default(true);
             $table->timestamps();
 

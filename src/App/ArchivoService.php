@@ -30,7 +30,7 @@ class ArchivoService
      */
     public static function listarArchivos(Model $entidad)
     {
-        Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
+        // Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
         $results = [];
         try {
             $results =  $entidad->archivos()->filter()->get();
@@ -96,7 +96,7 @@ class ArchivoService
     {
         try {
             if (!Storage::exists($ruta)) {
-                // Storage::makeDirectory($ruta, 0755, true); //esta linea en el servidor crea con 0700 en lugar de 0755, probaremos con mkdir  
+                // Storage::makeDirectory($ruta, 0755, true); //esta linea en el servidor crea con 0700 en lugar de 0755, probaremos con mkdir
                 // mkdir($ruta, 0755, true); // mkdir tampoco funcionó, se prueba con otro metodo
                 // Storage::disk('local')->mkdir($ruta,0755,true);
                 Storage::disk('local')->makeDirectory($ruta, 0755);
