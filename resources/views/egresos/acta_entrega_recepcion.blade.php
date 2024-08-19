@@ -230,13 +230,14 @@
             <tr class="row">
                 <td>Cliente: <b>{{ $transaccion['cliente'] }}</b></td>
                 <td></td>
-                <td>Motivo: <b>{{ $transaccion['motivo'] }}</b></td>
+                <td>Responsable: <b>{{ $persona_retira->nombres }} {{ $persona_retira->apellidos }}</b></td>
             </tr>
         </table>
 
         <!-- aqui va el listado de productos -->
         @if (count($transaccion['listadoProductosTransaccion']) == 0)
-            <p style="margin: 24px; font-weight: bold; text-align: center;">{{ 'No existen items de tipo armamento o munición en esta transacción' }}</p>
+            <p style="margin: 24px; font-weight: bold; text-align: center;">
+                {{ 'No existen items de tipo armamento o munición en esta transacción' }}</p>
         @else
             <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 100%;" align="center">
                 <thead>
