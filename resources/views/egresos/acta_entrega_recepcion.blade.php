@@ -124,7 +124,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo }}" width="70"></div>
                 </td>
                 <td style="width: 68%">
                     <div class="col-md-7" align="center"><b>ACTA DE ENTREGA RECEPCIÓN</b></div>
@@ -140,24 +140,12 @@
         <table class="firma" style="width: 100%;">
             <thead>
                 <th align="center">
-                    @isset($entrega_firma)
-                        <img src="{{ $entrega_firma }}" alt="" width="100%" height="40">
-                    @endisset
-                    @empty($entrega_firma)
-                        ___________________<br />
-                    @endempty
+                    ___________________<br />
                     <b>ENTREGA</b>
                 </th>
                 <th align="center"></th>
                 <th align="center">
-                    @if ($transaccion['firmada'])
-                        @isset($retira_firma)
-                            <img src="{{ $retira_firma }}" alt="" width="100%" height="40">
-                        @endisset
-                    @endif
-                    @empty($retira_firma)
-                        ___________________<br />
-                    @endempty
+                    ___________________<br />
                     <b>RECIBE</b>
                 </th>
             </thead>
