@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\ArchivoService;
+use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Config\RutasStorage;
 use Src\Shared\ObtenerInstanciaUsuario;
 use Src\Shared\Utils;
@@ -25,9 +26,11 @@ class PostulacionController extends Controller
 {
     private string $entidad = 'Postulación';
     private ArchivoService $archivoService;
+    private PostulacionService $service;
 
     public function __construct()
     {
+        $this->service = new PostulacionService();
         $this->archivoService = new ArchivoService();
         // Asegura que el usuario esté autenticado en todas las acciones
         $this->middleware('check.user.logged.in');
@@ -105,10 +108,17 @@ class PostulacionController extends Controller
      */
     public function show(Postulacion $postulacion)
     {
+        $leido_old =false;
         if(auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS) && request()->boolean('leido')){
             $leido_old = $postulacion->leido;
             if(request()->boolean('leido')){
-
+                if(!$leido_old){
+                    // Ya que leído es falso, se actualiza a true y se notifica por correo electronico al postulante que RRHH ha visto su CV
+                    $postulacion->leido_rrhh = true;
+                    $postulacion->save();
+                    // Notificar al postulante
+                    $this->service->notificarPostulacionLeida($postulacion->refresh());
+                }
             }
         }else{
             $modelo = new PostulacionResource($postulacion);
