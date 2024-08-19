@@ -366,9 +366,7 @@ class InventarioService
             'completas',
         );
     }
-    public static function obtenerInventarios($fecha_inicio, $fecha_fin)
-    {
-    }
+    public static function obtenerInventarios($fecha_inicio, $fecha_fin) {}
 
     public function kardex(int $detalle_id, $fecha_inicio, $fecha_fin, $tipo_rpt = null, int $sucursal_id = null)
     {
@@ -450,6 +448,7 @@ class InventarioService
             $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
             $row['fecha_hora'] = date('Y-m-d H:i:s', strtotime($movimiento->created_at));
             $row['comprobante_firmado'] = !!Comprobante::where('transaccion_id', $movimiento->transaccion->id)->first()?->firmada;
+            $row['codigo_permiso_traslado'] = $movimiento->transaccion->codigo_permiso_traslado;
             $results[$cont] = $row;
             $cont++;
             //Aqui se verifica si contiene el id actual la collection de ingresos anulados

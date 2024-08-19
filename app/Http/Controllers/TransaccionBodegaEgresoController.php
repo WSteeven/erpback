@@ -367,6 +367,26 @@ class TransaccionBodegaEgresoController extends Controller
         }
     }
 
+    public function imprimirActaEntregaRecepcion(TransaccionBodega $transaccion)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $resource = new TransaccionBodegaResource($transaccion);
+        $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
+        $persona_entrega = Empleado::find($transaccion->per_atiende_id);
+        $persona_retira = Empleado::find($transaccion->responsable_id);
+        try {
+            $transaccion = $resource->resolve();
+            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductosArmamento($transaccion['id']);
+            $pdf = Pdf::loadView('egresos.acta_entrega_recepcion', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente', 'configuracion']));
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->render();
+            return $pdf->output();
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+    }
+
     /**
      * Reportes
      */

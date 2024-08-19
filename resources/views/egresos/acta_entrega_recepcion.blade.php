@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+
+@php
+    $fecha = new Datetime();
+    $mensaje_qr =
+        $configuracion['razon_social'] .
+        PHP_EOL .
+        'TRANSACCION: ' .
+        $transaccion['id'] .
+        PHP_EOL .
+        'EGRESO: ' .
+        $transaccion['motivo'] .
+        PHP_EOL .
+        'TAREA: ' .
+        $transaccion['tarea_codigo'] .
+        PHP_EOL .
+        'SOLICITADO POR: ' .
+        $transaccion['solicitante'] .
+        PHP_EOL .
+        'AUTORIZADO POR: ' .
+        $transaccion['per_autoriza'] .
+        PHP_EOL .
+        'BODEGA DE CLIENTE: ' .
+        $transaccion['cliente'] .
+        PHP_EOL .
+        'SUCURSAL: ' .
+        $transaccion['sucursal'];
+
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    if ($persona_entrega->firma_url) {
+        $entrega_firma =
+            'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
+    }
+    if ($persona_retira->firma_url) {
+        $retira_firma =
+            'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_retira->firma_url, 1)));
+    }
+@endphp
+
+<head>
+    <meta charset="utf-8">
+    <title>Acta Entrega Recepción N° {{ $transaccion['id'] }}</title>
+    <style>
+        @page {
+            margin: 2px 15px 5px 15px;
+        }
+
+        body {
+            background-image: url({{ $logo_watermark }});
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+
+        /** Definir las reglas del encabezado **/
+        header {
+            position: fixed;
+            top: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 2cm;
+
+            /** Estilos extra personales **/
+            text-align: center;
+            line-height: 1.5cm;
+        }
+
+        /** Definir las reglas del pie de página **/
+        footer {
+            position: fixed;
+            bottom: 90px;
+            left: 0cm;
+            right: 0cm;
+            height: 2cm;
+
+            /** Estilos extra personales **/
+            text-align: center;
+            color: #000000;
+            line-height: 1.5cm;
+        }
+
+        footer .page:after {
+            content: counter(page);
+        }
+
+        main {
+            position: relative;
+            top: 80px;
+            left: 0cm;
+            right: 0cm;
+            margin-bottom: 7cm;
+            font-size: 12px;
+        }
+
+        div {
+            color: #000000 !important;
+        }
+
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .firma {
+            table-layout: fixed;
+            width: 100%;
+            line-height: normal;
+            font-size: 10px;
+        }
+
+
+        .row {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <table
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
+            <tr class="row" style="width:auto">
+                <td style="width: 10%;">
+                    <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
+                </td>
+                <td style="width: 68%">
+                    <div class="col-md-7" align="center"><b>ACTA DE ENTREGA RECEPCIÓN</b></div>
+                </td>
+                <td style="width: 22%;">
+                    <div class="col-md-2" align="right" style="font-size: 15px">Sistema de bodega</div>
+                </td>
+            </tr>
+        </table>
+        <hr>
+    </header>
+    <footer>
+        <table class="firma" style="width: 100%;">
+            <thead>
+                <th align="center">
+                    @isset($entrega_firma)
+                        <img src="{{ $entrega_firma }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($entrega_firma)
+                        ___________________<br />
+                    @endempty
+                    <b>ENTREGA</b>
+                </th>
+                <th align="center"></th>
+                <th align="center">
+                    @if ($transaccion['firmada'])
+                        @isset($retira_firma)
+                            <img src="{{ $retira_firma }}" alt="" width="100%" height="40">
+                        @endisset
+                    @endif
+                    @empty($retira_firma)
+                        ___________________<br />
+                    @endempty
+                    <b>RECIBE</b>
+                </th>
+            </thead>
+            <tbody>
+                <tr align="center">
+                    <td>{{ $persona_entrega->nombres }} {{ $persona_entrega->apellidos }} <br>
+                        {{ $persona_entrega->identificacion }}
+                    </td>
+                    <td></td>
+                    <td>
+                        @if ($transaccion['responsable_id'])
+                            {{ $persona_retira->nombres }} {{ $persona_retira->apellidos }} <br>
+                            {{ $persona_retira->identificacion }}
+                        @else
+                            Nombre:
+                        @endif
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table style="width: 100%;">
+            <tr>
+                <td class="page">
+                    Página
+                </td>
+                <script type="text/php">
+                    if ( isset($pdf) ) {
+                        $pdf->page_script('
+                            $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                            $pdf->text(370, 570, "Pág $PAGE_NUM de $PAGE_COUNT", $font, 10);
+                        ');
+                    }else{
+                        Log::channel('testing')->info('Log', ['ERROR']);
+                    }
+                    </script>
+                <td style="line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
+                        @if ($cliente->logo_url)
+                            {{-- {{ $cliente->razon_social }} --}}
+                            {{ $configuracion['razon_social'] }}
+                        @else
+                            {{ $configuracion['razon_social'] }}
+                        @endif
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">GENERADO POR:
+                        {{ auth('sanctum')->user()->empleado->nombres }}
+                        {{ auth('sanctum')->user()->empleado->apellidos }} el
+                        {{ $fecha->format('d/m/Y H:i') }}
+                    </div>
+                </td>
+                <td>
+                    <div align="right"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr)) !!}"></div>
+                </td>
+            </tr>
+        </table>
+    </footer>
+    <!-- aqui va el contenido del document<br><br>o -->
+    <main>
+        <table style="width: 100%; border: #000000; border-collapse: collapse; margin-bottom: 8px;" border="0">
+            <tr class="row">
+                <td>Transacción N°: <b>{{ $transaccion['id'] }}</b></td>
+                <td>Fecha: <b>{{ $transaccion['created_at'] }}</b></td>
+                <td>Solicitante: <b>{{ $transaccion['solicitante'] }}</b></td>
+            </tr>
+            <tr class="row">
+                <td>Justificación: <b>{{ $transaccion['justificacion'] }}</b></td>
+                <td></td>
+                <td>Sucursal: <b>{{ $transaccion['sucursal'] }}</b></td>
+            </tr>
+            <tr class="row">
+                <td>Cliente: <b>{{ $transaccion['cliente'] }}</b></td>
+                <td></td>
+                <td>Motivo: <b>{{ $transaccion['motivo'] }}</b></td>
+            </tr>
+        </table>
+
+        <!-- aqui va el listado de productos -->
+        @if (count($transaccion['listadoProductosTransaccion']) == 0)
+            <p style="margin: 24px; font-weight: bold; text-align: center;">{{ 'No existen items de tipo armamento o munición en esta transacción' }}</p>
+        @else
+            <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 100%;" align="center">
+                <thead>
+                    <th>#</th>
+                    <th>Producto</th>
+                    <th>Descripción</th>
+                    <th>Categoria</th>
+                    <th>Serie</th>
+                    <th>Condición</th>
+                    <th>Despachado</th>
+                </thead>
+
+                <tbody style="font-size: 14px;">
+                    @foreach ($transaccion['listadoProductosTransaccion'] as $listado)
+                        <tr>
+                            <td align="center">{{ $loop->index + 1 }}</td>
+                            <td align="center">{{ $listado['producto'] }}</td>
+                            <td align="center">{{ strtoupper($listado['descripcion']) }}</td>
+                            <td align="center">{{ $listado['categoria'] }}</td>
+                            <td align="center">{{ $listado['serial'] }}</td>
+                            <td align="center">{{ $listado['condiciones'] }}</td>
+                            <td align="center">{{ $listado['cantidad'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+
+        <p align="center" style="font-size: 11px;">
+            {{ 'JPCUSTODY C. LTDA realiza la entrega del armamento y equipamiento detallado en la presente acta con el estricto apego a lo estipulado en la LEY DE FABRICACIÓN, IMPORTACIÓN Y EXPORTACIÓN, COMERCIALIZACIÓN Y TENENCIA DE ARMAS, MUNICIONES, EXPLOSIVOS Y ACCESORIOS; el REGLAMENTO A LA LEY DE FABRICACIÓN, IMPORTACIÓN, EXPORTACIÓN, COMERCIALIZACIÓN Y TENENCIA DE ARMAS, MUNICIONES, EXPLOSIVOS Y ACCESORIOS; la LEY ORGÁNICA DE VIGILANCIA Y SEGURIDAD PRIVADA y demás leyes que regulan esta actividad, cumpliendo de manera estricta la normativa correspondiente. JPCUSTODY C. LTDA advierte a su personal que el uso, porte o tenencia de armamento o municiones por personal no autorizado, puede llegar a constituirse como un delito tipificado en el Código Orgánico Integral Penal; en tales circunstancias, JPCUSTODY C. LTDA pondrá en conocimiento a las autoridades competentes sobre este acontecimiento, deslindándose así, de cualquier problema legal.' }}
+        </p>
+    </main>
+</body>
+
+</html>

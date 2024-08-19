@@ -61,6 +61,7 @@ class TransaccionBodega extends Model implements Auditable
         'autorizacion_id',
         'proveedor',
         'estado_id',
+        'codigo_permiso_traslado',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -332,6 +333,12 @@ class TransaccionBodega extends Model implements Auditable
         }
 
         return $results;
+    }
+
+    public static function listadoProductosArmamento(int $id)
+    {
+        $armamentos = self::listadoProductos($id);
+        return collect($armamentos)->filter(fn($producto) => $producto['categoria'] === 'ARMAS DE FUEGO');
     }
 
 

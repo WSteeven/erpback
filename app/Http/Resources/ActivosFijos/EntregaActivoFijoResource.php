@@ -23,6 +23,7 @@ class EntregaActivoFijoResource extends JsonResource
             'ciudad' => $this['sucursal'],
             'responsable' => Empleado::extraerNombresApellidos(Empleado::find($this['responsable_id'])),
             'num_transaccion' => $this['num_transaccion'],
+            'codigo_permiso_traslado' => $this['codigo_permiso_traslado'],
         ];
     }
 }
