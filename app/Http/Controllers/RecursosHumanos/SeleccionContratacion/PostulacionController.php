@@ -105,10 +105,16 @@ class PostulacionController extends Controller
      */
     public function show(Postulacion $postulacion)
     {
-        $leido_old = $postulacion->leido;
+        if(auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS) && request()->boolean('leido')){
+            $leido_old = $postulacion->leido;
+            if(request()->boolean('leido')){
+
+            }
+        }else{
+            $modelo = new PostulacionResource($postulacion);
+        }
 
 
-        $modelo = new PostulacionResource($postulacion);
         return response()->json(compact('modelo'));
     }
 

@@ -50,6 +50,7 @@ class Postulacion extends Model implements Auditable
         'tengo_experiencia_requerida' => 'boolean',
         'tengo_formacion_academica_requerida' => 'boolean',
         'tengo_licencia_conducir' => 'boolean',
+        'leido_rrhh' => 'boolean',
         'activo' => 'boolean',
     ];
     // --------------------------------
