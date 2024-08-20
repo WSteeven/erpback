@@ -82,32 +82,45 @@ class TransaccionBodegaEgresoController extends Controller
     {
         try {
             if (!$request->exists('cliente_id')) $request->merge(['cliente_id' => null]);
+
             $request->validate([
                 'cliente_id' => 'nullable|sometimes|numeric|integer',
                 'empleado_id' => 'required|numeric|integer',
             ]);
+
+            if ($request['proyecto_id'] || $request['etapa_id'] || $request['tarea_id']) {
+                $resultado2 = $this->productosTareaEmpleadoService->listarProductosConStock($request['proyecto_id'], $request['etapa_id'], $request['tarea_id']);
+                $results = $this->mapear($resultado2);
+                return response()->json(compact('results'));
+            }
+
             $resultado1 = MaterialEmpleado::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
             $resultado2 = MaterialEmpleadoTarea::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
             $results = $resultado1->concat($resultado2);
 
-            $results = $results->map(function ($item) {
-                return [
-                    'id' => $item->detalle_producto_id,
-                    'producto' => $item->detalle?->producto->nombre,
-                    'descripcion' => $item->detalle?->descripcion,
-                    'serial' => $item->detalle?->serial,
-                    'categoria' => $item->detalle?->producto->categoria->nombre,
-                    'modelo' => $item->detalle?->modelo->nombre,
-                    'cantidad' => $item->cantidad_stock,
-                    'cliente' => $item->cliente?->empresa?->razon_social,
-                ];
-            });
+            $results = $this->mapear($results);
 
             return response()->json(compact('results'));
         } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             return response()->json(compact('mensaje'));
         }
+    }
+
+    private function mapear($results)
+    {
+        return $results->map(function ($item) {
+            return [
+                'id' => $item->detalle_producto_id,
+                'producto' => $item->detalle?->producto->nombre,
+                'descripcion' => $item->detalle?->descripcion,
+                'serial' => $item->detalle?->serial,
+                'categoria' => $item->detalle?->producto->categoria->nombre,
+                'modelo' => $item->detalle?->modelo->nombre,
+                'cantidad' => $item->cantidad_stock,
+                'cliente' => $item->cliente?->empresa?->razon_social,
+            ];
+        });
     }
 
     /**
