@@ -45,6 +45,7 @@ class TareaController extends Controller
     {
         $search = request('search');
         $paginate = request('paginate');
+        $todas = request('todas');
 
         if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
@@ -54,7 +55,8 @@ class TareaController extends Controller
                 $q->where('finalizado', request('finalizado'))->porRol()->orderBy('id', 'desc');
             });
         } else {
-            $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol()->orderBy('id', 'desc');
+            if ($todas) $query = Tarea::ignoreRequest(['campos', 'page', 'paginate', 'todas'])->filter()->orderBy('id', 'desc');
+            else $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol()->orderBy('id', 'desc');
         }
 
         if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
