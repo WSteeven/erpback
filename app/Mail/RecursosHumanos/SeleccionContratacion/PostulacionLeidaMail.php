@@ -2,6 +2,9 @@
 
 namespace App\Mail\RecursosHumanos\SeleccionContratacion;
 
+use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
+use App\Models\ConfiguracionGeneral;
+use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,15 +16,17 @@ use Illuminate\Queue\SerializesModels;
 class PostulacionLeidaMail extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public Postulacion $postulacion;
+    public ConfiguracionGeneral $configuracion;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Postulacion $postulacion)
     {
-        //
+        $this->postulacion = new PostulacionResource($postulacion);
+        $this->configuracion = ConfiguracionGeneral::first();
     }
 
     /**
@@ -45,7 +50,7 @@ class PostulacionLeidaMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'view.name',
+            view: 'email.recursosHumanos.SeleccionContratacion.actualizacion_postulacion',
         );
     }
 
