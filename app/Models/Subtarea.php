@@ -63,6 +63,7 @@ class Subtarea extends Model implements Auditable
         'tiempo_estimado',
         'empleados_designados',
         'metraje_tendido',
+        'valor_alimentacion',
         'tipo_trabajo_id',
         'tarea_id',
         'grupo_id',
@@ -90,7 +91,7 @@ class Subtarea extends Model implements Auditable
         /* 'cliente.empresa.razon_social',
         'tipo_trabajo.descripcion', */
         // 'canton',
-        //'tarea.coordinador.nombres',
+        'tarea.coordinador.nombres',
         // 'proyecto.codigo_proyecto',
         'cantidad_adjuntos',
         'tarea.fecha_solicitud',
@@ -102,7 +103,7 @@ class Subtarea extends Model implements Auditable
     private $aliasListFilter = [
         /* 'cliente.empresa.razon_social' => 'cliente',
         'tipo_trabajo.descripcion' => 'tipo_trabajo', */
-        //'tarea.coordinador.nombres' => 'coordinador',
+        'tarea.coordinador.nombres' => 'coordinador',
         //'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
         // 'proyecto.codigo_proyecto' => 'proyecto',
@@ -116,7 +117,7 @@ class Subtarea extends Model implements Auditable
             TrabajoTipoTrabajoWRLC::class,
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
-            //TrabajoCoordinadorWRLC::class,
+            TrabajoCoordinadorWRLC::class,
             // ProyectoWRLC::class,
             CantidadAdjuntosWRLC::class,
             FechaSolicitudWRLC::class,
