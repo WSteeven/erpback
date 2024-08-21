@@ -34,9 +34,7 @@ class SaldoService
     public const AJUSTE = 'AJUSTE';
     public const ANULACION = 'ANULACION';
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
     public function setFechaInicio($fechaInicio)
     {
         $this->fechaInicio = $fechaInicio;
@@ -148,7 +146,7 @@ class SaldoService
     /**
      * La función `guardarSaldo` se utiliza para actualizar el saldo de un empleado según el
      * tipo de transacción (acreditacion, transferencia, ajuste o gastos).
-     * 
+     *
      * @param Model $entidad El parámetro `entidad` en la función `guardarSaldo` parece representar una
      * entidad u objeto que tiene una relación con el modelo `Saldo`. Se utiliza para crear un nuevo
      * registro en la relación `saldoFondoRotativo` de esta entidad.
@@ -160,7 +158,7 @@ class SaldoService
     /**
      * La función `guardarSaldo` guarda un nuevo registro de saldo para el fondo de un empleado según
      * el tipo de transacción (ingreso o gasto).
-     * 
+     *
      * @param Model $entidad El parámetro `entidad` en la función `guardarSaldo` es una instancia de una
      * clase modelo. Se utiliza para crear un nuevo registro en la relación `saldoFondoRotativo` de
      * este modelo.
@@ -344,7 +342,7 @@ class SaldoService
                     ->first();
             }
             $saldo_fondos = $saldo_fondos  || !is_null($saldo_fondos) ?  $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
-                ->where('fecha', $fecha_anterior)
+                ->where('created_at', '<', $fecha_inicio)
                 ->orderBy('created_at', 'DESC')
                 ->first();
             $saldo_fondos = $saldo_fondos ? $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
@@ -390,10 +388,10 @@ class SaldoService
     /**
      * La función verifica si hay registros de saldo para un empleado específico después de una fecha
      * determinada.
-     * 
+     *
      * @param int $empleado_id La función `existeSaldoNuevaTabla` verifica si hay algún registro en la
-     * tabla `Saldo` con fecha mayor o igual a '2024-04-04' para un `empleado_id` específico. 
-     * 
+     * tabla `Saldo` con fecha mayor o igual a '2024-04-04' para un `empleado_id` específico.
+     *
      * @return bool Si hay al menos un registro, devuelve "verdadero", de lo contrario devuelve falso.
      */
     public static function existeSaldoNuevaTabla(int $empleado_id)
