@@ -91,6 +91,7 @@ class SubtareaResource extends JsonResource
             'etapa_id' => $tarea->etapa_id,
             'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null,// $tarea->proyecto_id,
             'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
+            'valor_alimentacion' => $this->valor_alimentacion,
         ];
 
         if ($controller_method == 'show') {
