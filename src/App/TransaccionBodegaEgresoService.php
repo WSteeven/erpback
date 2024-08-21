@@ -8,6 +8,7 @@ use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Motivo;
+use App\Models\Producto;
 use App\Models\Subtarea;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
@@ -16,6 +17,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\App\Sistema\PaginationService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
@@ -404,6 +406,26 @@ class TransaccionBodegaEgresoService
                             $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
                         ]
                     )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 11: // categorias de materiales
+                // Log::channel('testing')->info('Log', ['Entró en categorias', $request->all()]);
+                $ids_productos = Producto::whereIn('categoria_id', $request->categorias)->pluck('id');
+                $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
+                $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
+                $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)
+                    ->whereIn('id', $ids_transacciones)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )
+                    ->whereHas('comprobante', function ($q) {
                         $q->where('firmada', request('firmada'));
                     })->orderBy('id', 'desc')->get();
                 break;
