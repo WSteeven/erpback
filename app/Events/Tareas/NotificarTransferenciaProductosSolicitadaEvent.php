@@ -14,7 +14,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
 
-class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
+class NotificarTransferenciaProductosSolicitadaEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -33,8 +33,9 @@ class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
         $ruta = '/transferencia-producto-empleado';
         $emisor_id = $transferencia->empleado_origen_id;
         $destinatario_id = $transferencia->empleado_destino_id;
+        $autorizador_id = $transferencia->autorizador_id;
 
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $ruta, TiposNotificaciones::TRANSFERENCIA_PRODUCTOS, $emisor_id, $destinatario_id, $transferencia, true);
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $ruta, TiposNotificaciones::TRANSFERENCIA_PRODUCTOS, $emisor_id, $autorizador_id, $transferencia, true);
     }
 
     /**
@@ -44,20 +45,18 @@ class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('transferencia-productos-realizada-tracker-' . $this->transferencia->empleado_destino_id);
+        return new Channel('transferencia-productos-solicitada-tracker-' . $this->transferencia->autorizador_id);
     }
 
     public function broadcastAs()
     {
-        return 'transferencia-productos-realizada-event';
+        return 'transferencia-productos-solicitada-event';
     }
 
-    private function obtenerMensaje()
-    {
+    private function obtenerMensaje() {
         $nombres_emisor = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->empleado_origen_id));
-        $nombres_autorizador = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->autorizador_id));
         $justificacion = $this->transferencia->justificacion;
         $codigo = 'TRANS_PROD-' . $this->transferencia->id;
-        return $nombres_emisor . ' le ha realizado la transferencia con código ' . $codigo . ' y justificación: ' . $justificacion . ' autorizado por ' . $nombres_autorizador;
+        return $nombres_emisor . ' ha solicitado la transferencia de sus productos. Tranferencia: ' . $codigo . ' Justificación: ' . $justificacion;
     }
 }

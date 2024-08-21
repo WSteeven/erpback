@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tareas;
 
 use App\Events\Tareas\NotificarTransferenciaProductosRealizadaEvent;
+use App\Events\Tareas\NotificarTransferenciaProductosSolicitadaEvent;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Http\Requests\Tareas\TransferenciaProductoEmpleadoRequest;
 use Src\App\Tareas\TransferenciaProductoEmpleadoService;
@@ -69,6 +70,8 @@ class TransferenciaProductoEmpleadoController extends Controller
 
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+            event(new NotificarTransferenciaProductosSolicitadaEvent($transferencia));
 
             DB::commit();
         } catch (Exception $e) {
