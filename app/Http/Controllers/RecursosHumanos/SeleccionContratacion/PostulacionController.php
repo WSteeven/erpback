@@ -108,21 +108,22 @@ class PostulacionController extends Controller
      */
     public function show(Postulacion $postulacion)
     {
-        $leido_old =false;
-        if(auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS) && request()->boolean('leido')){
-            $leido_old = $postulacion->leido;
-            if(request()->boolean('leido')){
-                if(!$leido_old){
+        $leido_old = false;
+        if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS) && request()->boolean('leido')) {
+            $leido_old = $postulacion->leido_rrhh;
+            if (request()->boolean('leido')) {
+                if (!$leido_old) {
                     // Ya que leído es falso, se actualiza a true y se notifica por correo electronico al postulante que RRHH ha visto su CV
+                    $postulacion->estado = Postulacion::REVISION_CV;
                     $postulacion->leido_rrhh = true;
                     $postulacion->save();
                     // Notificar al postulante
                     $this->service->notificarPostulacionLeida($postulacion->refresh());
                 }
             }
-        }else{
-            $modelo = new PostulacionResource($postulacion);
         }
+        $modelo = new PostulacionResource($postulacion);
+
 
 
         return response()->json(compact('modelo'));
@@ -168,9 +169,10 @@ class PostulacionController extends Controller
     /**
      * Listar todos los CV del usuario logueado
      */
-    public function curriculumUsuario(){
+    public function curriculumUsuario()
+    {
         // se trabaja con la sesión del usuario logueado
-        try{
+        try {
             [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
 
             $user = match ($user_type) {
@@ -180,7 +182,7 @@ class PostulacionController extends Controller
             };
             $results = $this->archivoService->listarArchivos($user);
             return response()->json(compact('results'));
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
@@ -203,7 +205,7 @@ class PostulacionController extends Controller
             };
             $results = $this->archivoService->listarArchivos($user);
 
-            $filtrados = $results->filter(function($archivo) use ($postulacion){
+            $filtrados = $results->filter(function ($archivo) use ($postulacion) {
                 return $archivo->ruta == $postulacion->ruta_cv;
             });
 

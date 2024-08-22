@@ -57,6 +57,14 @@ class Postulacion extends Model implements Auditable
     // ESTADOS
     // --------------------------------
     const POSTULADO = 'POSTULADO';
+    const REVISION_CV = 'REVISION CV';
+    const ENTREVISTA = 'EN ENTREVISTA';
+    const DESCARTADO = 'DESCARTADO';
+    const SELECCIONADO = 'SELECCIONADO';
+    const EXAMENES_MEDICOS = 'EXAMENES MEDICOS';
+    const CONTRATADO = 'CONTRATADO';
+    const BANCO_DE_CANDIDATOS = 'BANCO DE CANDIDATOS';
+    const RECHAZADO = 'RECHAZADO';
 
     private static array $whiteListFilter = ['*'];
 

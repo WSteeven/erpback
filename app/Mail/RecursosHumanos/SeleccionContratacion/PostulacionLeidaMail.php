@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 class PostulacionLeidaMail extends Mailable
 {
     use Queueable, SerializesModels;
-    public Postulacion $postulacion;
+    public array $postulacion;
     public ConfiguracionGeneral $configuracion;
     /**
      * Create a new message instance.
@@ -25,7 +25,8 @@ class PostulacionLeidaMail extends Mailable
      */
     public function __construct(Postulacion $postulacion)
     {
-        $this->postulacion = new PostulacionResource($postulacion);
+        $resource =  new PostulacionResource($postulacion);
+        $this->postulacion = $resource->resolve();
         $this->configuracion = ConfiguracionGeneral::first();
     }
 
@@ -37,7 +38,7 @@ class PostulacionLeidaMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            from: new Address('correo', 'Mensajes automatizados'),
+            from: new Address(env('MAIL_USERNAME'), 'Proceso de Postulación'),
             subject: 'Actualización de tu Postulación',
         );
     }
@@ -51,6 +52,10 @@ class PostulacionLeidaMail extends Mailable
     {
         return new Content(
             view: 'email.recursosHumanos.SeleccionContratacion.actualizacion_postulacion',
+            with: [
+                'url' => env('SPA_URL', 'https://sistema.jpconstrucred.com'),
+                'link' => env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/puestos-aplicados'
+            ]
         );
     }
 
