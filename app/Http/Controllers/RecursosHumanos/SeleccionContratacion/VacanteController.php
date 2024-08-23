@@ -50,11 +50,7 @@ class VacanteController extends Controller
     {
         $ids_favoritas = [];
 
-        if (auth()->user() instanceof User) {
-            $ids_favoritas = Favorita::where('user_id', auth()->user()->id)->where('user_type', User::class)->pluck('vacante_id');
-        } else {
-            $ids_favoritas = Favorita::where('user_id', auth()->user()->id)->where('user_type', UserExternal::class)->pluck('vacante_id');
-        }
+        $ids_favoritas = auth()->user() instanceof User ? Favorita::where('user_id', auth()->user()->id)->where('user_type', User::class)->pluck('vacante_id') : Favorita::where('user_id', auth()->user()->id)->where('user_type', UserExternal::class)->pluck('vacante_id');
 
         $results = Vacante::whereIn('id', $ids_favoritas)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = VacanteResource::collection($results);
@@ -164,7 +160,7 @@ class VacanteController extends Controller
         }
     }
 
-    public function favorite(Vacante $vacante)
+    public function favorite(Vacante $vacante): JsonResponse
     {
         try {
             DB::beginTransaction();

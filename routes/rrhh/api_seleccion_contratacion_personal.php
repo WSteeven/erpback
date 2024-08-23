@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\BancoPostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ConocimientoController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ModalidadController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulacionController;
@@ -23,6 +24,7 @@ Route::apiResources(
         'conocimientos'=>ConocimientoController::class,
         'modalidades'=> ModalidadController::class,
         'postulaciones-vacantes'=> PostulacionController::class,
+        'bancos-postulantes'=> BancoPostulanteController::class,
 
     ],
     [
@@ -31,6 +33,7 @@ Route::apiResources(
             'tipos-puestos' => 'tipo',
             'modalidades'=>'modalidad',
             'postulaciones-vacantes'=>'postulacion',
+            'bancos-postulantes'=> 'banco',
         ]
     ]
 );

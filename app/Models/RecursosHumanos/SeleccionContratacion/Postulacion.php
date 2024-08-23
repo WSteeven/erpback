@@ -9,12 +9,13 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 
+/**
+ * @method static find(mixed $postulacion)
+ */
 class Postulacion extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
@@ -102,5 +103,6 @@ class Postulacion extends Model implements Auditable
         if ($this->user_type === UserExternal::class) {
             return $this->belongsTo(UserExternal::class, 'user_id', 'id');
         }
+        return [];
     }
 }

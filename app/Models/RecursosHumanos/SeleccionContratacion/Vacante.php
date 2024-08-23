@@ -3,17 +3,17 @@
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Empleado;
-use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use Src\Shared\ObtenerInstanciaUsuario;
 
+/**
+ * @method static whereIn(string $string, $ids_favoritas)
+ */
 class Vacante extends Model implements Auditable
 {
     use HasFactory;
@@ -77,18 +77,7 @@ class Vacante extends Model implements Auditable
 
     public function favorita()
     {
-        $user_id = null;
-        $user_type = null;
-
-        // Determina el tipo de usuario autenticado
-        if (Auth::guard('sanctum')->check()) {
-            $user_id = Auth::guard('sanctum')->user()->id;
-
-            if (Auth::guard('sanctum')->user() instanceof User)
-                $user_type = User::class;
-            else if (Auth::guard('sanctum')->user() instanceof UserExternal)
-                $user_type = UserExternal::class;
-        }
+        [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
 
         // Si hay un usuario autenticado, retorna una instancia de la relación
         return $this->hasOne(Favorita::class, 'vacante_id')
@@ -98,7 +87,7 @@ class Vacante extends Model implements Auditable
 
     public function postulacion()
     {
-        
+
         [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
 
         return $this->hasOne(Postulacion::class, 'vacante_id')

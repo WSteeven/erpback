@@ -4,10 +4,13 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -17,6 +20,10 @@ use Spatie\Permission\Models\Permission;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static find(int $int)
+ * @method public favorita(int $int)
+ */
 class User extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -125,7 +132,7 @@ class User extends Authenticatable implements Auditable
     } */
 
     // Relacion uno a uno
-    public function empleado()
+    public function empleado(): HasOne
     {
         return $this->hasOne(Empleado::class, 'usuario_id')->with('cargo', 'grupo', 'canton');
     }
@@ -165,7 +172,7 @@ class User extends Authenticatable implements Auditable
      * Relacion polimorfica con Archivos uno a muchos.
      *
      */
-    public function archivos()
+    public function archivos(): MorphMany
     {
         return $this->morphMany(Archivo::class, 'archivable');
     }
@@ -176,13 +183,18 @@ class User extends Authenticatable implements Auditable
         // return $this->empleado->cargo === User::ROL_TECNICO_LIDER_DE_GRUPO;
     }
 
-    public function favorita()
+    public function favorita(): MorphMany
     {
         return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
     }
 
-    public function postulacion(){
+    public function postulacion() : MorphMany
+    {
         return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
+    }
 
+    public function bancoPostulante(): MorphMany
+    {
+        return $this->morphMany(BancoPostulante::class, 'bancable', 'user_type', 'user_id');
     }
 }

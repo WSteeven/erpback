@@ -4,15 +4,15 @@ namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Archivo;
 use App\Traits\UppercaseValuesTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\Permission\Traits\HasRoles;
 
 class UserExternal extends Authenticatable implements Auditable
 {
@@ -20,8 +20,8 @@ class UserExternal extends Authenticatable implements Auditable
     use HasRoles;
     use AuditableModel;
     use UppercaseValuesTrait;
-    const POSTULANTE = 'POSTULANTE';
-    const ROL_POSTULANTE = 'POSTULANTES';
+//    const POSTULANTE = 'POSTULANTE';
+//    const ROL_POSTULANTE = 'POSTULANTES';
     protected $table = 'rrhh_users_externals';
 
     /**
@@ -78,18 +78,22 @@ class UserExternal extends Authenticatable implements Auditable
      * Este método recupera las vacantes favoritas del usuario de la base de datos.
      * Utiliza Laravel's Eloquent ORM para establecer una relación polimórfica con el modelo Favorita.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     * @return \Illuminate\Database\Eloquent\Collection|\App\Models\RecursosHumanos\SeleccionContratacion\Favorita[]
+     * @return MorphMany
+     * @return Collection|Favorita[]
      *
-     * @see \App\Models\RecursosHumanos\SeleccionContratacion\Favorita
+     * @see Favorita
      */
     public function favorita()
     {
         return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
     }
 
-    public function postulacion(){
+    public function postulacion()
+    {
         return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
-
+    }
+    public function bancoPostulante()
+    {
+        return $this->morphMany(BancoPostulante::class, 'bancable', 'user_type', 'user_id');
     }
 }

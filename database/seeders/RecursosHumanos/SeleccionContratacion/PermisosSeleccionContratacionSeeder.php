@@ -72,8 +72,11 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_modalidades_trabajo'])->syncRoles([$rrhh, $administrador, $empleado]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_modalidades_trabajo'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_modalidades_trabajo'])->syncRoles([$rrhh, $administrador]);
-
-
+        // bancos de postulantes
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_bancos_postulantes'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_bancos_postulantes'])->syncRoles([$rrhh, $administrador, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_bancos_postulantes'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_bancos_postulantes'])->syncRoles([$rrhh, $administrador]);
 
 
     }

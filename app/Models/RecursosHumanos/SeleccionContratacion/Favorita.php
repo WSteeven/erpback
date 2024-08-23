@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static where(string $string, $id)
+ */
 class Favorita extends Model implements Auditable
 {
     use HasFactory;
@@ -28,7 +31,7 @@ class Favorita extends Model implements Auditable
      */
 
     // Relación polimorfica
-    public function favoritable() //actividad => activid + able
+    public function favoritable()
     {
         return $this->morphTo();
     }
