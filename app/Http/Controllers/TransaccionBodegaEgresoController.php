@@ -92,6 +92,10 @@ class TransaccionBodegaEgresoController extends Controller
                 $resultado2 = $this->productosTareaEmpleadoService->listarProductosConStock($request['proyecto_id'], $request['etapa_id'], $request['tarea_id']);
                 $results = $this->mapear($resultado2);
                 return response()->json(compact('results'));
+            } else if ($request['stock_personal']) {
+                $results = $this->productosEmpleadoService->obtenerProductos();
+                $results = $this->mapearProductosEmpleado(collect($results));
+                return response()->json(compact('results'));
             }
 
             $resultado1 = MaterialEmpleado::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
@@ -119,6 +123,23 @@ class TransaccionBodegaEgresoController extends Controller
                 'modelo' => $item->detalle?->modelo->nombre,
                 'cantidad' => $item->cantidad_stock,
                 'cliente' => $item->cliente?->empresa?->razon_social,
+            ];
+        });
+    }
+
+    private function mapearProductosEmpleado($results)
+    {
+        return $results->map(function ($item) {
+            $detalle = DetalleProducto::find($item['detalle_producto_id']);
+            return [
+                'id' => $item['detalle_producto_id'],
+                'producto' => $detalle?->producto->nombre,
+                'descripcion' => $detalle?->descripcion,
+                'serial' => $detalle?->serial,
+                'categoria' => $detalle?->producto->categoria->nombre,
+                'modelo' => $detalle?->modelo->nombre,
+                'cantidad' => $item['stock_actual'],
+                'cliente' => Cliente::find($item['cliente_id'])?->empresa?->razon_social,
             ];
         });
     }

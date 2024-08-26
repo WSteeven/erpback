@@ -18,12 +18,14 @@ use Src\App\WhereRelationLikeCondition\Subtarea\CantidadAdjuntosWRLC;
 use Src\App\WhereRelationLikeCondition\Subtarea\FechaSolicitudWRLC;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
 use Src\App\WhereRelationLikeCondition\Subtarea\ProyectoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
 class Subtarea extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait; //, SubtareasFilter;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait, Searchable; //, SubtareasFilter;
 
     const CREADO = 'CREADO';
     const ASIGNADO = 'ASIGNADO';
@@ -102,7 +104,8 @@ class Subtarea extends Model implements Auditable
 
     private $aliasListFilter = [
         /* 'cliente.empresa.razon_social' => 'cliente',
-        'tipo_trabajo.descripcion' => 'tipo_trabajo', */
+        */
+        'tipo_trabajo.descripcion' => 'tipo_trabajo', 
         'tarea.coordinador.nombres' => 'coordinador',
         //'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
@@ -114,14 +117,29 @@ class Subtarea extends Model implements Auditable
     {
         return [
             /* TrabajoClienteWRLC::class,
-            TrabajoTipoTrabajoWRLC::class,
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
+            TrabajoTipoTrabajoWRLC::class,
             TrabajoCoordinadorWRLC::class,
             // ProyectoWRLC::class,
             CantidadAdjuntosWRLC::class,
             FechaSolicitudWRLC::class,
             //CodigoTareaWRLC::class,
+        ];
+    }
+
+    /*************************
+     * Laravel Scout Search
+     *************************/
+    public function toSearchableArray()
+    {
+        $coordinador = $this->tarea->coordinador;
+
+        return [
+            'codigo_subtarea' => $this->codigo_subtarea,
+            'titulo' => $this->titulo,
+            'grupo' => $this->grupoResponsable?->nombre,
+            'coordinador' => $coordinador->nombres . ' ' . $coordinador->apellidos,
         ];
     }
 
@@ -157,6 +175,12 @@ class Subtarea extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
+
+    /* public function coordinador()
+    {
+        return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
+        return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
+    } */
 
     // Relacion uno a muchos (inversa)
     public function tipo_trabajo()
@@ -219,7 +243,7 @@ class Subtarea extends Model implements Auditable
         // return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());
         // return Empleado::whereIn('id', $ids)->get()->map(fn ($item) => [
 
-        return $empleados->map(fn ($item) => [
+        return $empleados->map(fn($item) => [
             'id' => $item->id,
             'identificacion' => $item->identificacion,
             'nombres' => $item->nombres,
@@ -240,7 +264,7 @@ class Subtarea extends Model implements Auditable
     public function otrosTecnicos($empleados)
     {
         //$empleados->filter(fn($item) => $item->);
-        return $empleados->map(fn ($item) => [
+        return $empleados->map(fn($item) => [
             'id' => $item->id,
             'identificacion' => $item->identificacion,
             'nombres' => $item->nombres,

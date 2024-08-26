@@ -117,15 +117,11 @@ class TransferenciaProductoEmpleadoController extends Controller
 
             // Guardar los productos seleccionados
             foreach ($request->listado_productos as $listado) {
-                $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]); ///, 'cliente_id' => $cliente_id]);
+                $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
 
             if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
-                $mensaje = 'dentro de if';
-                Log::channel('testing')->info('Log', compact('mensaje'));
-
                 $esTransferenciaDeStock = !$datos['proyecto_origen_id'] && !$datos['etapa_origen_id'] && !$datos['tarea_origen_id'];
-                Log::channel('testing')->info('Log', compact('esTransferenciaDeStock'));
 
                 $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
 

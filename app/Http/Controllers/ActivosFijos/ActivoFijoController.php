@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ActivosFijos\ActivoFijoResource;
 use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Models\ActivosFijos\ActivoFijo;
+use App\Models\TransaccionBodega;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -93,7 +94,7 @@ class ActivoFijoController extends Controller
     {
         $inventarioService = new InventarioService();
         $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now()->addDay(1));
-        $results = collect($transacciones['results'])->filter(fn ($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && !!$transaccion['comprobante_firmado'])->values();
+        $results = collect($transacciones['results'])->filter(fn($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && in_array($transaccion['estado_comprobante'], [TransaccionBodega::PARCIAL, TransaccionBodega::ACEPTADA]))->values(); // && !!$transaccion['comprobante_firmado'])->values();
         $results = EntregaActivoFijoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -114,7 +115,7 @@ class ActivoFijoController extends Controller
     public function obtenerActivosFijosAsignados()
     {
         // if (!request('empleado_id')) {
-            /* throw ValidationException::withMessages([
+        /* throw ValidationException::withMessages([
                 'empleado_id' => ['El campo empleado_id es requerido'],
             ]); */
         // }

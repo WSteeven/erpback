@@ -42,4 +42,6 @@ enum TiposNotificaciones: string{
     // medico
     case SOLICITUD_EXAMEN = 'SOLICITUD DE EXAMEN';
     case DIAS_DESCANSO = 'DIAS DE DESCANSO';
+    // Activos fijos
+    case ENTREGA_ACTIVO_FIJO = 'ENTREGA ACTIVO FIJO';
 }

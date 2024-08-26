@@ -441,13 +441,14 @@ class InventarioService
             $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
             $row['sucursal'] = $movimiento->inventario->sucursal?->lugar;
             $row['condicion'] = $movimiento->inventario->condicion->nombre;
-            $row['cantidad'] = $movimiento->cantidad_inicial;
+            $row['cantidad'] = $movimiento->recibido; //cantidad_inicial;
             $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
             $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
             // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
             $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
             $row['fecha_hora'] = date('Y-m-d H:i:s', strtotime($movimiento->created_at));
             $row['comprobante_firmado'] = !!Comprobante::where('transaccion_id', $movimiento->transaccion->id)->first()?->firmada;
+            $row['estado_comprobante'] = TransaccionBodega::obtenerComprobante($movimiento->transaccion->id)?->estado;
             $row['codigo_permiso_traslado'] = $movimiento->transaccion->codigo_permiso_traslado;
             $results[$cont] = $row;
             $cont++;

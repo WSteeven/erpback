@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Laravel\Scout\Searchable;
 
 class SeguimientoConsumoActivosFijos extends Model implements Auditable
 {
-    use HasFactory, Filterable, AuditableModel;
+    use HasFactory, Filterable, AuditableModel, Searchable;
 
     protected $table = 'af_seguimientos_consumo_activos_fijos';
     protected $fillable = [
@@ -32,6 +33,15 @@ class SeguimientoConsumoActivosFijos extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function toSearchableArray()
+    {
+        // return $this->toArray();
+        return [
+            'canton_id' => $this->canton?->canton,
+            'motivo_consumo' => $this->motivoConsumoActivoFijo?->nombre,
+        ]; 
+    }
 
     protected $casts = ['se_reporto_sicosep' => 'boolean'];
 

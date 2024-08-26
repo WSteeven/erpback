@@ -54,7 +54,7 @@ class TareaService
 
     public function obtenerTareasAsignadasEmpleado(int $empleado_id)
     {
-        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->disponible()->groupBy('tarea_id')->pluck('tarea_id');
+        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id'); // ->disponible()
         $ignoreRequest = ['activas_empleado', 'empleado_id', 'formulario', 'campos'];
 
         /* if (request('sin_etapa')) {

@@ -2,14 +2,20 @@
 
 namespace App\Models\ActivosFijos;
 
+use App\Events\ActivosFijos\NotificarActivoFijoEntregadoEvent;
+use App\Events\ActivosFijos\NotificarEntregaActivoFijoEvent;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
+use App\Models\Empleado;
+use App\Models\TransaccionBodega;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
 
 class ActivoFijo extends Model implements Auditable
@@ -63,6 +69,20 @@ class ActivoFijo extends Model implements Auditable
             ]);
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage() . '. ' . $th->getLine());
+        }
+    }
+
+    public static function notificarEntregaActivos(DetalleProducto $detalle_producto, TransaccionBodega $transaccion_bodega)
+    {
+        if (!$detalle_producto->esActivo) return;
+
+        $users_id = User::role([User::ROL_CONTABILIDAD])->pluck('id');
+        $empleados = Empleado::whereIn('usuario_id', $users_id)->habilitado()->get();
+
+        $descripcion_detalle_producto = $detalle_producto->descripcion  . ' ' . $detalle_producto->serial;
+
+        foreach ($empleados as $empleado) {
+            event(new NotificarEntregaActivoFijoEvent($transaccion_bodega, $empleado->id, $descripcion_detalle_producto));
         }
     }
 }

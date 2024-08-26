@@ -28,8 +28,8 @@ class SeguimientoConsumoActivosFijosService
         $search = request('search');
         $paginate = request('paginate');
 
-        if ($search) $query = SeguimientoConsumoActivosFijos::search()->latest(); //->get();
-        else $query = SeguimientoConsumoActivosFijos::ignoreRequest(['paginate'])->filter()->latest(); //->get();
+        if ($search) $query = SeguimientoConsumoActivosFijos::search($search); //->latest();
+        else $query = SeguimientoConsumoActivosFijos::ignoreRequest(['paginate'])->filter()->latest();
 
         if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
         else return $query->get();
