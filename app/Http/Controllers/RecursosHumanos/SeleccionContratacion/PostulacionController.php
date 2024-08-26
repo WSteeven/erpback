@@ -11,11 +11,13 @@ use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
 use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
+use Src\App\RecursosHumanos\SeleccionContratacion\PolymorphicSeleccionContratacionModelsService;
 use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Config\RutasStorage;
 use Src\Shared\ObtenerInstanciaUsuario;
@@ -26,10 +28,12 @@ class PostulacionController extends Controller
 {
     private string $entidad = 'Postulación';
     private ArchivoService $archivoService;
+    private PolymorphicSeleccionContratacionModelsService $polymorficSeleccionContratacionService;
     private PostulacionService $service;
 
     public function __construct()
     {
+        $this->polymorficSeleccionContratacionService = new PolymorphicSeleccionContratacionModelsService();
         $this->service = new PostulacionService();
         $this->archivoService = new ArchivoService();
         // Asegura que el usuario esté autenticado en todas las acciones
@@ -44,7 +48,7 @@ class PostulacionController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -56,20 +60,24 @@ class PostulacionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param PostulacionRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function store(PostulacionRequest $request)
     {
         $datos = $request->validated();
-
+        $postulacion = null;
+        Log::channel('testing')->info('Log', ['store::postulacion->user', $request->all(), $datos, auth()->user()->getAuthIdentifier()]);
         try {
+//            throw new Exception("Error controlado, quiero ver que recibo del front");
             DB::beginTransaction();
             if (auth()->user() instanceof User) {
                 $postulacion = auth()->user()->postulacion()->create($datos);
-                // Log::channel('testing')->info('Log', ['store::postulacion->user', $postulacion,]);
+                $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(User::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
             } elseif (auth()->user() instanceof UserExternal) {
                 $postulacion = auth()->user()->postulacion()->create($datos);
+                $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(UserExternal::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
                 // Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
                 //Postulante hace referencia a la tabla postulante, que es equivalente a la tabla empleados, solo que en este caso es para usuarios externos
                 $postulante = Postulante::find($postulacion->user_id);
@@ -103,12 +111,12 @@ class PostulacionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Postulacion $postulacion
+     * @return JsonResponse
+     * @throws Throwable
      */
     public function show(Postulacion $postulacion)
     {
-        $leido_old = false;
         if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS) && request()->boolean('leido')) {
             $leido_old = $postulacion->leido_rrhh;
             if (request()->boolean('leido')) {
@@ -125,46 +133,41 @@ class PostulacionController extends Controller
         $modelo = new PostulacionResource($postulacion);
 
 
-
         return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param PostulacionRequest $request
+     * @param Postulacion $postulacion
+     * @return void
+     * @throws ValidationException
      */
-    public function update(PostulacionRequest $request, Postulacion $postulacion)
-    {
-        try {
-            DB::beginTransaction();
-            throw new Exception('Metodo no configurado aún');
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollback();
-            throw Utils::obtenerMensajeErrorLanzable($th);
-        }
-    }
+//    public function update(PostulacionRequest $request, Postulacion $postulacion)
+//    {
+//        try {
+//            throw new Exception('Metodo no configurado aún');
+//        } catch (Throwable $th) {
+//            throw Utils::obtenerMensajeErrorLanzable($th);
+//        }
+//    }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
+     * @throws ValidationException
      */
-    public function destroy($id)
-    {
-        try {
-            DB::beginTransaction();
-            throw new Exception('Metodo no configurado aún. Comunícate con Dept. Informático.');
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollback();
-            throw Utils::obtenerMensajeErrorLanzable($th);
-        }
-    }
+//    public function destroy($id)
+//    {
+//        try {
+//            throw new Exception('Metodo no configurado aún. Comunícate con Dept. Informático.');
+//        } catch (Throwable $th) {
+//            throw Utils::obtenerMensajeErrorLanzable($th);
+//        }
+//    }
 
     /**
      * Listar todos los CV del usuario logueado
@@ -178,7 +181,7 @@ class PostulacionController extends Controller
             $user = match ($user_type) {
                 User::class => User::find($user_id),
                 UserExternal::class => UserExternal::find($user_id),
-                default => null,
+//                default => null,
             };
             $results = $this->archivoService->listarArchivos($user);
             return response()->json(compact('results'));
@@ -186,6 +189,43 @@ class PostulacionController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
+    }
+    /**
+     * Listar todas las referencias personales del usuario
+     */
+    public function referenciasUsuario()
+    {
+        try {
+            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+
+            $user = match ($user_type) {
+                User::class => User::find($user_id),
+                UserExternal::class => UserExternal::find($user_id),
+//                default => null,
+            };
+             Log::channel('testing')->info('Log', ['referencias del usuario', $user->referencias()]);
+            $results = $user->referencias()->get();
+            return response()->json(compact('results'));
+        }catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+
+    }
+
+    public  function calificar(Postulacion $postulacion)
+    {
+        Log::channel('testing')->info('Log', ['calificar', $postulacion, request()->all()]);
+        try {
+            DB::beginTransaction();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        }catch (Exception $ex) {
+            DB::rollback();
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -201,7 +241,7 @@ class PostulacionController extends Controller
             $user = match ($user_type) {
                 User::class => User::find($user_id),
                 UserExternal::class => UserExternal::find($user_id),
-                default => null,
+//                default => null,
             };
             $results = $this->archivoService->listarArchivos($user);
 
@@ -223,7 +263,6 @@ class PostulacionController extends Controller
      */
     public function storeFiles(Request $request, Postulacion $postulacion)
     {
-        $ruta = '';
         // Log::channel('testing')->info('Log', ['storeFiles de postulacion', $postulacion, request()->all()]);
         try {
             [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
@@ -231,14 +270,14 @@ class PostulacionController extends Controller
                 $user = match ($user_type) {
                     User::class => User::find($user_id),
                     UserExternal::class => UserExternal::find($user_id),
-                    default => null,
+//                    default => null,
                 };
                 // Log::channel('testing')->info('Log', ['user es', $user]);
                 // Hay que configurar para que se guarden los CV´s de los postulantes con su respectivo numero de cedula
                 // para luego poder buscarlos y versionarlos así como LinkedIn
                 $ruta = match ($user_type) {
-                    User::class =>  RutasStorage::CURRICULUM->value . $user->empleado->identificacion,
-                    UserExternal::class =>  RutasStorage::CURRICULUM->value . $user->persona->numero_documento_identificacion,
+                    User::class => RutasStorage::CURRICULUM->value . $user->empleado->identificacion,
+                    UserExternal::class => RutasStorage::CURRICULUM->value . $user->persona->numero_documento_identificacion,
                     default => null,
                 };
 

@@ -15,6 +15,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  * @method static find(mixed $postulacion)
+ * @method static ignoreRequest(string[] $array)
  */
 class Postulacion extends Model implements Auditable
 {

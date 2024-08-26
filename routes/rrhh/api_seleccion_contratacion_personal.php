@@ -41,10 +41,12 @@ Route::post('vacantes', [VacanteController::class, 'store']);
 Route::put('vacantes/{vacante}', [VacanteController::class, 'update']);
 Route::get('vacantes-favoritas', [VacanteController::class, 'indexFavoritas']);
 Route::post('vacante-favorita/{vacante}', [VacanteController::class, 'favorite']);
+Route::post('postulaciones-vacantes/{postulacion}', [PostulacionController::class, 'calificar']);
 
 //listar archivos
 Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);
 Route::get('curriculums-usuario', [PostulacionController::class, 'curriculumUsuario']);
+Route::get('referencias-usuario', [PostulacionController::class, 'referenciasUsuario']);
 Route::get('postulaciones-vacantes/files/{postulacion}', [PostulacionController::class, 'indexFiles']);
 //guardar archivos
 Route::post('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'storeFiles']);

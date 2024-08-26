@@ -11,15 +11,18 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Shared\Utils;
 use Throwable;
 
 class BancoPostulanteController extends Controller
 {
     private string $entidad = 'Postulante';
+    private PostulacionService $postulacionService;
 
     public function __construct()
     {
+        $this->postulacionService = new PostulacionService();
         // Asegura que el usuario esté autenticado en todas las acciones
         $this->middleware('check.user.logged.in');
 
@@ -59,12 +62,17 @@ class BancoPostulanteController extends Controller
                 $postulacion = Postulacion::find($datos['postulacion_id']);
                 $postulacion->estado = Postulacion::BANCO_DE_CANDIDATOS;
                 $postulacion->save();
-                // tomamos el user_id y el user_type de la postulacion
-                // para agregar en el registro del banco de postulante.
-                $datos['user_id'] = $postulacion->user_id;
-                $datos['user_type'] = $postulacion->user_type;
-                $banco = BancoPostulante::create($datos);
-                $modelo = new BancoPostulanteResource($banco);
+                // Notificamos al postulante que ya no continua el proceso y se agregó al banco de postulantes
+                $this->postulacionService->notificarBancoPostulante($postulacion);
+                // tomamos el user_id y el user_type de la postulacion para agregar en el registro del banco de postulante.
+                // pero antes verificamos si el usuario ya está en banco de postulantes
+                $estaEnBanco = $this->postulacionService->estaEnBanco($postulacion->user_id, $postulacion->user_type);
+                if (!$estaEnBanco) { //si no está en banco lo agrega, caso contrario no sucede nada.
+                    $datos['user_id'] = $postulacion->user_id;
+                    $datos['user_type'] = $postulacion->user_type;
+                    $banco = BancoPostulante::create($datos);
+                    $modelo = new BancoPostulanteResource($banco);
+                }
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();

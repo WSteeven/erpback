@@ -49,13 +49,29 @@ class PostulacionRequest extends FormRequest
             'tengo_licencia_conducir' => 'boolean',
             'tipo_licencia' => 'sometimes|nullable|string',
             'ruta_cv' => 'sometimes|nullable|string',
+            'referencias'=>'required|array',
+            'referencias.*.id'=>'required|numeric',
+            'referencias.*.nombres_apellidos'=>'required|string',
+            'referencias.*.cargo'=>'required|string',
+            'referencias.*.telefono'=>'required|string',
+            'referencias.*.correo'=>'required|email',
+
         ];
     }
 
+    public  function messages(){
+        return [
+            'referencias'=>'Debe adjuntar al menos 3 referencias laborales o personales. ',
+          'referencias.*.nombres_apellidos.required'=>'El campo nombres_apellidos en la tabla Referencias Personales es requerido',
+          'referencias.*.cargo.required'=>'El campo cargo en la tabla Referencias Personales es requerido',
+          'referencias.*.telefono.required'=>'El campo telefono en la tabla Referencias Personales es requerido',
+          'referencias.*.correo.required'=>'El campo correo en la tabla Referencias Personales es requerido',
+        ];
+    }
     public function prepareForValidation()
     {
         $this->merge([
-            'tipo_licencia' => Utils::convertArrayToString($this->tipo_licencia, ','),
+            'tipo_licencia' => Utils::convertArrayToString($this->tipo_licencia),
             'vacante_id' => $this->vacante,
             'pais_id' => $this->pais,
             'identidad_genero_id' => $this->identidad_genero,

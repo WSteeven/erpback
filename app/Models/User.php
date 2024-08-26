@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
+use App\Models\RecursosHumanos\SeleccionContratacion\ReferenciaPersonal;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -188,7 +189,7 @@ class User extends Authenticatable implements Auditable
         return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
     }
 
-    public function postulacion() : MorphMany
+    public function postulacion(): MorphMany
     {
         return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
     }
@@ -196,5 +197,10 @@ class User extends Authenticatable implements Auditable
     public function bancoPostulante(): MorphMany
     {
         return $this->morphMany(BancoPostulante::class, 'bancable', 'user_type', 'user_id');
+    }
+
+    public function referencias(): MorphMany
+    {
+        return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
     }
 }

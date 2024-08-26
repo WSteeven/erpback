@@ -59,6 +59,7 @@ class PostulacionResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['vacante'] = $this->vacante_id;
+            $modelo['referencias'] = $this->user->referencias()->get();
         }
 
 

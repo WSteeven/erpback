@@ -13,6 +13,9 @@ use Src\Shared\ObtenerInstanciaUsuario;
 
 /**
  * @method static whereIn(string $string, $ids_favoritas)
+ * @method static find($vacante_id)
+ * @method static ignoreRequest(string[] $array)
+ * @method static create(mixed $datos)
  */
 class Vacante extends Model implements Auditable
 {

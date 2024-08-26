@@ -17,6 +17,8 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 /**
  * @method static create($validated)
  * @method static ignoreRequest(string[] $array)
+ * @method static where(string $string, mixed $solicitud_id)
+ * @method static find($solicitud_id)
  * @property mixed $autorizacion_id
  * @property mixed $solicitante
  * @property mixed $solicitante_id

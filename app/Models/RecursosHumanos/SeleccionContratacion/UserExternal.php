@@ -14,6 +14,9 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @method static find(mixed $user_id)
+ */
 class UserExternal extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -95,5 +98,9 @@ class UserExternal extends Authenticatable implements Auditable
     public function bancoPostulante()
     {
         return $this->morphMany(BancoPostulante::class, 'bancable', 'user_type', 'user_id');
+    }
+    public function referencias(): MorphMany
+    {
+        return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
     }
 }

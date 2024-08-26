@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\RecursosHumanos\SeleccionContratacion\PolymorphicSeleccionContratacionModelsService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
@@ -48,7 +49,6 @@ class VacanteController extends Controller
 
     public function indexFavoritas()
     {
-        $ids_favoritas = [];
 
         $ids_favoritas = auth()->user() instanceof User ? Favorita::where('user_id', auth()->user()->id)->where('user_type', User::class)->pluck('vacante_id') : Favorita::where('user_id', auth()->user()->id)->where('user_type', UserExternal::class)->pluck('vacante_id');
 
@@ -150,16 +150,20 @@ class VacanteController extends Controller
      *
      * @param Vacante $vacante
      * @return void
+     * @throws ValidationException
      */
     public function destroy(Vacante $vacante)
     {
         try {
-            throw new Exception('Este método no está disponible, por favor comunicate con el departamento de Informática');
+            throw new Exception('Este método no está disponible, por favor comunicate con el departamento de Informática'.$vacante->id);
         } catch (Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function favorite(Vacante $vacante): JsonResponse
     {
         try {

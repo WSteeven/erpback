@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static find($user_id)
+ */
 class Postulante extends Model implements Auditable
 {
     use HasFactory;
