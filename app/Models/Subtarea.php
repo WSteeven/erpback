@@ -133,13 +133,13 @@ class Subtarea extends Model implements Auditable
      *************************/
     public function toSearchableArray()
     {
-        $coordinador = $this->tarea->coordinador;
+        $coordinador = $this->tarea?->coordinador;
 
         return [
             'codigo_subtarea' => $this->codigo_subtarea,
             'titulo' => $this->titulo,
             'grupo' => $this->grupoResponsable?->nombre,
-            'coordinador' => $coordinador->nombres . ' ' . $coordinador->apellidos,
+            'coordinador' => $coordinador ? $coordinador->nombres . ' ' . $coordinador->apellidos : null,
         ];
     }
 

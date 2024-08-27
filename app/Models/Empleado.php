@@ -41,7 +41,7 @@ class Empleado extends Model implements Auditable
     const AFRODECENDIENTE = 'AFRODECENDIENTE';
     const MESTIZO = 'MESTIZO';
     const BLANCO = 'BLANCO';
-    const MONTUBIO ='MONTUBIO';
+    const MONTUBIO = 'MONTUBIO';
 
     protected $table = "empleados";
     protected $fillable = [
@@ -454,6 +454,17 @@ class Empleado extends Model implements Auditable
     public static function extraerNombresApellidos(Empleado $empleado)
     {
         return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
+
+    public static function obtenerNombresApellidosEmpleados(array $empleados_id)
+    {
+        $empleados = Empleado::whereIn('id', $empleados_id)->get();
+        $nombresEmpleados = collect([]);
+        foreach ($empleados as $empleado) {
+            $nombresEmpleados->push(self::extraerNombresApellidos($empleado));
+        }
+
+        return $nombresEmpleados;
     }
 
     public static function obtenerEdad($empleado)

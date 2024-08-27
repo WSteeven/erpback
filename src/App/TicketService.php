@@ -55,6 +55,9 @@ class TicketService
         $datos['tipo_ticket_id'] = $destinatario['tipo_ticket_id'];
         $datos['departamento_responsable_id'] = $destinatario['departamento_id'];
         $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
+        $datos['cc'] = json_encode($request['cc']);
+
+        Log::channel('testing')->info('Log', ['Datos', $datos]);
 
         // Calcular estados
         $datos['estado'] = Ticket::ASIGNADO;
