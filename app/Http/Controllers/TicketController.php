@@ -8,8 +8,6 @@ use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Mail\Tickets\EnviarMailTicket;
 use App\Models\ActividadRealizadaSeguimientoTicket;
-use App\Models\CalificacionTicket;
-use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
 use App\Models\Tareas\SolicitudAts;
@@ -38,10 +36,10 @@ class TicketController extends Controller
     public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        Log::channel('testing')->info('Log', ['ejec:', request('estado') == Ticket::EJECUTANDO]);
         $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
             $q->orWhereJsonContains('cc', intval(request('responsable_id')))->where('estado', Ticket::EJECUTANDO);
         })->latest()->get($campos);
+
         $results = TicketResource::collection($results);
         return response()->json(compact('results'));
     }
