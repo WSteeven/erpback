@@ -43,6 +43,7 @@ class PostulacionResource extends JsonResource
             'pais' => $persona?->pais_id ?? $persona?->canton->provincia->pais_id,
             'direccion' => $this->direccion,
             'mi_experiencia' => $this->mi_experiencia,
+            'calificacion' => $this->calificacion,
             'pais_residencia' => $this->pais_residencia_id,
             'fecha_nacimiento' => $persona?->fecha_nacimiento,
             'tengo_documentos_regla' => $this->tengo_documentos_regla,

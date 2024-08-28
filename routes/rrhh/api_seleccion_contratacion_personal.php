@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\BancoPostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ConocimientoController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\EntrevistaController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\ModalidadController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulacionController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
@@ -25,6 +26,7 @@ Route::apiResources(
         'modalidades'=> ModalidadController::class,
         'postulaciones-vacantes'=> PostulacionController::class,
         'bancos-postulantes'=> BancoPostulanteController::class,
+        'entrevistas'=> EntrevistaController::class,
 
     ],
     [
@@ -41,7 +43,9 @@ Route::post('vacantes', [VacanteController::class, 'store']);
 Route::put('vacantes/{vacante}', [VacanteController::class, 'update']);
 Route::get('vacantes-favoritas', [VacanteController::class, 'indexFavoritas']);
 Route::post('vacante-favorita/{vacante}', [VacanteController::class, 'favorite']);
-Route::post('postulaciones-vacantes/{postulacion}', [PostulacionController::class, 'calificar']);
+Route::post('postulaciones-vacantes/calificar/{postulacion}', [PostulacionController::class, 'calificar']);
+Route::post('postulaciones-vacantes/descartar/{postulacion}', [PostulacionController::class, 'descartar']);
+Route::post('postulaciones-vacantes/seleccionar/{postulacion}', [PostulacionController::class, 'seleccionar']);
 
 //listar archivos
 Route::get('solicitudes-nuevo-personal/files/{solicitud}', [SolicitudPersonalController::class, 'indexFiles']);

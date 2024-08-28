@@ -203,26 +203,78 @@ class PostulacionController extends Controller
                 UserExternal::class => UserExternal::find($user_id),
 //                default => null,
             };
-             Log::channel('testing')->info('Log', ['referencias del usuario', $user->referencias()]);
+            Log::channel('testing')->info('Log', ['referencias del usuario', $user->referencias()]);
             $results = $user->referencias()->get();
             return response()->json(compact('results'));
-        }catch (Exception $ex) {
+        } catch (Exception $ex) {
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
 
     }
 
-    public  function calificar(Postulacion $postulacion)
+    public function calificar(Postulacion $postulacion)
     {
-        Log::channel('testing')->info('Log', ['calificar', $postulacion, request()->all()]);
+        $modelo = null;
         try {
             DB::beginTransaction();
+            $postulacion->calificacion = request()->calificacion;
+            if ($postulacion->calificacion === Postulacion::NO_CONSIDERAR) {
+                // notificar al usuario que no es apto para el puesto
+                $postulacion->estado = Postulacion::DESCARTADO;
+                $this->service->notificarPostulacionDescartada($postulacion, true);
+            } else {
+                $postulacion->estado = Postulacion::PRESELECCIONADO;
+            }
+            $postulacion->save();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        }catch (Exception $ex) {
+        } catch (Throwable|Exception $ex) {
             DB::rollback();
             $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    public function descartar(Postulacion $postulacion)
+    {
+        $estado_old = $postulacion->estado;
+        try {
+            DB::beginTransaction();
+            if ($estado_old === Postulacion::ENTREVISTA || $estado_old === Postulacion::SELECCIONADO || $estado_old === Postulacion::EXAMENES_MEDICOS) {
+                $this->service->notificarPostulacionDescartada($postulacion, false);
+            }else{
+                $this->service->notificarPostulacionDescartada($postulacion, true);
+            }
+            $postulacion->estado = Postulacion::DESCARTADO;
+            $postulacion->save();
+            $modelo = new PostulacionResource($postulacion->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        } catch (Throwable|Exception $ex) {
+            DB::rollback();
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    public function seleccionar(Postulacion $postulacion)
+    {
+        Log::channel('testing')->info('Log', ['seleccionar', $postulacion, request()->all()]);
+        try {
+            DB::beginTransaction();
+            $postulacion->estado = Postulacion::SELECCIONADO;
+            $postulacion->save();
+            $this->service->notificarPostulanteSeleccionado($postulacion);
+            $modelo = new PostulacionResource($postulacion);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        } catch (Throwable|Exception $ex) {
+            DB::rollback();
+            $mensaje = $ex->getMessage();
+        Log::channel('testing')->info('Log', ['error en seleccionar', $ex->getLine(), $ex->getMessage()]);
             return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('mensaje', 'modelo'));

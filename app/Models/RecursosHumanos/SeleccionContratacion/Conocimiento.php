@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static whereIn(string $string, array $array_map)
+ */
 class Conocimiento extends Model implements Auditable
 {
     use HasFactory;

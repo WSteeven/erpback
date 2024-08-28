@@ -3,7 +3,9 @@
 namespace Src\App\RecursosHumanos\SeleccionContratacion;
 
 use App\Mail\RecursosHumanos\SeleccionContratacion\BancoPostulanteMail;
+use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionDescartadaMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionLeidaMail;
+use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionSeleccionadaMail;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +34,33 @@ class PostulacionService
             throw $e;
         }
     }
+
+    /**
+     * @throws Throwable
+     */
+    public function notificarPostulacionDescartada(Postulacion $postulacion, bool $antes_entrevista)
+    {
+        try{
+            Mail::to($postulacion->user->email)->send(new PostulacionDescartadaMail($postulacion, $antes_entrevista));
+        }catch (Throwable $e){
+            Log::channel('testing')->info('Log', ['Error notificarPostulacionDescartada sendMail', $e->getMessage(), $e->getLine()]);
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function notificarPostulanteSeleccionado(Postulacion $postulacion)
+    {
+        try{
+            Mail::to($postulacion->user->email)->send(new PostulacionSeleccionadaMail($postulacion));
+        }catch (Throwable $e){
+            Log::channel('testing')->info('Log', ['Error notificarPostulacionDescartada sendMail', $e->getMessage(), $e->getLine()]);
+            throw $e;
+        }
+    }
+
 
     /**
      * @throws Throwable

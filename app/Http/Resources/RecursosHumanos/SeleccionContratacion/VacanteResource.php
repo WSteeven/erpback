@@ -4,9 +4,9 @@ namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\SeleccionContratacion\Conocimiento;
+use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VacanteResource extends JsonResource
@@ -43,6 +43,7 @@ class VacanteResource extends JsonResource
             'es_favorita' => !!$this->favorita,
             'created_at' => $this->created_at,
             'ya_postulada' => !!$this->postulacion,
+            'postulantes_preseleccionados'=> $this->postulacionesPreseleccionadas()
         ];
         if ($controller_method == 'showPreview' || $controller_method == 'favorite') {
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
@@ -59,5 +60,10 @@ class VacanteResource extends JsonResource
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
         }
         return $modelo;
+    }
+
+    private  function postulacionesPreseleccionadas()
+    {
+        return Postulacion::where('vacante_id', $this->id)->where('estado', Postulacion::PRESELECCIONADO)->count();
     }
 }

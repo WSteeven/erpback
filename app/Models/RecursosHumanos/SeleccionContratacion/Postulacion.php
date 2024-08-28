@@ -9,6 +9,7 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -16,6 +17,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 /**
  * @method static find(mixed $postulacion)
  * @method static ignoreRequest(string[] $array)
+ * @method static where(string $string, mixed $id)
  */
 class Postulacion extends Model implements Auditable
 {
@@ -35,6 +37,7 @@ class Postulacion extends Model implements Auditable
         'tengo_formacion_academica_requerida',
         'tengo_licencia_conducir',
         'tipo_licencia',
+        'calificacion',
         'activo',
         'user_id',
         'user_type',
@@ -62,11 +65,20 @@ class Postulacion extends Model implements Auditable
     const REVISION_CV = 'REVISION CV';
     const ENTREVISTA = 'EN ENTREVISTA';
     const DESCARTADO = 'DESCARTADO';
+    const PRESELECCIONADO = 'PRESELECCIONADO';
     const SELECCIONADO = 'SELECCIONADO';
     const EXAMENES_MEDICOS = 'EXAMENES MEDICOS';
     const CONTRATADO = 'CONTRATADO';
     const BANCO_DE_CANDIDATOS = 'BANCO DE CANDIDATOS';
     const RECHAZADO = 'RECHAZADO';
+
+    // -------------------------------------
+    // CALIFICACIONES
+    // -------------------------------------
+    const NO_CALIFICADO = 'NO CALIFICADO';
+//    const ALTA_PRIORIDAD = 'ALTA PRIORIDAD';
+//    const BAJA_PRIORIDAD = 'BAJA PRIORIDAD';
+    const NO_CONSIDERAR = 'NO CONSIDERAR';
 
     private static array $whiteListFilter = ['*'];
 
@@ -78,6 +90,16 @@ class Postulacion extends Model implements Auditable
     public function paisResidencia()
     {
         return $this->belongsTo(Pais::class, 'pais_residencia_id', 'id');
+    }
+
+    /**
+     * Relación uno a uno.
+     * Una postulacion puede tener 0 o 1 entrevista
+     * @return HasOne
+     */
+    public function entrevista()
+    {
+        return $this->hasOne(Entrevista::class, 'postulacion_id', 'id');
     }
 
     /**
