@@ -4,7 +4,7 @@ namespace App\Http\Requests\RecursosHumanos\SeleccionContratacion;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EntrevistaRequest extends FormRequest
+class ExamenRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,15 +26,13 @@ class EntrevistaRequest extends FormRequest
         return [
             'postulacion_id' => 'required|exists:rrhh_contratacion_postulaciones,id',
             'fecha_hora' => 'required|string',
-            'duracion' => 'required',
-            'reagendada' => 'boolean',
-            'presencial' => 'boolean',
             'canton_id' => 'nullable|sometimes|exists:cantones,id',
             'direccion' => 'nullable|sometimes|string',
-            'nueva_fecha_hora' => 'nullable|sometimes|string',
+            'laboratorio' => 'nullable|sometimes|string',
+            'indicaciones' => 'nullable|sometimes|string',
+            'se_realizo_examen' => 'boolean',
+            'es_apto' => 'boolean',
             'observacion' => 'nullable|sometimes|string',
-            'link' => 'nullable|sometimes|url:http,https',
-            'asistio' => 'boolean',
         ];
     }
 

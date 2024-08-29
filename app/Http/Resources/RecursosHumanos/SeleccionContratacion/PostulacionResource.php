@@ -55,6 +55,7 @@ class PostulacionResource extends JsonResource
             'leido_rrhh' => $this->leido_rrhh,
             'created_at' => date(Utils::MASKFECHAHORA, strtotime($this->created_at)),
             'estado' => $this->estado,
+            'dado_alta' => $this->dado_alta,
             'tipo_licencia' => $this->tipo_licencia ? Utils::convertirStringComasArray($this->tipo_licencia) : null,
         ];
 

@@ -56,15 +56,22 @@
     <div class="content">
         <p>Estimado/a {{ $postulacion['nombres_apellidos'] }},</p>
         <br>
-        <p>Nos complace informarte que hemos programado una entrevista para el puesto de <strong>{{ $postulacion['nombre'] }}</strong> en
+        <p>Nos complace informarte que hemos programado una entrevista para el puesto de
+            <strong>{{ $postulacion['nombre'] }}</strong> en
             <strong>{{ $configuracion->razon_social }}</strong>. A continuación, te proporcionamos los
             detalles de la entrevista:</p>
-        <p><strong>Fecha y hora:</strong> {{$fecha_hora}}</p>
-        <p><strong>Duración Aproximada:</strong> {{$duracion}} minutos</p>
+        @if($entrevista->canton_id && $entrevista->presencial)
+        <p><strong>Ciudad:</strong> {{$canton}}</p>
+        @endif
+        <p><strong>Fecha y hora:</strong> {{$entrevista->fecha_hora}}</p>
+        <p><strong>Duración Aproximada:</strong> {{$entrevista->duracion}} minutos</p>
         <p><strong>Ubicación de la Entrevista:</strong></p>
-        <p>Napoleón Mera y 8va Norte, porton plomo</p>
-        <p>Machala, El Oro, (070205)</p>
-        <p>Ubicación de Referencia: a la vuelta de mueblería Daquilema</p>
+        @if($entrevista->presencial)
+            <p>{{$entrevista->direccion}}</p>
+        @else
+            <p>Virtual (Zoom)</p>
+            <p><strong>Link:</strong> <a href="{{ $entrevista->link }}" target="_blank">{{ $entrevista->link }}</a></p>
+        @endif
         <p><strong>Instrucciones Importantes:</strong></p>
         <ul>
             <li><strong>Llega con al menos 15 minutos de antelación:</strong> Te pedimos que llegues al lugar de la
@@ -79,7 +86,8 @@
                 <a href="mailto:recursos_humanos@jpconstrucred.com">recursos_humanos@jpconstrucred.com</a>.
             </li>
         </ul>
-        <p>Agradecemos tu interés en <strong>{{ $configuracion->razon_social }}</strong> y esperamos conocerte en la fecha y hora
+        <p>Agradecemos tu interés en <strong>{{ $configuracion->razon_social }}</strong> y esperamos conocerte en la
+            fecha y hora
             acordadas. Si tienes alguna duda o necesitas más información, no dudes en ponerte en contacto con nosotros.
         </p>
 

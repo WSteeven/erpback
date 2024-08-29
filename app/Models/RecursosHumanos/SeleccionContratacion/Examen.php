@@ -9,30 +9,34 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+
 /**
- * @method static create(mixed $datos)
+ * @method static create($datos)
  */
-class Entrevista extends Model implements Auditable
+class Examen extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
+    use HasFactory, AuditableModel, UppercaseValuesTrait, Filterable;
 
-    protected $table = 'rrhh_contratacion_entrevistas';
-
+    protected $table = 'rrhh_contratacion_examenes';
     protected $fillable = [
         'postulacion_id',
         'fecha_hora',
-        'duracion',
-        'presencial',
-        'link',
         'canton_id',
         'direccion',
-        'reagendada', //boolean
-        'nueva_fecha_hora',
-        'observacion',
-        'asistio' //boolean
+        'laboratorio',
+        'indicaciones',
+        'se_realizo_examen',
+        'es_apto',
+        'observacion'
     ];
 
-    //obtener la llave primaria
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'se_realizo_examen' => 'boolean',
+        'es_apto' => 'boolean',
+    ];
+
     public function getKeyName()
     {
         return 'postulacion_id';
@@ -42,7 +46,9 @@ class Entrevista extends Model implements Auditable
      * Relación uno a uno.
      * Una entrevista se emite para una postulación
      */
-    public function postulacion(){
+    public function postulacion()
+    {
         return $this->belongsTo(Postulacion::class, 'postulacion_id');
     }
+
 }

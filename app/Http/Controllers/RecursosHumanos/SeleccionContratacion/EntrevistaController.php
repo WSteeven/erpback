@@ -46,6 +46,7 @@ class EntrevistaController extends Controller
             $postulacion->save();
             $entrevista = Entrevista::create($datos);
             Mail::to($postulacion->user->email)->send(new NotificarEntrevistaMail($postulacion, $entrevista));
+//            throw new \Exception("error controlado");
             $modelo = new EntrevistaResource($entrevista);
             $mensaje = "¡Entrevista agendada exitosamente!";
             DB::commit();

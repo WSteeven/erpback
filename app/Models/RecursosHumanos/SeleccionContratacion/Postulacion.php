@@ -44,6 +44,7 @@ class Postulacion extends Model implements Auditable
         'ruta_cv',
         'leido_rrhh',
         'estado',
+        'dado_alta',
     ];
 
     protected $casts = [
@@ -57,6 +58,7 @@ class Postulacion extends Model implements Auditable
         'tengo_licencia_conducir' => 'boolean',
         'leido_rrhh' => 'boolean',
         'activo' => 'boolean',
+        'dado_alta' => 'boolean',
     ];
     // --------------------------------
     // ESTADOS
@@ -100,6 +102,16 @@ class Postulacion extends Model implements Auditable
     public function entrevista()
     {
         return $this->hasOne(Entrevista::class, 'postulacion_id', 'id');
+    }
+
+    /**
+     * Relación uno a uno.
+     * Una postulacion puede tener 0 o 1 examenes
+     * @return HasOne
+     */
+    public function examen()
+    {
+        return $this->hasOne(Examen::class, 'postulacion_id', 'id');
     }
 
     /**

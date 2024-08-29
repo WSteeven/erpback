@@ -34,6 +34,7 @@ return new class extends Migration
             $table->text('ruta_cv')->nullable();
             $table->boolean('leido_rrhh')->default(false);
             $table->boolean('activo')->default(true);
+            $table->boolean('dado_alta')->default(false);
             $table->timestamps();
 
             $table->foreign('vacante_id')->references('id')->on('rrhh_contratacion_vacantes')->cascadeOnUpdate()->cascadeOnDelete();

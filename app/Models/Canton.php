@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static find(mixed $canton_id)
+ */
 class Canton extends Model implements Auditable
 {
     use HasFactory, AuditableModel;
@@ -20,7 +23,7 @@ class Canton extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array  $whiteListFilter = ['*'];
 
     /**
      * Get the parroquia associated with the canton.

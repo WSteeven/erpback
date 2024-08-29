@@ -3,9 +3,7 @@
 namespace App\Mail\RecursosHumanos\SeleccionContratacion;
 
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
-use App\Models\Canton;
 use App\Models\ConfiguracionGeneral;
-use App\Models\RecursosHumanos\SeleccionContratacion\Entrevista;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -14,27 +12,22 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NotificarEntrevistaMail extends Mailable
+class NotificarPostulanteContratado extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Entrevista $entrevista;
     public array $postulacion;
-    public ?string $canton;
     public ConfiguracionGeneral $configuracion;
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Postulacion $postulacion, Entrevista $entrevista)
+    public function __construct(Postulacion $postulacion)
     {
-        $this->entrevista = $entrevista;
         $resource = new PostulacionResource($postulacion);
         $this->postulacion = $resource->resolve();
         $this->configuracion = ConfiguracionGeneral::first();
-        $this->canton = Canton::find($this->entrevista->canton_id)?->canton;
     }
 
     /**
@@ -46,7 +39,7 @@ class NotificarEntrevistaMail extends Mailable
     {
         return new Envelope(
             from: new Address(env('MAIL_USERNAME'), 'Proceso de Postulación'),
-            subject: 'Agendamiento de Entrevista',
+            subject: '¡Felicidades! Has Sido Contratado',
         );
     }
 
@@ -58,11 +51,9 @@ class NotificarEntrevistaMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'email.recursosHumanos.SeleccionContratacion.entrevista_postulacion',
+            view: 'email.recursosHumanos.SeleccionContratacion.postulante_contratado',
             with: [
                 'url' => env('SPA_URL', 'https://sistema.jpconstrucred.com'),
-                'link' => env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/puestos-aplicados',
-//                'canton'=>
             ]
         );
     }
