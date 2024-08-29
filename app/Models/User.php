@@ -15,6 +15,9 @@ use Spatie\Permission\Models\Permission;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static where(string $string, $usuario_id)
+ */
 class User extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -59,26 +62,26 @@ class User extends Authenticatable implements Auditable
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
     const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
     const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
-    
+
     const GERENCIA = 'GERENCIA';
     const JEFE_TECNICO = 'JEFE TECNICO';
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
-    
+
     // Modulo medico
     const ROL_MEDICO = 'MEDICO';
     //ventas claro
     const JEFE_VENTAS = 'JEFE_VENTAS';
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     const VENDEDOR = 'VENDEDOR';
-    
+
     //Fondos Rotativos
     const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
-    
+
     // Modulo Vehiculos
     const CHOFER = 'CHOFER';
     const MECANICO_GENERAL = 'MECANICO_GENERAL';
-    
+
 
     /**
      * The attributes that are mass assignable.
@@ -144,7 +147,7 @@ class User extends Authenticatable implements Auditable
 
     /**
      * Este metodo no funciona, da errores.
-     * Por favor BORRARLO 
+     * Por favor BORRARLO
      */
     public function obtenerPermisos($user_id)
     {

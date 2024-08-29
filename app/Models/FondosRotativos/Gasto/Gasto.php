@@ -20,6 +20,10 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static ignoreRequest(string[] $array)
+ * @method static where(string $string, mixed $ruc)
+ */
 class Gasto extends Model implements Auditable
 {
     use HasFactory;

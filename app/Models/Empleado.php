@@ -30,6 +30,9 @@ use Carbon\Carbon;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
+/**
+ * @method static where(string $string, $empleado)
+ */
 class Empleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;

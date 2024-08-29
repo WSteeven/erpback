@@ -15,6 +15,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Scout\Searchable;
 
+/**
+ * @method static where(string $string, mixed $tarea)
+ */
 class Tarea extends Model implements Auditable
 {
     use HasFactory, Filterable, AuditableModel, UppercaseValuesTrait, Searchable;

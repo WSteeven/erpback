@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static where(string $string, mixed $empleado)
+ * @method static create(array $datos)
+ */
 class SaldoGrupo extends  Model implements Auditable
 {
     use HasFactory;
@@ -30,7 +34,7 @@ class SaldoGrupo extends  Model implements Auditable
         'fecha_fin',
         'id_usuario',
     ];
-    private static $whiteListFilter = [
+    private static array  $whiteListFilter = [
         'fecha_inicio',
     ];
     public function usuario()
