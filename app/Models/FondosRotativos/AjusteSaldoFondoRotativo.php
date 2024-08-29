@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static whereBetween(\Illuminate\Database\Query\Expression $raw, array $array)
+ * @method static where(string $string, string $string1, \Carbon\Carbon $endOfDay)
+ */
 class AjusteSaldoFondoRotativo extends Model implements Auditable
 {
     use HasFactory;

@@ -8,6 +8,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 
+/**
+ * @method static first()
+ */
 class ConfiguracionGeneral extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
