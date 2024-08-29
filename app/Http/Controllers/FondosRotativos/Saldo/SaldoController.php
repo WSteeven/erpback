@@ -231,7 +231,7 @@ class SaldoController extends Controller
      *
      * @param Request $request La función `consolidado` en el fragmento de código que proporcionaste
      * toma dos parámetros: `` y ``.
-     * @param mixed $tipo_reporte La función `consolidado`  maneja diferentes
+     * @param mixed $tipo_reporte La función `consolidado` maneja diferentes
      * tipos de reportes los cuales pueden ser PDF y Excel
      *
      * @return BinaryFileResponse|Response función `consolidado` devuelve el resultado de una de las siguientes funciones según
@@ -245,15 +245,22 @@ class SaldoController extends Controller
     public function consolidado(Request $request, mixed $tipo_reporte)
     {
         try {
-            return match ($request->tipo_saldo) {
-                self::ACREDITACION => $this->acreditacion($request, $tipo_reporte),
-                self::GASTO => $this->gasto($request, $tipo_reporte),
-                self::CONSOLIDADO => $this->reporteConsolidado($request, $tipo_reporte),
-                self::ESTADO_CUENTA => $this->reporteEstadoCuenta($request, $tipo_reporte),
-                self::TRANSFERENCIA => $this->reporteTransferencia($request, $tipo_reporte),
-                self::GASTO_IMAGEN => $this->gasto($request, $tipo_reporte, true),
-                default => throw new Exception("No hay un reporte para este tipo de filtro"),
-            };
+            switch ($request->tipo_saldo) {
+                case self::ACREDITACION :
+                    return $this->acreditacion($request, $tipo_reporte);
+                case self::GASTO :
+                    return $this->gasto($request, $tipo_reporte);
+                case self::CONSOLIDADO :
+                    return $this->reporteConsolidado($request, $tipo_reporte);
+                case self::ESTADO_CUENTA :
+                    return $this->reporteEstadoCuenta($request, $tipo_reporte);
+                case self::TRANSFERENCIA :
+                    return $this->reporteTransferencia($request, $tipo_reporte);
+                case self::GASTO_IMAGEN :
+                    return $this->gasto($request, $tipo_reporte, true);
+                default :
+                    throw new Exception("No hay un reporte para este tipo de filtro");
+            }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);
@@ -271,11 +278,11 @@ class SaldoController extends Controller
      * para determinar la acción en función del valor de `->tipo_saldo`. Dependiendo del valor,
      *
      * @return Response|BinaryFileResponse método `consolidadoFiltrado` está devolviendo el resultado de uno de los siguientes
-     * métodos basado en el valor de `->tipo_saldo`:
-     * - `acreditacion(, )` si el valor es `self::ACREDITACION`
-     * - `gastoFiltrado(, )` si el valor es `self::GASTO
-     * - `reporteConsolidado(, )` si el valor es `self::CONSOLIDADO
-     * - `reporteEstadoCuenta(, )` si el valor es `self::ESTADO_CUENTA
+     * métodos basados en el valor de `->tipo_saldo`:
+     * - `acreditacion()` si el valor es `self::ACREDITACION`
+     * - `gastoFiltrado()` si el valor es `self::GASTO
+     * - `reporteConsolidado()` si el valor es `self::CONSOLIDADO
+     * - `reporteEstadoCuenta()` si el valor es `self::ESTADO_CUENTA
      * @throws ValidationException
      */
     public function consolidadoFiltrado(Request $request, string $tipo_reporte)
@@ -584,7 +591,7 @@ class SaldoController extends Controller
                 $gastos_totales = $gastos->sum('total');
                 $transferencias_enviadas = $this->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin);
                 $transferencia = $transferencias_enviadas->sum('monto');
-                $transferencias_recibidas =$this->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
+                $transferencias_recibidas = $this->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $transferencia_recibida = $transferencias_recibidas->sum('monto');
                 $saldo_old = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $total = $saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
@@ -749,10 +756,9 @@ class SaldoController extends Controller
      * solicitud HTTP. Se utiliza para recuperar los valores de las propiedades `fecha_inicio` y
      * `fecha_fin`.
      * @param string $tipo El parámetro "tipo" se utiliza para determinar el tipo de informe a generar.
-     * Probablemente sea un valor de cadena que especifica el formato del informe, como "pdf" o "excel".
+     * Probablemente, sea un valor de cadena que especifica el formato del informe, como "pdf" o "excel".
      *
-     * @return BinaryFileResponse|Response result of the method call `->reporteService->imprimir_reporte(, 'A4',
-     * 'portail', , , , )`.
+     * @return BinaryFileResponse|Response
      * @throws ValidationException
      */
     private function reporteConsolidado(Request $request, string $tipo)
@@ -856,7 +862,7 @@ class SaldoController extends Controller
      * ``, `'A4'`, `'portail'`, ``, ``, `` y ``.
      * @throws ValidationException
      */
-    private function reporteTransferencia(Request $request,string $tipo)
+    private function reporteTransferencia(Request $request, string $tipo)
     {
         try {
             $fecha_inicio = $request->fecha_inicio;
@@ -915,7 +921,7 @@ class SaldoController extends Controller
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
         else
-            return Transferencias::where('usuario_recibe_id', $request->empleado)
+            return Transferencias::where('usuario_recibe_id', $empleado_id)
                 ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
