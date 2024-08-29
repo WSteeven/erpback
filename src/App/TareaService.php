@@ -10,6 +10,7 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
 
@@ -96,6 +97,9 @@ class TareaService
         return $total_tareas === 0;
     }
 
+    /**
+     * Material de empleado ocupado
+     */
     public function descargarReporteMateriales()
     {
         request()->validate([
@@ -104,11 +108,61 @@ class TareaService
             'fecha_fin' => 'required|date_format:Y-m-d',
         ]);
 
-        $materialService = new MaterialesService();
-        $reporte = $materialService->obtenerMaterialesEmpleadoIntervalo(request('empleado_id'), request('fecha_inicio'), request('fecha_fin'));
+        $fecha_inicio = Carbon::parse(request('fecha_inicio'))->startOfDay();
+        $fecha_fin = Carbon::parse(request('fecha_fin'))->endOfDay();
 
-        $export = new ReporteMaterialLibroExport($reporte);
-        // return response()->json(compact('reporte'));
+        $materialService = new MaterialesService();
+        $reporte = $materialService->obtenerMaterialesEmpleadoIntervalo(request('empleado_id'), $fecha_inicio, $fecha_fin);
+        $noUsados = $materialService->obtenerMaterialesEmpleadoIntervaloNoOcupados(request('empleado_id'), $fecha_inicio);
+        $seguimientoStock = $materialService->obtenerSeguimientoMaterialesEmpleado(request('empleado_id'), $fecha_inicio, $fecha_fin);
+
+        $idsMaterialesEmpleadoOcupados = $reporte->pluck('auditable_id');
+
+        // $reporteOrdenado = $this->ordenarDescUnicos($reporte);
+        $noUsadosOrdenado = $this->ordenarDescUnicos($noUsados);
+
+        $noUsados = $noUsadosOrdenado->filter(function ($item) use ($idsMaterialesEmpleadoOcupados) {
+            return !$idsMaterialesEmpleadoOcupados->contains($item['auditable_id']);
+        });
+
+        $seguimientoStock = $this->mapearSeguimientoStock($seguimientoStock);
+        $seguimientoStock = $this->obtenerSumaPorTarea($seguimientoStock);
+        Log::channel('testing')->info($seguimientoStock);
+
+        // return response()->json(compact('reporteOrdenado', 'noUsadosOrdenado', 'noUsados'));
+        // return response()->json(compact('idsMaterialesEmpleadoOcupados', 'idsMaterialesEmpleadoNoOcupados', 'noUsados', 'coincidencias', 'reporte', 'noUsadosOrdenado'));
+        $export = new ReporteMaterialLibroExport($reporte, $noUsados, $seguimientoStock);
         return Excel::download($export, 'reporte_materiales.xlsx');
+    }
+
+    /**
+     * Ordena las auditorias de manera descendente por su campo fecha_hora y quita los duplicados
+     * dejando al más reciente únicamente.
+     */
+    private function ordenarDescUnicos($results)
+    {
+        return $results->groupBy('auditable_id')->map(function ($item) {
+            return $item->sortByDesc('fecha_hora')->first();
+        })->values();
+    }
+
+    private function mapearSeguimientoStock($seguimientoStock)
+    {
+        return $seguimientoStock->map(fn($seguimiento) => [
+            'id' => $seguimiento->id,
+            'cantidad_utilizada' => $seguimiento->cantidad_utilizada,
+            'tarea' => $seguimiento->subtarea->tarea->codigo_tarea,
+            'titulo_tarea' => $seguimiento->subtarea->tarea->titulo,
+            'detalle_producto' => $seguimiento->detalleProducto->descripcion,
+            'cliente' => $seguimiento->cliente?->empresa->razon_social,
+            'fecha_hora' => Carbon::parse($seguimiento->created_at)->format('Y-m-d H:i:s'),
+        ]);
+    }
+
+    private function obtenerSumaPorTarea($seguimientoStock) {
+        return $seguimientoStock->groupBy('tarea')->map(function ($item) {
+            $item['suma'] = $item->sum('cantidad_utilizada');
+            return $item;
+        })->values();
     }
 }

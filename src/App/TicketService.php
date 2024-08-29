@@ -5,6 +5,7 @@ namespace Src\App;
 use App\Events\TicketEvent;
 use App\Models\Departamento;
 use App\Models\Ticket;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -13,7 +14,7 @@ class TicketService
 {
     public function notificarTicketsAsignados($tickets)
     {
-        foreach($tickets as $ticket) {
+        foreach ($tickets as $ticket) {
             event(new TicketEvent($ticket, $ticket->solicitante_id, $ticket->responsable_id));
         }
     }
@@ -75,10 +76,10 @@ class TicketService
         $datos['tipo_ticket_id'] = $destinatario['tipo_ticket_id']; // $request->safe()->only(['tipo_ticket'])['tipo_ticket'];
         $datos['departamento_responsable_id'] = $destinatario['departamento_id'];
         $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
+        $datos['cc'] = json_encode($request['cc']);
 
         // Calcular estados
         $datos['estado'] = Ticket::ASIGNADO;
-
         return Ticket::create($datos);
     }
 

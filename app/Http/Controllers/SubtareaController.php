@@ -57,9 +57,13 @@ class SubtareaController extends Controller
         $datos['empleados_designados'] = $request['empleados_designados'];
 
         // Calcular estados
-        $datos['estado'] = Subtarea::CREADO;
+        $datos['estado'] = Subtarea::AGENDADO;
+        $datos['fecha_hora_asignacion'] = Carbon::now();
+        $subtarea['fecha_hora_agendado'] = Carbon::now();
 
         $modelo = Subtarea::create($datos);
+
+        event(new SubtareaEvent($modelo, User::ROL_TECNICO));
 
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
