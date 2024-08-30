@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\Canton;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -41,6 +42,9 @@ class Vacante extends Model implements Auditable
         'activo',
         'disponibilidad_viajar',
         'requiere_licencia',
+        'es_completada',
+        'canton_id',
+        'num_plazas',
     ];
 
     protected $casts = [
@@ -49,6 +53,7 @@ class Vacante extends Model implements Auditable
         'activo' => 'boolean',
         'disponibilidad_viajar' => 'boolean',
         'requiere_licencia' => 'boolean',
+        'es_completada' => 'boolean',
     ];
 
     private static array $whiteListFilter = ['*'];
@@ -78,6 +83,10 @@ class Vacante extends Model implements Auditable
         return $this->morphMany(FormacionAcademica::class, 'formacionable');
     }
 
+    public function  canton()
+    {
+        return $this->belongsTo(Canton::class);
+    }
     public function favorita()
     {
         [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();

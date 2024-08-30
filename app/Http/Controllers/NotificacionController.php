@@ -100,7 +100,7 @@ class NotificacionController extends Controller
      */
     public function destroy(Notificacion $notificacion)
     {
-        //Segun la logica de negocio no se deberían eliminar las notificaciones.
+        //Según la logica de negocio no se deberían eliminar las notificaciones.
         $notificacion->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));

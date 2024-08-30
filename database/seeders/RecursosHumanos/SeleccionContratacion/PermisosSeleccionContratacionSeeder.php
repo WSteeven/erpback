@@ -86,5 +86,12 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_examenes_postulantes'])->syncRoles($medico);
 
 
+        // Permiso para ver los usuarios externos
+        Permission::firstOrCreate(['name' => Permisos::VER . 'usuarios_externos'])->syncRoles([$rrhh, $administrador]);
+
+        // otros permisos
+        Permission::firstOrCreate(['name' => Permisos::VER . 'tipos_discapacidades'])->syncRoles($rrhh);
+
+
     }
 }

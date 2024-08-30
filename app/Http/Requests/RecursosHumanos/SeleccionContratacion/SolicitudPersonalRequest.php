@@ -48,6 +48,8 @@ class SolicitudPersonalRequest extends FormRequest
             'areas_conocimiento' => 'required|string',
             'disponibilidad_viajar' => 'boolean',
             'requiere_licencia' => 'boolean',
+            'canton_id'=>'required|exists:cantones,id',
+            'num_plazas'=>'required|numeric|min:1',
         ];
     }
 
@@ -56,6 +58,7 @@ class SolicitudPersonalRequest extends FormRequest
         $this->merge(['solicitante_id' => is_null($this->solicitante) ? auth()->user()->empleado->id : $this->solicitante]);
 
         $this->merge([
+            'canton_id' => $this->canton,
             'autorizador_id' => $this->autorizador,
             'modalidad_id' => $this->modalidad,
             'cargo_id' => $this->cargo,

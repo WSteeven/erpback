@@ -9,8 +9,10 @@ use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulacionContro
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\SolicitudPersonalController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\UserExternalController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\VacanteController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
+use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources(
@@ -23,22 +25,23 @@ Route::apiResources(
         'solicitudes-nuevo-personal' => SolicitudPersonalController::class,
         'tipos-puestos' => TipoPuestoController::class,
         'tipos-discapacidades' => TipoDiscapacidadController::class,
-        'conocimientos'=>ConocimientoController::class,
-        'modalidades'=> ModalidadController::class,
-        'postulaciones-vacantes'=> PostulacionController::class,
-        'bancos-postulantes'=> BancoPostulanteController::class,
-        'entrevistas'=> EntrevistaController::class,
-        'examenes-postulantes'=> ExamenController::class,
-
+        'conocimientos' => ConocimientoController::class,
+        'modalidades' => ModalidadController::class,
+        'postulaciones-vacantes' => PostulacionController::class,
+        'bancos-postulantes' => BancoPostulanteController::class,
+        'entrevistas' => EntrevistaController::class,
+        'examenes-postulantes' => ExamenController::class,
+        'usuarios-externos'=> UserExternalController::class,
     ],
     [
         'parameters' => [
             'solicitudes-nuevo-personal' => 'solicitud',
             'tipos-puestos' => 'tipo',
-            'modalidades'=>'modalidad',
-            'postulaciones-vacantes'=>'postulacion',
-            'bancos-postulantes'=> 'banco',
-            'examenes-postulantes'=> 'examen',
+            'modalidades' => 'modalidad',
+            'postulaciones-vacantes' => 'postulacion',
+            'bancos-postulantes' => 'banco',
+            'examenes-postulantes' => 'examen',
+            'usuarios-externos' => 'user',
         ]
     ]
 );

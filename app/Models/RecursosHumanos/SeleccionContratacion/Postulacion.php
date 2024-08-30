@@ -86,7 +86,7 @@ class Postulacion extends Model implements Auditable
 
     public function vacante()
     {
-        return $this->belongsTo(Vacante::class);
+        return $this->belongsTo(Vacante::class, 'vacante_id');
     }
 
     public function paisResidencia()

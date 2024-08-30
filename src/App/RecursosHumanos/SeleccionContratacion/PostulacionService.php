@@ -87,5 +87,14 @@ class PostulacionService
         return BancoPostulante::where('user_id', $user_id)->where('user_type', $user_type)->where('descartado', false)->first() !== null;
     }
 
+    /**
+     * Esta funcion actualiza la vacante a completa y notifica a todos los postulantes que ya ha sido completada la vacante
+     * @param Postulacion $postulacion
+     * @return void
+     */
+    public function actualizarVacante(Postulacion $postulacion)
+    {
+        $postulacion->vacante()->update(['es_completada'=> true]);
+    }
 
 }

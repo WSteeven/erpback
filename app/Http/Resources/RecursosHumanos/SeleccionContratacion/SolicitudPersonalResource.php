@@ -33,6 +33,8 @@ class SolicitudPersonalResource extends JsonResource
             'autorizacion' => $this->autorizacion->nombre,
             'disponibilidad_viajar'=>$this->disponibilidad_viajar,
             'requiere_licencia'=>$this->requiere_licencia,
+            'canton'=>$this->canton_id,
+            'num_plazas'=>$this->num_plazas,
         ];
         if ($controller_method == 'show') {
             $modelo['tipo_puesto'] = $this->tipo_puesto_id;

@@ -64,8 +64,8 @@ class BancoPostulanteController extends Controller
                 $postulacion->save();
                 // Notificamos al postulante que ya no continua el proceso y se agregó al banco de postulantes
                 $this->postulacionService->notificarBancoPostulante($postulacion);
-                // tomamos el user_id y el user_type de la postulacion para agregar en el registro del banco de postulante.
-                // pero antes verificamos si el usuario ya está en banco de postulantes
+                // Tomamos el user_id y el user_type de la postulacion para agregar en el registro del banco de postulante.
+                // Pero antes verificamos si el usuario ya está en banco de postulantes
                 $estaEnBanco = $this->postulacionService->estaEnBanco($postulacion->user_id, $postulacion->user_type);
                 if (!$estaEnBanco) { //si no está en banco lo agrega, caso contrario no sucede nada.
                     $datos['user_id'] = $postulacion->user_id;

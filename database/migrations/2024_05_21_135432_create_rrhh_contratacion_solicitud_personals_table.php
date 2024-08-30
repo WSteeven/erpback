@@ -23,6 +23,8 @@ return new class extends Migration
             $table->unsignedBigInteger('autorizador_id');
             $table->unsignedBigInteger('autorizacion_id');
             $table->unsignedBigInteger('cargo_id')->nullable();
+            $table->unsignedBigInteger('canton_id')->nullable();
+            $table->integer('num_plazas')->default(1);
             $table->text('areas_conocimiento')->nullable();
             $table->longText('descripcion');
             $table->string('anios_experiencia')->nullable();
@@ -38,6 +40,7 @@ return new class extends Migration
             $table->foreign('solicitante_id', 'fk_solicitante_id')->references('id')->on('empleados')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('autorizador_id', 'fk_autorizador_id')->references('id')->on('empleados')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('autorizacion_id', 'fk_autorizacion_id')->references('id')->on('autorizaciones')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('canton_id', 'fk_canton_solicitud')->references('id')->on('cantones')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 

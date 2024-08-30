@@ -28,7 +28,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('detalles_productos', function (Blueprint $table) {
-            //
+            $table->dropConstrainedForeignId('permiso_id');
+            $table->dropColumn('permiso_id');
         });
     }
 };

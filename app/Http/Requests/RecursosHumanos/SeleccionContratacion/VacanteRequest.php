@@ -41,6 +41,8 @@ class VacanteRequest extends FormRequest
             'disponibilidad_viajar' => 'boolean',
             'requiere_licencia' => 'boolean',
             'activo' => 'boolean',
+            'canton_id'=>'required|exists:cantones,id',
+            'num_plazas'=>'required|numeric|min:1',
         ];
     }
 
@@ -48,6 +50,7 @@ class VacanteRequest extends FormRequest
     {
         $this->merge(['publicante_id' => is_null($this->publicante) ? auth()->user()->empleado->id : $this->publicante]);
         $this->merge([
+            'canton_id' => $this->canton,
             'tipo_puesto_id' => $this->tipo_puesto,
             'modalidad_id' => $this->modalidad,
             'solicitud_id' => $this->solicitud,

@@ -49,6 +49,8 @@ class SolicitudPersonal extends Model implements Auditable
         'descripcion',
         'disponibilidad_viajar',
         'requiere_licencia',
+        'canton_id',
+        'num_plazas',
 
     ];
     protected $casts = [

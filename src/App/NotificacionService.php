@@ -4,7 +4,6 @@ namespace Src\App;
 
 use App\Models\Notificacion;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 class NotificacionService
 {
@@ -31,7 +30,6 @@ class NotificacionService
      * recuperar del modelo "Notificación". Es un parámetro opcional y puede ser una matriz de nombres
      * de campo o una cadena de nombres de campo separados por comas.
      *
-     * @return Illuminate\Database\Eloquent\Collection $results una colección de objetos de Notificación.
      */
     public function obtenerNotificacionesRolBodega($campos)
     {

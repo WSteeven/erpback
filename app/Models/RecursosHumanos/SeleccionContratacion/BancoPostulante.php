@@ -47,6 +47,10 @@ class BancoPostulante extends Model implements Auditable
         return $this->morphTo();
     }
 
+    public function postulacion()
+    {
+        return $this->belongsTo(Postulacion::class, 'postulacion_id');
+    }
     public  function cargo(){
         return $this->belongsTo(Cargo::class);
     }

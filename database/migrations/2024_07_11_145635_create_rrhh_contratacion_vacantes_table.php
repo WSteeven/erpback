@@ -27,9 +27,12 @@ return new class extends Migration
             $table->unsignedBigInteger('modalidad_id');
             $table->unsignedBigInteger('publicante_id');
             $table->unsignedBigInteger('solicitud_id')->nullable();
+            $table->unsignedBigInteger('canton_id')->nullable();
+            $table->integer('num_plazas')->default(1);
             $table->boolean('disponibilidad_viajar')->default(false);
             $table->boolean('requiere_licencia')->default(false);
             $table->boolean('activo')->default(true);
+            $table->boolean('es_completada')->default(false);
             $table->timestamps();
 
             //Laves foraneas
@@ -37,6 +40,7 @@ return new class extends Migration
             $table->foreign('publicante_id', 'fk_publicante_id')->references('id')->on('empleados')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('solicitud_id', 'fk_vacante_autorizacion_id')->references('id')->on('rrhh_contratacion_solicitudes_nuevas_vacantes')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('modalidad_id', 'fk_vacante_modalidad')->references('id')->on('rrhh_contratacion_modalidades')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('canton_id', 'fk_canton_vacante')->references('id')->on('cantones')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 

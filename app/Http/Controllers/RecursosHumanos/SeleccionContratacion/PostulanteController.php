@@ -7,20 +7,22 @@ use App\Http\Requests\RecursosHumanos\SeleccionContratacion\PostulanteRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
-use Illuminate\Support\Facades\Cache;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class PostulanteController extends Controller
 {
-    private $entidad = 'Postulante';
+    private string $entidad = 'Postulante';
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param PostulanteRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function store(PostulanteRequest $request)
     {
@@ -41,7 +43,7 @@ class PostulanteController extends Controller
             $postData = ['access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo_user];
             Cache::put('autenticacion', $postData);
             DB::commit();
-            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo_user], 200);
+            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'bearer', 'modelo' => $modelo_user]);
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([

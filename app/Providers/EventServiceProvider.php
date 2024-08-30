@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
-use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Inventario;
 use App\Models\MovimientoProducto;

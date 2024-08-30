@@ -11,6 +11,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
  * @method static find($user_id)
+ * @method static create(mixed $datos)
  */
 class Postulante extends Model implements Auditable
 {

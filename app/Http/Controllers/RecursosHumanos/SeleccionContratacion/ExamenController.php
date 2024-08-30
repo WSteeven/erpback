@@ -14,15 +14,18 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Shared\Utils;
 use Throwable;
 
 class ExamenController extends Controller
 {
     private string $entidad = 'Examen';
+    private PostulacionService $postulacionService;
 
     public function __construct()
     {
+        $this->postulacionService = new PostulacionService();
         $this->middleware('check.user.logged.in');
         $this->middleware('can:puede.crear.rrhh_examenes_postulantes')->only('store');
         $this->middleware('can:puede.editar.rrhh_examenes_postulantes')->only('update');
@@ -88,6 +91,8 @@ class ExamenController extends Controller
                 // se actualiza la postulacion a contrado y se notifica al postulante
                 $examen->postulacion()->update(['estado'=>Postulacion::CONTRATADO]);
                 Mail::to($examen->postulacion->user->email)->send(new NotificarPostulanteContratado($examen->postulacion));
+                // también se actualiza la vacante y se cierra las demás postulaciones para esta vacante
+                $this->postulacionService->actualizarVacante($examen->postulacion);
             }else{
                 $examen->postulacion()->update(['estado'=>Postulacion::DESCARTADO]);
                 Mail::to($examen->postulacion->user->email)->send(new PostulacionDescartadaMail($examen->postulacion, false));

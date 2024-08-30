@@ -16,6 +16,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @method static find(mixed $user_id)
+ * @method static create(array $array)
  */
 class UserExternal extends Authenticatable implements Auditable
 {

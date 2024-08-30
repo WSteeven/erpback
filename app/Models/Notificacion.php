@@ -13,6 +13,9 @@ use PhpParser\Node\Expr\AssignOp\Mod;
 use Src\Config\TiposNotificaciones;
 use Throwable;
 
+/**
+ * @method static create(mixed $datos)
+ */
 class Notificacion extends Model //implements Auditable
 {
     use HasFactory;

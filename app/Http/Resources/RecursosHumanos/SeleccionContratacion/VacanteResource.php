@@ -5,6 +5,7 @@ namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\SeleccionContratacion\Conocimiento;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
@@ -25,7 +26,7 @@ class VacanteResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'descripcion' => $this->descripcion,
-            'fecha_caducidad' => $this->fecha_caducidad,
+            'fecha_caducidad' => (Carbon::createFromFormat('Y-m-d',$this->fecha_caducidad)->setTime(17,0))->format('Y-m-d H:i'),
             'imagen_referencia' => $this->imagen_referencia ? url($this->imagen_referencia) : null,
             'imagen_publicidad' => $this->imagen_publicidad ? url($this->imagen_publicidad) : null,
             'anios_experiencia' => $this->anios_experiencia,
@@ -43,7 +44,9 @@ class VacanteResource extends JsonResource
             'es_favorita' => !!$this->favorita,
             'created_at' => $this->created_at,
             'ya_postulada' => !!$this->postulacion,
-            'postulantes_preseleccionados'=> $this->postulacionesPreseleccionadas()
+            'postulantes_preseleccionados'=> $this->postulacionesPreseleccionadas(),
+            'canton'=>$this->canton->canton,
+            'num_plazas'=>$this->num_plazas,
         ];
         if ($controller_method == 'showPreview' || $controller_method == 'favorite') {
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
@@ -54,6 +57,7 @@ class VacanteResource extends JsonResource
             $modelo['modalidad'] = $this->modalidad_id;
             $modelo['publicante'] = $this->publicante_id;
             $modelo['solicitud'] = $this->solicitud_id;
+            $modelo['canton'] = $this->canton_id;
             $modelo['areas_conocimiento'] = array_map('intval', Utils::convertirStringComasArray($this->areas_conocimiento));
             $modelo['requiere_experiencia'] = !!$this->anios_experiencia;
             $modelo['requiere_formacion_academica'] = !!count($this->formacionesAcademicas);

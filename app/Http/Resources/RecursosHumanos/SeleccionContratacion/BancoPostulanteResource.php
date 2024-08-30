@@ -45,9 +45,25 @@ class BancoPostulanteResource extends JsonResource
             'descartado' => $this->descartado,
             'fue_contactado' => $this->fue_contactado,
             'created_at' => date('Y-m-d H:m:s', strtotime($this->created_at)),
+
+
         ];
         if ($controller_method == 'show') {
             $modelo['cargo'] = $this->cargo_id;
+
+            // los datos del usuario que esta en banco de postulantes
+            $modelo['nombres'] = $persona?->nombres;
+            $modelo['apellidos'] = $persona?->apellidos;
+            $modelo['fecha_nacimiento'] = $persona?->fecha_nacimiento;
+            $modelo['identificacion'] = $persona->numero_documento_identificacion ?? $persona?->identificacion;
+            $modelo['tipo_identificacion'] = $persona->tipo_documento_identificacion ?? 'CEDULA';
+            $modelo['telefono'] = $persona?->telefono;
+            $modelo['correo_personal'] = $persona?->correo_personal;
+            $modelo['genero'] = $persona?->genero;
+            $modelo['identidad_genero'] = $persona?->identidad_genero_id;
+            $modelo['pais'] = $persona?->pais_id ?? $persona?->canton->provincia->pais_id;
+            $modelo['pais_residencia'] = $this->postulacion->pais_residencia_id;
+            $modelo['direccion'] = $this->postulacion->direccion;
         }
 
         return $modelo;
