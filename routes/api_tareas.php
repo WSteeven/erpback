@@ -25,13 +25,11 @@ use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\Tareas\EtapaController;
-use App\Http\Controllers\Tareas\TransferenciaMaterialEmpleadoController;
 use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
 use App\Http\Controllers\Tareas\CentroCostoController;
 use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
-use Src\App\MaterialesService;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(

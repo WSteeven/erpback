@@ -8,8 +8,6 @@ use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Mail\Tickets\EnviarMailTicket;
 use App\Models\ActividadRealizadaSeguimientoTicket;
-use App\Models\CalificacionTicket;
-use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
 use App\Models\Tareas\SolicitudAts;
@@ -38,7 +36,10 @@ class TicketController extends Controller
     public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        $results = Ticket::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+        $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
+            $q->orWhereJsonContains('cc', intval(request('responsable_id')))->where('estado', Ticket::EJECUTANDO);
+        })->latest()->get($campos);
+
         $results = TicketResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -73,7 +74,7 @@ class TicketController extends Controller
         $this->servicio->notificarTicketsAsignados($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
-        $ids_tickets_creados = array_map(fn ($ticket) => $ticket->id, $tickets_creados);
+        $ids_tickets_creados = array_map(fn($ticket) => $ticket->id, $tickets_creados);
         $modelo = end($tickets_creados);
         $modelo = new TicketResource($modelo->refresh());
 
@@ -349,7 +350,7 @@ class TicketController extends Controller
      *******************/
     public function obtenerRechazados(Ticket $ticket)
     {
-        $results = $ticket->ticketsRechazados->map(fn ($item) => [
+        $results = $ticket->ticketsRechazados->map(fn($item) => [
             'fecha_hora' => $item->fecha_hora,
             'motivo' => $item->motivo,
             'responsable' => Empleado::extraerNombresApellidos($item->responsable),
@@ -360,7 +361,7 @@ class TicketController extends Controller
 
     public function obtenerPausas(Ticket $ticket)
     {
-        $results = $ticket->pausasTicket->map(fn ($item) => [
+        $results = $ticket->pausasTicket->map(fn($item) => [
             'fecha_hora_pausa' => $item->fecha_hora_pausa,
             'fecha_hora_retorno' => $item->fecha_hora_retorno,
             'tiempo_pausado' => $item->fecha_hora_retorno ? CarbonInterval::seconds(Carbon::parse($item->fecha_hora_retorno)->diffInSeconds(Carbon::parse($item->fecha_hora_pausa)))->cascade()->forHumans() : null,
@@ -387,7 +388,7 @@ class TicketController extends Controller
             ];
         });
 
-        $results = array_values($auditoria->filter(fn ($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
+        $results = array_values($auditoria->filter(fn($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
         Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }

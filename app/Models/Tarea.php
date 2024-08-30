@@ -15,6 +15,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Scout\Searchable;
 
+/**
+ * @method static where(string $string, mixed $tarea)
+ */
 class Tarea extends Model implements Auditable
 {
     use HasFactory, Filterable, AuditableModel, UppercaseValuesTrait, Searchable;
@@ -64,6 +67,7 @@ class Tarea extends Model implements Auditable
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'titulo' => $this->titulo,
+            'proyecto' => $this->proyecto?->codigo_proyecto . ' ' . $this->proyecto?->nombre,
         ];
     }
 

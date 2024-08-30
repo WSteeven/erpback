@@ -17,12 +17,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+use Src\App\Sistema\PaginationService;
 use Src\Config\ClientesCorporativos;
 
 class SubtareaService
 {
+    protected PaginationService $paginationService;
+
     public function __construct()
     {
+        $this->paginationService = new PaginationService();
     }
 
     public function guardarSubtarea(SubtareaRequest $request)
@@ -81,7 +85,7 @@ class SubtareaService
         return SubtareaResource::collection($results);
     }*/
 
-    public function obtenerTodos()
+    public function obtenerTodosOld()
     {
         $usuario = Auth::user();
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
@@ -98,6 +102,34 @@ class SubtareaService
         // Control de tareas
         $results = Subtarea::ignoreRequest(['campos'])->filter()->latest()->get();
         return SubtareaResource::collection($results);
+        // Log::channel('testing')->info('Log', ['if', 'Dentro de if']);
+    }
+
+    // ----> Aqui me quedé para hacer la paginacion <------
+    public function obtenerTodos()
+    {
+        $usuario = Auth::user();
+        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+
+        $search = request('search');
+        $paginate = request('paginate');
+
+        // Monitor
+        if (!request('tarea_id') && $esCoordinador) {
+            if ($search) $query = $usuario->empleado->subtareasCoordinador()->search($search);
+            else $query = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos', 'paginate'])->filter();
+
+            if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+            else return $query->get();
+        }
+
+        // Control de tareas
+        if ($search) $query = Subtarea::search($search)->where('estado', request('estado'));
+        else $query = Subtarea::ignoreRequest(['campos', 'paginate'])->filter()->latest();
+
+        Log::channel('testing')->info('Log', ['paginate', $paginate]);
+        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();
     }
 
     public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea, Request $request)

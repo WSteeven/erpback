@@ -56,6 +56,7 @@ class Ticket extends Model implements Auditable
         'motivo_ticket_no_solucionado',
         'ticket_interno',
         'ticket_para_mi',
+        'cc',
         'solicitante_id',
         'responsable_id',
         'departamento_responsable_id',

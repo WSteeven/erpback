@@ -45,4 +45,6 @@ enum TiposNotificaciones: string{
 
     // Seleccion y contratacion
     case SOLICITUD_NUEVO_EMPLEADO = 'SOLICITUD DE NUEVO EMPLEADO';
+    // Activos fijos
+    case ENTREGA_ACTIVO_FIJO = 'ENTREGA ACTIVO FIJO';
 }

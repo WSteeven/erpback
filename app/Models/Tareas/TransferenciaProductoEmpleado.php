@@ -8,6 +8,7 @@ use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\Notificacion;
+use App\Models\Proyecto;
 use App\Models\Tarea;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,6 +56,26 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     public function empleadoDestino()
     {
         return $this->belongsTo(Empleado::class, 'empleado_destino_id', 'id');
+    }
+
+    public function proyectoOrigen()
+    {
+        return $this->belongsTo(Proyecto::class, 'proyecto_origen_id', 'id');
+    }
+
+    public function proyectoDestino()
+    {
+        return $this->belongsTo(Proyecto::class, 'proyecto_destino_id', 'id');
+    }
+
+    public function etapaOrigen()
+    {
+        return $this->belongsTo(Etapa::class, 'etapa_origen_id', 'id');
+    }
+
+    public function etapaDestino()
+    {
+        return $this->belongsTo(Etapa::class, 'etapa_destino_id', 'id');
     }
 
     public function tareaOrigen()

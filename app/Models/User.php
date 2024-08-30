@@ -24,6 +24,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 /**
  * @method static find(int $int)
  * @method public favorita(int $int)
+ * @method static where(string $string, $usuario_id)
  */
 class User extends Authenticatable implements Auditable
 {

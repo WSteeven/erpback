@@ -54,7 +54,8 @@ class TransaccionBodegaRequest extends FormRequest
             'etapa_id' => 'sometimes|nullable|exists:tar_etapas,id',
             'tarea_id' => 'sometimes|nullable|exists:tareas,id',
             'cliente_id' => 'sometimes|exists:clientes,id',
-            'listadoProductosTransaccion.*.cantidad' => 'required'
+            'listadoProductosTransaccion.*.cantidad' => 'required',
+            'codigo_permiso_traslado' => 'nullable|string',
         ];
         if ($this->route()->uri() === 'api/transacciones-egresos') {
             // $rules['autorizacion'] = 'nullable';

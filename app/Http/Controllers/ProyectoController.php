@@ -13,6 +13,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ProyectoController extends Controller
@@ -116,6 +117,32 @@ class ProyectoController extends Controller
      * ProyectoResource antes de ser devueltos.
      */
     public function obtenerProyectosEmpleado(int $empleado_id)
+    {
+        $empleado = Empleado::find($empleado_id);
+        $grupo_id = $empleado->grupo_id;
+        if ($grupo_id) {
+            $tareas_ids_subtareas = Subtarea::where(function ($q) use ($empleado_id, $grupo_id) {
+                $q->where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%');
+            })->groupBy('tarea_id')->pluck('tarea_id');
+        } else {
+            Log::channel('testing')->info('Log', ['d' => $empleado_id]);
+            $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)
+            ->orWhereRaw("JSON_CONTAINS(empleados_designados, '\"$empleado_id\"')")
+            ->disponible()->get('tarea_id');
+            Log::channel('testing')->info('Log', ['d' => 'No tiene grupo']);
+        }
+        
+        $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('etapa_id');
+        Log::channel('testing')->info('Log', compact('tareas_ids_subtareas'));
+        Log::channel('testing')->info('Log', compact('ids_etapas'));
+        $ids_proyectos_tareas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('proyecto_id');
+        $ids_proyectos = Etapa::where(function ($query) use ($ids_etapas, $empleado_id) {
+            $query->whereIn('id', $ids_etapas)->orWhere('responsable_id', $empleado_id);
+        })->where('activo', true)->get('proyecto_id');
+        $proyectos = Proyecto::whereIn('id', $ids_proyectos)->orWhereIn('id', $ids_proyectos_tareas)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id', 'desc')->get();
+        return $proyectos;
+    }
+    public function obtenerProyectosEmpleadoOld(int $empleado_id)
     {
         $empleado = Empleado::find($empleado_id);
         $grupo_id = $empleado->grupo_id;

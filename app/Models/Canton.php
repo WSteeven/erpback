@@ -11,6 +11,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
  * @method static find(mixed $canton_id)
+ * @method static where(string $string, mixed $ciudad)
  */
 class Canton extends Model implements Auditable
 {

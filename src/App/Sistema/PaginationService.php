@@ -17,7 +17,7 @@ class PaginationService
      * @param int|null $page
      * @return LengthAwarePaginator
      */
-    public function paginate(Builder|\Laravel\Scout\Builder $query, ?int $perPage = 100, int|null $page = null)
+    public function paginate($query, ?int $perPage = 100, int|null $page = null)
     {
         $page = $page ?: LengthAwarePaginator::resolveCurrentPage();
 

@@ -95,7 +95,7 @@ return [
     | engine supports any analytics based on this application's users.
     |
     | Supported engines: "algolia"
-    |
+    | soporte_informatico@jpconstrucred.com soporte_informatico
     */
 
     'identify' => env('SCOUT_IDENTIFY', false),

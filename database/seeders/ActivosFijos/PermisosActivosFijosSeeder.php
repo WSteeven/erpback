@@ -14,6 +14,7 @@ class PermisosActivosFijosSeeder extends Seeder
     /**
      * Run the database seeds.
      * php artisan db:seed --class=Database\Seeders\ActivosFijos\PermisosActivosFijosSeeder
+     * php artisan db:seed --class=Database\\Seeders\\ActivosFijos\\PermisosActivosFijosSeeder -> CPanel
      * @return void
      */
     public function run()

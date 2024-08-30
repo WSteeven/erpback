@@ -61,6 +61,7 @@ class TransaccionBodega extends Model implements Auditable
         'autorizacion_id',
         'proveedor',
         'estado_id',
+        'codigo_permiso_traslado',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -334,6 +335,12 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
+    public static function listadoProductosArmamento(int $id)
+    {
+        $armamentos = self::listadoProductos($id);
+        return collect($armamentos)->filter(fn($producto) => $producto['categoria'] === 'ARMAS DE FUEGO');
+    }
+
 
 
 
@@ -362,7 +369,7 @@ class TransaccionBodega extends Model implements Auditable
                         // Stock personal
                         MaterialEmpleado::cargarMaterialEmpleado($item_inventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
                         ActivoFijo::cargarComoActivo($item_inventario->detalle, $transaccion->cliente_id);
-                        // ActivoFijo::cargarStockActivos($item_inventario->detalle_id, $transaccion->cliente_id);
+                        ActivoFijo::notificarEntregaActivos($item_inventario->detalle, $transaccion);
                     }
                 } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }

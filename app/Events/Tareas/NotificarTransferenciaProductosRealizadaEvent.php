@@ -44,13 +44,20 @@ class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new Channel('transferencia-productos-realizada-tracker-' . $this->transferencia->empleado_destino_id);
     }
 
-    private function obtenerMensaje() {
+    public function broadcastAs()
+    {
+        return 'transferencia-productos-realizada-event';
+    }
+
+    private function obtenerMensaje()
+    {
         $nombres_emisor = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->empleado_origen_id));
+        $nombres_autorizador = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->autorizador_id));
         $justificacion = $this->transferencia->justificacion;
         $codigo = 'TRANS_PROD-' . $this->transferencia->id;
-        return $nombres_emisor . ' le ha realizado la transferencia con código ' . $codigo . ' y justificación: ' . $justificacion;
+        return $nombres_emisor . ' le ha realizado la transferencia con código ' . $codigo . ' y justificación: ' . $justificacion . ' autorizado por ' . $nombres_autorizador;
     }
 }
