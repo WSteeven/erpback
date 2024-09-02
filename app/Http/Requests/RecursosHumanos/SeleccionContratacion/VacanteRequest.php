@@ -57,6 +57,6 @@ class VacanteRequest extends FormRequest
             'areas_conocimiento' => Utils::convertArrayToString($this->areas_conocimiento),
         ]);
 
-        Log::channel('testing')->info('Log', ['despues de formatear', $this->areas_conocimiento]);
+//        Log::channel('testing')->info('Log', ['despues de formatear', $this->areas_conocimiento]);
     }
 }

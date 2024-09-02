@@ -41,13 +41,15 @@ class PolymorphicSeleccionContratacionModelsService
     /**
      * @throws Throwable
      */
-    public function actualizarReferenciasPersonales(Model $entidad, array $listado){
+    public function actualizarReferenciasPersonales(Model $entidad, array $listado)
+    {
 //        $ids_elementos = [];
-        try{
+        Log::channel('testing')->error('actualizarReferenciasPersonales', [$listado]);
+        try {
             DB::beginTransaction();
             foreach ($listado as $fila) {
                 $registro = $entidad->referencias()->find($fila['id']);
-                if(!$registro)
+                if (!$registro)
                     $registro = $entidad->referencias()->create($fila);
                 else
                     $registro->update($fila);
@@ -55,7 +57,7 @@ class PolymorphicSeleccionContratacionModelsService
             }
             // Aquí no se elimina referencia, solo se crea o modifica alguna
             DB::commit();
-        }catch (Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->error('Error al actualizar referencias personales', ['error' => $th->getMessage()]);
             throw $th;

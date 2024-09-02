@@ -203,7 +203,6 @@ class PostulacionController extends Controller
                 UserExternal::class => UserExternal::find($user_id),
 //                default => null,
             };
-            Log::channel('testing')->info('Log', ['referencias del usuario', $user->referencias()]);
             $results = $user->referencias()->get();
             return response()->json(compact('results'));
         } catch (Exception $ex) {
