@@ -22,19 +22,23 @@ class ObtenerInstanciaUsuario
 //        Log::channel('testing')->info('Log', ['$user = auth()->user()->getAuthPassword();', auth()->user()->getAuthPassword()]);
         $user_id = null;
         $user_type = null;
+        $user = null;
 
         // Determina el usuario autenticado
         if (Auth::guard('sanctum')->check()) {
             $user_id = Auth::guard('sanctum')->user()->id ?? null;
 
             // Comprueba el tipo de usuario
-            if (Auth::guard('sanctum')->user() instanceof User)
+            if (Auth::guard('sanctum')->user() instanceof User) {
                 $user_type = User::class;
-            else if (Auth::guard('sanctum')->user() instanceof UserExternal)
+                $user = User::find($user_id);
+            } else if (Auth::guard('sanctum')->user() instanceof UserExternal) {
                 $user_type = UserExternal::class;
+                $user = UserExternal::find($user_id);
+            }
         }
 
-        // Devuelve el ID y el tipo del usuario
-        return [$user_id, $user_type];
+        // Devuelve el ID, el tipo del usuario y el usuario
+        return [$user_id, $user_type, $user];
     }
 }

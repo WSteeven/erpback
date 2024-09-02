@@ -3,6 +3,7 @@
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Archivo;
+use App\Models\Notificacion;
 use App\Models\Pais;
 use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
@@ -84,6 +85,14 @@ class Postulacion extends Model implements Auditable
 
     private static array $whiteListFilter = ['*'];
 
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una orden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
     public function vacante()
     {
         return $this->belongsTo(Vacante::class, 'vacante_id');

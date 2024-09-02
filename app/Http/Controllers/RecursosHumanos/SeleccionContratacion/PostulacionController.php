@@ -73,10 +73,10 @@ class PostulacionController extends Controller
 //            throw new Exception("Error controlado, quiero ver que recibo del front");
             DB::beginTransaction();
             if (auth()->user() instanceof User) {
-                $postulacion = auth()->user()->postulacion()->create($datos);
+                $postulacion = auth()->user()->postulaciones()->create($datos);
                 $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(User::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
             } elseif (auth()->user() instanceof UserExternal) {
-                $postulacion = auth()->user()->postulacion()->create($datos);
+                $postulacion = auth()->user()->postulaciones()->create($datos);
                 $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(UserExternal::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
                 // Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
                 //Postulante hace referencia a la tabla postulante, que es equivalente a la tabla empleados, solo que en este caso es para usuarios externos
@@ -248,7 +248,7 @@ class PostulacionController extends Controller
             }
             $postulacion->estado = Postulacion::DESCARTADO;
             $postulacion->save();
-            $modelo = new PostulacionResource($postulacion->refresh());
+            $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
         } catch (Throwable|Exception $ex) {
@@ -267,6 +267,7 @@ class PostulacionController extends Controller
             $postulacion->estado = Postulacion::SELECCIONADO;
             $postulacion->save();
             $this->service->notificarPostulanteSeleccionado($postulacion);
+            $this->service->notificarPostulanteSeleccionadoMedico($postulacion);
             $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();

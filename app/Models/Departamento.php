@@ -10,6 +10,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
+/**
+ * @method static where(string $string, string $DEPARTAMENTO_MEDICO)
+ */
 class Departamento extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
@@ -18,6 +21,7 @@ class Departamento extends Model implements Auditable
     const DEPARTAMENTO_CONTABILIDAD = 'CONTABILIDAD';
     const DEPARTAMENTO_GERENCIA = 'GERENCIA';
     const DEPARTAMENTO_RRHH = 'RECURSOS HUMANOS';
+    const DEPARTAMENTO_MEDICO = 'MEDICO';
 
     protected $table = 'departamentos';
     protected $fillable = ['nombre', 'activo', 'responsable_id'];

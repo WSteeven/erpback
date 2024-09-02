@@ -16,7 +16,7 @@ class UserExternalResource extends JsonResource
      */
     public function toArray($request)
     {
-        Log::channel('testing')->info('Log', ['UserExternalResource', $this->persona]);
+//        Log::channel('testing')->info('Log', ['UserExternalResource', $this->persona]);
 
         return [
             'id' => $this->id,

@@ -44,7 +44,6 @@ class PolymorphicSeleccionContratacionModelsService
     public function actualizarReferenciasPersonales(Model $entidad, array $listado)
     {
 //        $ids_elementos = [];
-        Log::channel('testing')->error('actualizarReferenciasPersonales', [$listado]);
         try {
             DB::beginTransaction();
             foreach ($listado as $fila) {

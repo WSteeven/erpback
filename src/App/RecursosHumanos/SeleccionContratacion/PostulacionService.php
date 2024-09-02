@@ -2,6 +2,7 @@
 
 namespace Src\App\RecursosHumanos\SeleccionContratacion;
 
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarPostulanteSeleccionadoMedico;
 use App\Mail\RecursosHumanos\SeleccionContratacion\BancoPostulanteMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionDescartadaMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionLeidaMail;
@@ -10,6 +11,7 @@ use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Tests\Models\Post;
 use Throwable;
 
 class PostulacionService
@@ -40,9 +42,9 @@ class PostulacionService
      */
     public function notificarPostulacionDescartada(Postulacion $postulacion, bool $antes_entrevista)
     {
-        try{
+        try {
             Mail::to($postulacion->user->email)->send(new PostulacionDescartadaMail($postulacion, $antes_entrevista));
-        }catch (Throwable $e){
+        } catch (Throwable $e) {
             Log::channel('testing')->info('Log', ['Error notificarPostulacionDescartada sendMail', $e->getMessage(), $e->getLine()]);
             throw $e;
         }
@@ -53,14 +55,28 @@ class PostulacionService
      */
     public function notificarPostulanteSeleccionado(Postulacion $postulacion)
     {
-        try{
+        try {
             Mail::to($postulacion->user->email)->send(new PostulacionSeleccionadaMail($postulacion));
-        }catch (Throwable $e){
+        } catch (Throwable $e) {
             Log::channel('testing')->info('Log', ['Error notificarPostulacionDescartada sendMail', $e->getMessage(), $e->getLine()]);
             throw $e;
         }
     }
 
+    /**
+     * Notificar al médico ocupacional que hay un candidato seleccionado al que debe realizarle los examenes medicos correspondientes
+     * @param Postulacion $postulacion
+     * @throws Throwable
+     */
+    public function notificarPostulanteSeleccionadoMedico(Postulacion $postulacion)
+    {
+        try {
+            event(new NotificarPostulanteSeleccionadoMedico($postulacion));
+        } catch (Throwable $e) {
+            Log::channel('testing')->info('Log', ['Error notificarPostulanteSeleccionadoMedico notificacion', $e->getMessage(), $e->getLine()]);
+            throw $e;
+        }
+    }
 
     /**
      * @throws Throwable
@@ -94,7 +110,7 @@ class PostulacionService
      */
     public function actualizarVacante(Postulacion $postulacion)
     {
-        $postulacion->vacante()->update(['es_completada'=> true]);
+        $postulacion->vacante()->update(['es_completada' => true]);
     }
 
 }
