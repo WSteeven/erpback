@@ -11,9 +11,10 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
-class NotificarPostulanteSeleccionadoMedico implements  ShouldBroadcast
+class NotificarPostulanteSeleccionadoMedicoEvent implements  ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -33,6 +34,7 @@ class NotificarPostulanteSeleccionadoMedico implements  ShouldBroadcast
         $this->postulacion = $postulacion;
         $dept_medico = Departamento::where('nombre', Departamento::DEPARTAMENTO_MEDICO)->first();
         $this->destinatario = $dept_medico->responsable_id;
+        Log::channel('testing')->info('Log', ['constructor del event', $postulacion, $this->destinatario]);
         $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url,TiposNotificaciones::CANDIDATO_SELECCIONADO,auth()->user()->empleado->id, $this->destinatario, $this->postulacion, true);
     }
 

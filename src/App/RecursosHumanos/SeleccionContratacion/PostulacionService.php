@@ -2,7 +2,7 @@
 
 namespace Src\App\RecursosHumanos\SeleccionContratacion;
 
-use App\Events\RecursosHumanos\SeleccionContratacion\NotificarPostulanteSeleccionadoMedico;
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarPostulanteSeleccionadoMedicoEvent;
 use App\Mail\RecursosHumanos\SeleccionContratacion\BancoPostulanteMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionDescartadaMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionLeidaMail;
@@ -71,7 +71,7 @@ class PostulacionService
     public function notificarPostulanteSeleccionadoMedico(Postulacion $postulacion)
     {
         try {
-            event(new NotificarPostulanteSeleccionadoMedico($postulacion));
+            event(new NotificarPostulanteSeleccionadoMedicoEvent($postulacion));
         } catch (Throwable $e) {
             Log::channel('testing')->info('Log', ['Error notificarPostulanteSeleccionadoMedico notificacion', $e->getMessage(), $e->getLine()]);
             throw $e;

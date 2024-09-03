@@ -190,6 +190,7 @@ class PostulacionController extends Controller
             return response()->json(compact('mensaje'), 500);
         }
     }
+
     /**
      * Listar todas las referencias personales del usuario
      */
@@ -243,7 +244,7 @@ class PostulacionController extends Controller
             DB::beginTransaction();
             if ($estado_old === Postulacion::ENTREVISTA || $estado_old === Postulacion::SELECCIONADO || $estado_old === Postulacion::EXAMENES_MEDICOS) {
                 $this->service->notificarPostulacionDescartada($postulacion, false);
-            }else{
+            } else {
                 $this->service->notificarPostulacionDescartada($postulacion, true);
             }
             $postulacion->estado = Postulacion::DESCARTADO;
@@ -274,20 +275,21 @@ class PostulacionController extends Controller
         } catch (Throwable|Exception $ex) {
             DB::rollback();
             $mensaje = $ex->getMessage();
-        Log::channel('testing')->info('Log', ['error en seleccionar', $ex->getLine(), $ex->getMessage()]);
+            Log::channel('testing')->info('Log', ['error en seleccionar', $ex->getLine(), $ex->getMessage()]);
             return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function darAlta(Postulacion $postulacion){
+    public function darAlta(Postulacion $postulacion)
+    {
         try {
             DB::beginTransaction();
             $postulacion->dado_alta = true;
             $postulacion->save();
-            $es_empleado = match ($postulacion->user_type){
-              User::class=> true,
-              UserExternal::class => false,
+            $es_empleado = match ($postulacion->user_type) {
+                User::class => true,
+                UserExternal::class => false,
             };
             $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
