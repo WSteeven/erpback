@@ -359,6 +359,7 @@ class InventarioController extends Controller
 
     /**
      * Dashboard de bodega
+     * @throws Exception
      */
     public function dashboard(Request $request)
     {
