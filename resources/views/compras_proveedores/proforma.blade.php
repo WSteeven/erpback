@@ -119,9 +119,9 @@
                                 {{ $configuracion['direccion_principal'] }}
                             </td>
                         </tr>
-                        <tr>
-                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>
-                        </tr>
+{{--                        <tr>--}}
+{{--                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>--}}
+{{--                        </tr>--}}
                         <tr>
                             <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>

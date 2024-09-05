@@ -2,7 +2,13 @@
 
 namespace Src\App\Tareas;
 
+use App\Models\Autorizacion;
+use App\Models\DetalleProductoTransaccion;
+use App\Models\Inventario;
+use App\Models\ItemDetallePreingresoMaterial;
+use App\Models\PreingresoMaterial;
 use App\Models\SeguimientoMaterialSubtarea;
+use App\Models\TransaccionBodega;
 use Src\App\TransaccionBodegaEgresoService;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\DetalleProducto;
@@ -11,6 +17,7 @@ use App\Models\Cliente;
 use App\Models\Tarea;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Src\Config\EstadosTransacciones;
 
 // Proyectos, Etapas y Tareas
 class ProductoTareaEmpleadoService
@@ -29,7 +36,6 @@ class ProductoTareaEmpleadoService
             'etapa_id' => 'nullable|numeric|integer',
             'tarea_id' => 'nullable|numeric|integer',
             'subtarea_id' => 'nullable|numeric|integer',
-            'etapa_id' => 'nullable|numeric|integer',
             'empleado_id' => 'required|numeric|integer',
         ]);
 
@@ -126,6 +132,13 @@ class ProductoTareaEmpleadoService
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
 
+            // Buscamos los egresos donde el producto conste para el empleado y el cliente dado
+            $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
+            $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->where('estado_id', EstadosTransacciones::COMPLETA)->pluck('id');
+            $ids_egresos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->whereIn('transaccion_id', $ids_transacciones)->pluck('transaccion_id');
+            $ids_preingresos = PreingresoMaterial::where('responsable_id', request()->empleado_id)->where('autorizacion_id', Autorizacion::APROBADO_ID)->pluck('id');
+            $ids_items_preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $detalle->id)->whereIn('preingreso_id', $ids_preingresos)->pluck('preingreso_id');
+
             return [
                 'id' => $item->detalle_producto_id,
                 'producto' => $producto->nombre,
@@ -136,6 +149,7 @@ class ProductoTareaEmpleadoService
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
                 'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'transacciones' => count($ids_egresos) > 0 ? 'Egresos:' . $ids_egresos . '; ' . (count($ids_items_preingresos) > 0 ? 'Preingresos:' . $ids_items_preingresos : '') : '',
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,

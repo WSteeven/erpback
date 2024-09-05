@@ -28,6 +28,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\Tareas\ProductoEmpleadoService;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
@@ -285,7 +286,7 @@ class TransaccionBodegaEgresoController extends Controller
             }
 
             $modelo = new TransaccionBodegaResource($transaccion->refresh());
-            $mensaje =  'Autorización actualizada correctamente';
+            $mensaje = 'Autorización actualizada correctamente';
         } else {
             if (auth()->user()->hasRole(User::ROL_BODEGA)) {
                 // Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
@@ -457,6 +458,24 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws ValidationException
+     */
+    public function reporteUniformesEpps(Request $request)
+    {
+         Log::channel('testing')->info('Log', ['¿reporteUniformesEpps?', $request->all()]);
+        $configuracion = ConfiguracionGeneral::first();
+        $results = [];
+        switch ($request->accion) {
+            case 'excel':
+                $results = $this->servicio->filtrarEgresosResponsablePorCategoria($request);
+                $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
+
+                return Excel::download(new TransaccionBodegaEgresoExport(collect($registros)), 'reporte.xlsx');
+            default:
+                throw ValidationException::withMessages(['error' => 'Método no implementado']);
+        }
+    }
 
 
     public function obtenerTransaccionPorTarea(int $tarea_id)

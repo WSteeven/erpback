@@ -20,6 +20,9 @@ use Src\Config\Autorizaciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
+/**
+ * @method static create(mixed $datos)
+ */
 class PreingresoMaterial extends Model implements Auditable
 {
     use HasFactory;
