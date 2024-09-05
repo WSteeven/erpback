@@ -560,6 +560,43 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
+    public static function obtenerDatosReporteResponsable($data, $categorias)
+    {
+        $results = [];
+        $cont = 0;
+        foreach ($data as $d) {
+            $items = DetalleProductoTransaccion::where('transaccion_id', $d->id)->get();
+            foreach ($items as $item) {
+                if(in_array($item->inventario->detalle->producto->categoria_id, $categorias)) {
+                    //datos para los encabezados
+                    $row['fecha_despacho'] = $d->created_at;
+                    $row['justificacion'] = $d->justificacion;
+                    $row['autorizador'] = Empleado::extraerNombresApellidos($d->autoriza);
+                    $row['solicitante'] = Empleado::extraerNombresApellidos($d->solicitante);
+                    $row['cliente'] = $d->cliente->empresa->razon_social;
+                    $row['responsable'] = Empleado::extraerNombresApellidos($d->responsable);
+                    $row['sucursal'] = $d->sucursal->lugar;
+                    $row['motivo'] = $d->motivo->nombre;
+
+                    //datos para la tabla
+                    $row['producto'] = $item->inventario->detalle->producto->nombre;
+                    $row['descripcion'] = $item->inventario->detalle->descripcion;
+//                $row['serial'] = $item->inventario->detalle->serial; //normalmente uniformes y epps no tienen serial
+//                Log::channel('testing')->info('Log', ['variable', $d->comprobante()->first()->updated_at]);
+                    $row['fecha'] = $d->comprobante()->first()->updated_at;
+                    $row['categoria'] = $item->inventario->detalle->producto->categoria->nombre;
+                    $row['condicion'] = $item->inventario->condicion->nombre;
+                    $row['despachado'] = $item->recibido;
+
+
+                    $results[$cont] = $row;
+                    $cont++;
+                }
+            }
+        }
+        return $results;
+    }
+
     public static function obtenerDatosReporteEgresos($data)
     {
         $results = [];

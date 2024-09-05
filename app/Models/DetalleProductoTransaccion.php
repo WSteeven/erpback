@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * @method static whereIn(string $string, $ids_inventarios)
+ * @method static where(string $string, $id)
+ */
 class DetalleProductoTransaccion extends Model implements Auditable
 {
     use HasFactory;

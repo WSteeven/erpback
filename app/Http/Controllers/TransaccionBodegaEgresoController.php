@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 // Dependencias
 
 use App\Events\TransaccionEgresoEvent;
+use App\Exports\Bodega\MaterialesDespachadosResponsableExport;
 use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
@@ -463,17 +464,21 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function reporteUniformesEpps(Request $request)
     {
-         Log::channel('testing')->info('Log', ['¿reporteUniformesEpps?', $request->all()]);
-        $configuracion = ConfiguracionGeneral::first();
-        $results = [];
-        switch ($request->accion) {
-            case 'excel':
-                $results = $this->servicio->filtrarEgresosResponsablePorCategoria($request);
-                $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
+        try {
+            switch ($request->accion) {
+                case 'excel':
+                    $results = $this->servicio->filtrarEgresosResponsablePorCategoria($request);
+                    $persona_entrega = Empleado::find($results[0]['per_atiende_id']);
+                    $persona_retira = Empleado::find($results[0]['per_retira_id']);
+                    $registros = TransaccionBodega::obtenerDatosReporteResponsable($results, $request->categorias);
 
-                return Excel::download(new TransaccionBodegaEgresoExport(collect($registros)), 'reporte.xlsx');
-            default:
-                throw ValidationException::withMessages(['error' => 'Método no implementado']);
+                    return Excel::download(new MaterialesDespachadosResponsableExport(collect($registros), $persona_entrega, $persona_retira), 'reporte_epps.xlsx');
+                default:
+                    throw ValidationException::withMessages(['error' => 'Método no implementado']);
+            }
+
+        } catch (Throwable|Exception $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
         }
     }
 

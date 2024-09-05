@@ -247,8 +247,8 @@ class TransaccionBodegaEgresoService
                 ]
             )
             ->whereHas('comprobante', function ($q) {
-                $q->where('firmada', request('firmada'));
-            })->orderBy('id', 'desc')->get();
+                $q->where('firmada', true);
+            })->orderBy('id', )->get();
     }
 
     public static function filtrarEgresoPorTipoFiltro($request)
