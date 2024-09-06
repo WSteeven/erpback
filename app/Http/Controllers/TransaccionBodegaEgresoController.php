@@ -469,10 +469,10 @@ class TransaccionBodegaEgresoController extends Controller
                 case 'excel':
                     $results = $this->servicio->filtrarEgresosResponsablePorCategoria($request);
                     $persona_entrega = Empleado::find($results[0]['per_atiende_id']);
-                    $persona_retira = Empleado::find($results[0]['per_retira_id']);
+                    $persona_responsable = Empleado::find($request->responsable);
                     $registros = TransaccionBodega::obtenerDatosReporteResponsable($results, $request->categorias);
 
-                    return Excel::download(new MaterialesDespachadosResponsableExport(collect($registros), $persona_entrega, $persona_retira), 'reporte_epps.xlsx');
+                    return Excel::download(new MaterialesDespachadosResponsableExport(collect($registros), $persona_entrega, $persona_responsable), 'reporte_epps.xlsx');
                 default:
                     throw ValidationException::withMessages(['error' => 'Método no implementado']);
             }
