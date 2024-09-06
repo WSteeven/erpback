@@ -7,6 +7,7 @@ use App\Http\Requests\Tareas\AlimentacionGrupoRequest;
 use App\Http\Resources\Tareas\AlimentacionGrupoResource;
 use App\Models\Tareas\AlimentacionGrupo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 
@@ -82,9 +83,26 @@ class AlimentacionGrupoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(AlimentacionGrupoRequest $request, AlimentacionGrupo $alimentacion_grupo)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+            $actualizado = $alimentacion_grupo->update($request->except(['id']));
+
+            // Respuesta
+            $modelo = new AlimentacionGrupoResource($alimentacion_grupo->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+            return response()->json(compact('mensaje', 'modelo'));
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**

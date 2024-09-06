@@ -8,14 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static where(string $string, string $EGRESO)
+ */
 class TipoTransaccion extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
-    
+
     protected $table="tipos_transacciones";
     protected $fillable = ['nombre'];
-    
+
     const INGRESO = 'INGRESO';
     const EGRESO = 'EGRESO';
     const TRANSFERENCIA = 'TRANSFERENCIA';

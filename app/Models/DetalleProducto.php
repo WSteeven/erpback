@@ -18,6 +18,9 @@ use Laravel\Scout\Searchable;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 
+/**
+ * @method static whereIn(string $string, $ids_productos)
+ */
 class DetalleProducto extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, Searchable;

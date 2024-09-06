@@ -75,6 +75,7 @@ Route::apiResources(
             'archivos-seguimientos' => 'archivo_seguimiento',
             'actividades-realizadas-seguimientos-subtareas' => 'actividad_realizada',
             'transferencias-productos-empleados' => 'transferencia_producto_empleado',
+            'alimentacion-grupos' => 'alimentacion_grupo',
         ],
     ]
 );

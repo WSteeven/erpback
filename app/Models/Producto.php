@@ -12,6 +12,9 @@ use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static whereIn(string $string, mixed $categorias)
+ */
 class Producto extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, Searchable;

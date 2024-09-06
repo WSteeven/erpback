@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * @method static where(string $string, $id)
+ */
 class Motivo extends Model implements Auditable
 {
     use HasFactory;
@@ -24,7 +27,7 @@ class Motivo extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
-    
+
     /**
      * Relacion uno a muchos (inversa)
      * Uno o varios subtipos pertenecen a un tipo de transaccion

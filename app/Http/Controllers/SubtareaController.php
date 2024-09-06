@@ -30,7 +30,6 @@ class SubtareaController extends Controller
     public function list()
     {
         $results = $this->subtareaService->obtenerTodos();
-        Log::channel('testing')->info('Log', ['results', $results]);
         return SubtareaResource::collection($results);
     }
 
