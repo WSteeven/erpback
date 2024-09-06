@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b88d2b95a4a0256950b31d7bf37fed29",
+    "content-hash": "c0e9c8e3cae8c59b452212c93a390918",
     "packages": [
         {
             "name": "algolia/algoliasearch-client-php",
@@ -3856,31 +3856,30 @@
         },
         {
             "name": "mehdi-fathi/eloquent-filter",
-            "version": "2.6.7",
+            "version": "4.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mehdi-fathi/eloquent-filter.git",
-                "reference": "a1b607e0812f8a2fb481d906bbb1455d56339493"
+                "reference": "ac3b7673f0f327e1ce72041629a6e027dedbeb92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mehdi-fathi/eloquent-filter/zipball/a1b607e0812f8a2fb481d906bbb1455d56339493",
-                "reference": "a1b607e0812f8a2fb481d906bbb1455d56339493",
+                "url": "https://api.github.com/repos/mehdi-fathi/eloquent-filter/zipball/ac3b7673f0f327e1ce72041629a6e027dedbeb92",
+                "reference": "ac3b7673f0f327e1ce72041629a6e027dedbeb92",
                 "shasum": ""
             },
             "require": {
-                "illuminate/container": "5.8.*|~6.0|~7.0|~8.0|~9.0",
-                "illuminate/database": "5.8.*|~6.20.14|~7.0|~8.0|~9.0",
-                "illuminate/pagination": "5.8.*|~6.0|~7.0|~8.0|~9.0",
-                "illuminate/support": "5.8.*|~6.0|~7.0|~8.0|~9.0",
-                "php": "^7.3|^8.0"
+                "illuminate/container": "~8.0|~9.0|~10.0|~11.0",
+                "illuminate/database": "~8.0|~9.0|~10.0|~11.0",
+                "illuminate/pagination": "~8.0|~9.0|~10.0|~11.0",
+                "illuminate/support": "~8.0|~9.0|~10.0|~11.0",
+                "php": "^8.0|^8.1|^8.2|^8.3"
             },
             "require-dev": {
-                "illuminate/macroable": "^8.0|^9.1.0",
-                "laravel/legacy-factories": "1.0.2|1.0.3|1.0.4|1.0.5|1.1.0|1.3.0",
-                "mockery/mockery": "1.3.*|1.3.*|1.3.*|1.4.x-dev|1.4.x-dev|1.4.2",
-                "orchestra/testbench": "3.7.*|3.8.*|4.*|5.*|^6.0|^6.6.0|^7.0.0",
-                "phpunit/phpunit": "6.*|7.0.*|7.5|8.3|8.5|9.3|^9.5"
+                "mockery/mockery": "1.4.x-dev|1.4.2|1.5.1|^1.6",
+                "orchestra/testbench": "5.*|^6.0|^6.6.0|^7.0.0|^8.0.0|v9.0.0",
+                "phpstan/phpstan": "^1.8",
+                "phpunit/phpunit": "8.3|8.5|9.3|^9.5|10.5.5"
             },
             "type": "lib",
             "extra": {
@@ -3927,15 +3926,9 @@
             ],
             "support": {
                 "issues": "https://github.com/mehdi-fathi/eloquent-filter/issues",
-                "source": "https://github.com/mehdi-fathi/eloquent-filter/tree/2.6.7"
+                "source": "https://github.com/mehdi-fathi/eloquent-filter/tree/4.4.0"
             },
-            "funding": [
-                {
-                    "url": "https://raw.githubusercontent.com/mehdi-fathi/eloquent-filter/master/donate.png",
-                    "type": "custom"
-                }
-            ],
-            "time": "2022-09-02T17:29:42+00:00"
+            "time": "2024-08-16T10:31:38+00:00"
         },
         {
             "name": "monolog/monolog",

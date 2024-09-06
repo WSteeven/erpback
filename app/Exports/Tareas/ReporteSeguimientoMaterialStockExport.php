@@ -34,18 +34,18 @@ class ReporteSeguimientoMaterialStockExport implements FromView, WithStyles, Wit
 
     public function title(): string
     {
-        return 'Seguimiento';
+        return 'Material stock usado en tareas';
     }
 
     public function columnWidths(): array
     {
         return [
-            'A' => 20,
-            'B' => 60,
-            'C' => 20,
-            'D' => 14,
-            'E' => 40,
-            'F' => 20,
+            // 'A' => 20,
+            'A' => 60,
+            'B' => 20,
+            'C' => 14,
+            'D' => 40,
+            'E' => 20,
         ];
     }
 
@@ -80,11 +80,11 @@ class ReporteSeguimientoMaterialStockExport implements FromView, WithStyles, Wit
 
         $totalFilas = count($this->reporte) + self::TOTAL_FILAS_ENCABEZADO;
 
-        $sheet->getStyle('A1:F1')->applyFromArray($textoTitulo);
-        $sheet->getStyle('A1:F' . $totalFilas)->applyFromArray($textCenter);
-        $sheet->getStyle('A1:F' . $totalFilas)->applyFromArray($bordeTabla);
-        $sheet->getStyle('A1:F' . $totalFilas)->getAlignment()->setWrapText(true);
+        $sheet->getStyle('A1:E1')->applyFromArray($textoTitulo);
+        $sheet->getStyle('A1:E' . $totalFilas)->applyFromArray($textCenter);
+        $sheet->getStyle('A1:E' . $totalFilas)->applyFromArray($bordeTabla);
+        $sheet->getStyle('A1:E' . $totalFilas)->getAlignment()->setWrapText(true);
         $sheet->getStyle('A1:A' . $totalFilas)->getFont()->setBold(true);
-        $sheet->setAutoFilter('A1:F1');
+        $sheet->setAutoFilter('A1:E1');
     }
 }

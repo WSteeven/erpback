@@ -24,6 +24,7 @@ use App\Http\Controllers\SeguimientoSubtareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\Tareas\AlimentacionGrupoController;
 use App\Http\Controllers\Tareas\EtapaController;
 use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
 use App\Http\Controllers\Tareas\CentroCostoController;
@@ -56,6 +57,7 @@ Route::apiResources(
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
         'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,
         'transferencias-productos-empleados' => TransferenciaProductoEmpleadoController::class,
+        'alimentacion-grupos' => AlimentacionGrupoController::class,
     ],
     [
         'parameters' => [
