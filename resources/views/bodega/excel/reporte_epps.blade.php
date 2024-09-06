@@ -61,7 +61,7 @@
                     <td style="font-size:16px;" colspan="2" align="right"><strong>Sistema de Bodega</strong></td>
                 </tr>
                 <tr>
-                  </tr>
+                </tr>
                 {{--                Aqui va la parte de cabecera de los registros           --}}
                 <tr>
                     <td colspan="1">Justificación:</td>
@@ -138,19 +138,24 @@
                 </tr>
                 <tr>
                     <td colspan="3" style="text-align: center">
-                        <img src="{{ public_path($bodeguero->firma_url) }}" width="90" alt="firma bodega">
+                        <img src="{{ public_path($bodeguero->firma_url)  }}" width="90" alt="firma bodega"
+                             onerror="this.onerror=null; this.src='{{ public_path('storage/image_not_found.png') }}';">
                     </td>
                     <td colspan="4" style="text-align: center">
-                        <img src="{{ public_path($responsable->firma_url) }}" width="90" alt="firma responsable">
+                        <img src="{{ public_path($responsable->firma_url)  }}" width="90" alt="firma responsable"
+                             onerror="this.onerror=null; this.src='{{ public_path('storage/image_not_found.png') }}';">
                     </td>
+
                 </tr>
                 <tr>
                     <td style="text-align: center;" colspan="3"><strong>ENTREGA</strong></td>
                     <td style="text-align: center;" colspan="4"><strong>RECIBE</strong></td>
                 </tr>
                 <tr>
-                    <td style="text-align: center;" colspan="3">{{$bodeguero->nombres}} &nbsp; {{$bodeguero->apellidos}}</td>
-                    <td style="text-align: center;" colspan="4">{{$responsable->nombres}} &nbsp; {{$responsable->apellidos}}</td>
+                    <td style="text-align: center;" colspan="3">{{$bodeguero->nombres}}
+                        &nbsp; {{$bodeguero->apellidos}}</td>
+                    <td style="text-align: center;" colspan="4">{{$responsable->nombres}}
+                        &nbsp; {{$responsable->apellidos}}</td>
                 </tr>
                 <tr>
                     <td style="text-align: center;" colspan="3"> {{$bodeguero->identificacion}}</td>
