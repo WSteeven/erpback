@@ -58,6 +58,8 @@ use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Controllers\Intranet\OrganigramaController;
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -334,3 +336,9 @@ Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'st
 
 Route::post('actualizar-materiales-empleados', [InventarioController::class, 'actualizarMaterialesEmpleado'])->middleware('auth:sanctum');
 Route::post('actualizar-cantidad-material-empleado', [InventarioController::class, 'actualizarCantidadMaterialEmpleado'])->middleware('auth:sanctum');
+
+
+
+// Obtener los datos del organigrama
+Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtenerDatosOrganigrama'])->middleware('auth:sanctum');
+

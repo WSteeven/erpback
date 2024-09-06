@@ -117,4 +117,29 @@ class OrganigramaController extends Controller
         }
 //        return response()->json(compact('mensaje'));
     }
+
+
+    /**
+     * Nueva función para obtener los datos del organigrama con empleados.
+     *
+     * @return JsonResponse
+     */
+    public function obtenerDatosOrganigrama()
+    {
+        $organigramas = Organigrama::with('empleado')
+            ->get()
+            ->map(function ($organigrama) {
+                return [
+                    'id' => $organigrama->empleado_id,
+                    'pid' => $organigrama->jefe_id,
+                    'name' => $organigrama->empleado->nombres . ' ' . $organigrama->empleado->apellidos,
+                    'title' => $organigrama->cargo,
+                    'img' => $organigrama->empleado->foto_url
+                ];
+            });
+
+        return response()->json($organigramas);
+    }
+
+
 }
