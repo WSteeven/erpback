@@ -24,7 +24,7 @@ class ComentarioTicketResource extends JsonResource
             'comentario' => [$this->comentario],
             'empleado' => $this->empleado ? Empleado::extraerNombresApellidos($this->empleado) : null,
             'avatar' => $this->empleado->foto_url ? url($this->empleado->foto_url) : url('/storage/sinfoto.png'),
-            'stamp' => 'Hace ' . CarbonInterval::seconds(Carbon::now()->diffInSeconds(Carbon::parse($this->created_at)))->cascade()->forHumans(),
+            'stamp' => $this->created_at, // 'Hace ' . CarbonInterval::seconds(Carbon::now()->diffInSeconds(Carbon::parse($this->created_at)))->cascade()->forHumans(),
             'sent' => Auth::user()->empleado->id === $this->empleado_id,
         ];
     }

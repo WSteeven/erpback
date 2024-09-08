@@ -20,10 +20,6 @@ return new class extends Migration
             $table->string('trabajo_realizado');
             $table->string('fotografia')->nullable();
 
-            // Foreign keys
-            $table->unsignedBigInteger('seguimiento_id');
-            $table->foreign('seguimiento_id')->references('id')->on('seguimientos')->onDelete('cascade')->onUpdate('cascade');
-
             $table->timestamps();
         });
     }
