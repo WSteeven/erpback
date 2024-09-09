@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static where(string $string, int $empleado_id)
+ */
 class Transferencias extends Model implements Auditable
 {
     use HasFactory;

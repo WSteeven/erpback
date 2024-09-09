@@ -194,7 +194,7 @@ class SaldoGrupoController extends Controller
             $reportes =  ['saldos' => $results];
             $vista = 'exports.reportes.reporte_saldo_actual';
             $export_excel = new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -381,7 +381,7 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -424,7 +424,7 @@ class SaldoGrupoController extends Controller
             $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario, 'total' => $sumaMontos];
             $vista = 'exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario';
             $export_excel = new AcreditacionesExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error acreditacion', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -524,7 +524,7 @@ class SaldoGrupoController extends Controller
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
             $export_excel = new GastoConsolidadoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
-            return $this->reporteService->imprimir_reporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -660,7 +660,7 @@ class SaldoGrupoController extends Controller
 
             $vista = 'exports.reportes.reporte_consolidado.reporte_movimiento_saldo';
             $export_excel = new EstadoCuentaExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -783,7 +783,7 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
             $export_excel = new ConsolidadoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -854,7 +854,7 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_transferencia_saldo';
             $export_excel = new TranferenciaSaldoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

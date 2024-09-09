@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArchivoSeguimiento;
-use App\Models\Seguimiento;
 use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
 use Illuminate\Http\Request;
 use Src\Config\RutasStorage;
 use Src\Shared\EliminarArchivo;
-use Src\Shared\GuardarArchivo;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 

@@ -2,32 +2,37 @@
 
 namespace Src\App\RegistroTendido;
 
+use Illuminate\Support\Facades\Log;
 use Src\Config\RutasStorage;
 use Intervention\Image\Facades\Image;
 use Src\Shared\Utils;
+use Throwable;
 
 class GuardarImagenIndividual
 {
-    private String $imagen_base64;
+    private string $imagenBase64;
     private RutasStorage $ruta;
-    private $nombre_predeterminado;
+    private ?string $nombrePredeterminado;
 
     public function __construct(string $imagen_base64, RutasStorage $ruta, string $nombre_predeterminado = null)
     {
-        $this->imagen_base64 = $imagen_base64;
+        $this->imagenBase64 = $imagen_base64;
         $this->ruta = $ruta;
-        $this->nombre_predeterminado = $nombre_predeterminado;
+        $this->nombrePredeterminado = $nombre_predeterminado;
     }
 
+    /**
+     * @throws Throwable
+     */
     public function execute()
     {
         try {
             //code...
-            $imagen_decodificada = Utils::decodificarImagen($this->imagen_base64);
-            $extension = Utils::obtenerExtension($this->imagen_base64);
+            $imagen_decodificada = Utils::decodificarImagen($this->imagenBase64);
+            $extension = Utils::obtenerExtension($this->imagenBase64);
 
             $directorio = $this->ruta->value;
-            $nombre_archivo = $this->nombre_predeterminado ? $this->nombre_predeterminado . '.' . $extension : Utils::generarNombreArchivoAleatorio($extension);
+            $nombre_archivo = $this->nombrePredeterminado ? $this->nombrePredeterminado . '.' . $extension : Utils::generarNombreArchivoAleatorio($extension);
             $ruta_relativa = Utils::obtenerRutaRelativaImagen($directorio, $nombre_archivo);
             $ruta_absoluta = Utils::obtenerRutaAbsolutaImagen($directorio, $nombre_archivo);
 
@@ -36,8 +41,9 @@ class GuardarImagenIndividual
             })->save($ruta_absoluta);
 
             return $ruta_relativa;
-        } catch (\Throwable $th) {
-            return null;
+        } catch (Throwable $th) {
+            Log::channel('testing')->info('Log', ['TH', Utils::obtenerMensajeError($th, 'GuardarImagenIndividual')]);
+            throw $th;
         }
     }
 }

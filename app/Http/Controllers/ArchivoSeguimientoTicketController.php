@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Src\Config\RutasStorage;
 use Src\Shared\EliminarArchivo;
-use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
 
 class ArchivoSeguimientoTicketController extends Controller

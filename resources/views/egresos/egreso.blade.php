@@ -104,7 +104,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo }}" width="70"></div>
                 </td>
                 <td style="width: 68%">
                     @if ($transaccion['transferencia'])
@@ -249,7 +249,7 @@
                 @foreach ($transaccion['listadoProductosTransaccion'] as $listado)
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
-                        <td>{{ $listado['descripcion'] }}</td>
+                        <td>{{ strtoupper($listado['descripcion']) }}</td>
                         <td>{{ $listado['categoria'] }}</td>
                         <td>{{ $listado['serial'] }}</td>
                         <td>{{ $listado['condiciones'] }}</td>

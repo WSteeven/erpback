@@ -57,10 +57,10 @@ class InventarioExport extends DefaultValueBinder implements FromCollection, Wit
     public function collection()
     {
         if ($this->sucursal_id == 0) {
-            $results = Inventario::where('cantidad', '>', 0)->get();
+            $results = Inventario::where('cantidad', '!=', 0)->get();
         } else {
             $results = Inventario::where('sucursal_id', $this->sucursal_id)
-                ->where('cantidad', '>', 0)->get();
+                ->where('cantidad', '!=', 0)->get();
         }
         return InventarioResourceExcel::collection($results);
     }

@@ -2,19 +2,19 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
-use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * @method static where(string $string, int $id)
+ */
 class Saldo extends Model  implements Auditable
 {
     use HasFactory;
@@ -46,15 +46,21 @@ class Saldo extends Model  implements Auditable
         return $this->morphTo();
     }
 
-    public static function empaquetarCombinado($arreglo, $empleado)
+    public static function empaquetarCombinado($nuevo_elemento, $arreglo, $empleado, $fecha_inicio, $fecha_fin)
     {
         $results = [];
-        $id = 0;
-        $row = [];
+        $id = 1;
+        $results[0] = $nuevo_elemento;
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
                 case Acreditaciones::class:
-                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION) {
+                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION && (($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin))) {
+                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $results[$id] = $row;
+                        $id++;
+                    } else if ($saldo->tipo_saldo == self::ANULACION) {
                         $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
@@ -62,14 +68,23 @@ class Saldo extends Model  implements Auditable
                         $id++;
                     }
                     break;
-
                 default:
-                    $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                    $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                    $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
-                    $results[$id] = $row;
-                    $id++;
-                    break;
+                    // if ($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin) {
+                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $results[$id] = $row;
+                        $id++;
+                        break;
+                    // } else
+//                    if ($saldo->tipo_saldo == self::ANULACION) {
+//                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+//                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+//                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+//                        $results[$id] = $row;
+//                        $id++;
+//                        break;
+//                    }
             }
         }
         return $results;
@@ -133,16 +148,15 @@ class Saldo extends Model  implements Auditable
      * La función "ingreso" comprueba varias condiciones y devuelve el importe correspondiente en
      * función de los parámetros dados.
      *
-     * @param saldo Una matriz que contiene información sobre un saldo o crédito.
-     * @param empleado El parámetro "empleado" representa el ID de un empleado.
-     *
-     * @return el valor de la clave 'monto' de la matriz  si se establece la clave
+     * @return int valor de la clave 'monto' de la matriz  si se establece la clave
      * 'descripcion_acreditacion'. En caso contrario, comprueba si el array 'detalle_info' tiene clave
      * 'descripcion' y si la clave 'estado' es igual a 4. Si se cumplen ambas condiciones, devuelve el
      * valor de la clave 'total' del registro
      */
     private static function ingreso($saldo, $tipo, $empleado)
     {
+        //Log::channel('testing')->info('Log', ['saldo', $saldo]);
+
         switch (get_class($saldo)) {
             case Gasto::class:
                 if ($tipo === self::ANULACION) {
@@ -150,7 +164,9 @@ class Saldo extends Model  implements Auditable
                 }
                 break;
             case Acreditaciones::class:
-                return $saldo['monto'];
+                if ($tipo === self::INGRESO) {
+                    return $saldo['monto'];
+                }
                 break;
             case Transferencias::class:
                 if ($tipo === self::ANULACION) {
@@ -213,6 +229,9 @@ class Saldo extends Model  implements Auditable
             case Gasto::class:
                 $sub_detalle_info = self::subDetalleInfo($saldo->subDetalle);
                 if ($tipo == self::EGRESO) {
+                    if ($saldo->estado == Gasto::ANULADO) {
+                        return 'ANULACION DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                    }
                     return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
                 }
                 if ($tipo == self::ANULACION) {
@@ -237,7 +256,7 @@ class Saldo extends Model  implements Auditable
                 }
                 if ($tipo == self::INGRESO) {
                     if ($saldo['usuario_recibe_id'] == $empleado) {
-                        return 'TRANSFERENCIA DE  ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' a ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos;
+                        return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
                     }
                 }
 
@@ -250,15 +269,14 @@ class Saldo extends Model  implements Auditable
                 break;
             case AjusteSaldoFondoRotativo::class:
                 return $saldo['motivo'];
-                break;
         }
         return '';
     }
-    private static function observacionSaldo($saldo, $tipo, $empleado)
+    private static function observacionSaldo($saldo, $tipo)
     {
         switch (get_class($saldo)) {
             case Gasto::class:
-                $sub_detalle_info = Saldo::subDetalleInfo($saldo['sub_detalle']);
+//                $sub_detalle_info = Saldo::subDetalleInfo($saldo['sub_detalle']);
                 if ($tipo == self::EGRESO) {
                     return $saldo['observacion'];
                 }
@@ -309,10 +327,11 @@ class Saldo extends Model  implements Auditable
         $row = [];
         // $saldo =0;
         $row['item'] = $id + 1;
-        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
+//        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
+        $row['fecha'] = $saldo['fecha_viat'] ?? ($saldo['created_at'] ?? $saldo['fecha']);
         $row['fecha_creacion'] = $saldo['updated_at'];
         $row['descripcion'] = self::descripcionSaldo($saldo, $tipo, $empleado);
-        $row['observacion'] = self::observacionSaldo($saldo, $tipo, $empleado);
+        $row['observacion'] = self::observacionSaldo($saldo, $tipo);
         $row['num_comprobante'] = self::obtenerNumeroComprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;

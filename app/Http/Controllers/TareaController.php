@@ -23,6 +23,7 @@ use Src\Shared\Utils;
 use stdClass;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\Sistema\PaginationService;
 use Src\App\TareaService;
 use Src\Config\ClientesCorporativos;
 use Src\Config\RutasStorage;
@@ -32,44 +33,34 @@ class TareaController extends Controller
 {
     private $entidad = 'Tarea';
     private TareaService $tareaService;
+    protected PaginationService $paginationService;
 
     public function __construct()
     {
         $this->tareaService = new TareaService();
+        $this->paginationService = new PaginationService();
     }
 
     public function listar()
     {
-        $campos = explode(',', request('campos'));
-        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
-        $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $search = request('search');
+        $paginate = request('paginate');
+        $todas = request('todas');
 
-        // mejorar codigo
-        // Lista las tareas disponibles junto con las que hayan finalizado.
-        // Las tareas finalizadas estan disponibles un dia luego de finalizarse
-        /* if (request('formulario')) {
-            return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
-                $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-            })->latest()->get();
-        } */
-
-        if (request('formulario')) {
-            // return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
-            //     $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-            // })->latest()->get();
-            return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
-        }
-
+        if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
-        if (request('campos')) {
-            if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
-            if ($esCoordinador) return Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->latest()->get($campos);
-            else return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+
+        if ($search) {
+            $query = Tarea::search($search)->query(function ($q) {
+                $q->where('finalizado', request('finalizado'))->porRol()->orderBy('id', 'desc');
+            });
         } else {
-            if ($esCoordinadorBackup) return Tarea::filter()->latest()->get();
-            if ($esCoordinador) return Tarea::filter()->porCoordinador()->latest()->get();
-            else return Tarea::filter()->latest()->get(); // Cualquier usuario en el sistema debe tener acceso a las tareas
+            if ($todas) $query = Tarea::ignoreRequest(['campos', 'page', 'paginate', 'todas'])->filter()->orderBy('id', 'desc');
+            else $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol()->orderBy('id', 'desc');
         }
+
+        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();
     }
 
     /*********
@@ -77,10 +68,8 @@ class TareaController extends Controller
      *********/
     public function index()
     {
-        $results = $this->listar();
-        // if (!request('campos')) $results = TareaResource::collection($results);
-        $results = TareaResource::collection($results);
-        return response()->json(compact('results'));
+        $paginated = $this->listar();
+        return TareaResource::collection($paginated);
     }
 
     /**********
@@ -144,22 +133,22 @@ class TareaController extends Controller
 
         try {
             if ($request->isMethod('patch')) {
+                if ($tarea->cliente_id == ClientesCorporativos::TELCONET) $this->verificarMaterialTareaDevuelto($tarea->id);
+                else if ($tarea->cliente_id != ClientesCorporativos::TELCONET) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
+
                 if ($request['imagen_informe']) {
                     $guardar_imagen = new GuardarImagenIndividual($request['imagen_informe'], RutasStorage::TAREAS);
                     $request['imagen_informe'] = $guardar_imagen->execute();
                 }
 
                 $actualizado = $tarea->update($request->except(['id']));
-
-                if ($actualizado && $tarea->cliente_id != ClientesCorporativos::TELCONET) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
-                // if ($actualizado) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
             }
 
             // Respuesta
             $modelo = new TareaResource($tarea->refresh());
             $mensaje = 'Tarea finalizada exitosamente';
 
-            $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id');
+            $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id')->filter();
 
             foreach ($destinatarios as $destinatario) {
                 event(new TareaEvent($tarea, Auth::user()->empleado->id, $destinatario));
@@ -167,10 +156,11 @@ class TareaController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            throw $e;
         }
 
         return response()->json(compact('modelo', 'mensaje'));
-    }
+    } // 103 a 112 // pregunta 93
 
     /**
      * Eliminar
@@ -258,17 +248,25 @@ class TareaController extends Controller
         return response()->json(compact('estan_finalizadas'));
     }
 
-    public function verificarMaterialTareaDevuelto()
+    /**
+     * Para que las tareas del cliente TELCONET pueda finalizar las tareas
+     * primero deberá devolver los materiales asignados a la misma.
+     * A diferencia que NEDETEL y los demás clientes que a ellos se les transfiere automáticamente
+     * el material de tarea al stock personal del empleado(s) responsable(s) de la tarea.
+     */
+    public function verificarMaterialTareaDevuelto(int $tarea_id)
     {
         // $idEmpleado = request('empleado_id');
-        $idTarea = request('tarea_id');
+        // $idTarea = request('tarea_id');
 
-        $materiales = MaterialEmpleadoTarea::where('tarea_id', $idTarea)->get();
-        $materialesConStock = $materiales->filter(fn ($material) => $material->cantidad_stock > 0);
-        $materiales_devueltos = $materialesConStock->count() == 0;
+
+        $tieneMaterialPendieteDevolucion = MaterialEmpleadoTarea::where('tarea_id', $tarea_id)->where('cantidad_stock', '>', 0)->exists();
+        if ($tieneMaterialPendieteDevolucion) throw ValidationException::withMessages(['402' => ['Tiene materiales pendiente de devolución para finalizar la tarea!']]);
+        // $materialesConStock = $materiales->filter(fn($material) => $material->cantidad_stock > 0);
+        // $materiales_devueltos = $materialesConStock->count() == 0;
         //        Log::channel('testing')->info('Log', compact('materialesConStock'));
         //      Log::channel('testing')->info('Log', compact('materiales_devueltos'));
-        return response()->json(compact('materiales_devueltos'));
+        // return response()->json(compact('materiales_devueltos'));
     }
 
     /**
@@ -311,4 +309,9 @@ class TareaController extends Controller
     //     $results = TareaResource::collection($results);
     //     return response()->json(compact('results'));
     // }
+
+    public function descargarReporteMateriales()
+    {
+        return $this->tareaService->descargarReporteMateriales();
+    }
 }

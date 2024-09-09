@@ -4,9 +4,11 @@ namespace App\Models\Tareas;
 
 use App\Models\Archivo;
 use App\Models\Autorizacion;
+use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\Notificacion;
+use App\Models\Proyecto;
 use App\Models\Tarea;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,6 +53,31 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
 
+    public function empleadoDestino()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_destino_id', 'id');
+    }
+
+    public function proyectoOrigen()
+    {
+        return $this->belongsTo(Proyecto::class, 'proyecto_origen_id', 'id');
+    }
+
+    public function proyectoDestino()
+    {
+        return $this->belongsTo(Proyecto::class, 'proyecto_destino_id', 'id');
+    }
+
+    public function etapaOrigen()
+    {
+        return $this->belongsTo(Etapa::class, 'etapa_origen_id', 'id');
+    }
+
+    public function etapaDestino()
+    {
+        return $this->belongsTo(Etapa::class, 'etapa_destino_id', 'id');
+    }
+
     public function tareaOrigen()
     {
         return $this->belongsTo(Tarea::class, 'tarea_origen_id', 'id');
@@ -84,6 +111,11 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     public function archivos()
     {
         return $this->morphMany(Archivo::class, 'archivable');
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 
     /************

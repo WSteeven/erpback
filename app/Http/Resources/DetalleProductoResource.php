@@ -30,10 +30,12 @@ class DetalleProductoResource extends JsonResource
             'marca' => $this->marca?->nombre,
             'modelo' => $this->modelo?->nombre,
             'serial' => $this->serial,
+            'lote' => $this->lote,
             'precio_compra' => $this->precio_compra,
             'stock' => $request->stock ? $this->detalle_stock($this->id, $request->sucursal_id)?->cantidad : 0,
 
             'activo' => $this->activo,
+            'esActivo'=>$this->esActivo ?? false,
 
             'ram' => $this->computadora ? $this->computadora->memoria->nombre : null,
             'disco' => $this->computadora ? $this->computadora->disco->nombre : null,
@@ -59,11 +61,19 @@ class DetalleProductoResource extends JsonResource
             'color' => $this->color,
             'talla' => $this->talla,
             'tipo' => $this->tipo,
+            'calibre' => $this->calibre,
+            'peso' => $this->peso,
+            'dimensiones' => $this->dimensiones,
+            'permiso' => $this->permisoArma?->nombre,
+
+            'caducidad' => $this->caducidad,
+
 
             //variables auxiliares
             'tiene_serial' => is_null($this->serial) ? false : true,
+            'tiene_lote' => is_null($this->lote) ? false : true,
             'es_computadora' => $this->producto->categoria->nombre == 'INFORMATICA' ? true : false,
-            'es_fibra' => $this->fibra ? true : false,
+            'es_fibra' => $this->fibra || $this->es_fibra ? true : false,
             'tiene_precio_compra' => $this->precio_compra > 0 ? true : false,
             'tiene_adicionales' => $this->color || $this->talla || $this->capacidad ? true : false,
         ];
@@ -71,14 +81,20 @@ class DetalleProductoResource extends JsonResource
             Log::channel('testing')->info('Log', ['Entró aquí']);
             $modelo['producto'] = $this->producto_id;
             $modelo['marca'] = $this->modelo->marca_id;
+            $modelo['nombre_marca'] = $this->modelo->marca->nombre;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['modelo_id'] = $this->modelo->nombre;
+            $modelo['nombre_modelo'] = $this->modelo->nombre;
             $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
             $modelo['tipo_fibra'] =  $this->fibra ? $this->fibra->tipo_fibra_id : null;
             $modelo['hilos'] = $this->fibra ? $this->fibra->hilo_id : null;
             $modelo['ram'] = $this->computadora ? $this->computadora->memoria->id : null;
             $modelo['disco'] = $this->computadora ? $this->computadora->disco->id : null;
             $modelo['procesador'] = $this->computadora ? $this->computadora->procesador->id : null;
+            $modelo['permiso_id'] = $this->permiso_id;
+            $modelo['fecha_caducidad'] = $this->fecha_caducidad;
+            $modelo['fotografia'] = $this->fotografia ? url($this->fotografia) : null;
+            $modelo['fotografia_detallada'] = $this->fotografia_detallada ? url($this->fotografia_detallada) : null;
         }
         return $modelo;
     }

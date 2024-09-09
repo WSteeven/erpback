@@ -45,13 +45,20 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             $modelo['empleado_origen'] = $this->empleado_origen_id;
             $modelo['empleado_destino'] = $this->empleado_destino_id;
             $modelo['proyecto_origen'] = $this->proyecto_origen_id;
+            $modelo['nombre_proyecto_origen'] = $this->proyectoOrigen ? $this->proyectoOrigen->nombre . ' | ' . $this->proyectoOrigen->codigo_proyecto : null;
             $modelo['proyecto_destino'] = $this->proyecto_destino_id;
+            $modelo['nombre_proyecto_destino'] = $this->proyectoDestino ? $this->proyectoDestino->nombre . ' | ' . $this->proyectoDestino->codigo_proyecto : null;
             $modelo['etapa_origen'] = $this->etapa_origen_id;
+            $modelo['nombre_etapa_origen'] = $this->etapaOrigen?->nombre;
             $modelo['etapa_destino'] = $this->etapa_destino_id;
+            $modelo['nombre_etapa_destino'] = $this->etapaDestino?->nombre;
             $modelo['tarea_origen'] = $this->tarea_origen_id;
+            $modelo['nombre_tarea_origen'] = $this->tareaOrigen ? $this->tareaOrigen?->codigo_tarea . ' | ' . $this->tareaOrigen?->titulo : null;
             $modelo['tarea_destino'] = $this->tarea_destino_id;
+            $modelo['nombre_tarea_destino'] = $this->tareaDestino ? $this->tareaDestino?->codigo_tarea . ' | ' . $this->tareaDestino?->titulo : null;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['nombre_cliente'] = $this->cliente?->empresa->razon_social;
         }
 
         return $modelo;

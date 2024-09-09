@@ -24,19 +24,20 @@ use App\Http\Controllers\SeguimientoSubtareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\Tareas\AlimentacionGrupoController;
 use App\Http\Controllers\Tareas\EtapaController;
-use App\Http\Controllers\Tareas\TransferenciaMaterialEmpleadoController;
 use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
 use App\Http\Controllers\Tareas\CentroCostoController;
+use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
-        'etapas' =>EtapaController::class,
-        'subcentros-costos' =>SubCentroCostoController::class,
-        'centros-costos' =>CentroCostoController::class,
+        'etapas' => EtapaController::class,
+        'subcentros-costos' => SubCentroCostoController::class,
+        'centros-costos' => CentroCostoController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
@@ -56,6 +57,7 @@ Route::apiResources(
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
         'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,
         'transferencias-productos-empleados' => TransferenciaProductoEmpleadoController::class,
+        'alimentacion-grupos' => AlimentacionGrupoController::class,
     ],
     [
         'parameters' => [
@@ -72,7 +74,8 @@ Route::apiResources(
             'rutas-tareas' => 'ruta_tarea',
             'archivos-seguimientos' => 'archivo_seguimiento',
             'actividades-realizadas-seguimientos-subtareas' => 'actividad_realizada',
-            'transferencias-productos-empleados' => 'transferencia_producto_empleado'
+            'transferencias-productos-empleados' => 'transferencia_producto_empleado',
+            'alimentacion-grupos' => 'alimentacion_grupo',
         ],
     ]
 );
@@ -94,6 +97,8 @@ Route::prefix('subtareas')->group(function () {
     Route::get('obtener-suspendidos/{subtarea}', [SubtareaController::class, 'obtenerSuspendidos']);
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
+
+Route::get('reporte-materiales-utilizados', [MaterialUtilizadoController::class, 'reporte']);
 
 Route::post('etapas/desactivar/{etapa}', [EtapaController::class, 'desactivar']);
 //Centros de costos
@@ -145,17 +150,25 @@ Route::get('obtener-fechas-historial-materiales-usados/{subtarea}', [Seguimiento
 Route::get('obtener-fechas-historial-materiales-stock-usados/{subtarea}', [SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesStockUsados']);
 Route::get('obtener-historial-material-tarea-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialTareaUsadoPorFecha']);
 Route::get('obtener-historial-material-stock-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialStockUsadoPorFecha']);
+Route::get('obtener-resumen-material-subtarea-usado', [SeguimientoSubtareaController::class, 'obtenerResumenMaterialSeguimientoSubtareaUsado']);
+Route::get('obtener-resumen-material-stock-usado', [SeguimientoSubtareaController::class, 'obtenerResumenMaterialSeguimientoStockUsado']);
 Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorial']);
 Route::post('actualizar-cantidad-utilizada-historial-stock', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorialStock']);
 
 // Editar cantidad utilizada el dia actual
 Route::post('actualizar-cantidad-utilizada-tarea', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaMaterialTarea']);
+/* The `Route::get('obtener-fechas-historial-materiales-usados/{subtarea}',
+[SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesUsados']);` route is
+defining a GET route in Laravel that is mapped to the `obtenerFechasHistorialMaterialesUsados`
+method within the `SeguimientoSubtareaController` controller. */
 Route::post('actualizar-cantidad-utilizada-stock', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaMaterialStock']);
 
 
 // Clientes dueños de materiales
 Route::get('obtener-clientes-materiales-empleado', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesEmpleado']);
 Route::get('obtener-clientes-materiales-tarea', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesTarea']);
+
+Route::get('/reporte-materiales', [TareaController::class, 'descargarReporteMateriales']);
 
 /***********
  * Reportes

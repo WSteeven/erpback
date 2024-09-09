@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static whereIn(string $string, $ids_detalles)
+ */
 class Inventario extends Model implements Auditable
 {
     use HasFactory;
@@ -101,6 +104,7 @@ class Inventario extends Model implements Auditable
     {
         return $this->hasMany(MovimientoProducto::class);
     }
+
     /**
      * Relacion uno a muchos (inversa)
      * Muchos inventarios tienen un mismo detalle

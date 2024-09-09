@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Src\App\TransferenciaService;
 use Src\Shared\Utils;
 
-class TransferenciaController extends Controller
+class Transferencia2Controller extends Controller
 {
     private $entidad = 'Transacción';
     private $servicio;

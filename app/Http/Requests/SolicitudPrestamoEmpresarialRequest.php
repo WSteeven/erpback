@@ -37,8 +37,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
                 'periodo_id' => 'nullable|exists:periodos,id',
                 'valor_utilidad' => 'nullable|numeric',
                 'motivo' => 'nullable|string',
-                'foto' => 'nullable|string',
-                 'estado' => 'required|numeric',
+                'estado' => 'required|numeric',
                 'observacion' => 'required|string',
             ];
         } else {
@@ -49,7 +48,6 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
                 'motivo' => 'nullable|string',
                 'periodo_id' => 'nullable|exists:periodos,id',
                 'valor_utilidad' => 'nullable|numeric',
-                'foto' => 'nullable|string',
                 'estado' => 'required|numeric',
             ];
         }
@@ -57,10 +55,9 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $fecha = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
             'solicitante' => $this->solicitante != null ? $this->solicitante : Auth::user()->empleado->id,
-            'fecha' => $fecha->format('Y-m-d'),
+            'fecha' => $this->fecha,
             'estado' => $this->estado == null ? 1 : $this->estado
         ]);
         if ($this->periodo != null) {

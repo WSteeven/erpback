@@ -20,8 +20,8 @@ class VacacionResource extends JsonResource
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado_info != null ? $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos : '',
             'id_jefe_inmediato' => $this->empleado_info->jefe->id,
-            'fecha_inicio' =>  $this->cambiar_fecha($this->fecha_inicio),
-            'fecha_fin' =>  $this->cambiar_fecha($this->fecha_fin),
+            'fecha_inicio' =>  $this->fecha_inicio,
+            'fecha_fin' => $this->fecha_fin,
             'numero_dias' => $this->calcular_dias($this->fecha_inicio,$this->fecha_fin),
             'fecha_inicio_rango1_vacaciones' =>$this->fecha_inicio_rango1_vacaciones ? $this->cambiar_fecha($this->fecha_inicio_rango1_vacaciones):null,//  $this->cambiar_fecha($this->fecha_inicio_rango1_vacaciones),
             'fecha_fin_rango1_vacaciones' =>  $this->fecha_fin_rango1_vacaciones? $this->cambiar_fecha($this->fecha_fin_rango1_vacaciones):null,
@@ -34,7 +34,7 @@ class VacacionResource extends JsonResource
             'solicitud' =>   $this->solicitud,
             'estado' => $this->estado,
             'estado_permiso_info' => $this->estado_permiso_info ?$this->estado_permiso_info->nombre:'',
-            'numero_rangos' => $this->fecha_inicio !=null && $this->fecha_fin != null ?1:2,
+            'numero_rangos' => $this->numero_rangos,
         ];
         return $modelo;
     }

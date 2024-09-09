@@ -28,7 +28,7 @@ class VacacionRequest extends FormRequest
         return [
             'empleado_id' => 'required|exists:empleados,id',
             'periodo_id' => 'required|exists:periodos,id',
-            'derecho_vacaciones' => 'nullable|date_format:Y-m-d',
+            'derecho_vacaciones' => 'nullable',
             'fecha_inicio' => 'nullable|date_format:Y-m-d',
             'fecha_fin' => 'nullable|date_format:Y-m-d',
             'fecha_inicio_rango1_vacaciones' => 'nullable|date_format:Y-m-d',
@@ -36,15 +36,14 @@ class VacacionRequest extends FormRequest
             'fecha_inicio_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
             'fecha_fin_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
             'descuento_vacaciones' => 'required|integer',
-            'numero_dias' => 'required|integer',
+            'numero_rangos' => 'required|integer',
+            'numero_dias' => 'nullable|integer',
             'numero_dias_rango1' => 'nullable|integer',
             'numero_dias_rango2' => 'nullable|integer'
         ];
     }
     protected function prepareForValidation()
     {
-        $fecha_inicio = Carbon::createFromFormat('d-m-Y', $this->fecha_inicio);
-        $fecha_fin = Carbon::createFromFormat('d-m-Y', $this->fecha_fin);
         $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
         $this->merge([
             'empleado_id' => $empleado_id,
@@ -54,20 +53,18 @@ class VacacionRequest extends FormRequest
             'fecha_fin_rango1_vacaciones',
             'fecha_inicio_rango2_vacaciones',
             'fecha_fin_rango2_vacaciones',
-            'derecho_vacaciones'
         ];
         foreach ($dateFields as $field) {
             if ($this->$field) {
-                $date = Carbon::createFromFormat('d-m-Y', $this->$field);
                 $this->merge([
-                    $field => $date->format('Y-m-d'),
+                    $field =>$this->$field,
                 ]);
             }
         }
         $this->merge([
             'periodo_id' => $this->periodo,
-            'fecha_inicio' => $fecha_inicio->format('Y-m-d'),
-            'fecha_fin' => $fecha_fin->format('Y-m-d'),
+            'fecha_inicio' => is_null($this->fecha_inicio) ?  $this->fecha_inicio_rango1_vacaciones:$this->fecha_inicio,
+            'fecha_fin' =>  is_null($this->fecha_fin) ? $this->fecha_fin_rango2_vacaciones :$this->fecha_fin,
             'descuento_vacaciones' => $this->descuento_vacaciones?$this->descuento_vacaciones:0
         ]);
     }

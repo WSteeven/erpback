@@ -28,6 +28,7 @@ class ConfiguracionGeneralRequest extends FormRequest
             'logo_oscuro' => 'required|string',
             'logo_marca_agua' => 'required|string',
             'ruc' => 'required|string',
+            'ciiu' => 'required|string',
             'representante' => 'required|string',
             'razon_social' => 'required|string',
             'nombre_comercial' => 'required|string',

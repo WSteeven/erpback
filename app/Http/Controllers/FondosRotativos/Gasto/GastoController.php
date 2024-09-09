@@ -131,8 +131,8 @@ class GastoController extends Controller
      */
     public function update(GastoRequest $request, Gasto $gasto)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             $datos = $request->validated();
             $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
             $gasto->update($datos);
@@ -249,7 +249,7 @@ class GastoController extends Controller
             $nombre_reporte = 'reporte_' . $fecha_inicio . '-' . $fecha_fin . 'de' . $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'];
             $vista = 'exports.reportes.gastos_por_fecha';
             $export_excel = new GastoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -298,7 +298,7 @@ class GastoController extends Controller
             $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
             $vista = 'exports.reportes.reporte_autorizaciones';
             $export_excel = new AutorizacionesExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],

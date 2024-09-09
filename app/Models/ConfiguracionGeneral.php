@@ -8,10 +8,13 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 
+/**
+ * @method static first()
+ */
 class ConfiguracionGeneral extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
-    
+
 
     protected $table = 'configuraciones_generales';
     protected $fillable = [
@@ -19,6 +22,7 @@ class ConfiguracionGeneral extends Model implements Auditable
         'logo_oscuro',
         'logo_marca_agua',
         'ruc',
+        'ciiu',
         'representante',
         'razon_social',
         'nombre_comercial',

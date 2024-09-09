@@ -13,6 +13,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class DetalleProductoController extends Controller
@@ -42,8 +44,8 @@ class DetalleProductoController extends Controller
         if ($request->tipo_busqueda) {
             switch ($request->tipo_busqueda) {
                 case 'only_inventario':
-                    $results = DetalleProducto::whereHas('inventarios')->get();
-                    $results2 = DetalleProducto::whereHas('itemsPreingresos')->get();
+                    $results = DetalleProducto::whereHas('inventarios')->get()->take(5000);
+                    $results2 = DetalleProducto::whereHas('itemsPreingresos')->get()->take(5000);
                     $results = $results->merge($results2);
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
@@ -114,16 +116,16 @@ class DetalleProductoController extends Controller
      */
     public function store(DetalleProductoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         try {
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
             $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
             if (count($request->seriales) > 0) {
-                Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
+                // Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
                 foreach ($request->seriales as $item) {
                     Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
                     //aqui se pondria la siguiente linea
@@ -140,7 +142,7 @@ class DetalleProductoController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage() . $e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -174,7 +176,13 @@ class DetalleProductoController extends Controller
             // $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
             // Log::channel('testing')->info('Log', ['datos validados:', $datos]);
 
-            //Respuesta
+            // Respuesta
+            if ($datos['fotografia'] && Utils::esBase64($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            else unset($datos['fotografia']);
+
+            if ($datos['fotografia_detallada'] && Utils::esBase64($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            else unset($datos['fotografia_detallada']);
+
             $detalle->update($datos);
             if ($request->categoria === 'INFORMATICA') {
                 if ($detalle->computadora()->first()) {

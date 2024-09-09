@@ -14,6 +14,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
@@ -33,9 +34,7 @@ class SaldoService
     public const AJUSTE = 'AJUSTE';
     public const ANULACION = 'ANULACION';
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
     public function setFechaInicio($fechaInicio)
     {
         $this->fechaInicio = $fechaInicio;
@@ -144,20 +143,44 @@ class SaldoService
         return $saldo_actual;
     }
 
-    public static function guardarSaldo($entidad, $data)
+    /**
+     * La función `guardarSaldo` se utiliza para actualizar el saldo de un empleado según el
+     * tipo de transacción (acreditacion, transferencia, ajuste o gastos).
+     *
+     * @param Model $entidad El parámetro `entidad` en la función `guardarSaldo` parece representar una
+     * entidad u objeto que tiene una relación con el modelo `Saldo`. Se utiliza para crear un nuevo
+     * registro en la relación `saldoFondoRotativo` de esta entidad.
+     * @param array $data - array de datos donde se obtiene: fecha, monto, tipo y el empleado_id
+     */
+
+
+
+    /**
+     * La función `guardarSaldo` guarda un nuevo registro de saldo para el fondo de un empleado según
+     * el tipo de transacción (ingreso o gasto).
+     *
+     * @param Model $entidad El parámetro `entidad` en la función `guardarSaldo` es una instancia de una
+     * clase modelo. Se utiliza para crear un nuevo registro en la relación `saldoFondoRotativo` de
+     * este modelo.
+     * @param array $data Un array compuesto por lo siguiente:
+     * - empleado_id: ID del empleado
+     * - tipo: valor que puede ser INGRESO o EGRESO
+     * - monto: cantidad a sumar o restar
+     * - fecha: la fecha en que se registra el gasto (la que llena el empleado)
+     */
+    public static function guardarSaldo(Model $entidad, array $data)
     {
         try {
             DB::beginTransaction();
-            $saldo_anterior = Saldo::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
-            $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-            $nuevo_saldo = ($data['tipo'] === self::INGRESO) ?
-                (array('monto' => ($total_saldo_actual + $data['monto']), 'tipo_saldo' => $data['tipo'])) : (array('monto' => ($total_saldo_actual - $data['monto']), 'tipo_saldo' => $data['tipo']));
+            $ultimo_registro = Saldo::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
+            $ultimo_saldo = $ultimo_registro !== null ? $ultimo_registro->saldo_actual : 0;
+            $nuevo_saldo = ($data['tipo'] === self::INGRESO) ? $ultimo_saldo + $data['monto'] : $ultimo_saldo - $data['monto'];
             $entidad->saldoFondoRotativo()->create([
                 'fecha' => $data['fecha'],
-                'saldo_anterior' => $total_saldo_actual,
+                'saldo_anterior' => $ultimo_saldo,
                 'saldo_depositado' => $data['monto'],
-                'saldo_actual' => $nuevo_saldo['monto'],
-                'tipo_saldo' => $nuevo_saldo['tipo_saldo'],
+                'saldo_actual' => $nuevo_saldo,
+                'tipo_saldo' => $data['tipo'],
                 'empleado_id' => $data['empleado_id']
             ]);
             DB::commit();
@@ -166,6 +189,7 @@ class SaldoService
             throw $th;
         }
     }
+
     public static function obtenerSaldoActual(Empleado $empleado)
     {
         $saldo_actual = Saldo::where('empleado_id', $empleado->id)->orderBy('id', 'desc')->first();
@@ -194,26 +218,30 @@ class SaldoService
             throw $th;
         }
     }
-    public static function ajustarSaldo($data)
+    public static function ajustarSaldo($entidad, $data)
     {
-        $empleado_id = $data['destinatario_id'];
-        $fecha = Carbon::now();
-        $monto = $data['monto'];
-        $tipo = $data['tipo'];
-        $saldo_anterior = Saldo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
-        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        $saldo = new Saldo();
-        $saldo->fecha = $fecha;
-        $saldo->saldo_anterior = $total_saldo_actual;
-        $saldo->saldo_depositado = $monto;
-        $nuevo_saldo = ($tipo == AjusteSaldoFondoRotativo::INGRESO) ?
-            (array('monto' => ($total_saldo_actual + $monto), 'descripcion' => $tipo)) : (array('monto' => ($total_saldo_actual - $monto), 'descripcion' => $tipo));
-        $saldo->saldo_actual =  $nuevo_saldo['monto'];
-        $saldo->fecha_inicio = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[0];
-        $saldo->fecha_fin = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[1];;
-        $saldo->id_usuario = $empleado_id;
-        $saldo->tipo_saldo = $nuevo_saldo['descripcion'];
-        $saldo->save();
+        try {
+            DB::beginTransaction();
+            $empleado_id = $data['destinatario_id'];
+            $fecha = Carbon::now();
+            $saldo_anterior = Saldo::where('empleado_id', $empleado_id)->orderBy('id', 'desc')->first();
+            $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+            $saldo = [];
+            $saldo['fecha'] = $fecha;
+            $saldo['saldo_anterior'] = $total_saldo_actual;
+            $saldo['saldo_depositado'] = $data['monto'];
+            $saldo['saldo_actual'] = $data['tipo'] == AjusteSaldoFondoRotativo::INGRESO ? $total_saldo_actual + $data['monto'] : $total_saldo_actual - $data['monto'];
+            // $saldo->fecha_inicio = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[0];
+            // $saldo->fecha_fin = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[1];;
+            $saldo['tipo_saldo'] = $data['tipo'];
+            $saldo['empleado_id'] = $empleado_id;
+
+            $entidad->saldoFondoRotativo()->create($saldo);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
     private static function calcular_fechas($fecha)
     {
@@ -257,8 +285,6 @@ class SaldoService
     }
     public static function obtenerSaldoEmpleadoEntreFechas($fecha_inicio, $fecha_fin, int $empleado_id)
     {
-        Log::channel('testing')->info('Log', ['fecha', $fecha_inicio, $fecha_fin, $empleado_id]);
-
         $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
             ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
             ->orderBy('id', 'desc')
@@ -291,29 +317,43 @@ class SaldoService
                 ->where('fecha', '<=', $fecha)
                 ->orderBy('id', 'desc')
                 ->first();
-            Log::channel('testing')->info('Log', ['saldo', $fecha, $saldo_grupo]);
+            // Log::channel('testing')->info('Log', ['saldo', $fecha, $saldo_grupo]);
 
             return  $saldo_fondos;
         }
     }
-    public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior, $fecha_inicio=null)
+    public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior, $fecha_inicio = null)
     {
-        $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-            ->where('fecha', '>=', $fecha_anterior)
-            ->orderBy('id', 'desc')
-            ->first();
-        if ($saldo_grupo) {
-            Log::channel('testing')->info('Log', ['saldo anterior']);
+        if (strtotime($fecha_anterior) < strtotime('05-04-2024')) {
+            // Log::channel('testing')->info('Log', ['if obtenerSaldoAnterior', $fecha_anterior, $fecha_inicio]);
             $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-            ->where('fecha', '>=', $fecha_anterior)
-            ->orderBy('id', 'desc')
-            ->first();
+                ->where('fecha', '<=', $fecha_anterior)
+                ->orderBy('created_at', 'DESC')
+                ->first();
             return $saldo_grupo;
         } else {
-            $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
-                ->where('fecha', '>=', $fecha_anterior)
-                ->where('fecha', '<', $fecha_inicio)
-                ->orderBy('created_at', 'desc')->first();
+            // Log::channel('testing')->info('Log', ['else obtenerSaldoAnterior', $fecha_anterior, $fecha_inicio]);
+            $saldo_fondos = null;
+            if (!is_null($fecha_inicio) == null) {
+                $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
+                    ->where('fecha', '<=', $fecha_anterior)
+                    ->where('fecha', '<', $fecha_inicio)
+                    ->orderBy('created_at', 'DESC')
+                    ->first();
+            }
+            $saldo_fondos = $saldo_fondos  || !is_null($saldo_fondos) ?  $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
+                ->where('created_at', '<', $fecha_inicio)
+                ->orderBy('created_at', 'DESC')
+                ->first();
+            $saldo_fondos = $saldo_fondos ? $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
+                ->where('fecha', '<=', $fecha_anterior)
+                ->orderBy('created_at', 'DESC')
+                ->first();
+            $saldo_fondos = $saldo_fondos?->tipo_saldo == self::ANULACION ? Saldo::where('empleado_id', 14)
+                ->where('fecha', '<=', $fecha_anterior)
+                ->where('tipo_saldo', '!=', self::ANULACION)
+                ->orderBy('created_at', 'DESC')
+                ->first() : $saldo_fondos;
             return  $saldo_fondos;
         }
     }
@@ -345,27 +385,36 @@ class SaldoService
         }
         return $results;
     }
-    public static function existeSaldoNuevaTabla($fecha, $empleado_id)
+    /**
+     * La función verifica si hay registros de saldo para un empleado específico después de una fecha
+     * determinada.
+     *
+     * @param int $empleado_id La función `existeSaldoNuevaTabla` verifica si hay algún registro en la
+     * tabla `Saldo` con fecha mayor o igual a '2024-04-04' para un `empleado_id` específico.
+     *
+     * @return bool Si hay al menos un registro, devuelve "verdadero", de lo contrario devuelve falso.
+     */
+    public static function existeSaldoNuevaTabla(int $empleado_id)
     {
-        $registros_saldos = Saldo::where('fecha', $fecha)->where('empleado_id', $empleado_id)->get();
-        $cantidad_registros_saldos = $registros_saldos->count();
-        Log::channel('testing')->info('Log', ['existe saldo', $fecha,$cantidad_registros_saldos]);
-
-        return $cantidad_registros_saldos > 0;
+        $registros_saldos = Saldo::where('fecha', '>=', '2024-04-04')->where('empleado_id', $empleado_id)->get();
+        return $registros_saldos->count() > 0;
     }
-    private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
-    {
-        $row = [];
-        // $saldo =0;
-        $row['item'] = $id + 1;
-        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
-        $row['fecha_creacion'] = $saldo['updated_at'];
-        $row['descripcion'] = SaldoGrupo::descripcionSaldo($saldo);
-        $row['observacion'] = SaldoGrupo::observacionSaldo($saldo);
-        $row['num_comprobante'] = SaldoGrupo::obtenerNumeroComprobante($saldo);
-        $row['ingreso'] = $ingreso;
-        $row['gasto'] = $gasto;
-        // $row['saldo_count'] = $ingreso -$gasto;
-        return $row;
-    }
+    /**
+     * BORRAR- NO SE ESTÁ USANDO
+     */
+    // private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
+    // {
+    //     $row = [];
+    //     // $saldo =0;
+    //     $row['item'] = $id + 1;
+    //     $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
+    //     $row['fecha_creacion'] = $saldo['updated_at'];
+    //     $row['descripcion'] = SaldoGrupo::descripcionSaldo($saldo);
+    //     $row['observacion'] = SaldoGrupo::observacionSaldo($saldo);
+    //     $row['num_comprobante'] = SaldoGrupo::obtenerNumeroComprobante($saldo);
+    //     $row['ingreso'] = $ingreso;
+    //     $row['gasto'] = $gasto;
+    //     // $row['saldo_count'] = $ingreso -$gasto;
+    //     return $row;
+    // }
 }

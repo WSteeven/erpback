@@ -19,6 +19,7 @@ class ConfiguracionGeneralResource extends JsonResource
             'logo_oscuro' => $this->logo_oscuro ? url($this->logo_oscuro) : null,
             'logo_marca_agua' => $this->logo_marca_agua ? url($this->logo_marca_agua) : null,
             'ruc' => $this->ruc,
+            'ciiu' => $this->ciiu,
             'representante' => $this->representante,
             'razon_social' => $this->razon_social,
             'nombre_comercial' => $this->nombre_comercial,

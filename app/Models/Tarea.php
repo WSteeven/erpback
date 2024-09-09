@@ -13,10 +13,14 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Scout\Searchable;
 
+/**
+ * @method static where(string $string, mixed $tarea)
+ */
 class Tarea extends Model implements Auditable
 {
-    use HasFactory, Filterable, AuditableModel, UppercaseValuesTrait;
+    use HasFactory, Filterable, AuditableModel, UppercaseValuesTrait, Searchable;
 
     const PARA_PROYECTO = 'PARA_PROYECTO';
     const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
@@ -56,6 +60,16 @@ class Tarea extends Model implements Auditable
     protected $casts = ['finalizado' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
+
+    public function toSearchableArray()
+    {
+        return [
+            'codigo_tarea' => $this->codigo_tarea,
+            'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
+            'titulo' => $this->titulo,
+            'proyecto' => $this->proyecto?->codigo_proyecto . ' ' . $this->proyecto?->nombre,
+        ];
+    }
 
     /**
      * ______________________________________________________________________________________
@@ -171,6 +185,12 @@ class Tarea extends Model implements Auditable
     /*********
      * Scopes
      *********/
+    public function scopePorRol($query)
+    {
+        if (User::find(Auth::id())->hasRole(User::ROL_COORDINADOR)) return $this->scopePorCoordinador($query);
+        else return $query;
+    }
+
     public function scopePorCoordinador($query)
     {
         return $query->where('coordinador_id', Auth::user()->empleado->id);

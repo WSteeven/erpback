@@ -18,7 +18,7 @@ class LicenciaEmpleadoResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'empleado' => $this->empleado,
-            'empleado_info' => $this->empleado_info,
+            'empleado_info' => $this->empleado_info?->nombres . ' ' . $this->empleado_info?->apellidos,
             'tipo_licencia' => $this->id_tipo_licencia,
             'estado' => $this->estado,
             'estado_info' => $this->estado_info,
@@ -42,6 +42,6 @@ class LicenciaEmpleadoResource extends JsonResource
         $fechaInicio = Carbon::parse($fecha_inicio);
         $fechaFin = Carbon::parse($fecha_fin);
         // Calcular la diferencia en días
-        return  $fechaInicio->diffInDays($fechaFin);
+        return  $fechaInicio->diffInDays($fechaFin) + 1;
     }
 }

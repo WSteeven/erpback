@@ -69,6 +69,8 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
 
     protected function withValidator($validator)
     {
+        if ($this->autorizacion === Autorizacion::CANCELADO_ID) return;
+
         $validator->after(function ($validator) {
             foreach ($this->listado_productos as $listado) {
                 $material = null;

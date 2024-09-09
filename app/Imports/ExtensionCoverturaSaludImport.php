@@ -5,14 +5,14 @@ namespace App\Imports;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
 class ExtensionCoverturaSaludImport implements ToModel, WithHeadingRow, WithValidation
 {
-    public $mes = "";
+    public string $mes = "";
     private $empleados;
     private $dependientes;
     public function __construct($mes)
@@ -24,7 +24,7 @@ class ExtensionCoverturaSaludImport implements ToModel, WithHeadingRow, WithVali
     /**
      * @param array $row
      *
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @return Model|null
      */
     public function model(array $row)
     {
@@ -34,7 +34,7 @@ class ExtensionCoverturaSaludImport implements ToModel, WithHeadingRow, WithVali
             "dependiente" => $this->dependientes[$row['cedula_dependiente']],
             "origen" => $row['origen'],
             "materia_grabada" => $row['materia_grabada'],
-            "aporte" => $row['aporte'],
+            "aporte" => $row['aporte_porcentaje'] * Empleado::find($this->empleados[$row['cedula']])->salario/100,
             "aporte_porcentaje" => $row['aporte_porcentaje'],
             "aprobado" => 1,
             "observacion" => $row['observacion'],
@@ -47,7 +47,7 @@ class ExtensionCoverturaSaludImport implements ToModel, WithHeadingRow, WithVali
             '*.cedula_dependiente' => ['required'],
             '*.origen' => ['string', 'required'],
             '*.materia_grabada' => ['numeric', 'required'],
-            '*.aporte' => ['numeric', 'required'],
+//            '*.aporte' => ['numeric', 'required'],
             '*.aporte_porcentaje' => ['numeric', 'required'],
             '*.observacion' => ['string','nullable'],
         ];

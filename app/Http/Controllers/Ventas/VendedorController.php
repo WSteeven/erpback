@@ -10,6 +10,7 @@ use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VendedorController extends Controller
@@ -40,6 +41,7 @@ class VendedorController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
             $vendedor = Vendedor::create($datos);
+            // Log::channel('testing')->info('Log', ['vendedor creado: ', $vendedor]);
             $modelo = new VendedorResource($vendedor);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

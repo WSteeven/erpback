@@ -21,13 +21,13 @@ use Src\Shared\Utils;
 
 class VacacionController extends Controller
 {
-    private $entidad = 'Solicitudde vacación';
+    private $entidad = 'Solicitud de vacación';
     public function __construct()
     {
         $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
         $this->middleware('can:puede.crear.vacacion')->only('store');
         $this->middleware('can:puede.editar.vacacion')->only('update');
-        $this->middleware('can:puede.eliminar.vacacion')->only('update');
+        $this->middleware('can:puede.eliminar.vacacion')->only('destroy');
     }
 
     /**
@@ -87,8 +87,8 @@ class VacacionController extends Controller
      */
     public function store(VacacionRequest $request)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             $datos = $request->validated();
 
             $empleado = Empleado::findOrFail($request->empleado_id);

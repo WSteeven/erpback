@@ -27,12 +27,11 @@ class LoginController extends Controller
             ]);
         }
 
-       /* if ($user->updated_at->diffInDays(now()) >= 90) {
+        if ($user->updated_at->diffInDays(now()) >= 90) {
             throw ValidationException::withMessages([
                 '412' => ['Ha expirado su contraseña, por favor restablecerla!'],
             ])->status(412);
-            //return response()->json(["mensaje" => "Ha expirado su contraseña, por favor restablecerla!"], 412);
-        }*/
+        }
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -43,7 +42,7 @@ class LoginController extends Controller
         if ($user->empleado->estado) {
             $token = $user->createToken('auth_token')->plainTextToken;
             $modelo = new UserInfoResource($user);
-            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer', 'modelo' => $modelo], 200);
+            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer','user_type'=>'empleado', 'modelo' => $modelo], 200);
         }
 
         return response()->json(["mensaje" => "El usuario no esta activo"], 401);

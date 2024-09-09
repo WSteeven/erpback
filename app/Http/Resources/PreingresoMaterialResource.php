@@ -24,6 +24,7 @@ class PreingresoMaterialResource extends JsonResource
             'courier' => $this->courier,
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
             'tarea' => $this->tarea?->titulo,
+            'codigo_tarea' => $this->tarea?->codigo_tarea,
             'cliente' => $this->cliente?->empresa?->razon_social,
             'autorizador' => $this->autorizador->nombres . ' ' . $this->autorizador->apellidos,
             'responsable' => $this->responsable->nombres . ' ' . $this->responsable->apellidos,

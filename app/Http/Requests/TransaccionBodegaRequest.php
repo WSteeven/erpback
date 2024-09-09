@@ -6,9 +6,7 @@ use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
 use App\Models\Inventario;
-use App\Models\Motivo;
 use App\Models\Producto;
-use App\Models\Tarea;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -34,33 +32,34 @@ class TransaccionBodegaRequest extends FormRequest
     {
         // Log::channel('testing')->info('Log', ['Datos recibidos en TransaccionBodegaRequest', $this->request->all()]);
         $rules = [
-            'autorizacion' => 'required|exists:autorizaciones,id',
+            'autorizacion_id' => 'required|exists:autorizaciones,id',
             'observacion_aut' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
             'comprobante' => 'sometimes|string|nullable',
             'proveedor' => 'sometimes|string|nullable|required_with_all:comprobante',
             'fecha_limite' => 'nullable|string',
-            'estado' => 'required|exists:estados_transacciones_bodega,id',
+            'estado_id' => 'required|exists:estados_transacciones_bodega,id',
             'observacion_est' => 'nullable|string|sometimes',
-            'devolucion' => 'sometimes|nullable|exists:devoluciones,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
-            'pedido' => 'sometimes|nullable|exists:pedidos,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
-            'transferencia' => 'sometimes|nullable|exists:transferencias,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
-            'solicitante' => 'required|exists:empleados,id',
-            'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
-            'motivo' => 'required|exists:motivos,id',
-            'sucursal' => 'required|exists:sucursales,id',
-            'per_autoriza' => 'required|exists:empleados,id',
-            'per_atiende' => 'sometimes|nullable|exists:empleados,id',
-            'per_retira' => 'sometimes|nullable|exists:empleados,id',
-            'proyecto' => 'sometimes|nullable|exists:proyectos,id',
-            'etapa' => 'sometimes|nullable|exists:tar_etapas,id',
-            'tarea' => 'sometimes|nullable|exists:tareas,id',
-            'cliente' => 'sometimes|exists:clientes,id',
-            'listadoProductosTransaccion.*.cantidad' => 'required'
+            'devolucion_id' => 'sometimes|nullable|exists:devoluciones,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
+            'pedido_id' => 'sometimes|nullable|exists:pedidos,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
+            'transferencia_id' => 'sometimes|nullable|exists:transferencias,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
+            'solicitante_id' => 'required|exists:empleados,id',
+            'tipo_id' => 'sometimes|nullable|exists:tipos_transacciones,id',
+            'motivo_id' => 'required|exists:motivos,id',
+            'sucursal_id' => 'required|exists:sucursales,id',
+            'per_autoriza_id' => 'required|exists:empleados,id',
+            'per_atiende_id' => 'sometimes|nullable|exists:empleados,id',
+            'per_retira_id' => 'sometimes|nullable|exists:empleados,id',
+            'proyecto_id' => 'sometimes|nullable|exists:proyectos,id',
+            'etapa_id' => 'sometimes|nullable|exists:tar_etapas,id',
+            'tarea_id' => 'sometimes|nullable|exists:tareas,id',
+            'cliente_id' => 'sometimes|exists:clientes,id',
+            'listadoProductosTransaccion.*.cantidad' => 'required',
+            'codigo_permiso_traslado' => 'nullable|string',
         ];
         if ($this->route()->uri() === 'api/transacciones-egresos') {
             // $rules['autorizacion'] = 'nullable';
-            $rules['responsable'] = 'required|exists:empleados,id';
+            $rules['responsable_id'] = 'required|exists:empleados,id';
         }
 
         return $rules;
@@ -89,18 +88,18 @@ class TransaccionBodegaRequest extends FormRequest
                     if (!array_key_exists('cantidad', $listado)) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'Ingresa la cantidad del ítem ' . $listado['descripcion']);
                     else if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser mayor que 0');
                     else {
-                        $itemInventario = !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first();
+                        $item_inventario = !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first();
                         // $this->transferencia? Log::channel('testing')->info('Log', ['Elemento en transferencia: ', Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first()]): Log::channel('testing')->info('Log', ['Elemento en normal: ', Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first(),!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first()]);
                         //valida que se ingrese cantidad 1 cuando el elemento tiene un serial(identificador de elemento unico)
                         if (array_key_exists('serial', $listado)) {
                             Log::channel('testing')->info('Log', ['Datos 88 ', $listado, !!Fibra::find($listado['id'])]);
                             $producto = Producto::where('nombre', $listado['producto'])->first();
                             $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
-                            $esFibra = !!Fibra::find($detalle->id);
-                            if ($listado['serial'] && $listado['cantidad'] > 1 && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
-                            if ($listado['serial'] && $itemInventario && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.descripcion', 'Ya existe el ítem ' . $listado['descripcion'] . ' registrado en una bodega. Revisa el inventario');
+                            $es_fibra = !!Fibra::find($detalle->id);
+                            if ($listado['serial'] && $listado['cantidad'] > 1 && !$es_fibra) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
+                            if ($listado['serial'] && $item_inventario && !$es_fibra) $validator->errors()->add('listadoProductosTransaccion.*.descripcion', 'Ya existe el ítem ' . $listado['descripcion'] . ' registrado en una bodega. Revisa el inventario');
                         }
-                        //valida si no hay ingreso masivo que se envie el estado util de todos los productos ingresados
+                        //válida si no hay ingreso masivo que se envie el estado util de todos los productos ingresados
                         if (!$this->ingreso_masivo) {
                             if (array_key_exists('condiciones', $listado)) {
                                 // Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
@@ -120,10 +119,10 @@ class TransaccionBodegaRequest extends FormRequest
                  */
                 foreach ($this->listadoProductosTransaccion as $listado) {
                     // Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
-                    $itemInventario = Inventario::find($listado['id']);
+                    $item_inventario = Inventario::find($listado['id']);
                     if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' debe ser mayor a cero');
-                    if ($listado['cantidad'] > $itemInventario->cantidad) {
-                        $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $itemInventario->cantidad);
+                    if ($listado['cantidad'] > $item_inventario->cantidad) {
+                        $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $item_inventario->cantidad);
                     }
                 }
             }
@@ -141,9 +140,6 @@ class TransaccionBodegaRequest extends FormRequest
     protected function prepareForValidation()
     {
         $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $user_activo_fijo = User::whereHas("roles", function ($q) {
-            $q->where("name", User::ROL_ACTIVOS_FIJOS);
-        })->get();
 
         if (!is_null($this->fecha_limite)) {
             $this->merge([
@@ -165,11 +161,7 @@ class TransaccionBodegaRequest extends FormRequest
                     'tipo' => 1,
                 ]);
             }
-            // if ($this->ingreso_masivo) {
-            //     $this->merge([
-            //         'estado' => $estado_completo->id
-            //     ]);
-            // } else {
+
             $this->merge([
                 'estado' => $estado_completo->id
             ]);
@@ -252,6 +244,24 @@ class TransaccionBodegaRequest extends FormRequest
                 'autorizacion' => 2
             ]);
         }
-        //Log::channel('testing')->info('Log', ['Usuario es coordinador?:', auth()->user()->hasRole(User::ROL_COORDINADOR)]);
+        // Casteo de llaves foraneas
+        if ($this->transferencia)  $this->merge(['transferencia_id' => $this->transferencia]);
+        if ($this->per_atiende)  $this->merge(['per_atiende_id' => $this->per_atiende]);
+        if ($this->pedido)  $this->merge(['pedido_id' => $this->pedido]);
+        if ($this->proyecto)  $this->merge(['proyecto_id' => $this->proyecto]);
+        if ($this->etapa)  $this->merge(['etapa_id' => $this->etapa]);
+
+        $this->merge([
+            'autorizacion_id' => $this->autorizacion,
+            'devolucion_id' => $this->devolucion,
+            'motivo_id' => $this->motivo,
+            'solicitante_id' => $this->solicitante,
+            'sucursal_id' => $this->sucursal,
+            'per_autoriza_id' => $this->per_autoriza,
+            'cliente_id' => $this->cliente,
+            'estado_id' => $this->estado,
+            'tarea_id' => $this->tarea,
+            'responsable_id' => $this->responsable,
+        ]);
     }
 }

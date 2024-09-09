@@ -35,14 +35,14 @@ class TicketResource extends JsonResource
             'estado' => $this->estado,
             'observaciones_solicitante' => $this->observaciones_solicitante,
             'calificacion_solicitante' => $this->calificacion_solicitante,
-            'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
+            'solicitante' => $this->solicitante ? Empleado::extraerNombresApellidos($this->solicitante) : null,
             'solicitante_id' => $this->solicitante_id,
             'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
             'responsable_id' => $this->responsable_id,
             'departamento_responsable' => $this->departamentoResponsable?->nombre,
-            'departamento_solicitante' => $this->solicitante->departamento?->nombre,
-            'tipo_ticket' => $this->tipoTicket->nombre,
-            'categoria_tipo_ticket' => $this->tipoTicket->categoriaTipoTicket->nombre,
+            'departamento_solicitante' => $this->solicitante?->departamento?->nombre,
+            'tipo_ticket' => $this->tipoTicket?->nombre,
+            'categoria_tipo_ticket' => $this->tipoTicket?->categoriaTipoTicket->nombre,
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
             'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
             'ticket_interno' => $this->ticket_interno,
@@ -63,9 +63,10 @@ class TicketResource extends JsonResource
             'tiempo_ocupado_pausas' => $this->calcularTiempoPausado(),
             'destinatarios' => [[
                 'departamento_id' => $this->departamento_responsable_id,
-                'categoria_id' => $this->tipoTicket->categoria_tipo_ticket_id,
+                'categoria_id' => $this->tipoTicket?->categoria_tipo_ticket_id,
                 'tipo_ticket_id' => $this->tipo_ticket_id,
             ]],
+            'cc' => $this->cc ? Empleado::obtenerNombresApellidosEmpleados(json_decode($this->cc)) : null,
         ];
 
         if ($controller_method == 'show') {
@@ -74,6 +75,7 @@ class TicketResource extends JsonResource
             $modelo['departamento_responsable'] = $this->departamento_responsable_id;
             $modelo['tipo_ticket'] = $this->tipo_ticket_id;
             $modelo['categoria_tipo_ticket'] = $this->tipoTicket->categoria_tipo_ticket_id;
+            $modelo['cc'] = json_decode($this->cc);
         }
 
         return $modelo;
@@ -93,8 +95,8 @@ class TicketResource extends JsonResource
     {
         if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
             $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
-            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
-            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            $primerEjecucion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
             return $finalizacion ? CarbonInterval::seconds(Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])))->cascade()->forHumans() : null;
         } else {
             return null;
@@ -115,8 +117,8 @@ class TicketResource extends JsonResource
             });
 
             // Obtener la fecha y hora de la primera ejecución y finalización
-            $primerEjecucion = $tiemposFiltrados->first(fn ($tiempo) => $tiempo->new_values['estado'] === Ticket::EJECUTANDO);
-            $finalizacion = $tiemposFiltrados->first(fn ($tiempo) => in_array($tiempo->new_values['estado'], [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION]));
+            $primerEjecucion = $tiemposFiltrados->first(fn($tiempo) => $tiempo->new_values['estado'] === Ticket::EJECUTANDO);
+            $finalizacion = $tiemposFiltrados->first(fn($tiempo) => in_array($tiempo->new_values['estado'], [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION]));
 
             // $mensaje = 'Fuera del if';
             // Log::channel('testing')->info('Log', compact('mensaje'));
@@ -170,8 +172,8 @@ class TicketResource extends JsonResource
     {
         if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
             $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
-            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
-            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            $primerEjecucion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
             $segundosPausas = $this->obtenerSumaPausasSegundos()->total('seconds');
             $tiempoOcupado = Carbon::parse($finalizacion?->new_values['fecha_hora_finalizado'])->subSeconds($segundosPausas)->diffInHours(Carbon::parse($primerEjecucion?->new_values['fecha_hora_ejecucion']));
             // $total = $tiempoOcupado->subSeconds($segundosPausas);
@@ -185,8 +187,8 @@ class TicketResource extends JsonResource
     {
         if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
             $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
-            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
-            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            $primerEjecucion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
             // return $finalizacion ? CarbonInterval::seconds(Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion']))) : null;
             return $finalizacion ? Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])) : null;
         } else {
@@ -200,8 +202,8 @@ class TicketResource extends JsonResource
         if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
             $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
             // Log::channel('testing')->info('Log', compact('tiempos'));
-            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
-            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            $primerEjecucion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
             // Log::channel('testing')->info('Log', compact('primerEjecucion'));
             // Log::channel('testing')->info('Log', compact('finalizacion'));
             return $finalizacion ? CarbonInterval::seconds(Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])))->cascade()->forHumans() : null;

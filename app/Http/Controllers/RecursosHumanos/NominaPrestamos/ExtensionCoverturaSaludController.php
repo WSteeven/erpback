@@ -16,22 +16,21 @@ use Src\Shared\Utils;
 
 class ExtensionCoverturaSaludController extends Controller
 {
-    private $entidad = 'Extension Covertura de Salud';
+    private string $entidad = 'Extension Covertura de Salud';
     public function __construct()
     {
         $this->middleware('can:puede.ver.extension_conyugal')->only('index', 'show');
         $this->middleware('can:puede.crear.extension_conyugal')->only('store');
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $results = [];
-        $results = ExtensionCoverturaSalud::ignoreRequest(['campos'])->filter()->orderBy('mes', 'desc')->get();
+        $results = ExtensionCoverturaSalud::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = ExtensionCoverturaSaludResource::collection($results);
         return response()->json(compact('results'));
     }
 
-    public function extension_covertura_salud_empleado(Request $request)
+    public function extensionCoberturaSaludEmpleado(Request $request)
     {
         $valor = ExtensionCoverturaSalud::where('empleado_id', $request->empleado)->where('mes', $request->mes)->sum('aporte');
         return response()->json(compact('valor'));
@@ -50,33 +49,32 @@ class ExtensionCoverturaSaludController extends Controller
             $modelo = new ExtensionCoverturaSalud();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el insert de rol de pago', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR en el insert de rol de pago', $ex->getMessage(), $ex->getLine()]);
+           throw Utils::obtenerMensajeErrorLanzable($ex, 'Problemas con el archivo proporcionado');
         }
     }
 
-    public function show(ExtensionCoverturaSalud $extensionCoverturaSalud)
+    public function show(ExtensionCoverturaSalud $extension)
     {
-        $modelo = new ExtensionCoverturaSaludResource($extensionCoverturaSalud);
-        return response()->json(compact('modelo'), 200);
+        $modelo = new ExtensionCoverturaSaludResource($extension);
+        return response()->json(compact('modelo'));
     }
 
-    public function update(Request $request, $extensionCoverturaSaludId)
+    public function update(Request $request, ExtensionCoverturaSalud $extension)
     {
-        $extensionCoverturaSalud = ExtensionCoverturaSalud::find($extensionCoverturaSaludId);
-        $extensionCoverturaSalud->nombre = $request->nombre;
-        $extensionCoverturaSalud->save();
-        return $extensionCoverturaSalud;
+        $extension->nombre = $request->nombre;
+        $extension->save();
+        return $extension;
     }
 
-    public function destroy($extensionCoverturaSaludId)
+    public function destroy(ExtensionCoverturaSalud $extension)
     {
-        $extensionCoverturaSalud = ExtensionCoverturaSalud::find($extensionCoverturaSaludId);
-        $extensionCoverturaSalud->delete();
-        return $extensionCoverturaSalud;
+        $extension->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
-    public function archivo_extension_conyugal(Request $request)
+    public function archivoExtensionConyugal(Request $request)
     {
         try {
             $this->validate($request, [
@@ -89,12 +87,11 @@ class ExtensionCoverturaSaludController extends Controller
             }
             Excel::import(new ExtensionCoverturaSaludImport($request->mes), $request->file);
             return response()->json(['mensaje' => 'Subido exitosamente!']);
-        } catch (Exception $e) {
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR en el insert de permiso de prestamo hipotecario', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
-                'file' => [$e->getMessage(), $e->getLine()],
+                'file' => [$ex->getMessage(), $ex->getLine()],
             ]);
-            Log::channel('testing')->info('Log', ['ERROR en el insert de permiso de prestamo hipotecario', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }

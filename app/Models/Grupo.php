@@ -19,6 +19,7 @@ class Grupo extends Model implements Auditable
     const R2 = 'R2';
     const R3 = 'R3';
     const R4 = 'R4';
+    const R5 = 'R5';
 
     protected $table = 'grupos';
     protected $fillable = ['nombre', 'region', 'activo', 'coordinador_id'];
@@ -45,15 +46,19 @@ class Grupo extends Model implements Auditable
         return $this->belongsToMany(Subtarea::class);
     } */
 
+    public function empleados(){
+        return $this->hasMany(Empleado::class);
+    }
+
     public function subtareas()
     {
         return $this->hasMany(Subtarea::class);
     }
 
-    public function controlMaterialesSubtareas()
-    {
-        return $this->hasMany(ControlMaterialTrabajo::class);
-    }
+    // public function controlMaterialesSubtareas()
+    // {
+    //     return $this->hasMany(ControlMaterialTrabajo::class);
+    // }
 
     public function coordinador()
     {

@@ -3,8 +3,8 @@
 namespace Src\Config;
 
 //Seleccionar el tipo de reporte de ingreso
-enum ClientesCorporativos: int
+class ClientesCorporativos
 {
-    case TELCONET = 2;
-    case NEDETEL = 3;
+    const TELCONET = 2;
+    const NEDETEL = 3;
 }

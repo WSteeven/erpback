@@ -11,6 +11,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
+/**
+ * @method static where(string $string, mixed $proyecto)
+ */
 class Proyecto extends Model implements Auditable
 {
     use HasFactory, Filterable, UppercaseValuesTrait, AuditableModel;

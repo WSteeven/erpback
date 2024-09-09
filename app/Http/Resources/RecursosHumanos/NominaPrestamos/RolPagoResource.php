@@ -4,7 +4,7 @@ namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
@@ -108,7 +108,7 @@ class RolPagoResource extends JsonResource
             'SUPA' => $empleado['supa'],
             'Extension de Cobertura de Salud' => number_format(ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('aporte'), 2),
             'Prestamo Hipotecario' => number_format(PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('valor'), 2),
-            'Prestamo Quirorafario' => number_format(PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('valor'), 2),
+            'Prestamo Quirorafario' => number_format(PrestamoQuirografario::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('valor'), 2),
         ];
 
         // Filtrar los elementos con valor diferente de 0
