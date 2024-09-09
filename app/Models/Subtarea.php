@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
 use Src\App\WhereRelationLikeCondition\Subtarea\ProyectoWRLC;
+use Src\App\WhereRelationLikeCondition\Tareas\GrupoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
@@ -105,12 +106,13 @@ class Subtarea extends Model implements Auditable
     private $aliasListFilter = [
         /* 'cliente.empresa.razon_social' => 'cliente',
         */
-        'tipo_trabajo.descripcion' => 'tipo_trabajo', 
+        'tipo_trabajo.descripcion' => 'tipo_trabajo',
         'tarea.coordinador.nombres' => 'coordinador',
         //'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
         // 'proyecto.codigo_proyecto' => 'proyecto',
         'tarea.fecha_solicitud' => 'fecha_solicitud',
+        'grupo.nombre' => 'grupo',
     ];
 
     public function EloquentFilterCustomDetection(): array
@@ -124,6 +126,7 @@ class Subtarea extends Model implements Auditable
             // ProyectoWRLC::class,
             CantidadAdjuntosWRLC::class,
             FechaSolicitudWRLC::class,
+            GrupoWRLC::class,
             //CodigoTareaWRLC::class,
         ];
     }
@@ -162,6 +165,11 @@ class Subtarea extends Model implements Auditable
     public function tarea()
     {
         return $this->belongsTo(Tarea::class);
+    }
+
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class);
     }
 
     // Relacion uno a muchos (inversa)

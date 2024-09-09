@@ -30,7 +30,6 @@ class SubtareaController extends Controller
     public function list()
     {
         $results = $this->subtareaService->obtenerTodos();
-        Log::channel('testing')->info('Log', ['results', $results]);
         return SubtareaResource::collection($results);
     }
 
@@ -59,7 +58,7 @@ class SubtareaController extends Controller
         // Calcular estados
         $datos['estado'] = Subtarea::AGENDADO;
         $datos['fecha_hora_asignacion'] = Carbon::now();
-        $subtarea['fecha_hora_agendado'] = Carbon::now();
+        $datos['fecha_hora_agendado'] = Carbon::now();
 
         $modelo = Subtarea::create($datos);
 

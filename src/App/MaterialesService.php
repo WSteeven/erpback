@@ -104,6 +104,7 @@ class MaterialesService
                 $entidad = $this->obtenerEntidad($modelo, $url);
                 // Log::channel('testing')->info('Log', ['-> Entidad', $entidad]);
                 $row['entidad_id'] = $entidad?->id;
+                $row['transaccion'] = null;
 
                 switch ($modelo) {
                     case 'preingresos':
@@ -282,15 +283,21 @@ class MaterialesService
         })->get();
     }
 
-    public function obtenerSeguimientoMaterialesEmpleadoBorrar(int $empleado_id, string $fecha_inicio, string $fecha_fin = null)
+    public function obtenerSeguimientoMaterialesEmpleadoResumen(int $empleado_id, string $fecha_inicio, string $fecha_fin = null)
     {
-        return SeguimientoMaterialStock::where('empleado_id', $empleado_id)
+        $materialStockUsado = SeguimientoMaterialStock::selectRaw('detalles_productos.descripcion as detalle_producto, empresas.razon_social as cliente, SUM(cantidad_utilizada) as cantidad_utilizada, seguimientos_materiales_stock.created_at, tareas.codigo_tarea as tarea, tareas.titulo as titulo_tarea')
+            ->where('seguimientos_materiales_stock.empleado_id', $empleado_id)
             ->where(function ($q) use ($fecha_inicio, $fecha_fin) {
-                $q->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                    ->orWhereBetween('updated_at', [$fecha_inicio, $fecha_fin]);
+                $q->whereBetween('seguimientos_materiales_stock.created_at', [$fecha_inicio, $fecha_fin])
+                    ->orWhereBetween('seguimientos_materiales_stock.updated_at', [$fecha_inicio, $fecha_fin]);
             })
-            ->groupBy('tarea_id', 'detalle_producto_id') // Agrupar por empleado_id (puedes cambiarlo si necesitas agrupar por otro campo)
-            ->selectRaw('*, SUM(cantidad_utilizada) as cantidad_utilizada')
+            ->groupBy('detalle_producto_id', 'cliente')
+            ->join('detalles_productos', 'seguimientos_materiales_stock.detalle_producto_id', '=', 'detalles_productos.id')
+            ->join('clientes', 'seguimientos_materiales_stock.cliente_id', '=', 'clientes.id')
+            ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
+            ->join('subtareas', 'seguimientos_materiales_stock.subtarea_id', '=', 'subtareas.id')
+            ->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')
             ->get();
+        return $materialStockUsado;
     }
 }

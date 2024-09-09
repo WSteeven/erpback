@@ -113,24 +113,21 @@ class TareaService
 
         $materialService = new MaterialesService();
         $reporte = $materialService->obtenerMaterialesEmpleadoIntervalo(request('empleado_id'), $fecha_inicio, $fecha_fin);
+        $reporte = $this->quitarTareas($reporte);
         $noUsados = $materialService->obtenerMaterialesEmpleadoIntervaloNoOcupados(request('empleado_id'), $fecha_inicio);
-        $seguimientoStock = $materialService->obtenerSeguimientoMaterialesEmpleado(request('empleado_id'), $fecha_inicio, $fecha_fin);
+        $seguimientoStock = $materialService->obtenerSeguimientoMaterialesEmpleadoResumen(request('empleado_id'), $fecha_inicio, $fecha_fin);
 
         $idsMaterialesEmpleadoOcupados = $reporte->pluck('auditable_id');
 
-        // $reporteOrdenado = $this->ordenarDescUnicos($reporte);
         $noUsadosOrdenado = $this->ordenarDescUnicos($noUsados);
 
         $noUsados = $noUsadosOrdenado->filter(function ($item) use ($idsMaterialesEmpleadoOcupados) {
             return !$idsMaterialesEmpleadoOcupados->contains($item['auditable_id']);
         });
 
-        $seguimientoStock = $this->mapearSeguimientoStock($seguimientoStock);
-        $seguimientoStock = $this->obtenerSumaPorTarea($seguimientoStock);
+        // $seguimientoStock = $this->mapearSeguimientoStock($seguimientoStock);
         Log::channel('testing')->info($seguimientoStock);
 
-        // return response()->json(compact('reporteOrdenado', 'noUsadosOrdenado', 'noUsados'));
-        // return response()->json(compact('idsMaterialesEmpleadoOcupados', 'idsMaterialesEmpleadoNoOcupados', 'noUsados', 'coincidencias', 'reporte', 'noUsadosOrdenado'));
         $export = new ReporteMaterialLibroExport($reporte, $noUsados, $seguimientoStock);
         return Excel::download($export, 'reporte_materiales.xlsx');
     }
@@ -146,7 +143,14 @@ class TareaService
         })->values();
     }
 
-    private function mapearSeguimientoStock($seguimientoStock)
+    private function quitarTareas($usados)
+    {
+        return $usados->filter(function ($item) {
+            return !str_contains($item['transaccion'], 'TAREA') && !str_contains($item['movimiento'], 'actualizar-materiales-empleados');
+        });
+    }
+
+    /* private function mapearSeguimientoStock($seguimientoStock)
     {
         return $seguimientoStock->map(fn($seguimiento) => [
             'id' => $seguimiento->id,
@@ -157,12 +161,12 @@ class TareaService
             'cliente' => $seguimiento->cliente?->empresa->razon_social,
             'fecha_hora' => Carbon::parse($seguimiento->created_at)->format('Y-m-d H:i:s'),
         ]);
-    }
+    } */
 
-    private function obtenerSumaPorTarea($seguimientoStock) {
+    /* private function obtenerSumaPorTarea($seguimientoStock) {
         return $seguimientoStock->groupBy('tarea')->map(function ($item) {
-            $item['suma'] = $item->sum('cantidad_utilizada');
+            // $item['suma'] = $item->sum('cantidad_utilizada');
             return $item;
-        })->values();
-    }
+        }); //->values();
+    } */
 }
