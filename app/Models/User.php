@@ -80,6 +80,7 @@ class User extends Authenticatable implements Auditable
 
     // Modulo Vehiculos
     const CHOFER = 'CHOFER';
+    const AYUDANTE_CHOFER = 'AYUDANTE_CHOFER';
     const MECANICO_GENERAL = 'MECANICO_GENERAL';
 
 

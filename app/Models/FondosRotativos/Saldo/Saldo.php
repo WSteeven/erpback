@@ -138,12 +138,12 @@ class Saldo extends Model  implements Auditable
         }
         return $results;
     }
-//    private static function  ordenarNombresApellidos($a, $b)
-//    {
-//        $nameA = $a['empleado']->apellidos . ' ' . $a['empleado']->nombres;
-//        $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
-//        return strcmp($nameA, $nameB);
-//    }
+    private static function  ordenarNombresApellidos($a, $b)
+    {
+        $nameA = $a['empleado']->apellidos . ' ' . $a['empleado']->nombres;
+        $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
+        return strcmp($nameA, $nameB);
+    }
     /**
      * La función "ingreso" comprueba varias condiciones y devuelve el importe correspondiente en
      * función de los parámetros dados.
