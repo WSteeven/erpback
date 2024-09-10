@@ -9,17 +9,20 @@ use App\Http\Requests\Vehiculos\OrdenReparacionRequest;
 use App\Http\Resources\Vehiculos\OrdenReparacionResource;
 use App\Models\User;
 use App\Models\Vehiculos\OrdenReparacion;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class OrdenReparacionController extends Controller
 {
-    private $entidad = 'Orden de Reparación';
-    private $archivoService;
+    private string $entidad = 'Orden de Reparación';
+    private ArchivoService $archivoService;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
@@ -32,18 +35,21 @@ class OrdenReparacionController extends Controller
     public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_ADMINISTRADOR_VEHICULOS]))
+//        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_ADMINISTRADOR_VEHICULOS]))
             $results = OrdenReparacion::filter()->orderBy('id', 'desc')->get($campos);
-        else {
-            $results = OrdenReparacion::where(function ($q) {
-                $q->where('solicitante_id', auth()->user()->empleado->id)
-                    ->orWhere('autorizador_id', auth()->user()->empleado->id);
-            })->filter()->orderBy('id', 'desc')->get($campos);
-        }
+//        else {
+//            $results = OrdenReparacion::where(function ($q) {
+//                $q->where('solicitante_id', auth()->user()->empleado->id)
+//                    ->orWhere('autorizador_id', auth()->user()->empleado->id);
+//            })->filter()->orderBy('id', 'desc')->get($campos);
+//        }
         $results = OrdenReparacionResource::collection($results);
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(OrdenReparacionRequest $request)
     {
         $datos = $request->validated();
@@ -54,7 +60,7 @@ class OrdenReparacionController extends Controller
             $modelo = new OrdenReparacionResource($orden);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
@@ -68,6 +74,9 @@ class OrdenReparacionController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function update(OrdenReparacionRequest $request, OrdenReparacion $orden)
     {
         $datos = $request->validated();
@@ -77,9 +86,9 @@ class OrdenReparacionController extends Controller
             $orden->latestNotificacion()->update(['leida' => true]);
             event(new NotificarOrdenInternaActualizada($orden));
             $modelo = new OrdenReparacionResource($orden->refresh());
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'update', 'M');
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
@@ -89,17 +98,16 @@ class OrdenReparacionController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, OrdenReparacion $orden)
+    public function indexFiles(OrdenReparacion $orden)
     {
         try {
             $results = $this->archivoService->listarArchivos($orden);
 
             return response()->json(compact('results'));
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('results'));
     }
 
     /**
@@ -111,7 +119,7 @@ class OrdenReparacionController extends Controller
             $modelo = $this->archivoService->guardarArchivo($orden, $request->file, RutasStorage::EVIDENCIAS_ORDENES_REPARACIONES->value . $orden->vehiculo->placa);
             $mensaje = 'Archivo subido correctamente';
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);

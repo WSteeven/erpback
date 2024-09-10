@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static where(string $string, int $bitacora_id)
+ * @method static create(array $datos)
+ */
 class ChecklistVehiculo extends Model implements Auditable
 {
     use HasFactory;

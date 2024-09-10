@@ -8,11 +8,15 @@ use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * @method static ignoreRequest(string[] $array)
+ * @method static filter()
+ * @method static where(string $string, $id)
+ */
 class BitacoraVehicular extends Pivot implements Auditable
 {
     use HasFactory;
@@ -30,6 +34,7 @@ class BitacoraVehicular extends Pivot implements Auditable
         'firmada',
         'chofer_id',
         'vehiculo_id',
+        'registrador_id',
         'tareas',
         'tickets',
     ];
@@ -51,7 +56,7 @@ class BitacoraVehicular extends Pivot implements Auditable
 
 
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
@@ -60,6 +65,10 @@ class BitacoraVehicular extends Pivot implements Auditable
     public function chofer()
     {
         return $this->belongsTo(Empleado::class, 'chofer_id', 'id');
+    }
+    public function registrador()
+    {
+        return $this->belongsTo(Empleado::class, 'registrador_id', 'id');
     }
     public function vehiculo()
     {
@@ -95,7 +104,7 @@ class BitacoraVehicular extends Pivot implements Auditable
     }
 
     /**
-     * Relación para obtener la ultima notificacion de un modelo dado.
+     * Relación para obtener la última notificacion de un modelo dado.
      */
     public function latestNotificacion()
     {
@@ -111,7 +120,7 @@ class BitacoraVehicular extends Pivot implements Auditable
 
     public static function crearBitacora($data)
     {
-        $bitacora = new BitacoraVehicular([
+        return new BitacoraVehicular([
             'fecha' => $data['fecha'],
             'hora_salida' => $data['hora_salida'],
             'hora_llegada' => $data['hora_llegada'],
@@ -123,7 +132,5 @@ class BitacoraVehicular extends Pivot implements Auditable
             // 'chofer_id' => $data['chofer_id'],
             'vehiculo_id' => $data['vehiculo_id'],
         ]);
-
-        return $bitacora;
     }
 }

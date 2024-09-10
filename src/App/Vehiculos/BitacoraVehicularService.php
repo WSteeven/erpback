@@ -17,10 +17,9 @@ use App\Models\Vehiculos\ChecklistAccesoriosVehiculo;
 use App\Models\Vehiculos\ChecklistImagenVehiculo;
 use App\Models\Vehiculos\ChecklistVehiculo;
 use App\Models\Vehiculos\MantenimientoVehiculo;
-use App\Models\Vehiculos\PlanMantenimiento;
 use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Database\Eloquent\Collection;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,38 +29,44 @@ use Src\App\PolymorphicGenericService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class BitacoraVehicularService
 {
     private Empleado $admin_vehiculos;
-    private $polymorphicGenericService;
-    private $mantenimientoService;
+    private PolymorphicGenericService $polymorphicGenericService;
+    private MantenimientoVehiculoService $mantenimientoService;
+
+    /**
+     * @throws Throwable
+     */
     public function __construct()
     {
         $this->polymorphicGenericService = new PolymorphicGenericService();
-        $this->admin_vehiculos = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS, true);
+        $this->admin_vehiculos = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS);
         $this->mantenimientoService = new MantenimientoVehiculoService();
     }
 
-    public function guardarDatosRelacionadosBitacora()
-    {
-    }
+
     public function notificarDiferenciasKmBitacoras(BitacoraVehicular $bitacora)
     {
         $penultimaBitacora = BitacoraVehicular::where('vehiculo_id', $bitacora->vehiculo_id)
             ->whereNot('id', $bitacora->id)
             ->orderBy('id', 'desc')->first();
         if ($penultimaBitacora) {
-            //Aquí pondemos una holgura de 3km para calcular la diferencia en el km 
+            //Aquí pondemos una holgura de 3km para calcular la diferencia en el km
             // (156 + 3) < 180 =true
             if (($penultimaBitacora->km_final+3) < $bitacora->km_inicial) {
-                //Notificar al admin que el vehículo tiene una diferencia grande en el ultimo km
+                //Notificar al admin que el vehículo tiene una diferencia grande en el último km
                 $diferencia = $bitacora->km_inicial-$penultimaBitacora->km_final-3;
                 event(new NotificarDiferenciaKmToAdmin($bitacora, $this->admin_vehiculos->id, $diferencia));
             }
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function actualizarDatosRelacionadosBitacora(BitacoraVehicular $bitacora, Request $request)
     {
         try {
@@ -74,7 +79,7 @@ class BitacoraVehicularService
             $this->actualizarChecklistImagenesVehiculo($bitacora->id, $request->checklistImagenVehiculo);
 
             $this->notificarNovedadesVehiculo($bitacora);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['error en actualizarDatosRelacionadosBitacora', $th->getLine()]);
             throw $th;
         }
@@ -102,6 +107,9 @@ class BitacoraVehicularService
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     private function actualizarChecklistImagenesVehiculo(int $bitacora_id, array $datos)
     {
         $checklist = ChecklistImagenVehiculo::where('bitacora_id', $bitacora_id)->first();
@@ -198,6 +206,9 @@ class BitacoraVehicularService
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function notificarNovedadesVehiculo($bitacora)
     {
         try {
@@ -208,8 +219,8 @@ class BitacoraVehicularService
                     event(new NotificarBajoNivelCombustible($bitacora, $this->admin_vehiculos->id));
                 }
 
-                //Aquí se revisa si hay algun elemento con problemas y se envía un resumen 
-                // por notificación con los problemas del vehiculo
+                //Aquí se revisa si hay algún elemento con problemas y se envía un resumen
+                // por notificación con los problemas del vehículo
                 $advertenciasEncontradas = $this->resumenElementosBitacora($bitacora);
                 if (empty($advertenciasEncontradas))  Log::channel('testing')->info('Log', ['No se encontraron advertencias ']);
                 else {
@@ -220,22 +231,24 @@ class BitacoraVehicularService
 
                 $this->verificarMantenimientosPlanMantenimientos($bitacora);
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['Error en notificarNovedadesVehiculo', $th->getLine()]);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     private function verificarMantenimientosPlanMantenimientos(BitacoraVehicular $bitacora)
     {
         try {
-            //code...
-            //obtenemos los mantenimientos según el plan de mantenimiento asociado al vehiculo
+            //obtenemos los mantenimientos según el plan de mantenimiento asociado al vehículo
             Log::channel('testing')->info('Log', ['bitacora vehículo', $bitacora->vehiculo]);
             $itemsMantenimiento = $bitacora->vehiculo->itemsMantenimiento()->where('activo', true)->get();
             Log::channel('testing')->info('Log', ['Items de mantenimiento del vehículo', $itemsMantenimiento]);
             Log::channel('testing')->info('Log', ['IDS Items de mantenimiento', $itemsMantenimiento->pluck('servicio_id')]);
-            // Verificamos si ya han habido mantenimientos anteriores para comprobar el más reciente
+            // Verificamos si ya ha habido mantenimientos anteriores para comprobar el más reciente
             $mantenimientosRealizados = MantenimientoVehiculo::where('vehiculo_id', $bitacora->vehiculo->id)
                 ->whereIn('servicio_id', $itemsMantenimiento->pluck('servicio_id'))->orderBy('id', 'desc')->get();
             $mantenimientosRealizados = $mantenimientosRealizados->unique('servicio_id');
@@ -260,9 +273,9 @@ class BitacoraVehicularService
                     Log::channel('testing')->info('Log', ['238 $item', $itemMantenimiento, $mantenimiento]);
                     if ($itemMantenimiento)
                         //Suponiendo que el cambio de aceite se hizo al km 5682
-                        // sumamos      5600           +       $5000                      -        $500 = 10100 km
+                        // sumamos 5600 + $5000 - $500 = 10100 km
                         // 10112 >= 10100 = true
-                        // R= Al 10182 km debe crearse nuevamente la alerta de mantenimiento del vehículo. 
+                        // R= A los 10182 km debe crearse nuevamente la alerta de mantenimiento del vehículo.
                         if ($bitacora->km_final >= ($mantenimiento['km_realizado'] + $itemMantenimiento['aplicar_cada'] - $itemMantenimiento['notificar_antes'])) {
                             // Verificamos si ya hay un mantenimiento creado y está con estado PENDIENTE, en ese caso solo se notifica al admin de vehiculos
                             if ($mantenimiento['estado'] === MantenimientoVehiculo::PENDIENTE || $mantenimiento['estado'] === MantenimientoVehiculo::RETRASADO) {
@@ -282,29 +295,30 @@ class BitacoraVehicularService
                         }
                 }
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['Error en verificarMantenimientosPlanMantenimientos', $th->getLine()]);
             throw $th;
         }
     }
+
     /**
      * La función crea un nuevo registro de mantenimiento para un vehículo con servicio específico y lo
      * asigna a un empleado y supervisor.
-     * 
+     *
      * @param int $vehiculo_id El parámetro `vehiculo_id` es un número entero que representa el ID del
      * vehículo para el cual se está creando el mantenimiento.
      * @param int $servicio_id El parámetro `servicio_id` en la función `crearMantenimiento` representa
      * el ID del servicio que se está asignando a la tarea de mantenimiento de un vehículo. Este ID se
      * utiliza para asociar un servicio específico con el registro de mantenimiento en la base de
      * datos.
-     * 
+     *
      * @return MantenimientoVehiculo La función `crearMantenimiento` devuelve el objeto `MantenimientoVehiculo` recién creado
      * si la creación es exitosa. Si ocurre un error durante el proceso de creación, se generará una
      * excepción.
+     * @throws Throwable
      */
     private function crearMantenimiento(int $vehiculo_id, int  $servicio_id)
     {
-        $nuevoMantenimiento = null;
         try {
             DB::beginTransaction();
             $nuevoMantenimiento = MantenimientoVehiculo::create([
@@ -314,7 +328,7 @@ class BitacoraVehicularService
                 'supervisor_id' => $this->admin_vehiculos->id,
             ]);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw $th;
         }
@@ -334,7 +348,7 @@ class BitacoraVehicularService
         $results['bueno'] = 0;
         $results['malo'] = 0;
 
-        //Contamos los elementos categorizados para saber cuantos hay de cada uno 
+        //Contamos los elementos categorizados para saber cuantos hay de cada uno
         $resultsAccesorios = $this->contarElementos($results, $bitacora->checklistAccesoriosVehiculo);
         $resultsVehiculo = $this->contarElementos($results, $bitacora->checklistVehiculo);
 
@@ -350,18 +364,16 @@ class BitacoraVehicularService
 
         $claves_a_comprobar = ["advertencia", "peligro", "vacio", "caducado", "malo"];
 
-        $clavesEncontradas = array_intersect_key($results, array_flip($claves_a_comprobar));
-
-        return $clavesEncontradas;
+        return array_intersect_key($results, array_flip($claves_a_comprobar));
     }
 
     /**
      * La función cuenta las apariciones de atributos específicos en un objeto modelo y actualiza una
      * matriz de resultados en consecuencia.
-     * 
+     *
      * @param array $results Un array al que se le van a sumar de los valores de los atributos encontrados.
      * @param Model $model El modelo al que se le van a contar los atributos.
-     * 
+     *
      * @return array la matriz `$results` actualizada después de contar las apariciones de diferentes
      * atributos en el objeto modelo `$data`.
      */
@@ -385,10 +397,10 @@ class BitacoraVehicularService
     /**
      * La función `sumarArray` toma dos matrices como entrada y devuelve una nueva matriz con la suma
      * de los elementos correspondientes de las matrices de entrada.
-     * 
+     *
      * @param array $array1 La matriz 1 es una matriz asociativa que contiene claves y valores.
      * @param array $array2 La matriz 2 que contiene los mismos claves y valores de la matriz 1.
-     * 
+     *
      * @return array Devuelve una matriz que contiene la suma de los elementos correspondientes
      * de ambas matrices.
      */
@@ -402,7 +414,10 @@ class BitacoraVehicularService
     }
 
 
-    public function generarPdf(BitacoraVehicular $bitacora, $descargar = true)
+    /**
+     * @throws Exception
+     */
+    public function generarPdf(BitacoraVehicular $bitacora)
     {
         try {
             $bita = $bitacora;
@@ -419,14 +434,14 @@ class BitacoraVehicularService
             $vehiculo = $vehiculo->resolve();
             // Log::channel('testing')->info('Log', ['Datos que se pasan a la plantilla', compact(['bitacora', 'vehiculo', 'chofer', 'configuracion'])]);
             $pdf = Pdf::loadView('vehiculos.bitacora_vehicular', compact(['bitacora', 'vehiculo', 'chofer', 'configuracion']));
-            $pdf->setPaper('A4', 'portrait');
+            $pdf->setPaper('A4');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
-            $file = $pdf->output(); //se genera el pdf
+            //se genera el pdf
 
-            return $file;
-        } catch (\Throwable $th) {
-            throw new \Exception(Utils::obtenerMensajeError($th, 'No se pudo generar el PDF..'), 1, $th);
+            return $pdf->output();
+        } catch (Throwable $th) {
+            throw new Exception(Utils::obtenerMensajeError($th, 'No se pudo generar el PDF..'), 1, $th);
         }
     }
 }

@@ -15,6 +15,11 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 
+/**
+ * @method static ignoreRequest(string[] $array)
+ * @method static where(\Closure $param)
+ * @method static create(mixed $datos)
+ */
 class AsignacionVehiculo extends Model implements Auditable
 {
     use HasFactory;

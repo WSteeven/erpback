@@ -3,9 +3,7 @@
 namespace App\Console;
 
 use App\Jobs\AnularProformaJob;
-use App\Jobs\Bodega\NotificarPedidoParcial;
 use App\Jobs\Bodega\NotificarPedidoParcialJob;
-use App\Jobs\MyJobExample;
 use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\PausarTicketsFinJornadaJob;
@@ -14,6 +12,7 @@ use App\Jobs\Vehiculos\ActualizarEstadoSegurosVehiculares;
 use App\Jobs\Vehiculos\ActualizarMantenimientoVehiculoJob;
 use App\Jobs\Vehiculos\CrearMatriculasAnualesVehiculosJob;
 use App\Jobs\Vehiculos\NotificarMatriculacionVehicularJob;
+use App\Jobs\Vehiculos\NotificarReporteBitacorasDiariasJob;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -64,6 +63,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new NotificarMatriculacionVehicularJob())->weekdays()->at('08:00'); // Execute job every weekday(monday-friday) at 08:00
         $schedule->job(new ActualizarEstadoSegurosVehiculares())->daily();
         $schedule->job(new ActualizarMantenimientoVehiculoJob())->dailyAt('07:00');
+//        $schedule->job(new NotificarReporteBitacorasDiariasJob())->dailyAt('06:00');
+        $schedule->job(new NotificarReporteBitacorasDiariasJob())->everyMinute();
         // $schedule->job(new ActualizarMantenimientoVehiculoJob())->everyMinute();
     }
 

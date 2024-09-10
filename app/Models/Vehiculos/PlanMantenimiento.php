@@ -7,10 +7,13 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 
 
+/**
+ * @method static where(string $string, $vehiculo_id)
+ */
 class PlanMantenimiento extends Model implements Auditable
 {
     use HasFactory;
@@ -28,7 +31,7 @@ class PlanMantenimiento extends Model implements Auditable
         'activo',
     ];
 
-    protected $auditInclude = ['*'];
+    protected array $auditInclude = ['*'];
 
     /**
      * ______________________________________________________________________________________
