@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Class WhereRelationLikeConditionQuery.
  */
-class GrupoWRLCQ extends BaseClause
+class CoordinadorWRLCQ extends BaseClause
 {
     /**
      * @param $query
@@ -20,8 +20,10 @@ class GrupoWRLCQ extends BaseClause
         $valor = $this->values['like'];
         $operador = 'like';
 
-        return $query->whereHas('grupo', function ($q) use ($operador, $valor) {
-            $q->where('nombre', $operador, '%' . $valor . '%');
+        return $query->whereHas('tarea', function ($q) use ($operador, $valor) {
+            $q->whereHas('coordinador', function ($q) use ($operador, $valor) {
+                $q->where('nombres', $operador, '%' . $valor . '%')->orWhere('apellidos', $operador, '%' . $valor . '%');
+            });
         });
     }
 }

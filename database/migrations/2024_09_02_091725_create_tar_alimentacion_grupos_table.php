@@ -25,6 +25,9 @@ return new class extends Migration
             $table->unsignedBigInteger('tarea_id');
             $table->foreign('tarea_id')->references('id')->on('tareas')->cascadeOnDelete()->cascadeOnUpdate();
 
+            $table->unsignedBigInteger('subtarea_id')->nullable();
+            $table->foreign('subtarea_id')->references('id')->on('subtareas')->nullOnDelete()->nullOnUpdate();
+
             $table->unsignedBigInteger('grupo_id')->nullable();
             $table->foreign('grupo_id')->references('id')->on('grupos')->cascadeOnDelete()->cascadeOnUpdate();
 

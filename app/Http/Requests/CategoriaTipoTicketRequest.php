@@ -38,5 +38,5 @@ class CategoriaTipoTicketRequest extends FormRequest
         }
 
         return $rules;
-        }
+    }
 }
