@@ -567,9 +567,10 @@ class SaldoController extends Controller
             } else {
                 $fecha = Carbon::parse($fecha_inicio);
                 $fecha_anterior = $fecha->subDay()->format('Y-m-d');
-                $saldo_anterior = SaldoGrupo::where('id_usuario', $request->empleado)
-                    ->where('fecha', '<=', $fecha_anterior)
-                    ->orderBy('created_at', 'desc')->limit(1)->first();
+                $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->empleado, $fecha_anterior, $fecha_inicio);
+// SaldoGrupo::where('id_usuario', $request->empleado)
+//                    ->where('fecha', '<=', $fecha_anterior)
+//                    ->orderBy('created_at', 'desc')->limit(1)->first();
                 if ($saldo_anterior != null) {
                     $fecha_anterior = $saldo_anterior->fecha;
                 }
@@ -618,13 +619,14 @@ class SaldoController extends Controller
                 'transferencias_enviadas' => $transferencias_enviadas,
                 'transferencias_recibidas' => $transferencias_recibidas,
             ];
+//            Log::channel('testing')->info('Log', ['gasto con imagen?', $imagen, $request->all(), $reportes]);
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
             // Log::channel('testing')->info('Log', ['gastos con imagen', count($reportes['gastos']), $reportes]);
             $export_excel = new GastoConsolidadoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e, 'gasto');
         }
     }

@@ -10,6 +10,9 @@ use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static find($servicio_id)
+ */
 class Servicio extends Model implements Auditable
 {
     use HasFactory;

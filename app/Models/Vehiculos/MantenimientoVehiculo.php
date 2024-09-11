@@ -12,6 +12,10 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 
+/**
+ * @method static where(string $string, $vehiculo_id)
+ * @method static create(array $array)
+ */
 class MantenimientoVehiculo extends Model implements Auditable
 {
     use HasFactory;
@@ -19,18 +23,18 @@ class MantenimientoVehiculo extends Model implements Auditable
     protected $table = 'veh_mantenimientos_vehiculos';
     protected $fillable = [
         'vehiculo_id',
-        'servicio_id', // el mantenimiento preventivo/programado 
+        'servicio_id', // el mantenimiento preventivo/programado
         'empleado_id', // la persona que realiza el mantenimiento en cuestión
         'supervisor_id', // la persona que actualiza los datos en el sistema
         'fecha_realizado',
         'km_realizado',
-        'imagen_evidencia', //alguna imagen de evidencia del mantenimiento 
-        // pendiente de realizar, realizado, retrasado, postergado, no realizado. 
+        'imagen_evidencia', //alguna imagen de evidencia del mantenimiento
+        // pendiente de realizar, realizado, retrasado, postergado, no realizado.
         //retrasado se calcula desde que se crea el registro y los km transcurridos.
         // no realizado cuando el supervisor decide no realizar el mantenimiento pese a estar programado
         'estado',
         'km_retraso',
-        'dias_postergado', //si estado es postergado debe poner los días aquí para que le notifique 
+        'dias_postergado', //si estado es postergado debe poner los días aquí para que le notifique
         'motivo_postergacion', //si estado es postergado este campo es obligatorio
         'observacion'
     ];

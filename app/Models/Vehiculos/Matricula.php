@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static where(string $string, false $false)
+ */
 class Matricula extends Model implements Auditable
 {
     use HasFactory;

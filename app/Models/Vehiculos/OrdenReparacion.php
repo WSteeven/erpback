@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static filter()
+ * @method static where(\Closure $param)
+ * @method static create(mixed $datos)
+ */
 class OrdenReparacion extends Model implements Auditable
 {
     use HasFactory;

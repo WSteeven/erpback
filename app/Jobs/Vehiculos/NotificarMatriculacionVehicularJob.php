@@ -2,16 +2,16 @@
 
 namespace App\Jobs\Vehiculos;
 
-use App\Events\Vehiculos\NotificarMatriculaciónVehicularEvent;
+use App\Events\Vehiculos\NotificarMatriculacionVehicularEvent;
 use App\Models\Vehiculos\Matricula;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class NotificarMatriculacionVehicularJob implements ShouldQueue
 {
@@ -39,13 +39,13 @@ class NotificarMatriculacionVehicularJob implements ShouldQueue
             $mes_actual = Carbon::now()->month;
             $matriculas_mes = Matricula::where('matriculado', false)->whereMonth('fecha_matricula', $mes_actual)->get();
             foreach ($matriculas_mes as $matricula) {
-                event(new NotificarMatriculaciónVehicularEvent($matricula, 'mes'));
+                event(new NotificarMatriculacionVehicularEvent($matricula, 'mes'));
             }
             $matriculas_vencidas = Matricula::where('matriculado', false)->whereYear('fecha_matricula', $anio_actual)->whereMonth('fecha_matricula', '<', $mes_actual)->get();
             foreach ($matriculas_vencidas as $matricula) {
-                event(new NotificarMatriculaciónVehicularEvent($matricula, 'vencidas'));
+                event(new NotificarMatriculacionVehicularEvent($matricula, 'vencidas'));
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['[JOB ERROR][NotificarMatriculacionVehicularJob]', $th->getMessage(), $th->getLine()]);
         }
     }

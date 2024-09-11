@@ -12,6 +12,11 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static find(mixed $vehiculo_id)
+ * @method static whereNot(string $string, $null)
+ * @method static where(string $string, string $string1, $null)
+ */
 class Vehiculo extends Model implements Auditable
 {
     use HasFactory;
@@ -62,11 +67,7 @@ class Vehiculo extends Model implements Auditable
     const INCIDENTES = 'INCIDENTES';
     const CUSTODIOS = 'CUSTODIOS';
 
-    //Transmisiones
-    // const MANUAL='MANUAL';
-    // const AUTOMATICA='AUTOMATICA';
-    // const SECUENCIAL='SECUENCIAL';
-    // const CVT='CONITNUA VARIABLE (CVT)';
+
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -76,7 +77,7 @@ class Vehiculo extends Model implements Auditable
         'tiene_rastreo' => 'boolean',
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
 
@@ -100,7 +101,7 @@ class Vehiculo extends Model implements Auditable
 
     /**
      * Realación uno a muchos (inversa).
-     * Un vehiculo tiene solo un tipo de vehiculo a la vez.
+     * Un vehículo tiene solo un tipo de vehículo a la vez.
      */
     public function tipoVehiculo()
     {
@@ -134,7 +135,7 @@ class Vehiculo extends Model implements Auditable
 
     /**
      * Relación uno a muchos.
-     * Un vehículo tiene una o varias matriculas a lo largo del tiempo.
+     * Un vehículo tiene una o varias matrículas a lo largo del tiempo.
      */
     public function matriculas()
     {
@@ -169,8 +170,8 @@ class Vehiculo extends Model implements Auditable
     {
         $items = Vehiculo::find($id)->itemsMantenimiento()->get();
         $listadoServicios = $items;
+        $aplicar_desde = $items->max('aplicar_desde');
         if ($metodo == 'show') {
-            $aplicar_desde = $items->max('aplicar_desde');
             $estado = $items->where('activo', true)->count() > $items->where('activo', false)->count();
             foreach ($items as $index => $item) {
 
@@ -186,19 +187,13 @@ class Vehiculo extends Model implements Auditable
                     'estado' => $item->activo,
                 ];
             }
-            return [
-                $aplicar_desde,
-                $estado,
-                $listadoServicios,
-            ];
         } else {
-            $aplicar_desde = $items->max('aplicar_desde');
             $estado = $items->where('estado', 1)->count() > $items->where('estado', 0)->count();
-            return [
-                $aplicar_desde,
-                $estado,
-                $listadoServicios,
-            ];
         }
+        return [
+            $aplicar_desde,
+            $estado,
+            $listadoServicios,
+        ];
     }
 }

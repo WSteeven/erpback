@@ -6,16 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\BitacoraVehicularRequest;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Models\Empleado;
-use App\Models\User;
 use App\Models\Vehiculos\BitacoraVehicular;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Src\App\ActividadRealizadaService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Vehiculos\BitacoraVehicularService;
 use Src\Config\RutasStorage;
@@ -25,12 +22,12 @@ use Throwable;
 class BitacoraVehicularController extends Controller
 {
     private string $entidad = 'Bitacora Vehicular';
-    private ActividadRealizadaService $actividadService;
+//    private ActividadRealizadaService $actividadService;
     private BitacoraVehicularService $service;
 
     public function __construct()
     {
-        $this->actividadService = new ActividadRealizadaService();
+//        $this->actividadService = new ActividadRealizadaService();
         $this->service = new BitacoraVehicularService();
         $this->middleware('can:puede.ver.bitacoras_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.bitacoras_vehiculos')->only('store');
@@ -49,12 +46,12 @@ class BitacoraVehicularController extends Controller
             $results = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->get();
         } else {
 
-            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
+//            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
                 $results = BitacoraVehicular::ignoreRequest(['chofer_id'])->filter()->orderBy('updated_at', 'desc')->get();
-            else {
+//            else {
                 // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
-                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
-            }
+//                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
+//            }
         }
         $results = BitacoraVehicularResource::collection($results);
         return response()->json(compact('results'));
@@ -139,6 +136,7 @@ class BitacoraVehicularController extends Controller
      * @param BitacoraVehicularRequest $request
      * @param BitacoraVehicular $bitacora
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
@@ -179,6 +177,7 @@ class BitacoraVehicularController extends Controller
      *
      * @param BitacoraVehicular $bitacora
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function destroy(BitacoraVehicular $bitacora)
     {
@@ -193,20 +192,23 @@ class BitacoraVehicularController extends Controller
         }
     }
 
-    public function indexActividades(BitacoraVehicular $bitacora)
-    {
-        try {
-            $results = $this->actividadService->index($bitacora);
-            return response()->json(compact('results'));
-        } catch (Throwable $th) {
-            throw Utils::obtenerMensajeErrorLanzable($th);
-        }
-    }
+    /**
+     * @throws ValidationException
+     */
+//    public function indexActividades(BitacoraVehicular $bitacora)
+//    {
+//        try {
+//            $results = $this->actividadService->index($bitacora);
+//            return response()->json(compact('results'));
+//        } catch (Throwable $th) {
+//            throw Utils::obtenerMensajeErrorLanzable($th);
+//        }
+//    }
 
-    public function storeActividades(Request $request, BitacoraVehicular $bitacora)
-    {
-    }
 
+    /**
+     * @throws ValidationException
+     */
     public function firmar(BitacoraVehicular $bitacora)
     {
         try {
@@ -227,6 +229,9 @@ class BitacoraVehicularController extends Controller
         return response()->json(compact('mensaje'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function imprimir(BitacoraVehicular $bitacora)
     {
         try {

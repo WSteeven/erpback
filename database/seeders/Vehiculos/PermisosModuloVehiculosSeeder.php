@@ -68,13 +68,13 @@ class PermisosModuloVehiculosSeeder extends Seeder
 
         // Asignaciones de Vehiculos
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'asignaciones_vehiculos'])->syncRoles([$admin, $chofer]);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'asignaciones_vehiculos'])->syncRoles([$admin, $chofer]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'asignaciones_vehiculos'])->syncRoles([$admin, $chofer, $ayudante]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'asignaciones_vehiculos'])->syncRoles([$admin, $chofer]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'asignaciones_vehiculos'])->syncRoles([$admin, $chofer]);
 
         // Transferencias de Vehiculos
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'transferencias_vehiculos'])->syncRoles([$admin, $chofer]);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'transferencias_vehiculos'])->syncRoles([$admin, $chofer]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'transferencias_vehiculos'])->syncRoles([$admin, $chofer, $ayudante]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'transferencias_vehiculos'])->syncRoles($chofer);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'transferencias_vehiculos'])->syncRoles($chofer);
 
