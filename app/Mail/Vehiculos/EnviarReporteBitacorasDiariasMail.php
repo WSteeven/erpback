@@ -5,7 +5,7 @@ namespace App\Mail\Vehiculos;
 use App\Models\ConfiguracionGeneral;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
@@ -17,8 +17,8 @@ class EnviarReporteBitacorasDiariasMail extends Mailable
     use Queueable, SerializesModels;
 
     public ConfiguracionGeneral $configuracion;
-    public $registros_realizados;
-    public $vehiculos_sin_bitacora;
+    public array $registros_realizados;
+    public Collection $vehiculos_sin_bitacora;
 
     /**
      * Create a new message instance.
@@ -54,11 +54,8 @@ class EnviarReporteBitacorasDiariasMail extends Mailable
     {
         return new Content(
             view: 'email.vehiculos.reporte_diario_bitacoras', with: [
-            'fecha' => Carbon::yesterday()->format('Y-m-d'),
-            'clave_1' => 'clave 1',
-            'clave_2' => 'clave 2',
-            'clave_3' => 'clave 3',
-        ]
+                'fecha' => Carbon::yesterday()->format('Y-m-d'),
+            ]
         );
     }
 

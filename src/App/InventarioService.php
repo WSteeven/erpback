@@ -440,7 +440,8 @@ class InventarioService
             $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
             $row['sucursal'] = $movimiento->inventario->sucursal?->lugar;
             $row['condicion'] = $movimiento->inventario->condicion->nombre;
-            $row['cantidad'] = $movimiento->recibido; //cantidad_inicial;
+            $row['cantidad'] = $movimiento->cantidad_inicial;
+            $row['cantidad_recibida'] = $movimiento->recibido; //cantidad_inicial;
             $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
             $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
             // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);

@@ -22,7 +22,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param  Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -65,8 +65,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new NotificarMatriculacionVehicularJob())->weekdays()->at('08:00'); // Execute job every weekday(monday-friday) at 08:00
         $schedule->job(new ActualizarEstadoSegurosVehiculares())->daily();
         $schedule->job(new ActualizarMantenimientoVehiculoJob())->dailyAt('07:00');
-//        $schedule->job(new NotificarReporteBitacorasDiariasJob())->dailyAt('06:00');
-        $schedule->job(new NotificarReporteBitacorasDiariasJob())->everyMinute();
+        $schedule->job(new NotificarReporteBitacorasDiariasJob())->dailyAt('06:00');
         // $schedule->job(new ActualizarMantenimientoVehiculoJob())->everyMinute();
     }
 

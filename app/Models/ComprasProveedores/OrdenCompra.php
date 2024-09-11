@@ -26,6 +26,9 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use Src\Shared\Utils;
 
+/**
+ * @method static ignoreRequest(string[] $array)
+ */
 class OrdenCompra extends Model implements Auditable
 {
   use HasFactory;

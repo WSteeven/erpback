@@ -23,6 +23,9 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
 
+/**
+ * @method static find(mixed $preorden_id)
+ */
 class PreordenCompra extends Model implements Auditable
 {
     use HasFactory;

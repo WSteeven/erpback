@@ -16,11 +16,9 @@ use App\Mail\ComprasProveedores\EnviarMailOrdenCompraProveedor;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
-use App\Models\ConfiguracionGeneral;
 use App\Models\CorreoEnviado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
-
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,9 +36,9 @@ use Throwable;
 
 class OrdenCompraController extends Controller
 {
-    private $entidad = 'Orden de compra';
+    private string $entidad = 'Orden de compra';
     private OrdenCompraService $servicio;
-    private $archivoService;
+    private ArchivoService $archivoService;
 
     public function __construct()
     {
@@ -96,13 +94,13 @@ class OrdenCompraController extends Controller
 
             DB::commit();
 
-            // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
+            // Aquí se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
             if ($orden->estado_id === $estado_pendiente->id && $orden->autorizacion_id === $autorizacion_pendiente->id) {
                 event(new OrdenCompraCreadaEvent($orden, true)); // crea el evento de la orden de compra al autorizador
             }
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
             return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
@@ -124,29 +122,12 @@ class OrdenCompraController extends Controller
     public function update(OrdenCompraRequest $request, OrdenCompra $orden)
     {
         $autorizacion_anterior = $orden->autorizacion_id;
-        $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
-        $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos = $request->validated();
-            // $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            // $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
-            // $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            // $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            // $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            // if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
-            // if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            // if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            // Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
-            // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
-            // if()if (count($request->categorias) == 0) {
-            //     unset($datos['categorias']);
-            // } else {
-            //     $datos['categorias'] = implode(',', $request->categorias);
-            // }
-            //Creación de la orden de compra
+            //Actualización de la orden de compra
             $orden->update($datos);
             // Sincronizar los detalles de la orden de compra
             OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'actualizar');
@@ -158,12 +139,12 @@ class OrdenCompraController extends Controller
 
             DB::commit();
 
-            // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
+            // Aquí se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
             // if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
             $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
             if ($orden->autorizacion_id != $autorizacion_anterior)
                 event(new OrdenCompraActualizadaEvent($orden, true)); // crea el evento de la orden de compra actualizada al solicitante
-            // }
+
             if ($orden->autorizacion_id == Autorizaciones::APROBADO) {
                 if (!auth()->user()->hasRole(User::ROL_COMPRAS))
                     event(new NotificarOrdenCompraCompras($orden, User::ROL_COMPRAS));
@@ -184,11 +165,11 @@ class OrdenCompraController extends Controller
     {
         // Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
         // $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
-        $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
+//        $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
         $request->validate(['motivo' => ['required', 'string']]);
         $orden->causa_anulacion = $request['motivo'];
         // $orden->autorizacion_id = $autorizacion->id;
-        $orden->estado_id = $estado->id;
+        $orden->estado_id =EstadosTransacciones::ANULADA;
         if ($orden->preorden_id) {
             $preorden = PreordenCompra::find($orden->preorden_id);
             $preorden->estado = EstadoTransaccion::ANULADA;
@@ -228,10 +209,10 @@ class OrdenCompraController extends Controller
 
     /**
      * Imprimir una orden de compra
+     * @throws ValidationException
      */
     public function imprimir(OrdenCompra $orden)
     {
-        $orden_compra = $orden;
         try {
             return $this->servicio->generarPdf($orden, true, true);
         } catch (Exception $e) {
@@ -239,11 +220,9 @@ class OrdenCompraController extends Controller
             throw ValidationException::withMessages(
                 [
                     'error' => $e->getMessage(),
-                    'Por si acaso' => 'Error duplicado',
+//                    'Por si acaso' => 'Error duplicado',
                 ]
             );
-            $mensaje = $e->getMessage() . '. ' . $e->getLine();
-            return response()->json(compact('mensaje'));
         }
     }
 
@@ -279,7 +258,7 @@ class OrdenCompraController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, OrdenCompra $orden)
+    public function indexFiles( OrdenCompra $orden)
     {
         try {
             $results = $this->archivoService->listarArchivos($orden);
@@ -289,7 +268,6 @@ class OrdenCompraController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('results'));
     }
 
     /**
@@ -301,7 +279,7 @@ class OrdenCompraController extends Controller
             $modelo = $this->archivoService->guardarArchivo($orden, $request->file, RutasStorage::NOVEDADES_ORDENES_COMPRAS->value);
             $mensaje = 'Archivo subido correctamente';
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
@@ -310,21 +288,21 @@ class OrdenCompraController extends Controller
 
     /**
      * Reportes
+     * @throws ValidationException
      */
     public function reportes(Request $request)
     {
         Log::channel('testing')->info('Log', ['request', $request->all()]);
-        $configuracion = ConfiguracionGeneral::first();
-        $results = [];
+//        $configuracion = ConfiguracionGeneral::first();
+//        $results = [];
         try {
-            $vista = 'compras_proveedores.proveedores.proveedores';
+//            $vista = 'compras_proveedores.proveedores.proveedores';
             $request['empresa.razon_social'] = $request->razon_social;
             $results = $this->servicio->filtrarOrdenes($request);
             switch ($request->accion) {
                 case 'excel':
                     $reporte = OrdenCompraResource::collection($results);
                     return Excel::download(new OrdenCompraExport(collect($reporte)), 'reporte_ordenes_compras.xlsx');
-                    break;
                     // case 'pdf':
                     //     try {
                     //         $reporte = $registros;
@@ -350,7 +328,8 @@ class OrdenCompraController extends Controller
     }
 
     /**
-     * Dashboard de ordenes de compras
+     * Dashboard de órdenes de compras
+     * @throws Exception
      */
     public function dashboard(Request $request)
     {

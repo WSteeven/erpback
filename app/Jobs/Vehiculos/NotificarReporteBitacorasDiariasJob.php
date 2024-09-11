@@ -49,7 +49,7 @@ class NotificarReporteBitacorasDiariasJob implements ShouldQueue
             $vehiculos_con_bitacoras_realizadas = [];
             $vehiculos_no_realizadas = new Collection();
             $ayer = Carbon::yesterday();
-            Log::channel('testing')->info('Log', ['vehiculos_asignados', $vehiculos_asignados, $ayer]);
+//            Log::channel('testing')->info('Log', ['vehiculos_asignados', $vehiculos_asignados, $ayer]);
             foreach ($vehiculos_asignados as $vehiculo) {
                 $bitacora_realizada = BitacoraVehicular::where('vehiculo_id', $vehiculo->id)->whereBetween('fecha', [$ayer, Carbon::now()])->first();
                 if ($bitacora_realizada) {
@@ -59,13 +59,11 @@ class NotificarReporteBitacorasDiariasJob implements ShouldQueue
                 } else {
                     $vehiculos_no_realizadas->push($vehiculo);
                 }
-//                Log::channel('testing')->info('Log', ['vehiculo', $vehiculo, $bitacora_realizada]);
 
             }
-            Log::channel('testing')->info('Log', ['vehiculo que han realizado', $vehiculos_con_bitacoras_realizadas]);
-            Log::channel('testing')->info('Log', ['ids vehiculo que no han realizado', $vehiculos_no_realizadas]);
-//Mail::to($this->admin_vehiculos->user->email)->send(new EnviarReporteBitacorasDiariasMail($vehiculos_con_bitacoras_realizadas, $vehiculos_no_realizadas));
-Mail::to('wcordova@jpconstrucred.com')->send(new EnviarReporteBitacorasDiariasMail($vehiculos_con_bitacoras_realizadas, $vehiculos_no_realizadas));
+
+            Mail::to($this->admin_vehiculos->user->email)->cc('aserrano@jpconstrucred.com')->send(new EnviarReporteBitacorasDiariasMail($vehiculos_con_bitacoras_realizadas, $vehiculos_no_realizadas));
+
         } catch (Exception $e) {
             Log::channel('testing')->error('Log', ['[JOB ERROR][NotificarReporteBitacorasDiariasJob]', $e->getMessage(), $e->getLine()]);
         }
