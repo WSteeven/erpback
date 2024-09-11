@@ -14,7 +14,6 @@ return new class extends Migration
     public function up()
     {
         Schema::create('rrhh_contratacion_examenes', function (Blueprint $table) {
-            $table->id();
             $table->unsignedBigInteger('postulacion_id');
             $table->timestamp('fecha_hora');
             $table->unsignedBigInteger('canton_id')->nullable();
@@ -25,6 +24,10 @@ return new class extends Migration
             $table->boolean('es_apto')->default(false);
             $table->text('observacion')->nullable();
             $table->timestamps();
+
+            $table->primary('postulacion_id');
+            $table->foreign('postulacion_id')->references('id')->on('rrhh_contratacion_postulaciones')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('canton_id')->references('id')->on('cantones')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 

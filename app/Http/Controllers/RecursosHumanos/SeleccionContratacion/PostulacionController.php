@@ -260,6 +260,9 @@ class PostulacionController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function seleccionar(Postulacion $postulacion)
     {
         Log::channel('testing')->info('Log', ['seleccionar', $postulacion, request()->all()]);
@@ -268,15 +271,14 @@ class PostulacionController extends Controller
             $postulacion->estado = Postulacion::SELECCIONADO;
             $postulacion->save();
             $this->service->notificarPostulanteSeleccionado($postulacion);
-            $this->service->notificarPostulanteSeleccionadoMedico($postulacion);
+            $this->service->notificarPostulanteSeleccionadoMedico($postulacion->id);
             $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
         } catch (Throwable|Exception $ex) {
             DB::rollback();
-            $mensaje = $ex->getMessage();
             Log::channel('testing')->info('Log', ['error en seleccionar', $ex->getLine(), $ex->getMessage()]);
-            return response()->json(compact('mensaje'), 500);
+            throw  Utils::obtenerMensajeErrorLanzable($ex);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }

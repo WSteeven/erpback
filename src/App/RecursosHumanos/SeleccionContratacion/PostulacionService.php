@@ -65,14 +65,14 @@ class PostulacionService
 
     /**
      * Notificar al médico ocupacional que hay un candidato seleccionado al que debe realizarle los examenes medicos correspondientes
-     * @param Postulacion $postulacion
+     * @param int $postulacion_id
      * @throws Throwable
      */
-    public function notificarPostulanteSeleccionadoMedico(Postulacion $postulacion)
+    public function notificarPostulanteSeleccionadoMedico(int $postulacion_id)
     {
         try {
             Log::channel('testing')->info('Log', ['Antes de crear el evento...']);
-            event(new NotificarPostulanteSeleccionadoMedicoEvent($postulacion));
+            event(new NotificarPostulanteSeleccionadoMedicoEvent($postulacion_id));
             Log::channel('testing')->info('Log', ['Pase de crear el evento, no debería haber error']);
         } catch (Throwable $e) {
             Log::channel('testing')->info('Log', ['Error completo', $e]);

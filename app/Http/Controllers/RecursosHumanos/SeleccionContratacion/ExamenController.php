@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarAgendamientoExamenesPostulanteRecursosHumanosEvent;
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarResultadosExamenesPostulanteRecursosHumanosEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\ExamenRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\ExamenResource;
@@ -12,6 +14,7 @@ use App\Models\RecursosHumanos\SeleccionContratacion\Examen;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
@@ -42,14 +45,17 @@ class ExamenController extends Controller
     public function store(ExamenRequest $request)
     {
         $datos = $request->validated();
-//        Log::channel('testing')->info('Log', ['store::examen', $request->all(), $datos]);
+        Log::channel('testing')->info('Log', ['store', $request->all(), $datos]);
         try {
             DB::beginTransaction();
             $postulacion = Postulacion::find($datos['postulacion_id']);
             $postulacion->estado = Postulacion::EXAMENES_MEDICOS;
             $postulacion->save();
-            $examen = Examen::create($datos);
+            $examen = $postulacion->examen()->save(new Examen($datos));
+            Log::channel('testing')->info('Log', ['examen creado', $examen]);
             Mail::to($postulacion->user->email)->send(new NotificarAgendamientoExamenesMail($postulacion, $examen));
+            // aquí se notifica a RRHH que se agendó examenes con alguien
+            event(new NotificarAgendamientoExamenesPostulanteRecursosHumanosEvent($postulacion));
             $modelo = new ExamenResource($examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -87,16 +93,18 @@ class ExamenController extends Controller
         try {
             DB::beginTransaction();
             $examen->update($datos);
-            if($examen->se_realizo_examen && $examen->es_apto){
+            if ($examen->se_realizo_examen && $examen->es_apto) {
                 // se actualiza la postulacion a contrado y se notifica al postulante
-                $examen->postulacion()->update(['estado'=>Postulacion::CONTRATADO]);
+                $examen->postulacion()->update(['estado' => Postulacion::CONTRATADO]);
                 Mail::to($examen->postulacion->user->email)->send(new NotificarPostulanteContratado($examen->postulacion));
                 // también se actualiza la vacante y se cierra las demás postulaciones para esta vacante
                 $this->postulacionService->actualizarVacante($examen->postulacion);
-            }else{
-                $examen->postulacion()->update(['estado'=>Postulacion::DESCARTADO]);
+            } else {
+                $examen->postulacion()->update(['estado' => Postulacion::DESCARTADO]);
                 Mail::to($examen->postulacion->user->email)->send(new PostulacionDescartadaMail($examen->postulacion, false));
             }
+            // aquí se notifica a RRHH que el postulante paso las pruebas médicas o se quedó
+            event(new NotificarResultadosExamenesPostulanteRecursosHumanosEvent($examen));
 
             $modelo = new ExamenResource($examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

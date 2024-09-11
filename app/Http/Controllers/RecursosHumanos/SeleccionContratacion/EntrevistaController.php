@@ -12,16 +12,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
-use Tests\Models\Post;
 use Throwable;
 
 class EntrevistaController extends Controller
 {
-    private string $entidad = 'Entrevista';
 
     public function __construct()
     {
@@ -38,7 +35,7 @@ class EntrevistaController extends Controller
     public function store(EntrevistaRequest $request)
     {
         $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['store::entrevista', $request->all(), $datos]);
+//        Log::channel('testing')->info('Log', ['store::entrevista', $request->all(), $datos]);
         try {
             DB::beginTransaction();
             $postulacion = Postulacion::find($datos['postulacion_id']);
@@ -46,7 +43,6 @@ class EntrevistaController extends Controller
             $postulacion->save();
             $entrevista = Entrevista::create($datos);
             Mail::to($postulacion->user->email)->send(new NotificarEntrevistaMail($postulacion, $entrevista));
-//            throw new \Exception("error controlado");
             $modelo = new EntrevistaResource($entrevista);
             $mensaje = "¡Entrevista agendada exitosamente!";
             DB::commit();

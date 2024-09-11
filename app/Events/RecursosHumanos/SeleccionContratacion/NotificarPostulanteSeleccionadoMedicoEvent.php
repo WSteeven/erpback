@@ -29,16 +29,12 @@ class NotificarPostulanteSeleccionadoMedicoEvent implements ShouldBroadcast
      * @return void
      * @throws Exception
      */
-    public function __construct(Postulacion $postulacion)
+    public function __construct(int $postulacion_id)
     {
-        $this->postulacion = $postulacion;
+        $this->postulacion = Postulacion::find($postulacion_id);
         $dept_medico = Departamento::where('nombre', Departamento::DEPARTAMENTO_MEDICO)->first();
         $this->destinatario = $dept_medico->responsable_id;
-        Log::channel('testing')->info('Log', ['constructor del event', $postulacion, $this->destinatario]);
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::CANDIDATO_SELECCIONADO, 199, 116, $this->postulacion, true);
-        Log::channel('testing')->info('Log', ['auth es', auth()->user()]);
-        Log::channel('testing')->info('Log', ['empleado es', auth()->user()->empleado]);
-        Log::channel('testing')->info('Log', ['despues de crear la notificacion', $this->notificacion]);
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::CANDIDATO_SELECCIONADO, auth()->user()->empleado->id, $this->destinatario, $this->postulacion, true);
     }
 
     /**

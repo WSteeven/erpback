@@ -2,6 +2,8 @@
 
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\Canton;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +14,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  * @method static create($datos)
+ * @method static find(mixed $id)
  */
 class Examen extends Model implements Auditable
 {
@@ -43,12 +46,24 @@ class Examen extends Model implements Auditable
     }
 
     /**
+     * Relacion polimorfica a una notificacion.
+     * Una orden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable',null, null, 'postulacion_id');
+    }
+    /**
      * Relación uno a uno.
-     * Una entrevista se emite para una postulación
+     * Un solo examen médico se emite para una postulación
      */
     public function postulacion()
     {
         return $this->belongsTo(Postulacion::class, 'postulacion_id');
+    }
+    public function canton()
+    {
+        return $this->belongsTo(Canton::class, 'canton_id');
     }
 
 }
