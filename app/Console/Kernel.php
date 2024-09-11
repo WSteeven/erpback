@@ -37,11 +37,13 @@ class Kernel extends ConsoleKernel
         // Programación para días de semana lunes a viernes
         // ->dailyAt('17:00')
         $schedule->job(new PausarTicketsFinJornadaJob)
-            ->between('17:00', '08:00')
             ->everyFourHours()
-            ->when(function () {
-                return !in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
-            });
+            ->timezone('America/Guayaquil')
+            ->days([Schedule::MONDAY, Schedule::TUESDAY, Schedule::WEDNESDAY, Schedule::THURSDAY, Schedule::FRIDAY])
+            ->between('17:00', '8:00');
+        /*  ->when(function () {
+                 return !in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
+             }) */
 
         // Programación para fines de semana
         $schedule->job(new PausarTicketsFinJornadaJob)

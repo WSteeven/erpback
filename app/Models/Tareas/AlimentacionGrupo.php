@@ -11,8 +11,12 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Laravel\Scout\Searchable;
-use App\Models\Tarea;
 use App\Models\Grupo;
+use App\Models\Subtarea;
+use App\Models\Tarea;
+use Src\App\WhereRelationLikeCondition\Tareas\CoordinadorWRLC;
+use Src\App\WhereRelationLikeCondition\Tareas\TareaWRLC;
+use Src\App\WhereRelationLikeCondition\Tareas\TipoAlimentacionWRLC;
 
 class AlimentacionGrupo extends Model implements Auditable
 {
@@ -24,6 +28,7 @@ class AlimentacionGrupo extends Model implements Auditable
         'cantidad_personas',
         'precio',
         'fecha',
+        'subtarea_id',
         'tarea_id',
         'grupo_id',
         'tipo_alimentacion_id',
@@ -38,12 +43,18 @@ class AlimentacionGrupo extends Model implements Auditable
 
     private $aliasListFilter = [
         'grupo.nombre' => 'grupo',
+        'tarea.codigo_tarea' => 'tarea',
+        'tipo_alimentacion.descripcion' => 'tipo_alimentacion',
+        'coordinador.nombres_apellidos' => 'coordinador',
     ];
 
     public function EloquentFilterCustomDetection(): array
     {
         return [
             GrupoWRLC::class,
+            TareaWRLC::class,
+            TipoAlimentacionWRLC::class,
+            CoordinadorWRLC::class,
         ];
     }
 
@@ -73,6 +84,11 @@ class AlimentacionGrupo extends Model implements Auditable
     public function tarea()
     {
         return $this->belongsTo(Tarea::class);
+    }
+
+    public function subtarea()
+    {
+        return $this->belongsTo(Subtarea::class);
     }
 
     public function grupo()
