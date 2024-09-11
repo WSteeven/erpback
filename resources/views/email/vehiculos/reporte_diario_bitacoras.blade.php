@@ -8,6 +8,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte diario de bitácoras de vehículos</title>
+
+    <style>
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -19,9 +43,9 @@
 <h3>Vehículos que si han registrado bitácoras</h3>
 <table>
     <tr>
-        <td>Vehículo</td>
-        <td>Custodio</td>
-        <td>Bitácora</td>
+        <th>Vehículo</th>
+        <th>Custodio</th>
+        <th>Bitácora</th>
     </tr>
     @foreach($registros_realizados as $index=> $vehiculo)
         <tr>
@@ -36,8 +60,8 @@
 <h3>Lista de vehículos que no han registrado bitácoras</h3>
 <table>
     <tr>
-        <td>Vehículo</td>
-        <td>Custodio</td>
+        <th>Vehículo</th>
+        <th>Custodio</th>
     </tr>
     @foreach($vehiculos_sin_bitacora as $index =>$vehiculo)
         <tr>
@@ -48,7 +72,7 @@
 </table>
 <br>
 <br>
-<img src="{{ $logo_principal }}" alt="logo" width="100" height="100" /> <br> <br>
+<p><img src="{{ $logo_principal }}" alt="logo" width="100" height="100"/></p> <br> <br>
 <small>Este mensaje de correo electrónico es generado automáticamente. Por favor, no lo responda.</small>
 </body>
 

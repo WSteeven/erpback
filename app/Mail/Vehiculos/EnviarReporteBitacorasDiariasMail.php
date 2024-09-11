@@ -41,7 +41,7 @@ class EnviarReporteBitacorasDiariasMail extends Mailable
     {
         return new Envelope(
             from: new Address(env('MAIL_USERNAME'), 'MODULO VEHICULOS'),
-            subject: 'Reporte Bitacoras Diarias ' . date('Y-m-d'),
+            subject: 'Reporte Bitacoras Diarias ' . Carbon::yesterday()->format('Y-m-d'),
         );
     }
 
@@ -54,7 +54,7 @@ class EnviarReporteBitacorasDiariasMail extends Mailable
     {
         return new Content(
             view: 'email.vehiculos.reporte_diario_bitacoras', with: [
-            'fecha' => Carbon::now()->format('Y-m-d'),
+            'fecha' => Carbon::yesterday()->format('Y-m-d'),
             'clave_1' => 'clave 1',
             'clave_2' => 'clave 2',
             'clave_3' => 'clave 3',
