@@ -36,9 +36,13 @@ class TicketController extends Controller
     public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
+
+        if (request('estado') === Ticket::ETIQUETADOS_A_MI) $results = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest()->get($campos);
+        else $results = Ticket::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+
+        /* $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
             $q->orWhereJsonContains('cc', intval(request('responsable_id')))->where('estado', Ticket::EJECUTANDO);
-        })->latest()->get($campos);
+        })->latest()->get($campos); */
 
         $results = TicketResource::collection($results);
         return response()->json(compact('results'));
@@ -131,7 +135,7 @@ class TicketController extends Controller
                 'ticket_id' => $ticket->id,
                 'fecha_hora' => Carbon::now(),
                 'observacion' => 'TICKET REASIGNADO',
-                'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
+                'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::query()->find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
                 'responsable_id' => $idResponsableAnterior,
             ]);
 
