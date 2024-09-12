@@ -47,7 +47,7 @@ class TicketResource extends JsonResource
             'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
             'ticket_interno' => $this->ticket_interno,
             'ticket_para_mi' => $this->ticket_para_mi,
-            'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(),
+            'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(), // && $this->responsable_id === Auth::user()->empleado->id,
             'calificaciones' => $this->calificacionesTickets,
             'pendiente_calificar_solicitante' => $pendiente_calificar_solicitante,
             'pendiente_calificar_responsable' => $pendiente_calificar_responsable,

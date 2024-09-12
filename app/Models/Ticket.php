@@ -24,6 +24,7 @@ class Ticket extends Model implements Auditable
     const FINALIZADO_SIN_SOLUCION = 'FINALIZADO SIN SOLUCIÓN';
     const FINALIZADO_SOLUCIONADO = 'FINALIZADO SOLUCIONADO';
     const CALIFICADO = 'CALIFICADO';
+    const ETIQUETADOS_A_MI = 'ETIQUETADOS_A_MI';
 
     // Prioridad
     const ALTA = 'ALTA';
