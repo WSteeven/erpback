@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static ignoreRequest(string[] $array)
+ * @method static where(string $string, mixed $empleado_id)
+ * @method static create(mixed $datos)
+ */
 class Vacacion extends Model implements Auditable
 {
     use HasFactory;

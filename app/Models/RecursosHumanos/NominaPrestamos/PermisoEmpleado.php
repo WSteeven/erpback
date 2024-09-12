@@ -14,6 +14,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
  * @property mixed $empleado
+ * @method static where(string $string, mixed $empleado)
  */
 class PermisoEmpleado extends Model implements Auditable
 {

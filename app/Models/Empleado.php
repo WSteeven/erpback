@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 /**
  * @method static where(string $string, $empleado)
  * @method static find(mixed $autorizador_id)
+ * @method static findOrFail(mixed $empleado_id)
  */
 class Empleado extends Model implements Auditable
 {
