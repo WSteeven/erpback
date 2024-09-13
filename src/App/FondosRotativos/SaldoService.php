@@ -84,6 +84,30 @@ class SaldoService
         // Calcula el saldo actual de manera más eficiente
         return $saldo_anterior + ($acreditaciones - $transferencia_enviadas + $transferencia_recibida - $gastos);
     }
+
+    /**
+     * @param int $empleado_id
+     * @param $fecha_inicio
+     * @param $fecha_fin
+     * @param bool $enviada
+     * @return mixed
+     */
+    public function obtenerTransferencias(int $empleado_id, $fecha_inicio, $fecha_fin, bool $enviada = true)
+    {
+        if ($enviada)
+            return Transferencias::where('usuario_envia_id', $empleado_id)
+                ->with('empleadoRecibe', 'empleadoEnvia')
+                ->where('estado', Transferencias::APROBADO)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+        else
+            return Transferencias::where('usuario_recibe_id', $empleado_id)
+                ->with('empleadoRecibe', 'empleadoEnvia')
+                ->where('estado', Transferencias::APROBADO)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+    }
+
 //    public function SaldoEstadoCuentaArrastre($fechaInicio = null, $fechaFin = null, $id_empleado = null)
 //    {
 //        // Si las fechas no se proporcionan, usa las propiedades de la clase
@@ -128,17 +152,6 @@ class SaldoService
 //
 //        return $saldo_actual;
 //    }
-
-    /**
-     * La función `guardarSaldo` se utiliza para actualizar el saldo de un empleado según el
-     * tipo de transacción (acreditacion, transferencia, ajuste o gastos).
-     *
-     * @param Model $entidad El parámetro `entidad` en la función `guardarSaldo` parece representar una
-     * entidad u objeto que tiene una relación con el modelo `Saldo`. Se utiliza para crear un nuevo
-     * registro en la relación `saldoFondoRotativo` de esta entidad.
-     * @param array $data - array de datos donde se obtiene: fecha, monto, tipo y el empleado_id
-     */
-
 
     /**
      * La función `guardarSaldo` guarda un nuevo registro de saldo para el fondo de un empleado según

@@ -590,9 +590,9 @@ class SaldoController extends Controller
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
                 $gastos_totales = $gastos->sum('total');
-                $transferencias_enviadas = $this->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin);
+                $transferencias_enviadas = $this->saldoService->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin);
                 $transferencia = $transferencias_enviadas->sum('monto');
-                $transferencias_recibidas = $this->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
+                $transferencias_recibidas = $this->saldoService->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $transferencia_recibida = $transferencias_recibidas->sum('monto');
                 $saldo_old = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $total = $saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
@@ -650,14 +650,14 @@ class SaldoController extends Controller
     private function reporteEstadoCuenta(Request $request, string $tipo_reporte)
     {
         try {
-            // Log::channel('testing')->info('Log', ['reporteEstadoCuenta', $request->all(), $tipo_reporte]);
+             Log::channel('testing')->info('Log', ['reporteEstadoCuenta', $request->all(), $tipo_reporte]);
             $fecha_inicio = $request->fecha_inicio;
             $fecha_fin = $request->fecha_fin;
             if ($fecha_inicio > $fecha_fin) throw new Exception('La fecha inicial no puede ser superior a la fecha final');
 
             $fecha = Carbon::parse($fecha_inicio);
-            $fecha_anterior = $fecha->subDay()->format('Y-m-d');
-            $fecha_fin_aux = Carbon::parse($fecha_fin)->addDays(7)->format('Y-m-d');
+            $fecha_anterior = $fecha->subDay()->format('Y-m-d'); // el día anterior a la fecha de inicio
+            $fecha_fin_aux = Carbon::parse($fecha_fin)->addDays(7)->format('Y-m-d'); // se le aumenta 7 días a la fecha final
             $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->empleado, $fecha_anterior, $fecha_inicio);
             $fecha_anterior = $fecha->format('Y-m-d');
 
@@ -885,9 +885,9 @@ class SaldoController extends Controller
             if ($request->empleado != null) {
                 $empleado = Empleado::where('id', $request->empleado)->first();
                 $usuario = User::where('id', $empleado->usuario_id)->first();
-                $transferencias_enviadas = $this->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin);
+                $transferencias_enviadas = $this->saldoService->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin);
                 $transferencia_enviada = $transferencias_enviadas->sum('monto');
-                $transferencias_recibidas = $this->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
+                $transferencias_recibidas = $this->saldoService->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $transferencia_recibida = $transferencias_recibidas->sum('monto');
             }
 
@@ -914,21 +914,7 @@ class SaldoController extends Controller
         }
     }
 
-    private function obtenerTransferencias(int $empleado_id, $fecha_inicio, $fecha_fin, bool $enviada = true)
-    {
-        if ($enviada)
-            return Transferencias::where('usuario_envia_id', $empleado_id)
-                ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado', Transferencias::APROBADO)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
-        else
-            return Transferencias::where('usuario_recibe_id', $empleado_id)
-                ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado', Transferencias::APROBADO)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
-    }
+
 
     /**
      * La función `gastocontabilidad` recupera gastos dentro de un rango de fechas específico para un
