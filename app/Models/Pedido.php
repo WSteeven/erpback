@@ -13,6 +13,82 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use Src\Config\EstadosTransacciones;
 
+/**
+ * App\Models\Pedido
+ *
+ * @property int $id
+ * @property string $justificacion
+ * @property string|null $fecha_limite
+ * @property string|null $observacion_aut
+ * @property string|null $observacion_est
+ * @property int|null $solicitante_id
+ * @property int|null $responsable_id
+ * @property int|null $autorizacion_id
+ * @property string|null $causa_anulacion
+ * @property int|null $per_autoriza_id
+ * @property int|null $proyecto_id
+ * @property int|null $etapa_id
+ * @property int|null $tarea_id
+ * @property int|null $sucursal_id
+ * @property int|null $estado_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $cliente_id
+ * @property int|null $per_retira_id
+ * @property string|null $evidencia1
+ * @property string|null $evidencia2
+ * @property string|null $observacion_bodega
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Empleado|null $autoriza
+ * @property-read \App\Models\Autorizacion|null $autorizacion
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read \App\Models\EstadoTransaccion|null $estado
+ * @property-read \App\Models\Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \App\Models\Empleado|null $responsable
+ * @property-read \App\Models\Empleado|null $retira
+ * @property-read \App\Models\Empleado|null $solicitante
+ * @property-read \App\Models\Sucursal|null $sucursal
+ * @property-read \App\Models\Tarea|null $tarea
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
+ * @property-read int|null $transacciones_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereCausaAnulacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEstadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEtapaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEvidencia1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEvidencia2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereFechaLimite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereJustificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereObservacionAut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereObservacionBodega($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereObservacionEst($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido wherePerAutorizaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido wherePerRetiraId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereProyectoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereResponsableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereSucursalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Pedido extends Model implements Auditable
 {
     use HasFactory;

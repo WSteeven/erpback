@@ -83,21 +83,7 @@ class SaldoGrupoController extends Controller
         $modelo = new SaldoGrupoResource($SaldoGrupo);
         return response()->json(compact('modelo'), 200);
     }
-    /**
-     * It takes the date of the current day, and then it calculates the start and end date of the week.
-     * </code>
-     *
-     * @param Request request ->fecha
-     *
-     * @return <code>{
-     *     "mensaje": "Registro creado correctamente",
-     *     "modelo": {
-     *         "id": 1,
-     *         "id_usuario": 1,
-     *         "saldo_anterior": 0,
-     *         "saldo_actual": 0,
-     *         "fecha": "2019-
-     */
+
     public function store(Request $request)
     {
         $array_dias['Sunday'] = 0;

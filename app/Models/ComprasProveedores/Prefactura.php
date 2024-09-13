@@ -17,6 +17,59 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use Src\Shared\Utils;
 
+/**
+ * App\Models\ComprasProveedores\Prefactura
+ *
+ * @property int $id
+ * @property string $codigo
+ * @property int|null $solicitante_id
+ * @property int|null $proforma_id
+ * @property int|null $cliente_id
+ * @property int|null $estado_id
+ * @property string|null $causa_anulacion
+ * @property string $descripcion
+ * @property string|null $forma
+ * @property string|null $tiempo
+ * @property float $iva
+ * @property float|null $descuento_general
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Cliente|null $cliente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\ItemDetallePrefactura> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read EstadoTransaccion|null $estado
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \App\Models\ComprasProveedores\Proforma|null $proforma
+ * @property-read Empleado|null $solicitante
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereCausaAnulacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereCodigo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereDescripcion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereDescuentoGeneral($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereEstadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereForma($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereIva($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereProformaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereTiempo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Prefactura extends Model implements Auditable
 {
     use HasFactory;

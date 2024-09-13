@@ -13,9 +13,88 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
+ * App\Models\Vehiculos\Vehiculo
+ *
  * @method static find(mixed $vehiculo_id)
  * @method static whereNot(string $string, $null)
  * @method static where(string $string, string $string1, $null)
+ * @property int $id
+ * @property string $tipo
+ * @property string $placa
+ * @property string $num_chasis
+ * @property string $num_motor
+ * @property int|null $tipo_vehiculo_id
+ * @property int $anio_fabricacion
+ * @property int $cilindraje
+ * @property int $rendimiento
+ * @property int|null $custodio_id
+ * @property int|null $seguro_id
+ * @property string $traccion
+ * @property string|null $propietario
+ * @property string|null $identificacion_conductor_externo
+ * @property string|null $conductor_externo
+ * @property string $color
+ * @property bool $aire_acondicionado
+ * @property bool $tiene_gravamen
+ * @property bool $tiene_rastreo
+ * @property string|null $prendador
+ * @property float $capacidad_tanque
+ * @property int $modelo_id
+ * @property int $combustible_id
+ * @property int $estado
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Empleado> $bitacoras
+ * @property-read int|null $bitacoras_count
+ * @property-read \App\Models\Vehiculos\Combustible|null $combustible
+ * @property-read Empleado|null $custodio
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vehiculos\PlanMantenimiento> $itemsMantenimiento
+ * @property-read int|null $items_mantenimiento_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vehiculos\Matricula> $matriculas
+ * @property-read int|null $matriculas_count
+ * @property-read Modelo|null $modelo
+ * @property-read \App\Models\Vehiculos\SeguroVehicular|null $seguro
+ * @property-read \App\Models\Vehiculos\TipoVehiculo|null $tipoVehiculo
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereAireAcondicionado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereAnioFabricacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereCapacidadTanque($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereCilindraje($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereCombustibleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereConductorExterno($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereCustodioId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereIdentificacionConductorExterno($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereModeloId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereNumChasis($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereNumMotor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo wherePlaca($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo wherePrendador($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo wherePropietario($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereRendimiento($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereSeguroId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereTieneGravamen($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereTieneRastreo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereTipo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereTipoVehiculoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereTraccion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vehiculo whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class Vehiculo extends Model implements Auditable
 {

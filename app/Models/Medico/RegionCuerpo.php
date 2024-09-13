@@ -9,6 +9,32 @@ use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 
+/**
+ * App\Models\Medico\RegionCuerpo
+ *
+ * @property int $id
+ * @property string $nombre
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\CategoriaExamenFisico> $categoriaExamen
+ * @property-read int|null $categoria_examen_count
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo whereNombre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RegionCuerpo whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class RegionCuerpo extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;

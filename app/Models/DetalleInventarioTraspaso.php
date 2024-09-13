@@ -9,6 +9,38 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\DetalleInventarioTraspaso
+ *
+ * @property int $id
+ * @property int $traspaso_id
+ * @property int $inventario_id
+ * @property int $cantidad
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DevolucionTraspaso> $devoluciones
+ * @property-read int|null $devoluciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MovimientoProducto> $movimientos
+ * @property-read int|null $movimientos_count
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso query()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso whereCantidad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso whereInventarioId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso whereTraspasoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleInventarioTraspaso whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class DetalleInventarioTraspaso extends Model implements Auditable
 {
     use HasFactory;

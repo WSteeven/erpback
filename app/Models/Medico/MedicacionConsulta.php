@@ -8,6 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * App\Models\Medico\MedicacionConsulta
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Medico\Receta|null $receta
+ * @method static \Illuminate\Database\Eloquent\Builder|MedicacionConsulta newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MedicacionConsulta newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MedicacionConsulta query()
+ * @mixin \Eloquent
+ */
 class MedicacionConsulta extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;

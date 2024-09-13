@@ -11,6 +11,46 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * App\Models\Ventas\DetallePagoComision
+ *
+ * @property int $id
+ * @property string|null $fecha_inicio
+ * @property string|null $fecha_fin
+ * @property int|null $corte_id
+ * @property int|null $vendedor_id
+ * @property string|null $chargeback
+ * @property int|null $ventas
+ * @property string $valor
+ * @property bool $pagado
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Ventas\CortePagoComision|null $corte
+ * @property-read \App\Models\Ventas\Vendedor|null $vendedor
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision query()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereChargeback($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereCorteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereFechaFin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereFechaInicio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision wherePagado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereValor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereVendedorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePagoComision whereVentas($value)
+ * @mixin \Eloquent
+ */
 class DetallePagoComision extends Model implements Auditable
 {
     use HasFactory;

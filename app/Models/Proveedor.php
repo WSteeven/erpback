@@ -15,6 +15,75 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Proveedor
+ *
+ * @property int $id
+ * @property int $empresa_id
+ * @property bool $estado
+ * @property string|null $causa_inactivacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $sucursal
+ * @property int|null $parroquia_id
+ * @property string $direccion
+ * @property string|null $correo
+ * @property string|null $celular
+ * @property string|null $telefono
+ * @property float|null $calificacion
+ * @property string|null $estado_calificado
+ * @property string|null $referencia
+ * @property string|null $forma_pago
+ * @property string|null $plazo_credito
+ * @property string|null $anticipos
+ * @property int $notificado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CategoriaOfertaProveedor> $categorias_ofertadas
+ * @property-read int|null $categorias_ofertadas_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ContactoProveedor> $contactos
+ * @property-read int|null $contactos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Departamento> $departamentos_califican
+ * @property-read int|null $departamentos_califican_count
+ * @property-read \App\Models\Empresa|null $empresa
+ * @property-read \App\Models\Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrdenCompra> $ordenesCompras
+ * @property-read int|null $ordenes_compras_count
+ * @property-read \App\Models\Parroquia|null $parroquia
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OfertaProveedor> $servicios_ofertados
+ * @property-read int|null $servicios_ofertados_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereAnticipos($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereCalificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereCausaInactivacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereCelular($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereCorreo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereDireccion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereEmpresaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereEstadoCalificado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereFormaPago($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereNotificado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereParroquiaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor wherePlazoCredito($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereReferencia($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereSucursal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereTelefono($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proveedor whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Proveedor extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;

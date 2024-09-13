@@ -11,6 +11,40 @@ use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago
+ *
+ * @property int $id
+ * @property int $id_rol_pago
+ * @property int $descuento_id
+ * @property string $descuento_type
+ * @property string $monto
+ * @property int|null $empleado_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Model|\Eloquent $descuento
+ * @property-read Empleado|null $empleado
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereDescuentoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereDescuentoType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereIdRolPago($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereMonto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class EgresoRolPago extends Model implements Auditable
 {
     use HasFactory;

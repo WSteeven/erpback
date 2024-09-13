@@ -8,6 +8,29 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Comprobante
+ *
+ * @property int $transaccion_id
+ * @property int $firmada
+ * @property string $estado
+ * @property string|null $observacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\TransaccionBodega $transaccion
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante whereFirmada($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante whereTransaccionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comprobante whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Comprobante extends Model implements Auditable
 {
     use HasFactory;

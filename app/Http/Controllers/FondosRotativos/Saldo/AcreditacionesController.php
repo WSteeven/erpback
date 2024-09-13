@@ -8,15 +8,17 @@ use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class AcreditacionesController extends Controller
 {
-    private $entidad = 'Acreditacion';
+    private string $entidad = 'Acreditacion';
     public function __construct()
     {
         $this->middleware('can:puede.ver.acreditacion')->only('index', 'show');
@@ -27,11 +29,11 @@ class AcreditacionesController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
+     * @noinspection PhpUndefinedMethodInspection
      */
     public function index()
     {
-        $results = [];
         $results = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = AcreditacionResource::collection($results);
         return response()->json(compact('results'));
@@ -41,16 +43,18 @@ class AcreditacionesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\AcreditacionRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param AcreditacionRequest $request
+     * @return JsonResponse
+     * @throws ValidationException|Throwable
+     * @noinspection PhpUndefinedMethodInspection
      */
     public function store(AcreditacionRequest $request)
     {
         DB::beginTransaction();
         try {
             $datos = $request->validated();
-            $modelo = Acreditaciones::create($datos);
-            $modelo = new AcreditacionResource($modelo);
+            $acreditacion = Acreditaciones::create($datos);
+            $modelo = new AcreditacionResource($acreditacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -65,27 +69,29 @@ class AcreditacionesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Acreditaciones $acreditacion
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(Acreditaciones $acreditacion)
     {
-        $acreditacion = Acreditaciones::findOrFail($id);
         $modelo = new AcreditacionResource($acreditacion);
         return response()->json(compact('modelo'));
     }
+
     /**
      * La función `anularAcreditacion` anula la acreditacion
      * basado en los datos de la solicitud proporcionados.
      *
-     * @param Request request La función `anularAcreditacion` toma como parámetro un objeto de solicitud.
+     * @param Request $request La función `anularAcreditacion` toma como parámetro un objeto de solicitud.
      * Es probable que este objeto de solicitud contenga datos necesarios para procesar la solicitud, como
      * el ID de la acreditación que se cancelará y una descripción del motivo de la cancelación.
      *
-     * @return La función `anularAcreditacion` está devolviendo una respuesta JSON con un mensaje
+     * @return JsonResponse función `anularAcreditacion` está devolviendo una respuesta JSON con un mensaje
      * almacenado en la variable ``. El mensaje se obtiene mediante el método `obtenerMensaje` de
      * la clase `Utils` con los parámetros `->entidad` y `'update'`. La respuesta JSON incluye el
      * mensaje en la clave `mensaje`.
+     * @throws ValidationException|Throwable
+     * @noinspection PhpUndefinedMethodInspection
      */
     public function anularAcreditacion(Request $request)
     {
@@ -115,13 +121,12 @@ class AcreditacionesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param AcreditacionRequest $request
+     * @param Acreditaciones $acreditacion
+     * @return JsonResponse
      */
-    public function update(AcreditacionRequest $request, $id)
+    public function update(AcreditacionRequest $request,Acreditaciones $acreditacion)
     {
-        $acreditacion = Acreditaciones::findOrFail($id);
         $datos = $request->validated();
         $modelo = $acreditacion->update($datos);
         $modelo = new AcreditacionResource($modelo);
@@ -132,14 +137,14 @@ class AcreditacionesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Acreditaciones $acreditacion
+     * @return Response
      */
-    public function destroy($id)
-    {
-        $acreditacion = Acreditaciones::findOrFail($id);
-        $acreditacion->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
-    }
+//    public function destroy(Acreditaciones $acreditacion)
+//    {
+//        $acreditacion = Acreditaciones::findOrFail($id);
+//        $acreditacion->delete();
+//        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+//        return response()->json(compact('mensaje'));
+//    }
 }

@@ -9,6 +9,58 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Transferencia
+ *
+ * @property int $id
+ * @property string $justificacion
+ * @property int $sucursal_salida_id
+ * @property int $sucursal_destino_id
+ * @property int $cliente_id
+ * @property int $solicitante_id
+ * @property int $autorizacion_id
+ * @property int $per_autoriza_id
+ * @property int $recibida
+ * @property string $estado
+ * @property string $observacion_aut
+ * @property string $observacion_est
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Empleado|null $autoriza
+ * @property-read \App\Models\Autorizacion|null $autorizacion
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventario> $items
+ * @property-read int|null $items_count
+ * @property-read \App\Models\Empleado|null $solicitante
+ * @property-read \App\Models\Sucursal|null $sucursalDestino
+ * @property-read \App\Models\Sucursal|null $sucursalSalida
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereJustificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereObservacionAut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereObservacionEst($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia wherePerAutorizaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereRecibida($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereSucursalDestinoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereSucursalSalidaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transferencia whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Transferencia extends Model implements Auditable
 {
     use HasFactory;

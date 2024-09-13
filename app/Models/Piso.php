@@ -9,6 +9,34 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Piso
+ *
+ * @property int $id
+ * @property string $fila
+ * @property string|null $columna
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ubicacion> $ubicaciones
+ * @property-read int|null $ubicaciones_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso whereColumna($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso whereFila($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Piso whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Piso extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpDynamicAsStaticMethodCallInspection */
 
 namespace App\Http\Controllers\Vehiculos;
 
@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\BitacoraVehicularRequest;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Models\Empleado;
+use App\Models\User;
 use App\Models\Vehiculos\BitacoraVehicular;
 use Carbon\Carbon;
 use Exception;
@@ -13,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use OwenIt\Auditing\Models\Audit;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Vehiculos\BitacoraVehicularService;
 use Src\Config\RutasStorage;
@@ -46,12 +48,25 @@ class BitacoraVehicularController extends Controller
             $results = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->get();
         } else {
 
-//            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
+            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
                 $results = BitacoraVehicular::ignoreRequest(['chofer_id'])->filter()->orderBy('updated_at', 'desc')->get();
-//            else {
-                // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
+            else {
+//                 $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
 //                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
-//            }
+                //obtenemos los ids de los registros segun la persona que los modifica
+                $ids_auditorias = Audit::where('auditable_type', BitacoraVehicular::class)->where('user_id', auth()->user()->id)
+                    ->distinct('auditable_id') // Asegúrate de que el campo 'auditable_id' sea único
+                    ->pluck('auditable_id');
+                // buscamos las bitacoras coincidentes con aquellos registros para obtener solo las que han sido modificadas por el usuario logueado
+                $results = BitacoraVehicular::ignoreRequest(['chofer_id'])
+                    ->where('chofer_id', auth()->user()->empleado->id)
+                    ->orWhere(function ($query) use ($ids_auditorias) {
+                        $query->whereIn('id', $ids_auditorias);
+                    })
+                    ->filter()
+                    ->orderBy('updated_at', 'desc')
+                    ->get();
+            }
         }
         $results = BitacoraVehicularResource::collection($results);
         return response()->json(compact('results'));
@@ -136,7 +151,7 @@ class BitacoraVehicularController extends Controller
      * @param BitacoraVehicularRequest $request
      * @param BitacoraVehicular $bitacora
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {

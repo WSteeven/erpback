@@ -12,7 +12,41 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 
 /**
+ * App\Models\Vehiculos\PlanMantenimiento
+ *
  * @method static where(string $string, $vehiculo_id)
+ * @property int $id
+ * @property int $vehiculo_id
+ * @property int $servicio_id
+ * @property int $aplicar_desde
+ * @property int $aplicar_cada
+ * @property int|null $notificar_antes
+ * @property string|null $datos_adicionales
+ * @property int $activo
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereActivo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereAplicarCada($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereAplicarDesde($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereDatosAdicionales($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereNotificarAntes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereServicioId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PlanMantenimiento whereVehiculoId($value)
+ * @mixin \Eloquent
  */
 class PlanMantenimiento extends Model implements Auditable
 {

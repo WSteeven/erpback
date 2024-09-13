@@ -14,8 +14,50 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
+ * App\Models\FondosRotativos\Saldo\SaldoGrupo
+ *
  * @method static where(string $string, mixed $empleado)
  * @method static create(array $datos)
+ * @property int $id
+ * @property string $fecha
+ * @property string $saldo_anterior
+ * @property string $saldo_depositado
+ * @property string $saldo_actual
+ * @property string $tipo_saldo
+ * @property string $fecha_inicio
+ * @property string $fecha_fin
+ * @property int $id_usuario
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $saldo_grupo_id
+ * @property string|null $saldo_grupo_type
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Model|\Eloquent $saldo_grupo
+ * @property-read Empleado|null $usuario
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereFecha($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereFechaFin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereFechaInicio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereIdUsuario($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereSaldoActual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereSaldoAnterior($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereSaldoDepositado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereSaldoGrupoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereSaldoGrupoType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereTipoSaldo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SaldoGrupo whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class SaldoGrupo extends  Model implements Auditable
 {

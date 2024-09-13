@@ -10,12 +10,14 @@ use App\Models\ComprasProveedores\ContactoProveedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use OwenIt\Auditing\Models\Audit;
 use Src\Shared\Utils;
+use Throwable;
 
 class ContactoProveedorController extends Controller
 {
-    private $entidad = 'Contacto de proveedor';
+    private string $entidad = 'Contacto de proveedor';
     public function __construct()
     {
         $this->middleware('can:puede.ver.contactos_proveedores')->only('index', 'show');
@@ -27,7 +29,7 @@ class ContactoProveedorController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
         $results = ContactoProveedorResource::collection(ContactoProveedor::filter()->get());
         return response()->json(compact('results'));
@@ -35,6 +37,7 @@ class ContactoProveedorController extends Controller
 
     /**
      * Guardar
+     * @throws ValidationException|Throwable
      */
     public function store(ContactoProveedorRequest $request)
     {
@@ -54,9 +57,7 @@ class ContactoProveedorController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            $mensaje = '(' . $e->getLine() . ') Hubo un erorr: ' . $e->getMessage();
-            return response()->json(compact('mensaje'), 500);
-            //throw $th;
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
@@ -109,9 +110,9 @@ class ContactoProveedorController extends Controller
             $results = Audit::where('auditable_type', ContactoProveedor::class)->with('user')->orderBy('created_at', 'desc')->get();
         }
         $results = AuditResource::collection($results);
-        
+
         return response()->json(compact('results'));
-        
+
         // $contacto = ContactoProveedor::first();
         // $results['usuario que realiza'] = $contacto->audits()->with('user')->get();
         // $results['metadatos'] = $contacto->audits()->latest()->first()->getMetadata();

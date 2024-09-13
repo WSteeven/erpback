@@ -11,6 +11,40 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 // Examen solicitado
+/**
+ * App\Models\Medico\EstadoSolicitudExamen
+ *
+ * @property int $id
+ * @property string $fecha_hora_asistencia
+ * @property int $examen_id
+ * @property int $laboratorio_clinico_id
+ * @property int $solicitud_examen_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Medico\DetalleResultadoExamen|null $detalleResultadoExamen
+ * @property-read \App\Models\Medico\Examen|null $examen
+ * @property-read \App\Models\Medico\LaboratorioClinico|null $laboratorioClinico
+ * @property-read \App\Models\Medico\SolicitudExamen|null $solicitudExamen
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen whereExamenId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen whereFechaHoraAsistencia($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen whereLaboratorioClinicoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen whereSolicitudExamenId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoSolicitudExamen whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class EstadoSolicitudExamen extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, EstadoSolicitudExamenFilter;
