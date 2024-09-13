@@ -3,13 +3,16 @@
 namespace App\Models\ComprasProveedores;
 
 use App\Models\UnidadMedida;
-use App\Traits\UppercaseItemsOrdenCompra;
 use App\Traits\UppercaseValuesTrait;
-use Attribute;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\ComprasProveedores\ItemDetalleOrdenCompra
@@ -28,31 +31,31 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property float $iva
  * @property float $subtotal
  * @property float $total
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read UnidadMedida|null $unidadMedida
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra query()
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereCantidad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereDescripcion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereDescuento($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereFacturable($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereGravaIva($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereIva($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereOrdenCompraId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra wherePorcentajeDescuento($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra wherePrecioUnitario($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereProductoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereSubtotal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereTotal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereUnidadMedidaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemDetalleOrdenCompra whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|ItemDetalleOrdenCompra newModelQuery()
+ * @method static Builder|ItemDetalleOrdenCompra newQuery()
+ * @method static Builder|ItemDetalleOrdenCompra query()
+ * @method static Builder|ItemDetalleOrdenCompra whereCantidad($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereCreatedAt($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereDescripcion($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereDescuento($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereFacturable($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereGravaIva($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereId($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereIva($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereOrdenCompraId($value)
+ * @method static Builder|ItemDetalleOrdenCompra wherePorcentajeDescuento($value)
+ * @method static Builder|ItemDetalleOrdenCompra wherePrecioUnitario($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereProductoId($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereSubtotal($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereTotal($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereUnidadMedidaId($value)
+ * @method static Builder|ItemDetalleOrdenCompra whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ItemDetalleOrdenCompra extends Model implements Auditable
 {
