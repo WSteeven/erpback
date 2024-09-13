@@ -13,14 +13,52 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 /**
- * @method static where(string $string, int $id)
+ * App\Models\FondosRotativos\Saldo\Saldo
+ *
+ * @property int $id
+ * @property string $fecha
+ * @property float $saldo_anterior
+ * @property float $saldo_depositado
+ * @property float $saldo_actual
+ * @property string $tipo_saldo
+ * @property int $saldoable_id
+ * @property string $saldoable_type
+ * @property int $empleado_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $empleado
+ * @property-read Model|\Eloquent $saldoable
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereFecha($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoActual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoAnterior($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoDepositado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereTipoSaldo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
-class Saldo extends Model  implements Auditable
+class Saldo extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
     use UppercaseValuesTrait;
+
     protected $table = 'fr_saldos';
     protected $primaryKey = 'id';
     protected $fillable = [
@@ -54,7 +92,7 @@ class Saldo extends Model  implements Auditable
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
                 case Acreditaciones::class:
-                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION && (($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin))) {
+                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION && (($saldo->fecha >= $fecha_inicio && $saldo->fecha <= $fecha_fin))) {
                         $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
@@ -70,13 +108,13 @@ class Saldo extends Model  implements Auditable
                     break;
                 default:
                     // if ($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin) {
-                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
-                        $results[$id] = $row;
-                        $id++;
-                        break;
-                    // } else
+                    $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                    $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                    $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                    $results[$id] = $row;
+                    $id++;
+                    break;
+                // } else
 //                    if ($saldo->tipo_saldo == self::ANULACION) {
 //                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
 //                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
@@ -125,7 +163,7 @@ class Saldo extends Model  implements Auditable
                     $row['tipo_saldo'] = $saldos->id_tipo_saldo;
                     $row['usuario'] = $saldos->empleado_id;
                     $row['empleado'] = $saldos->empleado;
-                    $row['cargo'] =  $saldos->empleado->cargo != null ? $saldos->empleado->cargo->nombre : '';
+                    $row['cargo'] = $saldos->empleado->cargo != null ? $saldos->empleado->cargo->nombre : '';
                     $row['localidad'] = $saldos->empleado->canton != null ? $saldos->empleado->canton->canton : '';
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
                     $row['saldo_depositado'] = $saldos->saldo_depositado;
@@ -138,12 +176,14 @@ class Saldo extends Model  implements Auditable
         }
         return $results;
     }
-    private static function  ordenarNombresApellidos($a, $b)
+
+    private static function ordenarNombresApellidos($a, $b)
     {
         $nameA = $a['empleado']->apellidos . ' ' . $a['empleado']->nombres;
         $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
         return strcmp($nameA, $nameB);
     }
+
     /**
      * La función "ingreso" comprueba varias condiciones y devuelve el importe correspondiente en
      * función de los parámetros dados.
@@ -189,6 +229,7 @@ class Saldo extends Model  implements Auditable
         }
         return 0;
     }
+
     // verifica si es un egreso
     private static function gasto($saldo, $tipo, $empleado)
     {
@@ -223,6 +264,7 @@ class Saldo extends Model  implements Auditable
         }
         return 0;
     }
+
     private static function descripcionSaldo($saldo, $tipo, $empleado)
     {
         switch (get_class($saldo)) {
@@ -272,6 +314,7 @@ class Saldo extends Model  implements Auditable
         }
         return '';
     }
+
     private static function observacionSaldo($saldo, $tipo)
     {
         switch (get_class($saldo)) {
@@ -294,6 +337,7 @@ class Saldo extends Model  implements Auditable
         }
         return '';
     }
+
     private static function obtenerNumeroComprobante($saldo)
     {
         if (isset($saldo['cuenta'])) {
@@ -307,6 +351,7 @@ class Saldo extends Model  implements Auditable
         }
         return '';
     }
+
     private static function subdetalleInfo($subdetalle_info)
     {
         $descripcion = '';
@@ -322,6 +367,7 @@ class Saldo extends Model  implements Auditable
         }
         return $descripcion;
     }
+
     private static function guardarArreglo($id, $ingreso, $gasto, $tipo, $empleado, $saldo)
     {
         $row = [];

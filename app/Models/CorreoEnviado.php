@@ -12,6 +12,43 @@ use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\CorreoEnviado
+ *
+ * @property int $id
+ * @property int|null $empleado_envia_id
+ * @property string $remitente
+ * @property string $correo_destinatario
+ * @property string $fecha_hora
+ * @property string $asunto
+ * @property int $notificable_id
+ * @property string $notificable_type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Model|\Eloquent $notificable
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereAsunto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereCorreoDestinatario($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereEmpleadoEnviaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereFechaHora($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereNotificableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereNotificableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereRemitente($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class CorreoEnviado extends Model implements Auditable
 {
     use HasFactory;

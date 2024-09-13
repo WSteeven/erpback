@@ -14,8 +14,46 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
+ * App\Models\FondosRotativos\AjusteSaldoFondoRotativo
+ *
  * @method static whereBetween(\Illuminate\Database\Query\Expression $raw, array $array)
  * @method static where(string $string, string $string1, \Carbon\Carbon $endOfDay)
+ * @property int $id
+ * @property int $solicitante_id
+ * @property int $destinatario_id
+ * @property int $autorizador_id
+ * @property string $motivo
+ * @property string $descripcion
+ * @property float $monto
+ * @property string $tipo
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $autorizador
+ * @property-read Empleado|null $destinatario
+ * @property-read Saldo|null $saldoFondoRotativo
+ * @property-read Empleado|null $solicitante
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereAutorizadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereDescripcion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereDestinatarioId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereMonto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereMotivo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereTipo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AjusteSaldoFondoRotativo whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class AjusteSaldoFondoRotativo extends Model implements Auditable
 {

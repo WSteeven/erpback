@@ -19,6 +19,64 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
+/**
+ * App\Models\ComprasProveedores\Proforma
+ *
+ * @property int $id
+ * @property string $codigo
+ * @property int|null $solicitante_id
+ * @property int|null $cliente_id
+ * @property int|null $autorizador_id
+ * @property int|null $autorizacion_id
+ * @property string|null $observacion_aut
+ * @property int|null $estado_id
+ * @property string|null $causa_anulacion
+ * @property string $descripcion
+ * @property string|null $forma
+ * @property string|null $tiempo
+ * @property float $iva
+ * @property float|null $descuento_general
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Empleado|null $autorizador
+ * @property-read Cliente|null $cliente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\ItemDetalleProforma> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read EstadoTransaccion|null $estado
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Empleado|null $solicitante
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereAutorizadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereCausaAnulacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereCodigo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereDescripcion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereDescuentoGeneral($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereEstadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereForma($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereIva($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereObservacionAut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereTiempo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Proforma whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Proforma extends Model implements Auditable
 {
   use HasFactory;

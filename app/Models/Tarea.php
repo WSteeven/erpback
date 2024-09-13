@@ -16,7 +16,94 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Scout\Searchable;
 
 /**
+ * App\Models\Tarea
+ *
  * @method static where(string $string, mixed $tarea)
+ * @property int $id
+ * @property string $codigo_tarea
+ * @property string|null $codigo_tarea_cliente
+ * @property string|null $fecha_solicitud
+ * @property string $titulo
+ * @property string|null $observacion
+ * @property string $para_cliente_proyecto
+ * @property string $ubicacion_trabajo
+ * @property string $medio_notificacion
+ * @property bool $finalizado
+ * @property string|null $imagen_informe
+ * @property string|null $novedad
+ * @property int|null $cliente_id
+ * @property int|null $cliente_final_id
+ * @property int|null $ruta_tarea_id
+ * @property int|null $fiscalizador_id
+ * @property int $coordinador_id
+ * @property int|null $proyecto_id
+ * @property int|null $etapa_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $metraje_tendido
+ * @property int|null $centro_costo_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read CentroCosto|null $centroCosto
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \App\Models\ClienteFinal|null $clienteFinal
+ * @property-read \App\Models\Empleado|null $coordinador
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Devolucion> $devoluciones
+ * @property-read int|null $devoluciones_count
+ * @property-read Etapa|null $etapa
+ * @property-read \App\Models\Empleado|null $fiscalizador
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Pedido> $pedidos
+ * @property-read int|null $pedidos_count
+ * @property-read \App\Models\Proyecto|null $proyecto
+ * @property-read \App\Models\RutaTarea|null $rutaTarea
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subtarea> $subtareas
+ * @property-read int|null $subtareas_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
+ * @property-read int|null $transacciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Traspaso> $traspasos
+ * @property-read int|null $traspasos_count
+ * @property-read \App\Models\UbicacionTarea|null $ubicacionTarea
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea disponibleUnaHoraFinalizar()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea estaActiva()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea fechaInicioFin()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea orderByAgendadoDesc()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea porCoordinador()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea porRol()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCentroCostoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereClienteFinalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCodigoTarea($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCodigoTareaCliente($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCoordinadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereEtapaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFechaSolicitud($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFinalizado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFiscalizadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereImagenInforme($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereMedioNotificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereMetrajeTendido($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereNovedad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereParaClienteProyecto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereProyectoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereRutaTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereTitulo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereUbicacionTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class Tarea extends Model implements Auditable
 {

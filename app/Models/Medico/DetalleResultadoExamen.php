@@ -10,6 +10,27 @@ use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
+/**
+ * App\Models\Medico\DetalleResultadoExamen
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Medico\EstadoSolicitudExamen|null $estadoSolicitudExamen
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\ResultadoExamen> $resultadosExamenes
+ * @property-read int|null $resultados_examenes_count
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen query()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleResultadoExamen setLoadInjectedDetection($load_default_detection)
+ * @mixin \Eloquent
+ */
 class DetalleResultadoExamen extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;

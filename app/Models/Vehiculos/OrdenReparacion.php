@@ -15,9 +15,49 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
+ * App\Models\Vehiculos\OrdenReparacion
+ *
  * @method static filter()
  * @method static where(\Closure $param)
  * @method static create(mixed $datos)
+ * @property int $id
+ * @property int|null $solicitante_id
+ * @property int|null $vehiculo_id
+ * @property int|null $autorizador_id
+ * @property int|null $autorizacion_id
+ * @property string|null $servicios
+ * @property string|null $observacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Empleado|null $autorizador
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Empleado|null $solicitante
+ * @property-read \App\Models\Vehiculos\Vehiculo|null $vehiculo
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion query()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereAutorizadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereServicios($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenReparacion whereVehiculoId($value)
+ * @mixin \Eloquent
  */
 class OrdenReparacion extends Model implements Auditable
 {

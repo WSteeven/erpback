@@ -9,6 +9,37 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 
+/**
+ * App\Models\Medico\FrPuestoTrabajoActual
+ *
+ * @property int $id
+ * @property string $puesto_trabajo
+ * @property string $actividad
+ * @property int|null $tiempo_trabajo
+ * @property string $medidas_preventivas
+ * @property int $factor_riesgo_puesto_trabajable_id
+ * @property string $factor_riesgo_puesto_trabajable_type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\DetalleCategFactorRiesgoFrPuestoTrabAct> $detalleCategFactorRiesgoFrPuestoTrabAct
+ * @property-read int|null $detalle_categ_factor_riesgo_fr_puesto_trab_act_count
+ * @property-read Model|\Eloquent $factorRiesgoTrabajable
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual query()
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereActividad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereFactorRiesgoPuestoTrabajableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereFactorRiesgoPuestoTrabajableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereMedidasPreventivas($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual wherePuestoTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereTiempoTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FrPuestoTrabajoActual whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class FrPuestoTrabajoActual extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;

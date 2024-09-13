@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class VacacionController extends Controller
 {
@@ -59,7 +60,7 @@ class VacacionController extends Controller
      * `VacacionRequest`. Se utiliza para validar y recuperar los datos enviados en la solicitud HTTP.
      *
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function store(VacacionRequest $request)
     {
@@ -166,6 +167,7 @@ class VacacionController extends Controller
      * Representa un registro de vacaciones específico en la base de datos.
      *
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
+     * @throws Exception
      */
     public function update(VacacionRequest $request, Vacacion $Vacacion)
     {

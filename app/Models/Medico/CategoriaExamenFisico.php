@@ -9,6 +9,33 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
+/**
+ * App\Models\Medico\CategoriaExamenFisico
+ *
+ * @property int $id
+ * @property string $nombre
+ * @property int $region_cuerpo_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Medico\RegionCuerpo|null $region
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico whereNombre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico whereRegionCuerpoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CategoriaExamenFisico whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class CategoriaExamenFisico extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;

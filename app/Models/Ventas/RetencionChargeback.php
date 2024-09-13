@@ -12,6 +12,40 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Ventas\RetencionChargeback
+ *
+ * @property int $id
+ * @property int|null $venta_id
+ * @property int|null $vendedor_id
+ * @property string $fecha_retencion
+ * @property float $valor_retenido
+ * @property int $pagado
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Ventas\Vendedor|null $vendedor
+ * @property-read \App\Models\Ventas\Venta|null $venta
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback query()
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback whereFechaRetencion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback wherePagado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback whereValorRetenido($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback whereVendedorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RetencionChargeback whereVentaId($value)
+ * @mixin \Eloquent
+ */
 class RetencionChargeback extends Model implements Auditable
 {
     use HasFactory;

@@ -10,6 +10,37 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 
+/**
+ * App\Models\Ventas\Comision
+ *
+ * @property int $id
+ * @property int $plan_id
+ * @property string $forma_pago
+ * @property string $comision
+ * @property string|null $tipo_vendedor
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Ventas\Plan|null $plan
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision whereComision($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision whereFormaPago($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision whereTipoVendedor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comision whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Comision extends Model implements Auditable
 {
     use HasFactory;

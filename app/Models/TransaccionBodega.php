@@ -18,6 +18,98 @@ use Src\Config\MotivosTransaccionesBodega;
 use Throwable;
 
 
+/**
+ * App\Models\TransaccionBodega
+ *
+ * @property int $id
+ * @property string|null $justificacion
+ * @property \App\Models\Comprobante|null $comprobante
+ * @property string|null $proveedor
+ * @property string|null $fecha_limite
+ * @property string|null $observacion_aut
+ * @property string|null $observacion_est
+ * @property int $solicitante_id
+ * @property int|null $responsable_id
+ * @property int|null $motivo_id
+ * @property int|null $proyecto_id
+ * @property int|null $etapa_id
+ * @property int|null $tarea_id
+ * @property int|null $devolucion_id
+ * @property int|null $pedido_id
+ * @property int|null $transferencia_id
+ * @property int|null $sucursal_id
+ * @property int|null $cliente_id
+ * @property int|null $per_autoriza_id
+ * @property int|null $per_atiende_id
+ * @property int|null $per_retira_id
+ * @property int|null $autorizacion_id
+ * @property int|null $estado_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $codigo_permiso_traslado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \App\Models\Empleado|null $atiende
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Empleado|null $autoriza
+ * @property-read \App\Models\Autorizacion|null $autorizacion
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProductoTransaccion> $detallesTransaccion
+ * @property-read int|null $detalles_transaccion_count
+ * @property-read \App\Models\Devolucion|null $devolucion
+ * @property-read \App\Models\EstadoTransaccion|null $estado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventario> $items
+ * @property-read int|null $items_count
+ * @property-read \App\Models\Notificacion|null $latestNotificacion
+ * @property-read \App\Models\Motivo|null $motivo
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \App\Models\Pedido|null $pedido
+ * @property-read \App\Models\Empleado|null $responsable
+ * @property-read \App\Models\Empleado|null $retira
+ * @property-read \App\Models\Empleado|null $solicitante
+ * @property-read \App\Models\Sucursal|null $sucursal
+ * @property-read \App\Models\Tarea|null $tarea
+ * @property-read \App\Models\TipoTransaccion|null $tipo
+ * @property-read \App\Models\Transferencia|null $transferencia
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega query()
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereCodigoPermisoTraslado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereComprobante($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereDevolucionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereEstadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereEtapaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereFechaLimite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereJustificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereMotivoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereObservacionAut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereObservacionEst($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega wherePedidoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega wherePerAtiendeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega wherePerAutorizaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega wherePerRetiraId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereProveedor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereProyectoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereResponsableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereSucursalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereTransferenciaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TransaccionBodega whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class TransaccionBodega extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
