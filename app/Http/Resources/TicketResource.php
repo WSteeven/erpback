@@ -43,7 +43,7 @@ class TicketResource extends JsonResource
             'departamento_solicitante' => $this->solicitante?->departamento?->nombre,
             'tipo_ticket' => $this->tipoTicket?->nombre,
             'categoria_tipo_ticket' => $this->tipoTicket?->categoriaTipoTicket->nombre,
-            'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
             'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
             'ticket_interno' => $this->ticket_interno,
             'ticket_para_mi' => $this->ticket_para_mi,
@@ -178,20 +178,50 @@ class TicketResource extends JsonResource
         }
     }
 
+    // aQUI ESTOY verificando la resta de las pausas, las pausas estan bien
     private function calcularTiempoEfectivoTotalHorasMinutosSegundos()
     {
         if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
             $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
-            $primerEjecucion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
-            $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
-            $segundosPausas = $this->obtenerSumaPausasSegundos()->total('seconds');
-            $tiempoOcupado = Carbon::parse($finalizacion?->new_values['fecha_hora_finalizado'])->subSeconds($segundosPausas)->diffInSeconds(Carbon::parse($primerEjecucion?->new_values['fecha_hora_ejecucion']));
-            // $total = $tiempoOcupado->subSeconds($segundosPausas);
-            $tiempoOcupado = CarbonInterval::seconds($tiempoOcupado);
-            return $finalizacion ? $tiempoOcupado->cascade()->format('%H:%I:%S') : null;
+
+            // Filtrar los tiempos entre la primera ejecución y la finalización del ticket
+            $tiemposFiltrados = $tiempos->filter(function ($tiempo) {
+                return isset($tiempo->new_values['estado']) &&
+                    ($tiempo->new_values['estado'] === Ticket::EJECUTANDO ||
+                        $tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO ||
+                        $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION);
+            });
+
+            // Obtener la fecha y hora de la primera ejecución y finalización
+            $primerEjecucion = $this->obtenerPrimeraEjecucion(); //$tiemposFiltrados->first(fn($tiempo) => $tiempo->new_values['estado'] === Ticket::EJECUTANDO);
+            $finalizacion = $tiemposFiltrados->first(fn($tiempo) => in_array($tiempo->new_values['estado'], [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION]));
+
+            $segundosPausas = $this->obtenerSumaPausasSegundos();
+            // $segundosPausas = $segundosPausas->total('seconds');
+            Log::channel('testing')->info('Log', compact('segundosPausas'));
+
+            // $tiempoOcupado = CarbonInterval::seconds(Carbon::parse($finalizacion?->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion?->new_values['fecha_hora_ejecucion'])));
+            $tiempoOcupado = CarbonInterval::seconds(Carbon::parse($finalizacion?->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion)));
+            Log::channel('testing')->info('Log', ['auditt' => Carbon::parse($finalizacion?->created_at)->format('Y-m-d H:i:s')]);
+            Log::channel('testing')->info('Log', compact('tiempoOcupado'));
+            $total = $tiempoOcupado->subSeconds($segundosPausas);
+            Log::channel('testing')->info('Log', compact('total'));
+            return $finalizacion ? $this->convertirSegundosAFormato($total->seconds) : null;
+            // return $finalizacion ? $this->convertirSegundosAFormato($total) : null;
         } else {
             return null;
         }
+    }
+
+    function convertirSegundosAFormato(int $segundos): string
+    {
+        // Calcular horas totales, minutos y segundos
+        $horas = floor($segundos / 3600); // Obtener el total de horas
+        $minutos = floor(($segundos % 3600) / 60); // Obtener los minutos restantes
+        $segundosRestantes = $segundos % 60; // Obtener los segundos restantes
+
+        // Formatear en H:i:s
+        return sprintf('%02d:%02d:%02d', $horas, $minutos, $segundosRestantes);
     }
 
     private function calcularTiempoEfectivoTotalHoras()
