@@ -77,13 +77,13 @@ class AlimentacionGrupoRequest extends FormRequest
         $validator->after(function ($validator) {
             if ($this->existenItemsIguales()) $validator->errors()->add('422', 'Verifique que no se repita la misma alimentación para un mismo grupo.');
 
-            foreach ($this->alimentacion_grupos as $alimentacion) {
+           /*  foreach ($this->alimentacion_grupos as $alimentacion) {
                 $grupo = Grupo::find($alimentacion['grupo_id'])->nombre;
                 $tipo_alimentacion = SubDetalleViatico::find($alimentacion['tipo_alimentacion_id'])->descripcion;
 
                 $existe = AlimentacionGrupo::where('fecha', Carbon::now()->format('Y-m-d'))->where('grupo_id', $alimentacion['grupo_id'])->where('tipo_alimentacion_id', $alimentacion['tipo_alimentacion_id'])->exists();
                 if ($existe) $validator->errors()->add('422', 'Ya se ha registrado ' . $tipo_alimentacion . ' para el grupo ' . $grupo . ' en la fecha seleccionada.');
-            }
+            } */
         });
     }
 

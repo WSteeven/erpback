@@ -20,8 +20,10 @@ class DashboardTicketService
         $fechaFin = request('fecha_fin');
 
         // Conversion de fechas
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+        // $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        // $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+        $fechaInicio = Carbon::createFromFormat('Y-m-d', $fechaInicio)->startOfDay();
+        $fechaFin = Carbon::createFromFormat('Y-m-d', $fechaFin)->endOfDay();
 
         return Ticket::where('solicitante_id', $idEmpleado)
             ->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)
@@ -36,8 +38,11 @@ class DashboardTicketService
         $fechaFin = request('fecha_fin');
 
         // Conversion de fechas
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+        // $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        // $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        $fechaInicio = Carbon::createFromFormat('Y-m-d', $fechaInicio)->startOfDay();
+        $fechaFin = Carbon::createFromFormat('Y-m-d', $fechaFin)->endOfDay();
 
         return  Ticket::where('responsable_id', $idEmpleado)
             ->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)
@@ -56,8 +61,12 @@ class DashboardTicketService
         $fechaInicio = request('fecha_inicio');
         $fechaFin = request('fecha_fin');
 
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+        // $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        // $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        $fechaInicio = Carbon::createFromFormat('Y-m-d', $fechaInicio)->startOfDay();
+        $fechaFin = Carbon::createFromFormat('Y-m-d', $fechaFin)->endOfDay();
+
         $idsEmpleados = [...$this->obtenerIdsEmpleadosSubordinados(), $idEmpleado];
 
         return Ticket::whereIn('responsable_id', $idsEmpleados)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->get();
@@ -69,8 +78,11 @@ class DashboardTicketService
         $fechaFin = request('fecha_fin');
 
         // Conversion de fechas
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+        // $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        // $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        $fechaInicio = Carbon::createFromFormat('Y-m-d', $fechaInicio)->startOfDay();
+        $fechaFin = Carbon::createFromFormat('Y-m-d', $fechaFin)->endOfDay();
 
         $departamentoResponsableId = request('departamento_responsable_id');
 

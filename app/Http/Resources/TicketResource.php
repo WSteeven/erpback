@@ -56,11 +56,16 @@ class TicketResource extends JsonResource
             'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
             // 'motivo_rechazado_ticket' => !empty($this->ticketsRechazados) ? end($this->ticketsRechazados->toArray()) : null,
             'motivo_rechazado_ticket' => $this->ticketsRechazados->isNotEmpty() ? $this->ticketsRechazados->last()->motivo : null,
+            'primera_fecha_hora_ejecucion' => $this->obtenerPrimeraEjecucion(),
+            'fecha_hora_ejecucion' => $this->fecha_hora_ejecucion,
+            'fecha_hora_finalizado' => $this->fecha_hora_finalizado,
             'tiempo_hasta_finalizar' => $this->calcularTiempoEfectivoTotal(),
+            'tiempo_hasta_finalizar_h_m_s' => $this->calcularTiempoEfectivoTotalHorasMinutosSegundos(),
             'tiempo_hasta_finalizar_horas' => $this->calcularTiempoEfectivoTotalHoras(),
             // 'tiempo_hasta_finalizar_segundos' => $this->calcularTiempoEfectivoTotalSegundos(),
             'tiempo_hasta_finalizar_departamento' => $this->calcularTiempoEfectivoDepartamento(),
             'tiempo_ocupado_pausas' => $this->calcularTiempoPausado(),
+            'created_at' => $this->created_at,
             'destinatarios' => [[
                 'departamento_id' => $this->departamento_responsable_id,
                 'categoria_id' => $this->tipoTicket?->categoria_tipo_ticket_id,
@@ -89,6 +94,13 @@ class TicketResource extends JsonResource
     public function verificarSiCalificado(string $solicitante_o_responsable, $idEmpleado)
     {
         return $this->calificacionesTickets()->where('calificador_id', $idEmpleado)->where('solicitante_o_responsable', $solicitante_o_responsable)->exists();
+    }
+
+    private function obtenerPrimeraEjecucion()
+    {
+        $tiempos = $this->audits()->orderBy('id', 'ASC')->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
+        $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+        return $finalizacion && isset($finalizacion->new_values['fecha_hora_ejecucion']) ? Carbon::parse($finalizacion->created_at)->format('Y-m-d H:i:s') : null;
     }
 
     private function calcularTiempoEfectivoTotal1()
@@ -166,7 +178,21 @@ class TicketResource extends JsonResource
         }
     }
 
-
+    private function calcularTiempoEfectivoTotalHorasMinutosSegundos()
+    {
+        if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
+            $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
+            $primerEjecucion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            $segundosPausas = $this->obtenerSumaPausasSegundos()->total('seconds');
+            $tiempoOcupado = Carbon::parse($finalizacion?->new_values['fecha_hora_finalizado'])->subSeconds($segundosPausas)->diffInSeconds(Carbon::parse($primerEjecucion?->new_values['fecha_hora_ejecucion']));
+            // $total = $tiempoOcupado->subSeconds($segundosPausas);
+            $tiempoOcupado = CarbonInterval::seconds($tiempoOcupado);
+            return $finalizacion ? $tiempoOcupado->cascade()->format('%H:%I:%S') : null;
+        } else {
+            return null;
+        }
+    }
 
     private function calcularTiempoEfectivoTotalHoras()
     {

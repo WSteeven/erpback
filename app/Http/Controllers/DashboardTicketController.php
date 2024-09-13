@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\Tickets\DashboardTicketExport;
 use App\Http\Resources\TicketResource;
 use App\Models\CalificacionTicket;
 use App\Models\Empleado;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\DashboardTicketService;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DashboardTicketController extends Controller
 {
@@ -24,6 +26,12 @@ class DashboardTicketController extends Controller
 
     public function index()
     {
+        if (request('export') == 'xlsx') {
+            $listado = Ticket::ignoreRequest(['export', 'titulo'])->filter()->get();
+            $export = new DashboardTicketExport($listado, 'Dashboard Tickets Por Área');
+            return Excel::download($export, 'reporte_tickets.xlsx');
+        }
+
         if (request('empleado_id')) return $this->empleado();
         if (request('departamento_responsable_id')) return $this->departamento();
     }
@@ -32,8 +40,8 @@ class DashboardTicketController extends Controller
     {
         if (in_array($ticket->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
             $tiempos = $ticket->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
-            $primerEjecucion = $tiempos->first(fn ($tiempo) => $tiempo->new_values['estado'] === Ticket::EJECUTANDO);
-            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            $primerEjecucion = $tiempos->first(fn($tiempo) => $tiempo->new_values['estado'] === Ticket::EJECUTANDO);
+            $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
             return $finalizacion ? Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInHours(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])) : null;
         } else {
             return null;
@@ -54,7 +62,7 @@ class DashboardTicketController extends Controller
 
         // $ticketsPorDepartamentoEstadoFinalizadoSolucionado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SOLUCIONADO));
 
-        $tiempoPromedio = $ticketsPorDepartamentoEstadoFinalizadoSolucionado->map(fn ($tiempo) => $this->calcularTiempoEfectivoTotalSegundos($tiempo))->avg();
+        $tiempoPromedio = $ticketsPorDepartamentoEstadoFinalizadoSolucionado->map(fn($tiempo) => $this->calcularTiempoEfectivoTotalSegundos($tiempo))->avg();
         $tiempoPromedio = CarbonInterval::seconds($tiempoPromedio)->cascade()->forHumans();
         $totalTicketsFinalizados = $ticketsPorDepartamentoEstadoFinalizadoSolucionado->count();
 
@@ -87,8 +95,11 @@ class DashboardTicketController extends Controller
         $empleado = Empleado::find($idEmpleado);
 
         // Conversion de fechas
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+        // $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        // $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        // $fechaInicio = Carbon::createFromFormat('Y-m-d', $fechaInicio)->startOfDay();
+        // $fechaFin = Carbon::createFromFormat('Y-m-d', $fechaFin)->endOfDay();
 
         /************
          * Listados
@@ -181,10 +192,10 @@ class DashboardTicketController extends Controller
 
             if ($tiempos) {
 
-                $primerEjecucion = $tiempos->first(fn ($tiempo) => $tiempo->new_values && isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : null);
+                $primerEjecucion = $tiempos->first(fn($tiempo) => $tiempo->new_values && isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : null);
 
                 if ($primerEjecucion) {
-                    $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+                    $finalizacion = $tiempos->first(fn($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
                     return $finalizacion ? Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])) : null;
                 }
             } else {
@@ -236,8 +247,11 @@ class DashboardTicketController extends Controller
         $fechaFin = request('fecha_fin');
 
         // Conversion de fechas
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+        // $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        // $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        // $fechaInicio = Carbon::createFromFormat('Y-m-d', $fechaInicio)->startOfDay();
+        // $fechaFin = Carbon::createFromFormat('Y-m-d', $fechaFin)->endOfDay();
 
         /* return Ticket::select('estado', DB::raw('COUNT(*) as total_tickets'))
             ->where('responsable_id', $idEmpleado)

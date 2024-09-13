@@ -80,7 +80,7 @@ class SubtareaResource extends JsonResource
             'coordinador' => $this->cargar('coordinador', $campos) ? $this->extraerNombresApellidos($this->tarea->coordinador) : null,
             'coordinador_id' => $this->cargar('coordinador_id', $campos) ? $this->tarea->coordinador_id : null,
             'grupo' => $this->cargar('grupo', $campos) ? $this->grupoResponsable?->nombre : null,
-            'grupo_id' => $this->cargar('grupo_id', $campos) ? $this->grupo_id : null,
+            'grupo_id' => $this->cargar('grupo_id', $campos) ? $this->obtenerGrupo() : null,
             'tiene_subtareas' => $this->cargar('tiene_subtareas', $campos) ? $tarea->tiene_subtareas : null,
             'causa_intervencion_id' => $this->cargar('empleado', $campos) ? $this->causa_intervencion_id : null,
             'puede_ejecutar' => $this->cargar('puede_ejecutar', $campos) ? $this->verificarSiPuedeEjecutar() : null,
@@ -227,6 +227,11 @@ class SubtareaResource extends JsonResource
         } else if ($this->tarea->para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) {
             return $this->tarea->clienteFinal?->canton?->canton;
         }
+    }
+
+    private function obtenerGrupo()
+    {
+        return $this->grupo_id ?? $this->empleado->grupo_id;
     }
 
     private function extraerNombresApellidos($empleado)

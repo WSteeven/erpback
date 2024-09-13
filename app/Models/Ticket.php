@@ -69,6 +69,10 @@ class Ticket extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
+    private $aliasListFilter = [
+        'responsable.departamento.id' => 'departamento_id',
+    ];
+
     /*************
      * Relaciones
      *************/

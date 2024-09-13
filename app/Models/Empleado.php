@@ -30,10 +30,6 @@ use Carbon\Carbon;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
-/**
- * @method static where(string $string, $empleado)
- * @method static find(mixed $autorizador_id)
- */
 class Empleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;
