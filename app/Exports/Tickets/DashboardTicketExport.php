@@ -33,7 +33,7 @@ class DashboardTicketExport implements FromView, WithColumnWidths, WithBackgroun
     public function columnWidths(): array
     {
         return [
-            'A' => 20,
+            'A' => 24,
             'B' => 30,
             'C' => 60,
             'D' => 40,
@@ -44,7 +44,8 @@ class DashboardTicketExport implements FromView, WithColumnWidths, WithBackgroun
             'I' => 30,
             'J' => 30,
             'K' => 30,
-            'L' => 30,
+            'L' => 40,
+            'M' => 30,
         ];
     }
 
@@ -84,12 +85,12 @@ class DashboardTicketExport implements FromView, WithColumnWidths, WithBackgroun
 
         $totalFilas = count($this->listado) + self::TOTAL_FILAS_ENCABEZADO;
 
-        $sheet->getStyle('A1:J1')->applyFromArray($textoTitulo);
-        $sheet->getStyle('A1:J' . $totalFilas)->applyFromArray($textCenter);
-        $sheet->getStyle('A1:J' . $totalFilas)->applyFromArray($bordeTabla);
-        $sheet->getStyle('A1:J' . $totalFilas)->getAlignment()->setWrapText(true);
+        $sheet->getStyle('A1:M1')->applyFromArray($textoTitulo);
+        $sheet->getStyle('A1:M' . $totalFilas)->applyFromArray($textCenter);
+        $sheet->getStyle('A1:M' . $totalFilas)->applyFromArray($bordeTabla);
+        $sheet->getStyle('A1:M' . $totalFilas)->getAlignment()->setWrapText(true);
         $sheet->getStyle('A1:A' . $totalFilas)->getFont()->setBold(true);
-        $sheet->setAutoFilter('A1:J1');
+        $sheet->setAutoFilter('A1:M1');
     }
 
     public function view(): View

@@ -37,8 +37,8 @@
                     <td valign="center">{{ $ticket['solicitante'] }}</td>
                     <td valign="center">{{ $ticket['responsable'] }}</td>
                     <td valign="center">{{ $ticket['estado'] }}</td>
-                    <td valign="center">{{ \Carbon\Carbon::parse($ticket['fecha_hora_limite'])->format('Y-m-d H:i:s') }}</td>
                     <td valign="center">{{ \Carbon\Carbon::parse($ticket['created_at'])->format('Y-m-d H:i:s') }}</td>
+                    <td valign="center">{{ \Carbon\Carbon::parse($ticket['fecha_hora_limite'])->format('Y-m-d H:i:s') }}</td>
                     <td valign="center">{{ $ticket['primera_fecha_hora_ejecucion'] }}</td>
                     <td valign="center">{{ $ticket['fecha_hora_finalizado'] }}</td>
                     <td valign="center">{{ $ticket['tiempo_hasta_finalizar'] }}</td>
