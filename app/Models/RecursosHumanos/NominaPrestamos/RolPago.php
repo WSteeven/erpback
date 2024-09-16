@@ -11,6 +11,90 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\RecursosHumanos\NominaPrestamos\RolPago
+ *
+ * @property int $id
+ * @property string $mes
+ * @property int $empleado_id
+ * @property string $salario
+ * @property string $dias
+ * @property string $sueldo
+ * @property string $decimo_tercero
+ * @property string $decimo_cuarto
+ * @property string $fondos_reserva
+ * @property string|null $bonificacion
+ * @property string $total_ingreso
+ * @property string $comisiones
+ * @property string $iess
+ * @property string $anticipo
+ * @property string $prestamo_quirorafario
+ * @property string $prestamo_hipotecario
+ * @property string $extension_conyugal
+ * @property string $prestamo_empresarial
+ * @property string $supa
+ * @property string|null $bono_recurente
+ * @property string $total_egreso
+ * @property string $total
+ * @property string $estado
+ * @property bool|null $medio_tiempo
+ * @property int $rol_pago_id
+ * @property string $rol_firmado
+ * @property int|null $porcentaje_quincena
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property bool $es_vendedor_medio_tiempo
+ * @property bool $sueldo_quincena_modificado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago> $egreso_rol_pago
+ * @property-read int|null $egreso_rol_pago_count
+ * @property-read Empleado|null $empleado_info
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago> $ingreso_rol_pago
+ * @property-read int|null $ingreso_rol_pago_count
+ * @property-read \App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes|null $rolPagoMes
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago query()
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereAnticipo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereBonificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereBonoRecurente($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereComisiones($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereDecimoCuarto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereDecimoTercero($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereDias($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereEsVendedorMedioTiempo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereExtensionConyugal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereFondosReserva($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereIess($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereMedioTiempo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereMes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePorcentajeQuincena($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePrestamoEmpresarial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePrestamoHipotecario($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePrestamoQuirorafario($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereRolFirmado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereRolPagoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSalario($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSueldo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSueldoQuincenaModificado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSupa($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereTotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereTotalEgreso($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereTotalIngreso($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class RolPago extends Model implements Auditable
 {
     use HasFactory;

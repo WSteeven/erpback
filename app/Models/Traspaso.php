@@ -10,6 +10,52 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Traspaso
+ *
+ * @property int $id
+ * @property string|null $justificacion
+ * @property int $devuelta
+ * @property int $solicitante_id
+ * @property int $desde_cliente_id
+ * @property int $hasta_cliente_id
+ * @property int|null $tarea_id
+ * @property int $estado_id
+ * @property int $sucursal_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\EstadoTransaccion|null $estado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventario> $items
+ * @property-read int|null $items_count
+ * @property-read \App\Models\Cliente|null $prestamista
+ * @property-read \App\Models\Cliente|null $prestatario
+ * @property-read \App\Models\Empleado|null $solicitante
+ * @property-read \App\Models\Sucursal|null $sucursal
+ * @property-read \App\Models\Tarea|null $tarea
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereDesdeClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereDevuelta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereEstadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereHastaClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereJustificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereSucursalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Traspaso whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Traspaso extends Model implements Auditable
 {
     use HasFactory;

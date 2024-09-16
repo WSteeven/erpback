@@ -9,6 +9,34 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Autorizacion
+ *
+ * @method static where(string $string, string $PENDIENTE)
+ * @property int $id
+ * @property string $nombre
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Pedido|null $pedido
+ * @property-read \App\Models\TransaccionBodega|null $transaccion
+ * @property-read \App\Models\Transferencia|null $transferencia
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion whereNombre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Autorizacion whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Autorizacion extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;

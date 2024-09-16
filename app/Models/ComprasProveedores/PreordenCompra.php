@@ -23,6 +23,50 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
 
+/**
+ * App\Models\ComprasProveedores\PreordenCompra
+ *
+ * @method static find(mixed $preorden_id)
+ * @property int $id
+ * @property int|null $solicitante_id
+ * @property int|null $pedido_id
+ * @property int|null $autorizador_id
+ * @property int|null $autorizacion_id
+ * @property string $estado
+ * @property string|null $causa_anulacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Empleado|null $autorizador
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, DetalleProducto> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Pedido|null $pedido
+ * @property-read Empleado|null $solicitante
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereAutorizadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereCausaAnulacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra wherePedidoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class PreordenCompra extends Model implements Auditable
 {
     use HasFactory;

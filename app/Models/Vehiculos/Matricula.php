@@ -12,6 +12,51 @@ use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Vehiculos\Matricula
+ *
+ * @method static where(string $string, false $false)
+ * @property int $id
+ * @property int|null $vehiculo_id
+ * @property string|null $fecha_matricula
+ * @property string|null $proxima_matricula
+ * @property float|null $valor_estimado_pagar
+ * @property string|null $matriculador
+ * @property bool $matriculado
+ * @property string|null $fecha_pago
+ * @property string|null $observacion
+ * @property float|null $monto
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \App\Models\Vehiculos\Vehiculo|null $vehiculo
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereFechaMatricula($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereFechaPago($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereMatriculado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereMatriculador($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereMonto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereProximaMatricula($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereValorEstimadoPagar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Matricula whereVehiculoId($value)
+ * @mixin \Eloquent
+ */
 class Matricula extends Model implements Auditable
 {
     use HasFactory;

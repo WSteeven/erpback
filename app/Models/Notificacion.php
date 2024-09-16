@@ -2,19 +2,57 @@
 
 namespace App\Models;
 
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableModel;
-use PhpParser\Node\Expr\AssignOp\Mod;
 use Src\Config\TiposNotificaciones;
 use Throwable;
 
 /**
- * @method static create(mixed $datos)
+ * App\Models\Notificacion
+ *
+ * @property int $id
+ * @property string $mensaje
+ * @property string|null $link
+ * @property int|null $per_originador_id
+ * @property int|null $per_destinatario_id
+ * @property string $tipo_notificacion
+ * @property int $leida
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property int $notificable_id
+ * @property string $notificable_type
+ * @property int $informativa
+ * @property-read Empleado|null $destinatario
+ * @property-read Model|Eloquent $notificable
+ * @property-read Empleado|null $originador
+ * @method static Builder|Notificacion acceptRequest(?array $request = null)
+ * @method static Builder|Notificacion filter(?array $request = null)
+ * @method static Builder|Notificacion ignoreRequest(?array $request = null)
+ * @method static Builder|Notificacion newModelQuery()
+ * @method static Builder|Notificacion newQuery()
+ * @method static Builder|Notificacion query()
+ * @method static Builder|Notificacion setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Notificacion setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Notificacion setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Notificacion whereCreatedAt($value)
+ * @method static Builder|Notificacion whereId($value)
+ * @method static Builder|Notificacion whereInformativa($value)
+ * @method static Builder|Notificacion whereLeida($value)
+ * @method static Builder|Notificacion whereLink($value)
+ * @method static Builder|Notificacion whereMensaje($value)
+ * @method static Builder|Notificacion whereNotificableId($value)
+ * @method static Builder|Notificacion whereNotificableType($value)
+ * @method static Builder|Notificacion wherePerDestinatarioId($value)
+ * @method static Builder|Notificacion wherePerOriginadorId($value)
+ * @method static Builder|Notificacion whereTipoNotificacion($value)
+ * @method static Builder|Notificacion whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Notificacion extends Model //implements Auditable
 {
@@ -86,7 +124,7 @@ class Notificacion extends Model //implements Auditable
      * notificación.
      * @param int|null $destinatario El parámetro "destinatario" se refiere al destinatario de la notificación.
      * Es el ID de la persona que recibirá la notificación.
-     * @param Model $entidad El parámetro "entidad" se refiere a una instancia de una clase de modelo que
+     * @param mixed $entidad El parámetro "entidad" se refiere a una instancia de una clase de modelo que
      * tiene una relación con el modelo "Notificación". Esta relación permite la creación de una nueva
      * notificación asociada a la instancia del modelo "entidad".
      * @param boolean $informativa El parámetro "informativa" es un valor booleano que indica si la notificación
@@ -95,7 +133,7 @@ class Notificacion extends Model //implements Auditable
      * la notificación requiere alguna acción o respuesta
      *
      * @return Notificacion $notificacion el objeto de notificación creado.
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public static function crearNotificacion(string $mensaje, string $ruta, string|TiposNotificaciones $tipo, ?int $originador, ?int $destinatario, Model $entidad, bool $informativa)
     {

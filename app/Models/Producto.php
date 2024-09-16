@@ -12,6 +12,45 @@ use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Producto
+ *
+ * @method static whereIn(string $string, mixed $categorias)
+ * @property int $id
+ * @property string $nombre
+ * @property int $categoria_id
+ * @property int $unidad_medida_id
+ * @property string $tipo
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Categoria|null $categoria
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Cliente> $clientes
+ * @property-read int|null $clientes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrdenCompra> $productoOrdenCompra
+ * @property-read int|null $producto_orden_compra_count
+ * @property-read \App\Models\UnidadMedida|null $unidadMedida
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto whereCategoriaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto whereNombre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto whereTipo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto whereUnidadMedidaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Producto whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Producto extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, Searchable;

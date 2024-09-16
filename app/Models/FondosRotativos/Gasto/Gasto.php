@@ -21,8 +21,87 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
+ * App\Models\FondosRotativos\Gasto\Gasto
+ *
  * @method static ignoreRequest(string[] $array)
  * @method static where(string $string, mixed $ruc)
+ * @property int $id
+ * @property string $fecha_viat
+ * @property int $id_lugar
+ * @property int|null $id_tarea
+ * @property int|null $id_subtarea
+ * @property int|null $id_proyecto
+ * @property string $ruc
+ * @property string|null $factura
+ * @property string|null $num_comprobante
+ * @property int $aut_especial
+ * @property int $detalle
+ * @property string $cantidad
+ * @property string $valor_u
+ * @property string $total
+ * @property string $comprobante
+ * @property string $comprobante2
+ * @property string|null $observacion
+ * @property int $id_usuario
+ * @property int $estado
+ * @property string|null $detalle_estado
+ * @property string|null $observacion_anulacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $authEspecialUser
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FondosRotativos\Gasto\BeneficiarioGasto> $beneficiarioGasto
+ * @property-read int|null $beneficiario_gasto_count
+ * @property-read Canton|null $canton
+ * @property-read \App\Models\FondosRotativos\Gasto\EstadoViatico|null $detalleEstado
+ * @property-read \App\Models\FondosRotativos\Gasto\DetalleViatico|null $detalle_info
+ * @property-read Empleado|null $empleado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FondosRotativos\Gasto\BeneficiarioGasto> $empleadoBeneficiario
+ * @property-read int|null $empleado_beneficiario_count
+ * @property-read \App\Models\FondosRotativos\Gasto\EstadoViatico|null $estadoViatico
+ * @property-read \App\Models\FondosRotativos\Gasto\GastoVehiculo|null $gastoVehiculo
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Proyecto|null $proyecto
+ * @property-read Saldo|null $saldoFondoRotativo
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FondosRotativos\Gasto\SubDetalleViatico> $subDetalle
+ * @property-read int|null $sub_detalle_count
+ * @property-read Subtarea|null $subTarea
+ * @property-read Tarea|null $tarea
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto acceptRequest(?array $request = null)
+ * @method static \Database\Factories\FondosRotativos\Gasto\GastoFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereAutEspecial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereCantidad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereComprobante($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereComprobante2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereDetalle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereDetalleEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereFactura($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereFechaViat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereIdLugar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereIdProyecto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereIdSubtarea($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereIdTarea($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereIdUsuario($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereNumComprobante($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereObservacionAnulacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereRuc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereTotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gasto whereValorU($value)
+ * @mixin \Eloquent
  */
 class Gasto extends Model implements Auditable
 {

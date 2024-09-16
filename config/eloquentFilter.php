@@ -32,5 +32,5 @@ return [
     */
 
     'namespace' => 'App\\ModelFilters\\',
-
+    'max_limit' => 100,
 ];

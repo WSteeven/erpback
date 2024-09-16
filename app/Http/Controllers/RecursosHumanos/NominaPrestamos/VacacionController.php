@@ -12,16 +12,18 @@ use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class VacacionController extends Controller
 {
-    private $entidad = 'Solicitud de vacación';
+    private string $entidad = 'Solicitud de vacación';
     public function __construct()
     {
         $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
@@ -34,15 +36,10 @@ class VacacionController extends Controller
      * La función de índice recupera datos de vacaciones en función del rol del usuario y los devuelve
      * como una respuesta JSON.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que representa
-     * una solicitud HTTP. Contiene información sobre la solicitud actual, como el método de solicitud,
-     * los encabezados y los datos de entrada.
-     *
-     * @return una respuesta JSON que contiene la variable 'resultados'.
+     * @return JsonResponse respuesta JSON que contiene la variable 'resultados'.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $results = [];
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
@@ -55,35 +52,15 @@ class VacacionController extends Controller
 
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Vacacion $Vacacion)
-    {
-        $modelo = new VacacionResource($Vacacion);
-        return response()->json(compact('modelo'), 200);
-    }
-    /**
-     * La función "descuentos_permiso" calcula la duración total de los permisos de vacaciones de un
-     * determinado empleado.
-     *
-     * @param Request request El parámetro  es una instancia de la clase Request, que se utiliza
-     * para recuperar datos de la solicitud HTTP. En este caso, se utiliza para recuperar el valor del
-     * parámetro "empleado" de la solicitud.
-     *
-     * @return la duración en horas de los permisos de vacaciones para un empleado específico.
-     */
-    public function descuentos_permiso(Request $request)
-    {
-        $duracionEnDias = PermisoEmpleado::where('empleado_id', $request->empleado)->where('cargo_vacaciones', 1)
-            ->selectRaw('SUM(TIMESTAMPDIFF(HOUR, fecha_hora_inicio, fecha_hora_fin)) as duracion')
-            ->first();
-        return $duracionEnDias;
-    }
+
     /**
      * La función almacena datos de vacaciones y realiza comprobaciones de validación.
      *
-     * @param VacacionRequest request El parámetro `` es una instancia de la clase
+     * @param VacacionRequest $request El parámetro `` es una instancia de la clase
      * `VacacionRequest`. Se utiliza para validar y recuperar los datos enviados en la solicitud HTTP.
      *
-     * @return una respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
+     * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
+     * @throws ValidationException|Throwable
      */
     public function store(VacacionRequest $request)
     {
@@ -93,7 +70,6 @@ class VacacionController extends Controller
 
             $empleado = Empleado::findOrFail($request->empleado_id);
             $fechaInicio = Carbon::parse($empleado->fecha_ingreso);
-            $fechaActual = Carbon::now();
 
             $diferencia = $fechaInicio->diffInYears(
                 $request->fecha_inicio ?? $request->fecha_inicio_rango1_vacaciones
@@ -160,16 +136,38 @@ class VacacionController extends Controller
         }
     }
 
+    public function show( Vacacion $Vacacion)
+    {
+        $modelo = new VacacionResource($Vacacion);
+        return response()->json(compact('modelo'));
+    }
+    /**
+     * La función "descuentos_permiso" calcula la duración total de los permisos de vacaciones de un
+     * determinado empleado.
+     *
+     * @param Request $request El parámetro es una instancia de la clase Request, que se utiliza
+     * para recuperar datos de la solicitud HTTP. En este caso, se utiliza para recuperar el valor del
+     * parámetro "empleado" de la solicitud.
+     *
+     */
+    public function descuentos_permiso(Request $request)
+    {
+        return PermisoEmpleado::where('empleado_id', $request->empleado)->where('cargo_vacaciones', 1)
+            ->selectRaw('SUM(TIMESTAMPDIFF(HOUR, fecha_hora_inicio, fecha_hora_fin)) as duracion')
+            ->first();
+    }
+
     /**
      * La función actualiza un modelo de Vacaciones con los datos validados de la solicitud y devuelve
      * una respuesta JSON con un mensaje y el modelo actualizado.
      *
-     * @param VacacionRequest request El parámetro  es una instancia de la clase VacacionRequest,
+     * @param VacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
      * que se utiliza para validar y recuperar los datos de la solicitud HTTP.
-     * @param Vacacion Vacacion El parámetro "Vacacion" es una instancia del modelo "Vacacion".
+     * @param Vacacion $Vacacion El parámetro "Vacacion" es una instancia del modelo "Vacacion".
      * Representa un registro de vacaciones específico en la base de datos.
      *
-     * @return una respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
+     * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
+     * @throws Exception
      */
     public function update(VacacionRequest $request, Vacacion $Vacacion)
     {
@@ -180,20 +178,17 @@ class VacacionController extends Controller
         $modelo = new VacacionResource($Vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
-        return $Vacacion;
     }
+
     /**
      * La función destruye un objeto Vacaciones y devuelve una respuesta JSON.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que representa
-     * una solicitud HTTP realizada al servidor. Contiene información sobre la solicitud, como el método
-     * HTTP, los encabezados y los datos de la solicitud.
-     * @param Vacacion Vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
+     * @param Vacacion $Vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
      * Representa un registro de vacaciones específico que debe eliminarse de la base de datos.
      *
-     * @return una respuesta JSON que contiene el objeto Vacaciones eliminado.
+     * @return JsonResponse respuesta JSON que contiene el objeto Vacaciones eliminado.
      */
-    public function destroy(Request $request, Vacacion $Vacacion)
+    public function destroy( Vacacion $Vacacion)
     {
         $Vacacion->delete();
         return response()->json(compact('Vacacion'));

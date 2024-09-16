@@ -5,14 +5,12 @@ namespace App\Events;
 use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
+use Exception;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class VacacionEvent implements ShouldBroadcast
@@ -21,11 +19,13 @@ class VacacionEvent implements ShouldBroadcast
 
     public Vacacion $vacacion;
     public Notificacion $notificacion;
-    public  $jefeInmediato = 0;
+    public int $jefeInmediato = 0;
+
     /**
      * Create a new event instance.
      *
      * @return void
+     * @throws Exception
      */
     public function __construct($vacacion)
     {
@@ -56,19 +56,17 @@ class VacacionEvent implements ShouldBroadcast
     public function mostrar_mensaje($vacacion)
     {
         $empleado = Empleado::find($vacacion->empleado_id);
-        $mensaje = $empleado->nombres . ' ' . $empleado->apellidos . ' ha solicitado vacaciones ';
-        return $mensaje;
+        return $empleado->nombres . ' ' . $empleado->apellidos . ' ha solicitado vacaciones ';
     }
 
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel
      */
     public function broadcastOn()
     {
         $nombre_chanel =  $this->vacacion->estado == 1 ? 'vacacion-' . $this->jefeInmediato : 'vacacion-' . $this->vacacion->empleado_id;
-        Log::channel('testing')->info('Log', ['Nombre del canal', $nombre_chanel]);
 
         return new Channel($nombre_chanel);
     }

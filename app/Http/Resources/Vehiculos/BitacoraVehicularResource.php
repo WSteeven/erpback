@@ -11,7 +11,7 @@ class BitacoraVehicularResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
@@ -36,7 +36,6 @@ class BitacoraVehicularResource extends JsonResource
         ];
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {
-            // $modelo['vehiculo'] = $this->vehiculo_id;
             $modelo['imagen_inicial'] = $this->imagen_inicial ? url($this->imagen_inicial) : null;
             $modelo['tareas'] = $this->tareas ? array_map('intval', Utils::convertirStringComasArray($this->tareas)) : null;
             $modelo['tickets'] = $this->tickets ? array_map('intval', Utils::convertirStringComasArray($this->tickets)) : null;
@@ -44,6 +43,9 @@ class BitacoraVehicularResource extends JsonResource
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo;
             $modelo['checklistVehiculo'] = $this->checklistVehiculo;
             $modelo['checklistImagenVehiculo'] = new ChecklistImagenVehiculoResource($this->checklistImagenVehiculo);
+
+            $modelo['vehiculo'] = $this->vehiculo_id;
+
         }
 
         return $modelo;

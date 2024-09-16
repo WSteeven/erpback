@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class VehiculoResource extends JsonResource
@@ -9,8 +10,8 @@ class VehiculoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -31,6 +32,7 @@ class VehiculoResource extends JsonResource
             'aire_acondicionado' => $this->aire_acondicionado,
             'capacidad_tanque' => $this->capacidad_tanque,
             'color' => $this->color,
+            'custodio_id' => $this->custodio_id,
             'custodio' => $this->custodio?->nombres . ' ' . $this->custodio?->apellidos,
         ];
 

@@ -110,12 +110,14 @@ class SubtareaService
     {
         $usuario = Auth::user();
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
 
         $search = request('search');
         $paginate = request('paginate');
 
         // Monitor
-        if (!request('tarea_id') && $esCoordinador) {
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) {
             if ($search) $query = $usuario->empleado->subtareasCoordinador()->search($search);
             else $query = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos', 'paginate'])->filter();
 

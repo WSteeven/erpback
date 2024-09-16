@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Src\Config\RutasStorage;
@@ -22,22 +21,18 @@ class ArchivoService
      * La función "listarArchivos" recupera una lista de archivos asociados con una entidad modelo
      * determinada en PHP.
      *
-     * @param Model entidad El parámetro "entidad" es una instancia de la clase `Model`. Representa
+     * @param Model $entidad El parámetro "entidad" es una instancia de la clase `Model`. Representa
      * una entidad o un objeto modelo que tiene una relación con la tabla `archivos`. Se supone que la
      * tabla `archivos` es una tabla relacionada con el modelo `entidad`, y la tabla `archivos`
      *
-     * @return results archivos asociados con la entidad modelo dada.
+     * @return array archivos asociados con la entidad modelo dada.
+     * @throws Exception
      */
     public static function listarArchivos(Model $entidad)
     {
-        // Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
-        $results = [];
+        Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
         try {
-            $results =  $entidad->archivos()->filter()->get();
-           /*  $results =  $entidad->archivos()->when(request('tipo'), function ($q) {
-                return $q->where('tipo', request('tipo'));
-            })->get(); */
-            return $results;
+            return $entidad->archivos()->filter()->get();
         } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['Error en el metodo listarArchivos de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
             throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine(), $th->getCode());
@@ -61,6 +56,7 @@ class ArchivoService
      * un único tipo para su modelo (MAYUSCULAS).
      *
      * @return Model el objeto modelo creado.
+     * @throws Exception|Throwable
      */
     public static function guardarArchivo(Model $entidad, UploadedFile $archivo, string $ruta, string $tipo = null)
     {
@@ -89,7 +85,7 @@ class ArchivoService
     /**
      * La función crea un directorio con permisos en PHP usando la clase Storage del framework Laravel.
      *
-     * @param string ruta El parámetro "ruta" es una cadena que representa la ruta del directorio que
+     * @param string $ruta El parámetro "ruta" es una cadena que representa la ruta del directorio que
      * se debe crear.
      */
     private static function crearDirectorioConPermisos(string $ruta)

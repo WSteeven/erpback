@@ -276,6 +276,31 @@
                                             </td>
                                         </tr>
                                         <!--Fin Gastos-->
+                                        <!--Gastos aprobados fuera del mes-->
+                                        <tr>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="15%">
+                                                <div align="left">{{ $empleado->canton->canton }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="17%">
+                                                <div align="center">
+                                                    {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">Gastos aprobados posteriormente(-)</div>
+                                            </td>
+                                            <td style="font-size:10px" width="10%">
+                                                <div align="right">
+                                                    {{ number_format($gastos_aprobados_fuera_mes, 2, ',', '.') }}</div>
+                                            </td>
+                                        </tr>
+                                        <!--Fin Gastos Aprobados fuera del mes-->
                                         <!-- Ajuste de saldos Ingreso -->
                                         <tr>
                                             <td style="font-size:10px" width="29%">

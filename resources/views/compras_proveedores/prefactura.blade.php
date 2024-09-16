@@ -119,9 +119,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador') }}</td>
-                        </tr>
-                        <tr>
                             <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>
                         </tr>
@@ -158,7 +155,7 @@
             <tr>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA.
+                        propiedad de {{ $configuracion['razon_social'] }}
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         usuario:

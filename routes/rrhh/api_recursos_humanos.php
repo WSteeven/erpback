@@ -34,6 +34,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
 use Illuminate\Support\Facades\Route;

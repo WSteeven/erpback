@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 // Dependencias
 
 use App\Events\TransaccionEgresoEvent;
+use App\Exports\Bodega\MaterialesDespachadosResponsableExport;
 use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
@@ -28,6 +29,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\Tareas\ProductoEmpleadoService;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
@@ -285,7 +287,7 @@ class TransaccionBodegaEgresoController extends Controller
             }
 
             $modelo = new TransaccionBodegaResource($transaccion->refresh());
-            $mensaje =  'Autorización actualizada correctamente';
+            $mensaje = 'Autorización actualizada correctamente';
         } else {
             if (auth()->user()->hasRole(User::ROL_BODEGA)) {
                 // Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
@@ -457,6 +459,28 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws ValidationException
+     */
+    public function reporteUniformesEpps(Request $request)
+    {
+        try {
+            switch ($request->accion) {
+                case 'excel':
+                    $results = $this->servicio->filtrarEgresosResponsablePorCategoria($request);
+                    $persona_entrega = Empleado::find($results[0]['per_atiende_id']);
+                    $persona_responsable = Empleado::find($request->responsable);
+                    $registros = TransaccionBodega::obtenerDatosReporteResponsable($results, $request->categorias);
+
+                    return Excel::download(new MaterialesDespachadosResponsableExport(collect($registros), $persona_entrega, $persona_responsable), 'reporte_epps.xlsx');
+                default:
+                    throw ValidationException::withMessages(['error' => 'Método no implementado']);
+            }
+
+        } catch (Throwable|Exception $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
+        }
+    }
 
 
     public function obtenerTransaccionPorTarea(int $tarea_id)

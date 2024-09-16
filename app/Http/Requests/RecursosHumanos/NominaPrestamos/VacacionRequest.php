@@ -2,10 +2,24 @@
 
 namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @property mixed $periodo
+ * @property mixed $fecha_inicio
+ * @property mixed $fecha_fin
+ * @property mixed $descuento_vacaciones
+ * @property mixed $fecha_inicio_rango1_vacaciones
+ * @property mixed $fecha_fin_rango2_vacaciones
+ * @property mixed $reemplazo
+ * @property mixed $empleado_id
+ * @property mixed $periodo_id
+ * @property mixed $numero_dias
+ * @property mixed $numero_dias_rango1
+ * @property mixed $numero_dias_rango2
+ * @property mixed $estado
+ */
 class VacacionRequest extends FormRequest
 {
     /**
@@ -39,7 +53,9 @@ class VacacionRequest extends FormRequest
             'numero_rangos' => 'required|integer',
             'numero_dias' => 'nullable|integer',
             'numero_dias_rango1' => 'nullable|integer',
-            'numero_dias_rango2' => 'nullable|integer'
+            'numero_dias_rango2' => 'nullable|integer',
+            'reemplazo_id'=>'required|exists:empleados,id',
+            'funciones'=>'sometimes|nullable|string',
         ];
     }
     protected function prepareForValidation()
@@ -47,6 +63,7 @@ class VacacionRequest extends FormRequest
         $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
         $this->merge([
             'empleado_id' => $empleado_id,
+            'reemplazo_id'=> $this->reemplazo,
         ]);
         $dateFields = [
             'fecha_inicio_rango1_vacaciones',

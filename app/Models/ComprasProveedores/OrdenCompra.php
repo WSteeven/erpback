@@ -25,6 +25,96 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use Src\Shared\Utils;
 
+/**
+ * App\Models\ComprasProveedores\OrdenCompra
+ *
+ * @method static ignoreRequest(string[] $array)
+ * @property int $id
+ * @property string $codigo
+ * @property int|null $solicitante_id
+ * @property int|null $proveedor_id
+ * @property int|null $autorizador_id
+ * @property int|null $autorizacion_id
+ * @property string|null $causa_anulacion
+ * @property int|null $preorden_id
+ * @property int|null $pedido_id
+ * @property string|null $observacion_aut
+ * @property int|null $estado_id
+ * @property string|null $observacion_est
+ * @property string $descripcion
+ * @property string|null $forma
+ * @property string|null $tiempo
+ * @property string $fecha
+ * @property bool $revisada_compras
+ * @property string|null $observacion_compras
+ * @property bool $realizada
+ * @property bool $pagada
+ * @property string|null $observacion_realizada
+ * @property string|null $categorias
+ * @property float $iva
+ * @property int|null $tarea_id
+ * @property string|null $file
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Empleado|null $autorizador
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CorreoEnviado> $correos
+ * @property-read int|null $correos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\ItemDetalleOrdenCompra> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read EstadoTransaccion|null $estado
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\NovedadOrdenCompra> $novedadesOrdenCompra
+ * @property-read int|null $novedades_orden_compra_count
+ * @property-read Pedido|null $pedido
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Producto> $productos
+ * @property-read int|null $productos_count
+ * @property-read Proveedor|null $proveedor
+ * @property-read Empleado|null $solicitante
+ * @property-read Tarea|null $tarea
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra query()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereAutorizadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCategorias($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCausaAnulacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCodigo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereDescripcion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereEstadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereFecha($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereFile($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereForma($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereIva($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionAut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionCompras($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionEst($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionRealizada($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra wherePagada($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra wherePedidoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra wherePreordenId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereProveedorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereRealizada($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereRevisadaCompras($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereTiempo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class OrdenCompra extends Model implements Auditable
 {
   use HasFactory;
