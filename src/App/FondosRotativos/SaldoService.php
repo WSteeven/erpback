@@ -10,6 +10,7 @@ use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -23,7 +24,9 @@ class SaldoService
     public const AJUSTE = 'AJUSTE';
     public const ANULACION = 'ANULACION';
 
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 //    public function setFechaInicio($fechaInicio)
 //    {
 //        $this->fechaInicio = $fechaInicio;
@@ -41,9 +44,10 @@ class SaldoService
         $fechaInicio = new Carbon($fecha);
         return [
             'inicio' => $fechaInicio->copy()->subMonth()->startOfMonth()->format('d-m-Y'),
-            'fin' =>  $fechaInicio->copy()->subMonth()->endOfMonth()->format('d-m-Y'),
+            'fin' => $fechaInicio->copy()->subMonth()->endOfMonth()->format('d-m-Y'),
         ];
     }
+
     public function SaldoEstadoCuenta($fechaInicio = null, $fechaFin = null, $id_empleado = null)
     {
         // Si las fechas no se proporcionan, usa las propiedades de la clase
@@ -86,72 +90,28 @@ class SaldoService
     }
 
     /**
+     * Obtiene las transferencias enviadas o recibidas por un empleado en un rango de fecha determinado.
+     *
      * @param int $empleado_id
      * @param $fecha_inicio
      * @param $fecha_fin
      * @param bool $enviada
+     * @param bool $incluir_anuladas
      * @return mixed
      */
-    public function obtenerTransferencias(int $empleado_id, $fecha_inicio, $fecha_fin, bool $enviada = true)
+    public function obtenerTransferencias(int $empleado_id, $fecha_inicio, $fecha_fin, bool $enviada = true, bool $incluir_anuladas = false)
     {
-        if ($enviada)
-            return Transferencias::where('usuario_envia_id', $empleado_id)
-                ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado', Transferencias::APROBADO)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
-        else
-            return Transferencias::where('usuario_recibe_id', $empleado_id)
-                ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado', Transferencias::APROBADO)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
+//        Log::channel('testing')->info('Log', ['fecha fin es', $fecha_fin]);
+        $campo_usuario = $enviada ? 'usuario_envia_id' : 'usuario_recibe_id';
+        return Transferencias::where($campo_usuario, $empleado_id)
+            ->with('empleadoRecibe', 'empleadoEnvia')
+            ->whereIn('estado', $incluir_anuladas
+                ? [Transferencias::APROBADO, Transferencias::ANULADO]
+                : [Transferencias::APROBADO])
+            ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+            ->get();
     }
 
-//    public function SaldoEstadoCuentaArrastre($fechaInicio = null, $fechaFin = null, $id_empleado = null)
-//    {
-//        // Si las fechas no se proporcionan, usa las propiedades de la clase
-//        $fechaInicio = $fechaInicio ?? $this->fechaInicio;
-//        $fechaFin = $fechaFin ?? $this->fechaFin;
-//
-//        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-//        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->format('Y-m-d');
-//
-//        // Obtén el saldo anterior de manera más eficiente
-//        $saldo_anterior_reporte = $this->EstadoCuentaAnterior($fechaInicio, $id_empleado);
-//        $saldo_anterior = $saldo_anterior_reporte != 0 ? $saldo_anterior_reporte :
-//            SaldoGrupo::where('id_usuario', $id_empleado)
-//            ->where('fecha', '<=', Carbon::parse($fechaInicio)->subDay())
-//            ->latest('created_at')->first()->saldo_actual;
-//
-//        $saldo_anterior = $saldo_anterior !== null ? $saldo_anterior : 0;
-//
-//        // Calcula las sumas directamente en las consultas
-//        $acreditaciones = Acreditaciones::where('id_usuario', $id_empleado)
-//            ->where('id_estado', EstadoAcreditaciones::REALIZADO)
-//            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
-//            ->sum('monto');
-//
-//        $transferencia_enviadas = Transferencias::where('usuario_envia_id', $id_empleado)
-//            ->where('estado', 1)
-//            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
-//            ->sum('monto');
-//
-//        $transferencia_recibida = Transferencias::where('usuario_recibe_id', $id_empleado)
-//            ->where('estado', 1)
-//            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
-//            ->sum('monto');
-//
-//        $gastos = Gasto::where('estado', 1)
-//            ->where('id_usuario', $id_empleado)
-//            ->whereBetween('fecha_viat', [$fechaInicio, $fechaFin])
-//            ->sum('total');
-//
-//        // Calcula el saldo actual de manera más eficiente
-//        $saldo_actual = $saldo_anterior + ($acreditaciones - $transferencia_enviadas + $transferencia_recibida - $gastos);
-//
-//        return $saldo_actual;
-//    }
 
     /**
      * La función `guardarSaldo` guarda un nuevo registro de saldo para el fondo de un empleado según
@@ -172,7 +132,7 @@ class SaldoService
         try {
             DB::beginTransaction();
             $ultimo_registro = Saldo::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
-            $ultimo_saldo =  $ultimo_registro?->saldo_actual ?? 0;
+            $ultimo_saldo = $ultimo_registro?->saldo_actual ?? 0;
             $nuevo_saldo = ($data['tipo'] === self::INGRESO) ? $ultimo_saldo + $data['monto'] : $ultimo_saldo - $data['monto'];
             $entidad->saldoFondoRotativo()->create([
                 'fecha' => $data['fecha'],
@@ -188,12 +148,6 @@ class SaldoService
             throw $th;
         }
     }
-
-//    public static function obtenerSaldoActual(Empleado $empleado)
-//    {
-//        $saldo_actual = Saldo::where('empleado_id', $empleado->id)->orderBy('id', 'desc')->first();
-//        return $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
-//    }
 
     /**
      * @throws Throwable
@@ -249,31 +203,14 @@ class SaldoService
             throw $th;
         }
     }
-//    private static function calcular_fechas($fecha)
-//    {
-//        $array_dias['Sunday'] = 0;
-//        $array_dias['Monday'] = 1;
-//        $array_dias['Tuesday'] = 2;
-//        $array_dias['Wednesday'] = 3;
-//        $array_dias['Thursday'] = 4;
-//        $array_dias['Friday'] = 5;
-//        $array_dias['Saturday'] = 6;
-//
-//        $dia_actual = $array_dias[date('l', strtotime($fecha))];
-//
-//        $rest = $dia_actual + 1;
-//        $sum = 5 - $dia_actual;
-//        $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
-//        $fechaFin = date("Y-m-d", strtotime($fecha . "+$sum days"));
-//        return array($fechaIni, $fechaFin);
-//    }
 
     public function EstadoCuentaAnterior($fechaInicio, $id_empleado)
     {
         $mesAnterior = $this->getFechaMesAnterior($fechaInicio);
         return $this->SaldoEstadoCuenta($mesAnterior['inicio'], $mesAnterior['fin'], $id_empleado);
     }
-    public static function obtenerSaldoEmpleadoFecha($fecha_anterior,  $empleado_id)
+
+    public static function obtenerSaldoEmpleadoFecha($fecha_anterior, $empleado_id)
     {
         $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
             ->where('fecha', $fecha_anterior)
@@ -287,6 +224,7 @@ class SaldoService
             ->where('fecha', $fecha_anterior)
             ->first();
     }
+
     public static function obtenerSaldoEmpleadoEntreFechas($fecha_inicio, $fecha_fin, int $empleado_id)
     {
         $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
@@ -302,7 +240,6 @@ class SaldoService
             ->orderBy('id', 'desc')
             ->first();
     }
-
 
 
     public static function obtenerSaldoActualUltimaFecha($fecha, int $empleado_id)
@@ -326,41 +263,32 @@ class SaldoService
     }
 
 
+    /**
+     * Obtiene el ultimo saldo de un empleado de la tabla fr_saldos, en base a la última fecha de creación del saldo anterior a la `$fecha_inicio`
+     * @param int $empleado_id
+     * @param $fecha_anterior
+     * @param $fecha_inicio
+     * @return Saldo|Builder|Model|\Illuminate\Database\Query\Builder|object|null
+     */
     public static function obtenerSaldoAnterior(int $empleado_id, $fecha_anterior, $fecha_inicio)
     {
+//        Log::channel('testing')->info('Log', ['args de obtenerSaldoAnterior',$empleado_id, $fecha_anterior, $fecha_inicio]);
         if (strtotime($fecha_anterior) < strtotime('05-04-2024')) {
             return SaldoGrupo::where('id_usuario', $empleado_id)
                 ->where('fecha', '<=', $fecha_anterior)
                 ->orderBy('created_at', 'DESC')
                 ->first();
         }
-
-        $saldo_fondos = null;
-        if (!is_null($fecha_inicio)) {
-            $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
-                ->where('fecha', '<=', $fecha_anterior)
-                ->where('fecha', '<', $fecha_inicio)
-                ->orderBy('created_at', 'DESC')
-                ->first();
-        }
-        $saldo_fondos = !is_null($saldo_fondos) ?  $saldo_fondos : Saldo::where('empleado_id', $empleado_id)
-            ->where('created_at', '<', $fecha_inicio)
+        //        Log::channel('testing')->info('Log', ['saldo fondos', $saldo_fondos]);
+        return Saldo::where('empleado_id', $empleado_id)
+        ->where('created_at', '<', $fecha_inicio)
             ->orderBy('created_at', 'DESC')
             ->first();
-        $saldo_fondos = $saldo_fondos ?: Saldo::where('empleado_id', $empleado_id)
-            ->where('fecha', '<=', $fecha_anterior)
-            ->orderBy('created_at', 'DESC')
-            ->first();
-        return $saldo_fondos?->tipo_saldo == self::ANULACION ? Saldo::where('empleado_id', 14)
-            ->where('fecha', '<=', $fecha_anterior)
-            ->where('tipo_saldo', '!=', self::ANULACION)
-            ->orderBy('created_at', 'DESC')
-            ->first() : $saldo_fondos;
     }
 
     /**
-     * La función verifica si hay registros de saldo para un empleado específico después de una fecha
-     * determinada.
+     * La función verifica si hay registros de saldo para un empleado específico después del 04 de abril 2024.
+     * Fecha en que fue la migración de saldos.
      *
      * @param int $empleado_id La función `existeSaldoNuevaTabla` verifica si hay algún registro en la
      * tabla `Saldo` con fecha mayor o igual a '2024-04-04' para un `empleado_id` específico.

@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Vehiculos;
 
 use App\Models\Vehiculos\Servicio;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
 
@@ -11,8 +12,8 @@ class OrdenReparacionResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -33,9 +34,11 @@ class OrdenReparacionResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['servicios'] = $this->servicios ? array_map('intval', Utils::convertirStringComasArray($this->servicios)) : null;
+            $modelo['solicitante'] = $this->solicitante_id;
             $modelo['solicitante_id'] = $this->solicitante_id;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['vehiculo'] = $this->vehiculo_id;
             $modelo['vehiculo_id'] = $this->vehiculo_id;
             $modelo['observacion'] = $this->observacion;
         }
