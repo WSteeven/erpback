@@ -29,7 +29,7 @@
         "twbs/bootstrap": "^5.2"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "*",
+        "barryvdh/laravel-ide-helper": "2.*",
         "beyondcode/laravel-dump-server": "^1.9",
         "fakerphp/faker": "^1.9.1",
         "laravel-lang/lang": "^11.0",

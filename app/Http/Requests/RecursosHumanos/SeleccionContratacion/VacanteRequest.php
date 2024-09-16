@@ -3,7 +3,6 @@
 namespace App\Http\Requests\RecursosHumanos\SeleccionContratacion;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VacanteRequest extends FormRequest

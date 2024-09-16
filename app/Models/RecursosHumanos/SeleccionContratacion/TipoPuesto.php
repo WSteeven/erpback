@@ -3,16 +3,33 @@
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
+ * App\Models\RecursosHumanos\SeleccionContratacion\TipoPuesto
+ *
  * @method static create(mixed $validated)
  * @method static ignoreRequest(string[] $array)
  * @method static upsert(array[] $array, string[] $uniqueBy, string[] $update)
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @method static Builder|TipoPuesto acceptRequest(?array $request = null)
+ * @method static Builder|TipoPuesto filter(?array $request = null)
+ * @method static Builder|TipoPuesto newModelQuery()
+ * @method static Builder|TipoPuesto newQuery()
+ * @method static Builder|TipoPuesto query()
+ * @method static Builder|TipoPuesto setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|TipoPuesto setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|TipoPuesto setLoadInjectedDetection($load_default_detection)
+ * @mixin Eloquent
  */
 class TipoPuesto extends Model implements Auditable
 {

@@ -5,16 +5,38 @@ namespace App\Models\RecursosHumanos\SeleccionContratacion;
 use App\Models\Canton;
 use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 
 /**
+ * App\Models\RecursosHumanos\SeleccionContratacion\Examen
+ *
  * @method static create($datos)
  * @method static find(mixed $id)
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Canton|null $canton
+ * @property-read Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Postulacion|null $postulacion
+ * @method static Builder|Examen acceptRequest(?array $request = null)
+ * @method static Builder|Examen filter(?array $request = null)
+ * @method static Builder|Examen ignoreRequest(?array $request = null)
+ * @method static Builder|Examen newModelQuery()
+ * @method static Builder|Examen newQuery()
+ * @method static Builder|Examen query()
+ * @method static Builder|Examen setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Examen setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Examen setLoadInjectedDetection($load_default_detection)
+ * @mixin Eloquent
  */
 class Examen extends Model implements Auditable
 {

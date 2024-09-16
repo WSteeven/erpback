@@ -4,14 +4,23 @@ namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Archivo;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -20,39 +29,50 @@ use Spatie\Permission\Traits\HasRoles;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $token
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read mixed $all_permissions
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Postulante|null $postulante
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Postulante|null $postulante
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal permission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal query()
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal role($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereEmailVerifiedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|UserExternal newModelQuery()
+ * @method static Builder|UserExternal newQuery()
+ * @method static Builder|UserExternal permission($permissions)
+ * @method static Builder|UserExternal query()
+ * @method static Builder|UserExternal role($roles, $guard = null)
+ * @method static Builder|UserExternal whereCreatedAt($value)
+ * @method static Builder|UserExternal whereEmail($value)
+ * @method static Builder|UserExternal whereEmailVerifiedAt($value)
+ * @method static Builder|UserExternal whereId($value)
+ * @method static Builder|UserExternal whereName($value)
+ * @method static Builder|UserExternal wherePassword($value)
+ * @method static Builder|UserExternal whereRememberToken($value)
+ * @method static Builder|UserExternal whereToken($value)
+ * @method static Builder|UserExternal whereUpdatedAt($value)
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, BancoPostulante> $bancoPostulante
+ * @property-read int|null $banco_postulante_count
+ * @property-read Collection<int, Favorita> $favorita
+ * @property-read int|null $favorita_count
+ * @property-read Postulante|null $persona
+ * @property-read Collection<int, Postulacion> $postulaciones
+ * @property-read int|null $postulaciones_count
+ * @property-read Collection<int, ReferenciaPersonal> $referencias
+ * @property-read int|null $referencias_count
+ * @mixin Eloquent
  */
 class UserExternal extends Authenticatable implements Auditable
 {

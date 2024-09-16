@@ -12,11 +12,31 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use Src\Shared\ObtenerInstanciaUsuario;
 
+
 /**
- * @method static whereIn(string $string, $ids_favoritas)
- * @method static find($vacante_id)
- * @method static ignoreRequest(string[] $array)
- * @method static create(mixed $datos)
+ * App\Models\RecursosHumanos\SeleccionContratacion\Vacante
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Canton|null $canton
+ * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Favorita|null $favorita
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecursosHumanos\SeleccionContratacion\FormacionAcademica> $formacionesAcademicas
+ * @property-read int|null $formaciones_academicas_count
+ * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Modalidad|null $modalidad
+ * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Postulacion|null $postulacion
+ * @property-read Empleado|null $publicante
+ * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\SolicitudPersonal|null $solicitud
+ * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\TipoPuesto|null $tipoPuesto
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vacante setLoadInjectedDetection($load_default_detection)
+ * @mixin \Eloquent
  */
 class Vacante extends Model implements Auditable
 {

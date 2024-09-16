@@ -7,18 +7,44 @@ use App\Models\Notificacion;
 use App\Models\Pais;
 use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 
 /**
+ * App\Models\RecursosHumanos\SeleccionContratacion\Postulacion
+ *
  * @method static find(mixed $postulacion)
  * @method static ignoreRequest(string[] $array)
  * @method static where(string $string, mixed $id)
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Entrevista|null $entrevista
+ * @property-read Examen|null $examen
+ * @property-read Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Pais|null $paisResidencia
+ * @property-read Model|Eloquent $postulacionable
+ * @property-read Vacante|null $vacante
+ * @method static Builder|Postulacion acceptRequest(?array $request = null)
+ * @method static Builder|Postulacion filter(?array $request = null)
+ * @method static Builder|Postulacion newModelQuery()
+ * @method static Builder|Postulacion newQuery()
+ * @method static Builder|Postulacion query()
+ * @method static Builder|Postulacion setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Postulacion setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Postulacion setLoadInjectedDetection($load_default_detection)
+ * @mixin Eloquent
  */
 class Postulacion extends Model implements Auditable
 {

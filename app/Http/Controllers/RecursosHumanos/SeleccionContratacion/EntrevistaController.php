@@ -30,7 +30,7 @@ class EntrevistaController extends Controller
      *
      * @param EntrevistaRequest $request
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function store(EntrevistaRequest $request)
     {

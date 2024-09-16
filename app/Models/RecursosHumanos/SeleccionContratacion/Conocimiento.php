@@ -3,14 +3,33 @@
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Cargo;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
+ * App\Models\RecursosHumanos\SeleccionContratacion\Conocimiento
+ *
  * @method static whereIn(string $string, array $array_map)
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Cargo|null $cargo
+ * @method static Builder|Conocimiento acceptRequest(?array $request = null)
+ * @method static Builder|Conocimiento filter(?array $request = null)
+ * @method static Builder|Conocimiento ignoreRequest(?array $request = null)
+ * @method static Builder|Conocimiento newModelQuery()
+ * @method static Builder|Conocimiento newQuery()
+ * @method static Builder|Conocimiento query()
+ * @method static Builder|Conocimiento setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Conocimiento setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Conocimiento setLoadInjectedDetection($load_default_detection)
+ * @mixin Eloquent
  */
 class Conocimiento extends Model implements Auditable
 {

@@ -8,13 +8,19 @@ use App\Models\Cargo;
 use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
+ * App\Models\RecursosHumanos\SeleccionContratacion\SolicitudPersonal
+ *
  * @method static create($validated)
  * @method static ignoreRequest(string[] $array)
  * @method static where(string $string, mixed $solicitud_id)
@@ -25,6 +31,27 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property mixed $autorizador_id
  * @property mixed $autorizador
  * @property mixed $id
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Cargo|null $cargo
+ * @property-read Modalidad|null $modalidad
+ * @property-read Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read TipoPuesto|null $tipoPuesto
+ * @method static Builder|SolicitudPersonal acceptRequest(?array $request = null)
+ * @method static Builder|SolicitudPersonal filter(?array $request = null)
+ * @method static Builder|SolicitudPersonal newModelQuery()
+ * @method static Builder|SolicitudPersonal newQuery()
+ * @method static Builder|SolicitudPersonal query()
+ * @method static Builder|SolicitudPersonal setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|SolicitudPersonal setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|SolicitudPersonal setLoadInjectedDetection($load_default_detection)
+ * @property-read Collection<int, \App\Models\RecursosHumanos\SeleccionContratacion\FormacionAcademica> $formacionesAcademicas
+ * @property-read int|null $formaciones_academicas_count
+ * @mixin Eloquent
  */
 class SolicitudPersonal extends Model implements Auditable
 {

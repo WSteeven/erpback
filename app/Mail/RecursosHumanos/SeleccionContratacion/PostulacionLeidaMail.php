@@ -6,7 +6,6 @@ use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource
 use App\Models\ConfiguracionGeneral;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
@@ -16,8 +15,10 @@ use Illuminate\Queue\SerializesModels;
 class PostulacionLeidaMail extends Mailable
 {
     use Queueable, SerializesModels;
+
     public array $postulacion;
     public ConfiguracionGeneral $configuracion;
+
     /**
      * Create a new message instance.
      *
@@ -25,7 +26,7 @@ class PostulacionLeidaMail extends Mailable
      */
     public function __construct(Postulacion $postulacion)
     {
-        $resource =  new PostulacionResource($postulacion);
+        $resource = new PostulacionResource($postulacion);
         $this->postulacion = $resource->resolve();
         $this->configuracion = ConfiguracionGeneral::first();
     }
@@ -33,7 +34,7 @@ class PostulacionLeidaMail extends Mailable
     /**
      * Get the message envelope.
      *
-     * @return \Illuminate\Mail\Mailables\Envelope
+     * @return Envelope
      */
     public function envelope()
     {
@@ -46,7 +47,7 @@ class PostulacionLeidaMail extends Mailable
     /**
      * Get the message content definition.
      *
-     * @return \Illuminate\Mail\Mailables\Content
+     * @return Content
      */
     public function content()
     {

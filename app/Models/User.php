@@ -63,6 +63,16 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorRecoveryCodes($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorSecret($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, BancoPostulante> $bancoPostulante
+ * @property-read int|null $banco_postulante_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Favorita> $favorita
+ * @property-read int|null $favorita_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Postulacion> $postulaciones
+ * @property-read int|null $postulaciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ReferenciaPersonal> $referencias
+ * @property-read int|null $referencias_count
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements Auditable

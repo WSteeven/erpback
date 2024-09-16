@@ -388,12 +388,6 @@ class Empleado extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-    //Relacion uno a muchos polimorfica
-    public function telefonos()
-    {
-        return $this->morphMany('App\Models\Telefono', 'telefonable');
-    }
-
     /**
      * Obtiene el usuario que posee el perfil.
      */
@@ -663,7 +657,7 @@ class Empleado extends Model implements Auditable
     public static function obtenerNombresApellidosEmpleados(array $empleados_id)
     {
         $empleados = Empleado::whereIn('id', $empleados_id)->get();
-        $nombresEmpleados = collect([]);
+        $nombresEmpleados = collect();
         foreach ($empleados as $empleado) {
             $nombresEmpleados->push(self::extraerNombresApellidos($empleado));
         }

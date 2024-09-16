@@ -5,18 +5,38 @@ namespace App\Models\RecursosHumanos\SeleccionContratacion;
 use App\Models\Cargo;
 use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
+ * App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante
+ *
  * @method static filter()
  * @method static create(mixed $datos)
  * @method static where(string $string, $user_id)
  * @property mixed $user_type
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Model|Eloquent $bancable
+ * @property-read Cargo|null $cargo
+ * @property-read Postulacion|null $postulacion
+ * @method static Builder|BancoPostulante acceptRequest(?array $request = null)
+ * @method static Builder|BancoPostulante ignoreRequest(?array $request = null)
+ * @method static Builder|BancoPostulante newModelQuery()
+ * @method static Builder|BancoPostulante newQuery()
+ * @method static Builder|BancoPostulante query()
+ * @method static Builder|BancoPostulante setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|BancoPostulante setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|BancoPostulante setLoadInjectedDetection($load_default_detection)
+ * @mixin Eloquent
  */
 class BancoPostulante extends Model implements Auditable
 {
