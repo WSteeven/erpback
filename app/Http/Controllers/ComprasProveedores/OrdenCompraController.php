@@ -69,6 +69,7 @@ class OrdenCompraController extends Controller
 
     /**
      * Guardar
+     * @throws ValidationException|Throwable
      */
     public function store(OrdenCompraRequest $request)
     {
@@ -103,7 +104,7 @@ class OrdenCompraController extends Controller
         } catch (Throwable|Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
-            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
@@ -118,6 +119,7 @@ class OrdenCompraController extends Controller
 
     /**
      * Actualizar
+     * @throws ValidationException|Throwable
      */
     public function update(OrdenCompraRequest $request, OrdenCompra $orden)
     {
@@ -154,7 +156,7 @@ class OrdenCompraController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
-            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
@@ -248,7 +250,7 @@ class OrdenCompraController extends Controller
                 $status = 422;
             }
             return response()->json(compact('mensaje'), $status);
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             Log::channel('testing')->info('Log', ['Error OrdenCompraProveedorController sendMail', $e->getMessage(), $e->getLine()]);
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
             return response()->json(compact('mensaje'), 500);

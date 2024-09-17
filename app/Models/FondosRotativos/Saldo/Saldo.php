@@ -6,9 +6,11 @@ use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -86,8 +88,10 @@ class Saldo extends Model implements Auditable
 
     public static function empaquetarCombinado($nuevo_elemento, $arreglo, $empleado, $fecha_inicio, $fecha_fin)
     {
+//        Log::channel('testing')->info('Log', ['empaquetarCombinado -> arreglo es', $arreglo]);
         $results = [];
         $id = 1;
+        $nuevo_elemento['created_at'] = $nuevo_elemento['fecha_creacion'];
         $results[0] = $nuevo_elemento;
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
@@ -95,13 +99,13 @@ class Saldo extends Model implements Auditable
                     if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION && (($saldo->fecha >= $fecha_inicio && $saldo->fecha <= $fecha_fin))) {
                         $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable, $saldo->created_at);
                         $results[$id] = $row;
                         $id++;
                     } else if ($saldo->tipo_saldo == self::ANULACION) {
                         $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable, $saldo->created_at);
                         $results[$id] = $row;
                         $id++;
                     }
@@ -110,7 +114,7 @@ class Saldo extends Model implements Auditable
                     // if ($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin) {
                     $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                     $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                    $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                    $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable, $saldo->created_at);
                     $results[$id] = $row;
                     $id++;
                     break;
@@ -368,13 +372,14 @@ class Saldo extends Model implements Auditable
         return $descripcion;
     }
 
-    private static function guardarArreglo($id, $ingreso, $gasto, $tipo, $empleado, $saldo)
+    private static function guardarArreglo($id, $ingreso, $gasto, $tipo, $empleado, $saldo, $fecha_registro_tabla_saldos)
     {
         $row = [];
         // $saldo =0;
         $row['item'] = $id + 1;
 //        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
         $row['fecha'] = $saldo['fecha_viat'] ?? ($saldo['created_at'] ?? $saldo['fecha']);
+        $row['created_at'] = Carbon::parse($fecha_registro_tabla_saldos)->format('Y-m-d H:i:s');
         $row['fecha_creacion'] = $saldo['updated_at'];
         $row['descripcion'] = self::descripcionSaldo($saldo, $tipo, $empleado);
         $row['observacion'] = self::observacionSaldo($saldo, $tipo);

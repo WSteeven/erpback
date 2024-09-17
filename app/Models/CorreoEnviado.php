@@ -3,14 +3,18 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use DateTime;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
+use Throwable;
 
 /**
  * App\Models\CorreoEnviado
@@ -25,29 +29,29 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $notificable_type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read Model|\Eloquent $notificable
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado query()
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereAsunto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereCorreoDestinatario($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereEmpleadoEnviaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereFechaHora($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereNotificableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereNotificableType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereRemitente($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CorreoEnviado whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Model|Eloquent $notificable
+ * @method static Builder|CorreoEnviado acceptRequest(?array $request = null)
+ * @method static Builder|CorreoEnviado filter(?array $request = null)
+ * @method static Builder|CorreoEnviado ignoreRequest(?array $request = null)
+ * @method static Builder|CorreoEnviado newModelQuery()
+ * @method static Builder|CorreoEnviado newQuery()
+ * @method static Builder|CorreoEnviado query()
+ * @method static Builder|CorreoEnviado setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|CorreoEnviado setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|CorreoEnviado setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|CorreoEnviado whereAsunto($value)
+ * @method static Builder|CorreoEnviado whereCorreoDestinatario($value)
+ * @method static Builder|CorreoEnviado whereCreatedAt($value)
+ * @method static Builder|CorreoEnviado whereEmpleadoEnviaId($value)
+ * @method static Builder|CorreoEnviado whereFechaHora($value)
+ * @method static Builder|CorreoEnviado whereId($value)
+ * @method static Builder|CorreoEnviado whereNotificableId($value)
+ * @method static Builder|CorreoEnviado whereNotificableType($value)
+ * @method static Builder|CorreoEnviado whereRemitente($value)
+ * @method static Builder|CorreoEnviado whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class CorreoEnviado extends Model implements Auditable
 {
@@ -74,16 +78,17 @@ class CorreoEnviado extends Model implements Auditable
      * La función `crearCorreoEnviado` crea un nuevo registro de correo electrónico enviado en la base
      * de datos con el remitente, el destinatario, el asunto y la entidad relacionada proporcionados.
      *
-     * @param string remitente El parámetro "remitente" representa el remitente del correo electrónico.
-     * @param string destinatario El parámetro "destinatario" representa el destinatario del correo
+     * @param string $remitente El parámetro "remitente" representa el remitente del correo electrónico.
+     * @param string $destinatario El parámetro "destinatario" representa el destinatario del correo
      * electrónico. Es la dirección de correo electrónico de la persona o entidad a quien se envía el
      * correo electrónico.
-     * @param string asunto El parámetro "asunto" representa el asunto del correo electrónico. Es una
+     * @param string $asunto El parámetro "asunto" representa el asunto del correo electrónico. Es una
      * cadena que contiene la línea de asunto del mensaje de correo electrónico.
-     * @param Model entidad El parámetro "entidad" es una instancia de una clase de modelo. Se utiliza
+     * @param Model $entidad El parámetro "entidad" es una instancia de una clase de modelo. Se utiliza
      * para crear un nuevo registro en la tabla de "correos" asociada al modelo dado.
      *
-     * @return el objeto `` creado.
+     * @return CorreoEnviado $correo el objeto `` creado.
+     * @throws Exception|Throwable
      */
     public static function crearCorreoEnviado(string $remitente,string  $destinatario,string $asunto, Model $entidad){
         try {
@@ -98,7 +103,7 @@ class CorreoEnviado extends Model implements Auditable
             ]);
             DB::commit();
             return $correo ;
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw new Exception($th->getMessage().'. [LINE CODE ERROR]: '.$th->getLine(), $th->getCode());
         }
