@@ -165,12 +165,12 @@ class InventarioService
         $tituloGrafico = 'Ingresos a bodega';
         $graficos = [];
 
-        //Ordenamos los datos en orden descendente
+        // Ordenamos los datos en orden descendente
         arsort($data);
 
         // Definimos un límite superior para la cantidad de elementos a mostrar directamente
         $limit = 4;
-        //Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
+        // Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
         $displayedData  = [];
         $othersData  = [];
 

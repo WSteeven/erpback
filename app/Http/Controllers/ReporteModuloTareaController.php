@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CausaIntervencion;
 use App\Models\Subtarea;
 use App\Models\TipoTrabajo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\Componentes\ChartJS\GraficoChartJS;
 
 class ReporteModuloTareaController extends Controller
 {
@@ -48,12 +50,12 @@ class ReporteModuloTareaController extends Controller
             ->groupBy('tipo_trabajo_id')->select('tipo_trabajo_id', DB::raw('COUNT(*) AS suma_trabajo'))
             ->get();
 
-        $results = $results->map(fn ($item) => [
-            'tipo_trabajo' => $item->tipo_trabajo->descripcion,
-            'suma_trabajo' => $item->suma_trabajo,
+        $results = $results->map(fn($item) => [
+            'clave' => $item->tipo_trabajo->descripcion,
+            'valor' => $item->suma_trabajo,
         ]);
 
-        return $results;
+        return GraficoChartJS::mapear($results->toArray(), 'Tipos de trabajos realizados' ?? '', 'Cantidad de subtareas');
     }
 
     private function trabajoRealizadoPorRegion()
@@ -64,13 +66,13 @@ class ReporteModuloTareaController extends Controller
         // SELECT count(*) AS suma_trabajo, g.region FROM subtareas AS s INNER JOIN grupos as g ON s.grupo_id = g.id where YEAR(s.fecha_hora_ejecucion) = 2023 and MONTH(s.fecha_hora_ejecucion) = 07 GROUP BY g.region
         $results = DB::table('subtareas as s')
             ->join('grupos as g', 's.grupo_id', '=', 'g.id')
-            ->select('g.region', DB::raw('count(*) as suma_trabajo'))
+            ->select('g.region as clave', DB::raw('count(*) as valor'))
             ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
             ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
             ->groupBy('g.region')
             ->get();
 
-        return $results;
+        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por región' ?? '', 'Cantidad de subtareas');
     }
 
     private function trabajoRealizadoPorRegionTipoTrabajo()
@@ -81,14 +83,14 @@ class ReporteModuloTareaController extends Controller
 
         $results = DB::table('subtareas as s')
             ->join('grupos as g', 's.grupo_id', '=', 'g.id')
-            ->select('g.region', DB::raw('count(*) as suma_trabajo'))
+            ->select('g.region as clave', DB::raw('count(*) as valor'))
             ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
             ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
             ->where('tipo_trabajo_id', $idTipoTrabajo)
             ->groupBy('g.region')
             ->get();
 
-        return $results;
+        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por región y tipo de trabajo (' . TipoTrabajo::find($idTipoTrabajo)->descripcion . ')', 'Cantidad de subtareas');
     }
 
     private function trabajoRealizadoPorGrupoTipoTrabajo()
@@ -99,14 +101,14 @@ class ReporteModuloTareaController extends Controller
 
         $results = DB::table('subtareas as s')
             ->join('grupos as g', 's.grupo_id', '=', 'g.id')
-            ->select('g.nombre as grupo', DB::raw('count(*) as suma_trabajo'))
+            ->select('g.nombre as clave', DB::raw('count(*) as valor'))
             ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
             ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
             ->where('tipo_trabajo_id', $idTipoTrabajo)
             ->groupBy('g.nombre')
             ->get();
 
-        return $results;
+        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por grupo y tipo de trabajo (' . TipoTrabajo::find($idTipoTrabajo)->descripcion . ')', 'Cantidad de subtareas');
     }
 
     // Emegerncias - Solo aplica a Nedetel
@@ -134,7 +136,7 @@ class ReporteModuloTareaController extends Controller
         return $results;
     }
 
-    private function trabajoRealizadoPorGrupoCausaIntervencion()
+    private function trabajoRealizadoPorGrupoCausaIntervencionold()
     {
         $idCausaIntervencion = request('causa_intervencion');
         $mesAnio = request('mes_anio');
@@ -150,5 +152,32 @@ class ReporteModuloTareaController extends Controller
             ->get();
 
         return $results;
+    }
+
+    private function trabajoRealizadoPorGrupoCausaIntervencion()
+    {
+        $tipo_trabajo_id = request('tipo_trabajo_id');
+        $graficos = collect([]);
+
+        $mesAnio = request('mes_anio');
+        $inicioDelMes = Carbon::createFromFormat('m-Y', $mesAnio)->startOfMonth();
+
+        $results = Subtarea::join('grupos as g', 'grupo_id', '=', 'g.id')
+            ->select('g.nombre as clave', DB::raw('count(*) as valor'), 'causa_intervencion_id')
+            ->whereYear('fecha_hora_ejecucion', '=', $inicioDelMes->year)
+            ->whereMonth('fecha_hora_ejecucion', '=', $inicioDelMes->month)
+            ->whereHas('causaIntervencion', function ($q) use ($tipo_trabajo_id) {
+                $q->where('tipo_trabajo_id', $tipo_trabajo_id);
+            })
+            ->groupBy('g.nombre')
+            ->get();
+
+        $results = $results->groupBy('causa_intervencion_id');
+
+        foreach ($results as $key => $listado) {
+            $graficos->push(GraficoChartJS::mapear($listado->toArray(), CausaIntervencion::find($key)?->nombre ?? '', 'Cantidad de subtareas'));
+        }
+
+        return $graficos;
     }
 }

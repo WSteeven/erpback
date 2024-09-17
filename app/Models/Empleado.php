@@ -174,6 +174,7 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Empleado newModelQuery()
  * @method static Builder|Empleado newQuery()
  * @method static Builder|Empleado query()
+ * @method static Builder|Empleado find()
  * @method static Builder|Empleado setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|Empleado setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|Empleado setLoadInjectedDetection($load_default_detection)
@@ -229,6 +230,7 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Empleado whereTitulo($value)
  * @method static Builder|Empleado whereTrabajadorSustituto($value)
  * @method static Builder|Empleado whereUpdatedAt($value)
+ * @method static Builder|Empleado where($value)
  * @method static Builder|Empleado whereUsuarioId($value)
  * @method static Builder|Empleado whereViveConDiscapacitados($value)
  * @mixin Eloquent

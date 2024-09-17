@@ -53,6 +53,7 @@ class DashboardTicketController extends Controller
         // Graficos de pastel
         $temporal = $this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::ASIGNADO);
         $ticketsPorDepartamentoEstadoAsignado = TicketResource::collection($temporal);
+        $ticketsPorDepartamentoEstadoRechazado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::RECHAZADO));
         $ticketsPorDepartamentoEstadoReasignado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::REASIGNADO));
         $ticketsPorDepartamentoEstadoEjecutando = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::EJECUTANDO));
         $ticketsPorDepartamentoEstadoPausado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::PAUSADO));
@@ -69,6 +70,7 @@ class DashboardTicketController extends Controller
         $results = compact(
             // Graficos de pastel
             'ticketsPorDepartamentoEstadoAsignado',
+            'ticketsPorDepartamentoEstadoRechazado',
             'ticketsPorDepartamentoEstadoReasignado',
             'ticketsPorDepartamentoEstadoEjecutando',
             'ticketsPorDepartamentoEstadoPausado',
@@ -145,6 +147,7 @@ class DashboardTicketController extends Controller
         $cantTicketsRecibidos = $recibidos->count();
         $cantTicketsAsignados = $empleado?->tickets()->where('estado', Ticket::ASIGNADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsCancelados = $empleado?->tickets()->where('estado', Ticket::CANCELADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
+        $cantTicketsRechazados = $empleado?->tickets()->where('estado', Ticket::RECHAZADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsReasignados = $empleado?->tickets()->where('estado', Ticket::REASIGNADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsEjecutados = $empleado?->tickets()->where('estado', Ticket::EJECUTANDO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsPausados = $empleado?->tickets()->where('estado', Ticket::PAUSADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
@@ -154,7 +157,7 @@ class DashboardTicketController extends Controller
 
         $ticketsPorEstado = TicketResource::collection($this->obtenerTicketsPorEstado()); //$this->ajustarEstadosPorEstado($this->obtenerTicketsPorEstado());
 
-        // nuevo
+        // Nuevo
         $ticketsCreadosADepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsSolicitadosPorDepartamento());
         $ticketsRecibidosPorDepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsRecibidosPorDepartamento());
 
@@ -168,6 +171,7 @@ class DashboardTicketController extends Controller
             'cantTicketsAsignados',
             'cantTicketsEjecutados',
             'cantTicketsCancelados',
+            'cantTicketsRechazados',
             'cantTicketsCanceladosPorMi',
             'cantTicketsPausados',
             'cantTicketsCalificadosResponsable',
@@ -263,9 +267,6 @@ class DashboardTicketController extends Controller
             ->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)
             ->get();
     }
-
-    // hueso carnudo - 1libra
-
 
     private function obtenerCantidadTicketsPorDepartamentoEstadoOld($estado)
     {

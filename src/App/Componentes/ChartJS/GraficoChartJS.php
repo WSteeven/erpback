@@ -17,9 +17,9 @@ class GraficoChartJS
     // La lista debe tener la estructura ['clave' => 'CLAVE', 'valor' => valor]
     public static function mapear(array $listado, string $titulo, string $tituloLabel)
     {
-        $labels = array_map(fn ($item) => $item['clave'], $listado);
-        $valores = array_map(fn ($item) => $item['valor'], $listado);
-        $colores = array_map(fn ($item) => self::generarColorAzulPastelClaro(), $listado);
+        $labels = array_map(fn($item) => is_array($item) ? $item['clave'] : $item->clave, $listado);
+        $valores = array_map(fn($item) => is_array($item) ? $item['valor'] : $item->valor, $listado);
+        $colores = array_map(fn() => self::generarColorAzulPastelClaro(), $listado);
 
         return self::mapearDatos($titulo, $labels, $valores, $tituloLabel, $colores);
     }
