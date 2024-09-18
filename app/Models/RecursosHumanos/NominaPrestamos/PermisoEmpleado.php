@@ -48,6 +48,8 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado where()
+ * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado find()
  * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado setBlackListDetection(?array $black_list_detections = null)
  * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado setCustomDetection(?array $object_custom_detect = null)
  * @method static \Illuminate\Database\Eloquent\Builder|PermisoEmpleado setLoadInjectedDetection($load_default_detection)

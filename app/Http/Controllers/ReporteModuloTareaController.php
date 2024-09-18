@@ -44,11 +44,14 @@ class ReporteModuloTareaController extends Controller
 
         $idsTiposTrabajosCliente = TipoTrabajo::where('cliente_id', $idCliente)->pluck('id');
 
-        $results = Subtarea::whereYear('fecha_hora_agendado', $fecha->year)
-            ->whereMonth('fecha_hora_agendado', $fecha->month)
+        $results = Subtarea::whereYear('fecha_hora_finalizacion', $fecha->year)
+            ->whereMonth('fecha_hora_finalizacion', $fecha->month)
             ->whereIn('tipo_trabajo_id', $idsTiposTrabajosCliente)
+            ->whereNotNull('grupo_id')
             ->groupBy('tipo_trabajo_id')->select('tipo_trabajo_id', DB::raw('COUNT(*) AS suma_trabajo'))
             ->get();
+
+        // Log::channel('testing')->info('Log', ['Sql', $results->toSql()]);
 
         $results = $results->map(fn($item) => [
             'clave' => $item->tipo_trabajo->descripcion,
@@ -61,14 +64,20 @@ class ReporteModuloTareaController extends Controller
     private function trabajoRealizadoPorRegion()
     {
         $mesAnio = request('mes_anio');
+        $cliente_id = request('cliente_id');
         $fecha = Carbon::createFromFormat('m-Y', $mesAnio)->startOfMonth();
 
         // SELECT count(*) AS suma_trabajo, g.region FROM subtareas AS s INNER JOIN grupos as g ON s.grupo_id = g.id where YEAR(s.fecha_hora_ejecucion) = 2023 and MONTH(s.fecha_hora_ejecucion) = 07 GROUP BY g.region
         $results = DB::table('subtareas as s')
             ->join('grupos as g', 's.grupo_id', '=', 'g.id')
+            ->join('tareas as t', function ($join)  use ($cliente_id) {
+                $join->on('s.tarea_id', '=', 't.id')
+                    ->where('t.cliente_id', $cliente_id);
+            })
             ->select('g.region as clave', DB::raw('count(*) as valor'))
-            ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
-            ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
+            ->whereYear('s.fecha_hora_finalizacion', '=', $fecha->year)
+            ->whereMonth('s.fecha_hora_finalizacion', '=', $fecha->month)
+            ->whereNotNull('grupo_id')
             ->groupBy('g.region')
             ->get();
 
@@ -78,15 +87,21 @@ class ReporteModuloTareaController extends Controller
     private function trabajoRealizadoPorRegionTipoTrabajo()
     {
         $idTipoTrabajo = request('tipo_trabajo_id');
+        $cliente_id = request('cliente_id');
         $mesAnio = request('mes_anio');
         $fecha = Carbon::createFromFormat('m-Y', $mesAnio)->startOfMonth();
 
         $results = DB::table('subtareas as s')
             ->join('grupos as g', 's.grupo_id', '=', 'g.id')
+            ->join('tareas as t', function ($join)  use ($cliente_id) {
+                $join->on('s.tarea_id', '=', 't.id')
+                    ->where('t.cliente_id', $cliente_id);
+            })
             ->select('g.region as clave', DB::raw('count(*) as valor'))
-            ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
-            ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
+            ->whereYear('s.fecha_hora_finalizacion', '=', $fecha->year)
+            ->whereMonth('s.fecha_hora_finalizacion', '=', $fecha->month)
             ->where('tipo_trabajo_id', $idTipoTrabajo)
+            ->whereNotNull('grupo_id')
             ->groupBy('g.region')
             ->get();
 
@@ -102,8 +117,8 @@ class ReporteModuloTareaController extends Controller
         $results = DB::table('subtareas as s')
             ->join('grupos as g', 's.grupo_id', '=', 'g.id')
             ->select('g.nombre as clave', DB::raw('count(*) as valor'))
-            ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
-            ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
+            ->whereYear('s.fecha_hora_finalizacion', '=', $fecha->year)
+            ->whereMonth('s.fecha_hora_finalizacion', '=', $fecha->month)
             ->where('tipo_trabajo_id', $idTipoTrabajo)
             ->groupBy('g.nombre')
             ->get();
@@ -120,6 +135,10 @@ class ReporteModuloTareaController extends Controller
 
         $results = DB::table('subtareas as s')
             ->join('grupos as g', 's.grupo_id', '=', 'g.id')
+            ->join('tareas as t', function ($join)  use ($cliente_id) {
+                $join->on('s.tarea_id', '=', 't.id')
+                    ->where('t.cliente_id', $cliente_id);
+            })
             ->select(
                 // DB::raw('count(*) as suma_trabajo'),
                 'g.nombre as grupo',
@@ -128,26 +147,9 @@ class ReporteModuloTareaController extends Controller
                 DB::raw('SUM(CASE WHEN s.tipo_trabajo_id = 52 THEN 1 ELSE 0 END) as soporte'),
                 DB::raw('SUM(CASE WHEN s.tipo_trabajo_id = 53 THEN 1 ELSE 0 END) as tarea_programada'),
             )
-            ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
-            ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
-            ->groupBy('g.nombre')
-            ->get();
-
-        return $results;
-    }
-
-    private function trabajoRealizadoPorGrupoCausaIntervencionold()
-    {
-        $idCausaIntervencion = request('causa_intervencion');
-        $mesAnio = request('mes_anio');
-        $fecha = Carbon::createFromFormat('m-Y', $mesAnio)->startOfMonth();
-
-        $results = DB::table('subtareas as s')
-            ->join('grupos as g', 's.grupo_id', '=', 'g.id')
-            ->select('g.nombre as grupo', DB::raw('count(*) as suma_trabajo'))
-            ->whereYear('s.fecha_hora_ejecucion', '=', $fecha->year)
-            ->whereMonth('s.fecha_hora_ejecucion', '=', $fecha->month)
-            ->where('causa_intervencion_id', '=', $idCausaIntervencion)
+            ->whereYear('s.fecha_hora_finalizacion', '=', $fecha->year)
+            ->whereMonth('s.fecha_hora_finalizacion', '=', $fecha->month)
+            ->whereNotNull('grupo_id')
             ->groupBy('g.nombre')
             ->get();
 
@@ -164,8 +166,8 @@ class ReporteModuloTareaController extends Controller
 
         $results = Subtarea::join('grupos as g', 'grupo_id', '=', 'g.id')
             ->select('g.nombre as clave', DB::raw('count(*) as valor'), 'causa_intervencion_id')
-            ->whereYear('fecha_hora_ejecucion', '=', $inicioDelMes->year)
-            ->whereMonth('fecha_hora_ejecucion', '=', $inicioDelMes->month)
+            ->whereYear('fecha_hora_finalizacion', '=', $inicioDelMes->year)
+            ->whereMonth('fecha_hora_finalizacion', '=', $inicioDelMes->month)
             ->whereHas('causaIntervencion', function ($q) use ($tipo_trabajo_id) {
                 $q->where('tipo_trabajo_id', $tipo_trabajo_id);
             })
