@@ -19,7 +19,7 @@ trait UppercaseValuesTrait
                 $this->attributes[$key] = trim(strtolower($value));
         }
 
-        if ($key === 'correo') {
+        if ($key === 'correo' || $key === 'correo_personal') {
             if (is_string($value))
                 $this->attributes[$key] = trim(strtolower($value));
         }
@@ -60,5 +60,7 @@ trait UppercaseValuesTrait
 
         // Verifica si el nombre de la propiedad contiene la palabra "imagen", para no transformarla en mayuscula
         if (preg_match('/imagen/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/ruta/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/link/i', $key)) $this->attributes[$key] = $value;
     }
 }

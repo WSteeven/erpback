@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Medico\CuestionarioPublicoController;
+use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LinkCuestionarioPublicoController;
 use App\Http\Controllers\Medico\PreguntaController;
 use App\Http\Controllers\Medico\TipoCuestionarioController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\VacanteController;
 use App\Http\Resources\CantonResource;
 use App\Models\Canton;
 use App\Models\Pais;
@@ -34,8 +36,8 @@ Route::post('/validar-cedula', function (Request $request) {
 /****************
  * Localizacion
  ****************/
-Route::get('paises', fn () => ['results' => Pais::filter()->get()]);
-Route::get('provincias', fn () => ['results' => Provincia::filter()->get()]);
+Route::get('paises', fn() => ['results' => Pais::filter()->get()]);
+Route::get('provincias', fn() => ['results' => Provincia::filter()->get()]);
 Route::get('cantones', function () {
     $results = Canton::ignoreRequest(['campos'])->filter()->get();
     $results = CantonResource::collection($results);
@@ -43,17 +45,17 @@ Route::get('cantones', function () {
 });
 
 /***************************
- * Rutas del modulo medico
+ * Rutas del módulo médico
  ***************************/
 Route::prefix('medico')->group(function () {
     // Rutas normales
+    Route::get('identidades-generos', [IdentidadGeneroController::class, 'index']);
     Route::get('tipos-cuestionarios', [TipoCuestionarioController::class, 'index']);
     Route::get('preguntas', [PreguntaController::class, 'index']);
     Route::get('links-cuestionarios-publicos', [LinkCuestionarioPublicoController::class, 'index']);
     Route::post('/verificar-cuestionario-publico-lleno', function (Request $request) {
         if ((new CuestionariosRespondidosService())->personaYaLlenoCuestionario($request['identificacion'], $request['tipo_cuestionario_id']))
             throw ValidationException::withMessages(['cuestionario_completado' => ['Usted ya completó el cuestionario para este año. </br> Su respuesta no se guardará.']]);
-        // return response()->json(['mensaje' => 'Usted ya completó el cuestionario para este año. </br> Su respuesta no se guardará.']);
     });
 
     // ApiResources
@@ -70,8 +72,17 @@ Route::prefix('medico')->group(function () {
 });
 
 /***************************
- * Rutas del modulo de rrhh
+ * Rutas del módulo de rrhh
  ***************************/
 Route::prefix('recursos-humanos')->group(function () {
     Route::get('estado_civil', [EstadoCivilController::class, 'index']);
+});
+
+/***************************
+ * Rutas del módulo Selección y Contratación de Personal
+ ***************************/
+Route::prefix('seleccion-contratacion')->group(function () {
+    Route::get('vacantes', [VacanteController::class, 'index']);
+    Route::get('vacantes/{vacante}', [VacanteController::class, 'show']);
+    Route::get('vacantes/show-preview/{vacante}', [VacanteController::class, 'showPreview']);
 });

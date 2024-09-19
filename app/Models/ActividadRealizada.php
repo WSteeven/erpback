@@ -60,7 +60,7 @@ class ActividadRealizada extends Model implements Auditable
     ];
 
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________

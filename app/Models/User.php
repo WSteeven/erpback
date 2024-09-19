@@ -4,11 +4,27 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
+use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
+use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
+use App\Models\RecursosHumanos\SeleccionContratacion\ReferenciaPersonal;
 use App\Traits\UppercaseValuesTrait;
+use Database\Factories\UserFactory;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
+use OwenIt\Auditing\Models\Audit;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
@@ -22,42 +38,53 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Empleado|null $empleado
+ * @property-read Empleado|null $empleado
  * @property-read mixed $all_permissions
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User permission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|User query()
- * @method static \Illuminate\Database\Eloquent\Builder|User role($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorRecoveryCodes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static UserFactory factory($count = null, $state = [])
+ * @method static Builder|User newModelQuery()
+ * @method static Builder|User newQuery()
+ * @method static Builder|User permission($permissions)
+ * @method static Builder|User query()
+ * @method static Builder|User role($roles, $guard = null)
+ * @method static Builder|User whereCreatedAt($value)
+ * @method static Builder|User whereEmail($value)
+ * @method static Builder|User whereEmailVerifiedAt($value)
+ * @method static Builder|User whereId($value)
+ * @method static Builder|User whereName($value)
+ * @method static Builder|User find($value)
+ * @method static Builder|User wherePassword($value)
+ * @method static Builder|User whereRememberToken($value)
+ * @method static Builder|User whereTwoFactorRecoveryCodes($value)
+ * @method static Builder|User whereTwoFactorSecret($value)
+ * @method static Builder|User whereUpdatedAt($value)
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, BancoPostulante> $bancoPostulante
+ * @property-read int|null $banco_postulante_count
+ * @property-read Collection<int, Favorita> $favorita
+ * @property-read int|null $favorita_count
+ * @property-read Collection<int, Postulacion> $postulaciones
+ * @property-read int|null $postulaciones_count
+ * @property-read Collection<int, ReferenciaPersonal> $referencias
+ * @property-read int|null $referencias_count
+ * @mixin Eloquent
  */
 class User extends Authenticatable implements Auditable
 {
@@ -168,7 +195,7 @@ class User extends Authenticatable implements Auditable
     } */
 
     // Relacion uno a uno
-    public function empleado()
+    public function empleado(): HasOne
     {
         return $this->hasOne(Empleado::class, 'usuario_id')->with('cargo', 'grupo', 'canton');
     }
@@ -204,9 +231,38 @@ class User extends Authenticatable implements Auditable
         return $permissions;
     }
 
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos(): MorphMany
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
+
     public function esTecnicoLider()
     {
         return $this->hasRole(User::ROL_LIDER_DE_GRUPO);
         // return $this->empleado->cargo === User::ROL_TECNICO_LIDER_DE_GRUPO;
+    }
+
+    public function favorita(): MorphMany
+    {
+        return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
+    }
+
+    public function postulaciones(): MorphMany
+    {
+        return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
+    }
+
+    public function bancoPostulante(): MorphMany
+    {
+        return $this->morphMany(BancoPostulante::class, 'bancable', 'user_type', 'user_id');
+    }
+
+    public function referencias(): MorphMany
+    {
+        return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
     }
 }

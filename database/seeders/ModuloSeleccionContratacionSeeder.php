@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Database\Seeders\RecursosHumanos\SeleccionContratacion\PermisosSeleccionContratacionSeeder;
 use Database\Seeders\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoSeeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ModuloSeleccionContratacionSeeder extends Seeder
@@ -17,8 +16,9 @@ class ModuloSeleccionContratacionSeeder extends Seeder
     public function run()
     {
         /*****************
-         * Modulo Seleccion y contratacion  de personal
+         * Módulo Seleccion y contratacion de personal
          *****************/
+        // php artisan db:seed --class=ModuloSeleccionContratacionSeeder
         $this->call([
             PermisosSeleccionContratacionSeeder::class,
             TipoPuestoTrabajoSeeder::class

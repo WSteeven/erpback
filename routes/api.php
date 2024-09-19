@@ -77,6 +77,9 @@ use Carbon\Carbon;
 |
 */
 
+Route::get('auth/{provider}', [LoginSocialNetworkController::class, 'redirectToProvider']);
+Route::get('auth/{provider}/callback', [LoginSocialNetworkController::class, 'handleProviderCallback']);
+
 Route::get('tablero', [TableroController::class, 'index']);
 Route::get('auditorias', [AuditoriaController::class, 'index'])->middleware('auth:sanctum');
 Route::get('modelos-auditorias', [AuditoriaController::class, 'modelos']);
@@ -86,10 +89,11 @@ Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']
 Route::post('asignar-permisos-usuario', [PermisoRolController::class, 'asignarPermisosUsuario']);
 Route::post('crear-permiso', [PermisoRolController::class, 'crearPermisoRol']);
 Route::post('usuarios/login', [LoginController::class, 'login']);
+Route::post('usuarios-externos/login', [LoginSocialNetworkController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
 Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
-Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
+// Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
 Route::get('auth-social',[LoginSocialNetworkController::class, 'getDataFromSession']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);

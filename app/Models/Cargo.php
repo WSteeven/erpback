@@ -35,6 +35,8 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @method static \Illuminate\Database\Eloquent\Builder|Cargo whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Cargo whereNombre($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Cargo whereUpdatedAt($value)
+ * @property bool $aprobado_rrhh
+ * @method static \Illuminate\Database\Eloquent\Builder|Cargo whereAprobadoRrhh($value)
  * @mixin \Eloquent
  */
 class Cargo extends Model implements Auditable
@@ -47,19 +49,22 @@ class Cargo extends Model implements Auditable
     protected $table = 'cargos';
     protected $fillable = [
         'nombre',
-        'estado'
+        'estado',
+        'aprobado_rrhh'
     ];
 
     private static $whiteListFilter = [
         'id',
         'nombre',
         'estado',
+        'aprobado_rrhh',
     ];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'estado'=>'boolean',
+        'estado' => 'boolean',
+        'aprobado_rrhh' => 'boolean',
     ];
 
     public function toSearchableArray()

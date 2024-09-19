@@ -2,16 +2,26 @@
 
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\Archivo;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use OwenIt\Auditing\Contracts\Auditable;
+use Laravel\Sanctum\PersonalAccessToken;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * App\Models\RecursosHumanos\SeleccionContratacion\UserExternal
@@ -19,39 +29,54 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $token
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read mixed $all_permissions
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Postulante|null $postulante
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Postulante|null $postulante
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal permission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal query()
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal role($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereEmailVerifiedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserExternal whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|UserExternal newModelQuery()
+ * @method static Builder|UserExternal newQuery()
+ * @method static Builder|UserExternal permission($permissions)
+ * @method static Builder|UserExternal query()
+ * @method static Builder|UserExternal firstOrCreate($key, $data)
+ * @method static Builder|UserExternal create($data)
+ * @method static Builder|UserExternal where(string $string, $usuario_id)
+ * @method static Builder|UserExternal role($roles, $guard = null)
+ * @method static Builder|UserExternal whereCreatedAt($value)
+ * @method static Builder|UserExternal whereEmail($value)
+ * @method static Builder|UserExternal whereEmailVerifiedAt($value)
+ * @method static Builder|UserExternal find($value)
+ * @method static Builder|UserExternal whereId($value)
+ * @method static Builder|UserExternal whereName($value)
+ * @method static Builder|UserExternal wherePassword($value)
+ * @method static Builder|UserExternal whereRememberToken($value)
+ * @method static Builder|UserExternal whereToken($value)
+ * @method static Builder|UserExternal whereUpdatedAt($value)
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, BancoPostulante> $bancoPostulante
+ * @property-read int|null $banco_postulante_count
+ * @property-read Collection<int, Favorita> $favorita
+ * @property-read int|null $favorita_count
+ * @property-read Postulante|null $persona
+ * @property-read Collection<int, Postulacion> $postulaciones
+ * @property-read int|null $postulaciones_count
+ * @property-read Collection<int, ReferenciaPersonal> $referencias
+ * @property-read int|null $referencias_count
+ * @mixin Eloquent
  */
 class UserExternal extends Authenticatable implements Auditable
 {
@@ -59,8 +84,8 @@ class UserExternal extends Authenticatable implements Auditable
     use HasRoles;
     use AuditableModel;
     use UppercaseValuesTrait;
-    const POSTULANTE = 'POSTULANTE';
-    const ROL_POSTULANTE = 'POSTULANTES';
+//    const POSTULANTE = 'POSTULANTE';
+//    const ROL_POSTULANTE = 'POSTULANTES';
     protected $table = 'rrhh_users_externals';
 
     /**
@@ -72,6 +97,8 @@ class UserExternal extends Authenticatable implements Auditable
         'name',
         'email',
         'password',
+        'provider_id',
+        'provider_name',
         'token',
         'status',
     ];
@@ -94,41 +121,49 @@ class UserExternal extends Authenticatable implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
-    // Permite a vue acceder a los roles y permisos
-    public function getAllPermissionsAttribute()
-    {
-        $permissions = [];
-        $user = UserExternal::find(Auth::id());
-        foreach (Permission::all() as $permission) {
-            if ($user->can($permission->name)) {
-                $permissions[] = $permission->name;
-            }
-        }
-        return $permissions;
-    }
-    public function obtenerPermisos($user_id)
-    {
-        $permissions = [];
-        $user = UserExternal::find($user_id);
-        foreach (Permission::all() as $permission) {
-            if ($user->can($permission->name)) {
-                $permissions[] = $permission->name;
-            }
-        }
-        return $permissions;
-    }
-        /**
-     * Relacion uno a muchos
-     * Un usuario es solicitante de varias transacciones
-     */
-    /*public function transacciones()
-    {
-        return $this->hasMany(TransaccionesBodega::class, 'solicitante_id');
-    } */
+
 
     // Relacion uno a uno
-    public function postulante()
+    public function persona()
     {
         return $this->hasOne(Postulante::class, 'usuario_external_id');
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
+
+    /**
+     * Obtiene las vacantes favoritas del usuario.
+     *
+     * Este método recupera las vacantes favoritas del usuario de la base de datos.
+     * Utiliza Laravel's Eloquent ORM para establecer una relación polimórfica con el modelo Favorita.
+     *
+     * @return MorphMany
+     * @return Collection|Favorita[]
+     *
+     * @see Favorita
+     */
+    public function favorita()
+    {
+        return $this->morphMany(Favorita::class, 'favoritable', 'user_type', 'user_id');
+    }
+
+    public function postulaciones()
+    {
+        return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
+    }
+    public function bancoPostulante()
+    {
+        return $this->morphMany(BancoPostulante::class, 'bancable', 'user_type', 'user_id');
+    }
+    public function referencias(): MorphMany
+    {
+        return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
     }
 }

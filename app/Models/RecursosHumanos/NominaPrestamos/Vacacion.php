@@ -66,6 +66,11 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Vacacion whereNumeroRangos($value)
  * @method static Builder|Vacacion wherePeriodoId($value)
  * @method static Builder|Vacacion whereUpdatedAt($value)
+ * @property string|null $funciones
+ * @property int|null $reemplazo_id
+ * @property-read Empleado|null $reemplazo
+ * @method static Builder|Vacacion whereFunciones($value)
+ * @method static Builder|Vacacion whereReemplazoId($value)
  * @mixin Eloquent
  */
 class Vacacion extends Model implements Auditable

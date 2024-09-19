@@ -15,6 +15,7 @@ use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class EmpleadoService
 {
@@ -245,14 +246,15 @@ class EmpleadoService
 
     /**
      * Esta función PHP recupera un empleado con un rol específico y un estado opcional.
-     * 
-     * @param string $rol El parámetro `rol` es una cadena que representa el rol de un empleado. 
-     * @param bool $estado Parámetro booleano que especifica si el empleado debe estar en estado 
-     * activo (`true`) o no (`false`). De forma predeterminada, si no se proporciona ningún valor
+     *
+     * @param string $rol El parámetro `rol` es una cadena que representa el rol de un empleado.
+     * @param bool $estado Parámetro booleano que especifica si el empleado debe estar en estado
+     * activo (`true`) o no (`falso`). De forma predeterminada, si no se proporciona ningún valor
      *  para este parámetro al llamar a la función, se establece en `true`
-     * 
-     * @return Empleado Una instancia del modelo `Empleado` que tiene un modelo `Usuario` relacionado 
+     *
+     * @return Empleado Una instancia del modelo `Empleado` que tiene un modelo `Usuario` relacionado
      * con un rol específico.
+     * @throws Throwable
      */
     public static function obtenerEmpleadoRolEspecifico(string $rol, bool $estado = true)
     {
@@ -260,7 +262,8 @@ class EmpleadoService
             return Empleado::whereHas('user', function ($query) use ($rol) {
                 $query->role($rol);
             })->where('estado', $estado)->first();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
+             Log::channel('testing')->info('Log', ['Error en EmpleadoService::obtenerEmpleadoRolEspecifico', $th->getLine(), $th->getMessage()]);
             throw $th;
         }
     }

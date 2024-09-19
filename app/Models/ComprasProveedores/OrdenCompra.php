@@ -5,7 +5,6 @@ namespace App\Models\ComprasProveedores;
 use App\Models\Archivo;
 use App\Models\Autorizacion;
 use App\Models\CorreoEnviado;
-use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
@@ -16,14 +15,18 @@ use App\Models\Tarea;
 use App\Models\UnidadMedida;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 use Src\Shared\Utils;
 
 /**
@@ -57,64 +60,64 @@ use Src\Shared\Utils;
  * @property string|null $file
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property-read Collection<int, Archivo> $archivos
  * @property-read int|null $archivos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Autorizacion|null $autorizacion
  * @property-read Empleado|null $autorizador
- * @property-read \Illuminate\Database\Eloquent\Collection<int, CorreoEnviado> $correos
+ * @property-read Collection<int, CorreoEnviado> $correos
  * @property-read int|null $correos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\ItemDetalleOrdenCompra> $detalles
+ * @property-read Collection<int, ItemDetalleOrdenCompra> $detalles
  * @property-read int|null $detalles_count
  * @property-read EstadoTransaccion|null $estado
  * @property-read Notificacion|null $latestNotificacion
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\NovedadOrdenCompra> $novedadesOrdenCompra
+ * @property-read Collection<int, NovedadOrdenCompra> $novedadesOrdenCompra
  * @property-read int|null $novedades_orden_compra_count
  * @property-read Pedido|null $pedido
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Producto> $productos
+ * @property-read Collection<int, Producto> $productos
  * @property-read int|null $productos_count
  * @property-read Proveedor|null $proveedor
  * @property-read Empleado|null $solicitante
  * @property-read Tarea|null $tarea
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra query()
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereAutorizacionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereAutorizadorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCategorias($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCausaAnulacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCodigo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereDescripcion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereEstadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereFecha($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereFile($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereForma($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereIva($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionAut($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionCompras($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionEst($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereObservacionRealizada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra wherePagada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra wherePedidoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra wherePreordenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereProveedorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereRealizada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereRevisadaCompras($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereTareaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereTiempo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OrdenCompra whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|OrdenCompra acceptRequest(?array $request = null)
+ * @method static Builder|OrdenCompra filter(?array $request = null)
+ * @method static Builder|OrdenCompra newModelQuery()
+ * @method static Builder|OrdenCompra newQuery()
+ * @method static Builder|OrdenCompra query()
+ * @method static Builder|OrdenCompra setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|OrdenCompra setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|OrdenCompra setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|OrdenCompra whereAutorizacionId($value)
+ * @method static Builder|OrdenCompra whereAutorizadorId($value)
+ * @method static Builder|OrdenCompra whereCategorias($value)
+ * @method static Builder|OrdenCompra whereCausaAnulacion($value)
+ * @method static Builder|OrdenCompra whereCodigo($value)
+ * @method static Builder|OrdenCompra whereCreatedAt($value)
+ * @method static Builder|OrdenCompra whereDescripcion($value)
+ * @method static Builder|OrdenCompra whereEstadoId($value)
+ * @method static Builder|OrdenCompra whereFecha($value)
+ * @method static Builder|OrdenCompra whereFile($value)
+ * @method static Builder|OrdenCompra whereForma($value)
+ * @method static Builder|OrdenCompra whereId($value)
+ * @method static Builder|OrdenCompra whereIva($value)
+ * @method static Builder|OrdenCompra whereObservacionAut($value)
+ * @method static Builder|OrdenCompra whereObservacionCompras($value)
+ * @method static Builder|OrdenCompra whereObservacionEst($value)
+ * @method static Builder|OrdenCompra whereObservacionRealizada($value)
+ * @method static Builder|OrdenCompra wherePagada($value)
+ * @method static Builder|OrdenCompra wherePedidoId($value)
+ * @method static Builder|OrdenCompra wherePreordenId($value)
+ * @method static Builder|OrdenCompra whereProveedorId($value)
+ * @method static Builder|OrdenCompra whereRealizada($value)
+ * @method static Builder|OrdenCompra whereRevisadaCompras($value)
+ * @method static Builder|OrdenCompra whereSolicitanteId($value)
+ * @method static Builder|OrdenCompra whereTareaId($value)
+ * @method static Builder|OrdenCompra whereTiempo($value)
+ * @method static Builder|OrdenCompra whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class OrdenCompra extends Model implements Auditable
 {
@@ -163,7 +166,7 @@ class OrdenCompra extends Model implements Auditable
     'completada' => 'boolean',
   ];
 
-  private static $whiteListFilter = ['*'];
+  private static array $whiteListFilter = ['*'];
 
   /**
    * ______________________________________________________________________________________
@@ -267,7 +270,7 @@ class OrdenCompra extends Model implements Auditable
   }
 
   /**
-   * Relación para obtener la ultima notificacion de un modelo dado.
+   * Relación para obtener la última notificacion de un modelo dado.
    */
   public function latestNotificacion()
   {
@@ -330,7 +333,7 @@ class OrdenCompra extends Model implements Auditable
    *
    * @param int $id El parámetro "id" es el ID de la orden de compra.
    *
-   * @return una matriz con los valores de subtotal, el total, el descuento y IVA.
+   * @return mixed una matriz con los valores de subtotal, el total, el descuento y IVA.
    */
   public static function obtenerSumaListado($id)
   {

@@ -20,7 +20,7 @@ class GastoCoordinadorResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'fecha_gasto' => date_format($this->created_at, 'Y-m-d h:i:s a'),
+            'fecha_gasto' => $this->cambiarFecha($this->fecha_gasto),
             'lugar' => $this->id_lugar,
             'grupo' => $this->id_grupo,
             'grupo_info' => $this->grupo->nombre,

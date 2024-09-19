@@ -18,7 +18,7 @@ class IdentidadGeneroController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.identidades_generos')->only('index', 'show');
+        // $this->middleware('can:puede.ver.identidades_generos')->only('index', 'show');
         $this->middleware('can:puede.crear.identidades_generos')->only('store');
         $this->middleware('can:puede.editar.identidades_generos')->only('update');
         $this->middleware('can:puede.eliminar.identidades_generos')->only('destroy');

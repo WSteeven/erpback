@@ -16,7 +16,6 @@ use App\Http\Controllers\ComprasProveedores\ProformaController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ProveedorController;
 use App\Models\ComprasProveedores\OfertaProveedor;
-use App\Models\ComprasProveedores\Prefactura;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources([

@@ -17,14 +17,23 @@ return new class extends Migration
             $table->id();
             $table->string('nombres');
             $table->string('apellidos');
-            $table->string('tipo_documento_identificacion');
-            $table->string('numero_documento_identificacion');
-            $table->string('telefono');
+            $table->string('tipo_documento_identificacion')->nullable();
+            $table->string('numero_documento_identificacion')->nullable();
+            $table->string('telefono')->nullable();
+            $table->string('correo_personal')->nullable();
+            $table->string('direccion')->nullable();
+            $table->date('fecha_nacimiento')->nullable();
+            $table->string('genero')->nullable();
+            $table->unsignedBigInteger('identidad_genero_id')->nullable();
+            $table->unsignedBigInteger('pais_id')->nullable();
+
+            $table->timestamps();
+
             ///Llaves foraneas
             $table->unsignedBigInteger('usuario_external_id');
             $table->foreign('usuario_external_id')->on('rrhh_users_externals')->references('id')->cascadeOnUpdate()->cascadeOnDelete();
-
-            $table->timestamps();
+            $table->foreign('identidad_genero_id')->on('med_identidades_generos')->references('id')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('pais_id')->on('paises')->references('id')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 

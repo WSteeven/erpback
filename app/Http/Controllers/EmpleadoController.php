@@ -28,10 +28,10 @@ use Src\Config\RutasStorage;
 
 class EmpleadoController extends Controller
 {
-    private $entidad = 'Empleado';
+    private string $entidad = 'Empleado';
     private EmpleadoService $servicio;
-    private $reporteService;
-    private $archivoService;
+    private ReportePdfExcelService $reporteService;
+    private ArchivoService $archivoService;
 
 
     public function __construct()
@@ -144,8 +144,6 @@ class EmpleadoController extends Controller
             }
 
 
-
-
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
             //$grupo = Grupo::find($datos['grupo_id']);
 
@@ -160,11 +158,13 @@ class EmpleadoController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
+
     public function datos_empleado($id)
     {
         $empleado = Empleado::find($id);
         return response()->json(compact('empleado'));
     }
+
     public function HabilitaEmpleado(Request $request)
     {
         $empleado = Empleado::find($request->id);
@@ -174,6 +174,7 @@ class EmpleadoController extends Controller
         $modelo = $empleado;
         return response()->json(compact('modelo'));
     }
+
     public function existeResponsableGrupo(Request $request)
     {
         $request->validate([
@@ -204,7 +205,7 @@ class EmpleadoController extends Controller
     /**
      * Actualizar
      */
-    public function update(EmpleadoRequest $request, Empleado  $empleado)
+    public function update(EmpleadoRequest $request, Empleado $empleado)
     {
         //Respuesta
         $datos = $request->validated();
@@ -272,10 +273,10 @@ class EmpleadoController extends Controller
                 );
                 Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
             }
-        }else{
+        } else {
             //Eliminamos el conductor
             $conductor = Conductor::find($empleado->id);
-            if($conductor) $conductor->delete();
+            if ($conductor) $conductor->delete();
         }
 
         if (!is_null($request->password)) {
@@ -341,7 +342,7 @@ class EmpleadoController extends Controller
         DB::transaction(function () use ($request, $empleado) {
             // Buscar lider del grupo actual
             $empleadosGrupoActual = Empleado::where('grupo_id', $request['grupo'])->get();
-            $liderActual = $empleadosGrupoActual->filter(fn ($item) => $item->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+            $liderActual = $empleadosGrupoActual->filter(fn($item) => $item->user->hasRole(User::ROL_LIDER_DE_GRUPO));
 
             if ($liderActual) $liderActual->first()->user->removeRole(User::ROL_LIDER_DE_GRUPO);
             // if ($liderActual[0]) $liderActual[0]->user->removeRole(User::ROL_LIDER_DE_GRUPO);
@@ -437,6 +438,7 @@ class EmpleadoController extends Controller
 
         return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
     }
+
     public function empleadosRoles(Request $request)
     {
         $results = [];
@@ -449,6 +451,7 @@ class EmpleadoController extends Controller
         }
         return response()->json(compact('results'));
     }
+
     public function empleadoPermisos(Request $request)
     {
         $permisos = [];
@@ -460,6 +463,7 @@ class EmpleadoController extends Controller
         }
         return response()->json(compact('results'));
     }
+
     public function imprimir_reporte_general_empleado()
     {
         $reportes = Empleado::where('estado', 1)
@@ -475,17 +479,18 @@ class EmpleadoController extends Controller
         $vista = 'recursos-humanos.empleados';
         return $this->reporteService->imprimirReporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
     }
+
     /**
      * La función genera un nombre de usuario único basado en el nombre de pila y verifica si ya existe
      * en la base de datos.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que se utiliza
+     * @param array $request El parámetro  es una instancia de la clase Request, que se utiliza
      * para recuperar datos de la solicitud HTTP. Contiene información como los campos de entrada
      * enviados en un formulario o los parámetros pasados en la URL.
      *
-     * @return el nombre de usuario generado.
+     * @return string el nombre de usuario generado.
      */
-    function generarNombreUsuario($request)
+    function generarNombreUsuario(array $request)
     {
         $nombreUsuario = $request['usuario'];
         $nombres = str_replace('ñ', 'n', $request['nombres']);
@@ -497,11 +502,12 @@ class EmpleadoController extends Controller
         if ($query->count() > 0) {
             // Separamos el nombre y el apellido en dos cadenas
             $nombre = explode(" ", $nombres);
+            // ['primer', 'segundo']
             $apellido = explode(" ", $apellidos);
             $inicio_username = $nombre[1][0];
             $username = $nombre[0][0] . $inicio_username . $apellido[0];
             $contador = 1;
-            while (User::where('name',  $username)->count() > 0) {
+            while (User::where('name', $username)->exists()) {
                 if ($contador <= strlen($nombre[0])) {
                     $inicio_username .= $nombre[0][$contador];
                     $username = $inicio_username . $nombre[1][0] . $apellido[0];
@@ -509,11 +515,15 @@ class EmpleadoController extends Controller
                 }
             }
         }
-        return $username;
+        return str_replace('ñ', 'n', $username);
     }
+
     function obtenerNombreUsuario(Request $request)
     {
-        $datos = $request->validate(['nombres' => 'required', 'string', 'apellidos' => 'required|string', 'usuario' => 'required|string']);
+        $datos = $request->validate([
+            'nombres' => ['required', 'string'],
+            'apellidos' => 'required|string',
+            'usuario' => 'required|string']);
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
     }
@@ -561,8 +571,8 @@ class EmpleadoController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('results'));
     }
+
     /**
      * Guardar archivos
      */

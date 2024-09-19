@@ -10,7 +10,6 @@ use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetallePedidoProducto;
-use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -18,7 +17,7 @@ use App\Models\Sucursal;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,8 +31,8 @@ use Src\Shared\Utils;
 
 class PedidoController extends Controller
 {
-    private $entidad = 'Pedido';
-    private $servicio;
+    private string $entidad = 'Pedido';
+    private PedidoService $servicio;
     public function __construct()
     {
         $this->servicio = new PedidoService();
@@ -49,7 +48,6 @@ class PedidoController extends Controller
     public function index(Request $request)
     {
         $estado = $request['estado'];
-        $results = [];
 
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
             $results = $this->servicio->filtrarPedidosAdministrador($estado);
@@ -61,12 +59,10 @@ class PedidoController extends Controller
         } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
             $results = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
         } else {
-            // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
             $results = $this->servicio->filtrarPedidosEmpleado($estado);
         }
 
 
-        // Log::channel('testing')->info('Log', ['Resultados:', $estado, $results]);
         if (!empty($results)) {
             $results = PedidoResource::collection($results);
         } else {
@@ -80,7 +76,7 @@ class PedidoController extends Controller
      */
     public function store(PedidoRequest $request)
     {
-        $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
+        $ids_sucursales_telconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
         // Log::channel('testing')->info('Log', ['Request recibida en pedido:', $request->all()]);
         try {
@@ -125,10 +121,10 @@ class PedidoController extends Controller
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
                 event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id, false));
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
+                $es_pedido_telconet = collect($ids_sucursales_telconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($es_pedido_telconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
@@ -157,17 +153,17 @@ class PedidoController extends Controller
      */
     public function update(PedidoRequest $request, Pedido $pedido)
     {
-        $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
+        $ids_sucursales_telconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
         // Log::channel('testing')->info('Log', ['entro en el update del pedido',$idsSucursalesTelconet]);
         try {
-            DB::beginTransaction();
             // Adaptacion de foreign keys
+            DB::beginTransaction();
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
@@ -206,10 +202,10 @@ class PedidoController extends Controller
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
+                $es_pedido_telconet = collect($ids_sucursales_telconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($es_pedido_telconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             }
 
@@ -239,20 +235,20 @@ class PedidoController extends Controller
         // Log::channel('testing')->info('Log', ['El pedido consultado es: ', $pedido]);
         $modelo = new PedidoResource($pedido);
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * La función "corregirPedido" toma una solicitud y un pedido, actualiza la cantidad de productos
      * del pedido, guarda los cambios y devuelve el pedido modificado como respuesta JSON.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que
+     * @param Request $request El parámetro `request` es una instancia de la clase Request, que
      * representa una solicitud HTTP. Contiene información sobre la solicitud, como el método de
      * solicitud, los encabezados y los datos de entrada.
-     * @param Pedido pedido El parámetro "" es una instancia del modelo "Pedido". Representa un
+     * @param Pedido $pedido El parámetro "pedido" es una instancia del modelo "Pedido". Representa un
      * pedido específico en el sistema.
      *
-     * @return una respuesta JSON con el pedido modificado como objeto PedidoResource.
+     * @return JsonResponse respuesta JSON con el pedido modificado como objeto PedidoResource.
      */
     public function corregirPedido(Request $request, Pedido $pedido)
     {
@@ -268,20 +264,19 @@ class PedidoController extends Controller
         }
 
         $modelo = new PedidoResource($pedido);
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * La función `eliminarDetallePedido` elimina un artículo específico de un pedido y devuelve un
      * mensaje de éxito.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que se
+     * @param Request $request El parámetro `request` es una instancia de la clase Request, que se
      * utiliza para recuperar los datos enviados en la solicitud HTTP. Contiene información como el
      * método de solicitud, los encabezados y cualquier dato enviado en el cuerpo de la solicitud. En
-     * este caso, se utiliza para recuperar los valores del 'pedido
+     * este caso, se utiliza para recuperar los valores del 'pedido'
      *
-     * @return una respuesta JSON que contiene el mensaje "El elemento ha sido eliminado con éxito" (El
-     * elemento se ha eliminado con éxito).
+     * @return JsonResponse respuesta JSON que contiene el mensaje "El elemento ha sido eliminado con éxito".
      */
     public function eliminarDetallePedido(Request $request)
     {
@@ -302,15 +297,8 @@ class PedidoController extends Controller
             $pdf->setPaper('A5', 'landscape');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
-            $file = $pdf->output(); //SE GENERA EL PDF
-            $filename = "pedido_" . $resource->id . "_" . time() . ".pdf";
-
-            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'pedidos' . DIRECTORY_SEPARATOR . $filename;
-
-            // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-            // Log::channel('testing')->info('Log', ['El pedido es', $resource, $configuracion]);
-            // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
-            return $file;
+            //SE GENERA Y RETORNA EL PDF
+            return $pdf->output();
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
@@ -358,7 +346,6 @@ class PedidoController extends Controller
             switch ($request->accion) {
                 case 'excel':
                     return Excel::download(new PedidoExport(collect($registros), $configuracion), 'reporte_pedidos.xlsx');
-                    break;
                 case 'pdf':
                     try {
                         $vista = 'pedidos.pedidos';
@@ -373,7 +360,6 @@ class PedidoController extends Controller
                             'Error al generar reporte' => [$ex->getMessage()],
                         ]);
                     }
-                    break;
                 default:
                     break;
             }
@@ -393,10 +379,13 @@ class PedidoController extends Controller
         return view('qrcode');
     }
 
+    /**
+     * @throws Exception
+     */
     public function encabezado()
     {
         $pdf = Pdf::loadView('pedidos.encabezado_pie_numeracion');
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('A4' );
         $pdf->render();
         // $pdf->output();
         // $pdf->stream();
@@ -404,6 +393,10 @@ class PedidoController extends Controller
         return $pdf->stream();
         // return view('pedidos.encabezado_pie_numeracion');
     }
+
+    /**
+     * @throws Exception
+     */
     public function example()
     {
         $pdf = new Pdf();
@@ -416,8 +409,7 @@ class PedidoController extends Controller
     {
         $producto = Producto::find(1);
         // $results = $producto->audits; //obtiene todos los eventos de un registro
-        // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo la evento
-        $results = $producto->audits()->latest()->first()->getMetadata(); //obtiene los metadatos de un evento
+        // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo el evento
         $results = $producto->audits()->latest()->first()->getModified(); //obtiene las propiedades modificadas del registro afectado
         return response()->json(compact('results'));
     }
