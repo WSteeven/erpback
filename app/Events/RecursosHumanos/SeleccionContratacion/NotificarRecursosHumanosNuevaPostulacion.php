@@ -3,12 +3,9 @@
 namespace App\Events\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Departamento;
-use App\Models\Empleado;
 use App\Models\Notificacion;
-use App\Models\RecursosHumanos\SeleccionContratacion\Examen;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\User;
-use Exception;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -17,27 +14,29 @@ use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
 use Throwable;
 
-class NotificarAgendamientoExamenesPostulanteRecursosHumanosEvent implements ShouldBroadcast
+class NotificarRecursosHumanosNuevaPostulacion implements  ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public string $url = '/postulaciones';
     public int $destinatario;
     public Notificacion $notificacion;
-    public Examen $examen;
+    public int $postulacion_id;
+
 
     /**
      * Create a new event instance.
      *
      * @return void
-     * @throws Exception|Throwable
+     * @throws Throwable
      */
-    public function __construct(Postulacion $postulacion)
+    public function __construct(int $postulacion_id)
     {
-        $this->examen = Examen::find($postulacion->id);
+        $this->postulacion_id = $postulacion_id;
+        $postulacion = Postulacion::find($postulacion_id);
         $dept_rrhh = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first();
         $this->destinatario = $dept_rrhh->responsable_id;
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::CANDIDATO_SELECCIONADO, auth()->user()->empleado->id, $this->destinatario, $this->examen, true);
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::POSTULACION, $postulacion->user_id,$this->destinatario, $postulacion, false);
     }
 
     /**
@@ -47,16 +46,15 @@ class NotificarAgendamientoExamenesPostulanteRecursosHumanosEvent implements Sho
      */
     public function broadcastOn()
     {
-        return new Channel('postulante-seleccionado-' . $this->destinatario);
+        return new Channel('postulacion-realizada-'.$this->destinatario);
     }
     public function broadcastAs(){
-        return 'postulante-examenes-agendados-event';
+        return 'postulacion-realizada-event';
     }
 
-    private function obtenerMensaje()
-    {
-        $postulacion = Postulacion::find($this->examen->postulacion_id);
+    private function obtenerMensaje(){
+        $postulacion = Postulacion::find($this->postulacion_id);
         $persona = $postulacion->user_type === User::class ? $postulacion->user?->empleado : $postulacion->user?->persona;
-        return Empleado::extraerNombresApellidos(auth()->user()->empleado) . ' ha agendado unos examenes médicos para el Sr/Srta. ' . $persona->nombres . ' ' . $persona->apellidos . ' a realizarse el ' . date('Y-m-d H:i',strtotime($this->examen->fecha_hora)) . ' en la ciudad de ' . $this->examen->canton->canton . ' en el laboratorio ' . $this->examen->laboratorio;
+        return  $persona->nombres . ' ' . $persona->apellidos . ' ha postulado a la vacante de '.$postulacion->vacante->nombre.'. Por favor, revisa y gestiona la postulación.';
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
@@ -31,6 +32,24 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|ReferenciaPersonal setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|ReferenciaPersonal setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|ReferenciaPersonal setLoadInjectedDetection($load_default_detection)
+ * @property int $id
+ * @property int $user_id
+ * @property string $user_type
+ * @property string $nombres_apellidos
+ * @property string $cargo
+ * @property string|null $telefono
+ * @property string|null $correo
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|ReferenciaPersonal whereCargo($value)
+ * @method static Builder|ReferenciaPersonal whereCorreo($value)
+ * @method static Builder|ReferenciaPersonal whereCreatedAt($value)
+ * @method static Builder|ReferenciaPersonal whereId($value)
+ * @method static Builder|ReferenciaPersonal whereNombresApellidos($value)
+ * @method static Builder|ReferenciaPersonal whereTelefono($value)
+ * @method static Builder|ReferenciaPersonal whereUpdatedAt($value)
+ * @method static Builder|ReferenciaPersonal whereUserId($value)
+ * @method static Builder|ReferenciaPersonal whereUserType($value)
  * @mixin Eloquent
  */
 class ReferenciaPersonal extends Model implements Auditable

@@ -11,8 +11,8 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class NotificarPostulanteSeleccionadoMedicoEvent implements ShouldBroadcast
 {
@@ -27,7 +27,7 @@ class NotificarPostulanteSeleccionadoMedicoEvent implements ShouldBroadcast
      * Create a new event instance.
      *
      * @return void
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function __construct(int $postulacion_id)
     {

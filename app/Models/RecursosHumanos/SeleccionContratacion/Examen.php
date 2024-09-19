@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
@@ -36,6 +37,28 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Examen setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|Examen setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|Examen setLoadInjectedDetection($load_default_detection)
+ * @property int $postulacion_id
+ * @property string $fecha_hora
+ * @property int|null $canton_id
+ * @property string|null $direccion
+ * @property string|null $laboratorio
+ * @property string|null $indicaciones
+ * @property bool $se_realizo_examen
+ * @property bool $es_apto
+ * @property string|null $observacion
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Examen whereCantonId($value)
+ * @method static Builder|Examen whereCreatedAt($value)
+ * @method static Builder|Examen whereDireccion($value)
+ * @method static Builder|Examen whereEsApto($value)
+ * @method static Builder|Examen whereFechaHora($value)
+ * @method static Builder|Examen whereIndicaciones($value)
+ * @method static Builder|Examen whereLaboratorio($value)
+ * @method static Builder|Examen whereObservacion($value)
+ * @method static Builder|Examen wherePostulacionId($value)
+ * @method static Builder|Examen whereSeRealizoExamen($value)
+ * @method static Builder|Examen whereUpdatedAt($value)
  * @mixin Eloquent
  */
 class Examen extends Model implements Auditable

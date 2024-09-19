@@ -49,7 +49,7 @@ class BancoPostulanteController extends Controller
      *
      * @param BancoPostulanteRequest $request
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function store(BancoPostulanteRequest $request)
     {

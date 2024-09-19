@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
+use App\Traits\UppercaseValuesTrait;
 use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,6 +47,18 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Postulante whereTipoDocumentoIdentificacion($value)
  * @method static Builder|Postulante whereUpdatedAt($value)
  * @method static Builder|Postulante whereUsuarioExternalId($value)
+ * @property string|null $correo_personal
+ * @property string|null $direccion
+ * @property string|null $fecha_nacimiento
+ * @property string|null $genero
+ * @property int|null $identidad_genero_id
+ * @property int|null $pais_id
+ * @method static Builder|Postulante whereCorreoPersonal($value)
+ * @method static Builder|Postulante whereDireccion($value)
+ * @method static Builder|Postulante whereFechaNacimiento($value)
+ * @method static Builder|Postulante whereGenero($value)
+ * @method static Builder|Postulante whereIdentidadGeneroId($value)
+ * @method static Builder|Postulante wherePaisId($value)
  * @mixin Eloquent
  */
 class Postulante extends Model implements Auditable
@@ -53,6 +66,7 @@ class Postulante extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
     const CEDULA = 'CEDULA';
     CONST RUC = 'RUC';
     CONST PASAPORTE = 'PASAPORTE';
@@ -63,6 +77,7 @@ class Postulante extends Model implements Auditable
         'tipo_documento_identificacion',
         'numero_documento_identificacion',
         'telefono',
+        'correo_personal',
         'usuario_external_id'
     ];
     private static array $whiteListFilter = [
@@ -82,5 +97,10 @@ class Postulante extends Model implements Auditable
 
     public function usuario(){
         return $this->hasOne(UserExternal::class,'id', 'usuario_external_id');
+    }
+
+    public static function extraerNombresApellidos(Postulante|null $persona){
+     if(is_null($persona)) return null;
+     return $persona->nombres.' '.$persona->apellidos;
     }
 }

@@ -54,6 +54,8 @@ class SolicitudPersonalController extends Controller
      *
      * @param SolicitudPersonalRequest $request
      * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
     public function store(SolicitudPersonalRequest $request)
     {
@@ -93,7 +95,7 @@ class SolicitudPersonalController extends Controller
      * @param SolicitudPersonalRequest $request
      * @param SolicitudPersonal $solicitud
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function update(SolicitudPersonalRequest $request, SolicitudPersonal $solicitud)
     {
@@ -161,7 +163,7 @@ class SolicitudPersonalController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
-            Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de class SolicitudPersonalController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
         }
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarRecursosHumanosNuevaPostulacion;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\PostulacionRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
@@ -62,7 +63,7 @@ class PostulacionController extends Controller
      *
      * @param PostulacionRequest $request
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function store(PostulacionRequest $request)
     {
@@ -78,17 +79,18 @@ class PostulacionController extends Controller
             } elseif (auth()->user() instanceof UserExternal) {
                 $postulacion = auth()->user()->postulaciones()->create($datos);
                 $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(UserExternal::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
-                // Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
+                Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
                 //Postulante hace referencia a la tabla postulante, que es equivalente a la tabla empleados, solo que en este caso es para usuarios externos
-                $postulante = Postulante::find($postulacion->user_id);
-                if (is_null($postulante->correo_personal)) $postulante->correo_personal = $datos['correo_personal'];
-                if (is_null($postulante->direccion)) $postulante->direccion = $datos['direccion'];
-                if (is_null($postulante->fecha_nacimiento)) $postulante->fecha_nacimiento = $datos['fecha_nacimiento'];
-                if (is_null($postulante->genero)) $postulante->genero = $datos['genero'];
-                if (is_null($postulante->identidad_genero_id)) $postulante->identidad_genero_id = $datos['identidad_genero_id'];
+                $postulante = Postulante::where('usuario_external_id', $postulacion->user_id)->first();
+                $postulante->correo_personal = $datos['correo_personal'];
+                $postulante->direccion = $datos['direccion'];
+                $postulante->fecha_nacimiento = $datos['fecha_nacimiento'];
+                $postulante->genero = $datos['genero'];
+                $postulante->identidad_genero_id = $datos['identidad_genero_id'];
                 if (is_null($postulante->pais_id)) $postulante->pais_id = $datos['pais_id'];
                 $postulante->save();
             }
+            event(new NotificarRecursosHumanosNuevaPostulacion($postulacion->id));
             if ($postulacion->vacante_id) {
                 $vacante = Vacante::find($postulacion->vacante_id);
                 if ($vacante) {
@@ -136,38 +138,6 @@ class PostulacionController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param PostulacionRequest $request
-     * @param Postulacion $postulacion
-     * @return void
-     * @throws ValidationException
-     */
-//    public function update(PostulacionRequest $request, Postulacion $postulacion)
-//    {
-//        try {
-//            throw new Exception('Metodo no configurado aún');
-//        } catch (Throwable $th) {
-//            throw Utils::obtenerMensajeErrorLanzable($th);
-//        }
-//    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return void
-     * @throws ValidationException
-     */
-//    public function destroy($id)
-//    {
-//        try {
-//            throw new Exception('Metodo no configurado aún. Comunícate con Dept. Informático.');
-//        } catch (Throwable $th) {
-//            throw Utils::obtenerMensajeErrorLanzable($th);
-//        }
-//    }
 
     /**
      * Listar todos los CV del usuario logueado
@@ -213,6 +183,11 @@ class PostulacionController extends Controller
 
     }
 
+    /**
+     * @param Postulacion $postulacion
+     * @return JsonResponse
+     * @throws Throwable
+     */
     public function calificar(Postulacion $postulacion)
     {
         $modelo = null;
@@ -237,6 +212,11 @@ class PostulacionController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
+    /**
+     * @param Postulacion $postulacion
+     * @return JsonResponse
+     * @throws Throwable
+     */
     public function descartar(Postulacion $postulacion)
     {
         $estado_old = $postulacion->estado;
@@ -261,7 +241,7 @@ class PostulacionController extends Controller
     }
 
     /**
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function seleccionar(Postulacion $postulacion)
     {
@@ -283,6 +263,11 @@ class PostulacionController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
+    /**
+     * @param Postulacion $postulacion
+     * @return JsonResponse
+     * @throws Throwable
+     */
     public function darAlta(Postulacion $postulacion)
     {
         try {

@@ -12,17 +12,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class PostulanteController extends Controller
 {
-    private string $entidad = 'Postulante';
-
     /**
      * Store a newly created resource in storage.
      *
      * @param PostulanteRequest $request
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function store(PostulanteRequest $request)
     {

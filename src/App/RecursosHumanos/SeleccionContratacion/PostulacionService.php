@@ -9,6 +9,7 @@ use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionLeidaMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionSeleccionadaMail;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
+use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Tests\Models\Post;
@@ -113,7 +114,12 @@ class PostulacionService
      */
     public function actualizarVacante(Postulacion $postulacion)
     {
-        $postulacion->vacante()->update(['es_completada' => true]);
+        $vacante = Vacante::find($postulacion->vacante_id)->first();
+        $contratados_para_esta_vacante = Postulacion::where('vacante_id', $vacante->id)->where('estado', Postulacion::CONTRATADO)->count();
+        if ($contratados_para_esta_vacante == $vacante->num_plazas)
+            $postulacion->vacante()->update(['es_completada' => true, 'activo' => false]);
+        // se hace la actualizacion solo una vez que se haya contratado todas las vacantes, seleccionadas y se inactiva la vacante para que ya no aparezca
+
     }
 
 }

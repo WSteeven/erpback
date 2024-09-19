@@ -40,7 +40,7 @@ class ExamenController extends Controller
      *
      * @param ExamenRequest $request
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function store(ExamenRequest $request)
     {
@@ -85,7 +85,7 @@ class ExamenController extends Controller
      * @param ExamenRequest $request
      * @param Examen $examen
      * @return JsonResponse
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function update(ExamenRequest $request, Examen $examen)
     {

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Models\Audit;
@@ -29,6 +30,16 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|TipoPuesto setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|TipoPuesto setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|TipoPuesto setLoadInjectedDetection($load_default_detection)
+ * @property int $id
+ * @property string $nombre
+ * @property bool $activo
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|TipoPuesto whereActivo($value)
+ * @method static Builder|TipoPuesto whereCreatedAt($value)
+ * @method static Builder|TipoPuesto whereId($value)
+ * @method static Builder|TipoPuesto whereNombre($value)
+ * @method static Builder|TipoPuesto whereUpdatedAt($value)
  * @mixin Eloquent
  */
 class TipoPuesto extends Model implements Auditable

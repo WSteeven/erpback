@@ -27,7 +27,7 @@ class ModalidadController extends Controller
      */
     public function index()
     {
-        $results = Modalidad::filter()->orderBy('nombre', 'asc')->get();
+        $results = Modalidad::filter()->orderBy('nombre')->get();
         $results = ModalidadResource::collection($results);
 
         return response()->json(compact('results'));

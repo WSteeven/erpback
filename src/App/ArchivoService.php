@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class ArchivoService
      * una entidad o un objeto modelo que tiene una relación con la tabla `archivos`. Se supone que la
      * tabla `archivos` es una tabla relacionada con el modelo `entidad`, y la tabla `archivos`
      *
-     * @return array archivos asociados con la entidad modelo dada.
+     * @return Collection archivos asociados con la entidad modelo dada.
      * @throws Exception
      */
     public static function listarArchivos(Model $entidad)

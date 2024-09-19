@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
@@ -44,6 +45,50 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Postulacion setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|Postulacion setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|Postulacion setLoadInjectedDetection($load_default_detection)
+ * @property int $id
+ * @property int $user_id
+ * @property string $user_type
+ * @property int $vacante_id
+ * @property int $pais_residencia_id
+ * @property string $direccion
+ * @property string|null $mi_experiencia
+ * @property bool $tengo_conocimientos_requeridos
+ * @property bool $tengo_disponibilidad_viajar
+ * @property bool $tengo_documentos_regla
+ * @property bool $tengo_experiencia_requerida
+ * @property bool $tengo_formacion_academica_requerida
+ * @property bool $tengo_licencia_conducir
+ * @property string|null $tipo_licencia
+ * @property string $calificacion
+ * @property string $estado
+ * @property string|null $ruta_cv
+ * @property bool $leido_rrhh
+ * @property bool $activo
+ * @property bool $dado_alta
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Postulacion whereActivo($value)
+ * @method static Builder|Postulacion whereCalificacion($value)
+ * @method static Builder|Postulacion whereCreatedAt($value)
+ * @method static Builder|Postulacion whereDadoAlta($value)
+ * @method static Builder|Postulacion whereDireccion($value)
+ * @method static Builder|Postulacion whereEstado($value)
+ * @method static Builder|Postulacion whereId($value)
+ * @method static Builder|Postulacion whereLeidoRrhh($value)
+ * @method static Builder|Postulacion whereMiExperiencia($value)
+ * @method static Builder|Postulacion wherePaisResidenciaId($value)
+ * @method static Builder|Postulacion whereRutaCv($value)
+ * @method static Builder|Postulacion whereTengoConocimientosRequeridos($value)
+ * @method static Builder|Postulacion whereTengoDisponibilidadViajar($value)
+ * @method static Builder|Postulacion whereTengoDocumentosRegla($value)
+ * @method static Builder|Postulacion whereTengoExperienciaRequerida($value)
+ * @method static Builder|Postulacion whereTengoFormacionAcademicaRequerida($value)
+ * @method static Builder|Postulacion whereTengoLicenciaConducir($value)
+ * @method static Builder|Postulacion whereTipoLicencia($value)
+ * @method static Builder|Postulacion whereUpdatedAt($value)
+ * @method static Builder|Postulacion whereUserId($value)
+ * @method static Builder|Postulacion whereUserType($value)
+ * @method static Builder|Postulacion whereVacanteId($value)
  * @mixin Eloquent
  */
 class Postulacion extends Model implements Auditable

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Models\Audit;
@@ -36,6 +37,27 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|BancoPostulante setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|BancoPostulante setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|BancoPostulante setLoadInjectedDetection($load_default_detection)
+ * @property int $id
+ * @property int $user_id
+ * @property int $cargo_id
+ * @property int $postulacion_id
+ * @property string|null $puntuacion
+ * @property string|null $observacion
+ * @property bool $descartado
+ * @property int $fue_contactado
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|BancoPostulante whereCargoId($value)
+ * @method static Builder|BancoPostulante whereCreatedAt($value)
+ * @method static Builder|BancoPostulante whereDescartado($value)
+ * @method static Builder|BancoPostulante whereFueContactado($value)
+ * @method static Builder|BancoPostulante whereId($value)
+ * @method static Builder|BancoPostulante whereObservacion($value)
+ * @method static Builder|BancoPostulante wherePostulacionId($value)
+ * @method static Builder|BancoPostulante wherePuntuacion($value)
+ * @method static Builder|BancoPostulante whereUpdatedAt($value)
+ * @method static Builder|BancoPostulante whereUserId($value)
+ * @method static Builder|BancoPostulante whereUserType($value)
  * @mixin Eloquent
  */
 class BancoPostulante extends Model implements Auditable

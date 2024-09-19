@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\RecursosHumanos\SeleccionContratacion;
 
+use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Foundation\Http\FormRequest;
+use Src\Shared\ObtenerInstanciaUsuario;
 use Src\Shared\Utils;
 
 class PostulacionRequest extends FormRequest
@@ -49,25 +51,38 @@ class PostulacionRequest extends FormRequest
             'tengo_licencia_conducir' => 'boolean',
             'tipo_licencia' => 'sometimes|nullable|string',
             'ruta_cv' => 'sometimes|nullable|string',
-            'referencias'=>'required|array',
-            'referencias.*.id'=>'required|numeric',
-            'referencias.*.nombres_apellidos'=>'required|string',
-            'referencias.*.cargo'=>'required|string',
-            'referencias.*.telefono'=>'required|string',
-            'referencias.*.correo'=>'required|email',
+            'referencias' => 'required|array',
+            'referencias.*.id' => 'required|numeric',
+            'referencias.*.nombres_apellidos' => 'required|string',
+            'referencias.*.cargo' => 'required|string',
+            'referencias.*.telefono' => 'required|string',
+            'referencias.*.correo' => 'required|email',
 
         ];
     }
 
-    public  function messages(){
+    public function messages()
+    {
         return [
-            'referencias'=>'Debe adjuntar al menos 3 referencias laborales o personales. ',
-          'referencias.*.nombres_apellidos.required'=>'El campo nombres_apellidos en la tabla Referencias Personales es requerido',
-          'referencias.*.cargo.required'=>'El campo cargo en la tabla Referencias Personales es requerido',
-          'referencias.*.telefono.required'=>'El campo telefono en la tabla Referencias Personales es requerido',
-          'referencias.*.correo.required'=>'El campo correo en la tabla Referencias Personales es requerido',
+            'referencias' => 'Debe adjuntar al menos 3 referencias laborales o personales. ',
+            'referencias.*.nombres_apellidos.required' => 'El campo nombres_apellidos en la tabla Referencias Personales es requerido',
+            'referencias.*.cargo.required' => 'El campo cargo en la tabla Referencias Personales es requerido',
+            'referencias.*.telefono.required' => 'El campo telefono en la tabla Referencias Personales es requerido',
+            'referencias.*.correo.required' => 'El campo correo en la tabla Referencias Personales es requerido',
         ];
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            // Obtenemos la instancia del usuario logueado
+            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+            // Verificamos que ya haya postulado antes
+            $existe_postulacion = Postulacion::where('user_id', $user_id)->where('user_type', $user_type)->where('vacante_id', $this->vacante_id)->where('activo', true)->exists();
+            if ($existe_postulacion) $validator->errors()->add('vacante', 'Ya tienes una postulación activa para está vacante');
+        });
+    }
+
     public function prepareForValidation()
     {
         $this->merge([

@@ -5,38 +5,85 @@ namespace App\Models\RecursosHumanos\SeleccionContratacion;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 use Src\Shared\ObtenerInstanciaUsuario;
 
 
 /**
  * App\Models\RecursosHumanos\SeleccionContratacion\Vacante
  *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Canton|null $canton
- * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Favorita|null $favorita
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecursosHumanos\SeleccionContratacion\FormacionAcademica> $formacionesAcademicas
+ * @property-read Favorita|null $favorita
+ * @property-read Collection<int, FormacionAcademica> $formacionesAcademicas
  * @property-read int|null $formaciones_academicas_count
- * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Modalidad|null $modalidad
- * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\Postulacion|null $postulacion
+ * @property-read Modalidad|null $modalidad
+ * @property-read Postulacion|null $postulacion
  * @property-read Empleado|null $publicante
- * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\SolicitudPersonal|null $solicitud
- * @property-read \App\Models\RecursosHumanos\SeleccionContratacion\TipoPuesto|null $tipoPuesto
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante query()
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vacante setLoadInjectedDetection($load_default_detection)
- * @mixin \Eloquent
+ * @property-read SolicitudPersonal|null $solicitud
+ * @property-read TipoPuesto|null $tipoPuesto
+ * @method static Builder|Vacante acceptRequest(?array $request = null)
+ * @method static Builder|Vacante filter(?array $request = null)
+ * @method static Builder|Vacante ignoreRequest(?array $request = null)
+ * @method static Builder|Vacante newModelQuery()
+ * @method static Builder|Vacante newQuery()
+ * @method static Builder|Vacante query()
+ * @method static Builder|Vacante setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Vacante setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Vacante setLoadInjectedDetection($load_default_detection)
+ * @property int $id
+ * @property string $nombre
+ * @property string $descripcion
+ * @property string $fecha_caducidad
+ * @property string $imagen_referencia
+ * @property string $imagen_publicidad
+ * @property string|null $anios_experiencia
+ * @property string|null $areas_conocimiento
+ * @property int $numero_postulantes
+ * @property int $tipo_puesto_id
+ * @property int $modalidad_id
+ * @property int $publicante_id
+ * @property int|null $solicitud_id
+ * @property int|null $canton_id
+ * @property int $num_plazas
+ * @property bool $disponibilidad_viajar
+ * @property bool $requiere_licencia
+ * @property bool $activo
+ * @property bool $es_completada
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Vacante whereActivo($value)
+ * @method static Builder|Vacante whereAniosExperiencia($value)
+ * @method static Builder|Vacante whereAreasConocimiento($value)
+ * @method static Builder|Vacante whereCantonId($value)
+ * @method static Builder|Vacante whereCreatedAt($value)
+ * @method static Builder|Vacante whereDescripcion($value)
+ * @method static Builder|Vacante whereDisponibilidadViajar($value)
+ * @method static Builder|Vacante whereEsCompletada($value)
+ * @method static Builder|Vacante whereFechaCaducidad($value)
+ * @method static Builder|Vacante whereId($value)
+ * @method static Builder|Vacante whereImagenPublicidad($value)
+ * @method static Builder|Vacante whereImagenReferencia($value)
+ * @method static Builder|Vacante whereModalidadId($value)
+ * @method static Builder|Vacante whereNombre($value)
+ * @method static Builder|Vacante whereNumPlazas($value)
+ * @method static Builder|Vacante whereNumeroPostulantes($value)
+ * @method static Builder|Vacante wherePublicanteId($value)
+ * @method static Builder|Vacante whereRequiereLicencia($value)
+ * @method static Builder|Vacante whereSolicitudId($value)
+ * @method static Builder|Vacante whereTipoPuestoId($value)
+ * @method static Builder|Vacante whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Vacante extends Model implements Auditable
 {

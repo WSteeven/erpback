@@ -16,6 +16,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class NotificarResultadosExamenesPostulanteRecursosHumanosEvent implements ShouldBroadcast
 {
@@ -30,7 +31,7 @@ class NotificarResultadosExamenesPostulanteRecursosHumanosEvent implements Shoul
      * Create a new event instance.
      *
      * @return void
-     * @throws Exception
+     * @throws Throwable|Exception
      */
     public function __construct(Examen $examen)
     {

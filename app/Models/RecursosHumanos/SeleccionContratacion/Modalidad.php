@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Models\Audit;
@@ -27,6 +28,16 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Modalidad setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|Modalidad setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|Modalidad setLoadInjectedDetection($load_default_detection)
+ * @property int $id
+ * @property string $nombre
+ * @property bool $activo
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Modalidad whereActivo($value)
+ * @method static Builder|Modalidad whereCreatedAt($value)
+ * @method static Builder|Modalidad whereId($value)
+ * @method static Builder|Modalidad whereNombre($value)
+ * @method static Builder|Modalidad whereUpdatedAt($value)
  * @mixin Eloquent
  */
 class Modalidad extends Model implements Auditable

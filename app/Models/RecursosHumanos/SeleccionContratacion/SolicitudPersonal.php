@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Models\Audit;
@@ -49,8 +50,40 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|SolicitudPersonal setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|SolicitudPersonal setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|SolicitudPersonal setLoadInjectedDetection($load_default_detection)
- * @property-read Collection<int, \App\Models\RecursosHumanos\SeleccionContratacion\FormacionAcademica> $formacionesAcademicas
+ * @property-read Collection<int, FormacionAcademica> $formacionesAcademicas
  * @property-read int|null $formaciones_academicas_count
+ * @property string $nombre
+ * @property int $publicada
+ * @property int $tipo_puesto_id
+ * @property int $modalidad_id
+ * @property int|null $cargo_id
+ * @property int|null $canton_id
+ * @property int $num_plazas
+ * @property string|null $areas_conocimiento
+ * @property string $descripcion
+ * @property string|null $anios_experiencia
+ * @property bool $disponibilidad_viajar
+ * @property bool $requiere_licencia
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|SolicitudPersonal whereAniosExperiencia($value)
+ * @method static Builder|SolicitudPersonal whereAreasConocimiento($value)
+ * @method static Builder|SolicitudPersonal whereAutorizacionId($value)
+ * @method static Builder|SolicitudPersonal whereAutorizadorId($value)
+ * @method static Builder|SolicitudPersonal whereCantonId($value)
+ * @method static Builder|SolicitudPersonal whereCargoId($value)
+ * @method static Builder|SolicitudPersonal whereCreatedAt($value)
+ * @method static Builder|SolicitudPersonal whereDescripcion($value)
+ * @method static Builder|SolicitudPersonal whereDisponibilidadViajar($value)
+ * @method static Builder|SolicitudPersonal whereId($value)
+ * @method static Builder|SolicitudPersonal whereModalidadId($value)
+ * @method static Builder|SolicitudPersonal whereNombre($value)
+ * @method static Builder|SolicitudPersonal whereNumPlazas($value)
+ * @method static Builder|SolicitudPersonal wherePublicada($value)
+ * @method static Builder|SolicitudPersonal whereRequiereLicencia($value)
+ * @method static Builder|SolicitudPersonal whereSolicitanteId($value)
+ * @method static Builder|SolicitudPersonal whereTipoPuestoId($value)
+ * @method static Builder|SolicitudPersonal whereUpdatedAt($value)
  * @mixin Eloquent
  */
 class SolicitudPersonal extends Model implements Auditable

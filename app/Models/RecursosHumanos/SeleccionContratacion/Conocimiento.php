@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Models\Audit;
@@ -29,6 +30,18 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Conocimiento setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|Conocimiento setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|Conocimiento setLoadInjectedDetection($load_default_detection)
+ * @property int $id
+ * @property int $cargo_id
+ * @property string $nombre
+ * @property bool $activo
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Conocimiento whereActivo($value)
+ * @method static Builder|Conocimiento whereCargoId($value)
+ * @method static Builder|Conocimiento whereCreatedAt($value)
+ * @method static Builder|Conocimiento whereId($value)
+ * @method static Builder|Conocimiento whereNombre($value)
+ * @method static Builder|Conocimiento whereUpdatedAt($value)
  * @mixin Eloquent
  */
 class Conocimiento extends Model implements Auditable

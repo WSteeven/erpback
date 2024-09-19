@@ -17,9 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('nombres');
             $table->string('apellidos');
-            $table->string('tipo_documento_identificacion');
-            $table->string('numero_documento_identificacion');
-            $table->string('telefono');
+            $table->string('tipo_documento_identificacion')->nullable();
+            $table->string('numero_documento_identificacion')->nullable();
+            $table->string('telefono')->nullable();
             $table->string('correo_personal')->nullable();
             $table->string('direccion')->nullable();
             $table->date('fecha_nacimiento')->nullable();

@@ -68,6 +68,7 @@ class PermisoEmpleadoController extends Controller
     public function indexArchivoPermisoEmpleado(Request $request)
     {
         $permiso = PermisoEmpleado::where('id', $request->permiso_id)->first();
+        $request['permiso_id']=null;
         $results = $this->archivoService->listarArchivos($permiso);
         return response()->json(compact('results'));
     }

@@ -13,6 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class NotificarSolicitudNuevoPersonalAprobadaEvent implements ShouldBroadcast
 {
@@ -27,7 +28,7 @@ class NotificarSolicitudNuevoPersonalAprobadaEvent implements ShouldBroadcast
      * Create a new event instance.
      *
      * @return void
-     * @throws Exception
+     * @throws Throwable|Exception
      */
     public function __construct($solicitud)
     {

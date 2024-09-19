@@ -77,6 +77,9 @@ use Carbon\Carbon;
 |
 */
 
+Route::get('auth/{provider}', [LoginSocialNetworkController::class, 'redirectToProvider']);
+Route::get('auth/{provider}/callback', [LoginSocialNetworkController::class, 'handleProviderCallback']);
+
 Route::get('tablero', [TableroController::class, 'index']);
 Route::get('auditorias', [AuditoriaController::class, 'index'])->middleware('auth:sanctum');
 Route::get('modelos-auditorias', [AuditoriaController::class, 'modelos']);

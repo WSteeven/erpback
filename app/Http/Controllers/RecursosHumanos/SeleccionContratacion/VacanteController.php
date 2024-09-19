@@ -13,7 +13,6 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\RecursosHumanos\SeleccionContratacion\PolymorphicSeleccionContratacionModelsService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -67,7 +66,7 @@ class VacanteController extends Controller
      */
     public function store(VacanteRequest $request)
     {
-        Log::channel('testing')->info('Log', ['request en Vacante->store', $request->all()]);
+//        Log::channel('testing')->info('Log', ['request en Vacante->store', $request->all()]);
         $datos = $request->validated();
         if ($datos['imagen_referencia'])
             $datos['imagen_referencia'] = (new GuardarImagenIndividual($datos['imagen_referencia'], RutasStorage::VACANTES_TRABAJO))->execute();
@@ -125,7 +124,7 @@ class VacanteController extends Controller
      */
     public function update(VacanteRequest $request, Vacante $vacante)
     {
-        Log::channel('testing')->info('Log', ['request en store', $request->all()]);
+//        Log::channel('testing')->info('Log', ['request en store', $request->all()]);
         try {
             $datos = $request->validated();
             if ($datos['imagen_referencia'] && Utils::esBase64($datos['imagen_referencia']))
@@ -162,7 +161,7 @@ class VacanteController extends Controller
     }
 
     /**
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function favorite(Vacante $vacante): JsonResponse
     {

@@ -51,10 +51,14 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static Builder|UserExternal newQuery()
  * @method static Builder|UserExternal permission($permissions)
  * @method static Builder|UserExternal query()
+ * @method static Builder|UserExternal firstOrCreate($key, $data)
+ * @method static Builder|UserExternal create($data)
+ * @method static Builder|UserExternal where(string $string, $usuario_id)
  * @method static Builder|UserExternal role($roles, $guard = null)
  * @method static Builder|UserExternal whereCreatedAt($value)
  * @method static Builder|UserExternal whereEmail($value)
  * @method static Builder|UserExternal whereEmailVerifiedAt($value)
+ * @method static Builder|UserExternal find($value)
  * @method static Builder|UserExternal whereId($value)
  * @method static Builder|UserExternal whereName($value)
  * @method static Builder|UserExternal wherePassword($value)
@@ -93,6 +97,8 @@ class UserExternal extends Authenticatable implements Auditable
         'name',
         'email',
         'password',
+        'provider_id',
+        'provider_name',
         'token',
         'status',
     ];

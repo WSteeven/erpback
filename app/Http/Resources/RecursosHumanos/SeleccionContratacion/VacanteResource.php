@@ -51,6 +51,7 @@ class VacanteResource extends JsonResource
             'postulantes_preseleccionados' => $this->postulacionesPreseleccionadas(),
             'canton' => $this->canton->canton,
             'num_plazas' => $this->num_plazas,
+            'es_completada' => $this->es_completada,
         ];
         if ($controller_method == 'showPreview' || $controller_method == 'favorite') {
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
