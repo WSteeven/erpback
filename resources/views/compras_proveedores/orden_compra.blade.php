@@ -253,7 +253,7 @@
                 <th>Medida</th>
                 <th>Precio U.</th>
                 <th>Desc.</th>
-                <th>IVA</th>
+                <th>{{$texto_iva}}</th>
                 <th>Subtotal</th>
                 <th>Total</th>
             </thead>
@@ -307,7 +307,7 @@
                             <td align="right">{{ $orden['sum_descuento'] }}</td>
                         </tr>
                         <tr>
-                            <td align="right">IVA {{ $orden['iva'] }}%</td>
+                            <td align="right">{{$texto_iva}} {{ $orden['iva'] }}%</td>
                             <td align="right">{{ $orden['sum_iva'] }}</td>
                         </tr>
                         <tr>

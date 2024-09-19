@@ -223,7 +223,7 @@
                 <th>Medida</th>
                 <th>Precio U.</th>
                 <th>Desc.</th>
-                <th>IVA</th>
+                <th>{{$texto_iva}}</th>
                 <th>Subtotal</th>
                 <th>Total</th>
             </thead>
@@ -278,7 +278,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td align="right">IVA {{ $prefactura['iva'] }}%</td>
+                            <td align="right">{{$texto_iva}} {{ $prefactura['iva'] }}%</td>
                             <td align="right">{{ $prefactura['sum_iva'] }}</td>
                         </tr>
                         <tr>

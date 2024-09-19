@@ -21,15 +21,19 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ComprasProveedores\ProformaService;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
+use Src\Config\PaisesOperaciones;
 use Src\Shared\Utils;
+use Throwable;
 
 class ProformaController extends Controller
 {
-    private $entidad = 'Proforma';
+    private string $entidad = 'Proforma';
     private ProformaService $servicio;
+
     public function __construct()
     {
         $this->servicio = new ProformaService();
@@ -38,6 +42,7 @@ class ProformaController extends Controller
         $this->middleware('can:puede.editar.proformas')->only('update');
         $this->middleware('can:puede.eliminar.proformas')->only('destroy');
     }
+
     /**
      * Listar
      */
@@ -55,6 +60,7 @@ class ProformaController extends Controller
 
     /**
      * Guardar
+     * @throws ValidationException|Throwable
      */
     public function store(ProformaRequest $request)
     {
@@ -64,15 +70,6 @@ class ProformaController extends Controller
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
-            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-
-            // Log::channel('testing')->info('Log', ['Datos validados store:', $datos]);
 
             //Creación de la orden de compra
             $proforma = Proforma::create($datos);
@@ -92,10 +89,10 @@ class ProformaController extends Controller
             }
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
-            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
@@ -110,26 +107,16 @@ class ProformaController extends Controller
 
     /**
      * Actualizar
+     * @throws ValidationException|Throwable
      */
     public function update(ProformaRequest $request, Proforma $proforma)
     {
-        $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
-        $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
-            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
 
-            // Log::channel('testing')->info('Log', ['Datos validados update:', $datos]);
-
-            //Creación de la proforma
+            //Actualización de la proforma
             $proforma->update($datos);
             // Sincronizar los detalles de la orden de compra
             Proforma::guardarDetalles($proforma, $request->listadoProductos);
@@ -139,10 +126,8 @@ class ProformaController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
 
-
             /* En caso que se cancela/anula una proforma, se actualiza su estado a anulado. */
             if ($proforma->autorizacion_id == Autorizaciones::CANCELADO) {
-                // Log::channel('testing')->info('Log', ['entro en el if:', $proforma->autorizacion_id]);
                 $proforma->estado_id = EstadosTransacciones::ANULADA;
                 $proforma->save();
             }
@@ -150,9 +135,9 @@ class ProformaController extends Controller
 
             //si la persona que modifica la proforma es el mismo solicitante se envia la notificacion al autorizador
             //caso contrario se envia al solicitante si de aprobo o anulo su proforma
-            if(auth()->user()->empleado->id == $proforma->solicitante_id){
+            if (auth()->user()->empleado->id == $proforma->solicitante_id) {
                 event(new ProformaModificadaEvent($proforma, true));
-            }else{
+            } else {
                 // aqui se debe lanzar la notificacion en caso de que la proforma no sea autorizacion pendiente
                 if ($proforma->autorizacion_id !== Autorizaciones::PENDIENTE) {
                     $proforma->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
@@ -161,10 +146,10 @@ class ProformaController extends Controller
             }
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR update de proformas:', $e->getMessage(), $e->getLine()]);
-            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
@@ -183,7 +168,6 @@ class ProformaController extends Controller
      */
     public function anular(Request $request, Proforma $proforma)
     {
-        // Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
         $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
         $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
         $request->validate(['motivo' => ['required', 'string']]);
@@ -198,10 +182,15 @@ class ProformaController extends Controller
     }
 
     /**
-     * Imprimir una orden de compra
+     * Imprimir una proforma
      */
     public function imprimir(Proforma $proforma)
     {
+        $pais = env('COUNTRY');
+        $texto_iva = match ($pais) {
+            PaisesOperaciones::PERU => 'IGV',
+            default => 'IVA',
+        };
         $configuracion = ConfiguracionGeneral::first();
         $cliente = new ClienteResource(Cliente::find($proforma->cliente_id));
         $empleado_solicita = Empleado::find($proforma->solicitante_id);
@@ -210,15 +199,13 @@ class ProformaController extends Controller
             $proforma = $proforma->resolve();
             $cliente = $cliente->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($proforma['sum_total']);
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['proforma' => $proforma, 'cliente' => $cliente, 'empleado_solicita' => $empleado_solicita]]);
-            $pdf = Pdf::loadView('compras_proveedores.proforma', compact(['proforma', 'cliente', 'empleado_solicita', 'valor', 'configuracion']));
-            $pdf->setPaper('A4', 'portrait');
+//            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['proforma' => $proforma, 'cliente' => $cliente, 'empleado_solicita' => $empleado_solicita]]);
+            $pdf = Pdf::loadView('compras_proveedores.proforma', compact(['proforma', 'cliente', 'empleado_solicita', 'valor', 'configuracion', 'texto_iva']));
+            $pdf->setPaper('A4');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
-            $file = $pdf->output();
-
             // return $pdf->download();
-            return $file;
+            return $pdf->output();
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
             return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);

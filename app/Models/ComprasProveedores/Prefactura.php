@@ -8,14 +8,19 @@ use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 use Src\Shared\Utils;
+use Throwable;
 
 /**
  * App\Models\ComprasProveedores\Prefactura
@@ -34,41 +39,41 @@ use Src\Shared\Utils;
  * @property float|null $descuento_general
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Cliente|null $cliente
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\ItemDetallePrefactura> $detalles
+ * @property-read Collection<int, ItemDetallePrefactura> $detalles
  * @property-read int|null $detalles_count
  * @property-read EstadoTransaccion|null $estado
  * @property-read Notificacion|null $latestNotificacion
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \App\Models\ComprasProveedores\Proforma|null $proforma
+ * @property-read Proforma|null $proforma
  * @property-read Empleado|null $solicitante
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura query()
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereCausaAnulacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereCodigo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereDescripcion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereDescuentoGeneral($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereEstadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereForma($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereIva($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereProformaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereTiempo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Prefactura whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Prefactura acceptRequest(?array $request = null)
+ * @method static Builder|Prefactura filter(?array $request = null)
+ * @method static Builder|Prefactura ignoreRequest(?array $request = null)
+ * @method static Builder|Prefactura newModelQuery()
+ * @method static Builder|Prefactura newQuery()
+ * @method static Builder|Prefactura query()
+ * @method static Builder|Prefactura setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Prefactura setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Prefactura setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Prefactura whereCausaAnulacion($value)
+ * @method static Builder|Prefactura whereClienteId($value)
+ * @method static Builder|Prefactura whereCodigo($value)
+ * @method static Builder|Prefactura whereCreatedAt($value)
+ * @method static Builder|Prefactura whereDescripcion($value)
+ * @method static Builder|Prefactura whereDescuentoGeneral($value)
+ * @method static Builder|Prefactura whereEstadoId($value)
+ * @method static Builder|Prefactura whereForma($value)
+ * @method static Builder|Prefactura whereId($value)
+ * @method static Builder|Prefactura whereIva($value)
+ * @method static Builder|Prefactura whereProformaId($value)
+ * @method static Builder|Prefactura whereSolicitanteId($value)
+ * @method static Builder|Prefactura whereTiempo($value)
+ * @method static Builder|Prefactura whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Prefactura extends Model implements Auditable
 {
@@ -97,7 +102,7 @@ class Prefactura extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________
@@ -183,7 +188,6 @@ class Prefactura extends Model implements Auditable
             $row['descripcion'] = $detalle->descripcion;
             $row['unidad_medida'] = $detalle->unidad_medida_id;
             $row['unidad_medida_id'] = $detalle->unidadMedida->nombre;
-            $row['iva'] = $detalle->iva;
             $row['porcentaje_descuento'] = $detalle->porcentaje_descuento;
             $row['precio_unitario'] = $detalle->precio_unitario;
             $row['descuento'] = $detalle->descuento;
@@ -210,6 +214,10 @@ class Prefactura extends Model implements Auditable
 
         return [$subtotal, $subtotal_con_impuestos, $subtotal_sin_impuestos, $iva, $descuento, $total];
     }
+
+    /**
+     * @throws Throwable
+     */
     public static function guardarDetalles($prefactura, $items)
     {
         Log::channel('testing')->info('Log', ['Datos recibidos :', $items]);
@@ -236,25 +244,24 @@ class Prefactura extends Model implements Auditable
             // }
 
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
 
 
-    public static function filtrarPrefacturasEmpleado($request)
+    public static function filtrarPrefacturasEmpleado()
     {
-        $results = Prefactura::where(function ($query) {
+        return Prefactura::where(function ($query) {
             $query->orWhere('solicitante_id', auth()->user()->empleado->id);
         })->ignoreRequest(['solicitante_id'])->filter()->orderBy('updated_at', 'desc')->get();
-        return $results;
     }
 
     /**
      * La función obtiene un código concatenando el año actual (2 digitos), el mes (dos digitos) y un código generado con una
      * longitud específica.
-     * 
+     *
      * @return string una cadena que consta del año actual - el mes actual, seguida de un código generado
      * con una longitud de 3 dígitos con formato (año-mes00#).
      */

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
+use Src\Config\PaisesOperaciones;
 use Src\Shared\Utils;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -66,6 +67,11 @@ class OrdenCompraService
 
     public static function generarPdf(OrdenCompra $orden_compra, $guardar, $descargar)
     {
+        $pais = env('COUNTRY');
+        $texto_iva = match ($pais) {
+            PaisesOperaciones::PERU => 'IGV',
+            default => 'IVA',
+        };
         try {
             $configuracion = ConfiguracionGeneral::first();
             if (!$orden_compra->proveedor_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
@@ -77,7 +83,7 @@ class OrdenCompraService
             $orden = $orden->resolve();
             $proveedor = $proveedor->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
-            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor', 'configuracion']));
+            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor', 'configuracion', 'texto_iva']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
