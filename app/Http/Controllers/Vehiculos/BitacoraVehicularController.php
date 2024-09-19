@@ -94,20 +94,7 @@ class BitacoraVehicularController extends Controller
             $chofer = Empleado::find($request->chofer_id);
             $bitacora_activa = BitacoraVehicular::where('chofer_id', $chofer->id)->where('firmada', false)->get();
             if (count($bitacora_activa) > 0) throw new Exception('Ya tienes una bitacora activa, por favor finalizala para poder crear otra');
-            $chofer->bitacoras()->attach(
-                $datos['vehiculo_id'],
-                [
-                    'fecha' => $datos['fecha'],
-                    'imagen_inicial' => $datos['imagen_inicial'],
-                    'hora_salida' => $datos['hora_salida'],
-                    'hora_llegada' => $datos['hora_llegada'],
-                    'km_inicial' => $datos['km_inicial'],
-                    'km_final' => $datos['km_final'],
-                    'tanque_inicio' => $datos['tanque_inicio'],
-                    'tanque_final' => $datos['tanque_final'],
-                    'firmada' => $datos['firmada'],
-                ]
-            );
+            BitacoraVehicular::create($datos);
             $this->service->notificarDiferenciasKmBitacoras($chofer->ultimaBitacora);
             $this->service->actualizarDatosRelacionadosBitacora($chofer->ultimaBitacora, $request);
             // $bitacora = BitacoraVehicular::create($datos);
