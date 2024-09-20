@@ -165,7 +165,7 @@ class ReporteModuloTareaController extends Controller
         $inicioDelMes = Carbon::createFromFormat('m-Y', $mesAnio)->startOfMonth();
 
         $results = Subtarea::join('grupos as g', 'grupo_id', '=', 'g.id')
-            ->select('g.nombre as clave', DB::raw('count(*) as valor'), 'causa_intervencion_id')
+            ->select('g.nombre as clave', DB::raw('count(*) as valor'), 'causa_intervencion_id', 'subtareas.id as id')
             ->whereYear('fecha_hora_finalizacion', '=', $inicioDelMes->year)
             ->whereMonth('fecha_hora_finalizacion', '=', $inicioDelMes->month)
             ->whereHas('causaIntervencion', function ($q) use ($tipo_trabajo_id) {
@@ -174,10 +174,23 @@ class ReporteModuloTareaController extends Controller
             ->groupBy('g.nombre')
             ->get();
 
+        $metadata = Subtarea::join('grupos as g', 'grupo_id', '=', 'g.id')
+            ->select('causa_intervencion_id', 'subtareas.id as id')
+            ->whereYear('fecha_hora_finalizacion', '=', $inicioDelMes->year)
+            ->whereMonth('fecha_hora_finalizacion', '=', $inicioDelMes->month)
+            ->whereHas('causaIntervencion', function ($q) use ($tipo_trabajo_id) {
+                $q->where('tipo_trabajo_id', $tipo_trabajo_id);
+            })
+            ->get('id');
+
+
         $results = $results->groupBy('causa_intervencion_id');
 
         foreach ($results as $key => $listado) {
-            $graficos->push(GraficoChartJS::mapear($listado->toArray(), CausaIntervencion::find($key)?->nombre ?? '', 'Cantidad de subtareas'));
+            $meta = $metadata->filter(fn($item) => $item->causa_intervencion_id == $key)->values();
+            Log::channel('testing')->info('Log', ['Key', $key]);
+            Log::channel('testing')->info('Log', ['Meta', $meta]);
+            $graficos->push(GraficoChartJS::mapear($listado->toArray(), CausaIntervencion::find($key)?->nombre ?? '', 'Cantidad de subtareas', $metadata->filter(fn($item) => $item->causa_intervencion_id == $key)->values()));
         }
 
         return $graficos;

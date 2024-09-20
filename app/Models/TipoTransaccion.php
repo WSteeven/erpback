@@ -26,6 +26,7 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|TipoTransaccion newModelQuery()
  * @method static Builder|TipoTransaccion newQuery()
  * @method static Builder|TipoTransaccion query()
+ * @method static Builder|TipoTransaccion where()
  * @method static Builder|TipoTransaccion whereCreatedAt($value)
  * @method static Builder|TipoTransaccion whereId($value)
  * @method static Builder|TipoTransaccion whereNombre($value)

@@ -43,6 +43,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProductoTransaccion whereInventarioId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProductoTransaccion whereRecibido($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProductoTransaccion whereTransaccionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleProductoTransaccion whereIn($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProductoTransaccion whereUpdatedAt($value)
  * @mixin \Eloquent
  */

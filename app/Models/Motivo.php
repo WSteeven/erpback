@@ -28,6 +28,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @method static \Illuminate\Database\Eloquent\Builder|Motivo newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Motivo newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Motivo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Motivo where()
  * @method static \Illuminate\Database\Eloquent\Builder|Motivo setBlackListDetection(?array $black_list_detections = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Motivo setCustomDetection(?array $object_custom_detect = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Motivo setLoadInjectedDetection($load_default_detection)

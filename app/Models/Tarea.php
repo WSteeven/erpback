@@ -87,6 +87,7 @@ use Laravel\Scout\Searchable;
  * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCodigoTareaCliente($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCoordinadorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tarea where($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereEtapaId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFechaSolicitud($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFinalizado($value)
