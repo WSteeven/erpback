@@ -7,12 +7,15 @@ use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\FondosRotativos\Saldo\Saldo
@@ -28,31 +31,31 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $empleado_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empleado|null $empleado
- * @property-read Model|\Eloquent $saldoable
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo query()
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereFecha($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoActual($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoAnterior($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoDepositado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereSaldoableType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereTipoSaldo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Saldo whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Model|Eloquent $saldoable
+ * @method static Builder|Saldo acceptRequest(?array $request = null)
+ * @method static Builder|Saldo filter(?array $request = null)
+ * @method static Builder|Saldo ignoreRequest(?array $request = null)
+ * @method static Builder|Saldo newModelQuery()
+ * @method static Builder|Saldo newQuery()
+ * @method static Builder|Saldo query()
+ * @method static Builder|Saldo setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Saldo setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Saldo setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Saldo whereCreatedAt($value)
+ * @method static Builder|Saldo whereEmpleadoId($value)
+ * @method static Builder|Saldo whereFecha($value)
+ * @method static Builder|Saldo whereId($value)
+ * @method static Builder|Saldo whereSaldoActual($value)
+ * @method static Builder|Saldo whereSaldoAnterior($value)
+ * @method static Builder|Saldo whereSaldoDepositado($value)
+ * @method static Builder|Saldo whereSaldoableId($value)
+ * @method static Builder|Saldo whereSaldoableType($value)
+ * @method static Builder|Saldo whereTipoSaldo($value)
+ * @method static Builder|Saldo whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Saldo extends Model implements Auditable
 {

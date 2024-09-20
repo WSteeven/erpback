@@ -200,12 +200,6 @@ class VacacionController extends Controller
         $configuracion = ConfiguracionGeneral::first();
         $resource = new VacacionResource($vacacion);
         try {
-//            Log::channel('testing')->info('Log', ['configuracion' => $configuracion,
-//                'vacacion' => $resource->resolve(),
-//                'empleado' => Empleado::with('departamento', 'grupo')->find($vacacion->empleado_id),
-//                'autorizador' => Empleado::find($vacacion->autorizador_id),
-//                'reemplazo' => Empleado::find($vacacion->reemplazo_id),]);
-
             $pdf = Pdf::loadView('recursos-humanos.nomina_permisos.solicitud_vacacion', [
                 'configuracion' => $configuracion,
                 'vacacion' => $resource->resolve(),
@@ -217,7 +211,7 @@ class VacacionController extends Controller
             $pdf->render();
             return $pdf->output();
         } catch (Throwable|Exception $th) {
-            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $th->getMessage(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de VacacionController::imprimir', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
         }
     }

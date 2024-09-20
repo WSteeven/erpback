@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Externos\UserExternalInfoResource;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
-use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\UserExternal;
 use Exception;
@@ -31,7 +30,7 @@ class LoginSocialNetworkController extends Controller
             // return response()->json(['url' => $oauth2Service->obtenerUrl()], 200);
         } else {
             // Entra aquí cuando es un inicio de sesión tradicional
-            Log::channel('testing')->info('Log', ['login', $request->all()]);
+//            Log::channel('testing')->info('Log', ['login', $request->all()]);
             // Log::channel('testing')->info('Log', ['LoginSocialNetworkController::login', $driver, request()->all()]);
             $request->validate([
                 'name' => 'required|email:rfc,dns',

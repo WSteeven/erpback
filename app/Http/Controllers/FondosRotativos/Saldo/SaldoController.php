@@ -202,7 +202,7 @@ class SaldoController extends Controller
                     })->get()
                     : Saldo::with('empleado')->where('empleado_id', $id)->orderBy('id', 'desc')->first();
             } else {
-                $empleados = Empleado::where('jefe_id', $usuario->empleado->id)->get('id', 'nombres', 'apellidos')->pluck('id');
+                $empleados = Empleado::where('jefe_id', $usuario->empleado->id)->get(['id', 'nombres', 'apellidos'])->pluck('id');
                 $saldos_actual_user = $request->empleado == null ?
                     Saldo::with('empleado')->whereIn('id', function ($sub) {
                         $sub->selectRaw('max(id)')->from('fr_saldos')->groupBy('empleado_id');
@@ -554,6 +554,9 @@ class SaldoController extends Controller
             $transferencia_recibida = 0;
             $transferencias_enviadas = [];
             $transferencias_recibidas = [];
+            $sumatoria_aprobados_fuera_mes=0;
+            $registros_fuera_mes_suman=[];
+            $registros_fuera_mes_restan=[];
             $total = 0;
             $usuario_canton = '';
             $fecha_anterior = '';
@@ -595,7 +598,12 @@ class SaldoController extends Controller
                 $transferencias_recibidas = $this->saldoService->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $transferencia_recibida = $transferencias_recibidas->sum('monto');
                 $saldo_old = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
-                $total = $saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
+                $registros_fuera_mes_restan =$this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin, false);
+                $sumatoria_fuera_mes_restan = $registros_fuera_mes_restan->sum('saldo_depositado');
+                $registros_fuera_mes_suman = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin);
+                $sumatoria_fuera_mes_suman = $registros_fuera_mes_suman->sum('saldo_depositado');
+                $sumatoria_aprobados_fuera_mes = $sumatoria_fuera_mes_restan - $sumatoria_fuera_mes_suman;
+                $total = $saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales - $sumatoria_aprobados_fuera_mes;
                 $empleado = Empleado::where('id', $request->empleado)->first();
                 $usuario = $empleado->nombres . '' . ' ' . $empleado->apellidos;
                 $usuario_canton = $empleado->canton->canton;
@@ -609,7 +617,9 @@ class SaldoController extends Controller
                 'fecha_anterior' => $fecha_anterior,
                 'usuario' => $usuario,
                 'usuario_canton' => $usuario_canton,
-                'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
+                'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual - $sumatoria_aprobados_fuera_mes : 0,
+                'gastos_aprobados_fuera_mes' => $sumatoria_aprobados_fuera_mes,
+                'registros_fuera_mes' => $registros_fuera_mes_suman->merge($registros_fuera_mes_restan),
                 'ultimo_saldo' => $ultimo_saldo,
                 'total_suma' => $total,
                 'acreditaciones' => $acreditaciones,
@@ -656,7 +666,7 @@ class SaldoController extends Controller
 
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior = $fecha->subDay()->format('Y-m-d'); // el día anterior a la fecha de inicio
-            $fecha_fin_aux = Carbon::parse($fecha_fin)->addDays(7)->format('Y-m-d'); // se le aumenta 7 días a la fecha final
+//            $fecha_fin_aux = Carbon::parse($fecha_fin)->addDays(7)->format('Y-m-d'); // se le aumenta 7 días a la fecha final
             $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->empleado, $fecha_anterior, $fecha_inicio);
             $fecha_anterior = $fecha->format('Y-m-d');
 
@@ -706,7 +716,7 @@ class SaldoController extends Controller
 
 //            Log::channel('testing')->info('Log', ['fechas', $fecha_inicio, $fecha_fin]);
             $saldos_fondos = Saldo::with('saldoable')->where('empleado_id', $request->empleado)
-                ->where(function($query)use ($fecha_inicio, $fecha_fin) {
+                ->where(function ($query) use ($fecha_inicio, $fecha_fin) {
                     $query->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
                         ->orWhereBetween('fecha', [$fecha_inicio, $fecha_fin]);
                 })
@@ -778,17 +788,13 @@ class SaldoController extends Controller
                 ->where('id_usuario', '=', $request->empleado)
                 ->get();
             $gastos = $gastos_reporte->sum('total');
-            $gastos_aprobados_fuera_mes_restan = Saldo::where('empleado_id', $request->empleado)
-                ->where('tipo_saldo', Saldo::EGRESO)
-                ->where('fecha', '<', $fecha_inicio)
-                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                ->sum('saldo_depositado');
-            $gastos_aprobados_fuera_mes_suman = Saldo::where('empleado_id', $request->empleado)
-                ->whereIn('tipo_saldo', [Saldo::INGRESO, Saldo::ANULACION])
-                ->where('fecha', '<', $fecha_inicio)
-                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                ->sum('saldo_depositado');
-            $gastos_aprobados_fuera_mes = $gastos_aprobados_fuera_mes_restan - $gastos_aprobados_fuera_mes_suman;
+            $registros_fuera_mes_restan = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin, false);
+//            Log::channel('testing')->info('Log', ['gastos que restan', ]);
+            $sumatoria_fuera_mes_restan = $registros_fuera_mes_restan->sum('saldo_depositado');
+            $registros_fuera_mes_suman = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin);
+//            Log::channel('testing')->info('Log', ['gastos que suman', ]);
+            $sumatoria_fuera_mes_suman = $registros_fuera_mes_suman->sum('saldo_depositado');
+            $sumatoria_aprobados_fuera_mes = $sumatoria_fuera_mes_restan - $sumatoria_fuera_mes_suman;
             $gastos_reporte = Gasto::empaquetar($gastos_reporte);
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->empleado)
                 ->with('empleadoRecibe', 'empleadoEnvia')
@@ -820,7 +826,7 @@ class SaldoController extends Controller
             $sub_total = 0;
             $nuevo_saldo = $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $saldo_old = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
-            $total = ($saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos) + $ajuste_saldo_ingreso - $ajuste_saldo_egreso - $gastos_aprobados_fuera_mes;
+            $total = ($saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos) + $ajuste_saldo_ingreso - $ajuste_saldo_egreso - $sumatoria_aprobados_fuera_mes;
             $empleado = Empleado::where('id', $request->empleado)->first();
 
             $usuario = User::where('id', $empleado->usuario_id)->first();
@@ -831,11 +837,11 @@ class SaldoController extends Controller
                 'fecha_fin' => $fecha_fin,
                 'empleado' => $empleado,
                 'usuario' => $usuario,
-                'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
+                'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual - $sumatoria_aprobados_fuera_mes : 0,
                 'acreditaciones' => $acreditaciones,
                 'gastos' => $gastos,
                 'gastos_reporte' => $gastos_reporte,
-                'gastos_aprobados_fuera_mes' => $gastos_aprobados_fuera_mes,
+                'gastos_aprobados_fuera_mes' => $sumatoria_aprobados_fuera_mes,
                 'transferencia' => $transferencia,
                 'transferencia_recibida' => $transferencia_recibida,
                 'transferencias_enviadas' => $transferencias_enviadas,
@@ -844,6 +850,7 @@ class SaldoController extends Controller
                 'ajuste_saldo_ingreso_reporte' => $ajuste_saldo_ingreso_reporte,
                 'ajuste_saldo_egreso' => $ajuste_saldo_egreso,
                 'ajuste_saldo_egreso_reporte' => $ajuste_saldo_egreso_reporte,
+                'registros_fuera_mes' => $registros_fuera_mes_suman->merge($registros_fuera_mes_restan),
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
                 'total_suma' => $total
