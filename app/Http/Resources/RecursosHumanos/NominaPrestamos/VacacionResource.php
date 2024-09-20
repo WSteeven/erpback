@@ -22,7 +22,7 @@ class VacacionResource extends JsonResource
             'id' => $this->id,
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado_info != null ? $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos : '',
-            'id_jefe_inmediato' => $this->empleado_info->jefe->id,
+            'id_jefe_inmediato' => $this->empleado_info->jefe_id,
             'fecha_inicio' =>  $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'numero_dias' => $this->calcular_dias($this->fecha_inicio,$this->fecha_fin),
@@ -38,12 +38,14 @@ class VacacionResource extends JsonResource
             'estado' => $this->estado,
             'estado_permiso_info' => $this->estado_permiso_info ?$this->estado_permiso_info->nombre:'',
             'numero_rangos' => $this->numero_rangos,
+            'created_at' => $this->created,
             'reemplazo' => Empleado::extraerNombresApellidos($this->reemplazo)
         ];
 
         if($controller_method === 'show'){
             $modelo['reemplazo'] = $this->reemplazo_id;
             $modelo['funciones'] = $this->funciones;
+            $modelo['autorizador'] = $this->autorizador_id;
         }
         return $modelo;
     }

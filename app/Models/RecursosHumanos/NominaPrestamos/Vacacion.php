@@ -81,6 +81,7 @@ class Vacacion extends Model implements Auditable
     protected $table = 'vacaciones';
     protected $fillable = [
         'empleado_id',
+        'autorizador_id',
         'periodo_id',
         'numero_rangos',
         'fecha_inicio',

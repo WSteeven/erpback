@@ -71,7 +71,6 @@ class PostulacionController extends Controller
         $postulacion = null;
         Log::channel('testing')->info('Log', ['store::postulacion->user', $request->all(), $datos, auth()->user()->getAuthIdentifier()]);
         try {
-//            throw new Exception("Error controlado, quiero ver que recibo del front");
             DB::beginTransaction();
             if (auth()->user() instanceof User) {
                 $postulacion = auth()->user()->postulaciones()->create($datos);
@@ -79,7 +78,7 @@ class PostulacionController extends Controller
             } elseif (auth()->user() instanceof UserExternal) {
                 $postulacion = auth()->user()->postulaciones()->create($datos);
                 $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(UserExternal::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
-                Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
+//                Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
                 //Postulante hace referencia a la tabla postulante, que es equivalente a la tabla empleados, solo que en este caso es para usuarios externos
                 $postulante = Postulante::where('usuario_external_id', $postulacion->user_id)->first();
                 $postulante->correo_personal = $datos['correo_personal'];

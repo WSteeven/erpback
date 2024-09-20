@@ -65,7 +65,7 @@ class AsignacionVehiculoController extends Controller
     }
 
     /**
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function store(AsignacionVehiculoRequest $request)
     {
@@ -95,7 +95,7 @@ class AsignacionVehiculoController extends Controller
     }
 
     /**
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function update(AsignacionVehiculoRequest $request, AsignacionVehiculo $asignacion)
     {
@@ -163,7 +163,7 @@ class AsignacionVehiculoController extends Controller
     }
 
     /**
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function devolverVehiculo(Request $request, AsignacionVehiculo $asignacion)
     {

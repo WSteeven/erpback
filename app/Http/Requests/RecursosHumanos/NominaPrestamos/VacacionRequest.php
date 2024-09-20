@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @property mixed $periodo
@@ -41,6 +43,7 @@ class VacacionRequest extends FormRequest
     {
         return [
             'empleado_id' => 'required|exists:empleados,id',
+            'autorizador_id' => 'required|exists:empleados,id',
             'periodo_id' => 'required|exists:periodos,id',
             'derecho_vacaciones' => 'nullable',
             'fecha_inicio' => 'nullable|date_format:Y-m-d',
@@ -64,6 +67,7 @@ class VacacionRequest extends FormRequest
         $this->merge([
             'empleado_id' => $empleado_id,
             'reemplazo_id'=> $this->reemplazo,
+            'autorizador_id'=> $this->autorizador ?? Empleado::find($empleado_id)->jefe_id,
         ]);
         $dateFields = [
             'fecha_inicio_rango1_vacaciones',

@@ -41,8 +41,6 @@ use OwenIt\Auditing\Models\Audit;
 /**
  * App\Models\Empleado
  *
- * @method static where(string $string, $empleado)
- * @method static find(mixed $autorizador_id)
  * @method static findOrFail(mixed $empleado_id)
  * @property int $id
  * @property string|null $identificacion
@@ -174,7 +172,7 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Empleado newModelQuery()
  * @method static Builder|Empleado newQuery()
  * @method static Builder|Empleado query()
- * @method static Builder|Empleado find()
+ * @method static Builder|Empleado find($value)
  * @method static Builder|Empleado setBlackListDetection(?array $black_list_detections = null)
  * @method static Builder|Empleado setCustomDetection(?array $object_custom_detect = null)
  * @method static Builder|Empleado setLoadInjectedDetection($load_default_detection)

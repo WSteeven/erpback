@@ -59,7 +59,7 @@ class OrdenCompraController extends Controller
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS, User::ROL_CONTABILIDAD])) {
             $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
         } else {
-            $results = OrdenCompra::filtrarOrdenesEmpleado($request);
+            $results = OrdenCompra::filtrarOrdenesEmpleado();
             // Log::channel('testing')->info('Log', ['Esta en el else:']);
             // $results = OrdenCompra::filter()->get();
         }
