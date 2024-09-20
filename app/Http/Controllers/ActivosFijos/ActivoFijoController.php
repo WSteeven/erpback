@@ -9,21 +9,22 @@ use App\Models\ActivosFijos\ActivoFijo;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Src\App\ActivosFijos\ControlActivoFijoService;
 use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
 use Src\App\Tareas\ProductoEmpleadoService;
 
 class ActivoFijoController extends Controller
 {
-    private $entidad = 'Activo fijo';
     protected PaginationService $paginationService;
     protected ProductoEmpleadoService $productoEmpleadoService;
+    protected ControlActivoFijoService $controlActivoFijoService;
 
     public function __construct()
     {
         $this->paginationService = new PaginationService();
         $this->productoEmpleadoService = new ProductoEmpleadoService();
+        $this->controlActivoFijoService = new ControlActivoFijoService();
     }
 
     /**
@@ -35,6 +36,8 @@ class ActivoFijoController extends Controller
     {
         $search = request('search');
         $paginate = request('paginate');
+
+        if (request('export')) return $this->controlActivoFijoService->descargarReporte();
 
         $query = ActivoFijo::search($search);
 

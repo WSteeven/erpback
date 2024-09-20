@@ -113,6 +113,7 @@ use Src\Config\RutasStorage;
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereSerial($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereTalla($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereTipo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereIn($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereUrlImagen($value)
  * @mixin \Eloquent
@@ -130,8 +131,6 @@ class DetalleProducto extends Model implements Auditable
     //TIPO
     const HOMBRE = 'HOMBRE';
     const MUJER = 'MUJER';
-
-
 
     /**
      * The attributes that are mass assignable.
@@ -161,6 +160,7 @@ class DetalleProducto extends Model implements Auditable
         'fecha_caducidad',
         'fotografia',
         'fotografia_detallada',
+        'codigo_activo_fijo',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

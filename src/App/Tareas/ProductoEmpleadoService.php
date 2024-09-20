@@ -2,6 +2,8 @@
 
 namespace Src\App\Tareas;
 
+use App\Exports\ActivosFijos\ReporteActivosFijosExport;
+use App\Http\Resources\ActivosFijos\ReporteActivosFijosResource;
 use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
@@ -10,14 +12,16 @@ use App\Models\Empleado;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
 use App\Models\MaterialEmpleado;
+use App\Models\Motivo;
 use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\SeguimientoMaterialStock;
+use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\EstadosTransacciones;
 
@@ -221,7 +225,6 @@ class ProductoEmpleadoService
         // $subtarea = Subtarea::find($idSubtarea);
         // $fecha_inicio = Carbon::parse($subtarea->fecha_hora_agendado)->format('Y-m-d');
         // $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->addDay()->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
-
         return DB::table('af_seguimientos_consumo_activos_fijos as sms')
             ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', 'sms.cliente_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'), 'sms.empleado_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
@@ -231,13 +234,5 @@ class ProductoEmpleadoService
             ->get();
     }
 
-    /*private function obtenerSumaConsumoActivoFijoPorEmpleado(int $empleado_id)
-    {
-        return DB::table('af_seguimientos_consumo_activos_fijos as sms')
-            ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', 'sms.cliente_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))
-            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
-            ->where('empleado_id', $empleado_id)
-            ->groupBy('detalle_producto_id', 'cliente_id')
-            ->get();
-    } */
+    
 }
