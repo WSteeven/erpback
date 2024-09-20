@@ -6,10 +6,12 @@ use App\Events\VacacionEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -40,9 +42,7 @@ class VacacionController extends Controller
      */
     public function index()
     {
-        $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
+        if (!auth()->user()->hasRole('RECURSOS HUMANOS')) {
             $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
         } else {
             $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
@@ -136,9 +136,9 @@ class VacacionController extends Controller
         }
     }
 
-    public function show( Vacacion $Vacacion)
+    public function show( Vacacion $vacacion)
     {
-        $modelo = new VacacionResource($Vacacion);
+        $modelo = new VacacionResource($vacacion);
         return response()->json(compact('modelo'));
     }
     /**
@@ -163,19 +163,17 @@ class VacacionController extends Controller
      *
      * @param VacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
      * que se utiliza para validar y recuperar los datos de la solicitud HTTP.
-     * @param Vacacion $Vacacion El parámetro "Vacacion" es una instancia del modelo "Vacacion".
-     * Representa un registro de vacaciones específico en la base de datos.
-     *
+     * @param Vacacion $vacacion
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
      * @throws Exception
      */
-    public function update(VacacionRequest $request, Vacacion $Vacacion)
+    public function update(VacacionRequest $request, Vacacion $vacacion)
     {
         $datos = $request->validated();
         $datos['estado'] = $request->estado;
-        $Vacacion->update($datos);
-        event(new VacacionEvent($Vacacion));
-        $modelo = new VacacionResource($Vacacion);
+        $vacacion->update($datos);
+        event(new VacacionEvent($vacacion));
+        $modelo = new VacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -183,14 +181,44 @@ class VacacionController extends Controller
     /**
      * La función destruye un objeto Vacaciones y devuelve una respuesta JSON.
      *
-     * @param Vacacion $Vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
+     * @param Vacacion $vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
      * Representa un registro de vacaciones específico que debe eliminarse de la base de datos.
      *
      * @return JsonResponse respuesta JSON que contiene el objeto Vacaciones eliminado.
      */
-    public function destroy( Vacacion $Vacacion)
+    public function destroy( Vacacion $vacacion)
     {
-        $Vacacion->delete();
-        return response()->json(compact('Vacacion'));
+        $vacacion->delete();
+        return response()->json(compact('vacacion'));
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function imprimir(Vacacion $vacacion)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $resource = new VacacionResource($vacacion);
+        try {
+//            Log::channel('testing')->info('Log', ['configuracion' => $configuracion,
+//                'vacacion' => $resource->resolve(),
+//                'empleado' => Empleado::with('departamento', 'grupo')->find($vacacion->empleado_id),
+//                'autorizador' => Empleado::find($vacacion->autorizador_id),
+//                'reemplazo' => Empleado::find($vacacion->reemplazo_id),]);
+
+            $pdf = Pdf::loadView('recursos-humanos.nomina_permisos.solicitud_vacacion', [
+                'configuracion' => $configuracion,
+                'vacacion' => $resource->resolve(),
+                'empleado' => Empleado::with('departamento', 'grupo')->find($vacacion->empleado_id),
+                'autorizador' => Empleado::find($vacacion->autorizador_id),
+                'reemplazo' => Empleado::find($vacacion->reemplazo_id),
+            ]);
+            $pdf->setPaper('A4');
+            $pdf->render();
+            return $pdf->output();
+        } catch (Throwable|Exception $th) {
+            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $th->getMessage(), $th->getLine()]);
+            throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
+        }
     }
 }

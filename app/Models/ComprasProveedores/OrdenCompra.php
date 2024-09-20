@@ -28,6 +28,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 use Src\Shared\Utils;
+use Throwable;
 
 /**
  * App\Models\ComprasProveedores\OrdenCompra
@@ -333,9 +334,9 @@ class OrdenCompra extends Model implements Auditable
    *
    * @param int $id El parámetro "id" es el ID de la orden de compra.
    *
-   * @return mixed una matriz con los valores de subtotal, el total, el descuento y IVA.
+   * @return array una matriz con los valores de subtotal, el total, el descuento y IVA.
    */
-  public static function obtenerSumaListado($id)
+  public static function obtenerSumaListado(int $id)
   {
     $orden = OrdenCompra::find($id);
     $detalles = ItemDetalleOrdenCompra::where('orden_compra_id', $id)->get();
@@ -349,7 +350,10 @@ class OrdenCompra extends Model implements Auditable
     return [$subtotal, $subtotal_con_impuestos, $subtotal_sin_impuestos, $iva, $descuento, $total];
   }
 
-  public static function guardarDetalles($orden, $items, $metodo)
+    /**
+     * @throws Throwable
+     */
+    public static function guardarDetalles($orden, $items, $metodo)
   {
     try {
       DB::beginTransaction();
@@ -396,14 +400,12 @@ class OrdenCompra extends Model implements Auditable
     }
   }
 
-  public static function filtrarOrdenesEmpleado($request)
+  public static function filtrarOrdenesEmpleado()
   {
-    $results = OrdenCompra::where(function ($query) {
+    return OrdenCompra::where(function ($query) {
       $query->orWhere('solicitante_id', auth()->user()->empleado->id)
         ->orWhere('autorizador_id', auth()->user()->empleado->id);
     })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
-    // $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
-    return $results;
   }
 
   /**

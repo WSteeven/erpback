@@ -121,6 +121,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
+    Route::get('vacacion/imprimir/{vacacion}', [VacacionController::class, 'imprimir']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);
     Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtenerPrestamoEmpleado']);
     Route::get('otener_saldo_empleado_mes', [SaldoGrupoController::class, 'otener_saldo_empleado_mes']);

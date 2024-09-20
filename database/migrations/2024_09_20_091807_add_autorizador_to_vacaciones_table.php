@@ -14,10 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('vacaciones', function (Blueprint $table) {
-            $table->unsignedBigInteger('reemplazo_id')->nullable()->after('estado');
-            $table->text('funciones')->nullable()->after('estado');
+            $table->unsignedBigInteger('autorizador_id')->nullable()->after('empleado_id');
 
-            $table->foreign('reemplazo_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('autorizador_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 
@@ -29,7 +28,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('vacaciones', function (Blueprint $table) {
-            $table->dropColumn(['reemplazo_id','funciones']);
+            $table->dropForeign(['autorizador_id']); // Elimina la restricción de clave foranea
+            $table->dropColumn('autorizador_id'); // Elimina la columna autorizador_id
         });
     }
 };
