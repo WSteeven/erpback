@@ -42,7 +42,7 @@ class VacacionController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->hasRole('RECURSOS HUMANOS')) {
+        if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
             $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
         } else {
             $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');

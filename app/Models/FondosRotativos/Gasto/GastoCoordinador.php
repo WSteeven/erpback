@@ -6,14 +6,18 @@ use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\Notificacion;
-use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
+use Throwable;
 
 /**
  * App\Models\FondosRotativos\Gasto\GastoCoordinador
@@ -25,37 +29,37 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $observacion
  * @property int $id_usuario
  * @property int $id_grupo
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Canton|null $canton
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FondosRotativos\Gasto\MotivoGasto> $detalleMotivoGasto
+ * @property-read Collection<int, MotivoGasto> $detalleMotivoGasto
  * @property-read int|null $detalle_motivo_gasto_count
  * @property-read Empleado|null $empleado
  * @property-read Grupo|null $grupo
- * @property-read \App\Models\FondosRotativos\Gasto\MotivoGasto|null $motivoGasto
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read MotivoGasto|null $motivoGasto
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador query()
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereFechaGasto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereIdGrupo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereIdLugar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereIdUsuario($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereMonto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|GastoCoordinador whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|GastoCoordinador acceptRequest(?array $request = null)
+ * @method static Builder|GastoCoordinador filter(?array $request = null)
+ * @method static Builder|GastoCoordinador ignoreRequest(?array $request = null)
+ * @method static Builder|GastoCoordinador newModelQuery()
+ * @method static Builder|GastoCoordinador newQuery()
+ * @method static Builder|GastoCoordinador query()
+ * @method static Builder|GastoCoordinador setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|GastoCoordinador setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|GastoCoordinador setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|GastoCoordinador whereCreatedAt($value)
+ * @method static Builder|GastoCoordinador whereFechaGasto($value)
+ * @method static Builder|GastoCoordinador whereId($value)
+ * @method static Builder|GastoCoordinador whereIdGrupo($value)
+ * @method static Builder|GastoCoordinador whereIdLugar($value)
+ * @method static Builder|GastoCoordinador whereIdUsuario($value)
+ * @method static Builder|GastoCoordinador whereMonto($value)
+ * @method static Builder|GastoCoordinador whereObservacion($value)
+ * @method static Builder|GastoCoordinador whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class GastoCoordinador extends Model implements Auditable
 {
@@ -73,7 +77,7 @@ class GastoCoordinador extends Model implements Auditable
         'observacion',
         'id_usuario',
     ];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'fecha_gasto',
         'lugar',
         'grupo',
@@ -101,32 +105,32 @@ class GastoCoordinador extends Model implements Auditable
     {
         return $this->belongsToMany(MotivoGasto::class, 'detalle_motivo_gastos', 'id_gasto_coordinador', 'id_motivo_gasto');
     }
+
+    /**
+     * @throws Throwable
+     */
     public static function empaquetar($gastos)
     {
-        try {
-            $results = [];
-            $id = 0;
-            $row = [];
-            foreach ($gastos as $gasto) {
-                $row['fecha_gasto'] = $gasto->fecha_gasto;
-                $row['lugar'] = $gasto->id_lugar;
-                $row['grupo'] = $gasto->id_grupo;
-                $row['grupo_info'] = $gasto->grupo->nombre;
-                $row['motivo_info'] = self::obtenerNombresMotivos($gasto->detalleMotivoGasto);
-                $row['motivo'] = $gasto->motivoGasto != null ? $gasto->motivoGasto?->pluck('id') : null;
-                $row['lugar_info'] = $gasto?->canton->canton;
-                $row['monto'] = $gasto->monto;
-                $row['observacion'] = $gasto->observacion;
-                $row['usuario'] = $gasto->id_usuario;
-                $row['empleado_info'] = $gasto->empleado != null ? $gasto?->empleado?->nombres . ' ' . $gasto?->empleado?->apellidos : ' ';
-                $results[$id] = $row;
-                $id++;
-            }
-
-            return $results;
-        } catch (\Throwable $th) {
-            throw $th;
+        $results = [];
+        $id = 0;
+        $row = [];
+        foreach ($gastos as $gasto) {
+            $row['fecha_gasto'] = $gasto->fecha_gasto;
+            $row['lugar'] = $gasto->id_lugar;
+            $row['grupo'] = $gasto->id_grupo;
+            $row['grupo_info'] = $gasto->grupo->nombre;
+            $row['motivo_info'] = self::obtenerNombresMotivos($gasto->detalleMotivoGasto);
+            $row['motivo'] = $gasto->motivoGasto != null ? $gasto->motivoGasto->pluck('id') : null;
+            $row['lugar_info'] = $gasto?->canton->canton;
+            $row['monto'] = $gasto->monto;
+            $row['observacion'] = $gasto->observacion;
+            $row['usuario'] = $gasto->id_usuario;
+            $row['empleado_info'] = $gasto->empleado != null ? $gasto?->empleado?->nombres . ' ' . $gasto?->empleado?->apellidos : ' ';
+            $results[$id] = $row;
+            $id++;
         }
+
+        return $results;
     }
     private static function obtenerNombresMotivos($motivos)
     {

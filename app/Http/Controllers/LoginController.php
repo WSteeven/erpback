@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserInfoResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -15,11 +13,12 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
+//            'name' => 'email:rfc,dns',
             'name' => 'required|string',
             'password' => 'required',
         ]);
 
-        $user = User::where('name', $request['name'])->first();
+        $user = User::where('name', $request['name'])->orWhere('email', $request['name'])->first();
         // Log::channel('testing')->info('Log', ['Diferencia de dias: ' . $user->updated_at->diffInDays(now())]);
         if (!$user) {
             throw ValidationException::withMessages([
