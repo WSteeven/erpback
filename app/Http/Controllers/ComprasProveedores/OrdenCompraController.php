@@ -53,7 +53,7 @@ class OrdenCompraController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
         // Log::channel('testing')->info('Log', ['Es empleado:', $request->all()]);
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS, User::ROL_CONTABILIDAD])) {

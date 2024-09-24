@@ -304,7 +304,9 @@ class ProveedorController extends Controller
     }
 
 
-
+    /**
+     * @throws Exception
+     */
     public function actualizarCalificacion(Proveedor $proveedor)
     {
         Proveedor::guardarCalificacion($proveedor->id);

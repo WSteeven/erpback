@@ -11,23 +11,21 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
+use Src\Shared\Utils;
+use Throwable;
 
 class CalificacionDepartamentoProveedorController extends Controller
 {
-    private $entidad = 'Calificacion de departamento';
-    private $archivoService;
+    private ArchivoService $archivoService;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
-        // $this->middleware('can:puede.ver.calificacion_departamento_proveedor')->only('index', 'show');
-        // $this->middleware('can:puede.crear.calificacion_departamento_proveedor')->only('store');
-        // $this->middleware('can:puede.editar.calificacion_departamento_proveedor')->only('update');
-        // $this->middleware('can:puede.eliminar.calificacion_departamento_proveedor')->only('destroy');
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $results = CalificacionDepartamentoProveedor::filter()->get();
 
@@ -35,9 +33,12 @@ class CalificacionDepartamentoProveedorController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable|ValidationException
+     */
     public function store(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida CalificacionDepartamentoProveedorController', $request->all()]);
+//        Log::channel('testing')->info('Log', ['Request recibida CalificacionDepartamentoProveedorController', $request->all()]);
         try {
             DB::beginTransaction();
 
@@ -53,18 +54,6 @@ class CalificacionDepartamentoProveedorController extends Controller
                 ];
             }, $request->criterios);
             $detalle->calificaciones_criterios()->sync($datos);
-            // if ($request->criterios) {
-            //     foreach ($request->criterios as $criterio) {
-            //         $calificacion = CalificacionDepartamentoProveedor::create([
-            //             'detalle_departamento_id' => $detalle->id,
-            //             'comentario' => array_key_exists('comentario', $criterio) ? $criterio['comentario'] : null,
-            //             'peso' => $criterio['peso'],
-            //             'puntaje' => $criterio['puntaje'],
-            //             'calificacion' => $criterio['calificacion']
-            //         ]);
-            //         array_push($modelos, $calificacion);
-            //     }
-            // }
 
             DB::commit();
             //despues del commit se guarda la calificacion en el departamento
@@ -82,14 +71,13 @@ class CalificacionDepartamentoProveedorController extends Controller
         } catch (Exception $e) {
             DB::rollback();
             Log::channel('testing')->info('Log', ['Request recibida CalificacionDepartamentoProveedorController', 'Ha ocurrido un error al insertar los registros', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar los registros' . $e->getMessage() . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Problema al insertar la calificación del proveedor');
         }
     }
 
-    public function indexFiles(Request $request, $detalle)
+    public function indexFiles(int $detalle)
     {
         $results = [];
-        // Log::channel('testing')->info('Log', ['Recibido del front en indexFiles', $request->all(), $detalle]);
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
             if ($detalle_dept) {
@@ -101,23 +89,24 @@ class CalificacionDepartamentoProveedorController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'));
         }
-        return response()->json(compact('results'));
     }
 
 
     public function storeFiles(Request $request, $detalle)
     {
         // Log::channel('testing')->info('Log', ['Recibido del front en storeFiles', $request->all(), $detalle]);
+        $results=[];
+        $mensaje='';
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
             if ($detalle_dept) {
-                $modelo = $this->archivoService->guardarArchivo($detalle_dept, $request->file, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
+                $results = $this->archivoService->guardarArchivo($detalle_dept, $request->file, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
                 $mensaje = 'Archivo subido correctamente';
             }
-            return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Throwable $th) {
+            return response()->json(compact('mensaje', 'results'));
+        } catch (Throwable $th) {
             $mensaje = $th->getMessage();
-            return response()->json(compact('mensaje'));
+            return response()->json(compact('mensaje'), 500);
         }
     }
 }
