@@ -10,6 +10,9 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
+    /**
+     * @throws ValidationException
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -32,7 +35,7 @@ class LoginController extends Controller
             ])->status(412);
         }
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Usuario o contraseña incorrectos'],
             ]);
@@ -41,7 +44,7 @@ class LoginController extends Controller
         if ($user->empleado->estado) {
             $token = $user->createToken('auth_token')->plainTextToken;
             $modelo = new UserInfoResource($user);
-            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer','user_type'=>'empleado', 'modelo' => $modelo], 200);
+            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer','user_type'=>'empleado', 'modelo' => $modelo]);
         }
 
         return response()->json(["mensaje" => "El usuario no esta activo"], 401);

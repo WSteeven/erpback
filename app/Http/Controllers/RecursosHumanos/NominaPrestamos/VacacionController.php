@@ -94,11 +94,11 @@ class VacacionController extends Controller
                 $dias_descuentos_permiso = intval($request->descuento_vacaciones / 24);
                 $resta_dias_permiso = $request->numero_dias - $dias_descuentos_permiso;
 
-                if ($dias_descuentos_permiso == 0 && $request->numero_dias != $total_dias_aceptable) {
-                    throw ValidationException::withMessages([
-                        '404' => ['Por favor ingrese en rangos de vacaciones'],
-                    ]);
-                }
+//                if ($dias_descuentos_permiso == 0 && $request->numero_dias != $total_dias_aceptable) {
+//                    throw ValidationException::withMessages([
+//                        '404' => ['Por favor ingrese en rangos de vacaciones'],
+//                    ]);
+//                }
 
                 if ($request->descuento_vacaciones > 0 && $resta_dias_permiso == $total_dias_aceptable) {
                     throw ValidationException::withMessages([

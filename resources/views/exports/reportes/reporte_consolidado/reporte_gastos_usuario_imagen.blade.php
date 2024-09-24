@@ -452,14 +452,121 @@ $logo_watermark =
                 </td>
             </tr>
         </table>
-
+        {{-- inicio registros_fuera_mes --}}
+        <p
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
+        <div class="col-md-7" align="center"><b>Registros fuera de mes</b></div>
+        </p>
+        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+            <tr>
+                <td width="15%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA REGISTRO</strong></div>
+                </td>
+                <td width="17%" bgcolor="#a9d08e">
+                    <div align="center"><strong>EMPLEADO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>ID REGISTRO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>TIPO TRANSACCION </strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>TIPO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="12%">
+                    <div align="center"><strong>COMPROBANTE 1</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="12%">
+                    <div align="center"><strong>COMPROBANTE 2</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA APROBACION</strong></div>
+                </td>
+                <td width="35%" bgcolor="#a9d08e">
+                    <div align="center"><strong>VALOR</strong></div>
+                </td>
+            </tr>
+            @if (sizeof($registros_fuera_mes) == 0)
+                <tr>
+                    <td colspan="7">
+                        <div align="center">NO HAY REGISTROS FUERA DE MES</div>
+                    </td>
+                </tr>
+            @else
+                @foreach ($registros_fuera_mes as $registro)
+                    <tr>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $registro->fecha }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $registro->empleado->nombres . ' ' . $registro->empleado->apellidos }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $registro->saldoable_id }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ class_basename($registro->saldoable_type) }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $registro->tipo_saldo }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div class="col-md-3">
+                                <a href="{{ url($registro->saldoable->comprobante) }}" target="_blank" title="nombreImagen">
+                                    <img src="{{ file_exists(public_path() . $registro->saldoable->comprobante) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $registro->saldoable->comprobante)) : ' ' }}" width="250" />
+                                </a>
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div class="col-md-3">
+                                <a href="{{ url($registro->saldoable->comprobante2) }}" target="_blank" title="nombreImagen">
+                                    <img src="{{ file_exists(public_path() . $registro->saldoable->comprobante2) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $registro->saldoable->comprobante2)) : ' ' }}" width="250" />
+                                </a>
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $registro->created_at }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $registro->saldo_depositado }}
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td>&nbsp;</td>
+                    <td colspan="7" style="font-size:10px">
+                        <div align="right"><strong>TOTAL:&nbsp;</strong></div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ number_format($gastos_aprobados_fuera_mes, 2, ',', ' ') }}</div>
+                    </td>
+                </tr>
+            @endif
+        </table>
+        <br>
+        {{-- fin registros_fuera_mes --}}
         <br>
         {{-- Aqui va lo que pidio Maybi <3 --}}
         <p style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
         <div class="col-md-7" align="center"><b>Transferencias Enviadas</b></div>
         </p>
 
-        
+
 
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>

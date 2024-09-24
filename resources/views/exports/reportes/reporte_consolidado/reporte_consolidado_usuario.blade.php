@@ -566,7 +566,7 @@
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ class_basename($registro->tipo_saldo) }}
+                            {{ $registro->tipo_saldo }}
                         </div>
                     </td>
                     <td style="font-size:10px">

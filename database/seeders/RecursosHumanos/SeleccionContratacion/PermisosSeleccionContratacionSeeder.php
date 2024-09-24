@@ -88,6 +88,7 @@ class PermisosSeleccionContratacionSeeder extends Seeder
 
         // Permiso para ver los usuarios externos
         Permission::firstOrCreate(['name' => Permisos::VER . 'usuarios_externos'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'reportes_rrhh'])->syncRoles([$rrhh, $administrador]);
 
         // otros permisos
         Permission::firstOrCreate(['name' => Permisos::VER . 'tipos_discapacidades'])->syncRoles($rrhh);

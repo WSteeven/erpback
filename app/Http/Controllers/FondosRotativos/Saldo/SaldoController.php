@@ -555,8 +555,8 @@ class SaldoController extends Controller
             $transferencias_enviadas = [];
             $transferencias_recibidas = [];
             $sumatoria_aprobados_fuera_mes=0;
-            $registros_fuera_mes_suman=[];
-            $registros_fuera_mes_restan=[];
+            $registros_fuera_mes_suman=collect();
+            $registros_fuera_mes_restan=collect();
             $total = 0;
             $usuario_canton = '';
             $fecha_anterior = '';

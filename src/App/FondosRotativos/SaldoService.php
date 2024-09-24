@@ -115,15 +115,18 @@ class SaldoService
 
     /**
      * Obtiene los registros que pertenecen al mes anterior, pero que por A o B motivo fueron aprobados en el mes que se esta consultando el reporte.
-     * @param int $empleado_id
-     * @param $fecha_inicio
-     * @param $fecha_fin
+     * @param int|null $empleado_id
+     * @param Carbon $fecha_inicio
+     * @param Carbon $fecha_fin
      * @param bool $suma si es verdadero se retornan todos los valores que suman, caso contrario retorna los que restan.
      * @return Saldo[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
      */
-    public function obtenerRegistrosFueraMes(int $empleado_id, $fecha_inicio, $fecha_fin, bool $suma = true)
+    public function obtenerRegistrosFueraMes(?int $empleado_id, Carbon $fecha_inicio,Carbon $fecha_fin, bool $suma = true)
     {
-        $query = Saldo::where('empleado_id', $empleado_id)
+        if($fecha_inicio->day!==1) return collect();
+        $query = Saldo::when(!is_null($empleado_id), function ($q) use ($empleado_id) {
+            $q->where('empleado_id', $empleado_id);
+        })
             ->where('fecha', '<', $fecha_inicio)
             ->whereBetween('created_at', [$fecha_inicio, $fecha_fin]);
         if ($suma)
@@ -301,7 +304,7 @@ class SaldoService
         }
         //        Log::channel('testing')->info('Log', ['saldo fondos', $saldo_fondos]);
         return Saldo::where('empleado_id', $empleado_id)
-        ->where('created_at', '<', $fecha_inicio)
+            ->where('created_at', '<', $fecha_inicio)
             ->orderBy('created_at', 'DESC')
             ->first();
     }
