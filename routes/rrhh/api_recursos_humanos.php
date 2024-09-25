@@ -88,6 +88,7 @@ Route::apiResources(
             'descuentos_ley' => 'descuento_ley',
             'prestamo_empresarial' => 'prestamo',
             'prestamos_quirografarios' => 'prestamo',
+            'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
             'rol_pago_mes'=>'rol',
             'tipo_licencia'=>'tipo',
