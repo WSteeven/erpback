@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('telefono')->nullable();
             $table->string('correo')->nullable();
             $table->string('sitio_web')->nullable();
+            $table->boolean('activo')->default(true);
             $table->string('banco1')->nullable();
             $table->string('numero_cuenta1')->nullable();
             $table->string('codigo_swift1')->nullable();
