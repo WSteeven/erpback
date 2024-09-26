@@ -2,6 +2,9 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\Pais;
+use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -11,6 +14,7 @@ class ProveedorInternacional extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
+    use Filterable, UppercaseValuesTrait;
 
     protected $table = 'cmp_proveedores_internacionales';
 
@@ -37,4 +41,11 @@ class ProveedorInternacional extends Model implements Auditable
     protected $casts = [
         'activo' => 'boolean',
     ];
+
+    private static array $whiteListFilter = ['*'];
+
+    public function pais()
+    {
+        return $this->belongsTo(Pais::class);
+    }
 }

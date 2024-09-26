@@ -30,7 +30,7 @@ class ProveedorInternacionalRequest extends FormRequest
             'pais_id' => 'integer|required|exists:paises,id',
             'direccion' => 'string|sometimes|nullable',
             'telefono' => 'string|sometimes|nullable',
-            'correo' => 'email:rfc,dns',
+            'correo' => 'sometimes|nullable|email:rfc,dns',
             'sitio_web' => 'string|sometimes|nullable',
             'banco1' => 'string|sometimes|nullable',
             'numero_cuenta1' => 'string|sometimes|nullable',
