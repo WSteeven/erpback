@@ -29,6 +29,7 @@ class OrdenCompraRequest extends FormRequest
             'codigo' => 'required|string',
             'solicitante_id' => 'required|numeric|exists:empleados,id',
             'proveedor_id' => 'nullable|numeric|exists:proveedores,id',
+            'proveedor_internacional_id' => 'nullable|numeric|exists:cmp_proveedores_internacionales,id',
             'autorizador_id' => 'required|numeric|exists:empleados,id',
             'autorizacion_id' => 'required|numeric|exists:autorizaciones,id',
             'preorden_id' => 'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
@@ -70,6 +71,7 @@ class OrdenCompraRequest extends FormRequest
         $this->merge([
             'solicitante_id' => $this->solicitante,
             'proveedor_id' => $this->proveedor,
+            'proveedor_internacional_id' => $this->proveedor_internacional,
             'autorizador_id' => $this->autorizador,
             'autorizacion_id' => $this->autorizacion,
             'estado_id' => $this->estado,

@@ -3,10 +3,12 @@
 namespace Src\App\ComprasProveedores;
 
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
+use App\Http\Resources\ComprasProveedores\ProveedorInternacionalResource;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\ComprasProveedores\ProveedorInternacional;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
@@ -72,8 +74,9 @@ class OrdenCompraService
         };
         try {
             $configuracion = ConfiguracionGeneral::first();
-            if (!$orden_compra->proveedor_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
-            $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
+            if (!$orden_compra->proveedor_id && !$orden_compra->proveedor_internacional_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
+            if($orden_compra->proveedor_id) $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
+            if($orden_compra->proveedor_internacional_id) $proveedor = new ProveedorInternacionalResource(ProveedorInternacional::find($orden_compra->proveedor_internacional_id));
             $empleado_solicita = Empleado::find($orden_compra->solicitante_id);
             $orden = new OrdenCompraResource($orden_compra);
 

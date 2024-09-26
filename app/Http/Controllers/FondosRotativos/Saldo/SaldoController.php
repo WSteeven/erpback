@@ -545,8 +545,8 @@ class SaldoController extends Controller
     private function gasto(Request $request, string $tipo, $imagen = false)
     {
         try {
-            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
-            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+            $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
             $ultimo_saldo = 0;
             $acreditaciones = 0;
             $gastos_totales = 0;

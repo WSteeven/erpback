@@ -39,6 +39,7 @@ enum RutasStorage: string
     case DOCUMENTOS_ROL_EMPLEADO = 'roles_de_pago';
     case CALIFICACIONES_PROVEEDORES = 'public/proveedores/calificaciones_proveedores';
     case EMPRESAS = 'public/empresas/';
+    case PROVEEDORES_INTERNACIONALES = 'public/ComprasProveedores/proveedores_internacionales/';
     case PROVEEDORES = 'public/proveedores/empresas/';
     case CONFIGURACION_GENERAL = 'public/configuracion_general';
     case FOTOGRAFIAS_NOVEDADES_ORDENES_COMPRAS  = 'public/fotografias_novedades_ordenes_compras';

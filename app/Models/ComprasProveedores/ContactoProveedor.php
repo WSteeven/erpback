@@ -5,11 +5,16 @@ namespace App\Models\ComprasProveedores;
 use App\Models\Empresa;
 use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\ComprasProveedores\ContactoProveedor
@@ -23,33 +28,33 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $tipo_contacto
  * @property int|null $empresa_id
  * @property int|null $proveedor_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empresa|null $empresa
  * @property-read Proveedor|null $proveedor
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor query()
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereApellidos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereCelular($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereCorreo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereEmpresaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereExt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereNombres($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereProveedorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereTipoContacto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContactoProveedor whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|ContactoProveedor acceptRequest(?array $request = null)
+ * @method static Builder|ContactoProveedor filter(?array $request = null)
+ * @method static Builder|ContactoProveedor ignoreRequest(?array $request = null)
+ * @method static Builder|ContactoProveedor newModelQuery()
+ * @method static Builder|ContactoProveedor newQuery()
+ * @method static Builder|ContactoProveedor query()
+ * @method static Builder|ContactoProveedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|ContactoProveedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|ContactoProveedor setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|ContactoProveedor whereApellidos($value)
+ * @method static Builder|ContactoProveedor whereCelular($value)
+ * @method static Builder|ContactoProveedor whereCorreo($value)
+ * @method static Builder|ContactoProveedor whereCreatedAt($value)
+ * @method static Builder|ContactoProveedor whereEmpresaId($value)
+ * @method static Builder|ContactoProveedor whereExt($value)
+ * @method static Builder|ContactoProveedor whereId($value)
+ * @method static Builder|ContactoProveedor whereNombres($value)
+ * @method static Builder|ContactoProveedor whereProveedorId($value)
+ * @method static Builder|ContactoProveedor whereTipoContacto($value)
+ * @method static Builder|ContactoProveedor whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ContactoProveedor extends Model implements Auditable
 {
@@ -76,7 +81,7 @@ class ContactoProveedor extends Model implements Auditable
     // const WEB = 'SITIO WEB'; //contacto SITIO WEB
 
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS

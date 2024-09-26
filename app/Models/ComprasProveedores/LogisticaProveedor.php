@@ -3,11 +3,16 @@
 namespace App\Models\ComprasProveedores;
 
 use App\Models\Empresa;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\ComprasProveedores\LogisticaProveedor
@@ -20,31 +25,31 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property bool $transporte_incluido
  * @property string|null $costo_transporte
  * @property bool $garantia
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empresa|null $empresa
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor query()
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereCostoTransporte($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereEmpresaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereEnvios($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereGarantia($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereTiempoEntrega($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereTipoEnvio($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereTransporteIncluido($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LogisticaProveedor whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|LogisticaProveedor acceptRequest(?array $request = null)
+ * @method static Builder|LogisticaProveedor filter(?array $request = null)
+ * @method static Builder|LogisticaProveedor ignoreRequest(?array $request = null)
+ * @method static Builder|LogisticaProveedor newModelQuery()
+ * @method static Builder|LogisticaProveedor newQuery()
+ * @method static Builder|LogisticaProveedor query()
+ * @method static Builder|LogisticaProveedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|LogisticaProveedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|LogisticaProveedor setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|LogisticaProveedor whereCostoTransporte($value)
+ * @method static Builder|LogisticaProveedor whereCreatedAt($value)
+ * @method static Builder|LogisticaProveedor whereEmpresaId($value)
+ * @method static Builder|LogisticaProveedor whereEnvios($value)
+ * @method static Builder|LogisticaProveedor whereGarantia($value)
+ * @method static Builder|LogisticaProveedor whereId($value)
+ * @method static Builder|LogisticaProveedor whereTiempoEntrega($value)
+ * @method static Builder|LogisticaProveedor whereTipoEnvio($value)
+ * @method static Builder|LogisticaProveedor whereTransporteIncluido($value)
+ * @method static Builder|LogisticaProveedor whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class LogisticaProveedor extends Model implements Auditable
 {
@@ -71,7 +76,7 @@ class LogisticaProveedor extends Model implements Auditable
         'garantia' => 'boolean',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
