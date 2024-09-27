@@ -4,7 +4,7 @@ namespace App\Events;
 
 use App\Models\Empleado;
 use App\Models\Notificacion;
-use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
 use Exception;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -17,7 +17,7 @@ class VacacionEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Vacacion $vacacion;
+    public SolicitudVacacion $vacacion;
     public Notificacion $notificacion;
     public int $jefeInmediato = 0;
 

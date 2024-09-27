@@ -31,7 +31,7 @@ class ArchivoService
      */
     public static function listarArchivos(Model $entidad)
     {
-        Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
+//        Log::channel('testing')->info('Log', ['Dentro de request where has' => request('tipo')]);
         try {
             return $entidad->archivos()->filter()->get();
         } catch (Throwable $th) {

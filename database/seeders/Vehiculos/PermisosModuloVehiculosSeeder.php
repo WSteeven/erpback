@@ -1,6 +1,6 @@
 <?php /** @noinspection ALL */
 
-namespace Database\Seeders\Vehiculos;
+namespace Database\Seeders\RecursosHumanos\Vehiculos;
 
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

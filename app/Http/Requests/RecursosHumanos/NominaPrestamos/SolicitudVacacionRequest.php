@@ -5,7 +5,6 @@ namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 use App\Models\Empleado;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @property mixed $periodo
@@ -22,7 +21,7 @@ use Illuminate\Support\Facades\Log;
  * @property mixed $numero_dias_rango2
  * @property mixed $estado
  */
-class VacacionRequest extends FormRequest
+class SolicitudVacacionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

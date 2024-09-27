@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Medico;
+namespace Database\Seeders\RecursosHumanos\Medico;
 
 use App\Models\EstadoExamen;
 use App\Models\Medico\EstadoExamen as MedicoEstadoExamen;

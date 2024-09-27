@@ -1,6 +1,6 @@
 <?php /** @noinspection ALL */
 
-namespace Database\Seeders\RecursosHumanos\SeleccionContratacion;
+namespace Database\Seeders\RecursosHumanos\RecursosHumanos\SeleccionContratacion;
 
 use App\Http\Resources\Ventas\ModalidadResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\Modalidad;

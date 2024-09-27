@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Intranet;
+namespace Database\Seeders\RecursosHumanos\Intranet;
 
 use App\Models\Intranet\CategoriaNoticia;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

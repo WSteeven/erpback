@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos;
+namespace Database\Seeders\RecursosHumanos\RecursosHumanos;
 
 use App\Models\RecursosHumanos\TipoDiscapacidad;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

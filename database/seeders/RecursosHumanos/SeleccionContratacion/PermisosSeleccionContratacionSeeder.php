@@ -2,7 +2,7 @@
 
 /** @noinspection PhpUndefinedMethodInspection */
 
-namespace Database\Seeders\RecursosHumanos\SeleccionContratacion;
+namespace Database\Seeders\RecursosHumanos\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
