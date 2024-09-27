@@ -233,6 +233,7 @@ class Subtarea extends Model implements Auditable
         // 'proyecto.codigo_proyecto' => 'proyecto',
         'tarea.fecha_solicitud' => 'fecha_solicitud',
         'grupo.nombre' => 'grupo',
+        'grupo.region' => 'region',
     ];
 
     public function EloquentFilterCustomDetection(): array
