@@ -121,9 +121,9 @@ class SaldoService
      * @param bool $suma si es verdadero se retornan todos los valores que suman, caso contrario retorna los que restan.
      * @return Saldo[]|Builder[]|Collection|\Illuminate\Database\Query\Builder[]|\Illuminate\Support\Collection
      */
-    public function obtenerRegistrosFueraMes(?int $empleado_id, Carbon $fecha_inicio,Carbon $fecha_fin, bool $suma = true)
+    public function obtenerRegistrosFueraMes(?int $empleado_id, Carbon $fecha_inicio, Carbon $fecha_fin, bool $suma = true)
     {
-        if($fecha_inicio->day!==1) return collect();
+        if ($fecha_inicio->day !== 1) return collect();
         $query = Saldo::when(!is_null($empleado_id), function ($q) use ($empleado_id) {
             $q->where('empleado_id', $empleado_id);
         })
@@ -134,6 +134,21 @@ class SaldoService
         else
             $query->where('tipo_saldo', Saldo::EGRESO);
         return $query->get();
+    }
+
+    /**
+     * Esta función obtiene los registros que se registraron en el mes consultado pero se aprobaron en un mes posterior.
+     * Por tal razón a las `fecha_inicio` y `fecha_fin` dadas se les suma un mes para obtener correctamente dichos registros.
+     * @param int|null $empleado_id
+     * @param Carbon $fecha_inicio
+     * @param Carbon $fecha_fin
+     * @return Collection|\Illuminate\Support\Collection
+     */
+    public function obtenerRegistrosFueraMesFuturo(?int $empleado_id, Carbon $fecha_inicio, Carbon $fecha_fin)
+    {
+        $registros_fuera_mes_suman = $this->obtenerRegistrosFueraMes($empleado_id, $fecha_inicio->addMonth(), $fecha_fin->addMonth());
+        $registros_fuera_mes_restan = $this->obtenerRegistrosFueraMes($empleado_id, $fecha_inicio->addMonth(), $fecha_fin->addMonth(), false);
+        return $registros_fuera_mes_suman->merge($registros_fuera_mes_restan);
     }
 
     /**
