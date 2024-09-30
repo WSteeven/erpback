@@ -76,6 +76,7 @@ class TicketController extends Controller
 
         // event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
         $this->servicio->notificarTicketsAsignados($tickets_creados);
+        $this->servicio->notificarTicketsCC($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
         $ids_tickets_creados = array_map(fn($ticket) => $ticket->id, $tickets_creados);
