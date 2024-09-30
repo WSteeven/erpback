@@ -4,14 +4,16 @@ namespace App\Models;
 
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use Src\Config\EstadosTransacciones;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Pedido
@@ -31,63 +33,63 @@ use Src\Config\EstadosTransacciones;
  * @property int|null $tarea_id
  * @property int|null $sucursal_id
  * @property int|null $estado_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $cliente_id
  * @property int|null $per_retira_id
  * @property string|null $evidencia1
  * @property string|null $evidencia2
  * @property string|null $observacion_bodega
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Empleado|null $autoriza
- * @property-read \App\Models\Autorizacion|null $autorizacion
- * @property-read \App\Models\Cliente|null $cliente
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read Empleado|null $autoriza
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Cliente|null $cliente
+ * @property-read Collection<int, DetalleProducto> $detalles
  * @property-read int|null $detalles_count
- * @property-read \App\Models\EstadoTransaccion|null $estado
- * @property-read \App\Models\Notificacion|null $latestNotificacion
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read EstadoTransaccion|null $estado
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \App\Models\Empleado|null $responsable
- * @property-read \App\Models\Empleado|null $retira
- * @property-read \App\Models\Empleado|null $solicitante
- * @property-read \App\Models\Sucursal|null $sucursal
- * @property-read \App\Models\Tarea|null $tarea
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
+ * @property-read Empleado|null $responsable
+ * @property-read Empleado|null $retira
+ * @property-read Empleado|null $solicitante
+ * @property-read Sucursal|null $sucursal
+ * @property-read Tarea|null $tarea
+ * @property-read Collection<int, TransaccionBodega> $transacciones
  * @property-read int|null $transacciones_count
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido query()
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereAutorizacionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereCausaAnulacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEstadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEtapaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEvidencia1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereEvidencia2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereFechaLimite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereJustificacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereObservacionAut($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereObservacionBodega($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereObservacionEst($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido wherePerAutorizaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido wherePerRetiraId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereProyectoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereResponsableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereSucursalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereTareaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Pedido whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Pedido acceptRequest(?array $request = null)
+ * @method static Builder|Pedido filter(?array $request = null)
+ * @method static Builder|Pedido ignoreRequest(?array $request = null)
+ * @method static Builder|Pedido newModelQuery()
+ * @method static Builder|Pedido newQuery()
+ * @method static Builder|Pedido query()
+ * @method static Builder|Pedido setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Pedido setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Pedido setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Pedido whereAutorizacionId($value)
+ * @method static Builder|Pedido whereCausaAnulacion($value)
+ * @method static Builder|Pedido whereClienteId($value)
+ * @method static Builder|Pedido whereCreatedAt($value)
+ * @method static Builder|Pedido whereEstadoId($value)
+ * @method static Builder|Pedido whereEtapaId($value)
+ * @method static Builder|Pedido whereEvidencia1($value)
+ * @method static Builder|Pedido whereEvidencia2($value)
+ * @method static Builder|Pedido whereFechaLimite($value)
+ * @method static Builder|Pedido whereId($value)
+ * @method static Builder|Pedido whereJustificacion($value)
+ * @method static Builder|Pedido whereObservacionAut($value)
+ * @method static Builder|Pedido whereObservacionBodega($value)
+ * @method static Builder|Pedido whereObservacionEst($value)
+ * @method static Builder|Pedido wherePerAutorizaId($value)
+ * @method static Builder|Pedido wherePerRetiraId($value)
+ * @method static Builder|Pedido whereProyectoId($value)
+ * @method static Builder|Pedido whereResponsableId($value)
+ * @method static Builder|Pedido whereSolicitanteId($value)
+ * @method static Builder|Pedido whereSucursalId($value)
+ * @method static Builder|Pedido whereTareaId($value)
+ * @method static Builder|Pedido whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Pedido extends Model implements Auditable
 {
@@ -123,7 +125,7 @@ class Pedido extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________

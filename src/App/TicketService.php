@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Events\TicketEvent;
+use App\Events\Tickets\TicketCCEvent;
 use App\Models\Departamento;
 use App\Models\Ticket;
 use Exception;
@@ -16,6 +17,16 @@ class TicketService
     {
         foreach ($tickets as $ticket) {
             event(new TicketEvent($ticket, $ticket->solicitante_id, $ticket->responsable_id));
+        }
+    }
+
+    public function notificarTicketsCC($tickets)
+    {
+        foreach ($tickets as $ticket) {
+            $cc = json_decode($ticket->cc);
+            foreach ($cc as $destinatario_id) {
+                event(new TicketCCEvent($ticket, $ticket->solicitante_id, $destinatario_id));
+            }
         }
     }
 
