@@ -713,6 +713,7 @@ class RolPagoMesController extends Controller
     /**
      * @param RolPagoMes $rol_mes
      * @return void
+     * @throws ValidationException
      */
     public function actualizarTablaRoles(RolPagoMes $rol_mes)
     {
@@ -771,13 +772,9 @@ class RolPagoMesController extends Controller
                     'rol_pago_id' => $rol_mes->id,
                 ));
             }
-        } catch (Exception $ex) {
+        } catch (Throwable|Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
-            throw ValidationException::withMessages([
-                'Error al refrescar rol pago por empleado' => [$ex->getMessage()],
-            ]);
-        } catch (Throwable $e) {
-            throw Utils::obtenerMensajeErrorLanzable($e);
+            throw Utils::obtenerMensajeErrorLanzable($ex, 'Error al refrescar rol pago por empleado');
         }
     }
     public function refrescarRolPago(RolPagoMes $rol)
