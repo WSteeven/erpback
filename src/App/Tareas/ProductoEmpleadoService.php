@@ -16,6 +16,8 @@ use App\Models\Motivo;
 use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\SeguimientoMaterialStock;
+use App\Models\Tareas\DetalleTransferenciaProductoEmpleado;
+use App\Models\Tareas\TransferenciaProductoEmpleado;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
@@ -80,7 +82,8 @@ class ProductoEmpleadoService
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
                 'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
-                'transacciones' => count($ids_egresos) > 0 ? 'Egresos:' . $ids_egresos . '; ' . (count($ids_items_preingresos) > 0 ? 'Preingresos:' . $ids_items_preingresos : '') : '',
+                // 'transacciones' => count($ids_egresos) > 0 ? 'Egresos:' . $ids_egresos . '; ' . (count($ids_items_preingresos) > 0 ? 'Preingresos:' . $ids_items_preingresos : '') : '',
+                'transacciones' => $this->mensajeTransacciones($ids_egresos, $ids_items_preingresos, $this->obtenerIdsTransferencias($item->detalle_producto_id, $item->cliente_id)),
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
@@ -110,6 +113,21 @@ class ProductoEmpleadoService
 
         $results = $materiales->toArray();
         return array_values($results);
+    }
+
+    private function mensajeTransacciones($ids_egresos, $ids_items_preingresos, $ids_transferencias)
+    {
+        $mensaje = '';
+        if (count($ids_egresos)) $mensaje .= 'Egresos:' . $ids_egresos . '; ';
+        if (count($ids_items_preingresos)) $mensaje .= 'Preingresos:' . $ids_items_preingresos . '; ';
+        if (count($ids_transferencias)) $mensaje .= 'Tranferencias:' . $ids_transferencias . '; ';
+        return $mensaje;
+    }
+
+    private function obtenerIdsTransferencias(int $detalle_producto_id, int $cliente_id)
+    {
+        $ids_transferencias = TransferenciaProductoEmpleado::where('empleado_destino_id', request()->empleado_id)->where('cliente_id', $cliente_id)->where('autorizacion_id', EstadosTransacciones::COMPLETA::COMPLETA)->pluck('id');
+        return DetalleTransferenciaProductoEmpleado::where('detalle_producto_id', $detalle_producto_id)->whereIn('transf_produc_emplea_id', $ids_transferencias)->pluck('transf_produc_emplea_id');
     }
 
     /**
@@ -233,6 +251,4 @@ class ProductoEmpleadoService
             ->groupBy('empleado_id')
             ->get();
     }
-
-    
 }
