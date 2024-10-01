@@ -9,6 +9,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class VacacionResource extends JsonResource
 {
+    private int $id_wellington =117;
+    private int $id_veronica_valencia=155;
     /**
      * Transform the resource into an array.
      *
@@ -17,12 +19,15 @@ class VacacionResource extends JsonResource
      */
     public function toArray($request)
     {
+        $jefe_id = $this->empleado_info->jefe_id;
+        if($jefe_id == $this->id_wellington) $jefe_id = $this->id_veronica_valencia;
+        // pendiente colocar el id de valencia
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado_info != null ? $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos : '',
-            'id_jefe_inmediato' => $this->empleado_info->jefe_id,
+            'id_jefe_inmediato' => $jefe_id,
             'fecha_inicio' =>  $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'numero_dias' => $this->calcular_dias($this->fecha_inicio,$this->fecha_fin),
@@ -55,6 +60,6 @@ class VacacionResource extends JsonResource
         $fechaInicio = Carbon::parse($fecha_inicio);
         $fechaFin = Carbon::parse($fecha_fin);
         // Calcular la diferencia en días
-        return  $fechaInicio->diffInDays($fechaFin);
+        return  $fechaInicio->diffInDays($fechaFin)+1;
     }
 }

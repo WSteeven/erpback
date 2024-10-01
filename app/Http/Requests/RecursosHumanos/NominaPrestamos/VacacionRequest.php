@@ -5,7 +5,6 @@ namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 use App\Models\Empleado;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @property mixed $periodo
@@ -24,6 +23,15 @@ use Illuminate\Support\Facades\Log;
  */
 class VacacionRequest extends FormRequest
 {
+    private int $id_wellington;
+    private int $id_veronica_valencia;
+
+    public function __construct()
+    {
+        $this->id_wellington = 117;
+        $this->id_veronica_valencia = 155;
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -64,11 +72,14 @@ class VacacionRequest extends FormRequest
     protected function prepareForValidation()
     {
         $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
+        $autorizador_id = $this->autorizador ?? Empleado::find($empleado_id)->jefe_id;
+        if($autorizador_id == $this->id_wellington) $autorizador_id = $this->id_veronica_valencia;
         $this->merge([
             'empleado_id' => $empleado_id,
             'reemplazo_id'=> $this->reemplazo,
-            'autorizador_id'=> $this->autorizador ?? Empleado::find($empleado_id)->jefe_id,
+            'autorizador_id'=> $this->autorizador ?? $autorizador_id,
         ]);
+
         $dateFields = [
             'fecha_inicio_rango1_vacaciones',
             'fecha_fin_rango1_vacaciones',

@@ -88,6 +88,7 @@ Route::apiResources(
             'descuentos_ley' => 'descuento_ley',
             'prestamo_empresarial' => 'prestamo',
             'prestamos_quirografarios' => 'prestamo',
+            'licencia_empleado'=>'licencia',
             'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
             'rol_pago_mes'=>'rol',
@@ -136,7 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
     Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
     Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crearCashRolPago']);
-    Route::get('actualizar-rol-pago/{rolPagoId}',[RolPagoMesController::class, 'refrescarRolPago']);
+    Route::get('actualizar-rol-pago/{rol}',[RolPagoMesController::class, 'refrescarRolPago']);
     Route::get('agregar-nuevos-empleados/{rol}',[RolPagoMesController::class, 'agregarNuevosEmpleados']);
     Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
     Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);

@@ -3,12 +3,17 @@
 namespace App\Models\Vehiculos;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Vehiculos\Licencia
@@ -18,28 +23,28 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $tipo_licencia
  * @property string $inicio_vigencia
  * @property string $fin_vigencia
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Vehiculos\Conductor|null $conductor
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia query()
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia whereConductorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia whereFinVigencia($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia whereInicioVigencia($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia whereTipoLicencia($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Licencia whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Conductor|null $conductor
+ * @method static Builder|Licencia acceptRequest(?array $request = null)
+ * @method static Builder|Licencia filter(?array $request = null)
+ * @method static Builder|Licencia ignoreRequest(?array $request = null)
+ * @method static Builder|Licencia newModelQuery()
+ * @method static Builder|Licencia newQuery()
+ * @method static Builder|Licencia query()
+ * @method static Builder|Licencia setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Licencia setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Licencia setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Licencia whereConductorId($value)
+ * @method static Builder|Licencia whereCreatedAt($value)
+ * @method static Builder|Licencia whereFinVigencia($value)
+ * @method static Builder|Licencia whereId($value)
+ * @method static Builder|Licencia whereInicioVigencia($value)
+ * @method static Builder|Licencia whereTipoLicencia($value)
+ * @method static Builder|Licencia whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Licencia extends Model implements Auditable
 {
