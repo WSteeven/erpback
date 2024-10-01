@@ -10,19 +10,23 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class LicenciaEmpleadoEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public LicenciaEmpleado $licenciaEmpleado;
     public Notificacion $notificacion;
-    public  $jefeInmediato=0;
-        /**
+    private int $id_wellington = 117;
+    private int $id_veronica_valencia = 155;
+    public  int $jefeInmediato=0;
+
+    /**
      * Create a new event instance.
      *
      * @return void
+     * @throws Throwable
      */
     public function __construct($licenciaEmpleado)
     {
@@ -41,7 +45,8 @@ class LicenciaEmpleadoEvent implements ShouldBroadcast
             $mensaje = 'Tienes una Licencia por aprobar';
                 break;
         }
-        $this->jefeInmediato =  Empleado::where('id',$licenciaEmpleado->empleado)->first()->jefe_id;
+        $this->jefeInmediato =  Empleado::find($licenciaEmpleado->empleado)->jefe_id;
+        if($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
         $destinatario = $licenciaEmpleado->estado!=1?  $this->jefeInmediato:$licenciaEmpleado->empleado;
         $remitente = $licenciaEmpleado->estado!=1? $licenciaEmpleado->empleado: $this->jefeInmediato;
       $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::LICENCIA_EMPLEADO, $destinatario, $remitente,$licenciaEmpleado,$informativa);
@@ -49,15 +54,14 @@ class LicenciaEmpleadoEvent implements ShouldBroadcast
     public function mostrar_mensaje($licenciaempleado)
     {
         $empleado = Empleado::find($licenciaempleado->empleado);
-        $mensaje = $empleado->nombres.' '.$empleado->apellidos.' ha solicitado un licencia por el siguiente motivo: '.$licenciaempleado->justificacion;
-        return $mensaje;
+        return $empleado->nombres.' '.$empleado->apellidos.' ha solicitado un licencia por el siguiente motivo: '.$licenciaempleado->justificacion;
     }
 
    /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
+     * @return Channel
+    */
     public function broadcastOn()
     {
         $nombre_chanel =  $this->licenciaEmpleado->estado==1? 'licencia-empleado-'. $this->jefeInmediato:'licencia-empleado-'. $this->licenciaEmpleado->empleado_id;

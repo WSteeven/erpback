@@ -10,7 +10,6 @@ use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
-use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -20,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -45,8 +45,8 @@ class VacacionController extends Controller
         if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
             $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
         } else {
-            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
-            $results = Vacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+            $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
+            $results = Vacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
         }
         $results = VacacionResource::collection($results);
 

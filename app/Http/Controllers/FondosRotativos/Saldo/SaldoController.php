@@ -612,8 +612,8 @@ class SaldoController extends Controller
             $results = Gasto::empaquetar($gastos);
             $reportes = [
                 'gastos' => $results,
-                'fecha_inicio' => $fecha_inicio,
-                'fecha_fin' => $fecha_fin,
+                'fecha_inicio' => $fecha_inicio->format('d-m-Y'),
+                'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'fecha_anterior' => $fecha_anterior,
                 'usuario' => $usuario,
                 'usuario_canton' => $usuario_canton,
@@ -834,8 +834,8 @@ class SaldoController extends Controller
             $nombre_reporte = 'reporte_consolidado';
             $reportes = [
                 'fecha_anterior' => $fecha_anterior,
-                'fecha_inicio' => $fecha_inicio,
-                'fecha_fin' => $fecha_fin,
+                'fecha_inicio' => $fecha_inicio->format('d-m-Y'),
+                'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'empleado' => $empleado,
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual - $sumatoria_aprobados_fuera_mes : 0,

@@ -7,6 +7,14 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class PermisoEmpleadoRequest extends FormRequest
 {
+    private int $id_wellington;
+    private int $id_veronica_valencia;
+
+    public function __construct()
+    {
+        $this->id_wellington = 117;
+        $this->id_veronica_valencia = 155;
+    }
     /**
      * Determine if the user is authorized to make this request.
      *

@@ -35,6 +35,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * App\Models\User
  *
  * @method static where(string $string, $usuario_id)
+ * @method static whereHas(string $string, $callback)
  * @property int $id
  * @property string $name
  * @property string $email
