@@ -612,8 +612,8 @@ class SaldoController extends Controller
             $results = Gasto::empaquetar($gastos);
             $reportes = [
                 'gastos' => $results,
-                'fecha_inicio' => $fecha_inicio,
-                'fecha_fin' => $fecha_fin,
+                'fecha_inicio' => $fecha_inicio->format('d-m-Y'),
+                'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'fecha_anterior' => $fecha_anterior,
                 'usuario' => $usuario,
                 'usuario_canton' => $usuario_canton,
