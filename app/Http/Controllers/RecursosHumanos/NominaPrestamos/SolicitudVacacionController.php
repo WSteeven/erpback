@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\VacacionEvent;
+use App\Events\RecursosHumanos\SolicitudVacacionEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudVacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudVacacionResource;
@@ -118,7 +118,7 @@ class SolicitudVacacionController extends Controller
 
             $datos['estado'] = SolicitudVacacion::PENDIENTE;
             $vacacion = SolicitudVacacion::create($datos);
-            event(new VacacionEvent($vacacion));
+            event(new SolicitudVacacionEvent($vacacion));
             $modelo = new SolicitudVacacionResource($vacacion);
 
             DB::commit();
@@ -166,14 +166,14 @@ class SolicitudVacacionController extends Controller
      * que se utiliza para validar y recuperar los datos de la solicitud HTTP.
      * @param SolicitudVacacion $vacacion
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function update(SolicitudVacacionRequest $request, SolicitudVacacion $vacacion)
     {
         $datos = $request->validated();
         $datos['estado'] = $request->estado;
         $vacacion->update($datos);
-        event(new VacacionEvent($vacacion));
+        event(new SolicitudVacacionEvent($vacacion));
         $modelo = new SolicitudVacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));

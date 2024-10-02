@@ -78,7 +78,7 @@ class SolicitudVacacion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'vacaciones';
+    protected $table = 'rrhh_nomina_solicitudes_vacaciones';//'vacaciones';
     protected $fillable = [
         'empleado_id',
         'autorizador_id',

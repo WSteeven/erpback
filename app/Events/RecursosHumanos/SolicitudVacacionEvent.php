@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\RecursosHumanos;
 
 use App\Models\Empleado;
 use App\Models\Notificacion;
@@ -12,8 +12,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
-class VacacionEvent implements ShouldBroadcast
+class SolicitudVacacionEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -25,7 +26,7 @@ class VacacionEvent implements ShouldBroadcast
      * Create a new event instance.
      *
      * @return void
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function __construct($vacacion)
     {
