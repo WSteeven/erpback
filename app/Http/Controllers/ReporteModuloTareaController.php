@@ -48,17 +48,27 @@ class ReporteModuloTareaController extends Controller
             ->whereMonth('fecha_hora_finalizacion', $fecha->month)
             ->whereIn('tipo_trabajo_id', $idsTiposTrabajosCliente)
             ->whereNotNull('grupo_id')
-            ->groupBy('tipo_trabajo_id')->select('tipo_trabajo_id', DB::raw('COUNT(*) AS suma_trabajo'))
+            ->groupBy('tipo_trabajo_id')
+            ->select('tipo_trabajo_id', DB::raw('COUNT(*) AS suma_trabajo'))
             ->get();
 
-        // Log::channel('testing')->info('Log', ['Sql', $results->toSql()]);
+        $metadata_ids = Subtarea::whereYear('fecha_hora_finalizacion', $fecha->year)
+            ->whereMonth('fecha_hora_finalizacion', $fecha->month)
+            ->whereIn('tipo_trabajo_id', $idsTiposTrabajosCliente)
+            ->whereNotNull('grupo_id')
+            ->select('subtareas.id')->pluck('id');
 
         $results = $results->map(fn($item) => [
             'clave' => $item->tipo_trabajo->descripcion,
             'valor' => $item->suma_trabajo,
         ]);
 
-        return GraficoChartJS::mapear($results->toArray(), 'Tipos de trabajos realizados' ?? '', 'Cantidad de subtareas');
+        $metadata = [
+            'ids' => $metadata_ids,
+            'campo' => 'tipo_trabajo',
+        ];
+
+        return GraficoChartJS::mapear($results->toArray(), 'Tipos de trabajos realizados' ?? '', 'Cantidad de subtareas', $metadata);
     }
 
     private function trabajoRealizadoPorRegion()
@@ -81,7 +91,22 @@ class ReporteModuloTareaController extends Controller
             ->groupBy('g.region')
             ->get();
 
-        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por región' ?? '', 'Cantidad de subtareas');
+        $metadata_ids = DB::table('subtareas as s')
+            ->join('tareas as t', function ($join)  use ($cliente_id) {
+                $join->on('s.tarea_id', '=', 't.id')
+                    ->where('t.cliente_id', $cliente_id);
+            })
+            ->whereYear('s.fecha_hora_finalizacion', '=', $fecha->year)
+            ->whereMonth('s.fecha_hora_finalizacion', '=', $fecha->month)
+            ->whereNotNull('grupo_id')
+            ->get('s.id')->pluck('id');
+
+        $metadata = [
+            'ids' => $metadata_ids,
+            'campo' => 'region',
+        ];
+
+        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por región' ?? '', 'Cantidad de subtareas', $metadata);
     }
 
     private function trabajoRealizadoPorRegionTipoTrabajo()
@@ -105,7 +130,23 @@ class ReporteModuloTareaController extends Controller
             ->groupBy('g.region')
             ->get();
 
-        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por región y tipo de trabajo (' . TipoTrabajo::find($idTipoTrabajo)->descripcion . ')', 'Cantidad de subtareas');
+        $metadata_ids = DB::table('subtareas as s')
+            ->join('tareas as t', function ($join)  use ($cliente_id) {
+                $join->on('s.tarea_id', '=', 't.id')
+                    ->where('t.cliente_id', $cliente_id);
+            })
+            ->whereYear('s.fecha_hora_finalizacion', '=', $fecha->year)
+            ->whereMonth('s.fecha_hora_finalizacion', '=', $fecha->month)
+            ->where('tipo_trabajo_id', $idTipoTrabajo)
+            ->whereNotNull('grupo_id')
+            ->get('s.id')->pluck('id');
+
+        $metadata = [
+            'ids' => $metadata_ids,
+            'campo' => 'region',
+        ];
+
+        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por región y tipo de trabajo (' . TipoTrabajo::find($idTipoTrabajo)->descripcion . ')', 'Cantidad de subtareas', $metadata);
     }
 
     private function trabajoRealizadoPorGrupoTipoTrabajo()
@@ -123,7 +164,18 @@ class ReporteModuloTareaController extends Controller
             ->groupBy('g.nombre')
             ->get();
 
-        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por grupo y tipo de trabajo (' . TipoTrabajo::find($idTipoTrabajo)->descripcion . ')', 'Cantidad de subtareas');
+        $metadata_ids = DB::table('subtareas as s')
+            ->whereYear('s.fecha_hora_finalizacion', '=', $fecha->year)
+            ->whereMonth('s.fecha_hora_finalizacion', '=', $fecha->month)
+            ->where('tipo_trabajo_id', $idTipoTrabajo)
+            ->get('s.id')->pluck('id');
+
+        $metadata = [
+            'ids' => $metadata_ids,
+            'campo' => 'grupo',
+        ];
+
+        return GraficoChartJS::mapear($results->toArray(), 'Trabajos realizados por grupo y tipo de trabajo (' . TipoTrabajo::find($idTipoTrabajo)->descripcion . ')', 'Cantidad de subtareas', $metadata);
     }
 
     // Emegerncias - Solo aplica a Nedetel
@@ -171,26 +223,22 @@ class ReporteModuloTareaController extends Controller
             ->whereHas('causaIntervencion', function ($q) use ($tipo_trabajo_id) {
                 $q->where('tipo_trabajo_id', $tipo_trabajo_id);
             })
-            ->groupBy('g.nombre')
+            ->groupBy('g.nombre', 'causa_intervencion_id')
             ->get();
 
-        $metadata = Subtarea::join('grupos as g', 'grupo_id', '=', 'g.id')
+        $metadata_ids = Subtarea::join('grupos as g', 'grupo_id', '=', 'g.id')
             ->select('causa_intervencion_id', 'subtareas.id as id')
             ->whereYear('fecha_hora_finalizacion', '=', $inicioDelMes->year)
             ->whereMonth('fecha_hora_finalizacion', '=', $inicioDelMes->month)
             ->whereHas('causaIntervencion', function ($q) use ($tipo_trabajo_id) {
                 $q->where('tipo_trabajo_id', $tipo_trabajo_id);
             })
-            ->get('id');
-
+            ->get();
 
         $results = $results->groupBy('causa_intervencion_id');
 
         foreach ($results as $key => $listado) {
-            $meta = $metadata->filter(fn($item) => $item->causa_intervencion_id == $key)->values();
-            Log::channel('testing')->info('Log', ['Key', $key]);
-            Log::channel('testing')->info('Log', ['Meta', $meta]);
-            $graficos->push(GraficoChartJS::mapear($listado->toArray(), CausaIntervencion::find($key)?->nombre ?? '', 'Cantidad de subtareas', $metadata->filter(fn($item) => $item->causa_intervencion_id == $key)->values()));
+            $graficos->push(GraficoChartJS::mapear($listado->toArray(), CausaIntervencion::find($key)?->nombre ?? '', 'Cantidad de subtareas', ['campo' => 'grupo', 'ids' => $metadata_ids->filter(fn($item) => $item->causa_intervencion_id == $key)->pluck('id')]));
         }
 
         return $graficos;

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Events\RecursosHumanos;
+namespace App\Events;
 
 use App\Models\Empleado;
 use App\Models\Notificacion;
-use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Exception;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -14,19 +14,21 @@ use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
 use Throwable;
 
-class SolicitudVacacionEvent implements ShouldBroadcast
+class VacacionEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public SolicitudVacacion $vacacion;
+    public Vacacion $vacacion;
     public Notificacion $notificacion;
+    private int $id_wellington = 117;
+    private int $id_veronica_valencia = 155;
     public int $jefeInmediato = 0;
 
     /**
      * Create a new event instance.
      *
      * @return void
-     * @throws Exception|Throwable
+     * @throws Throwable|Exception
      */
     public function __construct($vacacion)
     {
@@ -49,7 +51,8 @@ class SolicitudVacacionEvent implements ShouldBroadcast
                 $mensaje = 'Tienes una vacacion por aprobar';
                 break;
         }
-        $this->jefeInmediato = Empleado::where('id', $vacacion->empleado_id)->first()->jefe_id;
+        $this->jefeInmediato = Empleado::find($vacacion->empleado_id)->jefe_id;
+        if($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
         $destinatario = $vacacion->estado != 1 ?  $this->jefeInmediato : $vacacion->empleado_id;
         $remitente = $vacacion->estado != 1 ? $vacacion->empleado_id : $this->jefeInmediato;
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::VACACION, $destinatario, $remitente, $vacacion, $informativa);

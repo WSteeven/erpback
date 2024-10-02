@@ -228,7 +228,7 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|Empleado whereTitulo($value)
  * @method static Builder|Empleado whereTrabajadorSustituto($value)
  * @method static Builder|Empleado whereUpdatedAt($value)
- * @method static Builder|Empleado where($string, $value)
+ * @method static Builder|Empleado where($string, $value, ?$value)
  * @method static Builder|Empleado whereUsuarioId($value)
  * @method static Builder|Empleado whereViveConDiscapacitados($value)
  * @mixin Eloquent

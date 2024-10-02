@@ -35,6 +35,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * App\Models\User
  *
  * @method static where(string $string, $usuario_id)
+ * @method static whereHas(string $string, $callback)
  * @property int $id
  * @property string $name
  * @property string $email
@@ -107,6 +108,7 @@ class User extends Authenticatable implements Auditable
     const ROL_COORDINADOR = 'COORDINADOR';
     const ROL_COORDINADOR_BACKUP = 'COORDINADOR_BACKUP';
     const ROL_EMPLEADO = 'EMPLEADO';
+    const ROL_EMPLEADO_SALIENTE = 'EMPLEADO_SALIENTE';
     const ROL_GERENTE = 'GERENTE';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
@@ -118,6 +120,8 @@ class User extends Authenticatable implements Auditable
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
     const ROL_SECRETARIO = 'SECRETARIO';
     const ROL_CONSULTA = 'CONSULTA';
+    const ROL_JEFE_DEPARTAMENTO = 'JEFE DE DEPARTAMENTO';
+    const ROL_JEFE_COORDINACION_NEDETEL = 'JEFE_COORDINACION_NEDETEL';
 
     //Roles de administración
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
@@ -143,7 +147,7 @@ class User extends Authenticatable implements Auditable
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     const VENDEDOR = 'VENDEDOR';
 
-    //Fondos Rotativos
+    // Fondos Rotativos
     const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
 
     // Modulo Vehiculos

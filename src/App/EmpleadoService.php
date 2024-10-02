@@ -14,6 +14,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -34,6 +35,7 @@ class EmpleadoService
 
         // return $users;
     }
+
     /* BORRAR public function obtenerEmpleadosPorRol(string $rol)
     {
         $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
@@ -42,6 +44,20 @@ class EmpleadoService
         EmpleadoResource::collection($results);
         return $results;
     } */
+
+    public static function obtenerIdsEmpleadosOtroAutorizador()
+    {
+        $id_wellington = 117;
+        $id_veronica_valencia = 155;
+        if (Auth::user()->empleado->id == $id_veronica_valencia)
+            $ids_empleados = Empleado::where('jefe_id', $id_wellington)
+                ->orWhere('jefe_id', $id_veronica_valencia)
+                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
+        else
+            $ids_empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)
+                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
+        return $ids_empleados;
+    }
 
     public function obtenerPaginacion($offset)
     {
@@ -185,7 +201,7 @@ class EmpleadoService
         $row['ajustes_saldos'] = $row['ajustes_saldos_positivo'] - $row['ajustes_saldos_negativo'];
         $saldo_actual = Saldo::where('empleado_id', $empleado->id)->orderBy('id', 'desc')->first();
         $row['saldo_actual'] = $saldo_actual ? $saldo_actual->saldo_actual : 0;
-        $row['diferencia'] = round(($row['saldo_inicial'] + $row['acreditaciones'] + $row['transferencias_recibidas']  - $row['gastos'] - $row['transferencias_enviadas']), 2); //la suma de ingresos menos egresos, al final este valor debe coincidir con saldo_actual
+        $row['diferencia'] = round(($row['saldo_inicial'] + $row['acreditaciones'] + $row['transferencias_recibidas'] - $row['gastos'] - $row['transferencias_enviadas']), 2); //la suma de ingresos menos egresos, al final este valor debe coincidir con saldo_actual
         $row['inconsistencia'] = $row['diferencia'] == $row['saldo_actual'] ? 'NO' : 'SI'; //false : true;
         return $row;
     }
@@ -194,21 +210,18 @@ class EmpleadoService
      * La función "obtenerValoresFondosRotativos" recupera valores de fondos rotativos de los empleados
      * que tienen saldo.
      *
-     * @return mixed Se están devolviendo una serie de valores por los fondos rotativos de los empleados.
+     * @return array Se están devolviendo una serie de valores por los fondos rotativos de los empleados.
+     * @throws Exception
      */
     public function obtenerValoresFondosRotativos()
     {
-        try {
-            $empleados = Empleado::has('saldo')->get();
-            $results = [];
-            foreach ($empleados as $index => $empleado) {
-                $row = $this->obtenerValoresFondosRotativosEmpleado($empleado);
-                $results[$index] = $row;
-            }
-            return $results;
-        } catch (Exception $e) {
-            throw $e;
+        $empleados = Empleado::has('saldo')->get();
+        $results = [];
+        foreach ($empleados as $index => $empleado) {
+            $row = $this->obtenerValoresFondosRotativosEmpleado($empleado);
+            $results[$index] = $row;
         }
+        return $results;
     }
 
     /**
@@ -221,13 +234,12 @@ class EmpleadoService
      */
     public function obtenerEmpleadosConSaldoFondosRotativos()
     {
-        $empleados = Empleado::whereHas('saldo', function ($query) {
+        return Empleado::whereHas('saldo', function ($query) {
             $query->whereRaw('id = (SELECT MAX(id) FROM saldo_grupo WHERE id_usuario = empleados.id)')
                 ->where('saldo_actual', '<>', 0);
         })->ignoreRequest(['campos'])->filter()->get();
-
-        return $empleados;
     }
+
     public static function eliminarUmbralFondosRotativos(Empleado $empleado)
     {
         $umbral = UmbralFondosRotativos::where('empleado_id', $empleado->id)->first();
@@ -240,8 +252,7 @@ class EmpleadoService
     {
         $ids_autorizadores = Gasto::pluck('aut_especial');
         $results = Empleado::whereIn('id', $ids_autorizadores)->ignoreRequest(['campos', 'empleados_autorizadores_gasto'])->filter()->get();
-        $results = EmpleadoResource::collection($results);
-        return $results;
+        return EmpleadoResource::collection($results);
     }
 
     /**
@@ -263,7 +274,7 @@ class EmpleadoService
                 $query->role($rol);
             })->where('estado', $estado)->first();
         } catch (Throwable $th) {
-             Log::channel('testing')->info('Log', ['Error en EmpleadoService::obtenerEmpleadoRolEspecifico', $th->getLine(), $th->getMessage()]);
+            Log::channel('testing')->info('Log', ['Error en EmpleadoService::obtenerEmpleadoRolEspecifico', $th->getLine(), $th->getMessage()]);
             throw $th;
         }
     }
@@ -272,19 +283,20 @@ class EmpleadoService
     {
         $discapacidades_collection = collect($discapacidades);
         $mappedCollection = $discapacidades_collection->map(function ($object) {
-            $object['tipo_discapacidad_id'] =  $object['tipo_discapacidad'];
+            $object['tipo_discapacidad_id'] = $object['tipo_discapacidad'];
             unset($object['tipo_discapacidad']);
             return $object;
         });
         $empleado->tiposDiscapacidades()->sync($mappedCollection);
     }
+
     public function agregarFamiliares(Empleado $empleado, array $familiares)
     {
         $familiares_collection = collect($familiares);
         // Filtramos los familiares existentes y los eliminamos del array
         $familiaresExistentes = $empleado->familiares->pluck('id')->toArray();
         $mappedCollection = $familiares_collection->filter(function ($object) use ($familiaresExistentes) {
-            $object['parentezco_id'] =  $object['parentezco'];
+            $object['parentezco_id'] = $object['parentezco'];
             unset($object['parentezco']);
             return !in_array($object['id'], $familiaresExistentes);
         });

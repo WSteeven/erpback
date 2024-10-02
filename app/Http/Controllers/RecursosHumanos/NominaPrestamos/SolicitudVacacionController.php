@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\RecursosHumanos\SolicitudVacacionEvent;
+use App\Events\VacacionEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudVacacionRequest;
-use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudVacacionResource;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\VacacionRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
-use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -19,13 +19,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 use Throwable;
 
-class SolicitudVacacionController extends Controller
+class VacacionController extends Controller
 {
     private string $entidad = 'Solicitud de vacación';
-
     public function __construct()
     {
         $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
@@ -43,12 +43,12 @@ class SolicitudVacacionController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
-            $results = SolicitudVacacion::ignoreRequest(['campos'])->filter()->get();
+            $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
         } else {
-            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
-            $results = SolicitudVacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+            $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
+            $results = Vacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
         }
-        $results = SolicitudVacacionResource::collection($results);
+        $results = VacacionResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -56,13 +56,13 @@ class SolicitudVacacionController extends Controller
     /**
      * La función almacena datos de vacaciones y realiza comprobaciones de validación.
      *
-     * @param SolicitudVacacionRequest $request El parámetro `` es una instancia de la clase
+     * @param VacacionRequest $request El parámetro `` es una instancia de la clase
      * `VacacionRequest`. Se utiliza para validar y recuperar los datos enviados en la solicitud HTTP.
      *
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
      * @throws ValidationException|Throwable
      */
-    public function store(SolicitudVacacionRequest $request)
+    public function store(VacacionRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -80,7 +80,7 @@ class SolicitudVacacionController extends Controller
                 ]);
             }
 
-            $empleado_tiene_vacaciones = SolicitudVacacion::where('empleado_id', $request->empleado_id)
+            $empleado_tiene_vacaciones = Vacacion::where('empleado_id', $request->empleado_id)
                 ->where('periodo_id', $request->periodo_id)
                 ->first();
             if ($empleado_tiene_vacaciones) {
@@ -116,10 +116,10 @@ class SolicitudVacacionController extends Controller
                 }
             }
 
-            $datos['estado'] = SolicitudVacacion::PENDIENTE;
-            $vacacion = SolicitudVacacion::create($datos);
-            event(new SolicitudVacacionEvent($vacacion));
-            $modelo = new SolicitudVacacionResource($vacacion);
+            $datos['estado'] = Vacacion::PENDIENTE;
+            $vacacion = Vacacion::create($datos);
+            event(new VacacionEvent($vacacion));
+            $modelo = new VacacionResource($vacacion);
 
             DB::commit();
 
@@ -136,12 +136,11 @@ class SolicitudVacacionController extends Controller
         }
     }
 
-    public function show(SolicitudVacacion $vacacion)
+    public function show( Vacacion $vacacion)
     {
-        $modelo = new SolicitudVacacionResource($vacacion);
+        $modelo = new VacacionResource($vacacion);
         return response()->json(compact('modelo'));
     }
-
     /**
      * La función "descuentos_permiso" calcula la duración total de los permisos de vacaciones de un
      * determinado empleado.
@@ -162,19 +161,19 @@ class SolicitudVacacionController extends Controller
      * La función actualiza un modelo de Vacaciones con los datos validados de la solicitud y devuelve
      * una respuesta JSON con un mensaje y el modelo actualizado.
      *
-     * @param SolicitudVacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
+     * @param VacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
      * que se utiliza para validar y recuperar los datos de la solicitud HTTP.
-     * @param SolicitudVacacion $vacacion
+     * @param Vacacion $vacacion
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
-     * @throws Exception|Throwable
+     * @throws Exception
      */
-    public function update(SolicitudVacacionRequest $request, SolicitudVacacion $vacacion)
+    public function update(VacacionRequest $request, Vacacion $vacacion)
     {
         $datos = $request->validated();
         $datos['estado'] = $request->estado;
         $vacacion->update($datos);
-        event(new SolicitudVacacionEvent($vacacion));
-        $modelo = new SolicitudVacacionResource($vacacion);
+        event(new VacacionEvent($vacacion));
+        $modelo = new VacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -182,12 +181,12 @@ class SolicitudVacacionController extends Controller
     /**
      * La función destruye un objeto Vacaciones y devuelve una respuesta JSON.
      *
-     * @param SolicitudVacacion $vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
+     * @param Vacacion $vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
      * Representa un registro de vacaciones específico que debe eliminarse de la base de datos.
      *
      * @return JsonResponse respuesta JSON que contiene el objeto Vacaciones eliminado.
      */
-    public function destroy(SolicitudVacacion $vacacion)
+    public function destroy( Vacacion $vacacion)
     {
         $vacacion->delete();
         return response()->json(compact('vacacion'));
@@ -196,10 +195,10 @@ class SolicitudVacacionController extends Controller
     /**
      * @throws ValidationException
      */
-    public function imprimir(SolicitudVacacion $vacacion)
+    public function imprimir(Vacacion $vacacion)
     {
         $configuracion = ConfiguracionGeneral::first();
-        $resource = new SolicitudVacacionResource($vacacion);
+        $resource = new VacacionResource($vacacion);
         try {
             $pdf = Pdf::loadView('recursos-humanos.nomina_permisos.solicitud_vacacion', [
                 'configuracion' => $configuracion,
@@ -215,13 +214,5 @@ class SolicitudVacacionController extends Controller
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de VacacionController::imprimir', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
         }
-    }
-
-    public function reporteVacaciones(Request $request)
-    {
-        Log::channel('testing')->info('Log', ['Request en reporte de vacaciones', $request->all()]);
-        $results = [];
-
-        return response()->json(compact('results'));
     }
 }

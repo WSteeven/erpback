@@ -612,14 +612,15 @@ class SaldoController extends Controller
             $results = Gasto::empaquetar($gastos);
             $reportes = [
                 'gastos' => $results,
-                'fecha_inicio' => $fecha_inicio,
-                'fecha_fin' => $fecha_fin,
+                'fecha_inicio' => $fecha_inicio->format('d-m-Y'),
+                'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'fecha_anterior' => $fecha_anterior,
                 'usuario' => $usuario,
                 'usuario_canton' => $usuario_canton,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual - $sumatoria_aprobados_fuera_mes : 0,
                 'gastos_aprobados_fuera_mes' => $sumatoria_aprobados_fuera_mes,
-                'registros_fuera_mes' => $registros_fuera_mes_suman->merge($registros_fuera_mes_restan),
+//                'registros_fuera_mes' => $registros_fuera_mes_suman->merge($registros_fuera_mes_restan),
+                'registros_fuera_mes' => $this->saldoService->obtenerRegistrosFueraMesFuturo($request->empleado, $fecha_inicio, $fecha_fin),
                 'ultimo_saldo' => $ultimo_saldo,
                 'total_suma' => $total,
                 'acreditaciones' => $acreditaciones,
@@ -833,8 +834,8 @@ class SaldoController extends Controller
             $nombre_reporte = 'reporte_consolidado';
             $reportes = [
                 'fecha_anterior' => $fecha_anterior,
-                'fecha_inicio' => $fecha_inicio,
-                'fecha_fin' => $fecha_fin,
+                'fecha_inicio' => $fecha_inicio->format('d-m-Y'),
+                'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'empleado' => $empleado,
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual - $sumatoria_aprobados_fuera_mes : 0,
@@ -850,7 +851,8 @@ class SaldoController extends Controller
                 'ajuste_saldo_ingreso_reporte' => $ajuste_saldo_ingreso_reporte,
                 'ajuste_saldo_egreso' => $ajuste_saldo_egreso,
                 'ajuste_saldo_egreso_reporte' => $ajuste_saldo_egreso_reporte,
-                'registros_fuera_mes' => $registros_fuera_mes_suman->merge($registros_fuera_mes_restan),
+//                'registros_fuera_mes' => $registros_fuera_mes_suman->merge($registros_fuera_mes_restan),
+                'registros_fuera_mes' => $this->saldoService->obtenerRegistrosFueraMesFuturo($request->empleado, $fecha_inicio, $fecha_fin),
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
                 'total_suma' => $total
