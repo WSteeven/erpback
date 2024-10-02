@@ -13,7 +13,7 @@ class PermisosAccederFrontendSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
+     * php artisan db:seed --class="Database\Seeders\Sistema\PermisosAccederFrontendSeeder"
      * @return void
      */
     public function run()
@@ -47,17 +47,15 @@ class PermisosAccederFrontendSeeder extends Seeder
         /*****************
          * Modulo tareas
          *****************/
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_tareas'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'dashboard_tareas'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'monitor_subtareas'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'proyectos'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tareas'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'alimentacion_grupo'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reporte_movilizacion_subtarea'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'clientes_finales'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reportes_modulo_tareas'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reportes_materiales_utilizados'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reportes_modulo_tareas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_tareas'])->syncRoles([$administrador, $bodega, $contabilidad, $coordinador, $coordinador_backup, $jefe_tecnico, $fiscalizador, $coordinador_backup, $consulta, $jefe_coordinacion_nedetel]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'dashboard_tareas'])->syncRoles([$administrador, $coordinador, $jefe_tecnico, $fiscalizador, $coordinador_backup, $consulta, $jefe_coordinacion_nedetel, $auditor_interno]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'monitor_subtareas'])->syncRoles([$administrador, $contabilidad, $coordinador, $jefe_tecnico, $fiscalizador, $consulta, $jefe_coordinacion_nedetel]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'proyectos'])->syncRoles([$administrador, $coordinador, $jefe_tecnico, $fiscalizador, $consulta, $jefe_coordinacion_nedetel]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tareas'])->syncRoles([$administrador, $coordinador, $jefe_tecnico, $fiscalizador, $coordinador_backup, $consulta, $jefe_coordinacion_nedetel]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reporte_movilizacion_subtarea'])->syncRoles([$administrador, $coordinador, $jefe_tecnico, $fiscalizador, $coordinador_backup, $jefe_coordinacion_nedetel]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'clientes_finales'])->syncRoles([$administrador, $coordinador, $jefe_tecnico, $fiscalizador, $coordinador_backup, $consulta, $jefe_coordinacion_nedetel]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reportes_modulo_tareas'])->syncRoles([$administrador, $coordinador, $jefe_tecnico, $fiscalizador, $jefe_coordinacion_nedetel, $auditor_interno]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reportes_modulo_tareas'])->syncRoles([$administrador, $coordinador, $jefe_tecnico, $fiscalizador, $jefe_coordinacion_nedetel, $auditor_interno]);
 
         /********************
          * Modulo de tickets
@@ -67,9 +65,9 @@ class PermisosAccederFrontendSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tickets'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tickets_asignados'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'categorias_tipos_tickets'])->syncRoles([$empleado, $administrador_tickets_1, $administrador_tickets_2]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tipos_tickets'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'motivos_pausas_tickets'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'motivos_cancelados_tickets'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tipos_tickets'])->syncRoles([$administrador, $administrador_tickets_1, $administrador_tickets_2]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'motivos_pausas_tickets'])->syncRoles([$administrador, $administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'motivos_cancelados_tickets'])->syncRoles([$administrador, $administrador_tickets_1]);
 
         /*******************
          * Modulo de bodega
@@ -148,5 +146,13 @@ class PermisosAccederFrontendSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'permisos'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'permisos_roles'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'permisos_usuarios'])->syncRoles([$administrador]);
+
+        // RRHH
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_recursos_humanos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'perfil'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'marcas'])->syncRoles([$administrador, $coordinador_bodega]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modelo'])->syncRoles([$administrador, $coordinador_bodega]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'transferencia'])->syncRoles([$administrador, $coordinador_bodega]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'autorizar-transferencia'])->syncRoles([$administrador, $coordinador_bodega]);
     }
 }

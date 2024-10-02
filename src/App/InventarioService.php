@@ -499,7 +499,11 @@ class InventarioService
             })
             ->when($fecha_fin, function ($q) use ($fecha_fin) {
                 $q->where('created_at', '<=', $fecha_fin);
-            })->orderBy('created_at', 'desc')->get();
+            })->orderBy('created_at', 'desc')
+            ->whereHas('transferencia', function ($q) {
+                return $q->where('autorizacion_id', Autorizacion::APROBADO_ID);
+            })
+            ->get();
         $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
 
         rsort($results); //aqui se ordena el array en forma descendente
