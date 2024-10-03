@@ -36,6 +36,7 @@ use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteControl
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
+use App\Http\Controllers\RecursosHumanos\VacacionController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -59,7 +60,8 @@ Route::apiResources(
         'periodo' => PeriodoController::class,
         'tipo_licencia' => TipoLicenciaController::class,
         'licencia_empleado' => LicenciaEmpleadoController::class,
-        'vacacion' => SolicitudVacacionController::class,
+        'solicitudes-vacaciones' => SolicitudVacacionController::class,
+        'vacaciones' => VacacionController::class,
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,
@@ -90,6 +92,8 @@ Route::apiResources(
             'licencia_empleado'=>'licencia',
             'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
+            'solicitudes-vacaciones' => 'vacacion',
+            'vacaciones' => 'vacacion',
             'rol_pago_mes'=>'rol',
             'tipo_licencia'=>'tipo',
         ],
@@ -122,8 +126,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
-    Route::get('vacacion/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
-    Route::post('vacacion/reporte', [SolicitudVacacionController::class, 'reporteVacaciones']);
+    Route::get('solicitudes-vacaciones/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
+    Route::post('solicitudes-vacaciones/reporte', [SolicitudVacacionController::class, 'reporteVacaciones']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);
     Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtenerPrestamoEmpleado']);
     Route::get('otener_saldo_empleado_mes', [SaldoGrupoController::class, 'otener_saldo_empleado_mes']);

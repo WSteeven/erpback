@@ -3,62 +3,83 @@
 namespace App\Http\Controllers\RecursosHumanos;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\RecursosHumanos\VacacionRequest;
+use App\Http\Resources\RecursosHumanos\VacacionResource;
+use App\Models\RecursosHumanos\Vacacion;
+use DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Src\Shared\Utils;
+use Throwable;
 
 class VacacionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    private string $entidad = "Vacacion";
+
+    public function __construct()
     {
-        //
+        $this->middleware('can:puede.ver.vacaciones')->only('index', 'show');
+        $this->middleware('can:puede.editar.vacaciones')->only('update');
+        $this->middleware('can:puede.eliminar.vacaciones')->only('destroy');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Display a listing of the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function index()
     {
-        //
+        if (request('tipo')) {
+
+            $results = match (request('tipo')) {
+                'PENDIENTES' => Vacacion::where('completadas', false)->get(),
+                'REALIZADAS' => Vacacion::where('completadas', true)->get(),
+            };
+        } else {
+            $results = Vacacion::ignoreRequest(['tipo'])->filter()->get();
+        }
+        $results = VacacionResource::collection($results);
+        return response()->json(compact('results'));
     }
+
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Vacacion $vacacion
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(Vacacion $vacacion)
     {
-        //
+        $modelo = new VacacionResource($vacacion);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param VacacionRequest $request
+     * @param Vacacion $vacacion
+     * @return JsonResponse
+     * @throws Throwable|ValidationException
      */
-    public function update(Request $request, $id)
+    public function update(VacacionRequest $request, Vacacion $vacacion)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+
+            $vacacion->update($datos);
+
+            $modelo = new VacacionResource($vacacion->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        }catch (Throwable $th) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($th, 'Actualizar '.$this->entidad);
+        }
+            return response()->json(compact('mensaje', 'modelo'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

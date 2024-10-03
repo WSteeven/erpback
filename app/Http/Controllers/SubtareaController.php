@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\SubtareaResource;
 use App\Http\Requests\SubtareaRequest;
 use Illuminate\Support\Facades\Auth;
-use App\Events\SubtareaEvent;
+use App\Events\RecursosHumanos\SubtareaEvent;
 use Src\App\SubtareaService;
 use Illuminate\Http\Request;
 use Carbon\CarbonInterval;

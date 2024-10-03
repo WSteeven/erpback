@@ -271,10 +271,10 @@ class Trabajo extends Model implements Auditable
         return $this->hasMany(ArchivoSubtarea::class);
     }
 
-    public function pausasTrabajo()
-    {
-        return $this->hasMany(PausaTrabajo::class);
-    }
+//    public function pausasTrabajo()
+//    {
+//        return $this->hasMany(PausaTrabajo::class);
+//    }
 
     public function proyecto()
     {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\PermisoEmpleadoEvent;
-use App\Events\PermisoNotificacionEvent;
+use App\Events\RecursosHumanos\PermisoEmpleadoEvent;
+use App\Events\RecursosHumanos\PermisoNotificacionEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 
-use App\Events\RecursosHumanos\SeleccionContratacion\NotificarRecursosHumanosNuevaPostulacion;
+use App\Events\RecursosHumanos\RecursosHumanos\SeleccionContratacion\NotificarRecursosHumanosNuevaPostulacion;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\PostulacionRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;

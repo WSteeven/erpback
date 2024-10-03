@@ -2,7 +2,7 @@
 
 namespace Src\App\RecursosHumanos\SeleccionContratacion;
 
-use App\Events\RecursosHumanos\SeleccionContratacion\NotificarPostulanteSeleccionadoMedicoEvent;
+use App\Events\RecursosHumanos\RecursosHumanos\SeleccionContratacion\NotificarPostulanteSeleccionadoMedicoEvent;
 use App\Mail\RecursosHumanos\SeleccionContratacion\BancoPostulanteMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionDescartadaMail;
 use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionLeidaMail;

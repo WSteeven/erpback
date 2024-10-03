@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
-use App\Events\FondoRotativoEvent;
+use App\Events\RecursosHumanos\FondoRotativoEvent;
 use App\Exports\AutorizacionesExport;
 use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\PreingresoAutorizadoEvent;
-use App\Events\PreingresoCreadoEvent;
+use App\Events\RecursosHumanos\PreingresoAutorizadoEvent;
+use App\Events\RecursosHumanos\PreingresoCreadoEvent;
 use App\Http\Requests\PreingresoMaterialRequest;
 use App\Http\Resources\PreingresoMaterialResource;
 use App\Models\ConfiguracionGeneral;

@@ -71,6 +71,8 @@ use OwenIt\Auditing\Models\Audit;
  * @property-read Empleado|null $reemplazo
  * @method static Builder|SolicitudVacacion whereFunciones($value)
  * @method static Builder|SolicitudVacacion whereReemplazoId($value)
+ * @property int|null $autorizador_id
+ * @method static Builder|SolicitudVacacion whereAutorizadorId($value)
  * @mixin Eloquent
  */
 class SolicitudVacacion extends Model implements Auditable

@@ -76,6 +76,10 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read int|null $postulaciones_count
  * @property-read Collection<int, ReferenciaPersonal> $referencias
  * @property-read int|null $referencias_count
+ * @property int|null $provider_id
+ * @property string|null $provider_name
+ * @method static Builder|UserExternal whereProviderId($value)
+ * @method static Builder|UserExternal whereProviderName($value)
  * @mixin Eloquent
  */
 class UserExternal extends Authenticatable implements Auditable

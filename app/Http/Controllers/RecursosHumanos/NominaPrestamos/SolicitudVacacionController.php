@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\VacacionEvent;
+use App\Events\RecursosHumanos\SolicitudVacacionEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RecursosHumanos\NominaPrestamos\VacacionRequest;
-use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudVacacionRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudVacacionResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
-use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -23,7 +22,7 @@ use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 use Throwable;
 
-class VacacionController extends Controller
+class SolicitudVacacionController extends Controller
 {
     private string $entidad = 'Solicitud de vacación';
     public function __construct()
@@ -43,12 +42,12 @@ class VacacionController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
-            $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
+            $results = SolicitudVacacion::ignoreRequest(['campos'])->filter()->get();
         } else {
             $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
-            $results = Vacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
+            $results = SolicitudVacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
         }
-        $results = VacacionResource::collection($results);
+        $results = SolicitudVacacionResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -56,13 +55,14 @@ class VacacionController extends Controller
     /**
      * La función almacena datos de vacaciones y realiza comprobaciones de validación.
      *
-     * @param VacacionRequest $request El parámetro `` es una instancia de la clase
+     * @param SolicitudVacacionRequest $request El parámetro `` es una instancia de la clase
      * `VacacionRequest`. Se utiliza para validar y recuperar los datos enviados en la solicitud HTTP.
      *
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
-     * @throws ValidationException|Throwable
+     * @throws Throwable
+     * @throws ValidationException
      */
-    public function store(VacacionRequest $request)
+    public function store(SolicitudVacacionRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -80,7 +80,7 @@ class VacacionController extends Controller
                 ]);
             }
 
-            $empleado_tiene_vacaciones = Vacacion::where('empleado_id', $request->empleado_id)
+            $empleado_tiene_vacaciones = SolicitudVacacion::where('empleado_id', $request->empleado_id)
                 ->where('periodo_id', $request->periodo_id)
                 ->first();
             if ($empleado_tiene_vacaciones) {
@@ -116,10 +116,10 @@ class VacacionController extends Controller
                 }
             }
 
-            $datos['estado'] = Vacacion::PENDIENTE;
-            $vacacion = Vacacion::create($datos);
-            event(new VacacionEvent($vacacion));
-            $modelo = new VacacionResource($vacacion);
+            $datos['estado'] = SolicitudVacacion::PENDIENTE;
+            $vacacion = SolicitudVacacion::create($datos);
+            event(new SolicitudVacacionEvent($vacacion));
+            $modelo = new SolicitudVacacionResource($vacacion);
 
             DB::commit();
 
@@ -136,9 +136,9 @@ class VacacionController extends Controller
         }
     }
 
-    public function show( Vacacion $vacacion)
+    public function show( SolicitudVacacion $vacacion)
     {
-        $modelo = new VacacionResource($vacacion);
+        $modelo = new SolicitudVacacionResource($vacacion);
         return response()->json(compact('modelo'));
     }
     /**
@@ -161,19 +161,19 @@ class VacacionController extends Controller
      * La función actualiza un modelo de Vacaciones con los datos validados de la solicitud y devuelve
      * una respuesta JSON con un mensaje y el modelo actualizado.
      *
-     * @param VacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
+     * @param SolicitudVacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
      * que se utiliza para validar y recuperar los datos de la solicitud HTTP.
-     * @param Vacacion $vacacion
+     * @param SolicitudVacacion $vacacion
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
-     * @throws Exception
+     * @throws Throwable
      */
-    public function update(VacacionRequest $request, Vacacion $vacacion)
+    public function update(SolicitudVacacionRequest $request, SolicitudVacacion $vacacion)
     {
         $datos = $request->validated();
         $datos['estado'] = $request->estado;
         $vacacion->update($datos);
-        event(new VacacionEvent($vacacion));
-        $modelo = new VacacionResource($vacacion);
+        event(new SolicitudVacacionEvent($vacacion));
+        $modelo = new SolicitudVacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -181,12 +181,12 @@ class VacacionController extends Controller
     /**
      * La función destruye un objeto Vacaciones y devuelve una respuesta JSON.
      *
-     * @param Vacacion $vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
+     * @param SolicitudVacacion $vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
      * Representa un registro de vacaciones específico que debe eliminarse de la base de datos.
      *
      * @return JsonResponse respuesta JSON que contiene el objeto Vacaciones eliminado.
      */
-    public function destroy( Vacacion $vacacion)
+    public function destroy( SolicitudVacacion $vacacion)
     {
         $vacacion->delete();
         return response()->json(compact('vacacion'));
@@ -195,10 +195,10 @@ class VacacionController extends Controller
     /**
      * @throws ValidationException
      */
-    public function imprimir(Vacacion $vacacion)
+    public function imprimir(SolicitudVacacion $vacacion)
     {
         $configuracion = ConfiguracionGeneral::first();
-        $resource = new VacacionResource($vacacion);
+        $resource = new SolicitudVacacionResource($vacacion);
         try {
             $pdf = Pdf::loadView('recursos-humanos.nomina_permisos.solicitud_vacacion', [
                 'configuracion' => $configuracion,

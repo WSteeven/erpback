@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
-use App\Events\TransferenciaSaldoContabilidadEvent;
-use App\Events\TransferenciaSaldoEvent;
+use App\Events\RecursosHumanos\TransferenciaSaldoContabilidadEvent;
+use App\Events\RecursosHumanos\TransferenciaSaldoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TransferenciaRequest;
 use App\Http\Requests\TransferenciaSaldoRequest;

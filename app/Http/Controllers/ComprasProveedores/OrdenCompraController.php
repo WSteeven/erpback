@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\ComprasProveedores;
 
-use App\Events\ComprasProveedores\NotificarOrdenCompraCompras;
-use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaCompras;
-use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaUsuario;
-use App\Events\ComprasProveedores\NotificarOrdenCompraRealizada;
-use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
-use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\NotificarOrdenCompraCompras;
+use App\Events\RecursosHumanos\ComprasProveedores\NotificarOrdenCompraPagadaCompras;
+use App\Events\RecursosHumanos\ComprasProveedores\NotificarOrdenCompraPagadaUsuario;
+use App\Events\RecursosHumanos\ComprasProveedores\NotificarOrdenCompraRealizada;
+use App\Events\RecursosHumanos\ComprasProveedores\OrdenCompraActualizadaEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\OrdenCompraCreadaEvent;
 use App\Exports\ComprasProveedores\OrdenCompraExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;

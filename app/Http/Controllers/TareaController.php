@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\TareaEvent;
+use App\Events\RecursosHumanos\TareaEvent;
 use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
 use App\Models\Empleado;

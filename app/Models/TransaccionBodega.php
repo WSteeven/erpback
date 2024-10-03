@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Events\PedidoCreadoEvent;
+use App\Events\RecursosHumanos\PedidoCreadoEvent;
 use App\Models\ActivosFijos\ActivoFijo;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

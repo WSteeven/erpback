@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\SolicitudPrestamoEvent;
-use App\Events\SolicitudPrestamoGerenciaEvent;
+use App\Events\RecursosHumanos\SolicitudPrestamoEvent;
+use App\Events\RecursosHumanos\SolicitudPrestamoGerenciaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;

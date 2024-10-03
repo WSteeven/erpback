@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\RecursosHumanos;
 
 use App\Models\Empleado;
 use App\Models\Notificacion;
-use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
 use Exception;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -14,11 +14,11 @@ use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
 use Throwable;
 
-class VacacionEvent implements ShouldBroadcast
+class SolicitudVacacionEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Vacacion $vacacion;
+    public SolicitudVacacion $vacacion;
     public Notificacion $notificacion;
     private int $id_wellington = 117;
     private int $id_veronica_valencia = 155;
