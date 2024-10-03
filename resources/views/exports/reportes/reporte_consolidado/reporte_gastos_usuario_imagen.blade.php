@@ -415,22 +415,46 @@ $logo_watermark =
             <td style="font-size:10px">
                 <div align="center">{{ strtoupper($gasto['sub_detalle_desc']) }}</div>
             </td>
+{{--            <td style="font-size:10px">--}}
+{{--                <div class="col-md-3">--}}
+{{--                    <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="nombreImagen">--}}
+{{--                        <img--}}
+{{--                            src="{{ file_exists(public_path() . $gasto['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])) : ' ' }}"--}}
+{{--                            width="250"/>--}}
+{{--                    </a>--}}
+{{--                </div>--}}
+{{--            </td>--}}
+{{--            <td style="font-size:10px">--}}
+{{--                <div class="col-md-3">--}}
+{{--                    <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="nombreImagen">--}}
+{{--                        <img--}}
+{{--                            src="{{ file_exists(public_path() . $gasto['comprobante2']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2'])) : ' ' }}"--}}
+{{--                            width="250"/>--}}
+{{--                    </a>--}}
+{{--                </div>--}}
+{{--            </td>--}}
             <td style="font-size:10px">
                 <div class="col-md-3">
-                    <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="nombreImagen">
-                        <img
-                            src="{{ file_exists(public_path() . $gasto['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])) : ' ' }}"
-                            width="250"/>
-                    </a>
+                    @if(file_exists(public_path($gasto['comprobante'])))
+                        <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="comprobante">
+                            <img src="{{ url($gasto['comprobante']) }}" width="250" />
+                        </a>
+                    @else
+                        <!-- Puedes agregar una imagen de placeholder aquí si el archivo no existe -->
+                        <p>Imagen no disponible</p>
+                    @endif
                 </div>
             </td>
             <td style="font-size:10px">
                 <div class="col-md-3">
-                    <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="nombreImagen">
-                        <img
-                            src="{{ file_exists(public_path() . $gasto['comprobante2']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2'])) : ' ' }}"
-                            width="250"/>
-                    </a>
+                    @if(file_exists(public_path($gasto['comprobante2'])))
+                        <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="comprobante2">
+                            <img src="{{ url($gasto['comprobante2']) }}" width="250" />
+                        </a>
+                    @else
+                        <!-- Puedes agregar una imagen de placeholder aquí si el archivo no existe -->
+                        <p>Imagen no disponible</p>
+                    @endif
                 </div>
             </td>
             <td style="font-size:10px; word-wrap: break-word;">
@@ -467,7 +491,7 @@ $logo_watermark =
     {{-- inicio registros_fuera_mes --}}
     <p
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
-    <div class="col-md-7" align="center"><b>Registros fuera de mes</b></div>
+    <div class="col-md-6" align="center"><b>Registros fuera de mes</b></div>
     </p>
     <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
         <tr>
@@ -501,7 +525,7 @@ $logo_watermark =
         </tr>
         @if (sizeof($registros_fuera_mes) == 0)
         <tr>
-            <td colspan="7">
+            <td colspan="9">
                 <div align="center">NO HAY REGISTROS FUERA DE MES</div>
             </td>
         </tr>
