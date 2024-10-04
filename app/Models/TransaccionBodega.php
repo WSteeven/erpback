@@ -678,7 +678,8 @@ class TransaccionBodega extends Model implements Auditable
                     $row['fecha'] = $d->comprobante()->first()->updated_at;
                     $row['categoria'] = $item->inventario->detalle->producto->categoria->nombre;
                     $row['condicion'] = $item->inventario->condicion->nombre;
-                    $row['despachado'] = $item->recibido;
+                    $row['despachado'] = $item->recibido ==0? $item->cantidad_inicial : $item->recibido;
+                    $row['transaccion_id']= $item->transaccion_id;
 
 
                     $results[$cont] = $row;

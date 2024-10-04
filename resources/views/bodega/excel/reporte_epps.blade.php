@@ -119,6 +119,7 @@
                                         <td>{{ $rpt['categoria'] }}</td>
                                         <td>{{ $rpt['condicion'] }}</td>
                                         <td>{{ $rpt['despachado'] }}</td>
+                                        <td>{{$rpt['transaccion_id']}}</td>
                                     </tr>
                                 @endforeach
                             </table>
