@@ -268,7 +268,7 @@ class GastoRequest extends FormRequest
                 ]);
             }
             $this->merge([
-                'id_usuario' => Auth::user()->empleado->id,
+                'id_usuario' => $this->id_usuario ? $this->id_usuario : Auth::user()->empleado->id,
                 'estado' => Gasto::PENDIENTE
             ]);
         }
