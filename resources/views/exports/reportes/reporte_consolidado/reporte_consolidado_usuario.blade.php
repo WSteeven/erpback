@@ -20,10 +20,6 @@
         }
 
         body {
-            /* background-image: url(
-
-
-        {{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}   ); */
             background-image: url({{ $logo_watermark }});
             background-size: 50% auto;
             background-repeat: no-repeat;
