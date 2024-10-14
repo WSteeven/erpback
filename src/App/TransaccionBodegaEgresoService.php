@@ -15,6 +15,7 @@ use App\Models\TransaccionBodega;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +27,7 @@ use Throwable;
 
 class TransaccionBodegaEgresoService
 {
-    private static $motivos;
+    private static \Illuminate\Support\Collection|array|Collection $motivos;
 
     public function __construct()
     {
@@ -90,9 +91,12 @@ class TransaccionBodegaEgresoService
                             return $query->get();
                     case 'ANULADA':
                         $query = TransaccionBodega::search(request('search'))
-                            ->whereIn('motivo_id', self::$motivos->toArray())
+                            ->query(function ($query){
+                              $query
+                            ->whereIn('motivo_id', self::$motivos)
                             ->where('estado_id', EstadosTransacciones::ANULADA)
                             ->orderBy('id', 'desc');
+                            });
                         if ($paginate) {
                             return $pagination_service->paginate($query, 100, request('page'));
                         } else
