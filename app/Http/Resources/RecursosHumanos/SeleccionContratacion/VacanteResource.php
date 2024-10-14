@@ -37,7 +37,7 @@ class VacanteResource extends JsonResource
             'numero_postulantes' => $this->numero_postulantes,
             'tipo_puesto' => $this->tipoPuesto->nombre,
             'publicante' => Empleado::extraerNombresApellidos($this->publicante),
-            'solicitud' => $this->solicitud->nombre,
+            'solicitud' => $this->solicitud?->nombre,
             'modalidad' => $this->modalidad->nombre,
             'activo' => $this->activo,
             'areas_conocimiento' => Conocimiento::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->areas_conocimiento)))->pluck('nombre'),
@@ -52,6 +52,7 @@ class VacanteResource extends JsonResource
             'canton' => $this->canton->canton,
             'num_plazas' => $this->num_plazas,
             'es_completada' => $this->es_completada,
+            'acepta_discapacitados' => $this->acepta_discapacitados,
         ];
         if ($controller_method == 'showPreview' || $controller_method == 'favorite') {
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
@@ -68,6 +69,8 @@ class VacanteResource extends JsonResource
             $modelo['requiere_experiencia'] = !!$this->anios_experiencia;
             $modelo['requiere_formacion_academica'] = !!count($this->formacionesAcademicas);
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
+            $modelo['rango_edad'] = $this->edad_personalizada!==['min' => 18, 'max' => 65];
+            $modelo['edad_personalizada'] = $this->edad_personalizada ?: ['min' => 18, 'max' => 65];
         }
         return $modelo;
     }
