@@ -4,13 +4,11 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
 use App\Models\Empleado;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
-use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
 use Database\Factories\FondosRotativos\Gasto\GastoFactory;
 use Eloquent;
@@ -22,15 +20,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Validation\ValidationException;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
+use Src\Shared\Utils;
 
 /**
  * App\Models\FondosRotativos\Gasto\Gasto
  *
  * @method static ignoreRequest(string[] $array)
- * @method static where(string $string, mixed $ruc)
  * @property int $id
  * @property string $fecha_viat
  * @property int $id_lugar
@@ -216,6 +215,9 @@ class Gasto extends Model implements Auditable
         return $this->morphOne(Saldo::class, 'saldoable');
     }
 
+    /**
+     * @throws ValidationException
+     */
     public static function empaquetar($gastos)
     {
         try{
@@ -257,6 +259,7 @@ class Gasto extends Model implements Auditable
             return $results;
         }catch(Exception $e){
             Log::channel('testing')->info('Log', ['error modelo', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
 
 

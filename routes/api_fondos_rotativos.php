@@ -37,7 +37,8 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'ajustes-saldos' => 'ajuste'
+            'ajustes-saldos' => 'ajuste',
+            'transferencia'=> 'transferencia'
         ],
     ]
 );
