@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 
-use App\Events\RecursosHumanos\RecursosHumanos\SeleccionContratacion\NotificarRecursosHumanosNuevaPostulacion;
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarRecursosHumanosNuevaPostulacion;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\PostulacionRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
@@ -53,7 +53,11 @@ class PostulacionController extends Controller
      */
     public function index()
     {
-        $results = Postulacion::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+        [, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+        if (request('user_id'))
+            $results = Postulacion::ignoreRequest(['campos'])->where('user_type', $user_type)->filter()->orderBy('id', 'desc')->get();
+        else
+            $results = Postulacion::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = PostulacionResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -145,13 +149,13 @@ class PostulacionController extends Controller
     {
         // se trabaja con la sesión del usuario logueado
         try {
-            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+            [, , $user] = ObtenerInstanciaUsuario::tipoUsuario();
 
-            $user = match ($user_type) {
-                User::class => User::find($user_id),
-                UserExternal::class => UserExternal::find($user_id),
+//            $user = match ($user_type) {
+//                User::class => User::find($user_id),
+//                UserExternal::class => UserExternal::find($user_id),
 //                default => null,
-            };
+//            };
             $results = $this->archivoService->listarArchivos($user);
             return response()->json(compact('results'));
         } catch (Exception $ex) {

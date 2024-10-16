@@ -8,8 +8,6 @@ use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\ObtenerInstanciaUsuario;
 use Src\Shared\Utils;
 
@@ -54,10 +52,16 @@ class VacanteResource extends JsonResource
             'es_completada' => $this->es_completada,
             'acepta_discapacitados' => $this->acepta_discapacitados,
         ];
+        if ($controller_method == 'showPreview' || $controller_method == 'show') {
+            $modelo['rango_edad'] = $this->edad_personalizada !== ['min' => 18, 'max' => 65];
+            $modelo['edad_personalizada'] = $this->edad_personalizada ?: ['min' => 18, 'max' => 65];
+        }
+
         if ($controller_method == 'showPreview' || $controller_method == 'favorite') {
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
             $modelo['estado_mi_postulacion'] = $user?->postulaciones()->where('vacante_id', $this->id)->first()?->estado;
         }
+
         if ($controller_method == 'show') {
             $modelo['tipo_puesto'] = $this->tipo_puesto_id;
             $modelo['descripcion'] = $this->descripcion;
@@ -69,8 +73,6 @@ class VacanteResource extends JsonResource
             $modelo['requiere_experiencia'] = !!$this->anios_experiencia;
             $modelo['requiere_formacion_academica'] = !!count($this->formacionesAcademicas);
             $modelo['formaciones_academicas'] = $this->formacionesAcademicas;
-            $modelo['rango_edad'] = $this->edad_personalizada!==['min' => 18, 'max' => 65];
-            $modelo['edad_personalizada'] = $this->edad_personalizada ?: ['min' => 18, 'max' => 65];
         }
         return $modelo;
     }

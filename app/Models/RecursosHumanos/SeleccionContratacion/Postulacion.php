@@ -108,6 +108,7 @@ class Postulacion extends Model implements Auditable
         'tengo_experiencia_requerida',
         'tengo_formacion_academica_requerida',
         'tengo_licencia_conducir',
+        'aspiracion_salarial',
         'tipo_licencia',
         'calificacion',
         'activo',

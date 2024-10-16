@@ -78,6 +78,11 @@ class Postulante extends Model implements Auditable
         'numero_documento_identificacion',
         'telefono',
         'correo_personal',
+        'direccion',
+        'fecha_nacimiento',
+        'genero',
+        'identidad_genero_id',
+        'pais_id',
         'usuario_external_id'
     ];
     private static array $whiteListFilter = [

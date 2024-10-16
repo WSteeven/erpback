@@ -119,7 +119,7 @@ class Vacante extends Model implements Auditable
     protected $casts = [
         'edad_personalizada'=>'array',
         'created_at' => 'datetime:Y-m-d h:i:s a',
-        'updated_at' => 'datetime:Y-m-d h:i:s a',
+         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'activo' => 'boolean',
         'disponibilidad_viajar' => 'boolean',
         'requiere_licencia' => 'boolean',
