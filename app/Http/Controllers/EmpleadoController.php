@@ -16,14 +16,16 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Src\App\EmpleadoService;
-use Src\Shared\Utils;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
-use Src\App\FondosRotativos\ReportePdfExcelService;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\ArchivoService;
+use Src\App\EmpleadoService;
+use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\PolymorphicGenericService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
+use Src\Shared\Utils;
+use Throwable;
 
 
 class EmpleadoController extends Controller
@@ -31,6 +33,7 @@ class EmpleadoController extends Controller
     private string $entidad = 'Empleado';
     private EmpleadoService $servicio;
     private ReportePdfExcelService $reporteService;
+    private PolymorphicGenericService $polymorphicGenericService;
     private ArchivoService $archivoService;
 
 
@@ -39,6 +42,7 @@ class EmpleadoController extends Controller
         $this->servicio = new EmpleadoService();
         $this->reporteService = new ReportePdfExcelService();
         $this->archivoService = new ArchivoService();
+        $this->polymorphicGenericService = new PolymorphicGenericService();
 
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
@@ -134,7 +138,7 @@ class EmpleadoController extends Controller
 
             //Crear empleado
             $empleado = $user->empleado()->create($datos);
-            if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+            if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades($user, $datos['discapacidades']);
             //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
             if (!empty($request->conductor)) {
                 $datos_conductor = $request->conductor;
@@ -204,6 +208,7 @@ class EmpleadoController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable
      */
     public function update(EmpleadoRequest $request, Empleado $empleado)
     {
@@ -228,7 +233,7 @@ class EmpleadoController extends Controller
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
-        if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+        if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades(User::find($empleado->usuario_id), $datos['discapacidades']);
         if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
 
         //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
@@ -552,7 +557,7 @@ class EmpleadoController extends Controller
             $empleados = Empleado::has('gastos')->get();
 
             $results = EmpleadoResource::collection($empleados);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th)]);
         }
         return response()->json(compact('results'));
@@ -581,7 +586,7 @@ class EmpleadoController extends Controller
         try {
             $modelo = $this->archivoService->guardarArchivo($empleado, $request->file, RutasStorage::DOCUMENTOS_DIGITALIZADOS_EMPLEADOS->value . $empleado->identificacion);
             $mensaje = 'Archivo subido correctamente';
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpleadoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);

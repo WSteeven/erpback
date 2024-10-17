@@ -73,8 +73,8 @@
             proceso de contratación</p>
 
         <p>Si tienes alguna pregunta o necesitas más información, no dudes
-            en ponerte en contacto con nosotros al <a href="{{$departamento_rrhh->telefono}}">{{$departamento_rrhh->telefono}}</a> o a
-            <a href="mailto:{{$departamento_rrhh->telefono}}">{{$departamento_rrhh->correo}}</a></p>
+            en ponerte en contacto con nosotros al <a href="tel:{{$departamento_rrhh->telefono}}">{{$departamento_rrhh->telefono}}</a> o a
+            <a href="mailto:{{$departamento_rrhh->correo}}">{{$departamento_rrhh->correo}}</a></p>
 
 
         <p>Agradecemos tu interés en <strong>{{ $configuracion->razon_social }}</strong> y esperamos que este sea el
@@ -88,7 +88,7 @@
         <p>Atentamente,</p>
         <p><strong><a href="{{$url}}">FIRSTRED ERP</a></strong> <br>
             <strong>{{ $configuracion->razon_social }} </strong><br>
-            <strong><a href="https://www.jpconstrucred.com">{{ strtolower($configuracion->sitio_web) }}</a></strong>
+            <strong><a href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
         </p>
         <img src="{{ $logo_principal }}" alt="logo" width="120"/>
     </div>

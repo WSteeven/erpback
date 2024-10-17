@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
@@ -269,5 +270,9 @@ class User extends Authenticatable implements Auditable
     public function referencias(): MorphMany
     {
         return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
+    }
+    public function discapacidades()
+    {
+        return $this->morphMany(DiscapacidadUsuario::class, 'discapacidadable', 'user_type', 'user_id');
     }
 }

@@ -74,11 +74,11 @@
             </li>
             <li><strong>Contacto:</strong> Si tienes alguna pregunta, contacta a:
                 <ul>
-                    <li><strong>Médico Ocupacional: </strong> <a href="tel:+593 96 810 3615">+593 96 810 3615</a> o
-                        <a href="mailto:medico_ocupacional@jpconstrucred.com">medico_ocupacional@jpconstrucred.com.</a>
+                    <li><strong>Médico Ocupacional: </strong> <a href="tel:{{$departamento_medico->telefono}}">{{$departamento_medico->telefono}}</a> o
+                        <a href="mailto:{{$departamento_medico->correo}}">{{$departamento_medico->correo}}</a>.
                     </li>
-                    <li><strong>Recursos Humanos: </strong> <a href="tel:+593 98 890 9837">+593 98 890 9837</a> o
-                        <a href="mailto:recursos_humanos@jpconstrucred.com">recursos_humanos@jpconstrucred.com</a>.
+                    <li><strong>Recursos Humanos: </strong> <a href="tel:{{$departamento_rrhh->telefono}}">{{$departamento_rrhh->telefono}}</a> o
+                        <a href="mailto:{{$departamento_rrhh->correo}}">{{$departamento_rrhh->correo}}</a>.
                     </li>
                 </ul>
             </li>
@@ -94,8 +94,7 @@
         <p>Atentamente,</p>
         <p><strong><a href="{{$url}}">FIRSTRED ERP</a></strong> <br>
             <strong>{{ $configuracion->razon_social }} </strong><br>
-            <strong><a
-                    href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
+            <strong><a href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
         </p>
         <img src="{{ $logo_principal }}" alt="logo" width="120"/>
     </div>

@@ -3,6 +3,7 @@
 namespace App\Models\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Archivo;
+use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -169,5 +170,9 @@ class UserExternal extends Authenticatable implements Auditable
     public function referencias(): MorphMany
     {
         return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
+    }
+    public function discapacidades()
+    {
+        return $this->morphMany(DiscapacidadUsuario::class, 'discapacidadable', 'user_type', 'user_id');
     }
 }

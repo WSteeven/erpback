@@ -4,6 +4,7 @@ namespace App\Mail\RecursosHumanos\SeleccionContratacion;
 
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
 use App\Models\ConfiguracionGeneral;
+use App\Models\Departamento;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -18,6 +19,7 @@ class NotificarPostulanteContratado extends Mailable
 
     public array $postulacion;
     public ConfiguracionGeneral $configuracion;
+    public Departamento $departamento_rrhh;
     /**
      * Create a new message instance.
      *
@@ -28,6 +30,7 @@ class NotificarPostulanteContratado extends Mailable
         $resource = new PostulacionResource($postulacion);
         $this->postulacion = $resource->resolve();
         $this->configuracion = ConfiguracionGeneral::first();
+        $this->departamento_rrhh = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first();
     }
 
     /**
