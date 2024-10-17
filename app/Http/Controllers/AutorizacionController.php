@@ -39,7 +39,7 @@ class AutorizacionController extends Controller
         }
         if ($es_validador && $es_modulo_rhh) {
             if (!$es_administrador) {
-                $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', '=', 3)->orwhere('id', '=', 4)->filter()->get($campos);
+                $results = Autorizacion::get($campos);
                 return response()->json(compact('results'));
             }
         }

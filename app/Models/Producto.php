@@ -2,54 +2,59 @@
 
 namespace App\Models;
 
-use App\Http\Resources\DetalleProductoResource;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Laravel\Scout\Searchable;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Producto
  *
+ * @method cantidadDetalles(mixed $id)
  * @method static whereIn(string $string, mixed $categorias)
  * @property int $id
  * @property string $nombre
  * @property int $categoria_id
  * @property int $unidad_medida_id
  * @property string $tipo
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Categoria|null $categoria
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Cliente> $clientes
+ * @property-read Categoria|null $categoria
+ * @property-read Collection<int, Cliente> $clientes
  * @property-read int|null $clientes_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read Collection<int, DetalleProducto> $detalles
  * @property-read int|null $detalles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, OrdenCompra> $productoOrdenCompra
+ * @property-read Collection<int, OrdenCompra> $productoOrdenCompra
  * @property-read int|null $producto_orden_compra_count
- * @property-read \App\Models\UnidadMedida|null $unidadMedida
- * @method static \Illuminate\Database\Eloquent\Builder|Producto acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Producto newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Producto query()
- * @method static \Illuminate\Database\Eloquent\Builder|Producto setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto whereCategoriaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto whereTipo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto whereUnidadMedidaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Producto whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read UnidadMedida|null $unidadMedida
+ * @method static Builder|Producto acceptRequest(?array $request = null)
+ * @method static Builder|Producto filter(?array $request = null)
+ * @method static Builder|Producto ignoreRequest(?array $request = null)
+ * @method static Builder|Producto newModelQuery()
+ * @method static Builder|Producto newQuery()
+ * @method static Builder|Producto query()
+ * @method static Builder|Producto setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Producto setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Producto setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Producto whereCategoriaId($value)
+ * @method static Builder|Producto whereCreatedAt($value)
+ * @method static Builder|Producto whereId($value)
+ * @method static Builder|Producto whereNombre($value)
+ * @method static Builder|Producto whereTipo($value)
+ * @method static Builder|Producto whereUnidadMedidaId($value)
+ * @method static Builder|Producto whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Producto extends Model implements Auditable
 {
@@ -70,7 +75,7 @@ class Producto extends Model implements Auditable
     const MATERIAL = 7;
     const EQUIPO = 4;
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
 
@@ -84,18 +89,17 @@ class Producto extends Model implements Auditable
     public static function cantidadDetalles($id)
     {
         $detalles = DetalleProducto::where('producto_id', $id)->get();
-        $result = count($detalles);
-        return $result;
+        return count($detalles);
     }
 
     /**
      * La función "obtenerProductoPorNombre" recupera un producto por su nombre de la base de datos.
      *
-     * @param nombre El parámetro "nombre" es una cadena que representa el nombre del producto a buscar.
+     * @param string $nombre El parámetro "nombre" es una cadena que representa el nombre del producto a buscar.
      *
-     * @return una única instancia del modelo "Producto" que coincide con el nombre dado.
+     * @return Builder|Model|object|Producto única instancia del modelo "Producto" que coincide con el nombre dado.
      */
-    public static function obtenerProductoPorNombre($nombre)
+    public static function obtenerProductoPorNombre(string $nombre)
     {
         return Producto::where('nombre', $nombre)->first();
     }

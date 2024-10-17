@@ -638,7 +638,7 @@ class SaldoController extends Controller
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->error('Log', ['error', $e->getMessage(), $e->getLine()]);
-            throw Utils::obtenerMensajeErrorLanzable($e, 'gasto');
+            throw Utils::obtenerMensajeErrorLanzable($e, 'SaldoController::gasto');
         }
     }
 

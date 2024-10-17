@@ -8,7 +8,6 @@ use App\Events\RecursosHumanos\TransaccionEgresoEvent;
 use App\Exports\Bodega\MaterialesDespachadosResponsableExport;
 use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
-use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Cliente;
@@ -159,6 +158,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Guardar
+     * @throws ValidationException|Throwable
      */
     public function store(TransaccionBodegaRequest $request)
     {
@@ -229,7 +229,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e,  'Ha ocurrido un error al insertar el registro');
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -247,6 +247,7 @@ class TransaccionBodegaEgresoController extends Controller
     /**
      * Actualizar
      */
+    /*
     public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
     {
         $datos = $request->validated();
@@ -310,12 +311,7 @@ class TransaccionBodegaEgresoController extends Controller
             $mensaje = 'Estado actualizado correctamente';
         }
         return response()->json(compact('mensaje', 'modelo'));
-        // }
-
-        /* $message = 'No tienes autorización para modificar esta solicitud';
-        $errors = ['message' => $message];
-        return response()->json(['errors' => $errors], 422); */
-    }
+    }*/
 
     /**
      * Eliminar
@@ -329,6 +325,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Anular una transacción de egreso y revertir el stock del inventario
+     * @throws ValidationException|Throwable
      */
     public function anular(TransaccionBodega $transaccion)
     {
@@ -359,7 +356,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de egreso', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
+            throw  Utils::obtenerMensajeErrorLanzable($e, 'Ha ocurrido un error al anular la transacción');
         }
     }
 
@@ -378,6 +375,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Imprimir
+     * @throws ValidationException
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
@@ -403,6 +401,9 @@ class TransaccionBodegaEgresoController extends Controller
         }
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function imprimirActaEntregaRecepcion(TransaccionBodega $transaccion)
     {
         $configuracion = ConfiguracionGeneral::first();
@@ -527,6 +528,9 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function modificarItemEgreso(Request $request)
     {
         // Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);

@@ -145,7 +145,7 @@
         @endif
         <p>Cargo: {{ $empleado->cargo?->nombre }}.</p>
 
-        <p>Solicito se me conceda hacer uso de: {{ $vacacion['numero_dias_rango1']+$vacacion['numero_dias_rango2'] }}
+        <p>Solicito se me conceda hacer uso de: {{ $vacacion['numero_rangos'] == 1 ? $vacacion['numero_dias'] : $vacacion['numero_dias_rango1']+$vacacion['numero_dias_rango2'] }}
             días como vacaciones anuales:</p>
         @if($vacacion['numero_rangos']==2)
             <p><strong>Rango 1: </strong> Desde el {{ $vacacion['fecha_inicio_rango1_vacaciones'] }} hasta el {{ $vacacion['fecha_fin_rango1_vacaciones'] }}.</p>

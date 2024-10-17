@@ -3,13 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Departamento;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\User;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class TransferenciaSaldoRequest extends FormRequest
 {
@@ -45,39 +40,37 @@ class TransferenciaSaldoRequest extends FormRequest
             'es_devolucion' => 'required'
         ];
     }
+
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            try {
-                if ($this->route()->getActionMethod() === 'store') {
-                    if (Auth()->user()->empleado->id === $this->usuario_recibe) {
-                        $validator->errors()->add('empleadoEnvia', 'No se puede transferir  a si mismo');
-                    }
+            if ($this->route()->getActionMethod() === 'store') {
+                if (Auth()->user()->empleado->id === $this->usuario_recibe) {
+                    $validator->errors()->add('empleadoEnvia', 'No se puede transferir  a si mismo');
                 }
-            } catch (Exception $e) {
-                throw ValidationException::withMessages(['Error al validar gasto' => $e->getMessage()]);
             }
         });
     }
+
     protected function prepareForValidation()
     {
         $date = Carbon::now();
         $departamento_contabilidad = Departamento::where("nombre", Departamento::DEPARTAMENTO_CONTABILIDAD)->first();
-        $responsable_contabilidad= $departamento_contabilidad ?  $departamento_contabilidad?->responsable?->id: 10;
-        if($this->es_devolucion){
+        $responsable_contabilidad = $departamento_contabilidad ? $departamento_contabilidad->responsable_id : 10;
+        if ($this->es_devolucion) {
             $this->merge(['usuario_recibe_id' => $responsable_contabilidad]);
-        }else{
+        } else {
             $this->merge(['usuario_recibe_id' => $this->usuario_recibe]);
         }
-        $this->merge(['usuario_envia_id' => $this->usuario_envia, 'fecha' =>  $date->format('Y-m-d'),]);
-        $this->tarea == 0 ?  $this->merge(['id_tarea' => null]) :  $this->merge(['id_tarea' => $this->tarea]);
+        $this->merge(['fecha' => $date->format('Y-m-d'),]);
+        $this->tarea == 0 ? $this->merge(['id_tarea' => null]) : $this->merge(['id_tarea' => $this->tarea]);
         if ($this->route()->getActionMethod() === 'store') {
             $this->merge([
-                'usuario_envia_id' =>  Auth()->user()->empleado->id,
+                'usuario_envia_id' => $this->usuario_envia ? $this->usuario_envia: Auth()->user()->empleado->id,
             ]);
         }
         $this->merge([
-            'monto' => round($this->monto,2)
+            'monto' => round($this->monto, 2)
         ]);
     }
 }

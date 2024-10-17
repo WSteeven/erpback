@@ -91,6 +91,12 @@
                             <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                                 <div align="center"><strong>#COMPROBANTE</strong></div>
                             </td>
+                            <td width="8%" bgcolor="#a9d08e">
+                                <div align="center"><strong>DETALLE</strong></div>
+                            </td>
+                            <td width="8%" bgcolor="#a9d08e">
+                                <div align="center"><strong>SUB DETALLE</strong></div>
+                            </td>
                             <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
                                 <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                             </td>
@@ -136,6 +142,17 @@
                                 </td>
                                 <td style="font-size:10px">
                                     <div align="left">{{ $gasto['factura'] }}</div>
+                                </td>
+                                <td style="font-size:10px">
+                                    <div align="left">{{ $gasto['detalle'] }}</div>
+                                </td>
+                                <td style="font-size:10px">
+                                    <div align="left">@foreach ($gasto['sub_detalle'] as $sub_detalle)
+                                            {{ $sub_detalle->descripcion }}
+                                            @if (!$loop->last)
+                                                ,
+                                            @endif
+                                        @endforeach</div>
                                 </td>
                                 <td style="font-size:10px">
                                     <div align="left">{{ $gasto['observacion'] }}</div>

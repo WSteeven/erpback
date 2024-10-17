@@ -30,7 +30,7 @@ class SolicitudVacacionResource extends JsonResource
             'id_jefe_inmediato' => $jefe_id,
             'fecha_inicio' =>  $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
-            'numero_dias' => $this->calcular_dias($this->fecha_inicio,$this->fecha_fin),
+            'numero_dias' =>  $this->numero_rangos==1? $this->calcular_dias($this->fecha_inicio,$this->fecha_fin): $this->calcular_dias($this->fecha_inicio_rango1_vacaciones,$this->fecha_fin_rango1_vacaciones)+$this->calcular_dias($this->fecha_inicio_rango2_vacaciones,$this->fecha_fin_rango2_vacaciones),
             'fecha_inicio_rango1_vacaciones' =>$this->fecha_inicio_rango1_vacaciones ? Carbon::parse($this->fecha_inicio_rango1_vacaciones)->format('Y-m-d'):null,
             'fecha_fin_rango1_vacaciones' =>  $this->fecha_fin_rango1_vacaciones? Carbon::parse($this->fecha_fin_rango1_vacaciones)->format('Y-m-d'):null,
             'numero_dias_rango1' => $this->calcular_dias($this->fecha_inicio_rango1_vacaciones,$this->fecha_fin_rango1_vacaciones),
