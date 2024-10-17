@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\RecursosHumanos\SeleccionContratacion;
+namespace Database\Seeders\RecursosHumanos\SeleccionContratacion;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

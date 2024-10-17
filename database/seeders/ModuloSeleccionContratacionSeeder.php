@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\RecursosHumanos\RecursosHumanos\SeleccionContratacion\PermisosSeleccionContratacionSeeder;
-use Database\Seeders\RecursosHumanos\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoSeeder;
+use Database\Seeders\RecursosHumanos\SeleccionContratacion\PermisosSeleccionContratacionSeeder;
+use Database\Seeders\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoSeeder;
 use Illuminate\Database\Seeder;
 
 class ModuloSeleccionContratacionSeeder extends Seeder

@@ -43,4 +43,13 @@ class DiscapacidadUsuario extends Model implements Auditable
         }
         return [];
     }
+
+    public static function mapearDiscapacidades($datos)
+    {
+        return $datos->map(function ($item) {
+            return ['id' => $item->id,
+                'tipo_discapacidad' => $item->tipo_discapacidad_id,
+                'porcentaje' => $item->porcentaje];
+        });
+    }
 }
