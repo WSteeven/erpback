@@ -36,12 +36,14 @@ class VacanteRequest extends FormRequest
             'tipo_puesto_id' => 'required|exists:rrhh_contratacion_tipos_puestos,id',
             'modalidad_id' => 'required|exists:rrhh_contratacion_modalidades,id',
             'publicante_id' => 'required|exists:empleados,id',
-            'solicitud_id' => 'required|exists:rrhh_contratacion_solicitudes_nuevas_vacantes,id',
+            'solicitud_id' => 'sometimes|nullable|exists:rrhh_contratacion_solicitudes_nuevas_vacantes,id',
             'disponibilidad_viajar' => 'boolean',
+            'acepta_discapacitados' => 'boolean',
             'requiere_licencia' => 'boolean',
             'activo' => 'boolean',
             'canton_id'=>'required|exists:cantones,id',
             'num_plazas'=>'required|numeric|min:1',
+            'edad_personalizada'=> 'required'
         ];
     }
 

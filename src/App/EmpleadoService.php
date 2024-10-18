@@ -279,6 +279,13 @@ class EmpleadoService
         }
     }
 
+    /**
+     * Aqui se agregan las discapacidades de un Empleado
+     * Cambiaremos esto para que se agreguen al usuario, y será un metodo generico.
+     * @param Empleado $empleado
+     * @param array $discapacidades
+     * @return void
+     */
     public function agregarDiscapacidades(Empleado $empleado, array $discapacidades)
     {
         $discapacidades_collection = collect($discapacidades);

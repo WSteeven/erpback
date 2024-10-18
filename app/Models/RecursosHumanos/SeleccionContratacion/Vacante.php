@@ -110,17 +110,21 @@ class Vacante extends Model implements Auditable
         'disponibilidad_viajar',
         'requiere_licencia',
         'es_completada',
+        'acepta_discapacitados',
         'canton_id',
         'num_plazas',
+        'edad_personalizada',
     ];
 
     protected $casts = [
+        'edad_personalizada'=>'array',
         'created_at' => 'datetime:Y-m-d h:i:s a',
-        'updated_at' => 'datetime:Y-m-d h:i:s a',
+         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'activo' => 'boolean',
         'disponibilidad_viajar' => 'boolean',
         'requiere_licencia' => 'boolean',
         'es_completada' => 'boolean',
+        'acepta_discapacitados' => 'boolean',
     ];
 
     private static array $whiteListFilter = ['*'];

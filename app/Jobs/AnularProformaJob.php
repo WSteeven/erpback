@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Events\ComprasProveedores\NotificarProformaEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\NotificarProformaEvent;
 use App\Models\ComprasProveedores\Proforma;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;

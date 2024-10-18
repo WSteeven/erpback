@@ -8,6 +8,7 @@ use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\PausarTicketsFinJornadaJob;
 use App\Jobs\RechazarGastoJob;
+use App\Jobs\RecursosHumanos\CrearVacacionesEmpleadoJob;
 use App\Jobs\Vehiculos\ActualizarEstadoSegurosVehiculares;
 use App\Jobs\Vehiculos\ActualizarMantenimientoVehiculoJob;
 use App\Jobs\Vehiculos\CrearMatriculasAnualesVehiculosJob;
@@ -67,6 +68,12 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ActualizarMantenimientoVehiculoJob())->dailyAt('07:00');
         $schedule->job(new NotificarReporteBitacorasDiariasJob())->dailyAt('06:00');
         // $schedule->job(new ActualizarMantenimientoVehiculoJob())->everyMinute();
+
+        /*****************
+         * RECURSOS HUMANOS
+         ****************/
+        $schedule->job(new CrearVacacionesEmpleadoJob())->everyMinute();//daily();
+
     }
 
     /**

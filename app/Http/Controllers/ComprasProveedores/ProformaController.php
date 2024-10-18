@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\ComprasProveedores;
 
-use App\Events\ComprasProveedores\ProformaActualizadaEvent;
-use App\Events\ComprasProveedores\ProformaCreadaEvent;
-use App\Events\ComprasProveedores\ProformaModificadaEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\ProformaActualizadaEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\ProformaCreadaEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\ProformaModificadaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\ProformaRequest;
 use App\Http\Resources\ClienteResource;

@@ -5,6 +5,7 @@ namespace App\Mail\RecursosHumanos\SeleccionContratacion;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
 use App\Models\Canton;
 use App\Models\ConfiguracionGeneral;
+use App\Models\Departamento;
 use App\Models\RecursosHumanos\SeleccionContratacion\Entrevista;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Bus\Queueable;
@@ -22,6 +23,7 @@ class NotificarEntrevistaMail extends Mailable
     public array $postulacion;
     public ?string $canton;
     public ConfiguracionGeneral $configuracion;
+    public Departamento $departamento_rrhh;
 
     /**
      * Create a new message instance.
@@ -35,6 +37,8 @@ class NotificarEntrevistaMail extends Mailable
         $this->postulacion = $resource->resolve();
         $this->configuracion = ConfiguracionGeneral::first();
         $this->canton = Canton::find($this->entrevista->canton_id)?->canton;
+        $this->departamento_rrhh = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first();
+
     }
 
     /**

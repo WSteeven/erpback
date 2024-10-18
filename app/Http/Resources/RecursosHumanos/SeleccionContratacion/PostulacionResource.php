@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
+use App\Http\Controllers\RecursosHumanos\DiscapacidadUsuarioController;
+use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -56,12 +58,15 @@ class PostulacionResource extends JsonResource
             'created_at' => date(Utils::MASKFECHAHORA, strtotime($this->created_at)),
             'estado' => $this->estado,
             'dado_alta' => $this->dado_alta,
+            'aspiracion_salarial' => $this->aspiracion_salarial,
             'tipo_licencia' => $this->tipo_licencia ? Utils::convertirStringComasArray($this->tipo_licencia) : null,
         ];
 
         if ($controller_method == 'show') {
             $modelo['vacante'] = $this->vacante_id;
             $modelo['referencias'] = $this->user->referencias()->get();
+            $modelo['tengo_discapacidad'] = $this->user->discapacidades()->exists();
+            $modelo['discapacidades'] = DiscapacidadUsuario::mapearDiscapacidades($this->user->discapacidades()->get());
         }
 
 

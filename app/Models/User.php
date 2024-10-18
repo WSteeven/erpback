@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
@@ -110,6 +111,7 @@ class User extends Authenticatable implements Auditable
     const ROL_EMPLEADO = 'EMPLEADO';
     const ROL_EMPLEADO_SALIENTE = 'EMPLEADO_SALIENTE';
     const ROL_GERENTE = 'GERENTE';
+    const ROL_GERENTE_PROCESOS = 'GERENTE_PROCESOS';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
     const ROL_SUPERVISOR_TECNICO = 'SUPERVISOR_TECNICO';
@@ -268,5 +270,9 @@ class User extends Authenticatable implements Auditable
     public function referencias(): MorphMany
     {
         return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
+    }
+    public function discapacidades()
+    {
+        return $this->morphMany(DiscapacidadUsuario::class, 'discapacidadable', 'user_type', 'user_id');
     }
 }

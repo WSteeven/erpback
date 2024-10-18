@@ -2,8 +2,8 @@
 
 namespace App\Models\ComprasProveedores;
 
-use App\Events\ComprasProveedores\PreordenCreadaEvent;
-use App\Events\ComprasProveedores\PreordenEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\PreordenCreadaEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\PreordenEvent;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;

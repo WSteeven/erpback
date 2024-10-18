@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\RecursosHumanos;
 
 use App\Models\Departamento;
 use App\Models\Notificacion;
@@ -12,6 +12,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class PermisoNotificacionEvent implements ShouldBroadcast
 {
@@ -25,7 +26,7 @@ class PermisoNotificacionEvent implements ShouldBroadcast
      * Create a new event instance.
      *
      * @return void
-     * @throws Exception
+     * @throws Throwable|Exception
      */
     public function __construct($permiso)
     {

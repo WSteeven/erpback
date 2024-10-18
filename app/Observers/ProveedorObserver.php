@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Events\ComprasProveedores\CalificacionProveedorEvent;
-use App\Events\ComprasProveedores\NotificarProveedorCalificadoEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\CalificacionProveedorEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\NotificarProveedorCalificadoEvent;
 use App\Models\Proveedor;
 use Illuminate\Support\Facades\Log;
 

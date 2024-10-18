@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Vehiculos;
 
-use App\Events\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
+use App\Events\RecursosHumanos\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\MantenimientoVehiculo;
 use App\Models\Vehiculos\PlanMantenimiento;

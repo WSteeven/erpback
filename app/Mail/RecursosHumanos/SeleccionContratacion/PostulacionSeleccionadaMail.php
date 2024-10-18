@@ -4,6 +4,7 @@ namespace App\Mail\RecursosHumanos\SeleccionContratacion;
 
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
 use App\Models\ConfiguracionGeneral;
+use App\Models\Departamento;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -18,6 +19,7 @@ class PostulacionSeleccionadaMail extends Mailable
 
     public array $postulacion;
     public ConfiguracionGeneral $configuracion;
+    public Departamento $departamento_rrhh;
 
     /**
      * Create a new message instance.
@@ -29,6 +31,7 @@ class PostulacionSeleccionadaMail extends Mailable
         $resource = new PostulacionResource($postulacion);
         $this->postulacion = $resource->resolve();
         $this->configuracion = ConfiguracionGeneral::first();
+        $this->departamento_rrhh = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first();
     }
 
     /**
@@ -40,7 +43,7 @@ class PostulacionSeleccionadaMail extends Mailable
     {
         return new Envelope(
             from: new Address(env('MAIL_USERNAME'), 'Proceso de Postulación'),
-            subject: 'Has sido seleccionado para la vacante',
+            subject: 'Estás a un paso de culminar tu proceso con éxito',
         );
     }
 

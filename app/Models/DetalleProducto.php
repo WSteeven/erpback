@@ -116,6 +116,8 @@ use Src\Config\RutasStorage;
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereIn($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereUrlImagen($value)
+ * @property string|null $codigo_activo_fijo
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleProducto whereCodigoActivoFijo($value)
  * @mixin \Eloquent
  */
 class DetalleProducto extends Model implements Auditable

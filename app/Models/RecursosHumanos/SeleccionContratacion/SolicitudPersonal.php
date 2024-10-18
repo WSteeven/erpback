@@ -108,10 +108,11 @@ class SolicitudPersonal extends Model implements Auditable
         'areas_conocimiento',
         'descripcion',
         'disponibilidad_viajar',
+        'acepta_discapacitados',
         'requiere_licencia',
         'canton_id',
         'num_plazas',
-
+        'edad_personalizada',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -119,6 +120,7 @@ class SolicitudPersonal extends Model implements Auditable
         'activo' => 'boolean',
         'disponibilidad_viajar' => 'boolean',
         'requiere_licencia' => 'boolean',
+        'acepta_discapacitados' => 'boolean',
     ];
 
     private static array $whiteListFilter = ['*'];

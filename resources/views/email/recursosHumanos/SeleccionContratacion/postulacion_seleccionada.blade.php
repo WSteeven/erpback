@@ -56,10 +56,9 @@
     <div class="content">
         <p>Estimado/a {{ $postulacion['nombres_apellidos'] }},</p>
         <br>
-        <p>Nos complace informarte que has sido seleccionado/a para el puesto de
-            <strong>{{ $postulacion['nombre'] }}</strong> en <strong>{{ $configuracion->razon_social }}</strong>.
-            Queremos felicitarte por tu excelente desempeño durante el proceso de entrevistas y por tu interés en formar
-            parte de nuestro equipo.</p>
+        <p>Queremos felicitarte por tu excelente desempeño durante el proceso de entrevistas para el puesto de
+            <strong>{{ $postulacion['nombre'] }}</strong> en <strong>{{ $configuracion->razon_social }}</strong>,
+             y por tu interés en formar parte de nuestro equipo.</p>
 
         <p>Como último paso antes de formalizar tu contratación, necesitamos que te realices unos exámenes médicos para
             asegurarnos de que todo está en orden desde el punto de vista de la salud. Este proceso es un requisito
@@ -74,8 +73,8 @@
             proceso de contratación</p>
 
         <p>Si tienes alguna pregunta o necesitas más información, no dudes
-            en ponerte en contacto con nosotros al <a href="tel:+593 98 890 9837">+593 98 890 9837</a> o a
-            <a href="mailto:recursos_humanos@jpconstrucred.com">recursos_humanos@jpconstrucred.com</a></p>
+            en ponerte en contacto con nosotros al <a href="tel:{{$departamento_rrhh->telefono}}">{{$departamento_rrhh->telefono}}</a> o a
+            <a href="mailto:{{$departamento_rrhh->correo}}">{{$departamento_rrhh->correo}}</a></p>
 
 
         <p>Agradecemos tu interés en <strong>{{ $configuracion->razon_social }}</strong> y esperamos que este sea el
@@ -89,7 +88,7 @@
         <p>Atentamente,</p>
         <p><strong><a href="{{$url}}">FIRSTRED ERP</a></strong> <br>
             <strong>{{ $configuracion->razon_social }} </strong><br>
-            <strong><a href="https://www.jpconstrucred.com">{{ strtolower($configuracion->sitio_web) }}</a></strong>
+            <strong><a href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
         </p>
         <img src="{{ $logo_principal }}" alt="logo" width="120"/>
     </div>

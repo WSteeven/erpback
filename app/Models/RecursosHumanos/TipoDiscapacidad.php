@@ -2,38 +2,41 @@
 
 namespace App\Models\RecursosHumanos;
 
-use App\Models\Empleado;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\RecursosHumanos\TipoDiscapacidad
  *
  * @property int $id
  * @property string $nombre
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Empleado> $empleados
  * @property-read int|null $empleados_count
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad query()
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoDiscapacidad whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|TipoDiscapacidad acceptRequest(?array $request = null)
+ * @method static Builder|TipoDiscapacidad filter(?array $request = null)
+ * @method static Builder|TipoDiscapacidad ignoreRequest(?array $request = null)
+ * @method static Builder|TipoDiscapacidad newModelQuery()
+ * @method static Builder|TipoDiscapacidad newQuery()
+ * @method static Builder|TipoDiscapacidad query()
+ * @method static Builder|TipoDiscapacidad setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|TipoDiscapacidad setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|TipoDiscapacidad setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|TipoDiscapacidad whereCreatedAt($value)
+ * @method static Builder|TipoDiscapacidad whereId($value)
+ * @method static Builder|TipoDiscapacidad whereNombre($value)
+ * @method static Builder|TipoDiscapacidad whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class TipoDiscapacidad extends Model implements Auditable
 {
@@ -41,9 +44,6 @@ class TipoDiscapacidad extends Model implements Auditable
     protected $table = 'rrhh_tipos_discapacidades';
     protected $fillable = ['nombre'];
 
-    private static $whiteListFilter = [" *"];
+    private static array $whiteListFilter = [" *"];
 
-    public function empleados(){
-        return $this->belongsToMany(Empleado::class,'rrhh_empleado_tipo_discapacidad_porcentaje');
-    }
 }

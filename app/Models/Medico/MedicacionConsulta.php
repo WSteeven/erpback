@@ -3,21 +3,26 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\MedicacionConsulta
  *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\Receta|null $receta
- * @method static \Illuminate\Database\Eloquent\Builder|MedicacionConsulta newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MedicacionConsulta newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MedicacionConsulta query()
- * @mixin \Eloquent
+ * @property-read Receta|null $receta
+ * @method static Builder|MedicacionConsulta newModelQuery()
+ * @method static Builder|MedicacionConsulta newQuery()
+ * @method static Builder|MedicacionConsulta query()
+ * @property-read ConsultaMedica|null $consulta
+ * @mixin Eloquent
  */
 class MedicacionConsulta extends Model implements Auditable
 {
@@ -30,7 +35,7 @@ class MedicacionConsulta extends Model implements Auditable
     ];
     public function consulta()
     {
-        return $this->belongsTo(Consulta::class, 'consulta_id');
+        return $this->belongsTo(ConsultaMedica::class, 'consulta_id');
     }
     public function receta()
     {

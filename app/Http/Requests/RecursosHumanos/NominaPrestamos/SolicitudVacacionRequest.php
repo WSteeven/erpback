@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
  * @property mixed $numero_dias_rango2
  * @property mixed $estado
  */
-class VacacionRequest extends FormRequest
+class SolicitudVacacionRequest extends FormRequest
 {
     private int $id_wellington;
     private int $id_veronica_valencia;

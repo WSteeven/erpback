@@ -2,8 +2,8 @@
 
 namespace App\Models\ActivosFijos;
 
-use App\Events\ActivosFijos\NotificarActivoFijoEntregadoEvent;
-use App\Events\ActivosFijos\NotificarEntregaActivoFijoEvent;
+use App\Events\RecursosHumanos\ActivosFijos\NotificarActivoFijoEntregadoEvent;
+use App\Events\RecursosHumanos\ActivosFijos\NotificarEntregaActivoFijoEvent;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;

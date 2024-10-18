@@ -8,6 +8,7 @@ use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionControl
 use App\Http\Controllers\RecursosHumanos\Alimentacion\DetalleAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
+use App\Http\Controllers\RecursosHumanos\DiscapacidadUsuarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ConceptoIngresoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosGeneralesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosLeyController;
@@ -30,13 +31,13 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagoMesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudVacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
-use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
+use App\Http\Controllers\RecursosHumanos\VacacionController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -60,7 +61,8 @@ Route::apiResources(
         'periodo' => PeriodoController::class,
         'tipo_licencia' => TipoLicenciaController::class,
         'licencia_empleado' => LicenciaEmpleadoController::class,
-        'vacacion' => VacacionController::class,
+        'solicitudes-vacaciones' => SolicitudVacacionController::class,
+        'vacaciones' => VacacionController::class,
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,
@@ -91,12 +93,15 @@ Route::apiResources(
             'licencia_empleado'=>'licencia',
             'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
+            'solicitudes-vacaciones' => 'vacacion',
+            'vacaciones' => 'vacacion',
             'rol_pago_mes'=>'rol',
             'tipo_licencia'=>'tipo',
         ],
 
     ]
 );
+Route::get('discapacidades-usuario', [DiscapacidadUsuarioController::class, 'discapacidadesUsuario']);
 Route::post('registro', [PostulanteController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
@@ -122,8 +127,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo_extencion_conyugal', [ExtensionCoverturaSaludController::class, 'archivoExtensionConyugal']);
     Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
-    Route::get('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
-    Route::get('vacacion/imprimir/{vacacion}', [VacacionController::class, 'imprimir']);
+    Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
+    Route::get('solicitudes-vacaciones/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
+    Route::post('solicitudes-vacaciones/reporte', [SolicitudVacacionController::class, 'reporteVacaciones']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);
     Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtenerPrestamoEmpleado']);
     Route::get('otener_saldo_empleado_mes', [SaldoGrupoController::class, 'otener_saldo_empleado_mes']);

@@ -2,8 +2,8 @@
 
 namespace Src\App;
 
-use App\Events\TicketEvent;
-use App\Events\Tickets\TicketCCEvent;
+use App\Events\RecursosHumanos\TicketEvent;
+use App\Events\RecursosHumanos\Tickets\TicketCCEvent;
 use App\Models\Departamento;
 use App\Models\Ticket;
 use Exception;

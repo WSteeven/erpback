@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\SubtareaEvent;
+use App\Events\RecursosHumanos\SubtareaEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -21,7 +21,7 @@ class SubtareaListener
     /**
      * Handle the event.
      *
-     * @param  \App\Events\SubtareaEvent  $event
+     * @param  \App\Events\RecursosHumanos\SubtareaEvent  $event
      * @return void
      */
     public function handle(SubtareaEvent $event)

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
+use Src\App\PolymorphicGenericService;
 use Src\App\RecursosHumanos\SeleccionContratacion\PolymorphicSeleccionContratacionModelsService;
 use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Config\RutasStorage;
@@ -30,11 +31,13 @@ class PostulacionController extends Controller
     private string $entidad = 'Postulación';
     private ArchivoService $archivoService;
     private PolymorphicSeleccionContratacionModelsService $polymorficSeleccionContratacionService;
+    private PolymorphicGenericService $polymorficGenericService;
     private PostulacionService $service;
 
     public function __construct()
     {
         $this->polymorficSeleccionContratacionService = new PolymorphicSeleccionContratacionModelsService();
+        $this->polymorficGenericService = new PolymorphicGenericService();
         $this->service = new PostulacionService();
         $this->archivoService = new ArchivoService();
         // Asegura que el usuario esté autenticado en todas las acciones
@@ -53,7 +56,11 @@ class PostulacionController extends Controller
      */
     public function index()
     {
-        $results = Postulacion::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+        [, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+        if (request('user_id'))
+            $results = Postulacion::ignoreRequest(['campos'])->where('user_type', $user_type)->filter()->orderBy('id', 'desc')->get();
+        else
+            $results = Postulacion::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = PostulacionResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -75,9 +82,11 @@ class PostulacionController extends Controller
             if (auth()->user() instanceof User) {
                 $postulacion = auth()->user()->postulaciones()->create($datos);
                 $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(User::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
+                $this->polymorficGenericService->actualizarDiscapacidades(User::find(auth()->user()->getAuthIdentifier()), $datos['discapacidades']);
             } elseif (auth()->user() instanceof UserExternal) {
                 $postulacion = auth()->user()->postulaciones()->create($datos);
                 $this->polymorficSeleccionContratacionService->actualizarReferenciasPersonales(UserExternal::find(auth()->user()->getAuthIdentifier()), $datos['referencias']);
+                $this->polymorficGenericService->actualizarDiscapacidades(UserExternal::find(auth()->user()->getAuthIdentifier()), $datos['discapacidades']);
 //                Log::channel('testing')->info('Log', ['store::postulacion->userExternal', $postulacion]);
                 //Postulante hace referencia a la tabla postulante, que es equivalente a la tabla empleados, solo que en este caso es para usuarios externos
                 $postulante = Postulante::where('usuario_external_id', $postulacion->user_id)->first();
@@ -145,13 +154,13 @@ class PostulacionController extends Controller
     {
         // se trabaja con la sesión del usuario logueado
         try {
-            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+            [, , $user] = ObtenerInstanciaUsuario::tipoUsuario();
 
-            $user = match ($user_type) {
-                User::class => User::find($user_id),
-                UserExternal::class => UserExternal::find($user_id),
+//            $user = match ($user_type) {
+//                User::class => User::find($user_id),
+//                UserExternal::class => UserExternal::find($user_id),
 //                default => null,
-            };
+//            };
             $results = $this->archivoService->listarArchivos($user);
             return response()->json(compact('results'));
         } catch (Exception $ex) {

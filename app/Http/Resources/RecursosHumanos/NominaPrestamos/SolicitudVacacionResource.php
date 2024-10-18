@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VacacionResource extends JsonResource
+class SolicitudVacacionResource extends JsonResource
 {
     private int $id_wellington =117;
     private int $id_veronica_valencia=155;

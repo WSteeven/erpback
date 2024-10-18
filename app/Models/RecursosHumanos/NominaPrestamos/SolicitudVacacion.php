@@ -44,41 +44,43 @@ use OwenIt\Auditing\Models\Audit;
  * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
  * @property-read Periodo|null $periodo_info
- * @method static Builder|Vacacion acceptRequest(?array $request = null)
- * @method static Builder|Vacacion filter(?array $request = null)
- * @method static Builder|Vacacion newModelQuery()
- * @method static Builder|Vacacion newQuery()
- * @method static Builder|Vacacion query()
- * @method static Builder|Vacacion setBlackListDetection(?array $black_list_detections = null)
- * @method static Builder|Vacacion setCustomDetection(?array $object_custom_detect = null)
- * @method static Builder|Vacacion setLoadInjectedDetection($load_default_detection)
- * @method static Builder|Vacacion whereCreatedAt($value)
- * @method static Builder|Vacacion whereDerechoVacaciones($value)
- * @method static Builder|Vacacion whereEmpleadoId($value)
- * @method static Builder|Vacacion whereEstado($value)
- * @method static Builder|Vacacion whereFechaFin($value)
- * @method static Builder|Vacacion whereFechaFinRango1Vacaciones($value)
- * @method static Builder|Vacacion whereFechaFinRango2Vacaciones($value)
- * @method static Builder|Vacacion whereFechaInicio($value)
- * @method static Builder|Vacacion whereFechaInicioRango1Vacaciones($value)
- * @method static Builder|Vacacion whereFechaInicioRango2Vacaciones($value)
- * @method static Builder|Vacacion whereId($value)
- * @method static Builder|Vacacion whereNumeroRangos($value)
- * @method static Builder|Vacacion wherePeriodoId($value)
- * @method static Builder|Vacacion whereUpdatedAt($value)
+ * @method static Builder|SolicitudVacacion acceptRequest(?array $request = null)
+ * @method static Builder|SolicitudVacacion filter(?array $request = null)
+ * @method static Builder|SolicitudVacacion newModelQuery()
+ * @method static Builder|SolicitudVacacion newQuery()
+ * @method static Builder|SolicitudVacacion query()
+ * @method static Builder|SolicitudVacacion setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|SolicitudVacacion setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|SolicitudVacacion setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|SolicitudVacacion whereCreatedAt($value)
+ * @method static Builder|SolicitudVacacion whereDerechoVacaciones($value)
+ * @method static Builder|SolicitudVacacion whereEmpleadoId($value)
+ * @method static Builder|SolicitudVacacion whereEstado($value)
+ * @method static Builder|SolicitudVacacion whereFechaFin($value)
+ * @method static Builder|SolicitudVacacion whereFechaFinRango1Vacaciones($value)
+ * @method static Builder|SolicitudVacacion whereFechaFinRango2Vacaciones($value)
+ * @method static Builder|SolicitudVacacion whereFechaInicio($value)
+ * @method static Builder|SolicitudVacacion whereFechaInicioRango1Vacaciones($value)
+ * @method static Builder|SolicitudVacacion whereFechaInicioRango2Vacaciones($value)
+ * @method static Builder|SolicitudVacacion whereId($value)
+ * @method static Builder|SolicitudVacacion whereNumeroRangos($value)
+ * @method static Builder|SolicitudVacacion wherePeriodoId($value)
+ * @method static Builder|SolicitudVacacion whereUpdatedAt($value)
  * @property string|null $funciones
  * @property int|null $reemplazo_id
  * @property-read Empleado|null $reemplazo
- * @method static Builder|Vacacion whereFunciones($value)
- * @method static Builder|Vacacion whereReemplazoId($value)
+ * @method static Builder|SolicitudVacacion whereFunciones($value)
+ * @method static Builder|SolicitudVacacion whereReemplazoId($value)
+ * @property int|null $autorizador_id
+ * @method static Builder|SolicitudVacacion whereAutorizadorId($value)
  * @mixin Eloquent
  */
-class Vacacion extends Model implements Auditable
+class SolicitudVacacion extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'vacaciones';
+    protected $table = 'rrhh_nomina_solicitudes_vacaciones';//'vacaciones';
     protected $fillable = [
         'empleado_id',
         'autorizador_id',

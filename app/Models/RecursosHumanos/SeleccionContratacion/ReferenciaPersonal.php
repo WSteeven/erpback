@@ -69,7 +69,6 @@ class ReferenciaPersonal extends Model implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'descartado' => 'boolean',
     ];
     private static array $whiteListFilter = ['*'];
 

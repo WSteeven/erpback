@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 // Dependencias
 
-use App\Events\TransaccionEgresoEvent;
+use App\Events\RecursosHumanos\TransaccionEgresoEvent;
 use App\Exports\Bodega\MaterialesDespachadosResponsableExport;
 use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
