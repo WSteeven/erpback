@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MotivoRequest;
-use App\Models\Motivo;
 use App\Http\Resources\MotivoResource;
+use App\Models\Motivo;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
 class MotivoController extends Controller
 {
-    private $entidad = 'Motivo';
+    private string $entidad = 'Motivo';
     public function __construct()
     {
         $this->middleware('can:puede.ver.motivos')->only('index', 'show');
@@ -22,22 +23,18 @@ class MotivoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index(Request $request)
     {
         $page = $request['page'];
-        // $tipo = $request['tipo'];
         $campos = explode(',', $request['campos']);
-        $results = [];
         if($request['campos']){
             $results = Motivo::all($campos);
             return response()->json(compact('results'));
         }else
         if ($page) {
             $results = Motivo::simplePaginate($request['offset']);
-            // SubtipoTransaccionResource::collection($results);
-            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Motivo::ignoreRequest(['campos'])->filter()->get();
         }
@@ -49,8 +46,8 @@ class MotivoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreMotivoRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param MotivoRequest $request
+     * @return JsonResponse
      */
     public function store(MotivoRequest $request)
     {
@@ -69,8 +66,8 @@ class MotivoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Motivo  $motivo
-     * @return \Illuminate\Http\Response
+     * @param Motivo $motivo
+     * @return JsonResponse
      */
     public function show(Motivo $motivo)
     {
@@ -81,9 +78,9 @@ class MotivoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateMotivoRequest  $request
-     * @param  \App\Models\Motivo  $motivo
-     * @return \Illuminate\Http\Response
+     * @param MotivoRequest $request
+     * @param Motivo $motivo
+     * @return JsonResponse
      */
     public function update(MotivoRequest $request, Motivo $motivo)
     {
@@ -99,17 +96,4 @@ class MotivoController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Motivo  $motivo
-     * @return \Illuminate\Http\Response
-     */
-    // public function destroy(Motivo $motivo)
-    // {
-    //     $motivo->delete();
-    //     $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-
-    //     return response()->json(compact('mensaje'));
-    // }
 }

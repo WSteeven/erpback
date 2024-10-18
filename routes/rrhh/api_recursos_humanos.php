@@ -24,6 +24,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoCo
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MultaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PeriodoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PlanVacacionController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirografarioController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudVacacionController;
+use App\Http\Controllers\RecursosHumanos\PlanificadorController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
@@ -63,6 +65,8 @@ Route::apiResources(
         'licencia_empleado' => LicenciaEmpleadoController::class,
         'solicitudes-vacaciones' => SolicitudVacacionController::class,
         'vacaciones' => VacacionController::class,
+        'planes-vacaciones' => PlanVacacionController::class,
+        'planificadores' => PlanificadorController::class,
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,
@@ -90,6 +94,8 @@ Route::apiResources(
             'descuentos_ley' => 'descuento_ley',
             'prestamo_empresarial' => 'prestamo',
             'prestamos_quirografarios' => 'prestamo',
+            'planes-vacaciones' => 'plan',
+            'planificadores' => 'plan',
             'licencia_empleado'=>'licencia',
             'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',

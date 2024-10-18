@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_nomina_vacacions', function (Blueprint $table) {
+        Schema::create('rrhh_nomina_vacaciones', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('empleado_id');
             $table->unsignedBigInteger('periodo_id');
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_nomina_vacacions');
+        Schema::dropIfExists('rrhh_nomina_vacaciones');
     }
 };
