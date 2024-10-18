@@ -92,7 +92,7 @@ class SubtareaResource extends JsonResource
             'etapa_id' => $tarea->etapa_id,
             'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null, // $tarea->proyecto_id,
             'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
-            'valor_alimentacion' => $this->valor_alimentacion,
+            'valor_alimentacion' => $this->obtenerValorAlimentacion(),
         ];
 
         if ($controller_method == 'show') {
@@ -131,6 +131,12 @@ class SubtareaResource extends JsonResource
     private function formatTimestamp($timestamp)
     {
         if ($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
+    }
+
+    public function obtenerValorAlimentacion()
+    {
+        $alimentacion_grupo = $this->alimentacionGrupo;
+        return $alimentacion_grupo->precio * $alimentacion_grupo->cantidad_personas;
     }
 
     public function extraerNombres($listado)
