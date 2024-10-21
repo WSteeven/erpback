@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecursosHumanos\PedidoAutorizadoEvent;
-use App\Events\RecursosHumanos\PedidoCreadoEvent;
+use App\Events\PedidoAutorizadoEvent;
+use App\Events\PedidoCreadoEvent;
 use App\Exports\Bodega\PedidoExport;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;

@@ -56,6 +56,11 @@ class NoticiaController extends Controller
                 $datos['imagen_noticia'] = (new GuardarImagenIndividual($datos['imagen_noticia'], RutasStorage::IMAGENES_NOTICIAS))->execute();
             }
 
+            // Convertir array de departamentos en cadena separada por comas
+            if (isset($datos['departamentos_destinatarios'])) {
+                $datos['departamentos_destinatarios'] = implode(',', $datos['departamentos_destinatarios']);
+            }
+
             $modelo = Noticia::create($datos);
             $modelo = new NoticiaResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -99,6 +104,12 @@ class NoticiaController extends Controller
             } else {
                 unset($datos['imagen_noticia']);
             }
+
+            // Convertir array de departamentos en cadena separada por comas
+            if (isset($datos['departamentos_destinatarios'])) {
+                $datos['departamentos_destinatarios'] = implode(',', $datos['departamentos_destinatarios']);
+            }
+
             $noticia->update($datos);
             $modelo = new NoticiaResource($noticia->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -120,13 +131,13 @@ class NoticiaController extends Controller
      */
     public function destroy(Noticia $noticia)
     {
-//        $noticia->delete();
-//        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        //        $noticia->delete();
+        //        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         try {
             throw new Exception('Método no definido, comunicate con el departamento informático para más información');
         } catch (Throwable $th) {
             throw  Utils::obtenerMensajeErrorLanzable($th);
         }
-//        return response()->json(compact('mensaje'));
+        //        return response()->json(compact('mensaje'));
     }
 }
