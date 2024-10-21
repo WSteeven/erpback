@@ -9,6 +9,36 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\EstadoTransaccion
+ *
+ * @method static where(string $string, string $PENDIENTE)
+ * @property int $id
+ * @property string $nombre
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Pedido|null $pedido
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
+ * @property-read int|null $transacciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Traspaso> $traspasos
+ * @property-read int|null $traspasos_count
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion whereNombre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EstadoTransaccion whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class EstadoTransaccion extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;

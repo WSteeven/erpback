@@ -20,6 +20,7 @@ use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\Bodega\PermisoArmaController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -50,6 +51,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ParroquiaController;
 use App\Http\Resources\UserInfoResource;
@@ -60,6 +62,8 @@ use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\Intranet\OrganigramaController;
 
+use App\Http\Resources\CantonResource;
+use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -75,6 +79,9 @@ use Carbon\Carbon;
 |
 */
 
+Route::get('auth/{provider}', [LoginSocialNetworkController::class, 'redirectToProvider']);
+Route::get('auth/{provider}/callback', [LoginSocialNetworkController::class, 'handleProviderCallback']);
+
 Route::get('tablero', [TableroController::class, 'index']);
 Route::get('auditorias', [AuditoriaController::class, 'index'])->middleware('auth:sanctum');
 Route::get('modelos-auditorias', [AuditoriaController::class, 'modelos']);
@@ -84,13 +91,17 @@ Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']
 Route::post('asignar-permisos-usuario', [PermisoRolController::class, 'asignarPermisosUsuario']);
 Route::post('crear-permiso', [PermisoRolController::class, 'crearPermisoRol']);
 Route::post('usuarios/login', [LoginController::class, 'login']);
+Route::post('usuarios-externos/login', [LoginSocialNetworkController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
 Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
+// Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
+Route::get('auth-social',[LoginSocialNetworkController::class, 'getDataFromSession']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('registrar', [UserController::class, 'store']);
     Route::post('logout', [LoginController::class, 'logout']);
+    Route::post('logout-postulante', [LoginSocialNetworkController::class, 'logout']);
     Route::get('ver/{empleado}', [UserController::class, 'show']);
     Route::put('actualizar/{empleado}', [UserController::class, 'update']);
     Route::post('cambiar-contrasena', [UserController::class, 'updatePassword']);
@@ -103,6 +114,7 @@ Route::group(['prefix' => '/permisos'], function () {
 
 // El frontend usa esta ruta para verificar si está autenticado
 Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => new UserInfoResource($request->user()));
+Route::middleware('auth:sanctum')->get('/user-postulante', fn (Request $request) => new UserExternalResource($request->user()));
 
 // El frontend usa esta ruta para obtener los roles y permisos del usuario autenticado
 // Route::middleware('auth:sanctum')->get('/user/roles', fn (Request $request) => $request->user()->getRoleNames());
@@ -119,7 +131,7 @@ Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
 Route::apiResource('archivos', ArchivoController::class)->only('destroy');
 Route::apiResources(
     [
-        'activos-fijos' => ActivoFijoController::class,
+        // 'activos-fijos' => ActivoFijoController::class, Revisar si queda o se a
         'autorizaciones' => AutorizacionController::class,
         'cargos' => CargoController::class,
         'categorias' => CategoriaController::class,
@@ -152,6 +164,7 @@ Route::apiResources(
         'permisos' => PermisoController::class,
         'pisos' => PisoController::class,
         'detalles' => DetalleProductoController::class,
+        'permisos-armas' => PermisoArmaController::class,
         'preingresos' => PreingresoMaterialController::class,
         'proveedores' => ProveedorController::class,
         'rams' => RamController::class,
@@ -174,7 +187,7 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'activos-fijos' => 'activo',
+            // 'activos-fijos' => 'activo',
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',
@@ -183,6 +196,7 @@ Route::apiResources(
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
             'notificaciones' => 'notificacion',
+            'permisos-armas' => 'permiso',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',
@@ -212,12 +226,13 @@ Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos']
 /**
  * Rutas para imprimir PDFs
  */
-Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
+// Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('devoluciones/imprimir/{devolucion}', [DevolucionController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('transacciones-egresos/imprimir-entrega-recepcion/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimirActaEntregaRecepcion']);
 Route::get('preingresos/imprimir/{preingreso}', [PreingresoMaterialController::class, 'imprimir'])->middleware('auth:sanctum');
 
 /*********************************************************
@@ -240,6 +255,7 @@ Route::get('sucursales-detalle', [DetalleProductoController::class, 'sucursalesD
 //Reportes de ingresos y egresos
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
+Route::post('transacciones-egresos/reportes-epps', [TransaccionBodegaEgresoController::class, 'reporteUniformesEpps']); // reporte para imprimir en excel y con la firma del tecnico responsable
 //Reportes inventario
 Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
 Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);
@@ -321,6 +337,7 @@ Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])
 Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
 Route::get('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('transacciones/files/{transaccion_bodega}', [TransaccionBodegaController::class, 'indexFiles']);
 
 /**
  * Subidas de archivos
@@ -329,6 +346,7 @@ Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFile
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');
+Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaController::class, 'storeFiles']);
 
 /**
  * Actualizar materiales de empleados
@@ -342,3 +360,4 @@ Route::post('actualizar-cantidad-material-empleado', [InventarioController::clas
 // Obtener los datos del organigrama
 Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtenerDatosOrganigrama'])->middleware('auth:sanctum');
 
+Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));

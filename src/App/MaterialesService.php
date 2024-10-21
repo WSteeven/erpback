@@ -7,6 +7,7 @@ use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\PreingresoMaterial;
+use App\Models\SeguimientoMaterialStock;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
@@ -27,7 +28,7 @@ class MaterialesService
         $empleado_id = $request['empleado_id'];
         $results = MaterialEmpleado::filter()->where('empleado_id', $empleado_id)->get();
 
-        $results = collect($results)->map(fn ($item, $index) => [
+        $results = collect($results)->map(fn($item, $index) => [
             'item' => $index + 1,
             'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
             'detalle_producto_id' => $item->detalle_producto_id,
@@ -49,7 +50,7 @@ class MaterialesService
 
         $results = MaterialEmpleadoTarea::filter()->get();
 
-        $results = collect($results)->map(fn ($item, $index) => [
+        $results = collect($results)->map(fn($item, $index) => [
             'item' => $index + 1,
             'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
             'detalle_producto_id' => $item->detalle_producto_id,
@@ -103,6 +104,7 @@ class MaterialesService
                 $entidad = $this->obtenerEntidad($modelo, $url);
                 // Log::channel('testing')->info('Log', ['-> Entidad', $entidad]);
                 $row['entidad_id'] = $entidad?->id;
+                $row['transaccion'] = null;
 
                 switch ($modelo) {
                     case 'preingresos':
@@ -132,6 +134,76 @@ class MaterialesService
             }
         }
         // Log::channel('testing')->info('Log', ['results', $results]);
+
+        $eventos = ['created' => 'CREADO', 'updated' => 'ACTUALIZADO'];
+        $results = collect($results)->map(function ($item) use ($eventos) {
+            $item['evento'] = $eventos[$item['evento']];
+            return $item;
+        });
+
+        $results = $results->sortByDesc('fecha_hora');
+
+        return $results;
+    }
+
+    public function obtenerMaterialesEmpleadoIntervaloNoOcupados(int $empleado_id, string  $fecha_inicio) //8629
+    {
+        $results = [];
+
+        $materiales = MaterialEmpleado::with(['audits' => function ($query) use ($fecha_inicio) {
+            $query->where('updated_at', '<=', $fecha_inicio);
+        }])->where('empleado_id', $empleado_id)->orderBy('detalle_producto_id', 'asc')->get();
+
+        foreach ($materiales as $material) {
+            // Se realiza el casteo de cada elemento
+            foreach ($material->audits as $audit) {
+                $row['fecha_hora'] = Carbon::parse($audit->created_at)->format('Y-m-d H:i:s');
+                $row['empleado'] = Empleado::extraerNombresApellidos(User::find($audit->user_id)->empleado);
+                $row['detalle_producto_id'] = $material->detalle_producto_id;
+                $row['detalle_producto'] = $material->detalle->descripcion;
+                $row['cliente'] = $material->cliente?->empresa?->razon_social;
+                $row['evento'] = $audit->event;
+                $row['auditable_id'] = $audit->auditable_id;
+                $row['movimiento'] = $this->obtenerSegmentoRuta($audit->url);
+                $row['cantidad_anterior'] = array_key_exists('cantidad_stock', $audit->old_values) ? $audit->old_values['cantidad_stock'] : 0;
+                $row['cantidad_actual'] = array_key_exists('cantidad_stock', $audit->new_values) ? $audit->new_values['cantidad_stock'] : 0;
+                $row['cantidad_afectada'] = abs($row['cantidad_anterior'] - $row['cantidad_actual']);
+                $url =  parse_url($audit->url);
+                $segmentos = explode('/', $url['path']);
+                $segmentos = array_filter($segmentos);
+                $id = end($segmentos);
+
+                $modelo = $segmentos[2];
+
+                $entidad = $this->obtenerEntidad($modelo, $url);
+                $row['entidad_id'] = $entidad?->id;
+
+                switch ($modelo) {
+                    case 'preingresos':
+                        $row['transaccion'] = 'PREINGRESO';
+                        $row['descripcion'] = $entidad->observacion;
+                        break;
+                    case 'transacciones-ingresos':
+                        $row['transaccion'] = 'INGRESO A BODEGA';
+                        $row['descripcion'] = '';
+                        break;
+                    case 'transacciones-egresos':
+                        $row['transaccion'] = 'EGRESO DE BODEGA';
+                        $row['descripcion'] = '';
+                        break;
+                    case 'tareas':
+                        $row['transaccion'] = 'TAREA';
+                        $row['descripcion'] = $entidad->titulo;
+                        break;
+                    default:
+                        $row['segmentos'] = $segmentos;
+                        $row['segmentos_id'] = $id;
+                }
+                // }
+
+                $results[] = $row;
+            }
+        }
 
         $eventos = ['created' => 'CREADO', 'updated' => 'ACTUALIZADO'];
         $results = collect($results)->map(function ($item) use ($eventos) {
@@ -202,5 +274,30 @@ class MaterialesService
         array_shift($ruta);
         array_shift($ruta);
         return implode('/', $ruta);
+    }
+
+    public function obtenerSeguimientoMaterialesEmpleado(int $empleado_id, string  $fecha_inicio, string $fecha_fin = null)
+    {
+        return SeguimientoMaterialStock::where('empleado_id', $empleado_id)->where(function ($q) use ($fecha_inicio, $fecha_fin) {
+            $q->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->orWhereBetween('updated_at', [$fecha_inicio, $fecha_fin]);
+        })->get();
+    }
+
+    public function obtenerSeguimientoMaterialesEmpleadoResumen(int $empleado_id, string $fecha_inicio, string $fecha_fin = null)
+    {
+        $materialStockUsado = SeguimientoMaterialStock::selectRaw('detalles_productos.descripcion as detalle_producto, empresas.razon_social as cliente, SUM(cantidad_utilizada) as cantidad_utilizada, seguimientos_materiales_stock.created_at, tareas.codigo_tarea as tarea, tareas.titulo as titulo_tarea')
+            ->where('seguimientos_materiales_stock.empleado_id', $empleado_id)
+            ->where(function ($q) use ($fecha_inicio, $fecha_fin) {
+                $q->whereBetween('seguimientos_materiales_stock.created_at', [$fecha_inicio, $fecha_fin])
+                    ->orWhereBetween('seguimientos_materiales_stock.updated_at', [$fecha_inicio, $fecha_fin]);
+            })
+            ->groupBy('detalle_producto_id', 'cliente')
+            ->join('detalles_productos', 'seguimientos_materiales_stock.detalle_producto_id', '=', 'detalles_productos.id')
+            ->join('clientes', 'seguimientos_materiales_stock.cliente_id', '=', 'clientes.id')
+            ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
+            ->join('subtareas', 'seguimientos_materiales_stock.subtarea_id', '=', 'subtareas.id')
+            ->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')
+            ->get();
+        return $materialStockUsado;
     }
 }

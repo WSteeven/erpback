@@ -64,7 +64,7 @@ class TransaccionBodegaResource extends JsonResource
             'tarea' => $this->tarea ? $this->tarea->titulo : null,
             // 'tipo' => $this->motivo?->tipo?->nombre,
             //variables auxiliares
-
+            'codigo_permiso_traslado' => $this->codigo_permiso_traslado,
         ];
 
         if ($controller_method == 'show') {

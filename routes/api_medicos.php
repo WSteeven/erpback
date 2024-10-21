@@ -17,7 +17,6 @@ use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
 use App\Http\Controllers\Medico\ConsultaMedicaController;
 use App\Http\Controllers\Medico\CuestionarioController;
-use App\Http\Controllers\Medico\CuestionarioPublicoController;
 use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;

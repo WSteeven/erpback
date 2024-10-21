@@ -920,7 +920,7 @@ class Utils
 
     /**
      * Esta función recibe un valor entero, double o decimal y retorna su expresión en texto.
-     * @param string $numero El numero entero o decimal del cual se obtendrá su valor en texto
+     * @param string $numero El número entero o decimal del cual se obtendrá su valor en texto
      * @return string El valor expresado en texto, tal como se muestra en los cheques.
      */
     public static function  obtenerValorMonetarioTexto($numero)

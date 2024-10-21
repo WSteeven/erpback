@@ -18,6 +18,7 @@ use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class GastoService
 {
@@ -46,12 +47,10 @@ class GastoService
      * La función `validarGastoVehiculo` verifica ciertas condiciones en una solicitud y guarda o modifica
      * un objeto GastoVehiculo en consecuencia.
      *
-     * @param GastoRequest request  es un objeto de tipo GastoRequest que contiene detalles de un
+     * @param GastoRequest $request  es un objeto de tipo GastoRequest que contiene detalles de un
      * gasto que necesita ser validado para un gasto de vehículo. Probablemente incluya información como el
      * detalle y sub_detalle del gasto.
-     * @param Gasto gasto Según el fragmento de código proporcionado, la función `validarGastoVehiculo`
-     * toma dos parámetros: `` de tipo `GastoRequest` y `` de tipo `Gasto`. La función
-     * verifica el valor de `->detalle` y, según ciertas condiciones,
+     * @throws ValidationException
      */
     public function validarGastoVehiculo(GastoRequest $request)
     {
@@ -77,6 +76,10 @@ class GastoService
             }
         }
     }
+
+    /**
+     * @throws Throwable
+     */
     public static function  convertirComprobantesBase64Url(array $datos, $tipo_metodo = 'store')
     {
         switch ($tipo_metodo) {

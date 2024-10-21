@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Medico;
+namespace Database\Seeders\RecursosHumanos\Medico;
 
 use App\Models\Medico\Cuestionario;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

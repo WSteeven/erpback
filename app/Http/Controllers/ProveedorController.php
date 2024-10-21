@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ComprasProveedores\CalificacionProveedorEvent;
+use App\Events\RecursosHumanos\ComprasProveedores\CalificacionProveedorEvent;
 use App\Exports\ComprasProveedores\CalificacionProveedorExcel;
 use App\Exports\ComprasProveedores\ProveedorExport;
 use App\Exports\ComprasProveedores\TodosProveedoresExport;
@@ -18,27 +18,25 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\ProveedorService;
-use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
 
 class ProveedorController extends Controller
 {
-    private $entidad = 'Proveedor';
-    private $archivoService;
-    private $proveedorService;
-    private $reporteService;
+    private string $entidad = 'Proveedor';
+    private ArchivoService $archivoService;
+    private ProveedorService $proveedorService;
+//    private  $reporteService;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
         $this->proveedorService = new ProveedorService();
-        $this->reporteService = new ReportePdfExcelService();
+//        $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.proveedores')->only('index', 'show');
         $this->middleware('can:puede.crear.proveedores')->only('store');
         $this->middleware('can:puede.editar.proveedores')->only('update');
@@ -68,6 +66,7 @@ class ProveedorController extends Controller
 
     /**
      * Guardar
+     * @throws ValidationException|Throwable
      */
     public function store(ProveedorRequest $request)
     {
@@ -75,9 +74,7 @@ class ProveedorController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
-            $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
-            $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago, ',');
+            $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago);
 
             //Respuesta
             $proveedor = Proveedor::create($datos);
@@ -94,28 +91,12 @@ class ProveedorController extends Controller
             }
 
             //guardando la logistica del proveedor
-            if ($proveedor->empresa->logistica()->first()) {
-                $proveedor->empresa->logistica()->update([
-                    'tiempo_entrega' => $request->tiempo_entrega,
-                    'envios' => $request->envios,
-                    'tipo_envio' => Utils::convertArrayToString($request->tipo_envio, ','),
-                    'transporte_incluido' => $request->transporte_incluido,
-                    'garantia' => $request->garantia,
-                ]);
-            } else {
-                $proveedor->empresa->logistica()->create([
-                    'tiempo_entrega' => $request->tiempo_entrega,
-                    'envios' => $request->envios,
-                    'tipo_envio' =>  Utils::convertArrayToString($request->tipo_envio, ','),
-                    'transporte_incluido' => $request->transporte_incluido,
-                    'garantia' => $request->garantia,
-                ]);
-            }
+            $this->guardarLogisticaProveedor($proveedor, $request);
 
             //Verificando si hay archivos en la request
             if ($request->allFiles()) {
                 foreach ($request->files() as $archivo) {
-                    $archivo = $this->archivoService->guardar($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
+                    $this->archivoService->guardarArchivo($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
                 }
             }
 
@@ -129,10 +110,9 @@ class ProveedorController extends Controller
             }
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
-            return response()->json(compact('mensaje'), 500);
+            throw Utils::obtenerMensajeErrorLanzable($e);
             //throw $th;
         }
     }
@@ -159,6 +139,7 @@ class ProveedorController extends Controller
 
     /**
      * Actualizar
+     * @throws ValidationException|Throwable
      */
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
@@ -167,9 +148,7 @@ class ProveedorController extends Controller
             DB::beginTransaction();
             //Adaptación de foreign keys
             $datos = $request->validated();
-            $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
-            $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
-            $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago, ',');
+            $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago);
 
             //Respuesta
             $proveedor->update($datos);
@@ -183,28 +162,12 @@ class ProveedorController extends Controller
             }
 
             //guardando la logistica del proveedor
-            if ($proveedor->empresa->logistica()->first()) {
-                $proveedor->empresa->logistica()->update([
-                    'tiempo_entrega' => $request->tiempo_entrega,
-                    'envios' => $request->envios,
-                    'tipo_envio' => Utils::convertArrayToString($request->tipo_envio, ','),
-                    'transporte_incluido' => $request->transporte_incluido,
-                    'garantia' => $request->garantia,
-                ]);
-            } else {
-                $proveedor->empresa->logistica()->create([
-                    'tiempo_entrega' => $request->tiempo_entrega,
-                    'envios' => $request->envios,
-                    'tipo_envio' =>  Utils::convertArrayToString($request->tipo_envio, ','),
-                    'transporte_incluido' => $request->transporte_incluido,
-                    'garantia' => $request->garantia,
-                ]);
-            }
+            $this->guardarLogisticaProveedor($proveedor, $request);
 
             //Verificando si hay archivos en la request
             if ($request->allFiles()) {
                 foreach ($request->files() as $archivo) {
-                    $archivo = $this->archivoService->guardar($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
+                    $this->archivoService->guardarArchivo($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
                 }
             }
 
@@ -212,12 +175,11 @@ class ProveedorController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al generar reporte' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
     }
 
@@ -251,11 +213,11 @@ class ProveedorController extends Controller
 
     /**
      * Reportes
+     * @throws ValidationException
      */
     public function reportes(Request $request)
     {
         $configuracion = ConfiguracionGeneral::first();
-        $results = [];
         try {
             $vista = 'compras_proveedores.proveedores.proveedores';
             $request['empresa.razon_social'] = $request->razon_social;
@@ -268,7 +230,6 @@ class ProveedorController extends Controller
                 case 'excel':
                     $reporte = $registros;
                     return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios), $configuracion, collect($proveedoresCompletos)), 'reporte_proveedores.xlsx');
-                    break;
                 case 'pdf':
                     try {
                         $reporte = $registros;
@@ -278,9 +239,8 @@ class ProveedorController extends Controller
                         $pdf->render();
                         return $pdf->stream();
                     } catch (Throwable $ex) {
-                        throw $ex->getMessage() . '. ' . $ex->getLine();
+                        throw Utils::obtenerMensajeErrorLanzable($ex);
                     }
-                    break;
                 default:
                     // Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
             }
@@ -292,6 +252,10 @@ class ProveedorController extends Controller
         $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function reporteTodos()
     {
         try {
@@ -305,6 +269,9 @@ class ProveedorController extends Controller
         }
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function reporteCalificacion(Proveedor $proveedor)
     {
         try {
@@ -326,7 +293,6 @@ class ProveedorController extends Controller
      */
     public function indexFilesDepartamentosCalificadores(Proveedor $proveedor)
     {
-        $results = [];
         try {
             $idsDetallesDepartamentos = DetalleDepartamentoProveedor::where('proveedor_id', $proveedor->id)->get('id');
             $results = Archivo::whereIn('archivable_id', $idsDetallesDepartamentos)->get();
@@ -338,7 +304,9 @@ class ProveedorController extends Controller
     }
 
 
-
+    /**
+     * @throws Exception
+     */
     public function actualizarCalificacion(Proveedor $proveedor)
     {
         Proveedor::guardarCalificacion($proveedor->id);
@@ -359,5 +327,31 @@ class ProveedorController extends Controller
 
         $results = ProveedorResource::collection($proveedores);
         return response()->json(compact('results'));
+    }
+
+    /**
+     * @param Proveedor $proveedor
+     * @param ProveedorRequest $request
+     * @return void
+     */
+    private function guardarLogisticaProveedor(Proveedor $proveedor, ProveedorRequest $request): void
+    {
+        if ($proveedor->empresa->logistica()->first()) {
+            $proveedor->empresa->logistica()->update([
+                'tiempo_entrega' => $request->tiempo_entrega,
+                'envios' => $request->envios,
+                'tipo_envio' => Utils::convertArrayToString($request->tipo_envio),
+                'transporte_incluido' => $request->transporte_incluido,
+                'garantia' => $request->garantia,
+            ]);
+        } else {
+            $proveedor->empresa->logistica()->create([
+                'tiempo_entrega' => $request->tiempo_entrega,
+                'envios' => $request->envios,
+                'tipo_envio' => Utils::convertArrayToString($request->tipo_envio),
+                'transporte_incluido' => $request->transporte_incluido,
+                'garantia' => $request->garantia,
+            ]);
+        }
     }
 }

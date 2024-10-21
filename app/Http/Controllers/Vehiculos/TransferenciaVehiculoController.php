@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Vehiculos;
 
-use App\Events\Vehiculos\NotificarTransferenciaVehiculoEvent;
+use App\Events\RecursosHumanos\Vehiculos\NotificarTransferenciaVehiculoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\TransferenciaVehiculoRequest;
 use App\Http\Resources\Vehiculos\TransferenciaVehiculoResource;

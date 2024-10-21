@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\DevolucionActualizadaSolicitanteEvent;
-use App\Events\DevolucionAutorizadaEvent;
-use App\Events\DevolucionCreadaEvent;
+use App\Events\RecursosHumanos\DevolucionActualizadaSolicitanteEvent;
+use App\Events\RecursosHumanos\DevolucionAutorizadaEvent;
+use App\Events\RecursosHumanos\DevolucionCreadaEvent;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Autorizacion;
@@ -222,7 +222,7 @@ class DevolucionController extends Controller
                 $detalle = DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->where('detalle_id', $listado['id'])->first();
                 $detalle->cantidad = $listado['cantidad'];
                 $detalle->save();
-                //Actualizar el estado de la devolucion, segun la correccion del item 
+                //Actualizar el estado de la devolucion, segun la correccion del item
                 $this->servicio->verificarItemsDevolucion($detalle);
             }
         }

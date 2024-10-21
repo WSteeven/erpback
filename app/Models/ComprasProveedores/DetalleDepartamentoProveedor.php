@@ -13,6 +13,45 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\ComprasProveedores\DetalleDepartamentoProveedor
+ *
+ * @property int $id
+ * @property int $departamento_id
+ * @property int $proveedor_id
+ * @property int|null $empleado_id
+ * @property float|null $calificacion
+ * @property string|null $fecha_calificacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\CriterioCalificacion> $calificaciones_criterios
+ * @property-read int|null $calificaciones_criterios_count
+ * @property-read Departamento $departamento
+ * @property-read Empleado|null $empleado
+ * @property-read Proveedor $proveedor
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor query()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereCalificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereDepartamentoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereFechaCalificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereProveedorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class DetalleDepartamentoProveedor extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;

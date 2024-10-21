@@ -21,7 +21,7 @@ class NotificacionResource extends JsonResource
             'link'=>$this->link,
             'per_originador'=>$this->originador->nombres.' '.$this->originador->apellidos,
             'per_destinatario'=>$this->destinatario->nombres.' '.$this->destinatario->apellidos,
-            'leida'=>$this->leida
+            'leida'=>$this->leidaP
         ];
 
         if($controller_method =='show'){

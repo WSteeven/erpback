@@ -12,6 +12,58 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Sucursal
+ *
+ * @property int $id
+ * @property string $lugar
+ * @property int|null $cliente_id
+ * @property string|null $telefono
+ * @property int|null $extension
+ * @property string|null $correo
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActivoFijo> $activos
+ * @property-read int|null $activos_count
+ * @property-read \App\Models\User|null $administrador
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \App\Models\ControlStock|null $control_stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Devolucion> $devoluciones
+ * @property-read int|null $devoluciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Empleado> $empleados
+ * @property-read int|null $empleados_count
+ * @property-read \App\Models\Inventario|null $inventarios
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Pedido> $pedidos
+ * @property-read int|null $pedidos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Percha> $perchas
+ * @property-read int|null $perchas_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
+ * @property-read int|null $transacciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Transferencia> $transferencias
+ * @property-read int|null $transferencias_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Traspaso> $traspasos
+ * @property-read int|null $traspasos_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereCorreo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereExtension($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereLugar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereTelefono($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sucursal whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Sucursal extends Model implements Auditable
 {
     use HasFactory;

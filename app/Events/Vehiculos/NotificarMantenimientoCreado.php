@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\vehiculos;
+namespace App\Events\RecursosHumanos\vehiculos;
 
 use App\Models\Notificacion;
 use App\Models\Vehiculos\MantenimientoVehiculo;

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpDynamicAsStaticMethodCallInspection */
 
 namespace App\Http\Controllers\Vehiculos;
 
@@ -11,11 +11,10 @@ use App\Models\Vehiculos\BitacoraVehicular;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Src\App\ActividadRealizadaService;
+use OwenIt\Auditing\Models\Audit;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Vehiculos\BitacoraVehicularService;
 use Src\Config\RutasStorage;
@@ -25,12 +24,12 @@ use Throwable;
 class BitacoraVehicularController extends Controller
 {
     private string $entidad = 'Bitacora Vehicular';
-    private ActividadRealizadaService $actividadService;
+//    private ActividadRealizadaService $actividadService;
     private BitacoraVehicularService $service;
 
     public function __construct()
     {
-        $this->actividadService = new ActividadRealizadaService();
+//        $this->actividadService = new ActividadRealizadaService();
         $this->service = new BitacoraVehicularService();
         $this->middleware('can:puede.ver.bitacoras_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.bitacoras_vehiculos')->only('store');
@@ -52,8 +51,21 @@ class BitacoraVehicularController extends Controller
             if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
                 $results = BitacoraVehicular::ignoreRequest(['chofer_id'])->filter()->orderBy('updated_at', 'desc')->get();
             else {
-                // $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
-                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
+//                 $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
+//                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
+                //obtenemos los ids de los registros segun la persona que los modifica
+                $ids_auditorias = Audit::where('auditable_type', BitacoraVehicular::class)->where('user_id', auth()->user()->id)
+                    ->distinct('auditable_id') // Asegúrate de que el campo 'auditable_id' sea único
+                    ->pluck('auditable_id');
+                // buscamos las bitacoras coincidentes con aquellos registros para obtener solo las que han sido modificadas por el usuario logueado
+                $results = BitacoraVehicular::ignoreRequest(['chofer_id'])
+                    ->where('chofer_id', auth()->user()->empleado->id)
+                    ->orWhere(function ($query) use ($ids_auditorias) {
+                        $query->whereIn('id', $ids_auditorias);
+                    })
+                    ->filter()
+                    ->orderBy('updated_at', 'desc')
+                    ->get();
             }
         }
         $results = BitacoraVehicularResource::collection($results);
@@ -82,20 +94,7 @@ class BitacoraVehicularController extends Controller
             $chofer = Empleado::find($request->chofer_id);
             $bitacora_activa = BitacoraVehicular::where('chofer_id', $chofer->id)->where('firmada', false)->get();
             if (count($bitacora_activa) > 0) throw new Exception('Ya tienes una bitacora activa, por favor finalizala para poder crear otra');
-            $chofer->bitacoras()->attach(
-                $datos['vehiculo_id'],
-                [
-                    'fecha' => $datos['fecha'],
-                    'imagen_inicial' => $datos['imagen_inicial'],
-                    'hora_salida' => $datos['hora_salida'],
-                    'hora_llegada' => $datos['hora_llegada'],
-                    'km_inicial' => $datos['km_inicial'],
-                    'km_final' => $datos['km_final'],
-                    'tanque_inicio' => $datos['tanque_inicio'],
-                    'tanque_final' => $datos['tanque_final'],
-                    'firmada' => $datos['firmada'],
-                ]
-            );
+            BitacoraVehicular::create($datos);
             $this->service->notificarDiferenciasKmBitacoras($chofer->ultimaBitacora);
             $this->service->actualizarDatosRelacionadosBitacora($chofer->ultimaBitacora, $request);
             // $bitacora = BitacoraVehicular::create($datos);
@@ -139,6 +138,7 @@ class BitacoraVehicularController extends Controller
      * @param BitacoraVehicularRequest $request
      * @param BitacoraVehicular $bitacora
      * @return JsonResponse
+     * @throws ValidationException|Throwable
      */
     public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
@@ -179,6 +179,7 @@ class BitacoraVehicularController extends Controller
      *
      * @param BitacoraVehicular $bitacora
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function destroy(BitacoraVehicular $bitacora)
     {
@@ -193,20 +194,23 @@ class BitacoraVehicularController extends Controller
         }
     }
 
-    public function indexActividades(BitacoraVehicular $bitacora)
-    {
-        try {
-            $results = $this->actividadService->index($bitacora);
-            return response()->json(compact('results'));
-        } catch (Throwable $th) {
-            throw Utils::obtenerMensajeErrorLanzable($th);
-        }
-    }
+    /**
+     * @throws ValidationException
+     */
+//    public function indexActividades(BitacoraVehicular $bitacora)
+//    {
+//        try {
+//            $results = $this->actividadService->index($bitacora);
+//            return response()->json(compact('results'));
+//        } catch (Throwable $th) {
+//            throw Utils::obtenerMensajeErrorLanzable($th);
+//        }
+//    }
 
-    public function storeActividades(Request $request, BitacoraVehicular $bitacora)
-    {
-    }
 
+    /**
+     * @throws ValidationException
+     */
     public function firmar(BitacoraVehicular $bitacora)
     {
         try {
@@ -227,6 +231,9 @@ class BitacoraVehicularController extends Controller
         return response()->json(compact('mensaje'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function imprimir(BitacoraVehicular $bitacora)
     {
         try {

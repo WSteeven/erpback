@@ -8,14 +8,17 @@ use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Motivo;
+use App\Models\Producto;
 use App\Models\Subtarea;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\App\Sistema\PaginationService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
@@ -24,21 +27,29 @@ use Throwable;
 
 class TransaccionBodegaEgresoService
 {
+    private static \Illuminate\Support\Collection|array|Collection $motivos;
+
+    public function __construct()
+    {
+        $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        self::$motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
+    }
+
 
     public static function listar($request, $paginate = false)
     {
         $pagination_service = new PaginationService();
         $estado = $request->estado;
-        $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
+
+//        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD, User::ROL_CONSULTA])) { //si es bodeguero
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
                         $query = TransaccionBodega::search(request('search'))
-                            ->query(function ($query) use ($motivos) {
-                                $query->whereIn('motivo_id', $motivos)
+                            ->query(function ($query) {
+                                $query->whereIn('motivo_id', self::$motivos)
                                     ->whereHas('comprobante', function ($q) {
                                         $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
                                     })
@@ -52,9 +63,9 @@ class TransaccionBodegaEgresoService
                             return $query->get();
                     case EstadoTransaccion::PARCIAL:
                         $query = TransaccionBodega::search(request('search'))
-                            ->query(function ($query) use ($motivos) {
+                            ->query(function ($query) {
                                 $query->with('comprobante')
-                                    ->whereIn('motivo_id', $motivos)
+                                    ->whereIn('motivo_id', self::$motivos)
                                     ->whereHas('comprobante', function ($q) {
                                         $q->where('estado', EstadoTransaccion::PARCIAL);
                                     })
@@ -66,8 +77,8 @@ class TransaccionBodegaEgresoService
                             return $query->get();
                     case EstadoTransaccion::COMPLETA:
                         $query = TransaccionBodega::search(request('search'))
-                            ->query(function ($query) use ($motivos) {
-                                $query->with('comprobante')->whereIn('motivo_id', $motivos)
+                            ->query(function ($query) {
+                                $query->with('comprobante')->whereIn('motivo_id', self::$motivos)
                                     ->where(function ($query) {
                                         $query->whereHas('comprobante', function ($q) {
                                             $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
@@ -75,14 +86,17 @@ class TransaccionBodegaEgresoService
                                     })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc');
                             });
                         if ($paginate) {
-                            return $pagination_service->paginate($query, 100, request('page'));
+                            return $pagination_service->paginate($query, 1000, request('page'));
                         } else
                             return $query->get();
                     case 'ANULADA':
                         $query = TransaccionBodega::search(request('search'))
-                            ->whereIn('motivo_id', $motivos->toArray())
+                            ->query(function ($query){
+                              $query
+                            ->whereIn('motivo_id', self::$motivos)
                             ->where('estado_id', EstadosTransacciones::ANULADA)
                             ->orderBy('id', 'desc');
+                            });
                         if ($paginate) {
                             return $pagination_service->paginate($query, 100, request('page'));
                         } else
@@ -90,7 +104,7 @@ class TransaccionBodegaEgresoService
                     default:
                 }
             } else {
-                $results = TransaccionBodega::whereIn('motivo_id', $motivos)
+                $results = TransaccionBodega::whereIn('motivo_id', self::$motivos)
                     ->when($request->fecha_inicio, function ($q) use ($request) {
                         $q->where('created_at', '>=', $request->fecha_inicio);
                     })
@@ -104,17 +118,17 @@ class TransaccionBodegaEgresoService
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
                             $q->where('firmada', false);
                         })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
                         break;
                     case EstadoTransaccion::PARCIAL:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
                             $q->where('estado', EstadoTransaccion::PARCIAL);
                         })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
                         break;
                     case EstadoTransaccion::COMPLETA:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)
                             ->where(function ($query) {
                                 $query->whereHas('comprobante', function ($q) {
                                     $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
@@ -122,12 +136,12 @@ class TransaccionBodegaEgresoService
                             })->where('autorizacion_id', Autorizaciones::APROBADO)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
                         break;
                     case 'ANULADA':
-                        $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('estado_id', EstadosTransacciones::ANULADA)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        $results = TransaccionBodega::whereIn('motivo_id', self::$motivos)->where('estado_id', EstadosTransacciones::ANULADA)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
                         break;
                     default:
                 }
             } else
-                $results = TransaccionBodega::whereIn('motivo_id', $motivos)
+                $results = TransaccionBodega::whereIn('motivo_id', self::$motivos)
                     ->where('cliente_id', ClientesCorporativos::TELCONET)
                     ->when($request->fecha_inicio, function ($q) use ($request) {
                         $q->where('created_at', '>=', $request->fecha_inicio);
@@ -219,16 +233,38 @@ class TransaccionBodegaEgresoService
         ]);
     }
 
+    public static function filtrarEgresosResponsablePorCategoria(Request $request)
+    {
+        $ids_productos = Producto::whereIn('categoria_id', $request->categorias)->pluck('id');
+        $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
+        $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
+        $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
+        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
+        return TransaccionBodega::with('comprobante')
+            ->whereIn('motivo_id', self::$motivos)
+            ->whereIn('id', $ids_transacciones)
+            ->where('responsable_id', $request->responsable)
+            ->whereBetween(
+                'created_at',
+                [
+                    date('Y-m-d', strtotime($request->fecha_inicio)),
+                    $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                ]
+            )
+            ->whereHas('comprobante', function ($q) {
+                $q->where('firmada', true);
+            })->orderBy('id', )->get();
+    }
 
     public static function filtrarEgresoPorTipoFiltro($request)
     {
         // Log::channel('testing')->info('Log', ['Request', $request->all()]);
         $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
+//        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         switch ($request->tipo) {
             case 0: //persona que solicita el ingreso
                 // Log::channel('testing')->info('Log', ['Entró en solicitante']);
-                $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->where('solicitante_id', $request->solicitante)
+                $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->where('solicitante_id', $request->solicitante)
                     ->whereBetween(
                         'created_at',
                         [
@@ -242,7 +278,7 @@ class TransaccionBodegaEgresoService
             case 1: //persona que autoriza
                 // Log::channel('testing')->info('Log', ['Entró en autorizador']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('per_autoriza_id', $request->per_autoriza)
+                    ->whereIn('motivo_id', self::$motivos)->where('per_autoriza_id', $request->per_autoriza)
                     ->whereBetween(
                         'created_at',
                         [
@@ -256,7 +292,7 @@ class TransaccionBodegaEgresoService
             case 2: //persona que retira
                 // Log::channel('testing')->info('Log', ['Entró en persona que retira']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('per_retira_id', $request->per_retira)
+                    ->whereIn('motivo_id', self::$motivos)->where('per_retira_id', $request->per_retira)
                     ->whereBetween(
                         'created_at',
                         [
@@ -270,7 +306,7 @@ class TransaccionBodegaEgresoService
             case 3: //persona responsable
                 // Log::channel('testing')->info('Log', ['Entró en persona responsable']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('responsable_id', $request->responsable)
+                    ->whereIn('motivo_id', self::$motivos)->where('responsable_id', $request->responsable)
                     ->whereBetween(
                         'created_at',
                         [
@@ -284,7 +320,7 @@ class TransaccionBodegaEgresoService
             case 4: //bodeguero
                 // Log::channel('testing')->info('Log', ['Entró en bodeguero']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('per_atiende_id', $request->per_atiende)
+                    ->whereIn('motivo_id', self::$motivos)->where('per_atiende_id', $request->per_atiende)
                     ->whereBetween(
                         'created_at',
                         [
@@ -312,7 +348,7 @@ class TransaccionBodegaEgresoService
             case 6: //bodega o sucursal
                 // Log::channel('testing')->info('Log', ['Entró en bodega o sucursal']);
                 if ($request->sucursal != 0) $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('sucursal_id', $request->sucursal)
+                    ->whereIn('motivo_id', self::$motivos)->where('sucursal_id', $request->sucursal)
                     ->whereBetween(
                         'created_at',
                         [
@@ -322,7 +358,7 @@ class TransaccionBodegaEgresoService
                     )->whereHas('comprobante', function ($q) {
                         $q->where('firmada', request('firmada'));
                     })->orderBy('id', 'desc')->get();
-                else  $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereBetween(
+                else  $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereBetween(
                     'created_at',
                     [
                         date('Y-m-d', strtotime($request->fecha_inicio)),
@@ -335,7 +371,7 @@ class TransaccionBodegaEgresoService
             case 7: // pedido
                 // Log::channel('testing')->info('Log', ['Entró en pedido']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('pedido_id', $request->pedido)
+                    ->whereIn('motivo_id', self::$motivos)->where('pedido_id', $request->pedido)
                     ->whereBetween(
                         'created_at',
                         [
@@ -349,7 +385,7 @@ class TransaccionBodegaEgresoService
             case 8: // cliente
                 // Log::channel('testing')->info('Log', ['Entró en cliente']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('cliente_id', $request->cliente)
+                    ->whereIn('motivo_id', self::$motivos)->where('cliente_id', $request->cliente)
                     ->whereBetween(
                         'created_at',
                         [
@@ -363,7 +399,7 @@ class TransaccionBodegaEgresoService
             case 9: //tarea
                 // Log::channel('testing')->info('Log', ['Entró en tarea']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('devolucion_id', $request->tarea)
+                    ->whereIn('motivo_id', self::$motivos)->where('devolucion_id', $request->tarea)
                     ->whereBetween(
                         'created_at',
                         [
@@ -377,7 +413,7 @@ class TransaccionBodegaEgresoService
             case 10: //transferencia
                 // Log::channel('testing')->info('Log', ['Entró en transferencia']);
                 $results = TransaccionBodega::with('comprobante')
-                    ->whereIn('motivo_id', $motivos)->where('transferencia_id', $request->transferencia)
+                    ->whereIn('motivo_id', self::$motivos)->where('transferencia_id', $request->transferencia)
                     ->whereBetween(
                         'created_at',
                         [
@@ -388,9 +424,29 @@ class TransaccionBodegaEgresoService
                         $q->where('firmada', request('firmada'));
                     })->orderBy('id', 'desc')->get();
                 break;
+            case 11: // categorias de materiales
+                // Log::channel('testing')->info('Log', ['Entró en categorias', $request->all()]);
+                $ids_productos = Producto::whereIn('categoria_id', $request->categorias)->pluck('id');
+                $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
+                $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
+                $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', self::$motivos)
+                    ->whereIn('id', $ids_transacciones)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )
+                    ->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
             default:
                 // Log::channel('testing')->info('Log', ['Entró en default']);
-                $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
+                $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
                     $q->where('firmada', request('firmada'));
                 })->orderBy('id', 'desc')->get(); // todos los egresos
                 break;

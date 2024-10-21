@@ -12,6 +12,48 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use Src\App\Tareas\MaterialesUtilizadosTareaService;
 
+/**
+ * App\Models\MaterialEmpleado
+ *
+ * @property int $id
+ * @property int $cantidad_stock
+ * @property int $es_fibra
+ * @property int $empleado_id
+ * @property int $detalle_producto_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $despachado
+ * @property int $devuelto
+ * @property int|null $cliente_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \App\Models\DetalleProducto|null $detalle
+ * @property-read \App\Models\Empleado|null $empleado
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado materiales()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado query()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado responsable()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado tieneStock()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereCantidadStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereDespachado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereDetalleProductoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereDevuelto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereEsFibra($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleado whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class MaterialEmpleado extends Model implements Auditable
 {
     use HasFactory, Filterable, AuditableModel;
@@ -37,6 +79,10 @@ class MaterialEmpleado extends Model implements Auditable
     public function detalle()
     {
         return $this->belongsTo(DetalleProducto::class,  'detalle_producto_id', 'id');
+    }
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class);
     }
 
     public function scopeResponsable($query)

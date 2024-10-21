@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Vehiculos;
+namespace Database\Seeders\RecursosHumanos\Vehiculos;
 
 use App\Models\Empleado;
 use App\Models\Vehiculos\Combustible;

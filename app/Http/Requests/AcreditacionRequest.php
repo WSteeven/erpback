@@ -38,9 +38,9 @@ class AcreditacionRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $date = Carbon::now();
+//        $date = Carbon::now();
         $this->merge([
-            'fecha' =>  $date->format('Y-m-d'),
+//            'fecha' =>  $date->format('Y-m-d'),
             'id_tipo_fondo' =>  $this->tipo_fondo,
             'id_tipo_saldo' =>  $this->tipo_saldo,
             'id_usuario' =>  $this->usuario,

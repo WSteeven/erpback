@@ -30,7 +30,7 @@ class AsignacionVehiculoRequest extends FormRequest
             'vehiculo_id' => 'required|exists:vehiculos,id',
             'entrega_id' => 'required|exists:veh_conductores,empleado_id',
             'canton_id' => 'required|exists:cantones,id',
-            'responsable_id' => 'required|exists:veh_conductores,empleado_id',
+            'responsable_id' => 'required|exists:empleados,id',
             'observacion_recibe' => 'nullable|sometimes|string',
             'observacion_entrega' => 'nullable|sometimes|string',
             'fecha_entrega' => 'required|string',

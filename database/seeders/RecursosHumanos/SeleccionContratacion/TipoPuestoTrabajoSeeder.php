@@ -1,9 +1,10 @@
-<?php
+<?php /** @noinspection ALL */
 
 namespace Database\Seeders\RecursosHumanos\SeleccionContratacion;
 
-use App\Models\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajo;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Http\Resources\Ventas\ModalidadResource;
+use App\Models\RecursosHumanos\SeleccionContratacion\Modalidad;
+use App\Models\RecursosHumanos\SeleccionContratacion\TipoPuesto;
 use Illuminate\Database\Seeder;
 
 class TipoPuestoTrabajoSeeder extends Seeder
@@ -15,10 +16,14 @@ class TipoPuestoTrabajoSeeder extends Seeder
      */
     public function run()
     {
-        TipoPuestoTrabajo::insert([
+        TipoPuesto::upsert([
             ['nombre' => 'NUEVO'],
             ['nombre' => 'VACANTE'],
             ['nombre' => 'PASANTE'],
-        ]);
+        ], uniqueBy:['id'], update:['nombre']);
+
+        Modalidad::firstOrCreate(['nombre' => 'PRESENCIAL']);
+        Modalidad::firstOrCreate(['nombre' => 'HIBRIDO']);
+        Modalidad::firstOrCreate(['nombre' => 'REMOTO']);
     }
 }

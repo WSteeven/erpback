@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Vehiculos;
 
-use App\Events\Vehiculos\NotificarSeguroVencidoEvent;
+use App\Events\RecursosHumanos\Vehiculos\NotificarSeguroVencidoEvent;
 use App\Models\Vehiculos\SeguroVehicular;
 use App\Models\Vehiculos\Vehiculo;
 use Carbon\Carbon;
@@ -41,7 +41,7 @@ class ActualizarEstadoSegurosVehiculares implements ShouldQueue
         foreach ($seguros as $seguro) {
             $seguro->update(['estado', false]);
             $seguro->save();
-            $vehiculo = Vehiculo::where('seguro_id', $seguro->id)->get(); //Si hay un vehiculo con un seguro caducado asignado se notifica para que cambie de seguro el vehículo 
+            $vehiculo = Vehiculo::where('seguro_id', $seguro->id)->get(); //Si hay un vehiculo con un seguro caducado asignado se notifica para que cambie de seguro el vehículo
             if ($vehiculo) {
                 event(new NotificarSeguroVencidoEvent($seguro, 'vencido'));
                 $vehiculo->seguro_id = null;

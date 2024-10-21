@@ -27,7 +27,7 @@ class EmpleadoResource extends JsonResource
             'identificacion' => $this->identificacion,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
-            'fecha_nacimiento' => $this->fecha_nacimiento,
+            'fecha_nacimiento' => date('Y-m-d', strtotime($this->fecha_nacimiento)),
             'telefono' => $this->telefono,
             'email' => $this->user ? $this->user->email : '',
             'usuario' => $this->user?->name,

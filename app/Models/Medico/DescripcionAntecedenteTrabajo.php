@@ -9,6 +9,17 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 
+/**
+ * App\Models\Medico\DescripcionAntecedenteTrabajo
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Medico\FichaPreocupacional|null $fichaPreocupacional
+ * @method static \Illuminate\Database\Eloquent\Builder|DescripcionAntecedenteTrabajo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DescripcionAntecedenteTrabajo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DescripcionAntecedenteTrabajo query()
+ * @mixin \Eloquent
+ */
 class DescripcionAntecedenteTrabajo extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;

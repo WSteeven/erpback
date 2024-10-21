@@ -10,6 +10,40 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use Src\Config\EstadosTransacciones;
 
+/**
+ * App\Models\DetallePedidoProducto
+ *
+ * @property int $id
+ * @property int $detalle_id
+ * @property int $pedido_id
+ * @property int|null $solicitante_id
+ * @property int $cantidad
+ * @property int $despachado
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\DetalleProducto|null $detalleProducto
+ * @property-read \App\Models\Empleado|null $solicitante
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto query()
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereCantidad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereDespachado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereDetalleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto wherePedidoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class DetallePedidoProducto extends Pivot implements Auditable
 {
     use HasFactory;

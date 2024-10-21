@@ -13,6 +13,45 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\FondosRotativos\Saldo\ValorAcreditar
+ *
+ * @property int $id
+ * @property int $empleado_id
+ * @property int $acreditacion_semana_id
+ * @property string $monto_generado
+ * @property string $monto_modificado
+ * @property float $saldo_empleado
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $motivo
+ * @property bool $estado
+ * @property-read \App\Models\FondosRotativos\Saldo\AcreditacionSemana|null $acreditacion_semanal
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $empleado
+ * @property-read UmbralFondosRotativos|null $umbral
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereAcreditacionSemanaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereMontoGenerado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereMontoModificado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereMotivo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereSaldoEmpleado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ValorAcreditar whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class ValorAcreditar extends Model implements Auditable
 {
     use HasFactory;

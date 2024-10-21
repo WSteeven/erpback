@@ -45,6 +45,7 @@ class TicketRequest extends FormRequest
             'tipo_ticket' => 'required|numeric|integer', */
             'ticket_interno' => 'boolean',
             'ticket_para_mi' => 'boolean',
+            'cc' => 'nullable|array',
         ];
     }
 
@@ -57,5 +58,13 @@ class TicketRequest extends FormRequest
         $data['ticket_para_mi'] = filter_var($data['ticket_para_mi'], FILTER_VALIDATE_BOOLEAN);
 
         return $data;
+    }
+
+    public function messages()
+    {
+        return [
+            'destinatarios.*.categoria_id' => 'Debe seleccionar una categoría de ticket',
+            'destinatarios.*.tipo_ticket_id' => 'Debe seleccionar un tipo de ticket',
+        ];
     }
 }

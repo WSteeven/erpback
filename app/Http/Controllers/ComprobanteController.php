@@ -87,7 +87,6 @@ class ComprobanteController extends Controller
     public function comprobanteParcial(Request $request, TransaccionBodega $transaccion)
     {
         try {
-            Log::channel('testing')->info('Log', ['request:', $request->all()]);
             DB::beginTransaction();
 
             foreach ($request->transaccion['listadoProductosTransaccion'] as $item) {
@@ -136,12 +135,10 @@ class ComprobanteController extends Controller
             // throw new Exception('Actualizar comprobante parcial');
             DB::commit();
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error:', $e]);
             DB::rollback();
             throw ValidationException::withMessages(['error' => [$e->getMessage() . '. ' . $e->getLine()]]);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
     }
-
 }

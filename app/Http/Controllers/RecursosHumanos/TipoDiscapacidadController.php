@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\TipoDiscapacidadRequest;
 use App\Http\Resources\RecursosHumanos\TipoDiscapacidadResource;
 use App\Models\RecursosHumanos\TipoDiscapacidad;
-use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
 class TipoDiscapacidadController extends Controller
 {
-    private $entidad = 'TipoDiscapacidad';
+    private string $entidad = 'TipoDiscapacidad';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipos_discapacidades')->only('index', 'show');
+//        $this->middleware('can:puede.ver.tipos_discapacidades')->only('index', 'show');
         $this->middleware('can:puede.crear.tipos_discapacidades')->only('store');
         $this->middleware('can:puede.editar.tipos_discapacidades')->only('update');
         $this->middleware('can:puede.eliminar.tipos_discapacidades')->only('update');
@@ -22,8 +21,8 @@ class TipoDiscapacidadController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = TipoDiscapacidad::ignoreRequest(['campos'])->filter()->get();
+        $results = TipoDiscapacidadResource::collection($results);
         return response()->json(compact('results'));
     }
 

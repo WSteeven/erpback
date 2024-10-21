@@ -2,28 +2,28 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\PermisoEmpleadoEvent;
-use App\Events\PermisoNotificacionEvent;
+use App\Events\RecursosHumanos\PermisoEmpleadoEvent;
+use App\Events\RecursosHumanos\PermisoNotificacionEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
 use App\Models\Autorizacion;
-use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
+use Src\App\EmpleadoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class PermisoEmpleadoController extends Controller
 {
-    private string $entidad = 'PERMISO_EMPLEADO';
+    private string $entidad = 'Permiso';
     private ArchivoService $archivoService;
 
     public function __construct()
@@ -34,7 +34,7 @@ class PermisoEmpleadoController extends Controller
     }
 
     /**
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function archivoPermisoEmpleado(Request $request)
     {
@@ -68,6 +68,7 @@ class PermisoEmpleadoController extends Controller
     public function indexArchivoPermisoEmpleado(Request $request)
     {
         $permiso = PermisoEmpleado::where('id', $request->permiso_id)->first();
+        $request['permiso_id'] = null;
         $results = $this->archivoService->listarArchivos($permiso);
         return response()->json(compact('results'));
     }
@@ -77,8 +78,8 @@ class PermisoEmpleadoController extends Controller
         if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
-            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+           $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
         }
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));
@@ -92,6 +93,10 @@ class PermisoEmpleadoController extends Controller
 //        return $permisoEmpleado;
 //    }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(PermisoEmpleadoRequest $request)
     {
         try {
@@ -120,7 +125,7 @@ class PermisoEmpleadoController extends Controller
     }
 
     /**
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function update(PermisoEmpleadoRequest $request, PermisoEmpleado $permiso)
     {

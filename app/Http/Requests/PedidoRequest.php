@@ -11,6 +11,15 @@ use Illuminate\Support\Facades\Log;
 
 class PedidoRequest extends FormRequest
 {
+    private int $id_wellington;
+    private int $id_veronica_valencia;
+
+    public function __construct()
+    {
+        $this->id_wellington= 117;
+        $this->id_veronica_valencia= 155;
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -104,7 +113,9 @@ class PedidoRequest extends FormRequest
             }
         }
         if ((is_null($this->per_autoriza) || $this->per_autoriza === '') && !$this->tarea) {
-            $this->merge(['per_autoriza' => auth()->user()->empleado->jefe_id]);
+            $jefe_id = auth()->user()->empleado->jefe_id;
+            if($jefe_id == $this->id_wellington) $jefe_id =  $this->id_veronica_valencia;
+            $this->merge(['per_autoriza' => $jefe_id]);
         }
         if (is_null($this->autorizacion) || $this->autorizacion === '') {
             $this->merge(['autorizacion' => 1]);

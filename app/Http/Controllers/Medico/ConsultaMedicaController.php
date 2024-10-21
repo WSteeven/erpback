@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Medico;
 
-use App\Events\Medico\DiasDescansoEvent;
+use App\Events\RecursosHumanos\Medico\DiasDescansoEvent;
 use App\Http\Requests\Medico\ConsultaMedicaRequest;
 use App\Http\Resources\Medico\ConsultaMedicaResource;
 use Illuminate\Validation\ValidationException;

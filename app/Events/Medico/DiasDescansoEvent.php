@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Medico;
+namespace App\Events\RecursosHumanos\Medico;
 
 use App\Models\Empleado;
 use App\Models\Medico\ConsultaMedica;

@@ -5,16 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AutorizacionRequest;
 use App\Http\Resources\AutorizacionResource;
 use App\Models\Autorizacion;
-use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class AutorizacionController extends Controller
 {
-    private $entidad = 'Autorizacion';
+    private string $entidad = 'Autorizacion';
     public function __construct()
     {
         $this->middleware('can:puede.ver.autorizaciones')->only('index', 'show');
@@ -29,7 +27,6 @@ class AutorizacionController extends Controller
     {
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
-        $results = [];
         $es_validado = false;
         $es_jefe_inmediato = false;
         $user =  Auth::user();
@@ -42,7 +39,7 @@ class AutorizacionController extends Controller
         }
         if ($es_validador && $es_modulo_rhh) {
             if (!$es_administrador) {
-                $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', '=', 3)->orwhere('id', '=', 4)->filter()->get($campos);
+                $results = Autorizacion::get($campos);
                 return response()->json(compact('results'));
             }
         }
@@ -66,7 +63,7 @@ class AutorizacionController extends Controller
                 $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', 2)->filter()->get($campos);
                 return response()->json(compact('results'));
             }
-            if ($es_validado == false) {
+            if (!$es_validado) {
                 $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', '!=', 4)->filter()->get($campos);
                 return response()->json(compact('results'));
             }

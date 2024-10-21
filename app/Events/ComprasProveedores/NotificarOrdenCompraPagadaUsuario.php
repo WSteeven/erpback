@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\ComprasProveedores;
+namespace App\Events\RecursosHumanos\ComprasProveedores;
 
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\Notificacion;

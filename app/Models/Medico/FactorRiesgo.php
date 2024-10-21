@@ -8,6 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * App\Models\Medico\FactorRiesgo
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Medico\CategoriaFactorRiesgo|null $categoriaFactorRiesgo
+ * @property-read \App\Models\Medico\FichaPreocupacional|null $fichaPreocupacional
+ * @property-read \App\Models\Medico\TipoFactorRiesgo|null $tipoFactorRiesgo
+ * @method static \Illuminate\Database\Eloquent\Builder|FactorRiesgo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FactorRiesgo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FactorRiesgo query()
+ * @mixin \Eloquent
+ */
 class FactorRiesgo extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;

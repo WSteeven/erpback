@@ -8,14 +8,16 @@ use App\Models\Empresa;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class EmpresaController extends Controller
 {
-    private $entidad = 'Empresa';
-    private $archivoService;
+    private string $entidad = 'Empresa';
+    private ArchivoService $archivoService;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
@@ -30,9 +32,7 @@ class EmpresaController extends Controller
      */
     public function index()
     {
-        $results = [];
-
-        $results = Empresa::filter()->orderBy('razon_social', 'asc')->get();
+        $results = Empresa::filter()->orderBy('razon_social')->get();
         $results = EmpresaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -98,7 +98,7 @@ class EmpresaController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, Empresa $empresa)
+    public function indexFiles( Empresa $empresa)
     {
         try {
             $results = $this->archivoService->listarArchivos($empresa);
@@ -108,21 +108,20 @@ class EmpresaController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('results'));
     }
 
     /**
      * Guardar archivos
+     * @throws ValidationException
      */
     public function storeFiles(Request $request, Empresa $empresa)
     {
         try {
             $modelo = $this->archivoService->guardarArchivo($empresa, $request->file, RutasStorage::EMPRESAS->value . $empresa->identificacion);
             $mensaje = 'Archivo subido correctamente';
-        } catch (\Throwable $th) {
-            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpresaController', $th->getMessage(), $th->getCode(), $th->getLine()]);
-            return response()->json(compact('mensaje'), 500);
+            throw Utils::obtenerMensajeErrorLanzable($th);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }

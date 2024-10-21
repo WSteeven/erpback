@@ -26,15 +26,15 @@ class PrefacturaRequest extends FormRequest
     {
         return [
             'codigo' => 'required|string',
-            'proforma' => 'nullable|sometimes|numeric|exists:cmp_proformas,id',
-            'solicitante' => 'required|numeric|exists:empleados,id',
-            'cliente' => 'required|numeric|exists:clientes,id',
+            'solicitante_id' => 'required|numeric|exists:empleados,id',
+            'cliente_id' => 'required|numeric|exists:clientes,id',
+            'estado_id' => 'required|numeric|exists:estados_transacciones_bodega,id',
+            'proforma_id' => 'nullable|sometimes|numeric|exists:cmp_proformas,id',
             'observacion_est' => 'nullable|sometimes|string',
             'descuento_general' => 'nullable|sometimes|numeric',
             'descripcion' => 'required|string',
             'forma' => 'required|string',
             'tiempo' => 'required|string',
-            'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
             'iva' => 'required|numeric',
             'listadoProductos.*.cantidad' => 'required',
         ];
@@ -47,5 +47,11 @@ class PrefacturaRequest extends FormRequest
         if (is_null($this->codigo) || $this->codigo === '') {
             $this->merge(['codigo' => Prefactura::obtenerCodigo()]);
         }
+        $this->merge([
+            'solicitante_id' => $this->solicitante,
+            'cliente_id' => $this->cliente,
+            'estado_id' => $this->estado,
+            'proforma_id' => $this->proforma ?? null,
+        ]);
     }
 }

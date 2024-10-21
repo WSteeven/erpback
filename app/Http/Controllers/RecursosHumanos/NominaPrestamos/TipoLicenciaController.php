@@ -4,18 +4,27 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
 use App\Models\RecursosHumanos\NominaPrestamos\TipoLicencia;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\Shared\Utils;
 
 class TipoLicenciaController extends Controller
 {
+    private string $entidad = 'Tipo de Licencia';
+    private $reglas = [
+        'nombre' =>'required|string',
+        'num_dias' =>'required|integer|min:1|max:365',
+        'estado'=>'boolean'
+    ];
+
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipo_licencia')->only('index', 'show');
-        $this->middleware('can:puede.crear.tipo_licencia')->only('store');
-        $this->middleware('can:puede.editar.tipo_licencia')->only('update');
-        $this->middleware('can:puede.eliminar.tipo_licencia')->only('update');
+        $this->middleware('can:puede.ver.tipos_licencias')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_licencias')->only('store');
+        $this->middleware('can:puede.editar.tipos_licencias')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_licencias')->only('destroy');
     }
 
   /**
@@ -31,7 +40,11 @@ class TipoLicenciaController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user()->empleado;
-        $results = TipoLicencia::ignoreRequest(['campos'])->where('id', '!=', $user->genero == 'F' ? 2 : 1)->filter()->get();
+        if(Auth::user()->hasRole(User::ROL_RECURSOS_HUMANOS)){
+            $results = TipoLicencia::ignoreRequest(['campos'])->filter()->get();
+        }else{
+            $results = TipoLicencia::ignoreRequest(['campos'])->where('id', '!=', $user->genero == 'F' ? 2 : 1)->filter()->get();
+        }
         if ($user->genero == 'F') {
             $results = $results->map(function ($tipoLicencia) {
                 if ($tipoLicencia->id === 11) {
@@ -43,26 +56,36 @@ class TipoLicenciaController extends Controller
 
         return response()->json(compact('results'));
     }
-    public function show(Request $request, TipoLicencia $tipo_licencia)
-    {
-        return response()->json(compact('tipo_licencia'));
-    }
+
     public function store(Request $request)
     {
-        $tipo_licencia = new TipoLicencia();
-        $tipo_licencia->nombre = $request->nombre;
-        $tipo_licencia->save();
-        return $tipo_licencia;
+
+        $datos = $request->validate($this->reglas);
+
+        $tipo = TipoLicencia::create($datos);
+        $modelo = $tipo;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
-    public function update(Request $request, TipoLicencia $tipo_licencia)
+
+    public function show(Request $request, TipoLicencia $tipo)
     {
-        $tipo_licencia->nombre = $request->nombre;
-        $tipo_licencia->save();
-        return $tipo_licencia;
+        $modelo = $tipo;
+        return response()->json(compact('modelo'));
     }
-    public function destroy(Request $request, TipoLicencia $tipo_licencia)
+
+    public function update(Request $request, TipoLicencia $tipo)
     {
-        $tipo_licencia->delete();
-        return response()->json(compact('tipo_licencia'));
+        $tipo->update($request->validate($this->reglas));
+        $modelo = $tipo->refresh();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    public function destroy(TipoLicencia $tipo)
+    {
+        throw ValidationException::withMessages(['error'=>'Método no desarrollado, por favor contacta al departamento de Informática para más información.']);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Events\PedidoCreadoEvent;
+use App\Events\RecursosHumanos\PedidoCreadoEvent;
 use App\Models\DetallePedidoProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\Pedido;
