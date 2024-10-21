@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Bodega;
 
-use App\Events\Bodega\NotificarPedidoParcial as BodegaNotificarPedidoParcial;
+use App\Events\RecursosHumanos\Bodega\NotificarPedidoParcial as BodegaNotificarPedidoParcial;
 use App\Models\EstadoTransaccion;
 use App\Models\Pedido;
 use Illuminate\Bus\Queueable;

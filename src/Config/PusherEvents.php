@@ -8,4 +8,7 @@ enum PusherEvents: string
     case SOLICITUD_EXAMEN = 'solicitud-examen';
     case CAMBIO_FECHA_HORA_SOLICITUD_EXAMEN = 'cambio-fecha-hora-solicitud-examen';
     case DIAS_DESCANSO = 'dias-descanso';
+    
+    // Activos fijos
+    case ENTREGA_ACTIVO_FIJO = 'entrega-activo-fijo';
 }

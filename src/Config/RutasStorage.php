@@ -9,6 +9,7 @@ enum RutasStorage: string
         // Private
     case GESTOR_ARCHIVOS = 'private/GestorArchivos';
     case COMPROBANTES = 'private/comprobantes';
+
         // Public
     case SERVICIOS = 'public/servicios';
     case POPUP = 'public/popup';
@@ -16,6 +17,7 @@ enum RutasStorage: string
     case SUBTAREAS = 'public/subtareas';
     case REGISTROS_TENDIDOS = 'public/registrosTendidos';
     case FOTOS_PERFILES = 'public/fotosPerfiles';
+    case IMAGENES_PERMISOS_ARMAS = 'public/bodega/imagenesPermisosArmas';
     case FIRMAS = 'public/firmas';
     case TRABAJOS = 'public/trabajos';
     case COMPROBANTES_GASTOS = 'public/comprobantesViaticos';
@@ -37,6 +39,7 @@ enum RutasStorage: string
     case DOCUMENTOS_ROL_EMPLEADO = 'roles_de_pago';
     case CALIFICACIONES_PROVEEDORES = 'public/proveedores/calificaciones_proveedores';
     case EMPRESAS = 'public/empresas/';
+    case PROVEEDORES_INTERNACIONALES = 'public/ComprasProveedores/proveedores_internacionales/';
     case PROVEEDORES = 'public/proveedores/empresas/';
     case CONFIGURACION_GENERAL = 'public/configuracion_general';
     case FOTOGRAFIAS_NOVEDADES_ORDENES_COMPRAS  = 'public/fotografias_novedades_ordenes_compras';
@@ -44,9 +47,9 @@ enum RutasStorage: string
     case NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/novedades_ventas_claro';
     case NOVEDADES_ORDENES_COMPRAS  = 'public/novedades_ordenes_compras';
 
-    /**
+    /***********************
      * MODULO DE VEHICULOS
-     */
+     ***********************/
     case VEHICULOS = 'public/vehiculos/';
     case PREINGRESOS  = 'public/preingresos/archivos';
     case FOTOGRAFIAS_ITEMS_PREINGRESOS  = 'public/fotografias_preingresos';
@@ -58,10 +61,32 @@ enum RutasStorage: string
     case EVIDENCIAS_TANQUEOS_COMBUSTIBLES = 'public/vehiculos/evidencias_tanqueo_combustible';
     case EVIDENCIAS_VEHICULOS_ASIGNADOS = 'public/vehiculos/evidencias_vehiculos_asignados/';
     case EVIDENCIAS_VEHICULOS_TRANSFERIDOS = 'public/vehiculos/evidencias_vehiculos_transferidos/';
-    // Medico
+
+    /**********
+     * Medico
+     **********/
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
     case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';
     case SOLICITUD_EXAMEN  = 'public/solicitudes_examenes/archivos';
 
+    /**
+     * MODULO DE SELECCION Y CONTRATACION
+     */
+    case SOLICITUD_NUEVO_EMPLEADO = 'public/SeleccionContratacionPersonal/solicitudes_personal';
+    case DOCUMENTOS_POSTULANTES = 'public/SeleccionContratacionPersonal/postulantes/';
+    case CURRICULUM = 'public/SeleccionContratacionPersonal/curriculums/';
+    case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
+
+    /**********
+     * Bodega
+     **********/
+    case FOTOGRAFIAS_DETALLE_PRODUCTO  = 'public/bodega/fotografiasDetalleProducto';
     case IMAGENES_NOTICIAS  = 'public/intranet/imagenesNoticias';
+
+    /****************
+     * Activos Fijos
+     ****************/
+    case SEGUIMIENTO_CONSUMO_ACTIVOS_FIJOS  = 'public/activos_fijos/seguimientoConsumoActivosFijos';
+    case ACTIVOS_FIJOS_ACTA_ENTREGA_RECEPCION  = 'public/activos_fijos/actaEntregaRecepcion';
+    case ACTIVOS_FIJOS_JUSTIFICATIVO_USO  = 'public/activos_fijos/justificativoUso';
 }

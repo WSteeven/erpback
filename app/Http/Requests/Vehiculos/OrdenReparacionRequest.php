@@ -3,10 +3,10 @@
 namespace App\Http\Requests\Vehiculos;
 
 use App\Models\User;
-use App\Models\Vehiculos\Vehiculo;
 use Illuminate\Foundation\Http\FormRequest;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
+use Throwable;
 
 class OrdenReparacionRequest extends FormRequest
 {
@@ -37,21 +37,24 @@ class OrdenReparacionRequest extends FormRequest
         ];
     }
 
+    /**
+     * @throws Throwable
+     */
     public function prepareForValidation()
     {
         if(auth()->user()->hasRole(User::MECANICO_GENERAL)){
             $this->merge([
                 'autorizador_id'=>auth()->user()->empleado->id,
-                'vehiculo_id' =>  $this->vehiculo
             ]);
         }else{
             $this->merge([
                 'autorizador_id' => EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS)->id,
-                'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
             ]);
         }
         $this->merge([
             'autorizacion_id' => $this->autorizacion,
+            'vehiculo_id' =>  $this->vehiculo,
+            'solicitante_id'=> $this->solicitante,
             'servicios' => Utils::convertArrayToString($this->servicios),
         ]);
     }

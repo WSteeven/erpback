@@ -2,16 +2,16 @@
 
 namespace App\Http\Resources\ComprasProveedores;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class ContactoProveedorResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -31,7 +31,7 @@ class ContactoProveedorResource extends JsonResource
         ];
         if ($controller_method == 'show') {
             $modelo['empresa'] = $this->empresa_id;
-            $modelo['proveedor'] = $this->proveedor_id ? $this->proveedor_id : null;
+            $modelo['proveedor'] = $this->proveedor_id ?: null;
         }
 
         return $modelo;

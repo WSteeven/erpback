@@ -3,6 +3,7 @@
 namespace App\Http\Resources\ComprasProveedores;
 
 use App\Models\ComprasProveedores\OrdenCompra;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrdenCompraResource extends JsonResource
@@ -10,8 +11,8 @@ class OrdenCompraResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -32,7 +33,8 @@ class OrdenCompraResource extends JsonResource
             'autorizacion' => $this->autorizacion->nombre,
             'autorizacion_id' => $this->autorizacion_id,
             'descripcion' => $this->descripcion,
-            'proveedor' => $this->proveedor?->empresa->razon_social,
+            'proveedor' => $this->proveedor?->empresa->razon_social ?? $this->proveedorInternacional?->nombre,
+            'proveedor_internacional' => $this->proveedorInternacional?->nombre,
             'causa_anulacion' => $this->causa_anulacion,
             'estado' => $this->estado?->nombre,
             'estado_id' => $this->estado_id,
@@ -60,6 +62,8 @@ class OrdenCompraResource extends JsonResource
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['proveedor'] = $this->proveedor_id;
+            $modelo['es_proveedor_internacional'] = is_null($this->proveedor_id) && !is_null($this->proveedor_internacional_id);
+            $modelo['proveedor_internacional'] = $this->proveedor_internacional_id;
             $modelo['estado'] = $this->estado_id;
             $modelo['tarea'] = $this->tarea_id;
         }

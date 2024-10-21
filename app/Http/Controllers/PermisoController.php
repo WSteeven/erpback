@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PermisoRequest;
 use App\Http\Resources\PermisoResource;
 use App\Models\Empleado;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
@@ -13,11 +14,11 @@ use Src\Shared\Utils;
 
 class PermisoController extends Controller
 {
-    private $entidad = 'Permiso';
+    private string $entidad = 'Permiso';
     /**
      * Display a listing of all permissions.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -28,8 +29,6 @@ class PermisoController extends Controller
     public function listarPermisosRoles(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);
-        $roles = explode(',', $request->id_rol);
-        $results = [];
         $empleado = Empleado::find($request->empleado_id);
         switch ($request->tipo) {
             case 'ASIGNADOS':
@@ -53,7 +52,6 @@ class PermisoController extends Controller
     }
     public function listarPermisos(Request $request)
     {
-        $results = [];
         switch ($request['tipo']) {
             case 'ASIGNADOS':
                 $results = Role::find($request['id_rol'])->permissions;
@@ -83,8 +81,8 @@ class PermisoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param PermisoRequest $request
+     * @return JsonResponse
      */
     public function store(PermisoRequest $request)
     {
@@ -100,8 +98,8 @@ class PermisoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \Spatie\Permission\Models\Permission  $permiso
-     * @return \Illuminate\Http\Response
+     * @param Permission $permiso
+     * @return JsonResponse
      */
     public function show(Permission $permiso)
     {
@@ -112,9 +110,9 @@ class PermisoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\PermisosRequest $request
-     * @param  \Spatie\Permission\Models\Permission  $permiso
-     * @return \Illuminate\Http\Response
+     * @param PermisoRequest $request
+     * @param Permission $permiso
+     * @return JsonResponse
      */
     public function update(PermisoRequest $request, Permission $permiso)
     {
@@ -129,8 +127,8 @@ class PermisoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Permission $permiso
+     * @return JsonResponse
      */
     public function destroy(Permission $permiso)
     {

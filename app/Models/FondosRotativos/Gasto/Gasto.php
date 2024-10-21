@@ -4,22 +4,110 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
 use App\Models\Empleado;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
-use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
+use Database\Factories\FondosRotativos\Gasto\GastoFactory;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Validation\ValidationException;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
+use Src\Shared\Utils;
 
+/**
+ * App\Models\FondosRotativos\Gasto\Gasto
+ *
+ * @method static ignoreRequest(string[] $array)
+ * @property int $id
+ * @property string $fecha_viat
+ * @property int $id_lugar
+ * @property int|null $id_tarea
+ * @property int|null $id_subtarea
+ * @property int|null $id_proyecto
+ * @property string $ruc
+ * @property string|null $factura
+ * @property string|null $num_comprobante
+ * @property int $aut_especial
+ * @property int $detalle
+ * @property string $cantidad
+ * @property string $valor_u
+ * @property string $total
+ * @property string $comprobante
+ * @property string $comprobante2
+ * @property string|null $observacion
+ * @property int $id_usuario
+ * @property int $estado
+ * @property string|null $detalle_estado
+ * @property string|null $observacion_anulacion
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $authEspecialUser
+ * @property-read Collection<int, BeneficiarioGasto> $beneficiarioGasto
+ * @property-read int|null $beneficiario_gasto_count
+ * @property-read Canton|null $canton
+ * @property-read EstadoViatico|null $detalleEstado
+ * @property-read DetalleViatico|null $detalle_info
+ * @property-read Empleado|null $empleado
+ * @property-read Collection<int, BeneficiarioGasto> $empleadoBeneficiario
+ * @property-read int|null $empleado_beneficiario_count
+ * @property-read EstadoViatico|null $estadoViatico
+ * @property-read GastoVehiculo|null $gastoVehiculo
+ * @property-read Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Proyecto|null $proyecto
+ * @property-read Saldo|null $saldoFondoRotativo
+ * @property-read Collection<int, SubDetalleViatico> $subDetalle
+ * @property-read int|null $sub_detalle_count
+ * @property-read Subtarea|null $subTarea
+ * @property-read Tarea|null $tarea
+ * @method static Builder|Gasto acceptRequest(?array $request = null)
+ * @method static GastoFactory factory($count = null, $state = [])
+ * @method static Builder|Gasto filter(?array $request = null)
+ * @method static Builder|Gasto newModelQuery()
+ * @method static Builder|Gasto newQuery()
+ * @method static Builder|Gasto query()
+ * @method static Builder|Gasto setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Gasto setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Gasto setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Gasto whereAutEspecial($value)
+ * @method static Builder|Gasto whereCantidad($value)
+ * @method static Builder|Gasto whereComprobante($value)
+ * @method static Builder|Gasto whereComprobante2($value)
+ * @method static Builder|Gasto whereCreatedAt($value)
+ * @method static Builder|Gasto whereDetalle($value)
+ * @method static Builder|Gasto whereDetalleEstado($value)
+ * @method static Builder|Gasto whereEstado($value)
+ * @method static Builder|Gasto whereFactura($value)
+ * @method static Builder|Gasto whereFechaViat($value)
+ * @method static Builder|Gasto whereId($value)
+ * @method static Builder|Gasto whereIdLugar($value)
+ * @method static Builder|Gasto whereIdProyecto($value)
+ * @method static Builder|Gasto whereIdSubtarea($value)
+ * @method static Builder|Gasto whereIdTarea($value)
+ * @method static Builder|Gasto whereIdUsuario($value)
+ * @method static Builder|Gasto whereNumComprobante($value)
+ * @method static Builder|Gasto whereObservacion($value)
+ * @method static Builder|Gasto whereObservacionAnulacion($value)
+ * @method static Builder|Gasto whereRuc($value)
+ * @method static Builder|Gasto whereTotal($value)
+ * @method static Builder|Gasto whereUpdatedAt($value)
+ * @method static Builder|Gasto whereValorU($value)
+ * @mixin Eloquent
+ */
 class Gasto extends Model implements Auditable
 {
     use HasFactory;
@@ -54,32 +142,12 @@ class Gasto extends Model implements Auditable
         'detalle_estado',
         'observacion_anulacion'
     ];
-
-    private static $whiteListFilter = ['*'];
-        // 'factura',
-        // 'fecha_viat',
-        // 'id_tarea',
-        // 'subdetalle',
-        // 'id_proyecto',
-        // 'ruc',
-        // 'factura',
-        // 'aut_especial',
-        // 'detalle',
-        // 'cantidad',
-        // 'valor_u',
-        // 'total',
-        // 'comprobante',
-        // 'comprobante2',
-        // 'observacion',
-        // 'id_usuario',
-        // 'estado',
-        // 'detalle_estado',
-        // 'usuario',
-        // 'fecha_inicio',
-        // 'fecha_fin',
-        // 'ciudad',
-        // 'id_lugar'
-    // ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'es_vehiculo_alquilado' => 'boolean',
+    ];
+    private static array $whiteListFilter = ['*'];
 
     public function detalle_info()
     {
@@ -147,6 +215,9 @@ class Gasto extends Model implements Auditable
         return $this->morphOne(Saldo::class, 'saldoable');
     }
 
+    /**
+     * @throws ValidationException
+     */
     public static function empaquetar($gastos)
     {
         try{
@@ -188,6 +259,7 @@ class Gasto extends Model implements Auditable
             return $results;
         }catch(Exception $e){
             Log::channel('testing')->info('Log', ['error modelo', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
 
 

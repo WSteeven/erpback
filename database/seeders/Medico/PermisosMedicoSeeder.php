@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Medico;
+namespace Database\Seeders\RecursosHumanos\Medico;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,6 +18,7 @@ class PermisosMedicoSeeder extends Seeder
     const AUTORIZAR = 'puede.autorizar';
     /**
      * Run the database seeds.
+     * php artisan db:seed --class=Database\Seeders\Medico\PermisosMedicoSeeder
      *
      * @return void
      */

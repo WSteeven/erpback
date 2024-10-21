@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\PreingresoAutorizadoEvent;
-use App\Events\PreingresoCreadoEvent;
+use App\Events\RecursosHumanos\PreingresoAutorizadoEvent;
+use App\Events\RecursosHumanos\PreingresoCreadoEvent;
 use App\Http\Requests\PreingresoMaterialRequest;
 use App\Http\Resources\PreingresoMaterialResource;
-use App\Models\PreingresoMaterial;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
+use App\Models\PreingresoMaterial;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,12 +19,13 @@ use Src\App\ArchivoService;
 use Src\App\Bodega\PreingresoMaterialService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class PreingresoMaterialController extends Controller
 {
-    private $entidad = 'Preingreso de Material';
-    private $archivoService;
-    private $servicio;
+    private string $entidad = 'Preingreso de Material';
+    private ArchivoService $archivoService;
+    private PreingresoMaterialService $servicio;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
@@ -46,8 +47,10 @@ class PreingresoMaterialController extends Controller
 
         return response()->json(compact('results'));
     }
+
     /**
      * Guardar
+     * @throws ValidationException
      */
     public function store(PreingresoMaterialRequest $request)
     {
@@ -78,13 +81,12 @@ class PreingresoMaterialController extends Controller
             $modelo = new PreingresoMaterialResource($preingreso);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Erorr: ', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage() . '. ' . $e->getLine()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -101,6 +103,7 @@ class PreingresoMaterialController extends Controller
 
     /**
      * Actualizar
+     * @throws ValidationException
      */
     public function update(PreingresoMaterialRequest $request, PreingresoMaterial $preingreso)
     {
@@ -135,12 +138,11 @@ class PreingresoMaterialController extends Controller
             $modelo = new PreingresoMaterialResource($preingreso->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (Exception $e) {
+        } catch (Throwable|Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al actualizar el registro' => [$e->getMessage() . '. ' . $e->getLine()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro', "excepción" => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -163,10 +165,10 @@ class PreingresoMaterialController extends Controller
             $pdf->setPaper('A5', 'landscape');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
-            $file = $pdf->output(); //SE GENERA EL PDF
+            //SE GENERA EL PDF
 
             // return $pdf->stream();
-            return $file;
+            return $pdf->output();
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
@@ -177,11 +179,11 @@ class PreingresoMaterialController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, PreingresoMaterial $preingreso)
+    public function indexFiles(PreingresoMaterial $preingreso)
     {
         try {
             $results = $this->archivoService->listarArchivos($preingreso);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return $th;
         }
         return response()->json(compact('results'));
@@ -198,6 +200,6 @@ class PreingresoMaterialController extends Controller
         } catch (Exception $ex) {
             return $ex;
         }
-        return response()->json(compact('mensaje', 'modelo'), 200);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

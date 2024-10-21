@@ -7,6 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\GrupoTrabajo
+ *
+ * @property int $id
+ * @property bool $es_responsable
+ * @property int $grupo_id
+ * @property int $subtarea_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo whereEsResponsable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo whereGrupoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo whereSubtareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GrupoTrabajo whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class GrupoTrabajo extends Model implements Auditable
 {
     use HasFactory;

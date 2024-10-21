@@ -43,7 +43,7 @@ class EnviarMailOrdenCompraProveedor extends Mailable
     {
         return new Envelope(
             from: new Address($this->orden->solicitante->user->email, $this->orden->solicitante->nombres . ' ' . $this->orden->solicitante->apellidos),
-            subject: 'Orden de Compra JP CONSTRUCRED C. LTDA.',
+            subject: 'Orden de Compra ' . $this->configuracion->razon_social,
         );
     }
 

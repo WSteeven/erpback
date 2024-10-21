@@ -3,15 +3,19 @@
 namespace App\Http\Resources;
 
 use App\Models\Pedido;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property mixed $id
+ */
 class PedidoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -51,13 +55,13 @@ class PedidoResource extends JsonResource
             'proyecto' => $this->proyecto_id,
             'etapa' => $this->etapa_id,
 
-            'tiene_fecha_limite'=>$this->fecha_limite?true:false,
-            'es_tarea' => $this->tarea ? true : false,
-            'tiene_observacion_aut' => $this->observacion_aut ? true : false,
-            'tiene_observacion_est' => $this->observacion_est ? true : false,
-            'retira_tercero' => $this->per_retira_id ? true : false,
-            'tiene_evidencia' => $this->evidencia1 ||$this->evidencia2 ? true : false,
-            'para_cliente' => $this->cliente ? true : false,
+            'tiene_fecha_limite'=> (bool)$this->fecha_limite,
+            'es_tarea' => (bool)$this->tarea,
+            'tiene_observacion_aut' => (bool)$this->observacion_aut,
+            'tiene_observacion_est' => (bool)$this->observacion_est,
+            'retira_tercero' => (bool)$this->per_retira_id,
+            'tiene_evidencia' => $this->evidencia1 ||$this->evidencia2,
+            'para_cliente' => (bool)$this->cliente,
             'estado_orden_compra'=> $this->estadoOC($this->id)
         ];
 

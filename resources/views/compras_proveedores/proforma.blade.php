@@ -119,9 +119,9 @@
                                 {{ $configuracion['direccion_principal'] }}
                             </td>
                         </tr>
-                        <tr>
-                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>
-                        </tr>
+{{--                        <tr>--}}
+{{--                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>--}}
+{{--                        </tr>--}}
                         <tr>
                             <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>
@@ -266,7 +266,7 @@
             <th>Medida</th>
             <th>Precio U.</th>
             <th>Desc.</th>
-            <th>IVA</th>
+            <th>{{$texto_iva}}</th>
             <th>Subtotal</th>
             <th>Total</th>
         </thead>
@@ -320,7 +320,7 @@
                         <td align="right">{{ $proforma['sum_descuento']+$proforma['descuento_general'] }}</td>
                     </tr>
                     <tr>
-                        <td align="right">IVA {{ $proforma['iva'] }}%</td>
+                        <td align="right">{{$texto_iva}} {{ $proforma['iva'] }}%</td>
                         <td align="right">{{ $proforma['sum_iva'] }}</td>
                     </tr>
                     <tr>

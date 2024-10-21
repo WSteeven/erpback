@@ -9,7 +9,6 @@ use App\Http\Controllers\FondosRotativos\Gasto\MotivoGastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
 use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionSemanaController;
-use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
@@ -38,7 +37,8 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'ajustes-saldos' => 'ajuste'
+            'ajustes-saldos' => 'ajuste',
+            'transferencia'=> 'transferencia'
         ],
     ]
 );

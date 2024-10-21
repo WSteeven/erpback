@@ -16,22 +16,25 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Src\App\EmpleadoService;
-use Src\Shared\Utils;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
-use Src\App\FondosRotativos\ReportePdfExcelService;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\ArchivoService;
+use Src\App\EmpleadoService;
+use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\PolymorphicGenericService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
+use Src\Shared\Utils;
+use Throwable;
 
 
 class EmpleadoController extends Controller
 {
-    private $entidad = 'Empleado';
+    private string $entidad = 'Empleado';
     private EmpleadoService $servicio;
-    private $reporteService;
-    private $archivoService;
+    private ReportePdfExcelService $reporteService;
+    private PolymorphicGenericService $polymorphicGenericService;
+    private ArchivoService $archivoService;
 
 
     public function __construct()
@@ -39,6 +42,7 @@ class EmpleadoController extends Controller
         $this->servicio = new EmpleadoService();
         $this->reporteService = new ReportePdfExcelService();
         $this->archivoService = new ArchivoService();
+        $this->polymorphicGenericService = new PolymorphicGenericService();
 
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
@@ -134,7 +138,7 @@ class EmpleadoController extends Controller
 
             //Crear empleado
             $empleado = $user->empleado()->create($datos);
-            if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+            if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades($user, $datos['discapacidades']);
             //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
             if (!empty($request->conductor)) {
                 $datos_conductor = $request->conductor;
@@ -142,8 +146,6 @@ class EmpleadoController extends Controller
                 $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
                 $conductor = Conductor::create($datos_conductor);
             }
-
-
 
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
@@ -160,11 +162,13 @@ class EmpleadoController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
+
     public function datos_empleado($id)
     {
         $empleado = Empleado::find($id);
         return response()->json(compact('empleado'));
     }
+
     public function HabilitaEmpleado(Request $request)
     {
         $empleado = Empleado::find($request->id);
@@ -174,6 +178,7 @@ class EmpleadoController extends Controller
         $modelo = $empleado;
         return response()->json(compact('modelo'));
     }
+
     public function existeResponsableGrupo(Request $request)
     {
         $request->validate([
@@ -203,8 +208,9 @@ class EmpleadoController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable
      */
-    public function update(EmpleadoRequest $request, Empleado  $empleado)
+    public function update(EmpleadoRequest $request, Empleado $empleado)
     {
         //Respuesta
         $datos = $request->validated();
@@ -227,7 +233,7 @@ class EmpleadoController extends Controller
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
-        if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+        if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades(User::find($empleado->usuario_id), $datos['discapacidades']);
         if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
 
         //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
@@ -272,10 +278,10 @@ class EmpleadoController extends Controller
                 );
                 Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
             }
-        }else{
+        } else {
             //Eliminamos el conductor
             $conductor = Conductor::find($empleado->id);
-            if($conductor) $conductor->delete();
+            if ($conductor) $conductor->delete();
         }
 
         if (!is_null($request->password)) {
@@ -341,7 +347,7 @@ class EmpleadoController extends Controller
         DB::transaction(function () use ($request, $empleado) {
             // Buscar lider del grupo actual
             $empleadosGrupoActual = Empleado::where('grupo_id', $request['grupo'])->get();
-            $liderActual = $empleadosGrupoActual->filter(fn ($item) => $item->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+            $liderActual = $empleadosGrupoActual->filter(fn($item) => $item->user->hasRole(User::ROL_LIDER_DE_GRUPO));
 
             if ($liderActual) $liderActual->first()->user->removeRole(User::ROL_LIDER_DE_GRUPO);
             // if ($liderActual[0]) $liderActual[0]->user->removeRole(User::ROL_LIDER_DE_GRUPO);
@@ -437,6 +443,7 @@ class EmpleadoController extends Controller
 
         return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
     }
+
     public function empleadosRoles(Request $request)
     {
         $results = [];
@@ -449,6 +456,7 @@ class EmpleadoController extends Controller
         }
         return response()->json(compact('results'));
     }
+
     public function empleadoPermisos(Request $request)
     {
         $permisos = [];
@@ -460,6 +468,7 @@ class EmpleadoController extends Controller
         }
         return response()->json(compact('results'));
     }
+
     public function imprimir_reporte_general_empleado()
     {
         $reportes = Empleado::where('estado', 1)
@@ -475,17 +484,18 @@ class EmpleadoController extends Controller
         $vista = 'recursos-humanos.empleados';
         return $this->reporteService->imprimirReporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
     }
+
     /**
      * La función genera un nombre de usuario único basado en el nombre de pila y verifica si ya existe
      * en la base de datos.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que se utiliza
+     * @param array $request El parámetro  es una instancia de la clase Request, que se utiliza
      * para recuperar datos de la solicitud HTTP. Contiene información como los campos de entrada
      * enviados en un formulario o los parámetros pasados en la URL.
      *
-     * @return el nombre de usuario generado.
+     * @return string el nombre de usuario generado.
      */
-    function generarNombreUsuario($request)
+    function generarNombreUsuario(array $request)
     {
         $nombreUsuario = $request['usuario'];
         $nombres = str_replace('ñ', 'n', $request['nombres']);
@@ -497,11 +507,12 @@ class EmpleadoController extends Controller
         if ($query->count() > 0) {
             // Separamos el nombre y el apellido en dos cadenas
             $nombre = explode(" ", $nombres);
+            // ['primer', 'segundo']
             $apellido = explode(" ", $apellidos);
             $inicio_username = $nombre[1][0];
             $username = $nombre[0][0] . $inicio_username . $apellido[0];
             $contador = 1;
-            while (User::where('name',  $username)->count() > 0) {
+            while (User::where('name', $username)->exists()) {
                 if ($contador <= strlen($nombre[0])) {
                     $inicio_username .= $nombre[0][$contador];
                     $username = $inicio_username . $nombre[1][0] . $apellido[0];
@@ -509,11 +520,15 @@ class EmpleadoController extends Controller
                 }
             }
         }
-        return $username;
+        return str_replace('ñ', 'n', $username);
     }
+
     function obtenerNombreUsuario(Request $request)
     {
-        $datos = $request->validate(['nombres' => 'required', 'string', 'apellidos' => 'required|string', 'usuario' => 'required|string']);
+        $datos = $request->validate([
+            'nombres' => ['required', 'string'],
+            'apellidos' => 'required|string',
+            'usuario' => 'required|string']);
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
     }
@@ -542,7 +557,7 @@ class EmpleadoController extends Controller
             $empleados = Empleado::has('gastos')->get();
 
             $results = EmpleadoResource::collection($empleados);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th)]);
         }
         return response()->json(compact('results'));
@@ -561,8 +576,8 @@ class EmpleadoController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('results'));
     }
+
     /**
      * Guardar archivos
      */
@@ -571,7 +586,7 @@ class EmpleadoController extends Controller
         try {
             $modelo = $this->archivoService->guardarArchivo($empleado, $request->file, RutasStorage::DOCUMENTOS_DIGITALIZADOS_EMPLEADOS->value . $empleado->identificacion);
             $mensaje = 'Archivo subido correctamente';
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpleadoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);

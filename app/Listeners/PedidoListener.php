@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
-use App\Events\PedidoCreadoEvent;
-use App\Events\PedidoEvent;
+use App\Events\RecursosHumanos\PedidoCreadoEvent;
+use App\Events\RecursosHumanos\PedidoEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 

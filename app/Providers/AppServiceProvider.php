@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        //Cargar helper de verificacion del guard
+        require_once  base_path('app/Helpers/helpers.php');
+
         Schema::defaultStringLength(191);
         Blade::withoutDoubleEncoding();
 

@@ -13,12 +13,17 @@ class ReporteMaterialLibroExport implements WithMultipleSheets, WithBackgroundCo
     use Exportable;
 
     protected $reporte;
+    protected $no_usados;
+    protected $seguimiento_stock;
+
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function __construct($reporte)
+    public function __construct($reporte, $no_usados, $seguimiento_stock)
     {
         $this->reporte = $reporte;
+        $this->no_usados = $no_usados;
+        $this->seguimiento_stock = $seguimiento_stock;
     }
 
     public function backgroundColor()
@@ -30,8 +35,10 @@ class ReporteMaterialLibroExport implements WithMultipleSheets, WithBackgroundCo
     public function sheets(): array
     {
         $sheets = [];
-        $sheets[1] = new ReporteMaterialExport($this->reporte, 'Reporte de materiales');
-        $sheets[2] = new ReporteMaterialExport($this->obtenerResumen($this->reporte), 'Resumen reporte de materiales');
+        $sheets[1] = new ReporteSeguimientoMaterialStockExport($this->seguimiento_stock);
+        $sheets[2] = new ReporteMaterialExport($this->obtenerResumen($this->no_usados), 'Materiales stock no usados en tareas');
+        $sheets[3] = new ReporteMaterialExport($this->obtenerResumen($this->reporte), 'Historial de auditoria');
+        // $sheets[1] = new ReporteMaterialExport($this->reporte, 'Materiales utilizados');
 
         return $sheets;
     }

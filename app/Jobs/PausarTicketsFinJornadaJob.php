@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Events\ActualizarNotificacionesEvent;
-use App\Events\TicketEvent;
+use App\Events\RecursosHumanos\ActualizarNotificacionesEvent;
+use App\Events\RecursosHumanos\TicketEvent;
 use App\Models\ActividadRealizadaSeguimientoTicket;
 use App\Models\MotivoPausaTicket;
 use App\Models\Ticket;

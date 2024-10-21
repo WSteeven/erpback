@@ -13,10 +13,10 @@ use App\Http\Controllers\ComprasProveedores\PagoProveedoresController;
 use App\Http\Controllers\ComprasProveedores\PrefacturaController;
 use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
 use App\Http\Controllers\ComprasProveedores\ProformaController;
+use App\Http\Controllers\ComprasProveedores\ProveedorInternacionalController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ProveedorController;
 use App\Models\ComprasProveedores\OfertaProveedor;
-use App\Models\ComprasProveedores\Prefactura;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources([
@@ -33,6 +33,7 @@ Route::apiResources([
     'preordenes-compras' => PreordenCompraController::class,
     'proformas' => ProformaController::class,
     'prefacturas' => PrefacturaController::class,
+    'proveedores-internacionales' => ProveedorInternacionalController::class,
 ], [
     'parameters' => [
         'contactos-proveedores' => 'contacto',
@@ -46,6 +47,7 @@ Route::apiResources([
         'novedades-ordenes-compras' => 'novedad',
         'ordenes-compras' => 'orden',
         'preordenes-compras' => 'preorden',
+        'proveedores-internacionales' => 'proveedor',
         'prefacturas' => 'prefactura',
     ],
     'middleware' => ['auth:sanctum']

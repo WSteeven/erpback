@@ -3,17 +3,17 @@
 namespace App\Console;
 
 use App\Jobs\AnularProformaJob;
-use App\Jobs\Bodega\NotificarPedidoParcial;
 use App\Jobs\Bodega\NotificarPedidoParcialJob;
-use App\Jobs\MyJobExample;
 use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\PausarTicketsFinJornadaJob;
 use App\Jobs\RechazarGastoJob;
+use App\Jobs\RecursosHumanos\CrearVacacionesEmpleadoJob;
 use App\Jobs\Vehiculos\ActualizarEstadoSegurosVehiculares;
 use App\Jobs\Vehiculos\ActualizarMantenimientoVehiculoJob;
 use App\Jobs\Vehiculos\CrearMatriculasAnualesVehiculosJob;
 use App\Jobs\Vehiculos\NotificarMatriculacionVehicularJob;
+use App\Jobs\Vehiculos\NotificarReporteBitacorasDiariasJob;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -23,7 +23,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param  Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -38,11 +38,13 @@ class Kernel extends ConsoleKernel
         // Programación para días de semana lunes a viernes
         // ->dailyAt('17:00')
         $schedule->job(new PausarTicketsFinJornadaJob)
-            ->between('17:00', '08:00')
             ->everyFourHours()
-            ->when(function () {
-                return !in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
-            });
+            ->timezone('America/Guayaquil')
+            ->days([Schedule::MONDAY, Schedule::TUESDAY, Schedule::WEDNESDAY, Schedule::THURSDAY, Schedule::FRIDAY])
+            ->between('17:00', '8:00');
+        /*  ->when(function () {
+                 return !in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
+             }) */
 
         // Programación para fines de semana
         $schedule->job(new PausarTicketsFinJornadaJob)
@@ -64,7 +66,14 @@ class Kernel extends ConsoleKernel
         $schedule->job(new NotificarMatriculacionVehicularJob())->weekdays()->at('08:00'); // Execute job every weekday(monday-friday) at 08:00
         $schedule->job(new ActualizarEstadoSegurosVehiculares())->daily();
         $schedule->job(new ActualizarMantenimientoVehiculoJob())->dailyAt('07:00');
+        $schedule->job(new NotificarReporteBitacorasDiariasJob())->dailyAt('06:00');
         // $schedule->job(new ActualizarMantenimientoVehiculoJob())->everyMinute();
+
+        /*****************
+         * RECURSOS HUMANOS
+         ****************/
+        $schedule->job(new CrearVacacionesEmpleadoJob())->everyMinute();//daily();
+
     }
 
     /**

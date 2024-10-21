@@ -38,7 +38,8 @@
 
 <body>
     @php
-        $total = 0;
+    $total_sin_formato = 0.0;
+    $total = 0;
     @endphp
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
@@ -101,50 +102,52 @@
                         </tr>
 
                         @foreach ($gastos as $gasto)
-                            @php
-                                $total = number_format($gasto['total'], 2) + $total;
-                            @endphp
-                            <tr>
-                                <td style="font-size:10px">
-                                    <div align="left">{{ $gasto['num_registro'] }}
-                                    </div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="left">
-                                        {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
-                                    </div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="left">{{ $gasto['lugar'] }}
-                                    </div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha_autorizacion'])) }}</div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="left">{{ $gasto['factura'] }}</div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="left">{{ $gasto['observacion'] }}</div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="left">{{ $gasto['detalle_estado'] }}</div>
-                                </td>
-                                <td style="font-size:10px">{{ $gasto['centro_costo'] }}</td>
-                                <td style="font-size:10px">{{ $gasto['sub_centro_costo'] }}</td>
-                                <td style="font-size:10px" width="29%">
-                                    <div align="left">
-                                        {{ $gasto['autorizador'] }}
-                                    </div>
-                                </td>
-                                <td style="font-size:10px">
-                                    <div align="right">
-                                        {{ number_format($gasto['total'], 2, ',', '.') }}</div>
-                                </td>
-                            </tr>
+                        @php
+                            $total_sin_formato += floatval($gasto['total']);
+                            $total = round($total_sin_formato,2);
+                        @endphp
+                        <tr>
+                            <td style="font-size:10px">
+                                <div align="left">{{ $gasto['num_registro'] }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="left">
+                                    {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="left">{{ $gasto['lugar'] }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha_autorizacion'])) }}</div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="left">{{ $gasto['factura'] }}</div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="left">{{ $gasto['observacion'] }}</div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="left">{{ $gasto['detalle_estado'] }}</div>
+                            </td>
+                            <td style="font-size:10px">{{ $gasto['centro_costo'] }}</td>
+                            <td style="font-size:10px">{{ $gasto['sub_centro_costo'] }}</td>
+                            <td style="font-size:10px" width="29%">
+                                <div align="left">
+                                    {{ $gasto['autorizador'] }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="right">
+                                    {{ number_format(floatval($gasto['total']), 2, ',', '.') }}
+                                </div>
+                            </td>
+                        </tr>
                         @endforeach
                         <tr>
                             <td colspan="11" style="font-size:10px" width="29%">
@@ -152,7 +155,8 @@
                             </td>
                             <td style="font-size:10px" width="10%">
                                 <div align="right">
-                                    <strong>{{ number_format($total, 2, ',', '.') }}</strong>
+                                    <!-- <strong>{{ number_format($total, 2, ',', '.') }}</strong> -->
+                                    <strong>{{ $total }}</strong>
                                 </div>
                             </td>
                         </tr>

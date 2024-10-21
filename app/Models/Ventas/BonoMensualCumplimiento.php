@@ -16,6 +16,45 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
+/**
+ * App\Models\Ventas\BonoMensualCumplimiento
+ *
+ * @property int $id
+ * @property int|null $vendedor_id
+ * @property int $cant_ventas
+ * @property string $mes
+ * @property string $valor
+ * @property int $pagada
+ * @property string|null $bonificable_type
+ * @property int|null $bonificable_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Model|\Eloquent $bonificable
+ * @property-read \App\Models\Ventas\Bono|null $bono
+ * @property-read \App\Models\Ventas\Vendedor|null $vendedor
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereBonificableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereBonificableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereCantVentas($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereMes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento wherePagada($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereValor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BonoMensualCumplimiento whereVendedorId($value)
+ * @mixin \Eloquent
+ */
 class BonoMensualCumplimiento extends Model implements Auditable
 {
     use HasFactory;

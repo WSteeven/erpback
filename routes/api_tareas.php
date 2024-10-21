@@ -16,7 +16,7 @@ use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
-use App\Http\Controllers\MovilizacionSubtareaController;
+use App\Http\Controllers\MovilizacionSubtareaController;// 9018-2
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\ReporteModuloTareaController;
 use App\Http\Controllers\RutaTareaController;
@@ -24,14 +24,13 @@ use App\Http\Controllers\SeguimientoSubtareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\Tareas\AlimentacionGrupoController;
 use App\Http\Controllers\Tareas\EtapaController;
-use App\Http\Controllers\Tareas\TransferenciaMaterialEmpleadoController;
 use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
 use App\Http\Controllers\Tareas\CentroCostoController;
 use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
-use Src\App\MaterialesService;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
@@ -58,6 +57,7 @@ Route::apiResources(
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
         'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,
         'transferencias-productos-empleados' => TransferenciaProductoEmpleadoController::class,
+        'alimentacion-grupos' => AlimentacionGrupoController::class,
     ],
     [
         'parameters' => [
@@ -75,6 +75,7 @@ Route::apiResources(
             'archivos-seguimientos' => 'archivo_seguimiento',
             'actividades-realizadas-seguimientos-subtareas' => 'actividad_realizada',
             'transferencias-productos-empleados' => 'transferencia_producto_empleado',
+            'alimentacion-grupos' => 'alimentacion_grupo',
         ],
     ]
 );

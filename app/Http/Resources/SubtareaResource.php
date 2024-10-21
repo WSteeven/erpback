@@ -80,6 +80,7 @@ class SubtareaResource extends JsonResource
             'coordinador' => $this->cargar('coordinador', $campos) ? $this->extraerNombresApellidos($this->tarea->coordinador) : null,
             'coordinador_id' => $this->cargar('coordinador_id', $campos) ? $this->tarea->coordinador_id : null,
             'grupo' => $this->cargar('grupo', $campos) ? $this->grupoResponsable?->nombre : null,
+            'grupo_id' => $this->cargar('grupo_id', $campos) ? $this->obtenerGrupo() : null,
             'tiene_subtareas' => $this->cargar('tiene_subtareas', $campos) ? $tarea->tiene_subtareas : null,
             'causa_intervencion_id' => $this->cargar('empleado', $campos) ? $this->causa_intervencion_id : null,
             'puede_ejecutar' => $this->cargar('puede_ejecutar', $campos) ? $this->verificarSiPuedeEjecutar() : null,
@@ -89,8 +90,9 @@ class SubtareaResource extends JsonResource
             'cantidad_adjuntos' => $this->cargar('cantidad_adjuntos', $campos) ? $this->archivos?->count() : null,
             'metraje_tendido' => $this->cargar('metraje_tendido', $campos) ? $this->metraje_tendido : null,
             'etapa_id' => $tarea->etapa_id,
-            'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null,// $tarea->proyecto_id,
+            'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null, // $tarea->proyecto_id,
             'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
+            'valor_alimentacion' => $this->obtenerValorAlimentacion(),
         ];
 
         if ($controller_method == 'show') {
@@ -131,15 +133,21 @@ class SubtareaResource extends JsonResource
         if ($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
     }
 
+    public function obtenerValorAlimentacion()
+    {
+        $alimentacion_grupo = $this->alimentacionGrupo;
+        return $alimentacion_grupo->precio * $alimentacion_grupo->cantidad_personas;
+    }
+
     public function extraerNombres($listado)
     {
-        $nombres = $listado->map(fn ($item) => $item->nombre)->toArray();
+        $nombres = $listado->map(fn($item) => $item->nombre)->toArray();
         return implode('; ', $nombres);
     }
 
     public function mapGrupoSeleccionado($gruposSeleccionados)
     {
-        return $gruposSeleccionados->map(fn ($grupo) => [
+        return $gruposSeleccionados->map(fn($grupo) => [
             'id' => $grupo->grupo_id,
             'nombre' => Grupo::select('nombre')->where('id', $grupo->grupo_id)->first()->nombre,
             'responsable' => $grupo->responsable,
@@ -227,6 +235,11 @@ class SubtareaResource extends JsonResource
         }
     }
 
+    private function obtenerGrupo()
+    {
+        return $this->grupo_id ?? $this->empleado->grupo_id;
+    }
+
     private function extraerNombresApellidos($empleado)
     {
         if (!$empleado) return null;
@@ -276,7 +289,7 @@ class SubtareaResource extends JsonResource
             $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
             //$usuarioLider  = $empleados->filter(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
 
-            $liderIndex = $empleados->search(fn ($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+            $liderIndex = $empleados->search(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
             if ($liderIndex >= 0) return $empleados->get($liderIndex)->id;
 
             //if ($usuarioLider) return $usuarioLider[1]->id;
@@ -289,4 +302,3 @@ class SubtareaResource extends JsonResource
         return null;
     }
 }
-    

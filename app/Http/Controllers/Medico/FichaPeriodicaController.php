@@ -27,8 +27,8 @@ use Src\Shared\Utils;
 
 class FichaPeriodicaController extends Controller
 {
-    private $entidad = 'Ficha periodica';
-    private FichasMedicasService $fichas_medicas_service;
+    private string $entidad = 'Ficha periodica';
+    private FichasMedicasService $fichasMedicasService;
 
     public function __construct()
     {
@@ -37,7 +37,7 @@ class FichaPeriodicaController extends Controller
         $this->middleware('can:puede.editar.fichas_periodicas')->only('update');
         $this->middleware('can:puede.eliminar.fichas_periodicas')->only('destroy');
 
-        $this->fichas_medicas_service = new FichasMedicasService();
+        $this->fichasMedicasService = new FichasMedicasService();
     }
 
     /**
@@ -177,7 +177,7 @@ class FichaPeriodicaController extends Controller
 
         $ficha['consultas_medicas'] = $consultasMedicasMapeado;
         $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : '';
-        $ficha['resultados_examenes'] = $this->fichas_medicas_service->consultarResultadosExamenes($registro_empleado_examen_id);
+        $ficha['resultados_examenes'] = $this->fichasMedicasService->consultarResultadosExamenes($registro_empleado_examen_id);
         $ficha['observaciones_aptitud_medica'] = 'observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica';
 
        /*  $ficha['accidentes_trabajo'] = [
@@ -194,7 +194,7 @@ class FichaPeriodicaController extends Controller
             'fecha' => Carbon::parse('2024-03-24'),
         ]; */
 
-        $ficha['observaciones_examen_fisico_regional'] = $this->fichas_medicas_service->mapearObservacionesExamenFisicoRegional($ficha['examenes_fisicos_regionales']); //'observaciones_examen_fisico_regional observaciones_examen_fisico_regional observaciones_examen_fisico_regional';
+        $ficha['observaciones_examen_fisico_regional'] = $this->fichasMedicasService->mapearObservacionesExamenFisicoRegional($ficha['examenes_fisicos_regionales']); //'observaciones_examen_fisico_regional observaciones_examen_fisico_regional observaciones_examen_fisico_regional';
         $ficha['examenes_fisicos_regionales'] = $ficha['examenes_fisicos_regionales']->pluck('categoria_examen_fisico_id')->toArray();
 
         $datos = [

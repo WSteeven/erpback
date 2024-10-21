@@ -13,6 +13,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 use Src\App\Bodega\DevolucionService;
 use Src\App\Sistema\PaginationService;
 use Src\Config\ClientesCorporativos;
@@ -190,14 +191,15 @@ class TransaccionBodegaIngresoService
      * o `ROL_ADMINISTRADOR` para un conjunto de condiciones, o `ROL_BODEGA_TELCONET` para otro
      * conjunto de condiciones).
      */
-    public static function listar(string $fecha_inicio = null, string $fecha_fin = null, $paginate = false)
+    public static function listar( $fecha_inicio = null,  $fecha_fin = null, $paginate = false)
     {
+         Log::channel('testing')->info('Log', ['TransaccionIngresoService::listar:', $fecha_inicio, $fecha_fin]);
         $pagination_service = new PaginationService();
         $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
         $ids_motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         $results = [];
-        $query = TransaccionBodega::search(request('search'))
-            ->whereIn('motivo_id', $ids_motivos->toArray())
+        $query = TransaccionBodega:://search(request('search'))
+            whereIn('motivo_id', $ids_motivos->toArray())
             ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
                 $q->where('created_at', '>=', $fecha_inicio);
             })
@@ -217,8 +219,10 @@ class TransaccionBodegaIngresoService
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
             if ($paginate) {
                 return  $pagination_service->paginate($query, 100, request('page'));
-            } else
+            } else{
+                Log::channel('testing')->info('Log', ['la queri es ', $query]);
                 return $query->get();
+            }
         }
         if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
             if ($paginate) {

@@ -76,7 +76,8 @@ class NominaService
             ->whereRaw('DATE_FORMAT(fecha_hora_inicio, "%Y-%m") <= ?', [$this->mes])
             ->whereRaw('DATE_FORMAT(fecha_hora_fin, "%Y-%m") >= ?', [$this->mes])
             ->where('estado_permiso_id', Autorizacion::APROBADO_ID)
-            ->where('recupero', $recupero);
+            ->where('recupero', $recupero)
+            ->where('cargo_vacaciones', false);
 
         if ($todos) {
             $query->groupBy('empleado_id')

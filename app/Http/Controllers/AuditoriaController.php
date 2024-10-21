@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AuditResource;
 use App\Models\Empleado;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Models\Audit;
 
 class AuditoriaController extends Controller
@@ -52,15 +50,11 @@ class AuditoriaController extends Controller
         //     })
         //     ->orderBy('updated_at', 'desc')->get();
         // Log::channel('testing')->info('Log', ['Request antes de filtrar', $request->all()]);
-        $results = Audit::ignoreRequest(['empleado', 'fecha_inicio', 'fecha_fin', 'auditable_type'])->filter()
+        $results = Audit::ignoreRequest(['isComponentFilesModified','empleado', 'fecha_inicio', 'fecha_fin', 'auditable_type'])->filter()
             ->when($request->auditable_type, function ($q) use ($request) {
                 $q->where('auditable_type', 'like', '%' . $request->auditable_type);
             })
             ->orderBy('updated_at', 'desc')->get();
-        $modelosAfectados = $results->unique('auditable_type')->pluck('auditable_type')->toArray();
-        $modelos = array_map(function ($model) {
-            return class_basename($model);
-        }, $modelosAfectados);
 
         // Log::channel('testing')->info('Log', ['Empleado audits', $results->count()]);
         // Log::channel('testing')->info('Log', ['Modelos', $modelos]);
@@ -73,7 +67,6 @@ class AuditoriaController extends Controller
 
     public function modelos()
     {
-        $results = [];
         $modelos = Audit::groupBy('auditable_type')->pluck('auditable_type')->toArray();
         $results = array_map(function ($model) {
             return class_basename($model);

@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Intranet\CategoriaSeeder;
-use Database\Seeders\Intranet\EtiquetasSeeder;
-use Database\Seeders\Intranet\PermisosModuloIntranetSeeder;
-use Database\Seeders\Intranet\TipoEventoSeeder;
+use Database\Seeders\RecursosHumanos\Intranet\CategoriaSeeder;
+use Database\Seeders\RecursosHumanos\Intranet\EtiquetasSeeder;
+use Database\Seeders\RecursosHumanos\Intranet\PermisosModuloIntranetSeeder;
+use Database\Seeders\RecursosHumanos\Intranet\TipoEventoSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

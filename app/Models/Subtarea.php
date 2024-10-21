@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Resources\EmpleadoResource;
 use App\ModelFilters\SubtareasFilter;
+use App\Models\Tareas\AlimentacionGrupo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -18,12 +19,135 @@ use Src\App\WhereRelationLikeCondition\Subtarea\CantidadAdjuntosWRLC;
 use Src\App\WhereRelationLikeCondition\Subtarea\FechaSolicitudWRLC;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
 use Src\App\WhereRelationLikeCondition\Subtarea\ProyectoWRLC;
+use Src\App\WhereRelationLikeCondition\Tareas\GrupoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
+/**
+ * App\Models\Subtarea
+ *
+ * @property int $id
+ * @property string $codigo_subtarea
+ * @property string $titulo
+ * @property string|null $descripcion_completa
+ * @property string|null $observacion
+ * @property string $estado
+ * @property string $modo_asignacion_trabajo
+ * @property string|null $fecha_hora_creacion
+ * @property string|null $fecha_hora_asignacion
+ * @property string|null $fecha_hora_agendado
+ * @property string|null $fecha_hora_ejecucion
+ * @property string|null $fecha_hora_realizado
+ * @property string|null $fecha_hora_finalizacion
+ * @property string|null $fecha_hora_suspendido
+ * @property string|null $fecha_hora_cancelado
+ * @property bool $es_dependiente
+ * @property bool $es_ventana
+ * @property string|null $fecha_inicio_trabajo
+ * @property string|null $hora_inicio_trabajo
+ * @property string|null $hora_fin_trabajo
+ * @property array|null $empleados_designados
+ * @property int|null $motivo_cancelado_id
+ * @property int|null $subtarea_dependiente_id
+ * @property int $tipo_trabajo_id
+ * @property int $tarea_id
+ * @property int|null $grupo_id
+ * @property int|null $empleado_id
+ * @property int|null $seguimiento_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $tiempo_estimado
+ * @property int|null $causa_intervencion_id
+ * @property int|null $metraje_tendido
+ * @property float $valor_alimentacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActividadRealizadaSeguimientoSubtarea> $actividadRealizadaSeguimientoSubtarea
+ * @property-read int|null $actividad_realizada_seguimiento_subtarea_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ArchivoSubtarea> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ArchivoSeguimiento> $archivosSeguimiento
+ * @property-read int|null $archivos_seguimiento_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\CausaIntervencion|null $causaIntervencion
+ * @property-read \App\Models\Empleado|null $empleado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Empleado> $empleados
+ * @property-read int|null $empleados_count
+ * @property-read \App\Models\Grupo|null $grupo
+ * @property-read \App\Models\Grupo|null $grupoResponsable
+ * @property-read \App\Models\MotivoSuspendido|null $motivoCancelado
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MotivoSuspendido> $motivoSuspendido
+ * @property-read int|null $motivo_suspendido_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PausaSubtarea> $pausasSubtarea
+ * @property-read int|null $pausas_subtarea_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SeguimientoMaterialSubtarea> $seguimientosMaterialesSubtareas
+ * @property-read int|null $seguimientos_materiales_subtareas_count
+ * @property-read Subtarea|null $subtarea
+ * @property-read \App\Models\Tarea|null $tarea
+ * @property-read \App\Models\TipoTrabajo|null $tipo_trabajo
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TrabajoRealizado> $trabajosRealizados
+ * @property-read int|null $trabajos_realizados_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
+ * @property-read int|null $transacciones_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea anterioresNoFinalizados()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea disponible()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea fechaActual()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea fechaFuturo()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea noEsStandby()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea noEstaRealizado()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea porCoordinador()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea subtareasCoordinador($coordinador)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereCausaIntervencionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereCodigoSubtarea($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereDescripcionCompleta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereEmpleadosDesignados($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereEsDependiente($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereEsVentana($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraAgendado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraAsignacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraCancelado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraCreacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraEjecucion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraFinalizacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraRealizado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaHoraSuspendido($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereFechaInicioTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereGrupoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereHoraFinTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereHoraInicioTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereMetrajeTendido($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereModoAsignacionTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereMotivoCanceladoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereSeguimientoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereSubtareaDependienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereTiempoEstimado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereTipoTrabajoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereTitulo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subtarea whereValorAlimentacion($value)
+ * @mixin \Eloquent
+ */
 class Subtarea extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait; //, SubtareasFilter;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait, Searchable; //, SubtareasFilter;
 
     const CREADO = 'CREADO';
     const ASIGNADO = 'ASIGNADO';
@@ -63,6 +187,7 @@ class Subtarea extends Model implements Auditable
         'tiempo_estimado',
         'empleados_designados',
         'metraje_tendido',
+        'valor_alimentacion',
         'tipo_trabajo_id',
         'tarea_id',
         'grupo_id',
@@ -90,7 +215,7 @@ class Subtarea extends Model implements Auditable
         /* 'cliente.empresa.razon_social',
         'tipo_trabajo.descripcion', */
         // 'canton',
-        //'tarea.coordinador.nombres',
+        'tarea.coordinador.nombres',
         // 'proyecto.codigo_proyecto',
         'cantidad_adjuntos',
         'tarea.fecha_solicitud',
@@ -101,26 +226,45 @@ class Subtarea extends Model implements Auditable
 
     private $aliasListFilter = [
         /* 'cliente.empresa.razon_social' => 'cliente',
-        'tipo_trabajo.descripcion' => 'tipo_trabajo', */
-        //'tarea.coordinador.nombres' => 'coordinador',
+        */
+        'tipo_trabajo.descripcion' => 'tipo_trabajo',
+        'tarea.coordinador.nombres' => 'coordinador',
         //'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
         // 'proyecto.codigo_proyecto' => 'proyecto',
         'tarea.fecha_solicitud' => 'fecha_solicitud',
+        'grupo.nombre' => 'grupo',
+        'grupo.region' => 'region',
     ];
 
     public function EloquentFilterCustomDetection(): array
     {
         return [
             /* TrabajoClienteWRLC::class,
-            TrabajoTipoTrabajoWRLC::class,
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
-            //TrabajoCoordinadorWRLC::class,
+            TrabajoTipoTrabajoWRLC::class,
+            TrabajoCoordinadorWRLC::class,
             // ProyectoWRLC::class,
             CantidadAdjuntosWRLC::class,
             FechaSolicitudWRLC::class,
+            GrupoWRLC::class,
             //CodigoTareaWRLC::class,
+        ];
+    }
+
+    /*************************
+     * Laravel Scout Search
+     *************************/
+    public function toSearchableArray()
+    {
+        $coordinador = $this->tarea?->coordinador;
+
+        return [
+            'codigo_subtarea' => $this->codigo_subtarea,
+            'titulo' => $this->titulo,
+            'grupo' => $this->grupoResponsable?->nombre,
+            'coordinador' => $coordinador ? $coordinador->nombres . ' ' . $coordinador->apellidos : null,
         ];
     }
 
@@ -145,6 +289,11 @@ class Subtarea extends Model implements Auditable
         return $this->belongsTo(Tarea::class);
     }
 
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class);
+    }
+
     // Relacion uno a muchos (inversa)
     public function grupoResponsable(): BelongsTo
     {
@@ -156,6 +305,12 @@ class Subtarea extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
+
+    /* public function coordinador()
+    {
+        return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
+        return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
+    } */
 
     // Relacion uno a muchos (inversa)
     public function tipo_trabajo()
@@ -213,12 +368,17 @@ class Subtarea extends Model implements Auditable
         return $this->belongsTo(CausaIntervencion::class, 'causa_intervencion_id', 'id');
     }
 
+    public function alimentacionGrupo()
+    {
+        return $this->hasOne(AlimentacionGrupo::class);
+    }
+
     public function tecnicosPrincipales($empleados)
     {
         // return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());
         // return Empleado::whereIn('id', $ids)->get()->map(fn ($item) => [
 
-        return $empleados->map(fn ($item) => [
+        return $empleados->map(fn($item) => [
             'id' => $item->id,
             'identificacion' => $item->identificacion,
             'nombres' => $item->nombres,
@@ -239,7 +399,7 @@ class Subtarea extends Model implements Auditable
     public function otrosTecnicos($empleados)
     {
         //$empleados->filter(fn($item) => $item->);
-        return $empleados->map(fn ($item) => [
+        return $empleados->map(fn($item) => [
             'id' => $item->id,
             'identificacion' => $item->identificacion,
             'nombres' => $item->nombres,
