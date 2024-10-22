@@ -109,15 +109,15 @@ class Pedido extends Model implements Auditable
         'responsable_id',
         'autorizacion_id',
         'per_autoriza_id',
-        'sucursal_id',
-        'estado_id',
-        'evidencia1',
-        'evidencia2',
         'per_retira_id',
         'cliente_id',
         'proyecto_id',
         'etapa_id',
         'tarea_id',
+        'sucursal_id',
+        'estado_id',
+        'evidencia1',
+        'evidencia2',
     ];
 
     protected $casts = [

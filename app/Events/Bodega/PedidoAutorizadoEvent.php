@@ -1,32 +1,31 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\Bodega;
 
 use App\Models\Notificacion;
-use App\Models\Pedido;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class PedidoAutorizadoEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $canalId;
+    public string $canalId;
     public Notificacion $notificacion;
+
     /**
      * Create a new event instance.
      *
      * @return void
+     * @throws Throwable
      */
 
-    public function __construct($mensaje, $canal, $url, $pedido, $informativa)
+    public function __construct($mensaje, string $canal, $url, $pedido, $informativa)
     {
         $this->canalId = $canal;
 
@@ -36,7 +35,7 @@ class PedidoAutorizadoEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel
      */
     public function broadcastOn()
     {

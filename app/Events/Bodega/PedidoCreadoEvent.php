@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\Bodega;
 
 use App\Models\Notificacion;
 use App\Models\Pedido;
@@ -10,6 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class PedidoCreadoEvent implements ShouldBroadcast
 {
@@ -22,6 +23,7 @@ class PedidoCreadoEvent implements ShouldBroadcast
      * Create a new event instance.
      *
      * @return void
+     * @throws Throwable
      */
     public function __construct(string $mensaje, $url, $pedido, $solicitante,  $destinatario, $informativa)
     {
@@ -38,7 +40,7 @@ class PedidoCreadoEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return array
      */
     public function broadcastOn()
     {
