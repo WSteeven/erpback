@@ -31,20 +31,28 @@ class NoticiaRequest extends FormRequest
             'etiquetas'=>'sometimes|nullable|string',
             'imagen_noticia'=>'sometimes|nullable|string',
             'fecha_vencimiento'=>'required|string',
+            'departamentos_destinatarios' => 'nullable|array',
+            'departamentos_destinatarios.*' => 'integer|exists:departamentos,id', // Asegurarse de que los departamentos existen
         ];
     }
 
     protected function prepareForValidation()
     {
         $this->merge([
-            'categoria_id'=>$this->categoria,
-            // 'autor_id'=>$this->autor,
-            'autor_id'=>auth()->user()->empleado->id,
+            'categoria_id' => $this->categoria,
+            'autor_id' => auth()->user()->empleado->id,
         ]);
+
+        // Si las etiquetas están vacías, convertirlas en NULL
         if (count($this->etiquetas) == 0) {
             $this->merge(['etiquetas' => null]);
         } else {
             $this->merge(['etiquetas' => implode(',', $this->etiquetas)]);
+        }
+
+        // Si no se seleccionaron departamentos destinatarios, establecerlo en NULL
+        if (empty($this->departamentos_destinatarios)) {
+            $this->merge(['departamentos_destinatarios' => null]);
         }
     }
 }

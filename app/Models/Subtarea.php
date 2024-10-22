@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Resources\EmpleadoResource;
 use App\ModelFilters\SubtareasFilter;
+use App\Models\Tareas\AlimentacionGrupo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -365,6 +366,11 @@ class Subtarea extends Model implements Auditable
     public function causaIntervencion()
     {
         return $this->belongsTo(CausaIntervencion::class, 'causa_intervencion_id', 'id');
+    }
+
+    public function alimentacionGrupo()
+    {
+        return $this->hasOne(AlimentacionGrupo::class);
     }
 
     public function tecnicosPrincipales($empleados)

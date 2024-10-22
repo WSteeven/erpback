@@ -49,11 +49,13 @@ class SolicitudPrestamoEmpresarialController extends Controller
             return response()->json(compact('results'));
         }
     }
+
     public function show(Request $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         return response()->json(compact('modelo'), 200);
     }
+
     public function store(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
@@ -74,14 +76,17 @@ class SolicitudPrestamoEmpresarialController extends Controller
             ]);
         }
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::create($datos);
+
         event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
         if ($SolicitudPrestamoEmpresarial->estado == 4) {
             event(new SolicitudPrestamoGerenciaEvent($SolicitudPrestamoEmpresarial));
         }
+
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
+
     public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
         switch ($request->estado) {
@@ -96,6 +101,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 break;
         }
     }
+
     public function validar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
@@ -115,11 +121,13 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
+
     public function destroy(Request $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
         $SolicitudPrestamoEmpresarial->delete();
         return response()->json(compact('SolicitudPrestamoEmpresarial'));
     }
+
     public function aprobar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
@@ -142,6 +150,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $mensaje = "Solicitud de Prestamo a sido Aprobada";
         return response()->json(compact('mensaje', 'modelo'));
     }
+
     public function rechazar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
@@ -154,6 +163,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
         return $SolicitudPrestamoEmpresarial;
     }
+
     public function tabla_plazos(PrestamoEmpresarial $prestamo)
     {
         $valor_cuota = !is_null($prestamo->monto) ? $prestamo->monto : 0;
@@ -193,6 +203,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         }
         $this->crear_plazos($prestamo, $plazos);
     }
+
     public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
     {
         $day = 1000 * 60 * 60 * 24;
@@ -226,6 +237,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $fechaFormateada = $fechaActual->format('d-m-Y');
         return $fechaFormateada;
     }
+
     public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
     {
         $plazosActualizados = collect($plazos)->map(function ($plazo) use ($prestamoEmpresarial) {
@@ -242,4 +254,5 @@ class SolicitudPrestamoEmpresarialController extends Controller
         })->toArray();
         PlazoPrestamoEmpresarial::insert($plazosActualizados);
     }
+
 }

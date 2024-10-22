@@ -34,24 +34,37 @@ class SolicitudPrestamoEvent implements ShouldBroadcast
         $this->solicitudPrestamo = $solicitudPrestamo;
         $informativa = false;
         switch ($solicitudPrestamo->estado) {
-            case 1:
+            case 1: // Empleado realiza solicitud -> Notificación a RRHH
+                $this->jefeInmediato = Departamento::where('id', 7)->first()->responsable_id;
                 $mensaje = $this->mostrar_mensaje($solicitudPrestamo);
                 break;
-            case 2:
+
+            case 2: // RRHH cancela solicitud -> Notifica a Empleado
                 $informativa = true;
+                $mensaje = 'Tu solicitud de préstamo ha sido cancelada por RRHH.';
+                $this->jefeInmediato = $solicitudPrestamo->solicitante;
+                break;
+
+            case 3: // RRHH valida solicitud -> Notifica a Empleado y a Gerente
+                $informativa = true;
+                $mensaje = 'Tu solicitud de préstamo ha sido validada por RRHH. Esperando aprobación del Gerente.';
                 $this->jefeInmediato = Departamento::where('id', 9)->first()->responsable_id;
-                $mensaje = 'Te han aprobado un prestamo por un monto de $'.$solicitudPrestamo->monto.' a '. $solicitudPrestamo->plazo.'  meses de plazo' ;
                 break;
-            case 3:
+
+            case 4: // Gerente cancela -> Notifica a Empleado
                 $informativa = true;
-                $mensaje = 'Te han rechazado un prestamo';
+                $mensaje = 'Tu solicitud de préstamo ha sido cancelada por el Gerente.';
+                $this->jefeInmediato = $solicitudPrestamo->solicitante;
                 break;
-            case 4:
+
+            case 5: // Gerente aprueba -> Notifica a Empleado y RRHH
                 $informativa = true;
-                $mensaje = 'Te han validado un prestamo con la siguiente sugerencia: '.$solicitudPrestamo->observacion;
+                $mensaje = 'Tu solicitud de préstamo ha sido aprobada por el Gerente. RRHH realizará el registro correspondiente.';
+                $this->jefeInmediato = Departamento::where('id', 7)->first()->responsable_id;
                 break;
+
             default:
-                $mensaje = 'Tienes un prestamo por aprobar';
+                $mensaje = 'Estado de solicitud no reconocido.';
                 break;
         }
         $destinatario = $solicitudPrestamo->estado != 1 ?  $this->jefeInmediato : $solicitudPrestamo->solicitante;
@@ -65,6 +78,7 @@ class SolicitudPrestamoEvent implements ShouldBroadcast
         $mensaje = $empleado->nombres . ' ' . $empleado->apellidos . ' ha solicitado un prestamo por un monto de  $' . $prestamo->monto;
         return $mensaje;
     }
+
 
     /**
      * Get the channels the event should broadcast on.
