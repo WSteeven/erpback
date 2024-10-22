@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Events\RecursosHumanos\VacacionNotificacionEvent;
+use App\Events\VacacionNotificacionEvent;
 use App\Models\Empleado;
 use Exception;
 use Illuminate\Bus\Queueable;
