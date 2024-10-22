@@ -60,6 +60,8 @@ use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Controllers\Intranet\OrganigramaController;
+
 use App\Http\Resources\CantonResource;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
@@ -352,4 +354,10 @@ Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaContro
 
 Route::post('actualizar-materiales-empleados', [InventarioController::class, 'actualizarMaterialesEmpleado'])->middleware('auth:sanctum');
 Route::post('actualizar-cantidad-material-empleado', [InventarioController::class, 'actualizarCantidadMaterialEmpleado'])->middleware('auth:sanctum');
+
+
+
+// Obtener los datos del organigrama
+Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtenerDatosOrganigrama'])->middleware('auth:sanctum');
+
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));

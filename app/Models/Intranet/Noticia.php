@@ -64,8 +64,10 @@ class Noticia extends Model implements Auditable
         'etiquetas',
         'imagen_noticia',
         'fecha_vencimiento',
+        'departamentos_destinatarios',
     ];
 
+    protected $cast = ["departamentos_destinatarios"=>'array'];
     private static array $whiteListFilter = [
         '*',
     ];

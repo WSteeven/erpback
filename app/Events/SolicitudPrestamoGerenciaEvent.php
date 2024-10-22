@@ -33,6 +33,7 @@ class SolicitudPrestamoGerenciaEvent
         $ruta =  '/solicitud-prestamo-empresarial';
         $this->solicitudPrestamo = $solicitudPrestamo;
         $informativa = false;
+
         switch ($solicitudPrestamo->estado) {
             case 4:
                 $informativa = true;
@@ -42,15 +43,14 @@ class SolicitudPrestamoGerenciaEvent
                 $mensaje = 'Tienes un prestamo por aprobar';
                 break;
         }
-        $destinatario = $solicitudPrestamo->estado != 1 ?  $this->jefeInmediato : $solicitudPrestamo->solicitante;
-        $remitente = $solicitudPrestamo->estado != 1 ? $solicitudPrestamo->solicitante : $this->jefeInmediato;
+        $destinatario = $solicitudPrestamo->estado != 4 ?  $this->jefeInmediato : $solicitudPrestamo->solicitante;
+        $remitente = $solicitudPrestamo->estado != 4 ? $solicitudPrestamo->solicitante : $this->jefeInmediato;
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::SOLICITUD_PRESTAMO_EMPRESARIAL, $destinatario, $remitente, $solicitudPrestamo, $informativa);
     }
     public function mostrar_mensaje($prestamo)
     {
-
         $empleado = Empleado::find($prestamo->solicitante);
-        $mensaje = $empleado->nombres . ' ' . $empleado->apellidos.'Ha solicitado aprobacion de prestamo por un monto de $'.$prestamo->monto.' a '. $prestamo->plazo.'  meses de plazo con la siguiente sugerencia: '.$prestamo->observacion ;
+        $mensaje = ' Se ha solicitado la aprobación de un préstamo por un monto de $'.$prestamo->monto.' a '. $prestamo->plazo.'  meses de plazo con la siguiente sugerencia: '.$prestamo->observacion.' para '. $empleado->nombres . ' ' . $empleado->apellidos . '' ;
         return $mensaje;
     }
 
