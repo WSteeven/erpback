@@ -135,6 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
     Route::get('solicitudes-vacaciones/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
+    Route::get('planificadores/imprimir/{plan}', [PlanificadorController::class, 'imprimir']);
     Route::post('solicitudes-vacaciones/reporte', [SolicitudVacacionController::class, 'reporteVacaciones']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);
     Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtenerPrestamoEmpleado']);
