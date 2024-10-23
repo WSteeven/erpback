@@ -3,7 +3,6 @@
 namespace Database\Seeders\RecursosHumanos;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -34,8 +33,12 @@ class PermisosModuloRecursosHumanosSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'vacaciones'])->syncRoles([$rrhh]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'vacaciones'])->syncRoles([$rrhh]);
 
-
-
+        //planificadores
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'planificadores'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'planificadores'])->syncRoles([$rrhh, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'planificadores'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'planificadores'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'planificadores'])->syncRoles([$admin]);
 
 
     }

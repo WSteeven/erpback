@@ -7,12 +7,11 @@ use App\Http\Resources\ProductoResource;
 use App\Models\Producto;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class ProductoController extends Controller
 {
-    private $entidad = 'Producto';
+    private string $entidad = 'Producto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.productos')->only('index', 'show');
@@ -26,7 +25,6 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         try {
-            $results = [];
             if ($request->boolean('filtrarTipo')) {
                 if (auth()->user()->can('puede.ver.productos_bienes')) {
                     if ($request->search) $results = Producto::search($request->search)->get();

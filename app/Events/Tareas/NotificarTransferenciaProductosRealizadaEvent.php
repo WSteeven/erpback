@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\Tareas;
+namespace App\Events\Tareas;
 
 use App\Models\Empleado;
 use App\Models\Notificacion;

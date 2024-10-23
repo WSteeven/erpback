@@ -21,6 +21,7 @@ class VacacionResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'empleado' => Empleado::extraerNombresApellidos(Empleado::find($this->empleado_id)),
+            'empleado_id'=> $this->empleado_id,
             'periodo' => $this->periodo->nombre,
             'dias' => $this->dias,
             'opto_pago' => $this->opto_pago,

@@ -31,7 +31,7 @@ class DevolucionRequest extends FormRequest
      */
     public function rules()
     {
-        $rules =  [
+        return [
             'justificacion' => 'required|string',
             'solicitante' => 'required|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
@@ -47,8 +47,6 @@ class DevolucionRequest extends FormRequest
             'pedido_automatico' => 'boolean',
             'cliente' => 'nullable|sometimes|exists:clientes,id',
         ];
-
-        return $rules;
     }
     public function attributes()
     {

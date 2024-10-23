@@ -101,9 +101,9 @@ class TransaccionBodegaRequest extends FormRequest
                         }
                         //válida si no hay ingreso masivo que se envie el estado util de todos los productos ingresados
                         if (!$this->ingreso_masivo) {
-                            if (array_key_exists('condiciones', $listado)) {
+                            if (!array_key_exists('condiciones', $listado)) {
                                 // Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
-                            } else {
+//                            } else {
                                 $validator->errors()->add('listadoProductosTransaccion.*.condiciones', 'Debe ingresar el estado del item ' . $listado['descripcion']);
                             }
                         }

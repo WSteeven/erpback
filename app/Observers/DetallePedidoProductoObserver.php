@@ -2,11 +2,8 @@
 
 namespace App\Observers;
 
-use App\Events\RecursosHumanos\PedidoCreadoEvent;
+
 use App\Models\DetallePedidoProducto;
-use App\Models\EstadoTransaccion;
-use App\Models\Pedido;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DetallePedidoProductoObserver
@@ -14,7 +11,7 @@ class DetallePedidoProductoObserver
     /**
      * Handle the DetallePedidoProducto "created" event.
      *
-     * @param  \App\Models\DetallePedidoProducto  $detallePedidoProducto
+     * @param DetallePedidoProducto $detallePedidoProducto
      * @return void
      */
     public function created(DetallePedidoProducto $detallePedidoProducto)
@@ -26,7 +23,7 @@ class DetallePedidoProductoObserver
     /**
      * Handle the DetallePedidoProducto "updated" event.
      *
-     * @param  \App\Models\DetallePedidoProducto  $detallePedidoProducto
+     * @param DetallePedidoProducto $detallePedidoProducto
      * @return void
      */
     public function updated(DetallePedidoProducto $detallePedidoProducto)
@@ -42,7 +39,7 @@ class DetallePedidoProductoObserver
     /**
      * Handle the DetallePedidoProducto "deleted" event.
      *
-     * @param  \App\Models\DetallePedidoProducto  $detallePedidoProducto
+     * @param DetallePedidoProducto $detallePedidoProducto
      * @return void
      */
     public function deleted(DetallePedidoProducto $detallePedidoProducto)
@@ -54,7 +51,7 @@ class DetallePedidoProductoObserver
     /**
      * Handle the DetallePedidoProducto "restored" event.
      *
-     * @param  \App\Models\DetallePedidoProducto  $detallePedidoProducto
+     * @param DetallePedidoProducto $detallePedidoProducto
      * @return void
      */
     public function restored(DetallePedidoProducto $detallePedidoProducto)
@@ -65,7 +62,7 @@ class DetallePedidoProductoObserver
     /**
      * Handle the DetallePedidoProducto "force deleted" event.
      *
-     * @param  \App\Models\DetallePedidoProducto  $detallePedidoProducto
+     * @param DetallePedidoProducto $detallePedidoProducto
      * @return void
      */
     public function forceDeleted(DetallePedidoProducto $detallePedidoProducto)

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecursosHumanos\ActualizarNotificacionesEvent;
-use App\Events\RecursosHumanos\TicketEvent;
+use App\Events\ActualizarNotificacionesEvent;
+use App\Events\Tickets\TicketEvent;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Mail\Tickets\EnviarMailTicket;

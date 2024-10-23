@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecursosHumanos\DevolucionActualizadaSolicitanteEvent;
-use App\Events\RecursosHumanos\DevolucionAutorizadaEvent;
-use App\Events\RecursosHumanos\DevolucionCreadaEvent;
+use App\Events\DevolucionActualizadaSolicitanteEvent;
+use App\Events\DevolucionAutorizadaEvent;
+use App\Events\DevolucionCreadaEvent;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Autorizacion;
@@ -14,28 +14,25 @@ use App\Models\DetalleDevolucionProducto;
 use App\Models\Devolucion;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
-use App\Models\Producto;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use PhpParser\Node\Stmt\Break_;
-use PhpParser\Node\Stmt\TryCatch;
 use Src\App\ArchivoService;
 use Src\App\Bodega\DevolucionService;
 use Src\Config\Autorizaciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class DevolucionController extends Controller
 {
-    private $entidad = 'Devolución';
-    private $archivoService;
-    private $servicio;
+    private string $entidad = 'Devolución';
+    private ArchivoService $archivoService;
+    private DevolucionService $servicio;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
@@ -48,15 +45,11 @@ class DevolucionController extends Controller
 
     /**
      * Listar
+     * @throws ValidationException
      */
     public function index(Request $request)
     {
         try {
-            $page = $request['page'];
-            $offset = $request['offset'];
-            $estado = $request['estado'];
-            $campos = explode(',', $request['page']);
-            $results = [];
 
             $results = $this->servicio->listar($request);
 
@@ -70,6 +63,7 @@ class DevolucionController extends Controller
 
     /**
      * Guardar
+     * @throws Throwable|ValidationException
      */
     public function store(DevolucionRequest $request)
     {
@@ -135,6 +129,7 @@ class DevolucionController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable
      */
     public function update(DevolucionRequest $request, Devolucion $devolucion)
     {
@@ -195,7 +190,7 @@ class DevolucionController extends Controller
     {
         $modelo = new DevolucionResource($devolucion);
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
@@ -247,9 +242,7 @@ class DevolucionController extends Controller
             $pdf = Pdf::loadView('devoluciones.devolucion', compact(['devolucion', 'configuracion', 'persona_solicitante', 'persona_autoriza']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
-            $file = $pdf->output();
-
-            return $file;
+            return $pdf->output();
 
             //usar esto en caso de querer guardar los pdfs generados en el servidor backend
 
@@ -266,7 +259,7 @@ class DevolucionController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, Devolucion $devolucion)
+    public function indexFiles( Devolucion $devolucion)
     {
         try {
             $results = $this->archivoService->listarArchivos($devolucion);
@@ -279,6 +272,7 @@ class DevolucionController extends Controller
 
     /**
      * Guardar archivos
+     * @throws Throwable
      */
     public function storeFiles(Request $request, Devolucion $devolucion)
     {
@@ -289,6 +283,6 @@ class DevolucionController extends Controller
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('mensaje', 'modelo'), 200);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

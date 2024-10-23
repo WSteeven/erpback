@@ -3,62 +3,81 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\PlanVacacionRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\PlanVacacionResource;
+use App\Models\RecursosHumanos\NominaPrestamos\PlanVacacion;
+use DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Src\Shared\Utils;
+use Throwable;
 
 class PlanVacacionController extends Controller
 {
+    private string $entidad = "Plan de Vacacion";
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
-        //
+        $results = PlanVacacion::all();
+        $results = PlanVacacionResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param PlanVacacionRequest $request
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(PlanVacacionRequest $request)
     {
-        //
+        $datos= $request->validated();
+        $modelo = $datos;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param PlanVacacion $plan
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(PlanVacacion $plan)
     {
-        //
+        $modelo = new PlanVacacionResource($plan);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param PlanVacacionRequest $request
+     * @param PlanVacacion $plan
+     * @return JsonResponse
+     * @throws Throwable|ValidationException
      */
-    public function update(Request $request, $id)
+    public function update(PlanVacacionRequest $request, PlanVacacion $plan)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+
+            $plan->update($datos);
+
+            $modelo = new PlanVacacionResource($plan->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        }catch (Throwable $th) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($th, 'Actualizar '.$this->entidad);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

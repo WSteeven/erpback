@@ -54,7 +54,7 @@ class Vacacion extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;
     use AuditableModel;
-    protected $table = 'rrhh_nomina_vacacions';
+    protected $table = 'rrhh_nomina_vacaciones';
     protected $fillable = [
     'empleado_id',
     'periodo_id',
@@ -68,7 +68,7 @@ class Vacacion extends Model implements Auditable
         'completadas'=> 'boolean',
     ];
 
-    private static array $filterable = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function empleado(){
         return $this->belongsTo(Empleado::class);

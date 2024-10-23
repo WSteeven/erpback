@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecursosHumanos\PedidoAutorizadoEvent;
-use App\Events\RecursosHumanos\PedidoCreadoEvent;
+use App\Events\Bodega\PedidoAutorizadoEvent;
+use App\Events\Bodega\PedidoCreadoEvent;
 use App\Exports\Bodega\PedidoExport;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
@@ -28,6 +28,7 @@ use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class PedidoController extends Controller
 {
@@ -73,6 +74,7 @@ class PedidoController extends Controller
 
     /**
      * Guardar
+     * @throws Throwable|ValidationException
      */
     public function store(PedidoRequest $request)
     {
@@ -83,17 +85,6 @@ class PedidoController extends Controller
             DB::beginTransaction();
             // Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
-            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             if ($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             if ($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
@@ -134,8 +125,9 @@ class PedidoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+            Log::channel('testing')->error('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Problema al guardar el Pedido');
+
         }
     }
 
@@ -150,6 +142,7 @@ class PedidoController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable|ValidationException
      */
     public function update(PedidoRequest $request, Pedido $pedido)
     {
@@ -160,17 +153,6 @@ class PedidoController extends Controller
             // Adaptacion de foreign keys
             DB::beginTransaction();
             $datos = $request->validated();
-            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
-            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             else unset($datos['evidencia1']);
@@ -212,7 +194,7 @@ class PedidoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro. ' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Problema al actualizar el Pedido');
         }
     }
 
@@ -336,6 +318,9 @@ class PedidoController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function reportes(Request $request)
     {
         try {

@@ -31,7 +31,6 @@ class VacacionController extends Controller
     public function index()
     {
         if (request('tipo')) {
-
             $results = match (request('tipo')) {
                 'PENDIENTES' => Vacacion::where('completadas', false)->get(),
                 'REALIZADAS' => Vacacion::where('completadas', true)->get(),
