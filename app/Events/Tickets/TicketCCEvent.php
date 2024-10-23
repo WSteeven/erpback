@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\Tickets;
+namespace App\Events\Tickets;
 
 use App\Models\Notificacion;
 use App\Models\Ticket;

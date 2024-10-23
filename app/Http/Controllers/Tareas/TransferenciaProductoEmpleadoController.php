@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Tareas;
 
-use App\Events\RecursosHumanos\Tareas\NotificarTransferenciaProductosRealizadaEvent;
-use App\Events\RecursosHumanos\Tareas\NotificarTransferenciaProductosSolicitadaEvent;
+use App\Events\Tareas\NotificarTransferenciaProductosRealizadaEvent;
+use App\Events\Tareas\NotificarTransferenciaProductosSolicitadaEvent;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Http\Requests\Tareas\TransferenciaProductoEmpleadoRequest;
 use Src\App\Tareas\TransferenciaProductoEmpleadoService;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\RecursosHumanos\SeleccionContratacion;
+namespace App\Events\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\Autorizacion;
 use App\Models\Empleado;

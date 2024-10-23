@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecursosHumanos\Bodega\IngresoPorCompraEvent;
+use App\Events\Bodega\IngresoPorCompraEvent;
 use App\Exports\TransaccionBodegaIngresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;

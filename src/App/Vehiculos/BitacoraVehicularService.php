@@ -2,11 +2,11 @@
 
 namespace Src\App\Vehiculos;
 
-use App\Events\RecursosHumanos\Vehiculos\NotificarAdvertenciasVehiculoBitacora;
-use App\Events\RecursosHumanos\Vehiculos\NotificarBajoNivelCombustible;
-use App\Events\RecursosHumanos\vehiculos\NotificarDiferenciaKmToAdmin;
-use App\Events\RecursosHumanos\vehiculos\NotificarMantenimientoCreado;
-use App\Events\RecursosHumanos\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
+use App\Events\Vehiculos\NotificarAdvertenciasVehiculoBitacora;
+use App\Events\Vehiculos\NotificarBajoNivelCombustible;
+use App\Events\Vehiculos\NotificarDiferenciaKmToAdmin;
+use App\Events\Vehiculos\NotificarMantenimientoCreado;
+use App\Events\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Http\Resources\Vehiculos\VehiculoResource;
 use App\Models\ConfiguracionGeneral;

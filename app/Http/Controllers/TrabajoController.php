@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecursosHumanos\SubtareaEvent;
+use App\Events\SubtareaEvent;
 use App\Http\Requests\TrabajoRequest;
 use App\Http\Resources\TrabajoResource;
 use App\Models\EmpleadoSubtarea;

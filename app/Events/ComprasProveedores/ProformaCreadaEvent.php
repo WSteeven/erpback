@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\ComprasProveedores;
+namespace App\Events\ComprasProveedores;
 
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\Proforma;

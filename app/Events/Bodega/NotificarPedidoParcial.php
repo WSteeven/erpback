@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\Bodega;
+namespace App\Events\Bodega;
 
 use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;

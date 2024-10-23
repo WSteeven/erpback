@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Vehiculos;
 
-use App\Events\RecursosHumanos\Vehiculos\NotificarMatriculacionVehicularEvent;
+use App\Events\Vehiculos\NotificarMatriculacionVehicularEvent;
 use App\Models\Vehiculos\Matricula;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;

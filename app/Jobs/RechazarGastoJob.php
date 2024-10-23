@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Events\RecursosHumanos\FondoRotativoEvent;
+use App\Events\FondoRotativoEvent;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use Carbon\Carbon;
 use Exception;

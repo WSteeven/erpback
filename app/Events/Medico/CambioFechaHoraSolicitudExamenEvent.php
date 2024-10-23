@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\Medico;
+namespace App\Events\Medico;
 
 use App\Models\Empleado;
 use App\Models\Medico\SolicitudExamen;
