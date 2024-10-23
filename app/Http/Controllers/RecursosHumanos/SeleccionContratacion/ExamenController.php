@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 
-use App\Events\RecursosHumanos\RecursosHumanos\SeleccionContratacion\NotificarAgendamientoExamenesPostulanteRecursosHumanosEvent;
-use App\Events\RecursosHumanos\RecursosHumanos\SeleccionContratacion\NotificarResultadosExamenesPostulanteRecursosHumanosEvent;
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarAgendamientoExamenesPostulanteRecursosHumanosEvent;
+use App\Events\RecursosHumanos\SeleccionContratacion\NotificarResultadosExamenesPostulanteRecursosHumanosEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\ExamenRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\ExamenResource;

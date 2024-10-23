@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Vehiculos;
 
-use App\Events\RecursosHumanos\Vehiculos\NotificarSeguroVencidoEvent;
+use App\Events\Vehiculos\NotificarSeguroVencidoEvent;
 use App\Models\Vehiculos\SeguroVehicular;
 use App\Models\Vehiculos\Vehiculo;
 use Carbon\Carbon;

@@ -2,8 +2,8 @@
 
 namespace Src\App\Medico;
 
-use App\Events\RecursosHumanos\ActualizarNotificacionesEvent;
-use App\Events\RecursosHumanos\Medico\CambioFechaHoraSolicitudExamenEvent;
+use App\Events\ActualizarNotificacionesEvent;
+use App\Events\Medico\CambioFechaHoraSolicitudExamenEvent;
 use App\Http\Requests\Medico\SolicitudExamenRequest;
 use App\Mail\Medico\CambioFechaHoraSolicitudExamenMail;
 use App\Models\Autorizacion;

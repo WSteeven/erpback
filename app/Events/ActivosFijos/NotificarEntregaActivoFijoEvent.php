@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\ActivosFijos;
+namespace App\Events\ActivosFijos;
 
 use App\Models\Empleado;
 use App\Models\Notificacion;

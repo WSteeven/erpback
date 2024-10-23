@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Bodega;
 
-use App\Events\RecursosHumanos\Bodega\NotificarPedidoParcial as BodegaNotificarPedidoParcial;
+use App\Events\Bodega\NotificarPedidoParcial;
 use App\Models\EstadoTransaccion;
 use App\Models\Pedido;
 use Illuminate\Bus\Queueable;
@@ -39,7 +39,7 @@ class NotificarPedidoParcialJob implements ShouldQueue
             $cantidad = Pedido::where('estado_id', EstadosTransacciones::PARCIAL)->count();
             $pedido = Pedido::where('estado_id', EstadosTransacciones::PARCIAL)->orderBy('updated_at', 'desc')->first();
             if ($cantidad > 0) {
-                event(new BodegaNotificarPedidoParcial($pedido, $cantidad));
+                event(new NotificarPedidoParcial($pedido, $cantidad));
             }
         } catch (\Throwable $th) {
             throw $th;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Vehiculos;
 
-use App\Events\RecursosHumanos\Vehiculos\NotificarMultaEvent;
+use App\Events\Vehiculos\NotificarMultaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\MultaConductorRequest;
 use App\Http\Resources\Vehiculos\MultaConductorResource;

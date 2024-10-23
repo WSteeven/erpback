@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\RecursosHumanos\Bodega;
+namespace App\Events\Bodega;
 
 use App\Models\Notificacion;
 use App\Models\TransaccionBodega;
@@ -19,7 +19,7 @@ class IngresoPorCompraEvent implements ShouldBroadcast
 
     public TransaccionBodega $transaccion;
     public Notificacion $notificacion;
-    public $url = '/transacciones-ingresos';
+    public string $url = '/transacciones-ingresos';
     public $canalId;
 
     /**
