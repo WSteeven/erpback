@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Src\App\Medico\SolicitudExamenService;
+use Illuminate\Support\Facades\Http;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,7 +34,8 @@ class AppServiceProvider extends ServiceProvider
 
         Schema::defaultStringLength(191);
         Blade::withoutDoubleEncoding();
-
-
+        Http::macro('defaultTimeout', function () {
+            return Http::timeout(240); // 120 segundos por defecto para todas las solicitudes
+        });
     }
 }
