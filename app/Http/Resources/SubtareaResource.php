@@ -136,7 +136,7 @@ class SubtareaResource extends JsonResource
     public function obtenerValorAlimentacion()
     {
         $alimentacion_grupo = $this->alimentacionGrupo;
-        return $alimentacion_grupo->precio * $alimentacion_grupo->cantidad_personas;
+        return $alimentacion_grupo?->precio * $alimentacion_grupo?->cantidad_personas;
     }
 
     public function extraerNombres($listado)
