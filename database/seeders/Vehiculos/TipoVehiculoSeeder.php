@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\Vehiculos;
+namespace Database\Seeders\Vehiculos;
 
 use App\Models\Vehiculos\TipoVehiculo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -15,7 +15,7 @@ class TipoVehiculoSeeder extends Seeder
      */
     public function run()
     {
-        
+
         TipoVehiculo::firstOrCreate(['nombre' => 'SEDAN']);
         TipoVehiculo::firstOrCreate(['nombre' => 'HATHBACK']);
         TipoVehiculo::firstOrCreate(['nombre' => 'SUV']);
