@@ -1,8 +1,7 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\Medico;
+namespace Database\Seeders\Medico;
 
-use App\Models\EstadoExamen;
 use App\Models\Medico\EstadoExamen as MedicoEstadoExamen;
 // use App\Models\Medico\EstadoExamen as MedicoEstadoExamen;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;

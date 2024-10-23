@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\Medico;
+namespace Database\Seeders\Medico;
 
 use App\Models\Medico\SistemaOrganico;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

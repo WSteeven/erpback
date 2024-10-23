@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\ActivosFijos;
+namespace Database\Seeders\ActivosFijos;
 
 use App\Models\ActivosFijos\CategoriaMotivoConsumoActivoFijo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

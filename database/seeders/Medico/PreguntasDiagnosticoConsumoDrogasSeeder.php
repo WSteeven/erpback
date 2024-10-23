@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\Medico;
+namespace Database\Seeders\Medico;
 
 use App\Models\Medico\Pregunta;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -43,5 +43,5 @@ class PreguntasDiagnosticoConsumoDrogasSeeder extends Seeder
             ],
         ]);
     }
-    // 
+    //
 }

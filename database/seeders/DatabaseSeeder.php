@@ -8,8 +8,8 @@ use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\ImagenProducto;
 use App\Models\TransaccionBodega;
-use Database\Seeders\RecursosHumanos\Medico\TipoAptitudMedicaLaboralSeeder;
-use Database\Seeders\RecursosHumanos\Medico\TipoEvaluacionMedicaRetiroSeeder;
+use Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder;
+use Database\Seeders\Medico\TipoEvaluacionMedicaRetiroSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

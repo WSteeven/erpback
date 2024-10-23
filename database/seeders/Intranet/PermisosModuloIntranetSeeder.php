@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\Intranet;
+namespace Database\Seeders\Intranet;
 
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

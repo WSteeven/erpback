@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\RecursosHumanos\Tareas;
+namespace Database\Seeders\Tareas;
 
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
