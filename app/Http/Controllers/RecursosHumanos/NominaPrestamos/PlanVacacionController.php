@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\PlanVacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PlanVacacionResource;
 use App\Models\RecursosHumanos\NominaPrestamos\PlanVacacion;
+use App\Models\Ventas\Plan;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
+use Log;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -22,8 +24,7 @@ class PlanVacacionController extends Controller
      * @return JsonResponse
      */
     public function index()
-    {
-        $results = PlanVacacion::all();
+    {   $results = PlanVacacion::filter()->get();
         $results = PlanVacacionResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -33,12 +34,21 @@ class PlanVacacionController extends Controller
      *
      * @param PlanVacacionRequest $request
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function store(PlanVacacionRequest $request)
     {
-        $datos= $request->validated();
-        $modelo = $datos;
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+            $plan = PlanVacacion::create($datos);
+            $modelo = new PlanVacacionResource($plan);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+            DB::commit();
+        } catch (Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -73,9 +83,9 @@ class PlanVacacionController extends Controller
             $modelo = new PlanVacacionResource($plan->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        }catch (Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
-            throw Utils::obtenerMensajeErrorLanzable($th, 'Actualizar '.$this->entidad);
+            throw Utils::obtenerMensajeErrorLanzable($th, 'Actualizar ' . $this->entidad);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }

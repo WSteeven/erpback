@@ -13,7 +13,7 @@ class PlanVacacionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,36 @@ class PlanVacacionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'periodo_id'=>'required|exists:periodos,id',
+            'empleado_id'=>'required|exists:empleados,id',
+            'rangos'=>'required|integer|between:1,2',
+            'fecha_inicio'=>'required_if:rangos,1|nullable',
+            'fecha_fin'=>'required_if:rangos,1|nullable',
+            'fecha_inicio_primer_rango'=>'required_if:rangos,2|nullable',
+            'fecha_fin_primer_rango'=>'required_if:rangos,2|nullable',
+            'fecha_inicio_segundo_rango'=>'required_if:rangos,2|nullable',
+            'fecha_fin_segundo_rango'=>'required_if:rangos,2|nullable',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'periodo_id' => $this->periodo,
+            'empleado_id' => $this->empleado,
+        ]);
+        if ($this->rangos == 1) {
+            $this->merge([
+                'fecha_inicio_primer_rango' => null,
+                'fecha_fin_primer_rango' => null,
+                'fecha_inicio_segundo_rango' => null,
+                'fecha_fin_segundo_rango' => null,
+            ]);
+        }else{
+            $this->merge([
+                'fecha_inicio' =>null,
+                'fecha_fin'=>null,
+            ]);
+        }
     }
 }
