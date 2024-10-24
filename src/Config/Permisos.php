@@ -21,4 +21,5 @@ class Permisos
     const EDITAR = 'puede.editar.';
     const ELIMINAR = 'puede.eliminar.';
     const RECHAZAR = 'puede.rechazar.';
+    const ELABORAR = 'puede.elaborar.';
 }

@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         Blade::withoutDoubleEncoding();
         Http::macro('defaultTimeout', function () {
-            return Http::timeout(240); // 120 segundos por defecto para todas las solicitudes
+            return Http::timeout(100040); // 120 segundos por defecto para todas las solicitudes
         });
     }
 }

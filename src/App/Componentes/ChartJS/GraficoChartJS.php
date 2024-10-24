@@ -21,7 +21,7 @@ class GraficoChartJS
         $valores = array_map(fn($item) => is_array($item) ? $item['valor'] : $item->valor, $listado);
         $colores = array_map(fn() => self::generarColorAzulPastelClaro(), $listado);
 
-        return self::mapearDatos($titulo, $labels, $valores, $tituloLabel, $colores, $metadata);
+        return self::mapearDatos($titulo, $labels, $valores, $tituloLabel, $metadata, $colores);
     }
 
     /**
@@ -33,7 +33,7 @@ class GraficoChartJS
      * @param string|null $colores
      * @return array
      */
-    public static function mapearDatos(string $titulo, array $labels, array $valores, string $tituloLabel, $colores = null, $metadata): array
+    public static function mapearDatos(string $titulo, array $labels, array $valores, string $tituloLabel, $metadata, $colores = null): array
     {
         return [
             'titulo' => $titulo,
