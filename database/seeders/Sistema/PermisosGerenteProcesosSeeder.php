@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Sistema;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -8,8 +8,9 @@ use Spatie\Permission\Models\Permission;
 use App\Models\User;
 use Src\Config\Permisos;
 
-class PermissionsSeeder extends Seeder
+class PermisosGerenteProcesosSeeder extends Seeder
 {
+    // php artisan db:seed --class="Database\Seeders\Sistema\PermisosGerenteProcesosSeeder"
     public function run()
     {
         $gerente_procesos = Role::firstOrCreate(['name' => User::ROL_GERENTE_PROCESOS]);
