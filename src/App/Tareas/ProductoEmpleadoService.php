@@ -124,7 +124,7 @@ class ProductoEmpleadoService
         return $mensaje;
     }
 
-    private function obtenerIdsTransferencias(int $detalle_producto_id, int $cliente_id)
+    private function obtenerIdsTransferencias(int $detalle_producto_id, int|null $cliente_id)
     {
         $ids_transferencias = TransferenciaProductoEmpleado::where('empleado_destino_id', request()->empleado_id)->where('cliente_id', $cliente_id)->where('autorizacion_id', EstadosTransacciones::COMPLETA::COMPLETA)->pluck('id');
         return DetalleTransferenciaProductoEmpleado::where('detalle_producto_id', $detalle_producto_id)->whereIn('transf_produc_emplea_id', $ids_transferencias)->pluck('transf_produc_emplea_id');

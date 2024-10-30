@@ -22,4 +22,5 @@ class Permisos
     const ELIMINAR = 'puede.eliminar.';
     const RECHAZAR = 'puede.rechazar.';
     const ELABORAR = 'puede.elaborar.';
+    const BUSCAR = 'puede.buscar.';
 }
