@@ -7,11 +7,12 @@ use App\Events\RecursosHumanos\NotificarVacacionesPlanificadasRecursosHumanos;
 use App\Models\RecursosHumanos\NominaPrestamos\PlanVacacion;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Log;
+use Throwable;
 
 class NotificarPotencialesVacacionesEmpleadoJob implements ShouldQueue
 {
@@ -31,16 +32,22 @@ class NotificarPotencialesVacacionesEmpleadoJob implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     * @throws Throwable
      */
     public function handle()
     {
-        $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
-        $planes = PlanVacacion::where('fecha_inicio', $tomorrow)
-            ->orWhere('fecha_inicio_primer_rango',$tomorrow )
-            ->orWhere('fecha_inicio_segundo_rango',$tomorrow )->get();
-        foreach ($planes as $plan) {
-            event(new NotificarVacacionesPlanificadasJefeInmediato($plan));
-            event(new NotificarVacacionesPlanificadasRecursosHumanos($plan));
+        try {
+            $tomorrow = Carbon::now()->addDay()->format('Y-m-d');
+            $planes = PlanVacacion::where('fecha_inicio', $tomorrow)
+                ->orWhere('fecha_inicio_primer_rango', $tomorrow)
+                ->orWhere('fecha_inicio_segundo_rango', $tomorrow)->get();
+            foreach ($planes as $plan) {
+                event(new NotificarVacacionesPlanificadasJefeInmediato($plan));
+                event(new NotificarVacacionesPlanificadasRecursosHumanos($plan));
+            }
+        } catch (Throwable $ex) {
+            Log::channel('testing')->error('ERROR', ['Error en crear vacaciones JOB', $ex->getMessage(), $ex->getLine()]);
+
         }
 
 
