@@ -176,6 +176,7 @@
             <td>Fecha Inicio</td>
             <td>Fecha Fin</td>
             <td>Estado</td>
+            <td>Periodicidad</td>
             <td>Observaciones</td>
             <td>% Completado</td>
         </tr>
@@ -183,7 +184,7 @@
             <tr style="font-weight: bold; text-transform: uppercase; background-color: #DBDBDB;">
                 <td>{{$index+1}}.- {{$actividad['nombre']}}</td>
                 <td>{{$plan->empleado->nombres}} {{$plan->empleado->apellidos}}</td>
-                <td colspan="5" align="right">{{$actividad['completado']}}%</td>
+                <td colspan="6" align="right">{{$actividad['completado']}}%</td>
             </tr>
             @foreach($actividad['subactividades'] as $subactividad)
                 <tr>
@@ -192,6 +193,7 @@
                     <td>{{$subactividad['fecha_inicio']}}</td>
                     <td>{{$subactividad['fecha_fin']}}</td>
                     <td class="{{determinarClase($subactividad['estado_avance'])}}">{{$subactividad['estado_avance']}}</td>
+                    <td>{{$subactividad['periodicidad']}}</td>
                     <td>{{$subactividad['observaciones']}}</td>
                     <td></td>
                 </tr>

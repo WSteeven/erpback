@@ -38,6 +38,7 @@ class PlanificadorRequest extends FormRequest
             'actividades.*.subactividades.*.fecha_inicio' => 'required|string',
             'actividades.*.subactividades.*.fecha_fin' => 'required|string',
             'actividades.*.subactividades.*.estado_avance' => 'required|string',
+            'actividades.*.subactividades.*.periodicidad' => 'required|string',
             'actividades.*.subactividades.*.observaciones' => 'sometimes|nullable|string',
         ];
     }
