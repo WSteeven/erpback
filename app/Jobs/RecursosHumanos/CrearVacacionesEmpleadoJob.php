@@ -4,7 +4,7 @@ namespace App\Jobs\RecursosHumanos;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
-use App\Models\RecursosHumanos\Vacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;

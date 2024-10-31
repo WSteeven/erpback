@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Models\RecursosHumanos;
+namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -78,4 +77,8 @@ class Vacacion extends Model implements Auditable
         return $this->belongsTo(Periodo::class);
     }
 
+    public function detalles()
+    {
+        return $this->hasMany(DetalleVacacion::class);
+    }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\RecursosHumanos;
+namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\VacacionRequest;
-use App\Http\Resources\RecursosHumanos\VacacionResource;
-use App\Models\RecursosHumanos\Vacacion;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
+use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
@@ -42,6 +42,27 @@ class VacacionController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function store(VacacionRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+
+            $vacacion = Vacacion::create($datos);
+
+            $modelo = new VacacionResource($vacacion);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
+        } catch (Throwable $th) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($th, 'Guardar Vacacion ' . $this->entidad);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
+    }
 
     /**
      * Display the specified resource.
@@ -74,11 +95,11 @@ class VacacionController extends Controller
             $modelo = new VacacionResource($vacacion->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        }catch (Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
-            throw Utils::obtenerMensajeErrorLanzable($th, 'Actualizar '.$this->entidad);
+            throw Utils::obtenerMensajeErrorLanzable($th, 'Actualizar ' . $this->entidad);
         }
-            return response()->json(compact('mensaje', 'modelo'));
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 }

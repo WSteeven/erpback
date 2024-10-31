@@ -10,6 +10,7 @@ use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -25,6 +26,7 @@ use Throwable;
 class SolicitudVacacionController extends Controller
 {
     private string $entidad = 'Solicitud de vacación';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
@@ -136,11 +138,12 @@ class SolicitudVacacionController extends Controller
         }
     }
 
-    public function show( SolicitudVacacion $vacacion)
+    public function show(SolicitudVacacion $vacacion)
     {
         $modelo = new SolicitudVacacionResource($vacacion);
         return response()->json(compact('modelo'));
     }
+
     /**
      * La función "descuentos_permiso" calcula la duración total de los permisos de vacaciones de un
      * determinado empleado.
@@ -186,7 +189,7 @@ class SolicitudVacacionController extends Controller
      *
      * @return JsonResponse respuesta JSON que contiene el objeto Vacaciones eliminado.
      */
-    public function destroy( SolicitudVacacion $vacacion)
+    public function destroy(SolicitudVacacion $vacacion)
     {
         $vacacion->delete();
         return response()->json(compact('vacacion'));
@@ -214,5 +217,18 @@ class SolicitudVacacionController extends Controller
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de VacacionController::imprimir', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
         }
+    }
+
+    public function derechoVacaciones(int $id)
+    {
+        $dias = 0;
+        // El id recibido es el identificador de empleado
+        // Entonces aquí se obtiene si el empleado tiene derecho a vacaciones y cuantos días
+        $vacaciones = Vacacion::where('empleado_id', $id)
+            ->where('opto_pago', false)->where('completadas', false)->get();
+        foreach ($vacaciones as $vacacion) {
+            $dias += $vacacion->dias_disponibles - $vacacion->detalles()->sum('dias_utilizados');
+        }
+        return response()->json(compact('dias'));
     }
 }

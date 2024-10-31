@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\RecursosHumanos;
+namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
 use Illuminate\Http\Request;
@@ -21,14 +21,15 @@ class VacacionResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'empleado' => Empleado::extraerNombresApellidos(Empleado::find($this->empleado_id)),
-            'empleado_id'=> $this->empleado_id,
+            'empleado_id' => $this->empleado_id,
             'periodo' => $this->periodo->nombre,
             'periodo_id' => $this->periodo_id,
             'dias' => $this->dias,
             'opto_pago' => $this->opto_pago,
             'completadas' => $this->completadas,
-            'dias_tomados'=>0, //esto es calculo
-            'dias_disponibles'=>$this->dias - 0, // esto tambien es calculado
+            'dias_tomados' => $this->detalles()->sum('dias_utilizados'), //esto es calculo
+            'detalles' => DetalleVacacionResource::collection($this->detalles()->get()),
+            'dias_disponibles' => $this->dias - $this->detalles()->sum('dias_utilizados'), // esto tambien es calculado
         ];
 
         if ($controller_method == 'show') {

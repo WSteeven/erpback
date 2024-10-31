@@ -12,6 +12,7 @@ use App\Http\Controllers\RecursosHumanos\DiscapacidadUsuarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ConceptoIngresoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosGeneralesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosLeyController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DetalleVacacionController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EgresoRolPagoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludController;
@@ -31,15 +32,15 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirografarioCo
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagoMesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudVacacionController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\PlanificadorController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
-use App\Http\Controllers\RecursosHumanos\VacacionController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -65,6 +66,7 @@ Route::apiResources(
         'licencia_empleado' => LicenciaEmpleadoController::class,
         'solicitudes-vacaciones' => SolicitudVacacionController::class,
         'vacaciones' => VacacionController::class,
+        'detalles-vacaciones' => DetalleVacacionController::class,
         'planes-vacaciones' => PlanVacacionController::class,
         'planificadores' => PlanificadorController::class,
         'areas' => AreasController::class,
@@ -101,6 +103,7 @@ Route::apiResources(
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
             'solicitudes-vacaciones' => 'vacacion',
             'vacaciones' => 'vacacion',
+            'detalles-vacaciones' => 'detalle',
             'rol_pago_mes'=>'rol',
             'tipo_licencia'=>'tipo',
         ],
@@ -135,6 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
     Route::get('solicitudes-vacaciones/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
+    Route::get('solicitudes-vacaciones/derecho-vacaciones/{id}', [SolicitudVacacionController::class, 'derechoVacaciones']);
     Route::get('planificadores/imprimir/{plan}', [PlanificadorController::class, 'imprimir']);
     Route::post('solicitudes-vacaciones/reporte', [SolicitudVacacionController::class, 'reporteVacaciones']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);

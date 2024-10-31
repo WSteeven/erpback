@@ -31,6 +31,7 @@ class PlanVacacionResource extends JsonResource
             'fecha_fin_primer_rango' => $this->fecha_fin_primer_rango,
             'fecha_inicio_segundo_rango' => $this->fecha_inicio_segundo_rango,
             'fecha_fin_segundo_rango' => $this->fecha_fin_segundo_rango,
+            'dias' =>$this->obtenerCantidadDias($this->fecha_inicio, $this->fecha_fin),
             'dias_primer_rango' =>$this->obtenerCantidadDias($this->fecha_inicio_primer_rango, $this->fecha_fin_primer_rango),
             'dias_segundo_rango' =>$this->obtenerCantidadDias($this->fecha_inicio_segundo_rango, $this->fecha_fin_segundo_rango),
         ];
