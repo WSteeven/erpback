@@ -12,10 +12,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
-use parallel\Future\Error\Cancelled;
 
 /**
  * App\Models\RecursosHumanos\NominaPrestamos\Vacacion
@@ -76,62 +75,65 @@ use parallel\Future\Error\Cancelled;
  * @method static Builder|SolicitudVacacion whereAutorizadorId($value)
  * @mixin Eloquent
  */
-class SolicitudVacacion extends Model implements Auditable
+class SolicitudVacacionOld extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-
     protected $table = 'rrhh_nomina_solicitudes_vacaciones';//'vacaciones';
     protected $fillable = [
         'empleado_id',
         'autorizador_id',
         'periodo_id',
-        'dias_solicitados',
+        'numero_rangos',
         'fecha_inicio',
         'fecha_fin',
-        'autorizacion_id',
+        'fecha_inicio_rango1_vacaciones',
+        'fecha_fin_rango1_vacaciones',
+        'fecha_inicio_rango2_vacaciones',
+        'fecha_fin_rango2_vacaciones',
         'reemplazo_id',
         'funciones',
+        'estado',
     ];
 
     const PENDIENTE = 1;
     const APROBADO = 2;
     const CANCELADO = 3;
-    private static array $whiteListFilter = ['*'];
-
-    public function autorizacion()
-    {
-        return $this->belongsTo(Autorizacion::class);
-
+    private static array $whiteListFilter = [
+        'id',
+        'empleado',
+        'periodo',
+        'fecha_inicio',
+        'fecha_fin',
+        'fecha_inicio_rango1_vacaciones',
+        'fecha_fin_rango1_vacaciones',
+        'fecha_inicio_rango2_vacaciones',
+        'fecha_fin_rango2_vacaciones',
+        'estado'
+    ];
+    public function estado_info(){
+        return $this->hasOne(Autorizacion::class,'id','estado');
     }
-
-    public function empleado()
+    public function empleado_info()
     {
-        return $this->belongsTo(Empleado::class);
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
     }
-
-    public function periodo()
+    public function periodo_info()
     {
-        return $this->belongsTo(Periodo::class);
+        return $this->hasOne(Periodo::class, 'id', 'periodo_id');
     }
-
+    public function estado_permiso_info()
+    {
+        return $this->belongsTo(Autorizacion::class, 'estado', 'id');
+    }
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
-    public function detallesVacaciones()
-    {
-        return $this->morphMany(DetalleVacacion::class, 'vacacionable','vacacionable_type', 'vacacionable_id' );
-    }
-
     public function reemplazo()
     {
         return $this->belongsTo(Empleado::class, 'reemplazo_id', 'id');
-    }
-    public function autorizador()
-    {
-        return $this->belongsTo(Empleado::class, 'autorizador_id', 'id');
     }
 }

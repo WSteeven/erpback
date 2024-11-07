@@ -22,7 +22,7 @@ class DetalleVacacionResource extends JsonResource
             'fecha_fin'=>$this->fecha_fin,
             'dias_utilizados'=>$this->dias_utilizados,
             'vacacionable_id'=>$this->vacacionable_id, //?: 'Sin Ref. ID',
-            'vacacionable_type'=>$this->vacacionable_type, //?:'Sin Ref.',
+            'vacacionable_type'=>class_basename($this->vacacionable_type), //?:'Sin Ref.',
             'observacion'=>$this->observacion,
         ];
     }

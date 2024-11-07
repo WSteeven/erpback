@@ -101,7 +101,7 @@ Route::apiResources(
             'licencia_empleado'=>'licencia',
             'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
-            'solicitudes-vacaciones' => 'vacacion',
+            'solicitudes-vacaciones' => 'solicitud',
             'vacaciones' => 'vacacion',
             'detalles-vacaciones' => 'detalle',
             'rol_pago_mes'=>'rol',

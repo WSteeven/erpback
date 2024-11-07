@@ -5,6 +5,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Models\RecursosHumanos\NominaPrestamos\TipoLicencia;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -13,7 +14,7 @@ use Src\Shared\Utils;
 class TipoLicenciaController extends Controller
 {
     private string $entidad = 'Tipo de Licencia';
-    private $reglas = [
+    private array $reglas = [
         'nombre' =>'required|string',
         'num_dias' =>'required|integer|min:1|max:365',
         'estado'=>'boolean'
@@ -31,13 +32,9 @@ class TipoLicenciaController extends Controller
    * La función de índice recupera una lista de objetos TipoLicencia según ciertas condiciones y los
    * devuelve como una respuesta JSON.
    *
-   * @param Request request El parámetro  es una instancia de la clase Request, que representa
-   * una solicitud HTTP. Contiene información sobre la solicitud, como el método de solicitud,
-   * encabezados y datos de entrada.
-   *
-   * @return una respuesta JSON que contiene la variable 'resultados'.
+   * @return JsonResponse respuesta JSON que contiene la variable 'resultados'.
    */
-    public function index(Request $request)
+    public function index()
     {
         $user = Auth::user()->empleado;
         if(Auth::user()->hasRole(User::ROL_RECURSOS_HUMANOS)){
@@ -69,7 +66,7 @@ class TipoLicenciaController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function show(Request $request, TipoLicencia $tipo)
+    public function show(TipoLicencia $tipo)
     {
         $modelo = $tipo;
         return response()->json(compact('modelo'));
@@ -84,7 +81,10 @@ class TipoLicenciaController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function destroy(TipoLicencia $tipo)
+    /**
+     * @throws ValidationException
+     */
+    public function destroy()
     {
         throw ValidationException::withMessages(['error'=>'Método no desarrollado, por favor contacta al departamento de Informática para más información.']);
     }

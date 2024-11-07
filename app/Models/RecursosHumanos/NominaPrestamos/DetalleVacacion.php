@@ -35,4 +35,8 @@ class DetalleVacacion extends Model implements Auditable
         return $this->morphTo();
     }
 
+    public static function detalle()
+    {
+
+    }
 }

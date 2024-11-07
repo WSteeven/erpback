@@ -29,7 +29,7 @@ class PermisosModuloRecursosHumanosSeeder extends Seeder
 
         //vacaciones
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'vacaciones'])->syncRoles([$rrhh, $admin]);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'vacaciones'])->syncRoles([$rrhh]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'vacaciones'])->syncRoles([$rrhh, $empleado]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'vacaciones'])->syncRoles([$rrhh]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'vacaciones'])->syncRoles([$rrhh]);
 

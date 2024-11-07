@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::rename('vacaciones', 'rrhh_nomina_solicitudes_vacaciones');
+        Schema::rename('vacaciones', 'vacaciones_old');
     }
 
     /**
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::rename('rrhh_nomina_solicitudes_vacaciones','vacaciones');
+        Schema::rename('vacaciones_old','vacaciones');
     }
 };

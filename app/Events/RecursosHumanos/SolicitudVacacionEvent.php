@@ -2,6 +2,7 @@
 
 namespace App\Events\RecursosHumanos;
 
+use App\Models\Autorizacion;
 use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
@@ -18,11 +19,12 @@ class SolicitudVacacionEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public SolicitudVacacion $vacacion;
+    public SolicitudVacacion $solicitud;
     public Notificacion $notificacion;
+    private int $originador;
+    private int $destinatario;
     private int $id_wellington = 117;
     private int $id_veronica_valencia = 155;
-    public int $jefeInmediato = 0;
 
     /**
      * Create a new event instance.
@@ -30,37 +32,33 @@ class SolicitudVacacionEvent implements ShouldBroadcast
      * @return void
      * @throws Throwable|Exception
      */
-    public function __construct($vacacion)
+    public function __construct($solicitud)
     {
         $ruta = '/vacacion';
-        $this->vacacion = $vacacion;
-        $informativa = false;
-        switch ($vacacion->estado) {
-            case 1:
-                $mensaje = $this->mostrar_mensaje($vacacion);
+        $this->solicitud = $solicitud;
+        switch ($solicitud->autorizacion_id) {
+            case Autorizacion::PENDIENTE_ID:
+                $mensaje = Empleado::extraerNombresApellidos($solicitud->empleado).' ha solicitado vacaciones';
+                $this->originador = $solicitud->empleado_id;
+                $this->destinatario = $solicitud->autorizador_id;
                 break;
-            case 2:
-                $informativa = true;
+            case Autorizacion::APROBADO_ID:
                 $mensaje = 'Te han aprobado vacaciones';
+                $this->originador = $solicitud->autorizador_id;
+                $this->destinatario = $solicitud->empleado_id;
                 break;
-            case 3:
-                $informativa = true;
+            case Autorizacion::CANCELADO_ID:
                 $mensaje = 'Te han rechazado vacaciones';
+                $this->originador = $solicitud->autorizador_id;
+                $this->destinatario = $solicitud->empleado_id;
                 break;
             default:
                 $mensaje = 'Tienes una vacacion por aprobar';
+                $this->originador = $solicitud->empleado_id;
+                $this->destinatario = $solicitud->autorizador_id;
                 break;
         }
-        $this->jefeInmediato = Empleado::find($vacacion->empleado_id)->jefe_id;
-        if($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
-        $destinatario = $vacacion->estado != 1 ?  $this->jefeInmediato : $vacacion->empleado_id;
-        $remitente = $vacacion->estado != 1 ? $vacacion->empleado_id : $this->jefeInmediato;
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::VACACION, $destinatario, $remitente, $vacacion, $informativa);
-    }
-    public function mostrar_mensaje($vacacion)
-    {
-        $empleado = Empleado::find($vacacion->empleado_id);
-        return $empleado->nombres . ' ' . $empleado->apellidos . ' ha solicitado vacaciones ';
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::VACACION, $this->originador, $this->destinatario, $this->solicitud, true);
     }
 
     /**
@@ -70,9 +68,9 @@ class SolicitudVacacionEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $nombre_chanel =  $this->vacacion->estado == 1 ? 'vacacion-' . $this->jefeInmediato : 'vacacion-' . $this->vacacion->empleado_id;
 
-        return new Channel($nombre_chanel);
+
+        return new Channel('vacacion-' . $this->destinatario);
     }
 
 

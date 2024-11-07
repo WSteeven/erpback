@@ -6,36 +6,33 @@ use App\Events\RecursosHumanos\SolicitudVacacionEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudVacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudVacacionResource;
-use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
-use Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
+use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 use Throwable;
 
-class SolicitudVacacionController extends Controller
+class SolicitudVacacionControllerOld extends Controller
 {
     private string $entidad = 'Solicitud de vacación';
-    private VacacionService $vacacionService;
 
     public function __construct()
     {
-        $this->vacacionService = new VacacionService();
-        $this->middleware('can:puede.ver.solicitudes_vacaciones')->only('index', 'show');
-        $this->middleware('can:puede.crear.solicitudes_vacaciones')->only('store');
-        $this->middleware('can:puede.editar.solicitudes_vacaciones')->only('update');
-        $this->middleware('can:puede.eliminar.solicitudes_vacaciones')->only('destroy');
+        $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
+        $this->middleware('can:puede.crear.vacacion')->only('store');
+        $this->middleware('can:puede.editar.vacacion')->only('update');
+        $this->middleware('can:puede.eliminar.vacacion')->only('destroy');
     }
 
     /**
@@ -48,10 +45,10 @@ class SolicitudVacacionController extends Controller
     {
         if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
             $results = SolicitudVacacion::ignoreRequest(['campos'])->filter()->get();
-        } else
-            $results = SolicitudVacacion::where('empleado_id', Auth::user()->empleado->id)
-                ->orWhere('autorizador_id', Auth::user()->empleado->id)
-                ->filter()->get();
+        } else {
+            $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
+            $results = SolicitudVacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
+        }
         $results = SolicitudVacacionResource::collection($results);
 
         return response()->json(compact('results'));
@@ -73,24 +70,77 @@ class SolicitudVacacionController extends Controller
             DB::beginTransaction();
             $datos = $request->validated();
 
-            $solicitud = SolicitudVacacion::create($datos);
-            event(new SolicitudVacacionEvent($solicitud));
-            $modelo = new SolicitudVacacionResource($solicitud);
+            $empleado = Empleado::findOrFail($request->empleado_id);
+            $fechaInicio = Carbon::parse($empleado->fecha_ingreso);
+
+            $diferencia = $fechaInicio->diffInYears(
+                $request->fecha_inicio ?? $request->fecha_inicio_rango1_vacaciones
+            );
+            if ($diferencia <= 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['Vacaciones no disponibles debido a fecha establecida es menor a un año de trabajo en la empresa'],
+                ]);
+            }
+
+            $empleado_tiene_vacaciones = SolicitudVacacion::where('empleado_id', $request->empleado_id)
+                ->where('periodo_id', $request->periodo_id)
+                ->first();
+            if ($empleado_tiene_vacaciones) {
+                throw ValidationException::withMessages([
+                    '404' => ['Ya ha solicitado vacaciones en este periodo'],
+                ]);
+            }
+
+            $total_dias_aceptable = 15;
+            if ($request->numero_dias != null) {
+                $dias_descuentos_permiso = intval($request->descuento_vacaciones / 24);
+                $resta_dias_permiso = $request->numero_dias - $dias_descuentos_permiso;
+
+//                if ($dias_descuentos_permiso == 0 && $request->numero_dias != $total_dias_aceptable) {
+//                    throw ValidationException::withMessages([
+//                        '404' => ['Por favor ingrese en rangos de vacaciones'],
+//                    ]);
+//                }
+
+                if ($request->descuento_vacaciones > 0 && $resta_dias_permiso == $total_dias_aceptable) {
+                    throw ValidationException::withMessages([
+                        '404' => ['No se puede dar vacaciones en las fechas establecidas por favor disminuya ' . $resta_dias_permiso . ' día' . ($resta_dias_permiso > 1 ? 's' : '')],
+                    ]);
+                }
+            }
+
+            if ($request->numero_dias_rango1 != null && $request->numero_dias_rango2 != null) {
+                $suma_srangos = $request->numero_dias_rango1 + $request->numero_dias_rango2;
+                if ($suma_srangos != $total_dias_aceptable || $request->numero_dias_rango1 < 7 || $request->numero_dias_rango1 > 8 || $request->numero_dias_rango2 < 7 || $request->numero_dias_rango2 > 8) {
+                    throw ValidationException::withMessages([
+                        '404' => ['Por favor ingrese días en rango 1 y rango 2 que sumen 15 y estén entre 7 y 8 respectivamente'],
+                    ]);
+                }
+            }
+
+            $datos['estado'] = SolicitudVacacion::PENDIENTE;
+            $vacacion = SolicitudVacacion::create($datos);
+            event(new SolicitudVacacionEvent($vacacion));
+            $modelo = new SolicitudVacacionResource($vacacion);
 
             DB::commit();
 
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
+
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al insertar el registro:', $e->getMessage(), $e->getLine()]);
-            throw Utils::obtenerMensajeErrorLanzable($e);
+
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
         }
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function show(SolicitudVacacion $solicitud)
+    public function show(SolicitudVacacion $vacacion)
     {
-        $modelo = new SolicitudVacacionResource($solicitud);
+        $modelo = new SolicitudVacacionResource($vacacion);
         return response()->json(compact('modelo'));
     }
 
@@ -116,21 +166,17 @@ class SolicitudVacacionController extends Controller
      *
      * @param SolicitudVacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
      * que se utiliza para validar y recuperar los datos de la solicitud HTTP.
-     * @param SolicitudVacacion $solicitud
+     * @param SolicitudVacacion $vacacion
      * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
      * @throws Throwable
      */
-    public function update(SolicitudVacacionRequest $request, SolicitudVacacion $solicitud)
+    public function update(SolicitudVacacionRequest $request, SolicitudVacacion $vacacion)
     {
-        $autorizacion_anterior = $solicitud->autorizacion_id;
-
         $datos = $request->validated();
-        $solicitud->update($datos);
-        if ($solicitud->autorizacion_id !== $autorizacion_anterior && $solicitud->autorizacion_id === Autorizacion::APROBADO_ID) {
-            $this->vacacionService->registrarDiasVacaciones($solicitud->empleado_id, $solicitud->periodo_id, $solicitud, $solicitud->fecha_inicio, $solicitud->fecha_fin);
-        }
-        event(new SolicitudVacacionEvent($solicitud));
-        $modelo = new SolicitudVacacionResource($solicitud);
+        $datos['estado'] = $request->estado;
+        $vacacion->update($datos);
+        event(new SolicitudVacacionEvent($vacacion));
+        $modelo = new SolicitudVacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -138,12 +184,15 @@ class SolicitudVacacionController extends Controller
     /**
      * La función destruye un objeto Vacaciones y devuelve una respuesta JSON.
      *
+     * @param SolicitudVacacion $vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
+     * Representa un registro de vacaciones específico que debe eliminarse de la base de datos.
+     *
      * @return JsonResponse respuesta JSON que contiene el objeto Vacaciones eliminado.
-     * @throws ValidationException
      */
-    public function destroy()
+    public function destroy(SolicitudVacacion $vacacion)
     {
-        throw ValidationException::withMessages([Utils::metodoNoDesarrollado()]);
+        $vacacion->delete();
+        return response()->json(compact('vacacion'));
     }
 
     /**
@@ -179,13 +228,12 @@ class SolicitudVacacionController extends Controller
         $vacaciones = Vacacion::where('empleado_id', $id)
             ->where('opto_pago', false)->where('completadas', false)->get();
         foreach ($vacaciones as $vacacion) {
-//            Log::channel('testing')->info('Log', ['Vacacion', $vacacion]);
+            Log::channel('testing')->info('Log', ['Vacacion', $vacacion]);
             $dias += $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
-            $row['periodo'] = $vacacion->periodo->nombre;
-            $row['dias_disponibles'] = $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
+            $row['periodo']= $vacacion->periodo->nombre;
+            $row['dias_disponibles']= $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
             $results[] = $row;
         }
-        return response()->json(compact('results', 'dias'));
+        return response()->json(compact( 'results', 'dias'));
     }
-
 }
