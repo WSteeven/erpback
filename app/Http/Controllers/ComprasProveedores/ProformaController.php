@@ -50,6 +50,8 @@ class ProformaController extends Controller
     {
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
             $results = $this->servicio->filtrarProformasAdministrador($request);
+        } else if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO])) {
+            $results = $this->servicio->filtrarProformasJefeTecnico($request);
         } else {
             $results = $this->servicio->filtrarProformasEmpleado($request);
         }
