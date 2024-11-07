@@ -18,7 +18,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Solicitud de vacaciones {{ $vacacion['empleado_info'] }}</title>
+    <title>Solicitud de vacaciones {{ $vacacion['empleado'] }}</title>
     <style>
         @page {
             margin: 0cm 15px;
@@ -145,24 +145,19 @@
         @endif
         <p>Cargo: {{ $empleado->cargo?->nombre }}.</p>
 
-        <p>Solicito se me conceda hacer uso de: {{ $vacacion['numero_rangos'] == 1 ? $vacacion['numero_dias'] : $vacacion['numero_dias_rango1']+$vacacion['numero_dias_rango2'] }}
-            días como vacaciones anuales:</p>
-        @if($vacacion['numero_rangos']==2)
-            <p><strong>Rango 1: </strong> Desde el {{ $vacacion['fecha_inicio_rango1_vacaciones'] }} hasta el {{ $vacacion['fecha_fin_rango1_vacaciones'] }}.</p>
-            <p><strong>Rango 2: </strong> Desde el {{ $vacacion['fecha_inicio_rango2_vacaciones'] }} hasta el {{ $vacacion['fecha_fin_rango2_vacaciones'] }}.</p>
-        @else
+        <p>Solicito se me conceda hacer uso de <strong> {{ $vacacion['dias_solicitados'] }}</strong>
+            días correspondientes a mis vacaciones anuales:</p>
             <p>Desde el {{ $vacacion['fecha_inicio'] }} hasta el: {{ $vacacion['fecha_fin'] }}.</p>
-        @endif
 
         <br>
         <p><strong>SECCION DEL AUTORIZADOR</strong></p>
-        @if($vacacion['estado']==2)
+        @if($vacacion['autorizacion_id']==2)
             <p>Analizadas las necesidades del personal, para el normal desenvolvimiento de las funciones del área, se
                 determina que la presente solicitud de permiso con cargo a las vacaciones es:
-                <strong>{{$vacacion['estado']===2? 'ACEPTADA':'NEGADA'}}</strong>.</p>
+                <strong>{{$vacacion['autorizacion_id']===2? 'ACEPTADA':'NEGADA'}}</strong>.</p>
         @else
             @php
-                $estado = match ($vacacion['estado']){
+                $estado = match ($vacacion['autorizacion_id']){
                   3 => 'NEGADA',
                   2 => 'ACEPTADA',
                   default => 'PENDIENTE'
@@ -192,7 +187,7 @@
             </th>
             <th></th>
             <th>
-                @if ($vacacion['estado']==2)
+                @if ($vacacion['autorizacion']==2)
                     @isset($autorizador_firma)
                         <img src="{{ $autorizador_firma }}" alt="" width="100%" height="40">
                     @endisset

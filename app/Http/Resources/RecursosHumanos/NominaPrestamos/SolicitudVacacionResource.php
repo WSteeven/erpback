@@ -20,13 +20,17 @@ class SolicitudVacacionResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
+            'empleado_id' => $this->empleado_id,
             'autorizador' => Empleado::extraerNombresApellidos($this->autorizador),
+            'autorizador_id' => $this->autorizador_id,
             'periodo' =>   $this->periodo->nombre,
             'dias_solicitados' =>  $this->dias_solicitados,
             'fecha_inicio' =>  $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'autorizacion' => $this->autorizacion->nombre,
+            'autorizacion_id' => $this->autorizacion_id,
             'reemplazo' => Empleado::extraerNombresApellidos($this->reemplazo),
+            'created_at' => $this->created_at,
         ];
 
         if($controller_method === 'show'){

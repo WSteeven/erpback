@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\App\EmpleadoService;
+use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
@@ -25,10 +26,12 @@ class PermisoEmpleadoController extends Controller
 {
     private string $entidad = 'Permiso';
     private ArchivoService $archivoService;
+    private VacacionService $vacacionService;
 
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
+        $this->vacacionService = new VacacionService();
         $this->middleware('can:puede.ver.permiso_nomina')->only('index', 'show');
         $this->middleware('can:puede.crear.permiso_nomina')->only('store');
     }
@@ -136,6 +139,7 @@ class PermisoEmpleadoController extends Controller
         if ($permiso->estado_permiso_id !== $autorizacion_id_old) {
             event(new PermisoEmpleadoEvent($permiso));
             if ($datos['estado_permiso_id'] == Autorizacion::APROBADO_ID) {
+                if($permiso->cargo_vacaciones) $this->vacacionService->registrarDiasVacacionMediantePermisoEmpleado($permiso);
                 event(new PermisoNotificacionEvent($permiso));
             }
         }

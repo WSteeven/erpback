@@ -136,7 +136,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo_extencion_conyugal', [ExtensionCoverturaSaludController::class, 'archivoExtensionConyugal']);
     Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
-    Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
+//    Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
     Route::get('solicitudes-vacaciones/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
     Route::get('solicitudes-vacaciones/derecho-vacaciones/{id}', [SolicitudVacacionController::class, 'derechoVacaciones']);
     Route::get('planificadores/imprimir/{plan}', [PlanificadorController::class, 'imprimir']);

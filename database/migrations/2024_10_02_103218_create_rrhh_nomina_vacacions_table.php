@@ -22,6 +22,8 @@ return new class extends Migration
             $table->boolean('completadas')->default(false);
             $table->timestamps();
 
+            $table->unique(['empleado_id', 'periodo_id']);
+
             $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->foreign('periodo_id')->references('id')->on('periodos');
         });

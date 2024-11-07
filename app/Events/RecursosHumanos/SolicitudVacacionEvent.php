@@ -34,7 +34,7 @@ class SolicitudVacacionEvent implements ShouldBroadcast
      */
     public function __construct($solicitud)
     {
-        $ruta = '/vacacion';
+        $ruta = '/solicitudes-vacaciones';
         $this->solicitud = $solicitud;
         switch ($solicitud->autorizacion_id) {
             case Autorizacion::PENDIENTE_ID:

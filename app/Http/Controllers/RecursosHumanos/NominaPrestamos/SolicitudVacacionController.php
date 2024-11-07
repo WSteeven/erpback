@@ -9,11 +9,12 @@ use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudVacacionResource
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudVacacion;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -73,6 +74,7 @@ class SolicitudVacacionController extends Controller
             DB::beginTransaction();
             $datos = $request->validated();
 
+//            throw new Exception("Error controlado");
             $solicitud = SolicitudVacacion::create($datos);
             event(new SolicitudVacacionEvent($solicitud));
             $modelo = new SolicitudVacacionResource($solicitud);
@@ -103,12 +105,12 @@ class SolicitudVacacionController extends Controller
      * parámetro "empleado" de la solicitud.
      *
      */
-    public function descuentos_permiso(Request $request)
-    {
-        return PermisoEmpleado::where('empleado_id', $request->empleado)->where('cargo_vacaciones', 1)
-            ->selectRaw('SUM(TIMESTAMPDIFF(HOUR, fecha_hora_inicio, fecha_hora_fin)) as duracion')
-            ->first();
-    }
+//    public function descuentos_permiso(Request $request)
+//    {
+//        return PermisoEmpleado::where('empleado_id', $request->empleado)->where('cargo_vacaciones', 1)
+//            ->selectRaw('SUM(TIMESTAMPDIFF(HOUR, fecha_hora_inicio, fecha_hora_fin)) as duracion')
+//            ->first();
+//    }
 
     /**
      * La función actualiza un modelo de Vacaciones con los datos validados de la solicitud y devuelve
@@ -178,12 +180,36 @@ class SolicitudVacacionController extends Controller
         // Entonces aquí se obtiene si el empleado tiene derecho a vacaciones y cuantos días
         $vacaciones = Vacacion::where('empleado_id', $id)
             ->where('opto_pago', false)->where('completadas', false)->get();
-        foreach ($vacaciones as $vacacion) {
+
+        if ($vacaciones->count() > 0) {
+            foreach ($vacaciones as $vacacion) {
 //            Log::channel('testing')->info('Log', ['Vacacion', $vacacion]);
-            $dias += $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
-            $row['periodo'] = $vacacion->periodo->nombre;
-            $row['dias_disponibles'] = $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
-            $results[] = $row;
+                $dias += $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
+                $row['periodo'] = $vacacion->periodo->nombre;
+//                $row['dias_disponibles'] = $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
+                $row['dias_disponibles'] = VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado($vacacion);
+                $results[] = $row;
+            }
+        } else {
+            //Si no hay vacaciones se devuelve los días transcurridos para las vacaciones
+            if (!Vacacion::where('empleado_id', $id)->exists()) {
+                $empleado = Empleado::find($id);
+                $fechaIngreso = Carbon::parse($empleado->fecha_ingreso);
+                $periodo = Periodo::where('nombre', 'LIKE', $fechaIngreso->year . '%')->first();
+                $row['periodo'] = $periodo->nombre;
+                $row['dias_disponibles'] = VacacionService::calcularDiasDeVacacionEmpleadoNuevo($empleado);
+                $results[] = $row;
+            }else{
+                //Significa que si hay vacaciones para el empleado pero que seguramente ya estan completadas
+                $vacacion = Vacacion::where('empleado_id', $id)->orderBy('created_at', 'desc')->first();
+                Log::channel('testing')->info('Log', ['Ultima vacacion', $vacacion]);
+                Log::channel('testing')->info('Log', ['Ultima periodo', $vacacion->periodo->nombre]);
+                $ultimo_anio = explode('-', $vacacion->periodo->nombre)[1];
+                $periodo = Periodo::where('nombre', 'LIKE', $ultimo_anio.'%')->first();
+                $row['periodo'] = $periodo->nombre;
+                $row['dias_disponibles'] = VacacionService::calcularDiasDeVacacionEmpleadoAntiguo($vacacion->empleado, $ultimo_anio);
+                $results[] = $row;
+            }
         }
         return response()->json(compact('results', 'dias'));
     }

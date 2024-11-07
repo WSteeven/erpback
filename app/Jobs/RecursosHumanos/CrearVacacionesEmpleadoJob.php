@@ -13,6 +13,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Log;
+use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
+use Throwable;
 
 class CrearVacacionesEmpleadoJob implements ShouldQueue
 {
@@ -60,14 +62,11 @@ class CrearVacacionesEmpleadoJob implements ShouldQueue
                     $existe_vacacion = Vacacion::where('empleado_id', $empleado->id)->where('periodo_id', $periodo->id)->exists();
                     if (!$existe_vacacion) {
                         // Se crea la vacacion en caso de que no exista, en este caso segun la antiguedad se crearán varias vacaciones o no
-                        Vacacion::create([
-                            'empleado_id' => $empleado->id,
-                            'periodo_id' => $periodo->id,
-                        ]);
+                        VacacionService::crearVacacion($empleado->id, $periodo->id);
                     }
                 }
             }
-        } catch (Exception $ex) {
+        } catch (Throwable|Exception $ex) {
             Log::channel('testing')->error('ERROR', ['Error en crear vacaciones JOB', $ex->getMessage(), $ex->getLine()]);
         }
 
