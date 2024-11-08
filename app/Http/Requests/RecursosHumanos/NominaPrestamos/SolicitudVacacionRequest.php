@@ -46,6 +46,7 @@ class SolicitudVacacionRequest extends FormRequest
             'numero_dias' => 'nullable|integer',
             'reemplazo_id' => 'required|exists:empleados,id',
             'funciones' => 'sometimes|nullable|string',
+            'observacion' => 'sometimes|nullable|string',
         ];
     }
 
@@ -59,17 +60,21 @@ class SolicitudVacacionRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            // Primero consultamos si es empleado nuevo
-            $empleado = Empleado::find($this->empleado_id);
-            if (Vacacion::where('empleado_id', $empleado->id)->where('periodo_id', $this->periodo_id)->exists()) {
-                if (!VacacionService::validarDiasDisponibles($this->empleado_id, $this->periodo_id, $this->fecha_inicio, $this->fecha_fin))
-                    $validator->errors()->add('dias_solicitados', 'La cantidad de días que estás solicitando es mayor a la cantidad de días disponibles para vacaciones, por favor ingresa una cantidad inferior.');
-            } else {
-                // Significa que aún no tiene un año de labores o no tiene registro de vacaciones
-                $dias_permitidos_nuevo_empleado = VacacionService::calcularDiasDeVacacionEmpleadoNuevo($empleado);
-                if (Utils::calcularDiasTranscurridos($this->fecha_inicio, $this->fecha_fin) > $dias_permitidos_nuevo_empleado)
-                    $validator->errors()->add('dias_solicitados', 'La cantidad de días que estás solicitando es mayor a la cantidad de días disponibles para vacaciones, por favor ingresa una cantidad inferior o igual a ' . $dias_permitidos_nuevo_empleado . '.');
-            }
+            //Primero que nada validamos si es autorizacion pendiente o aprobada
+            if ($this->autorizacion_id == Autorizacion::PENDIENTE_ID || $this->autorizacion_id == Autorizacion::APROBADO_ID) {
+
+                // Primero consultamos si es empleado nuevo
+                $empleado = Empleado::find($this->empleado_id);
+                if (Vacacion::where('empleado_id', $empleado->id)->where('periodo_id', $this->periodo_id)->exists()) {
+                    if (!VacacionService::validarDiasDisponibles($this->empleado_id, $this->periodo_id, $this->fecha_inicio, $this->fecha_fin))
+                        $validator->errors()->add('dias_solicitados', 'La cantidad de días que estás solicitando es mayor a la cantidad de días disponibles para vacaciones, por favor ingresa una cantidad inferior.');
+                } else {
+                    // Significa que aún no tiene un año de labores o no tiene registro de vacaciones
+                    $dias_permitidos_nuevo_empleado = VacacionService::calcularDiasDeVacacionEmpleadoNuevo($empleado);
+                    if (Utils::calcularDiasTranscurridos($this->fecha_inicio, $this->fecha_fin) > $dias_permitidos_nuevo_empleado)
+                        $validator->errors()->add('dias_solicitados', 'La cantidad de días que estás solicitando es mayor a la cantidad de días disponibles para vacaciones, por favor ingresa una cantidad inferior o igual a ' . $dias_permitidos_nuevo_empleado . '.');
+                }
+            }// en caso de ser anulada u otra debe pasar el flujo normal
         });
     }
 

@@ -34,7 +34,7 @@ class PermisoEmpleadoRequest extends FormRequest
             'observacion' => 'nullable|string',
             'fecha_hora_reagendamiento' => 'nullable|string',
             'empleado_id' => 'nullable|exists:empleados,id',
-            'estado' => 'nullable',
+            'estado_permiso_id' => 'nullable',
             'tieneDocumento' => 'required',
             'cargo_vacaciones' => 'boolean',
             'aceptar_sugerencia' => 'nullable',
@@ -44,6 +44,9 @@ class PermisoEmpleadoRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        $this->merge([
+            'estado_permiso_id'=>$this->estado,
+        ]);
 //        $mask = 'Y-m-d H:i:s';
         $controller_method = $this->route()->getActionMethod();
         $fecha_inicio = Carbon::parse($this->fecha_hora_inicio);

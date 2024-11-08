@@ -81,7 +81,7 @@ class PermisoEmpleadoController extends Controller
         if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
-           $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
+            $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
         }
         $results = PermisoEmpleadoResource::collection($results);
@@ -132,21 +132,28 @@ class PermisoEmpleadoController extends Controller
      */
     public function update(PermisoEmpleadoRequest $request, PermisoEmpleado $permiso)
     {
-        $autorizacion_id_old = $permiso->estado_permiso_id;
-        $datos = $request->validated();
-        $datos['estado_permiso_id'] = $request->safe()->only(['estado'])['estado'];
-        $permiso->update($datos);
-        if ($permiso->estado_permiso_id !== $autorizacion_id_old) {
-            event(new PermisoEmpleadoEvent($permiso));
-            if ($datos['estado_permiso_id'] == Autorizacion::APROBADO_ID) {
-                if($permiso->cargo_vacaciones) $this->vacacionService->registrarDiasVacacionMediantePermisoEmpleado($permiso);
-                event(new PermisoNotificacionEvent($permiso));
+        try {
+            $autorizacion_id_old = $permiso->estado_permiso_id;
+            $datos = $request->validated();
+            DB::beginTransaction();
+            $permiso->update($datos);
+            if ($permiso->estado_permiso_id !== $autorizacion_id_old) {
+                event(new PermisoEmpleadoEvent($permiso));
+                if ($datos['estado_permiso_id'] == Autorizacion::APROBADO_ID) {
+                    if ($permiso->cargo_vacaciones) $this->vacacionService->registrarDiasVacacionMediantePermisoEmpleado($permiso);
+                    event(new PermisoNotificacionEvent($permiso));
+                }
             }
-        }
-        $modelo = new PermisoEmpleadoResource($permiso);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            $modelo = new PermisoEmpleadoResource($permiso);
+            DB::commit();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(compact('mensaje', 'modelo'));
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Throwable|Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->error('Log', ['ERROR en el update de permiso de empleado', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     public function destroy(PermisoEmpleado $permiso)

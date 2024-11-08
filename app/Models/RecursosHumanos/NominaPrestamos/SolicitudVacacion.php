@@ -5,6 +5,7 @@ namespace App\Models\RecursosHumanos\NominaPrestamos;
 use App\Models\Autorizacion;
 use App\Models\Empleado;
 use App\Models\Notificacion;
+use App\Traits\UppercaseValuesTrait;
 use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,10 +13,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
-use parallel\Future\Error\Cancelled;
 
 /**
  * App\Models\RecursosHumanos\NominaPrestamos\Vacacion
@@ -81,6 +81,7 @@ class SolicitudVacacion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
 
     protected $table = 'rrhh_nomina_solicitudes_vacaciones';//'vacaciones';
     protected $fillable = [
@@ -93,6 +94,7 @@ class SolicitudVacacion extends Model implements Auditable
         'autorizacion_id',
         'reemplazo_id',
         'funciones',
+        'observacion',
     ];
 
     const PENDIENTE = 1;
@@ -123,13 +125,14 @@ class SolicitudVacacion extends Model implements Auditable
 
     public function detallesVacaciones()
     {
-        return $this->morphMany(DetalleVacacion::class, 'vacacionable','vacacionable_type', 'vacacionable_id' );
+        return $this->morphMany(DetalleVacacion::class, 'vacacionable', 'vacacionable_type', 'vacacionable_id');
     }
 
     public function reemplazo()
     {
         return $this->belongsTo(Empleado::class, 'reemplazo_id', 'id');
     }
+
     public function autorizador()
     {
         return $this->belongsTo(Empleado::class, 'autorizador_id', 'id');

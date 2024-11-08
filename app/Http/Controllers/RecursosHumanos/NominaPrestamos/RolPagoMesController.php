@@ -16,6 +16,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Hamcrest\Util;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -72,10 +73,9 @@ class RolPagoMesController extends Controller
             $datos = $request->validated();
             $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
             if (!$request->es_quincena && count($existe_mes) == 0) {
-                throw ValidationException::withMessages([
-                    '404' => ['Porfavor primero realice el Rol de Pagos de Quincena'],
-                ]);
+                throw new Exception('Porfavor primero realice el Rol de Pagos de Quincena');
             }
+            if (RolPagoMes::where('finalizado', false)->count() > 0) throw new Exception( 'Por favor asegurate de haber finalizado todos los roles de pagos anteriores para poder crear uno nuevo.');
             DB::beginTransaction();
             $rol = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rol);
@@ -84,11 +84,9 @@ class RolPagoMesController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['error store ', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage() . $e->getLine()],
-            ]);
+            throw Utils::obtenerMensajeErrorLanzable($e );
         }
     }
 
@@ -193,7 +191,7 @@ class RolPagoMesController extends Controller
             $tipo_pagina = $es_quincena ? 'A4' : 'A2';
             return $this->reporteService->imprimirReporte($tipo, $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ['error imprimirRolPagoGeneral', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar reporte' => [$e->getMessage()],
             ]);
@@ -207,6 +205,7 @@ class RolPagoMesController extends Controller
      *
      * @param int $rolPagoId
      * @return JsonResponse respuesta JSON con un mensaje indicando que la nómina ha sido enviada exitosamente.
+     * @throws Exception
      */
     public function enviarRoles(int $rolPagoId)
     {
@@ -225,21 +224,27 @@ class RolPagoMesController extends Controller
      *
      * @param int $rolPagoId
      * @return BinaryFileResponse descarga de un archivo Excel.
+     * @throws ValidationException
      */
     public function crearCashRolPago(int $rolPagoId)
     {
-        $nombre_reporte = 'rol_pagos_general';
-        $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
-            ->where('rol_pago_id', $rolPagoId)
-            ->get();
-        $results = RolPago::empaquetarCash($roles_pagos);
-        $results = collect($results)->map(function ($elemento, $index) {
-            $elemento['item'] = $index + 1;
-            return $elemento;
-        })->all();
-        $reporte = ['reporte' => $results];
-        $export_excel = new CashRolPagoExport($reporte);
-        return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+        try {
+
+            $nombre_reporte = 'rol_pagos_general';
+            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
+                ->where('rol_pago_id', $rolPagoId)
+                ->get();
+            $results = RolPago::empaquetarCash($roles_pagos);
+            $results = collect($results)->map(function ($elemento, $index) {
+                $elemento['item'] = $index + 1;
+                return $elemento;
+            })->all();
+            $reporte = ['reporte' => $results];
+            $export_excel = new CashRolPagoExport($reporte);
+            return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Se obtuvo un error en el método crearCashRolPago');
+        }
     }
 
     /**
@@ -510,11 +515,11 @@ class RolPagoMesController extends Controller
                         $monto[$subitem['descuento_id']] = $subitem['monto'];
                     }
                 }
-                if ($item[$key_cantidad] == 0) {
-                    for ($j = 0; $j < $maximo; $j++) {
+//                if ($item[$key_cantidad] == 0) {
+//                    for ($j = 0; $j < $maximo; $j++) {
                         //   $monto[$j] = 0;
-                    }
-                }
+//                    }
+//                }
                 return $monto;
             },
             $data
@@ -618,7 +623,7 @@ class RolPagoMesController extends Controller
             }
             $rol->rolPago()->createMany($roles_pago);
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->info('Log', ['erro tablaRoles', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],
             ]);
@@ -783,7 +788,7 @@ class RolPagoMesController extends Controller
                 ));
             }
         } catch (Throwable|Exception $ex) {
-            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->info('Log', ['error actualizarTablaRoles', $ex->getMessage(), $ex->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($ex, 'Error al refrescar rol pago por empleado');
         }
     }

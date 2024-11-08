@@ -26,7 +26,8 @@ class VacacionRequest extends FormRequest
     {
         return [
             'empleado_id' => 'required|exists:empleados,id',
-            'periodo_id' => 'required|exists:periodos,id'
+            'periodo_id' => 'required|exists:periodos,id',
+            'opto_pago'=>'boolean',
         ];
     }
     protected function prepareForValidation()

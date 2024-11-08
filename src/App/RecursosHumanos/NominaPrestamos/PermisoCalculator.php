@@ -4,6 +4,8 @@ namespace Src\App\RecursosHumanos\NominaPrestamos;
 
 use Carbon\Carbon;
 
+/* IMPORTANT: Esta clase no se está usando ni sus métodos */
+
 class PermisoCalculator
 {
     protected Carbon $horaInicioOficina;
@@ -77,4 +79,5 @@ class PermisoCalculator
         // }
         return true;
     }
+
 }

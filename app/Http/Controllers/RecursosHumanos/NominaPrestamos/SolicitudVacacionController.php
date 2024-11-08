@@ -198,7 +198,6 @@ class SolicitudVacacionController extends Controller
                 $periodo = Periodo::where('nombre', 'LIKE', $fechaIngreso->year . '%')->first();
                 $row['periodo'] = $periodo->nombre;
                 $row['dias_disponibles'] = VacacionService::calcularDiasDeVacacionEmpleadoNuevo($empleado);
-                $results[] = $row;
             }else{
                 //Significa que si hay vacaciones para el empleado pero que seguramente ya estan completadas
                 $vacacion = Vacacion::where('empleado_id', $id)->orderBy('created_at', 'desc')->first();
@@ -208,8 +207,8 @@ class SolicitudVacacionController extends Controller
                 $periodo = Periodo::where('nombre', 'LIKE', $ultimo_anio.'%')->first();
                 $row['periodo'] = $periodo->nombre;
                 $row['dias_disponibles'] = VacacionService::calcularDiasDeVacacionEmpleadoAntiguo($vacacion->empleado, $ultimo_anio);
-                $results[] = $row;
             }
+            $results[] = $row;
         }
         return response()->json(compact('results', 'dias'));
     }

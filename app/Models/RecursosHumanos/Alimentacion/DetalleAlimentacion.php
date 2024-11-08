@@ -3,12 +3,17 @@
 namespace App\Models\RecursosHumanos\Alimentacion;
 
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use Carbon\Carbon;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\RecursosHumanos\Alimentacion\DetalleAlimentacion
@@ -20,33 +25,34 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int $alimentacion_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\RecursosHumanos\Alimentacion\Alimentacion|null $alimentacion
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Alimentacion|null $alimentacion
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empleado|null $empleado
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion query()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion whereAlimentacionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion whereFechaCorte($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleAlimentacion whereValorAsignado($value)
- * @mixin \Eloquent
+ * @method static Builder|DetalleAlimentacion acceptRequest(?array $request = null)
+ * @method static Builder|DetalleAlimentacion filter(?array $request = null)
+ * @method static Builder|DetalleAlimentacion ignoreRequest(?array $request = null)
+ * @method static Builder|DetalleAlimentacion newModelQuery()
+ * @method static Builder|DetalleAlimentacion newQuery()
+ * @method static Builder|DetalleAlimentacion query()
+ * @method static Builder|DetalleAlimentacion setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|DetalleAlimentacion setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|DetalleAlimentacion setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|DetalleAlimentacion whereAlimentacionId($value)
+ * @method static Builder|DetalleAlimentacion whereCreatedAt($value)
+ * @method static Builder|DetalleAlimentacion whereEmpleadoId($value)
+ * @method static Builder|DetalleAlimentacion whereFechaCorte($value)
+ * @method static Builder|DetalleAlimentacion whereId($value)
+ * @method static Builder|DetalleAlimentacion whereUpdatedAt($value)
+ * @method static Builder|DetalleAlimentacion whereValorAsignado($value)
+ * @mixin Eloquent
  */
 class DetalleAlimentacion extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
+
     protected $table = 'rrhh_detalle_alimentaciones';
     protected $fillable = [
         'empleado_id',
@@ -55,7 +61,7 @@ class DetalleAlimentacion extends Model implements Auditable
         'alimentacion_id'
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'empleado_id',
         'empleado',
         'valor_asignado',
@@ -63,11 +69,14 @@ class DetalleAlimentacion extends Model implements Auditable
         'alimentacion',
         'alimentacion_id'
     ];
+
     public function empleado()
     {
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }
-    public function alimentacion(){
+
+    public function alimentacion()
+    {
         return $this->hasOne(Alimentacion::class, 'id', 'alimentacion_id');
     }
 
@@ -77,10 +86,10 @@ class DetalleAlimentacion extends Model implements Auditable
         $id = 0;
         $row = [];
 
-        foreach ($detalles_alimentacion as $detalles_alimentacion) {
+        foreach ($detalles_alimentacion as $detalle) {
             $row['item'] = $id + 1;
-            $row['empleado'] = $detalles_alimentacion->empleado->apellidos . ' ' . $detalles_alimentacion->empleado->nombres;
-            $row['valor_asignado'] = str_replace(".", "", number_format($detalles_alimentacion->valor_asignado, 2, ',', '.'));
+            $row['empleado'] = $detalle->empleado->apellidos . ' ' . $detalle->empleado->nombres;
+            $row['valor_asignado'] = str_replace(".", "", number_format($detalle->valor_asignado, 2, ',', '.'));
             $results[$id] = $row;
             $id++;
         }
@@ -88,31 +97,25 @@ class DetalleAlimentacion extends Model implements Auditable
 
         return $results;
     }
+
     public static function empaquetarCash($detalles_alimentacion)
     {
         $results = [];
         $id = 0;
-        $row = [];
 
-        foreach ($detalles_alimentacion as $detalles_alimentacion) {
-            $cuenta_bancarea_num = intval($detalles_alimentacion->empleado->num_cuenta_bancaria);
+        foreach ($detalles_alimentacion as $detalle) {
+            $cuenta_bancarea_num = intval($detalle->empleado->num_cuenta_bancaria);
             if ($cuenta_bancarea_num > 0) {
-                $referencia = $detalles_alimentacion->alimentacion->es_quincena ? 'ALIMENTACION PRIMERA QUINCENA MES ' : 'ALIMENTACION FIN DE MES ';
+                $referencia = $detalle->alimentacion->es_quincena ? 'ALIMENTACION PRIMERA QUINCENA MES ' : 'ALIMENTACION FIN DE MES ';
+                $row = RolPago::getDatosBancariosDefault();
                 $row['item'] = $id + 1;
-                $row['empleado'] =  $detalles_alimentacion->empleado->apellidos . ' ' . $detalles_alimentacion->empleado->nombres;
-                $row['departamento'] = $detalles_alimentacion->empleado->departamento->nombre;
-                $row['numero_cuenta_bancareo'] =  $detalles_alimentacion->empleado->num_cuenta_bancaria;
-                $row['email'] =  $detalles_alimentacion->empleado->user->email;
-                $row['tipo_pago'] = 'PA';
-                $row['numero_cuenta_empresa'] = '02653010903';
-                $row['moneda'] = 'USD';
-                $row['forma_pago'] = 'CTA';
-                $row['codigo_banco'] = '0036';
-                $row['tipo_cuenta'] = 'AHO';
-                $row['tipo_documento_empleado'] = 'C';
-                $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::parse($detalles_alimentacion->alimentacion->mes)->locale('es')->translatedFormat('F')));
-                $row['identificacion'] =  $detalles_alimentacion->empleado->identificacion;
-                $row['total'] =  str_replace(".", "", number_format($detalles_alimentacion->valor_asignado, 2, ',', '.'));
+                $row['empleado'] = $detalle->empleado->apellidos . ' ' . $detalle->empleado->nombres;
+                $row['departamento'] = $detalle->empleado->departamento->nombre;
+                $row['numero_cuenta_bancareo'] = $detalle->empleado->num_cuenta_bancaria;
+                $row['email'] = $detalle->empleado->user->email;
+                $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::parse($detalle->alimentacion->mes)->locale('es')->translatedFormat('F')));
+                $row['identificacion'] = $detalle->empleado->identificacion;
+                $row['total'] = str_replace(".", "", number_format($detalle->valor_asignado, 2, ',', '.'));
                 $results[$id] = $row;
                 $id++;
             }
@@ -121,7 +124,8 @@ class DetalleAlimentacion extends Model implements Auditable
 
         return $results;
     }
-    private static function  ordenarNombresApellidos($a, $b)
+
+    private static function ordenarNombresApellidos($a, $b)
     {
         $nameA = $a['empleado'] . ' ' . $a['empleado'];
         $nameB = $b['empleado'] . ' ' . $b['empleado'];

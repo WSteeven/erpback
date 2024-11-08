@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('dias_solicitados');
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
+            $table->text('observacion')->nullable();
             $table->unsignedBigInteger('reemplazo_id');
             $table->text('funciones');
             $table->timestamps();

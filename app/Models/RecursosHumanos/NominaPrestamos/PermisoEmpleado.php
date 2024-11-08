@@ -128,6 +128,11 @@ class PermisoEmpleado extends Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
+    public function detallesVacaciones()
+    {
+        return $this->morphMany(DetalleVacacion::class, 'vacacionable','vacacionable_type', 'vacacionable_id' );
+    }
+
     /**
      * Relacion polimorfica con Archivos uno a muchos.
      *

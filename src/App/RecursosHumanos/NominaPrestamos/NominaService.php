@@ -20,13 +20,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Throwable;
 
 class NominaService
 {
     private $mes;
-    private $id_empleado;
+    private int $id_empleado;
     private Empleado $empleado;
-    private $reporteService;
+    private ReportePdfExcelService $reporteService;
     private $rolPago;
 
     public function __construct($mes = null)
@@ -41,7 +42,7 @@ class NominaService
         $this->mes = $mes;
     }
 
-    public function setEmpleado($id_empleado)
+    public function setEmpleado(int $id_empleado)
     {
         $this->id_empleado = $id_empleado;
         $this->empleado = Empleado::where('id', $this->id_empleado)->first();
@@ -65,10 +66,10 @@ class NominaService
         }
     }
 
-    public function getRolPago()
-    {
-        return $this->rolPago;
-    }
+//    public function getRolPago()
+//    {
+//        return $this->rolPago;
+//    }
 
     public function permisoEmpleado($recupero = 0, $todos = false, $pluck = false)
     {
@@ -104,7 +105,7 @@ class NominaService
         $query = ExtensionCoverturaSalud::where('mes', $mes_convertido);
         if ($todos) {
             $query->groupBy('empleado_id')
-                ->select('empleado_id', DB::raw('SUM(aporte) as total_valor'));
+                ->select(['empleado_id', DB::raw('SUM(aporte) as total_valor')]);
 
             if ($pluck) {
                 return $query->pluck('total_valor', 'empleado_id');
@@ -114,7 +115,7 @@ class NominaService
         } else {
             $extension_conyugal = $query->where('empleado_id', $this->id_empleado)
                 ->groupBy('empleado_id')
-                ->select('empleado_id', DB::raw('SUM(aporte) as total_valor'))->first();
+                ->select(['empleado_id', DB::raw('SUM(aporte) as total_valor')])->first();
             $suma = $extension_conyugal == null ? 0 : $extension_conyugal->total_valor;
             return $suma != 0 ? $suma : 0;
         }
@@ -151,11 +152,13 @@ class NominaService
         return NominaService::obtenerValorRubro(5) / 100;
     }
 
+    /**
+     * @throws Exception
+     */
     public function calcularDias(int $cantidad_dias)
     {
         // Convierte la fecha de ingreso de un empleado a un objeto Carbon utilizando el formato 'd-m-Y'
         $fechaIngresada = Carbon::createFromFormat('Y-m-d', $this->empleado->fecha_ingreso);
-        $diasRestantes = 0;
         // Verifica si la fecha ingresada pertenece al mes actual
         if ($fechaIngresada->isCurrentMonth()) {
             // Verifica si la fecha ingresada es anterior al día 15 del mes actual
@@ -165,7 +168,7 @@ class NominaService
                 $diasRestantes = $cantidad_dias - $fechaIngresada->day + 1;
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
-                $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
+//                $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
                 throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual');
             }
         } else {
@@ -176,26 +179,25 @@ class NominaService
     }
 
 
+    /**
+     * @throws Throwable
+     */
     public function calcularSueldo($dias = 30, $es_quincena = false, $sueldo = 0)
     {
-        try {
-            $salario_diario = $this->empleado->salario / 30;
-            if ($es_quincena) {
-                $sueldo = $sueldo <= 0 ? $this->empleado->salario * NominaService::calcularPorcentajeAnticipo() : $sueldo;
-                // $sueldo = $sueldo !== 0 ? $sueldo : $this->empleado->salario * NominaService::calcularPorcentajeAnticipo();
-            } else {
-                Log::channel('testing')->info('Log', [Empleado::extraerNombresApellidos($this->empleado),
-                    $this->empleado->salario,
-                    $dias, $this->permisoEmpleado()]);
-                $dias_trabajados = $dias - $this->permisoEmpleado();
-                $sueldo = $salario_diario * $dias_trabajados;
-            }
-            if ($this->rolPago != null && $sueldo === 0) {
-                Log::channel('testing')->info('Log', ['ID this->rolpago', $this->rolPago]);
-                $sueldo = $this->calculoSueldoRolPago($es_quincena, $dias);
-            }
-        } catch (\Throwable $th) {
-            throw $th;
+        $salario_diario = $this->empleado->salario / 30;
+        if ($es_quincena) {
+            $sueldo = $sueldo <= 0 ? $this->empleado->salario * NominaService::calcularPorcentajeAnticipo() : $sueldo;
+            // $sueldo = $sueldo !== 0 ? $sueldo : $this->empleado->salario * NominaService::calcularPorcentajeAnticipo();
+        } else {
+            Log::channel('testing')->info('Log', [Empleado::extraerNombresApellidos($this->empleado),
+                $this->empleado->salario,
+                $dias, $this->permisoEmpleado()]);
+            $dias_trabajados = $dias - $this->permisoEmpleado();
+            $sueldo = $salario_diario * $dias_trabajados;
+        }
+        if ($this->rolPago != null && $sueldo === 0) {
+            Log::channel('testing')->info('Log', ['ID this->rolpago', $this->rolPago]);
+            $sueldo = $this->calculoSueldoRolPago($es_quincena, $dias);
         }
         // Log::channel('testing')->info('Log', ['DATOS',  $this->empleado->nombres, $this->rolPago, $dias, $sueldo]);
         return $sueldo;
@@ -213,7 +215,7 @@ class NominaService
         // Calcula el salario diario
         $sueldo_diario = ($this->empleado->salario / 30) * $dias_totales;
         // Calcula el total del salario
-        $total_sueldo = 0;
+      //  $total_sueldo = 0;
         switch ($this->empleado->tipo_contrato) {
             case 3:
                 $total_sueldo = ($this->empleado->salario * $this->calcularPorcentajeAnticipo()) / 15 * $dias;
@@ -232,38 +234,41 @@ class NominaService
     }
 
     /**
-     * @return float|mixed
+     * @return float
      */
     public function calcularSalario()
     {
-        return $this->empleado->salario;
+        return (float)$this->empleado->salario;
     }
 
     public function obtener_total_descuentos_multas()
     {
-        $egreso = EgresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
-        return $egreso;
+        return EgresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
     }
 
     public function obtener_total_ingresos()
     {
-        $ingreso = IngresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
-        return $ingreso;
+        return IngresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
     }
 
-    public function calcularDiasRol($cantidad_dias)
-    {
-        $fechaIngresada = $this->empleado->fecha_ingreso;
-        $fechaCarbon = Carbon::createFromFormat('d-m-Y', $fechaIngresada);
-        $dias = 0;
-        if ($fechaCarbon->isCurrentMonth()) {
-            $dias = $this->calcularDias($cantidad_dias);
-        } else {
-            $dias = $this->rolPago->dias;
-        }
-        return $dias;
-    }
+    /**
+     * @throws Exception
+     */
+//    public function calcularDiasRol($cantidad_dias)
+//    {
+//        $fechaIngresada = $this->empleado->fecha_ingreso;
+//        $fechaCarbon = Carbon::createFromFormat('d-m-Y', $fechaIngresada);
+//        if ($fechaCarbon->isCurrentMonth()) {
+//            $dias = $this->calcularDias($cantidad_dias);
+//        } else {
+//            $dias = $this->rolPago->dias;
+//        }
+//        return $dias;
+//    }
 
+    /**
+     * @throws Throwable
+     */
     public function calcularAporteIESS($dias = 30)
     {
         $sueldo = $this->calcularSueldo($dias);
@@ -271,28 +276,27 @@ class NominaService
         return floatval(number_format($iess, 2));
     }
 
+    /**
+     * @throws Throwable
+     */
     public function calcularDecimo($tipo, $dias)
     {
-        try {
-            $es_vendedor_medio_tiempo = false;
-            if (isset($this->rolPago->es_vendedor_medio_tiempo)) {
-                $es_vendedor_medio_tiempo = $this->rolPago->es_vendedor_medio_tiempo;
-            }
-            switch ($tipo) {
-                case 3:
-                    // return number_format((($this->calcularSueldo($dias) / 360) * $dias), 2);
-                    return number_format(($this->calcularSueldo($dias) / 12), 2);
-                    break;
-                case 4:
-                    // if ($es_vendedor_medio_tiempo) {
-                    //     return ((NominaService::calcularSueldoBasico() / 2) / 360) * $dias;
-                    // } else {
-                    return (NominaService::calcularSueldoBasico() / 360) * $dias;
-                    // }
-                    break;
-            }
-        } catch (Exception $e) {
-            throw $e;
+//        $es_vendedor_medio_tiempo = false;
+//        if (isset($this->rolPago->es_vendedor_medio_tiempo)) {
+//            $es_vendedor_medio_tiempo = $this->rolPago->es_vendedor_medio_tiempo;
+//        }
+        switch ($tipo) {
+            case 3:
+                // return number_format((($this->calcularSueldo($dias) / 360) * $dias), 2);
+                return number_format(($this->calcularSueldo($dias) / 12), 2);
+            case 4:
+                // if ($es_vendedor_medio_tiempo) {
+                //     return ((NominaService::calcularSueldoBasico() / 2) / 360) * $dias;
+                // } else {
+                return (NominaService::calcularSueldoBasico() / 360) * $dias;
+            // }
+            default:
+                return 0;
         }
     }
 
@@ -308,6 +312,9 @@ class NominaService
         return $rol_usuario != null ? $rol_usuario->total : 0;
     }
 
+    /**
+     * @throws Throwable
+     */
     public function calcularFondosReserva($dias = 30)
     {
         Log::channel('testing')->info('Log', ['dias', $dias]);
@@ -343,6 +350,9 @@ class NominaService
         return floatval(number_format($fondosDeReserva, 2));
     }
 
+    /**
+     * @throws Exception
+     */
     public function enviar_rol_pago($rolPagoId, $destinatario)
     {
         $roles_pagos = RolPago::where('id', $rolPagoId)->get();
@@ -357,6 +367,9 @@ class NominaService
             ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
     }
 
+    /**
+     * @throws Exception
+     */
     public function guardarIngresosYEgresos(RolPagoRequest $request, RolPago $rolPago): void
     {
         if (!empty($request->ingresos)) {

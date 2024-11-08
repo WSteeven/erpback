@@ -48,20 +48,22 @@ class VacacionController extends Controller
      */
     public function store(VacacionRequest $request)
     {
-        try {
-            DB::beginTransaction();
-            $datos = $request->validated();
+        throw ValidationException::withMessages([Utils::metodoNoDesarrollado()]);
 
-            $vacacion = Vacacion::create($datos);
-
-            $modelo = new VacacionResource($vacacion);
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            DB::commit();
-        } catch (Throwable $th) {
-            DB::rollBack();
-            throw Utils::obtenerMensajeErrorLanzable($th, 'Guardar Vacacion ' . $this->entidad);
-        }
-        return response()->json(compact('mensaje', 'modelo'));
+//        try {
+//            DB::beginTransaction();
+//            $datos = $request->validated();
+//
+//            $vacacion = Vacacion::create($datos);
+//
+//            $modelo = new VacacionResource($vacacion);
+//            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+//            DB::commit();
+//        } catch (Throwable $th) {
+//            DB::rollBack();
+//            throw Utils::obtenerMensajeErrorLanzable($th, 'Guardar Vacacion ' . $this->entidad);
+//        }
+//        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -86,11 +88,21 @@ class VacacionController extends Controller
      */
     public function update(VacacionRequest $request, Vacacion $vacacion)
     {
+        $opto_pago_old = $vacacion->opto_pago;
+
+        $modelo = [];
+
         try {
             DB::beginTransaction();
             $datos = $request->validated();
 
             $vacacion->update($datos);
+            // Verificamos si cambió el valor de opto_pago para lanzar el mecanismo de que ese pago se realice en Rol de Pagos
+            if($opto_pago_old != $vacacion->opto_pago && $vacacion->opto_pago){
+                /* TODO: Elaborar el mecanismo para obtener ese pago en el rol de pagos... */
+
+            }
+
 
             $modelo = new VacacionResource($vacacion->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

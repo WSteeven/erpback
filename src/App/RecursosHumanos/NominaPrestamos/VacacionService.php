@@ -3,6 +3,7 @@
 namespace Src\App\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Carbon\Carbon;
@@ -42,10 +43,26 @@ class VacacionService
         return (int)floor($dias_anuales / 365 * $dias_transcurridos);
     }
 
+    /**
+     * Obtiene los días de antiguedad de un empleado, en base a los registros de vacaciones.
+     * @param int $empleado_id
+     * @return int|mixed
+     */
+    public static function obtenerDiasVacacionSegunAntiguedadEmpleado(int $empleado_id)
+    {
+        /* TODO: Léase: Art 69 del Código del Trabajo */
+
+        if (Vacacion::where('empleado_id', $empleado_id)->count() >= 5) {
+            $dias_ultima_vacacion = Vacacion::where('empleado_id', $empleado_id)->max('dias');
+            return ($dias_ultima_vacacion + 1) < 30 ? $dias_ultima_vacacion + 1 : 30;
+        }
+        return 15;
+    }
+
 
     /**
      * Calcula días de vacación para registros de vacacion que se crean pero que aún no tiene un año de ingresado el empleado,
-     * entonces debe hacerse el calculo para obtener los días reales en caso de empleados nuevos
+     * entonces debe hacerse el calculo para obtener los días reales en caso de empleados nuevos o en caso de registros de vacacion para un periodo que apenas estan empezando
      * @param Vacacion $vacacion
      * @return int
      */
@@ -56,17 +73,26 @@ class VacacionService
         $fecha_inicio = Carbon::parse($vacacion->empleado->fecha_ingreso);
         $hoy = Carbon::now();
         $dias_transcurridos = $hoy->diffInDays($fecha_inicio);
-        Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->dias_transcurridos', $dias_transcurridos, $dias_transcurridos / self::DIAS_ANIO, $dias_transcurridos % self::DIAS_ANIO]);
+//        Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->dias_transcurridos', $dias_transcurridos, $dias_transcurridos / self::DIAS_ANIO, $dias_transcurridos % self::DIAS_ANIO]);
         $anio_inicio_periodo_vacacion = explode('-', $vacacion->periodo->nombre)[0];
         if ($hoy->year == $anio_inicio_periodo_vacacion) {
             $resto = $dias_transcurridos % self::DIAS_ANIO;
-            Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->valores', ($vacacion->dias / self::DIAS_ANIO * $resto) , $vacacion->detalles()->sum('dias_utilizados')]);
-            Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->calculo', ($vacacion->dias / self::DIAS_ANIO * $resto) - $vacacion->detalles()->sum('dias_utilizados')]);
+//            Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->valores', ($vacacion->dias / self::DIAS_ANIO * $resto), $vacacion->detalles()->sum('dias_utilizados')]);
+//            Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->calculo', ($vacacion->dias / self::DIAS_ANIO * $resto) - $vacacion->detalles()->sum('dias_utilizados')]);
 
             return (int)floor($vacacion->dias / self::DIAS_ANIO * $resto) - $vacacion->detalles()->sum('dias_utilizados');
 
         } else
             return (int)($vacacion->dias - $vacacion->detalles()->sum('dias_utilizados'));
+    }
+
+    private function calcularPeriodo(Empleado $empleado)
+    {
+        $empleado->fecha_ingreso = Carbon::parse($empleado->fecha_ingreso);
+        $anio = explode('-', $empleado->fecha_ingreso)[0];
+        $periodo = Periodo::where('nombre', 'LIKE', $anio . '%')->first();
+        if ($periodo) return $periodo->id;
+        return -1;
     }
 
     /**
@@ -77,15 +103,25 @@ class VacacionService
      */
     public function registrarDiasVacacionMediantePermisoEmpleado(PermisoEmpleado $permiso)
     {
-        $vacacion = Vacacion::where('empleado_id', $permiso->empleado_id)
-            ->where('completadas', false)
-            ->first();
-        $fecha_hora_inicio = Carbon::parse($permiso->fecha_hora_inicio);
-        $fecha_hora_fin = Carbon::parse($permiso->fecha_hora_fin);
-        $horas = $fecha_hora_inicio->diffInHours($fecha_hora_fin);
-        $calculadoraHoras = new PermisoCalculator();
-        $calculadoraHoras->calcularHorasPermiso($fecha_hora_inicio, $fecha_hora_fin);
-        $this->registrarDiasVacaciones($permiso->empleado_id,$periodo_id, $permiso, $permiso->fecha_hora_inicio, $permiso->fecha_hora_fin);
+        if (!Vacacion::where('empleado_id', $permiso->empleado_id)->exists()) {
+            // Si no hay ningun registro de vacacion, supongamos
+            $periodo_id = $this->calcularPeriodo($permiso->empleado);
+            if ($periodo_id > 0) $this->registrarDiasVacaciones($permiso->empleado_id, $periodo_id, $permiso, $permiso->fecha_hora_inicio, $permiso->fecha_hora_fin);
+        } else {
+            $vacacion = Vacacion::where('empleado_id', $permiso->empleado_id)
+                ->where('completadas', false)
+                ->first();
+            //recorremos las vacaciones, hasta encontrar una que si tenga dias disponibles
+            while ($vacacion && !self::validarDiasDisponibles($vacacion->empleado_id, $vacacion->periodo_id, $permiso->fecha_hora_inicio, $permiso->fecha_hora_fin)) {
+                $vacacion = Vacacion::where('empleado_id', $permiso->empleado_id)
+                    ->where('completadas', false)
+                    ->where('id', $vacacion->id)->first();
+            }
+
+            if ($vacacion) {
+                $this->registrarDiasVacaciones($permiso->empleado_id, $vacacion->periodo_id, $permiso, $permiso->fecha_hora_inicio, $permiso->fecha_hora_fin);
+            }
+        }
     }
 
     /**
@@ -100,6 +136,7 @@ class VacacionService
      */
     public function registrarDiasVacaciones(int $empleado_id, int $periodo_id, Model $entidad, string|Carbon $fecha_inicio, string|Carbon $fecha_fin)
     {
+//        Log::channel('testing')->info('Log', ['registrarDiasVacaciones args?', $empleado_id, $periodo_id, $entidad, $fecha_inicio, $fecha_fin]);
         try {
             $vacacion = Vacacion::where('empleado_id', $empleado_id)->where('periodo_id', $periodo_id)->first();
             if (!$vacacion)
@@ -137,11 +174,14 @@ class VacacionService
      */
     public static function crearVacacion(int $empleado_id, int $periodo_id)
     {
+        /*TODO: Verificar la antiguedad del empleado para aumentar un día más a partir de 5 años de antiguedad*/
         try {
+            $dias = self::obtenerDiasVacacionSegunAntiguedadEmpleado($empleado_id);
             DB::beginTransaction();
             $vacacion = Vacacion::create([
                 'empleado_id' => $empleado_id,
                 'periodo_id' => $periodo_id,
+                'dias' => $dias
             ]);
             DB::commit();
         } catch (Throwable $th) {
@@ -159,7 +199,8 @@ class VacacionService
         $vacacion = Vacacion::where('empleado_id', $empleado_id)->where('periodo_id', $periodo_id)->first();
         if ($vacacion) {
             $dias = Utils::calcularDiasTranscurridos($fecha_inicio, $fecha_fin);
-            $dias_disponibles = $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
+//            $dias_disponibles = $vacacion->dias - $vacacion->detalles()->sum('dias_utilizados');
+            $dias_disponibles = self::calcularDiasDeVacacionesPeriodoSeleccionado($vacacion);
         }
         return !($dias > $dias_disponibles);
     }
