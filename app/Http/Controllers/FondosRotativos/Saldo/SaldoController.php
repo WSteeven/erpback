@@ -325,7 +325,6 @@ class SaldoController extends Controller
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
             $request['id_proyecto'] = $request['proyecto'];
-            $request['sub_detalle'] = $request['id_sub_detalle'];
             $request['id_usuario'] = $request['empleado'];
             $request['id_estado'] = $request['estado'];
             $request['id_tarea'] = $request['tarea'];
@@ -367,12 +366,13 @@ class SaldoController extends Controller
 
             if ($request->subdetalle != null) {
                 $gastos = $gastosQuery->whereHas('subDetalle', function ($q) use ($request) {
-                    $q->where('subdetalle_gasto_id', $request['subdetalle']);
+                    $q->whereIn('subdetalle_gasto_id', $request['subdetalle']);
                 })->get();
             } else {
                 $gastos = $gastosQuery->get();
             }
 
+//            Log::channel('testing')->info('Log', ['gastoFiltrado',  $gastos]);
             $usuario = null;
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
