@@ -23,7 +23,7 @@ class SubtareaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'codigo_subtarea' => 'nullable|string',
             'titulo' => 'required|string',
             'observacion' => 'nullable|string',
@@ -60,6 +60,18 @@ class SubtareaRequest extends FormRequest
             'metraje_tendido' => 'nullable|numeric|integer',
             'subtarea_id' => 'nullable|numeric|integer',
         ];
+
+        /* if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $rules['tarea'] = 'nullable|numeric|integer';
+            $rules['titulo'] = 'nullable|string';
+        } */
+
+        // Para PATCH, solo validar los campos que se envían en la solicitud
+        if ($this->isMethod('patch')) {
+            $rules = collect($rules)->only(array_keys($this->all()))->toArray(); // Esta regla está bien para pach, verificado el 14/8/2024
+        }
+
+        return $rules;
     }
 
     /*public function messages()

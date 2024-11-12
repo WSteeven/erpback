@@ -39,7 +39,7 @@ class EmpleadoResource extends JsonResource
             'nombre_cargo' => $this->cargo?->nombre,
             'departamento' => $this->departamento?->nombre,
             'grupo' => $this->grupo?->nombre,
-            'grupo_id' => $this->grupo?->nombre,
+            'grupo_id' => $this->grupo_id,
             'firma_url' => $this->firma_url ? url($this->firma_url) : null,
             'fecha_ingreso' => $this->fecha_ingreso,
             'foto_url' => $this->foto_url ? url($this->foto_url) : url('/storage/sinfoto.png'),
