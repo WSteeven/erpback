@@ -5,13 +5,11 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\IngresoRolPagoRequest;
 use App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago;
-use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
-use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
 class IngresoRolPagoController extends Controller
 {
-    private $entidad = 'Ingreso Rol Pago';
+    private string $entidad = 'Ingreso Rol Pago';
     public function __construct()
     {
         $this->middleware('can:puede.ver.ingreso_rol_pago')->only('index', 'show');

@@ -51,7 +51,7 @@ class IngresoRolPago extends Model implements Auditable
         'monto'
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'id',
         'rol_pago',
         'monto'

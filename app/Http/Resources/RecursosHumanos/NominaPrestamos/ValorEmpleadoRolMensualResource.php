@@ -3,9 +3,8 @@
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
-class EgresoResource extends JsonResource
+class ValorEmpleadoRolMensualResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,6 +14,6 @@ class EgresoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [];
+        return parent::toArray($request);
     }
 }

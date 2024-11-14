@@ -4,7 +4,7 @@ namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EgresoRolPagoRequest extends FormRequest
+class CuotaDescuentoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class EgresoRolPagoRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,20 +24,7 @@ class EgresoRolPagoRequest extends FormRequest
     public function rules()
     {
         return [
-            'descuento_id' => 'required',
-            'empleado_id' => 'required',
-            'monto' => 'required',
-            'tipo' => 'required',
-            'id_rol_pago' => 'required',
+            //
         ];
     }
-
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'empleado_id' => $this->empleado,
-            'descuento_id' => $this->id_descuento,
-        ]);
-    }
-
 }

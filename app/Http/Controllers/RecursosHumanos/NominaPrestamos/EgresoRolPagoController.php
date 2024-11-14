@@ -4,18 +4,16 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\EgresoRolPagoRequest;
-use App\Http\Resources\RecursosHumanos\NominaPrestamos\EgresoResource;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\EgresoRolPagoResource;
 use App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class EgresoRolPagoController extends Controller
 {
-    private $entidad = 'Egreso Rol Pago';
+    private string $entidad = 'Egreso Rol Pago';
     public function __construct()
     {
         $this->middleware('can:puede.ver.egreso_rol_pago')->only('index', 'show');
@@ -32,20 +30,20 @@ class EgresoRolPagoController extends Controller
          //Respuesta
          $datos = $request->validated();
          $rolPago = RolPago::where('id',$datos['id_rol_pago'])->first();
-         $tipo = null;
+//         $tipo = null;
          $entidad_descuento = null;
             switch ($datos['tipo']) {
                 case 'DESCUENTO_GENERAL':
-                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales';
+//                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales';
                     $entidad_descuento = DescuentosGenerales::find($datos['descuento_id']);
                     break;
                 case 'MULTA':
-                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\Multas';
+//                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\Multas';
                     $entidad_descuento = Multas::find($datos['descuento_id']);
                     break;
             }
         $modelo= EgresoRolPago::crearEgresoRol($rolPago,$datos['monto'],$entidad_descuento);
-         //$modelo = new EgresoResource($modelo);
+         $modelo = new EgresoRolPagoResource($modelo);
          $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
          // event(new PruebaEvent("Se ha creado una categoria nueva"));

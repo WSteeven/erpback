@@ -8,7 +8,6 @@ use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
-use App\Imports\RecursosHumanos\NominasPrestamos\RolPagoImport;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
@@ -16,7 +15,6 @@ use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
-use Hamcrest\Util;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,6 +46,7 @@ class RolPagoMesController extends Controller
         $this->prestamoService = new PrestamoService();
         $this->middleware('can:puede.ver.rol_pago_mes')->only('index', 'show');
         $this->middleware('can:puede.crear.rol_pago_mes')->only('store');
+        $this->middleware('can:puede.eliminar.rol_pago_mes')->only('destroy');
     }
 
     public function index()
@@ -73,13 +72,13 @@ class RolPagoMesController extends Controller
             $datos = $request->validated();
             $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
             if (!$request->es_quincena && count($existe_mes) == 0) {
-                throw new Exception('Porfavor primero realice el Rol de Pagos de Quincena');
+                throw new Exception('Por favor primero realice el Rol de Pagos de Quincena');
             }
             if (RolPagoMes::where('finalizado', false)->count() > 0) throw new Exception( 'Por favor asegurate de haber finalizado todos los roles de pagos anteriores para poder crear uno nuevo.');
             DB::beginTransaction();
             $rol = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rol);
-            $this->tablaRoles($rol);
+            $this->crearRolIndividualMensualEmpleado($rol); //se crean los roles individuales para cada empleado
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -93,30 +92,30 @@ class RolPagoMesController extends Controller
     /**
      * @throws Throwable|ValidationException
      */
-    public function importarRolPago(RolPagoMesRequest $request)
-    {
-        try {
-            DB::beginTransaction();
-            $datos = $request->validated();
-            $rol = RolPagoMes::create($datos);
-            $this->validate($request, [
-                'file' => 'required|mimes:xls,xlsx'
-            ]);
-            if (!$request->hasFile('file')) {
-                throw ValidationException::withMessages([
-                    'file' => ['Debe seleccionar al menos un archivo.'],
-                ]);
-            }
-            Excel::import(new RolPagoImport($request->mes, $rol), $request->file);
-            DB::commit();
-            return response()->json(['mensaje' => 'Subido exitosamente!']);
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage() . $e->getLine()],
-            ]);
-        }
-    }
+//    public function importarRolPago(RolPagoMesRequest $request)
+//    {
+//        try {
+//            DB::beginTransaction();
+//            $datos = $request->validated();
+//            $rol = RolPagoMes::create($datos);
+//            $this->validate($request, [
+//                'file' => 'required|mimes:xls,xlsx'
+//            ]);
+//            if (!$request->hasFile('file')) {
+//                throw ValidationException::withMessages([
+//                    'file' => ['Debe seleccionar al menos un archivo.'],
+//                ]);
+//            }
+//            Excel::import(new RolPagoImport($request->mes, $rol), $request->file);
+//            DB::commit();
+//            return response()->json(['mensaje' => 'Subido exitosamente!']);
+//        } catch (Exception $e) {
+//            DB::rollBack();
+//            throw ValidationException::withMessages([
+//                'Error al insertar registro' => [$e->getMessage() . $e->getLine()],
+//            ]);
+//        }
+//    }
 
     /**
      * La función "show" recupera un recurso "RolPagoMes" específico por su ID y lo devuelve como respuesta
@@ -145,7 +144,7 @@ class RolPagoMesController extends Controller
     {
         $rol->es_quincena = $request->es_quincena;
         $rol->save();
-        $this->tablaRoles($rol);
+        $this->crearRolIndividualMensualEmpleado($rol);
         $modelo = new RolPagoMesResource($rol);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
@@ -559,7 +558,7 @@ class RolPagoMesController extends Controller
      * @return void
      * @throws Throwable
      */
-    private function tablaRoles(RolPagoMes $rol)
+    private function crearRolIndividualMensualEmpleado(RolPagoMes $rol)
     {
         Log::channel('testing')->info('Log', ['rol', $rol]);
         try {
@@ -622,6 +621,13 @@ class RolPagoMesController extends Controller
                 ];
             }
             $rol->rolPago()->createMany($roles_pago);
+            if(!$rol->es_quincena){
+            // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
+                $this->nominaService->registrarIngresosProgramados($rol);
+            // Aquí se registra los egresos, solo en caso de que sea rol de fin de mes
+                $this->nominaService->registrarEgresosProgramados($rol);
+            }
+
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['erro tablaRoles', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([

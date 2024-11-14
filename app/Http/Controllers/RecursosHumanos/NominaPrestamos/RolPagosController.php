@@ -31,6 +31,9 @@ use Src\Shared\Utils;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
+/**
+ * INFO: Aqui se consultan los roles de empleados que se crean mensualmente
+ */
 class RolPagosController extends Controller
 {
     private string $entidad = 'Rol_de_pagos';
@@ -79,7 +82,7 @@ class RolPagosController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO, true, $rolpago->empleado_id);
+        $archivoJSON = GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO, true, $rolpago->empleado_id);
         $rolpago->rol_firmado = $archivoJSON;
         $rolpago->estado = RolPago::FINALIZADO;
         $rolpago->save();
@@ -126,7 +129,7 @@ class RolPagosController extends Controller
      * @return JsonResponse respuesta JSON con un mensaje indicando que la nómina ha sido enviada exitosamente.
      * @throws Exception
      */
-    public function enviar_rolPago_empleado(RolPago $rol_pago)
+    public function enviarRolPagoEmpleado(RolPago $rol_pago)
     {
         $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
         $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
@@ -151,7 +154,7 @@ class RolPagosController extends Controller
             DB::beginTransaction();
             $rolPago = RolPago::create($datos);
 
-            $this->nominaService->guardarIngresosYEgresos($request, $rolPago);
+//            $this->nominaService->guardarIngresosYEgresos($request, $rolPago);
 
             // foreach ($request->ingresos as $ingreso) {
             //     $this->GuardarIngresos($ingreso, $rolPago);
@@ -194,7 +197,7 @@ class RolPagosController extends Controller
         $empleado = Empleado::where('id', $request->empleado)->first();
         $date = Carbon::now();
         $mes = $date->format('m-Y');
-        $salario =  $empleado->salario;
+        $salario = $empleado->salario;
         $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
         $supa = $empleado->supa;
         $prestamo_quirorafario = PrestamoQuirografario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
@@ -202,7 +205,7 @@ class RolPagosController extends Controller
         $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('aporte');
         $sueldo = $salario;
         $iess = ($sueldo) * $porcentaje_iess;
-        $total_descuento =  round(($supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess), 2);
+        $total_descuento = round(($supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess), 2);
         $porcentaje_endeudamiento = ($total_descuento / $sueldo) * 100;
         $porcentaje_endeudamiento = round(($porcentaje_endeudamiento), 2);
 
@@ -217,17 +220,18 @@ class RolPagosController extends Controller
     /**
      * Actualizar un rol de pago.
      * @throws Exception
+     * @throws Throwable
      */
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
-        Log::channel('testing')->info('Log', ['ID',  $rolPagoId]);
+        Log::channel('testing')->info('Log', ['ID', $rolPagoId]);
         Log::channel('testing')->info('Log', ['request', $request->all(), $rolPagoId]);
         $datos = $request->validated();
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
         Log::channel('testing')->info('Log', ['rol actualizado', $rolPago->refresh()]);
 
-        $this->nominaService->guardarIngresosYEgresos($request, $rolPago);
+//        $this->nominaService->guardarIngresosYEgresos($request, $rolPago);
         // $this->guardarIngresosYEgresos($request, $rolPago);
 
         $modelo = new RolPagoResource($rolPago->refresh());
@@ -258,9 +262,8 @@ class RolPagosController extends Controller
      * @param RolPago $rol_pago
      * @return JsonResponse respuesta JSON que contiene las variables "modelo" y "mensaje".
      */
-    public function cambiar_estado(Request $request, RolPago $rol_pago)
+    public function cambiarEstado(Request $request, RolPago $rol_pago)
     {
-        $rolPago = RolPago::find($rol_pago);
         $estado_mensaje = '';
         switch ($request->estado) {
             case RolPago::EJECUTANDO:
@@ -273,9 +276,9 @@ class RolPagosController extends Controller
             case  RolPago::CANCELADO:
                 break;
         }
-        $rolPago->estado = $request->estado;
-        $rolPago->save();
-        $modelo = new RolPagoResource($rolPago->refresh());
+        $rol_pago->estado = $request->estado;
+        $rol_pago->save();
+        $modelo = new RolPagoResource($rol_pago->refresh());
         $mensaje = 'Se ha ' . $estado_mensaje;
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -297,7 +300,7 @@ class RolPagosController extends Controller
             $results = RolPago::empaquetarListado($rol_pago);
             $recursosHumanos = Departamento::where('id', 7)->first()->responsable_id;
             $responsable = Empleado::where('id', $recursosHumanos)->first();
-            $reportes =  ['roles_pago' => $results, 'responsable' => $responsable];
+            $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $export_excel = new RolPagoExport($reportes);
             return $this->reporteService->imprimirReporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
@@ -315,13 +318,13 @@ class RolPagosController extends Controller
      * utiliza para recuperar datos de la solicitud HTTP. En este caso, se utiliza para recuperar el
      * valor del parámetro 'rol_pago_id' de la solicitud.
      *
-     * @return JsonResponse respuesta JSON con un mensaje que indica que se ha iniciado la ejecución de todo el
-     * rol.
+     * @return JsonResponse respuesta JSON con un mensaje que indica que se ha iniciado la ejecución
+     * de todos los registros del rol.
      */
-    public function actualizar_masivo(Request $request)
+    public function actualizarMasivo(Request $request)
     {
         // Realizar la actualización masiva
-        RolPago::where('rol_pago_id',  $request->rol_pago_id)->where('estado', RolPago::CREADO)
+        RolPago::where('rol_pago_id', $request->rol_pago_id)->where('estado', RolPago::CREADO)
             ->update(['estado' => RolPago::EJECUTANDO]);
         return response()->json(['mensaje' => 'Se ha comenzado a ejecutar todo el rol']);
     }
@@ -337,10 +340,10 @@ class RolPagosController extends Controller
      *
      * @return JsonResponse respuesta JSON con un mensaje que indica que se ha finalizado todo el "rol".
      */
-    public function finalizar_masivo(Request $request)
+    public function finalizarMasivo(Request $request)
     {
-        // Realizar la actualización masiva
-        RolPago::where('rol_pago_id',  $request->rol_pago_id)->where('estado', RolPago::EJECUTANDO)
+        // Realizar la finalización masiva
+        RolPago::where('rol_pago_id', $request->rol_pago_id)->whereIn('estado', [RolPago::EJECUTANDO, RolPago::REALIZADO])
             ->update(['estado' => RolPago::FINALIZADO]);
         return response()->json(['mensaje' => 'Se ha finalizado todo el rol']);
     }

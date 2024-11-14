@@ -46,7 +46,7 @@ class VacacionController extends Controller
      * @throws Throwable
      * @throws ValidationException
      */
-    public function store(VacacionRequest $request)
+    public function store(/* VacacionRequest $request */)
     {
         throw ValidationException::withMessages([Utils::metodoNoDesarrollado()]);
 

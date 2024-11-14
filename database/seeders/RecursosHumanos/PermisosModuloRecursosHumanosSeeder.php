@@ -40,6 +40,14 @@ class PermisosModuloRecursosHumanosSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'planificadores'])->syncRoles([$rrhh, $admin]);
         Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'planificadores'])->syncRoles([$admin]);
 
+        // descuentos
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'descuentos'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'descuentos'])->syncRoles([$rrhh, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'descuentos'])->syncRoles([$rrhh]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'descuentos'])->syncRoles([$rrhh]);
+        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'descuentos'])->syncRoles([$admin]);
+
+
 
     }
 }

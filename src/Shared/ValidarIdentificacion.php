@@ -87,8 +87,9 @@ class ValidarIdentificacion
                 case PaisesOperaciones::PERU:
                     return true;
                 default :
-                    $existe_ruc = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc);
-                    return $existe_ruc->body() == 'true';
+//                    $response = Http::withOptions(['verify'=>false])->get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc); //opcion para cuando el SRI presenta problemas de cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=
+                    $response = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc);
+                    return $response->body() == 'true';
             }
         } catch (Exception $e) {
             throw match ($this->pais) {

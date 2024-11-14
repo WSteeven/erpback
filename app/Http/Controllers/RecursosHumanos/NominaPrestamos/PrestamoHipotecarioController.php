@@ -7,7 +7,6 @@ use App\Http\Requests\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioRequest
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioResource;
 use App\Imports\PrestamoHipotecarioImport;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,16 +16,15 @@ use Src\Shared\Utils;
 
 class PrestamoHipotecarioController extends Controller
 {
-    private $entidad = 'Prestamo Hipotecario';
+    private string $entidad = 'Prestamo Hipotecario';
     public function __construct()
     {
         $this->middleware('can:puede.ver.prestamo_hipotecario')->only('index', 'show');
         $this->middleware('can:puede.crear.prestamo_hipotecario')->only('store');
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $results = [];
         $results = PrestamoHipotecario::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = PrestamoHipotecarioResource::collection($results);
         return response()->json(compact('results'));
@@ -60,7 +58,7 @@ class PrestamoHipotecarioController extends Controller
     public function show(PrestamoHipotecario $prestamoHipotecario)
     {
         $modelo = new PrestamoHipotecarioResource($prestamoHipotecario);
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     public function update(Request $request, $prestamoHipotecarioId)
@@ -77,6 +75,10 @@ class PrestamoHipotecarioController extends Controller
         $prestamoHipotecario->delete();
         return $prestamoHipotecario;
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function archivo_prestamo_hipotecario(Request $request)
     {
         try {
@@ -91,11 +93,8 @@ class PrestamoHipotecarioController extends Controller
             Excel::import(new PrestamoHipotecarioImport($request->mes), $request->file);
             return response()->json(['mensaje' => 'Subido exitosamente!']);
         } catch (Exception $e) {
-            throw ValidationException::withMessages([
-                'file' => [$e->getMessage(), $e->getLine()],
-            ]);
-            Log::channel('testing')->info('Log', ['ERROR en el insert de permiso de prestamo hipotecario', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            Log::channel('testing')->info('Log', ['ERROR en archivo_prestamo_hipotecario', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 }
