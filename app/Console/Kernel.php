@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Jobs\AnularProformaJob;
 use App\Jobs\Bodega\NotificarPedidoParcialJob;
+use App\Jobs\ClearCacheJob;
 use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\PausarTicketsFinJornadaJob;
@@ -30,6 +31,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         // $schedule->job(new MyJobExample)->everyMinute(); // Execute job every 5 minutes
+        $schedule->job(new ClearCacheJob)->daily(); // Execute job every day at 08:00
         $schedule->job(new AnularProformaJob)->dailyAt('08:00'); // Execute job every day at 08:00
         $schedule->job(new RechazarGastoJob)->monthlyOn(1, '12:00');
         $schedule->job(new NotificarVacacionesJob)->dailyAt('09:00');
