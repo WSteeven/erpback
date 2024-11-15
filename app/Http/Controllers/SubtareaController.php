@@ -86,15 +86,25 @@ class SubtareaController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        /* $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
 
         $modelo = $subtarea->refresh();
         $subtarea->empleados()->detach();
-        $subtarea->grupos()->detach();
+        $subtarea->grupos()->detach();*/
+
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
+        $datos['empleados_designados'] = $request['empleados_designados'];
 
         // Respuesta
-        $subtarea->update($datos);
+        $subtarea->update([
+            'grupo_id' => $datos['grupo_id'],
+            'empleado_id' => $datos['empleado_id'],
+            'empleados_designados' => $datos['empleados_designados'],
+            'modo_asignacion_trabajo' => $datos['modo_asignacion_trabajo'],
+        ]);
+        // $subtarea->update($request->only($request->keys()));
 
         $modelo = new SubtareaResource($subtarea->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -195,6 +205,7 @@ class SubtareaController extends Controller
 
     public function ejecutar(Request $request, Subtarea $subtarea)
     {
+        $this->subtareaService->puedeIniciarHora($subtarea);
         $subtarea->estado = Subtarea::EJECUTANDO;
         $subtarea->fecha_hora_ejecucion = Carbon::now();
         $subtarea->save();

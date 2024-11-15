@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RecursosHumanos\ComprasProveedores\CalificacionProveedorEvent;
+use App\Events\ComprasProveedores\CalificacionProveedorEvent;
 use App\Exports\ComprasProveedores\CalificacionProveedorExcel;
 use App\Exports\ComprasProveedores\ProveedorExport;
 use App\Exports\ComprasProveedores\TodosProveedoresExport;

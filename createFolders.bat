@@ -54,6 +54,7 @@ mkdir "%basePath%\public\vehiculos\evidencias_vehiculos_transferidos"
 mkdir "%basePath%\public\detalles_resultados_examenes\archivos"
 mkdir "%basePath%\public\esquemas_vacunas\archivos"
 mkdir "%basePath%\public\solicitudes_examenes\archivos"
+mkdir "%basePath%\public\bodega\imagenesPermisosArmas"
 
 echo Carpetas creadas exitosamente.
 pause

@@ -274,14 +274,6 @@ class SubtareaResource extends JsonResource
         return $this->fecha_inicio_trabajo <= Carbon::today()->toDateString();
     }
 
-    private function puedeIniciarHora()
-    {
-        $horaInicio = Carbon::parse($this->hora_inicio_trabajo)->format('H:i:s');
-
-        //return $horaInicio;// > Carbon::now(); //$this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);
-        return Carbon::now()->format('H:i:s') >= $horaInicio;
-    }
-
     // borrar
     public function obtenerIdEmpleadoResponsable()
     {
