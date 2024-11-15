@@ -205,6 +205,7 @@ class SubtareaController extends Controller
 
     public function ejecutar(Request $request, Subtarea $subtarea)
     {
+        $this->subtareaService->puedeIniciarHora($subtarea);
         $subtarea->estado = Subtarea::EJECUTANDO;
         $subtarea->fecha_hora_ejecucion = Carbon::now();
         $subtarea->save();

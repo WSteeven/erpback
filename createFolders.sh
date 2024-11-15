@@ -53,5 +53,6 @@ mkdir -p "$BASE_PATH/public/vehiculos/evidencias_vehiculos_transferidos"
 mkdir -p "$BASE_PATH/public/detalles_resultados_examenes/archivos"
 mkdir -p "$BASE_PATH/public/esquemas_vacunas/archivos"
 mkdir -p "$BASE_PATH/public/solicitudes_examenes/archivos"
+mkdir -p "$BASE_PATH/public/bodega/imagenesPermisosArmas"
 
 echo "Carpetas creadas exitosamente."

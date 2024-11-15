@@ -8,8 +8,10 @@ use App\Http\Resources\Bodega\PermisoArmaResource;
 use App\Models\Bodega\PermisoArma;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
+use Src\Shared\EliminarImagen;
 use Src\Shared\Utils;
 
 class PermisoArmaController extends Controller
@@ -102,12 +104,19 @@ class PermisoArmaController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(PermisoArma $permiso)
     {
         try {
-            throw new Exception('Este método no está definido. Por favor comunicate con el departamento de informática para más información.');
+            // throw new Exception('Este método no está definido. Por favor comunicate con el departamento de informática para más información.');
+            $ruta_imagen_permiso = str_replace('storage', 'public', $permiso['imagen_permiso']);
+            $ruta_imagen_permiso_reverso = str_replace('storage', 'public', $permiso['imagen_permiso_reverso']);
+            Storage::delete([$ruta_imagen_permiso, $ruta_imagen_permiso_reverso]);
+
+            $permiso->delete();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+            return response()->json(compact('mensaje', ));
         } catch (\Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
