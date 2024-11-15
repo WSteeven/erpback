@@ -2,11 +2,16 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\RecursosHumanos\NominaPrestamos\ConceptoIngreso
@@ -15,28 +20,28 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $nombre
  * @property int $calculable_iess
  * @property string $abreviatura
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago> $ingreso_rol_pago_info
+ * @property-read Collection<int, IngresoRolPago> $ingreso_rol_pago_info
  * @property-read int|null $ingreso_rol_pago_info_count
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso query()
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso whereAbreviatura($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso whereCalculableIess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConceptoIngreso whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|ConceptoIngreso acceptRequest(?array $request = null)
+ * @method static Builder|ConceptoIngreso filter(?array $request = null)
+ * @method static Builder|ConceptoIngreso ignoreRequest(?array $request = null)
+ * @method static Builder|ConceptoIngreso newModelQuery()
+ * @method static Builder|ConceptoIngreso newQuery()
+ * @method static Builder|ConceptoIngreso query()
+ * @method static Builder|ConceptoIngreso setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|ConceptoIngreso setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|ConceptoIngreso setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|ConceptoIngreso whereAbreviatura($value)
+ * @method static Builder|ConceptoIngreso whereCalculableIess($value)
+ * @method static Builder|ConceptoIngreso whereCreatedAt($value)
+ * @method static Builder|ConceptoIngreso whereId($value)
+ * @method static Builder|ConceptoIngreso whereNombre($value)
+ * @method static Builder|ConceptoIngreso whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ConceptoIngreso extends Model implements Auditable
 {
@@ -49,7 +54,8 @@ class ConceptoIngreso extends Model implements Auditable
         'calculable_iess'
     ];
 
-    private static $whiteListFilter = [
+    const BONIFICACION_ID = 4;
+    private static array $whiteListFilter = [
         'id',
         'nombre',
         'calculable_iess'

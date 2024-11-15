@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,22 @@ class ValorEmpleadoRolMensual extends Model implements Auditable
         'model_id',
         'rol_pago_id',
     ];
+    protected $casts = [
+        'monto' => 'float',
+    ];
+
     const INGRESO = 'INGRESO';
     const EGRESO = 'EGRESO';
+
+    public function valorable()
+    {
+        return $this->morphTo();
+    }
+    public function empleado(){
+        return $this->belongsTo(Empleado::class);
+    }
+    public function rolPago(){
+        return $this->belongsTo(RolPago::class);
+    }
+
 }

@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
+use App\Models\RecursosHumanos\NominaPrestamos\ValorEmpleadoRolMensual;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
+use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -90,7 +93,6 @@ class VacacionController extends Controller
     {
         $opto_pago_old = $vacacion->opto_pago;
 
-        $modelo = [];
 
         try {
             DB::beginTransaction();
@@ -100,7 +102,22 @@ class VacacionController extends Controller
             // Verificamos si cambió el valor de opto_pago para lanzar el mecanismo de que ese pago se realice en Rol de Pagos
             if($opto_pago_old != $vacacion->opto_pago && $vacacion->opto_pago){
                 /* TODO: Elaborar el mecanismo para obtener ese pago en el rol de pagos... */
-
+                // Se crea el registro que será tomado en el rol de pagos del mes selecionado por el usuario
+                $vacacion->valoresRolMensualEmpleado()->create([
+                    'tipo'=>ValorEmpleadoRolMensual::INGRESO,
+                    'mes'=>$vacacion->mes_pago,
+                    'empleado_id'=>$vacacion->empleado_id,
+                    'monto'=> VacacionService::calcularMontoPagarVacaciones($vacacion),
+                ]);
+                // Se actualiza los detalles de la vacacion para saber que fueron pagados N dias
+                $vacacion->detalles()->create([
+                    'fecha_inicio'=>Carbon::now(),
+                    'fecha_fin'=>Carbon::now(),
+                    'dias_utilizados'=>VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado($vacacion),
+                    'observacion'=>'Dias de Vacaciones pagadas al seleccionar la opcion opto pago'
+                ]);
+                $vacacion->completadas=true;
+                $vacacion->save();
             }
 
 

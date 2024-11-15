@@ -20,6 +20,8 @@ return new class extends Migration
             $table->integer('dias')->default(15);
             $table->boolean('opto_pago')->default(false);
             $table->boolean('completadas')->default(false);
+            $table->string('mes_pago')->nullable();
+            $table->text('observacion')->nullable();
             $table->timestamps();
 
             $table->unique(['empleado_id', 'periodo_id']);

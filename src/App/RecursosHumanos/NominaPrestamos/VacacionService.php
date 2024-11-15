@@ -218,4 +218,14 @@ class VacacionService
         }
     }
 
+    public static function calcularMontoPagarVacaciones(Vacacion $vacacion)
+    {
+        /**
+         * Formula: sueldo * 12 / 365 * dias de vacaciones
+         */
+        $dias_disponibles = VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado($vacacion);
+        $valor = $vacacion->empleado->salario * 12 / 365 * $dias_disponibles;
+        return round($valor, 2);
+    }
+
 }

@@ -27,12 +27,15 @@ class VacacionRequest extends FormRequest
         return [
             'empleado_id' => 'required|exists:empleados,id',
             'periodo_id' => 'required|exists:periodos,id',
-            'opto_pago'=>'boolean',
+            'opto_pago' => 'boolean',
+            'observacion' => 'nullable|string',
+            'mes_pago' => 'nullable|string',
         ];
     }
+
     protected function prepareForValidation()
     {
-       $this->merge([
+        $this->merge([
             'empleado_id' => $this->empleado ?? Auth::user()->empleado->id,
             'periodo_id' => $this->periodo,
         ]);

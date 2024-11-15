@@ -34,6 +34,8 @@ class VacacionResource extends JsonResource
             'dias_disponibles' => VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado(Vacacion::find($this->id)), // esto tambien es calculado
 //            'dias' => $this->dias,
             'dias' =>$this->detalles()->sum('dias_utilizados') + VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado(Vacacion::find($this->id)),
+            'observacion'=>$this->observacion,
+            'mes_pago'=>$this->mes_pago,
         ];
 
         if ($controller_method == 'show') {

@@ -743,7 +743,7 @@ class RolPagoMesController extends Controller
             $roles_pago = RolPago::where('rol_pago_id', $rol_mes->id)->get();
             Log::channel('testing')->info('Log', ['roles_pago', $roles_pago]);
             foreach ($roles_pago as $rol_pago) {
-                Log::channel('testing')->info('Log', ['RolPago', $rol_pago]);
+//                Log::channel('testing')->info('Log', ['RolPago', $rol_pago]);
                 $this->nominaService->setEmpleado($rol_pago->empleado_id);
                 $this->prestamoService->setEmpleado($rol_pago->empleado_id);
                 $this->nominaService->setRolPago($rol_mes);

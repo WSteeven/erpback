@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_nomina_valor_empleado_rol_mensuals', function (Blueprint $table) {
+        Schema::create('rrhh_nomina_valores_empleados_rol_mensual', function (Blueprint $table) {
             $table->id();
             $table->string('tipo');
             $table->string('mes');
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('empleado_id')->references('id')->on('empleados');
-            $table->foreign('empleado_id')->references('id')->on('rol_pago')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('rol_pago_id')->references('id')->on('rol_pago')->cascadeOnUpdate()->nullOnDelete();
 
         });
     }
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_nomina_valor_empleado_rol_mensuals');
+        Schema::dropIfExists('rrhh_nomina_valores_empleados_rol_mensual');
     }
 };

@@ -6,6 +6,7 @@ use App\Mail\RolPagoEmail;
 use App\Models\Autorizacion;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\ConceptoIngreso;
 use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
@@ -13,6 +14,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
+use App\Models\RecursosHumanos\NominaPrestamos\ValorEmpleadoRolMensual;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -249,10 +251,33 @@ class NominaService
         return IngresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
     }
 
+    /**
+     * @throws Throwable
+     */
     public function registrarIngresosProgramados(RolPagoMes $rol_mes)
     {
         Log::channel('testing')->info('Log', ['registrarIngresosProgramados', $rol_mes]);
+        $mes = Carbon::createFromFormat('m-Y', $rol_mes->mes)->format('Y-m');
+        try {
 
+            $valores = ValorEmpleadoRolMensual::where('mes', $mes)
+                ->where('tipo', ValorEmpleadoRolMensual::INGRESO)->get();
+            foreach ($valores as $valor) {
+                $rol_empleado = RolPago::where('empleado_id', $valor->empleado_id)->where('rol_pago_id', $rol_mes->id)->first();
+                IngresoRolPago::create([
+                    'concepto'=>ConceptoIngreso::BONIFICACION_ID,
+                    'id_rol_pago'=> $rol_empleado->id,
+                    'monto'=>$valor->monto
+                ]);
+                // se setea en el valor el rol_pago_id encontrado
+                $valor->rol_pago_id = $rol_empleado->id;
+                $valor->save();
+            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->error('Log', [ $ex]);
+            Log::channel('testing')->error('Log', ['error registrarIngresosProgramados', $ex->getMessage(), $ex->getLine()]);
+            throw $ex;
+        }
     }
 
     public function registrarEgresosProgramados(RolPagoMes $rol_mes)
@@ -268,7 +293,7 @@ class NominaService
             $descuentos = Descuento::where('pagado', false)
                 ->where('empleado_id', $rol_empleado->empleado_id)
                 ->where('mes_inicia_cobro', '<=', $mes)->get();
-            if($descuentos->count()>0)Log::channel('testing')->info('Log', ['descuentos', $descuentos]);
+            if ($descuentos->count() > 0) Log::channel('testing')->info('Log', ['descuentos', $descuentos]);
             // Recorremos los descuentos para ver las cuotas por cada uno y tomarlas para registrar esos egresos
             foreach ($descuentos as $descuento) {
                 $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
@@ -405,4 +430,6 @@ class NominaService
 //            }
 //        }
 //    }
+
+
 }

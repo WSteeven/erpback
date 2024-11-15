@@ -60,6 +60,8 @@ class Vacacion extends Model implements Auditable
     'dias',
     'opto_pago',
     'completadas',
+    'observacion',
+    'mes_pago',
     ];
 
     protected $casts = [
@@ -80,5 +82,10 @@ class Vacacion extends Model implements Auditable
     public function detalles()
     {
         return $this->hasMany(DetalleVacacion::class);
+    }
+
+    public function valoresRolMensualEmpleado()
+    {
+        return $this->morphMany(ValorEmpleadoRolMensual::class, 'valorable','model_type','model_id');
     }
 }
