@@ -62,6 +62,7 @@ use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Resources\CantonResource;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
+use App\Http\Controllers\ControlPersonal\AsistenciaController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -353,3 +354,11 @@ Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaContro
 Route::post('actualizar-materiales-empleados', [InventarioController::class, 'actualizarMaterialesEmpleado'])->middleware('auth:sanctum');
 Route::post('actualizar-cantidad-material-empleado', [InventarioController::class, 'actualizarCantidadMaterialEmpleado'])->middleware('auth:sanctum');
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
+
+
+/**
+ * Consultar Asistencia de Biometrico
+ */
+Route::apiResource('asistencias', AsistenciaController::class);
+Route::post('/asistencias/sincronizar', [AsistenciaController::class, 'sincronizarAsistencias']);
+
