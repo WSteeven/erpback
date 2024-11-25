@@ -21,7 +21,7 @@ class DescuentoResource extends JsonResource
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
             'descripcion' => $this->descripcion,
             'tipo_descuento' => $this->tipoDescuento->nombre,
-            'multa' => $this->multa->nombre,
+            'multa' => $this->multa?->nombre,
             'valor' => $this->valor,
             'cantidad_cuotas' => $this->cantidad_cuotas,
             'mes_inicia_cobro' => $this->mes_inicia_cobro,
