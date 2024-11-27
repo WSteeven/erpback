@@ -327,6 +327,7 @@ class NominaService
         foreach ($descuentos as $descuento) {
             $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
             $cuota?->update(['pagada' => true, 'comentario' => 'PAGADO EN ROL DEL MES ' . $mes]);
+            if(!$descuento->pagado && $descuento->cuotas()->where('pagada', false)->count()===0) $descuento->update(['pagado' => true]);
         }
     }
 
