@@ -3,18 +3,71 @@
 namespace Src\App\RecursosHumanos\ControlPersonal;
 
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
+/**
+ * TODO: Codigos de minor
+ * TODO: 0x4b => 75 => Face Authentication Completed
+ * TODO: 0x4b => 75 => Face Authentication Completed
+ * TODO: 0x4b => 75 => Face Authentication Completed
+ * TODO: 0x4b => 75 => Face Authentication Completed
+ *
+ *
+ */
 class AsistenciaService
 {
-    public function __construct() {}
+    protected $client;
+
+    public function __construct()
+    {
+        $this->client = new Client([
+            'base_uri' => env('HIKVISION_BASE_URL'),
+            'timeout' => 10.0,
+            'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+        ]);
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws Exception
+     */
+    public function obtenerRegistrosDiarios24Mayo()
+    {
+        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+
+        $ascEventCond = [
+            "searchID" => "1",
+            "searchResultPosition" => 0,
+            "maxResults" => 400,
+            "major" => 5,
+            "minor" => 75,
+            "startTime" => $startTime,
+            "endTime" => $endTime,
+            "picEnable" => false,
+            "eventAttribute" => "attendance",
+            "timeReverseOrder" => true
+        ];
+
+        $response = $this->client->post($endpoint, ["json"=>["AcsEventCond" => $ascEventCond]]);
+
+        if ($response->getStatusCode() === 200) {
+            return json_decode($response->getBody(), true);
+        }
+
+        throw new Exception("Error fetching data");
+    }
 
     /**
      * Consultar datos desde la API del biométrico.
      *
      * @return array
      */
-    public function consultarBiometrico()
+    public
+    function consultarBiometrico()
     {
         $url = 'http://186.101.253.242/ISAPI/AccessControl/AcsEvent?format=json';
         $username = 'admin';
@@ -57,7 +110,8 @@ class AsistenciaService
         return json_decode($response->getBody()->getContents(), true)['AcsEvent']['attendance'] ?? [];
     }
 
-    private function createDigestHeader($username, $password, $method, $uri, $realm, $nonce, $qop, $nc, $cnonce)
+    private
+    function createDigestHeader($username, $password, $method, $uri, $realm, $nonce, $qop, $nc, $cnonce)
     {
         $ha1 = md5("{$username}:{$realm}:{$password}");
         $ha2 = md5("{$method}:{$uri}");
