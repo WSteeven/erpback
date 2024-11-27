@@ -44,7 +44,13 @@ class PlanVacacionResource extends JsonResource
         return $modelo;
     }
 
-    private function obtenerCantidadDias(string|null $fecha_inicio, string|null $fecha_fin)
+    /**
+     * Calcula la diferencia en días a partir de una fecha inicial y una fecha final y retorna el resultado incluyendo el día inicial
+     * @param string|null $fecha_inicio
+     * @param string|null $fecha_fin
+     * @return int
+     */
+    public static function obtenerCantidadDias(string|null $fecha_inicio, string|null $fecha_fin)
     {
         if ($fecha_inicio !== null && $fecha_fin !== null) {
             $fecha_inicio = Carbon::parse($fecha_inicio);

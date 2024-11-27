@@ -7,10 +7,11 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\HigherOrderBuilderProxy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 
 /**
@@ -48,6 +49,7 @@ class ConceptoIngreso extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+
     protected $table = 'concepto_ingresos';
     protected $fillable = [
         'nombre',
@@ -55,11 +57,29 @@ class ConceptoIngreso extends Model implements Auditable
     ];
 
     const BONIFICACION_ID = 4;
+    const   VACACION = 'VACACION';
     private static array $whiteListFilter = [
         'id',
         'nombre',
         'calculable_iess'
     ];
+
+    /**
+     * Crea o busca un concepto de ingresos de vacacion y retorna el id del mismo
+     * @return HigherOrderBuilderProxy|int|mixed
+     */
+    public static function getOrCreateConceptoVacacion()
+    {
+        // se obtiene el id o se crea vacaciones en caso de que no haya
+        $conceptoVacacion = ConceptoIngreso::where('nombre', ConceptoIngreso::VACACION)->first();
+        if(!$conceptoVacacion) {
+            $conceptoVacacion = ConceptoIngreso::create(['nombre' => ConceptoIngreso::VACACION,
+                'calculable_iess' => false,
+                'abreviatura' => 'VAC']);
+        }
+        return $conceptoVacacion->id;
+    }
+
     public function ingreso_rol_pago_info()
     {
         return $this->hasMany(IngresoRolPago::class, 'id', 'concepto');

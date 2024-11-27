@@ -166,27 +166,6 @@ class TransaccionBodegaEgresoController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-            //            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            //            if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-            //            $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-            //            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            //            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-            //            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-            //            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            //            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            //            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-            //            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            //            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-            //            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
-            //            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-            //            if ($request->subtarea) $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-            //            if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-
-            //datos de las relaciones muchos a muchos
-            //            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            //            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-
 
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!

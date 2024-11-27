@@ -6,11 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\PlanVacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PlanVacacionResource;
 use App\Models\RecursosHumanos\NominaPrestamos\PlanVacacion;
-use App\Models\Ventas\Plan;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
-use Log;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -24,7 +22,8 @@ class PlanVacacionController extends Controller
      * @return JsonResponse
      */
     public function index()
-    {   $results = PlanVacacion::filter()->get();
+    {
+        $results = PlanVacacion::filter()->get();
         $results = PlanVacacionResource::collection($results);
         return response()->json(compact('results'));
     }

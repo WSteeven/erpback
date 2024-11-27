@@ -265,20 +265,34 @@ class NominaService
             foreach ($valores as $valor) {
                 $rol_empleado = RolPago::where('empleado_id', $valor->empleado_id)->where('rol_pago_id', $rol_mes->id)->first();
                 IngresoRolPago::create([
-                    'concepto'=>ConceptoIngreso::BONIFICACION_ID,
-                    'id_rol_pago'=> $rol_empleado->id,
-                    'monto'=>$valor->monto
+                    'concepto' => class_basename($valor->model_type) == 'Vacacion' ? ConceptoIngreso::getOrCreateConceptoVacacion() : ConceptoIngreso::BONIFICACION_ID,
+                    'id_rol_pago' => $rol_empleado->id,
+                    'monto' => $valor->monto
                 ]);
                 // se setea en el valor el rol_pago_id encontrado
                 $valor->rol_pago_id = $rol_empleado->id;
                 $valor->save();
             }
         } catch (Exception $ex) {
-            Log::channel('testing')->error('Log', [ $ex]);
+            Log::channel('testing')->error('Log', [$ex]);
             Log::channel('testing')->error('Log', ['error registrarIngresosProgramados', $ex->getMessage(), $ex->getLine()]);
             throw $ex;
         }
     }
+
+//    public function actualizarIngresosProgramadosAlFinalizarRolPago(RolPagoMes $rol_mes)
+//    {
+//        $ids_roles_empleados = RolPago::where('rol_pago_id', $rol_mes->id)->pluck('id');
+//        $valores = ValorEmpleadoRolMensual::where('tipo', ValorEmpleadoRolMensual::INGRESO)
+//            ->whereIn('rol_pago_id', $ids_roles_empleados)->get();
+//        foreach ($valores as $valor) {
+//            $entidad = match ($valor->model_type) {
+//                Vacacion::class => Vacacion::find($valor->model_id),
+//                default => ValorEmpleadoRolMensual::find($valor->id)
+//            };
+////            Log::channel('testing')->info('Log', ['Relacion con el modelo externo es?', $valor, $entidad]);
+//        }
+//    }
 
     public function registrarEgresosProgramados(RolPagoMes $rol_mes)
     {
@@ -303,6 +317,19 @@ class NominaService
             }
         }
     }
+
+    public function actualizarEgresosProgramadosAlFinalizarRolPago(RolPagoMes $rol_mes)
+    {
+        $mes = Carbon::createFromFormat('m-Y', $rol_mes->mes)->format('Y-m');
+        //$ids_roles_empleados = RolPago::where('rol_pago_id', $rol_mes->id)->pluck('id');
+        $ids_empleados = RolPago::where('rol_pago_id', $rol_mes->id)->pluck('empleado_id');
+        $descuentos = Descuento::whereIn('empleado_id', $ids_empleados)->get();
+        foreach ($descuentos as $descuento) {
+            $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
+            $cuota?->update(['pagada' => true, 'comentario' => 'PAGADO EN ROL DEL MES ' . $mes]);
+        }
+    }
+
 
 
     /**

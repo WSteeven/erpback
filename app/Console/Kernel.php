@@ -75,7 +75,7 @@ class Kernel extends ConsoleKernel
         /*****************
          * RECURSOS HUMANOS
          ****************/
-        $schedule->job(new CrearVacacionesEmpleadoJob())->everyMinute();//daily();
+        $schedule->job(new CrearVacacionesEmpleadoJob())->daily();
         $schedule->job(new NotificarPotencialesVacacionesEmpleadoJob())->dailyAt('08:00');
 
     }

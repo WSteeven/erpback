@@ -2,13 +2,17 @@
 
 namespace Src\App\RecursosHumanos\NominaPrestamos;
 
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\PlanVacacionResource;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\PlanVacacion;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 use Throwable;
@@ -84,6 +88,30 @@ class VacacionService
 
         } else
             return (int)($vacacion->dias - $vacacion->detalles()->sum('dias_utilizados'));
+    }
+
+    public static function reporte(Request $request)
+    {
+        switch ($request->tipo) {
+            case 'PLAN_VACACIONES':
+                $results = PlanVacacion::where('periodo_id', $request->periodo)
+                    ->when(!$request->todos, function ($query) use ($request) {
+                        $query->where('empleado_id', $request->empleado_id);
+                    })->get();
+//                Log::channel('testing')->info('Log', ['Results planes_vacaciones', $results]);
+                return PlanVacacionResource::collection($results);
+            case 'VACACIONES_PENDIENTES':
+                $results = Vacacion::where('completadas', false)->get();
+                return VacacionResource::collection($results);
+            default:
+                $results = Vacacion::where('periodo_id', $request->periodo)
+                    ->when(!$request->todos, function ($query) use ($request) {
+                        $query->where('empleado_id', $request->empleado_id);
+                    })->whereHas('detalles')
+                    ->get();
+//                Log::channel('testing')->info('Log', ['Results vacaciones', $results]);
+                return VacacionResource::collection($results);
+        }
     }
 
     private function calcularPeriodo(Empleado $empleado)

@@ -743,7 +743,6 @@ class RolPagoMesController extends Controller
             $roles_pago = RolPago::where('rol_pago_id', $rol_mes->id)->get();
             Log::channel('testing')->info('Log', ['roles_pago', $roles_pago]);
             foreach ($roles_pago as $rol_pago) {
-//                Log::channel('testing')->info('Log', ['RolPago', $rol_pago]);
                 $this->nominaService->setEmpleado($rol_pago->empleado_id);
                 $this->prestamoService->setEmpleado($rol_pago->empleado_id);
                 $this->nominaService->setRolPago($rol_mes);
@@ -816,6 +815,12 @@ class RolPagoMesController extends Controller
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);
         $rol_pago->finalizado = true;
         $rol_pago->save();
+        // TODO: Revisar este codigo para finalizar algunas cosas que faltan
+        // mandar a marcar como pagadas las vacaciones y los descuentos concernientes a este pago
+//        $this->nominaService->actualizarIngresosProgramadosAlFinalizarRolPago($rol_pago);
+        $this->nominaService->actualizarEgresosProgramadosAlFinalizarRolPago($rol_pago);
+
+
         $modelo = new RolPagoMesResource($rol_pago);
         if (!$rol_pago->es_quincena) {
             $mes = $rol_pago->mes;
