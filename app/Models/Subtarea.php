@@ -188,6 +188,7 @@ class Subtarea extends Model implements Auditable
         'empleados_designados',
         'metraje_tendido',
         'valor_alimentacion',
+        'gastos_adicionales',
         'tipo_trabajo_id',
         'tarea_id',
         'grupo_id',
@@ -370,7 +371,7 @@ class Subtarea extends Model implements Auditable
 
     public function alimentacionGrupo()
     {
-        return $this->hasOne(AlimentacionGrupo::class);
+        return $this->hasMany(AlimentacionGrupo::class);
     }
 
     public function tecnicosPrincipales($empleados)
