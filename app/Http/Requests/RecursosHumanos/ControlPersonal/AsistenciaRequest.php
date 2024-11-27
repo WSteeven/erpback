@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\ControlPersonal;
+namespace App\Http\Requests\RecursosHumanos\ControlPersonal;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,11 +25,11 @@ class AsistenciaRequest extends FormRequest
     {
         return [
             'asistencias' => ['required', 'array'], // Validar que sea un array
-            'asistencias.*.employeeName' => ['required', 'string'], // Nombre del empleado
-            'asistencias.*.startTime' => ['required', 'date'], // Hora de ingreso
-            'asistencias.*.endTime' => ['nullable', 'date'], // Hora de salida
-            'asistencias.*.lunchOutTime' => ['nullable', 'date'], // Hora de salida almuerzo
-            'asistencias.*.lunchInTime' => ['nullable', 'date'], // Hora de entrada almuerzo
+            'asistencias.*.empleado_id' => ['required', 'integer'], // Nombre del empleado
+            'asistencias.*.hora_ingreso' => ['required', 'date'], // Hora de ingreso
+            'asistencias.*.hora_salida' => ['nullable', 'date'], // Hora de salida
+            'asistencias.*.hora_salida_almuerzo' => ['nullable', 'date'], // Hora de salida almuerzo
+            'asistencias.*.hora_entrada_almuerzo' => ['nullable', 'date'], // Hora de entrada almuerzo
         ];
     }
 
@@ -42,8 +42,8 @@ class AsistenciaRequest extends FormRequest
     {
         return [
             'asistencias.required' => 'Los datos de asistencia son obligatorios.',
-            'asistencias.*.employeeName.required' => 'El nombre del empleado es obligatorio.',
-            'asistencias.*.startTime.required' => 'La hora de ingreso es obligatoria.',
+            'asistencias.*.empleado.required' => 'El nombre del empleado es obligatorio.',
+            'asistencias.*.hora_ingreso.required' => 'La hora de ingreso es obligatoria.',
         ];
     }
 }

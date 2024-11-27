@@ -5,7 +5,7 @@ namespace App\Http\Controllers\ControlPersonal;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ControlPersonal\HorarioLaboralRequest;
 use App\Http\Resources\HorarioLaboralResource;
-use App\Models\HorarioLaboral;
+use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
