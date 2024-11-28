@@ -303,6 +303,7 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_finalizacion = Carbon::now();
         $subtarea->causa_intervencion_id = $request['causa_intervencion_id'];
         $subtarea->valor_alimentacion = $request['valor_alimentacion'];
+        $subtarea->gastos_adicionales = $request['gastos_adicionales'];
         $subtarea->save();
 
         $modelo = new SubtareaResource($subtarea->refresh());
