@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\NotificacionRequest;
 use App\Http\Resources\NotificacionResource;
+use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\User;
 use Exception;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\NotificacionService;
 use Src\Shared\Utils;
+use Throwable;
 
 class NotificacionController extends Controller
 {
@@ -49,8 +51,10 @@ class NotificacionController extends Controller
 
         return response()->json(compact('results'));
     }
+
     /**
      * Guardar
+     * @throws Throwable
      */
     public function store(NotificacionRequest $request)
     {
@@ -116,5 +120,10 @@ class NotificacionController extends Controller
         $modelo = $notificacion;
 
         return response()->json(compact('modelo'));
+    }
+    public function marcarLeidasTodas(Empleado $empleado){
+        Notificacion::where('per_destinatario_id', $empleado->id)->where('leida', false)->update(['leida' => true]);
+        $mensaje = 'Notificaciones actualizadas correctamente';
+        return response()->json(compact('mensaje'));
     }
 }

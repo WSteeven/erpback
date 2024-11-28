@@ -246,6 +246,7 @@ Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('pedidos/marcar-completado/{pedido}', [PedidoController::class, 'marcarCompletado']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+Route::post('notificaciones/marcar-leidas-todas/{empleado}', [NotificacionController::class, 'marcarLeidasTodas']);
 /******************************************************
  * REPORTES DE BODEGA
  ******************************************************/
