@@ -23,6 +23,8 @@ use Laravel\Scout\Searchable;
 use Src\App\WhereRelationLikeCondition\Subtarea\ProyectoWRLC;
 use Src\App\WhereRelationLikeCondition\Tareas\GrupoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraEjecucionWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraFinalizacionWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
 /**
@@ -242,8 +244,9 @@ class Subtarea extends Model implements Auditable
     {
         return [
             /* TrabajoClienteWRLC::class,
-            TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
+            TrabajoFechaHoraEjecucionWRLC::class,
+            TrabajoFechaHoraFinalizacionWRLC::class,
             TrabajoTipoTrabajoWRLC::class,
             TrabajoCoordinadorWRLC::class,
             // ProyectoWRLC::class,
