@@ -13,12 +13,13 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
+use Str;
 
 class TareaEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Tarea $tarea;
+    public array $tarea;
     public Notificacion $notificacion;
     public string $destinatario;
 
