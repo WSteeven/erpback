@@ -29,7 +29,12 @@ class TareaEvent implements ShouldBroadcast
      */
     public function __construct(Tarea $tarea, int $emisor, int $destinatario)
     {
-        $this->tarea = $tarea;
+        $this->tarea = [
+            'id' => $tarea->id,
+            'titulo' => $tarea->titulo,
+            'descripcion' => Str::limit($tarea->descripcion, 150),
+        ];
+
         $this->destinatario = $destinatario;
 
         $ruta = '/gasto';
