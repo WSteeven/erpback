@@ -490,7 +490,7 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function actualizarPedido($transaccion)
     {
-        Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
+//        Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
         $url_pedido = '/pedidos';
         $estado_completa = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $estado_parcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
@@ -500,20 +500,20 @@ class TransaccionBodega extends Model implements Auditable
             // Log::channel('testing')->info('Log', ['Detalles despachados en el egreso son: ', $detalles]);
             foreach ($detalles as $detalle) { //filtra los detalles que se despacharon en el egreso
                 $item_inventario = Inventario::find($detalle['inventario_id']);
-                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $item_inventario]);
+//                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $item_inventario]);
                 $detalle_pedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $item_inventario->detalle_id)->first();
-                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detalle_pedido]);
+//                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detalle_pedido]);
                 if ($detalle_pedido) {
                     $detalle_pedido->despachado = $detalle_pedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                     $detalle_pedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
                 } else {
-                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detalle_pedido]);
+//                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detalle_pedido]);
 
                     // Log::channel('testing')->info('Log', ['DetalleProducto: ', $d]);
                     // $ids_detalles = DetalleProducto::where('producto_id', $d->producto_id)->get('id'); //ids relacionados que pertenecen al mismo producto_id
                     // Log::channel('testing')->info('Log', ['Todos los DetalleProductos hermanos del detalle despachado: ', DetalleProducto::where('producto_id', $d->producto_id)->get()]);
 
-                    $detalle_pedido = DetallePedidoProducto::create([
+                    DetallePedidoProducto::create([
                         'detalle_id' => $item_inventario->detalle_id,
                         'pedido_id' => $pedido->id,
                         'cantidad' => $detalle['cantidad_inicial'],
@@ -522,7 +522,7 @@ class TransaccionBodega extends Model implements Auditable
                     ]);
 
                     // $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
-                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detalle_pedido]);
+//                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detalle_pedido]);
                     // $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
                     // $detallePedido->save();
                 }
@@ -537,7 +537,7 @@ class TransaccionBodega extends Model implements Auditable
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
                 event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
-            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido->estado_id]);
+//            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido->estado_id]);
         } catch (Throwable|Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
             throw $e;
