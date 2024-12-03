@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\RecursosHumanos\Capacitacion;
 
+use App\Models\RecursosHumanos\Capacitacion\Formulario;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class FormularioRequest extends FormRequest
 {
@@ -24,16 +26,21 @@ class FormularioRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre'=>'required|string',
-            'formulario'=>'required|array',
-            'respuestas'=>'nullable|string',
+            'empleado_id' => 'required|exists:empleados,id',
+            'nombre' => 'required|string',
+            'formulario' => 'required|array',
+            'es_recurrente' => 'boolean',
+            'periodo_recurrencia' => 'nullable|integer', //expresado en meses
+            'fecha_inicio' => 'nullable|string',
+            'tipo' => ['required', Rule::in(Formulario::INTERNO, Formulario::EXTERNO)], //interna,externa
+            'activo' => 'boolean',
         ];
     }
 
     protected function prepareForValidation()
     {
         $this->merge([
-            'nombre'=>'Mi formulario',
+            'formulario.*.valor' => null,
         ]);
     }
 }

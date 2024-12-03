@@ -7,6 +7,9 @@ use App\Http\Requests\RecursosHumanos\Capacitacion\FormularioRequest;
 use App\Http\Resources\RecursosHumanos\Capacitacion\FormularioResource;
 use App\Models\RecursosHumanos\Capacitacion\Formulario;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use League\Csv\Exception;
+use Log;
 use Src\Shared\Utils;
 
 class FormularioController extends Controller
@@ -14,7 +17,9 @@ class FormularioController extends Controller
     private string $entidad = 'Formulario';
     public function __construct()
     {
-
+        $this->middleware('can:puede.crear.rrhh_capacitacion_formularios')->only('store');
+        $this->middleware('can:puede.editar.rrhh_capacitacion_formularios')->only('update');
+        $this->middleware('can:puede.eliminar.rrhh_capacitacion_formularios')->only('destroy');
     }
 
     /**
@@ -37,6 +42,7 @@ class FormularioController extends Controller
      */
     public function store(FormularioRequest $request)
     {
+        Log::channel('testing')->info('Log', ['FormularioController::store -> request', $request->all()]);
         $modelo = Formulario::create($request->validated());
         $modelo = new FormularioResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -53,8 +59,16 @@ class FormularioController extends Controller
      */
     public function show(Formulario $formulario)
     {
+        try {
+
+        if(!auth()->check() && $formulario->tipo ===Formulario::INTERNO)
+            throw new Exception('Este formulario solo está disponible para usuarios autenticados');
         $modelo = new FormularioResource($formulario);
         return response()->json(compact('modelo'));
+        }catch (\Exception $e){
+//            return response()->json('Error: '.$e->getMessage(), 500);
+            throw ValidationException::withMessages(['error1' => $e->getMessage()]);
+        }
     }
 
     /**
