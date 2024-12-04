@@ -279,7 +279,7 @@ Route::get('comprobantes-filtrados', [TransaccionBodegaEgresoController::class, 
 Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarEgresos'])->middleware('auth:sanctum');
 
 //Modificar egreso
-Route::patch('modificar-item-egreso',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
+Route::patch('modificar-item-egreso/{transaccion}',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
