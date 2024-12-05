@@ -97,6 +97,7 @@ class Transferencia extends Model implements Auditable
     const PENDIENTE = "PENDIENTE";
     const TRANSITO = "TRANSITO";
     const COMPLETADO = "COMPLETADO";
+    const ANULADO = "ANULADO";
 
     private static array $whiteListFilter = ['*'];
 

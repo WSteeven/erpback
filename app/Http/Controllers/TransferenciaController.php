@@ -4,23 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TransferenciaRequest;
 use App\Http\Resources\TransferenciaResource;
-use App\Models\Inventario;
 use App\Models\Transferencia;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
-use Src\App\TransferenciaService;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class TransferenciaController extends Controller
 {
-    private $entidad = 'Transacción';
+    private string $entidad = 'Transacción';
+
     public function __construct()
     {
-        $this->servicio = new TransferenciaService();
         $this->middleware('can:puede.ver.transferencias')->only('index', 'show');
         $this->middleware('can:puede.crear.transferencias')->only('store');
         $this->middleware('can:puede.editar.transferencias')->only('update');
@@ -30,12 +29,12 @@ class TransferenciaController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function index(Request $request)
+    public function index()
     {
-        $tipo = 'TRANSFERENCIA';
-        $estado = $request['estado'];
+//        $tipo = 'TRANSFERENCIA';
+//        $estado = $request['estado'];
         $results = [];
 
 
@@ -53,8 +52,10 @@ class TransferenciaController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param TransferenciaRequest $request
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
     public function store(TransferenciaRequest $request)
     {
@@ -77,8 +78,8 @@ class TransferenciaController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             //Guardamos el listado de productos en el detalle
-            foreach($request->listadoProductos as $listado){
-                $transferencia->items()->attach($listado['inventario_id'], ['cantidad'=>$listado['cantidades']]);
+            foreach ($request->listadoProductos as $listado) {
+                $transferencia->items()->attach($listado['inventario_id'], ['cantidad' => $listado['cantidades']]);
             }
             //metodo para transferir productos de una bodega a otra.
             //Inventario::transferirProductos();
@@ -87,7 +88,7 @@ class TransferenciaController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro,'.$e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -95,8 +96,8 @@ class TransferenciaController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Transferencia  $transferencia
-     * @return \Illuminate\Http\Response
+     * @param Transferencia $transferencia
+     * @return JsonResponse
      */
     public function show(Transferencia $transferencia)
     {
@@ -108,9 +109,11 @@ class TransferenciaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Transferencia  $transferencia
-     * @return \Illuminate\Http\Response
+     * @param TransferenciaRequest $request
+     * @param Transferencia $transferencia
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
     public function update(TransferenciaRequest $request, Transferencia $transferencia)
     {
@@ -118,20 +121,19 @@ class TransferenciaController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-
             //Adaptación de foreing keys
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['sucursal_salida_id'] = $request->safe()->only(['sucursal_salida'])['sucursal_salida'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['sucursal_destino_id'] = $request->safe()->only(['sucursal_destino'])['sucursal_destino'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
 
             //Borramos el listado anterior e ingresamos el nuevo
             //Guardamos el listado de productos en el detalle
             $transferencia->items()->detach();
-            foreach($request->listadoProductos as $listado){
-                $transferencia->items()->attach($listado['inventario_id'], ['cantidad'=>$listado['cantidades']]);
+            foreach ($request->listadoProductos as $listado) {
+                $transferencia->items()->attach($listado['inventario_id'], ['cantidad' => $listado['cantidades']]);
             }
             //metodo para transferir productos de una bodega a otra.
             //Inventario::transferirProductos();
@@ -144,7 +146,7 @@ class TransferenciaController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro,'.$e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -152,8 +154,8 @@ class TransferenciaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Transferencia  $transferencia
-     * @return \Illuminate\Http\Response
+     * @param Transferencia $transferencia
+     * @return JsonResponse
      */
     public function destroy(Transferencia $transferencia)
     {
@@ -169,6 +171,26 @@ class TransferenciaController extends Controller
     {
         $modelo = new TransferenciaResource($transferencia);
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function anular(Transferencia $transferencia)
+    {
+        try {
+            DB::beginTransaction();
+            if ($transferencia->estado === Transferencia::ANULADO)
+                throw new Exception("Esta transferencia ya ha sido anulada anteriormente");
+            $transferencia->update(['estado' => Transferencia::ANULADO]);
+            $mensaje = 'Transferencia anulada correctamente';
+            $modelo = new TransferenciaResource($transferencia->refresh());
+            DB::commit();
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
+        return response()->json(compact('modelo', 'mensaje'));
     }
 }
