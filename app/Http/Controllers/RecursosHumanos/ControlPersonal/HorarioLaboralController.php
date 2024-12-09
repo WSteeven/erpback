@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\ControlPersonal;
+namespace App\Http\Controllers\RecursosHumanos\ControlPersonal;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ControlPersonal\HorarioLaboralRequest;
-use App\Http\Resources\HorarioLaboralResource;
+use App\Http\Requests\RecursosHumanos\ControlPersonal\HorarioLaboralRequest;
+use App\Http\Resources\RecursosHumanos\ControlPersonal\HorarioLaboralResource;
 use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
-use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
 class HorarioLaboralController extends Controller
@@ -53,7 +52,7 @@ class HorarioLaboralController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\HorarioLaboral  $horario
+     * @param  \App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral  $horario
      * @return \Illuminate\Http\Response
      */
     public function show(HorarioLaboral $horario)
@@ -66,7 +65,7 @@ class HorarioLaboralController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\HorarioLaboral  $horario
+     * @param  \App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral  $horario
      * @return \Illuminate\Http\Response
      */
     public function update(HorarioLaboralRequest $request, HorarioLaboral $horario)
@@ -82,7 +81,7 @@ class HorarioLaboralController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\HorarioLaboral  $horario
+     * @param  \App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral  $horario
      * @return \Illuminate\Http\Response
      */
     public function destroy(HorarioLaboral $horario)
