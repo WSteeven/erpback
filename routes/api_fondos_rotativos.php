@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\FondosRotativos\AjusteSaldoFondoRotativoController;
+use App\Http\Controllers\FondosRotativos\Gasto\AutorizadorDirectoController;
 use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources(
     [
         'ajustes-saldos' => AjusteSaldoFondoRotativoController::class,
+        'autorizadores-directos' => AutorizadorDirectoController::class,
         'detalles-viaticos' => DetalleViaticoController::class,
         'sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'gastos' => GastoController::class,
@@ -39,7 +41,9 @@ Route::apiResources(
     [
         'parameters' => [
             'ajustes-saldos' => 'ajuste',
-            'transferencia' => 'transferencia'
+            'transferencia' => 'transferencia',
+            'autorizadores-directos' => 'autorizador',
+
         ],
     ]
 );

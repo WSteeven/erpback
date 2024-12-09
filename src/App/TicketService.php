@@ -5,6 +5,7 @@ namespace Src\App;
 use App\Events\Tickets\TicketEvent;
 use App\Events\Tickets\TicketCCEvent;
 use App\Models\Departamento;
+use App\Models\RecursosHumanos\EmpleadoDelegado;
 use App\Models\Ticket;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -62,7 +63,7 @@ class TicketService
     {
         $datos = $request->validated();
         $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
-        $datos['responsable_id'] = $request['ticket_para_mi'] ? $request['responsable_id'] : Departamento::find($destinatario['departamento_id'])->responsable_id;  // $destinatario->responsable_id;
+        $datos['responsable_id'] = $request['ticket_para_mi'] ? $request['responsable_id'] : EmpleadoDelegado::obtenerDelegado(Departamento::find($destinatario['departamento_id'])->responsable_id);  // $destinatario->responsable_id;
         $datos['solicitante_id'] = Auth::user()->empleado->id;
         $datos['tipo_ticket_id'] = $destinatario['tipo_ticket_id'];
         $datos['departamento_responsable_id'] = $destinatario['departamento_id'];

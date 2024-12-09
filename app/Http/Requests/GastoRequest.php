@@ -4,12 +4,14 @@ namespace App\Http\Requests;
 
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\RecursosHumanos\EmpleadoDelegado;
 use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
+use Src\App\EmpleadoService;
 use Src\Config\PaisesOperaciones;
 use Src\Shared\ValidarIdentificacion;
 
@@ -246,6 +248,7 @@ class GastoRequest extends FormRequest
      */
     protected function prepareForValidation()
     {
+        $controller_method = $this->route()->getActionMethod();
         $date_viat = Carbon::createFromFormat('Y-m-d', $this->fecha_viat);
         if (!is_null($this->factura))
             $this->merge([
@@ -303,5 +306,17 @@ class GastoRequest extends FormRequest
             'id_proyecto' => $proyecto,
             'id_lugar' => $this->lugar,
         ]);
+
+        // Redireccionar aprobación de gastos creados por personas que tienen configurado un AutorizadorDirecto
+        $this->merge([
+            'aut_especial' => EmpleadoService::obtenerAutorizadorDirecto($this->id_usuario, $this->aut_especial)
+        ]);
+
+        // Colocar el autorizador al delegado
+        if($controller_method == 'store'){
+            $this->merge([
+               'aut_especial' => EmpleadoDelegado::obtenerDelegado($this->aut_especial)
+            ]);
+        }
     }
 }
