@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\RecursosHumanos\ControlPersonal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RecursosHumanos\ControlPersonal\AsistenciaRequest;
 use App\Http\Resources\RecursosHumanos\ControlPersonal\AsistenciaResource;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
 use App\Models\RecursosHumanos\ControlPersonal\Asistencia;
 use Carbon\Carbon;
 use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
+
+use Illuminate\Support\Facades\Log;
 
 class AsistenciaController extends Controller
 {
@@ -17,7 +20,6 @@ class AsistenciaController extends Controller
     public function __construct()
     {
         $this->service = new AsistenciaService();
-
     }
     /**
      * Display a listing of the resource.
@@ -38,47 +40,84 @@ class AsistenciaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(AsistenciaRequest $request)
     {
         try {
-            $datos = $this->consultarBiometrico();
+            $datos = $this->service->obtenerRegistrosDiarios24Mayo();
 
+            // Validar que 'InfoList' exista en la respuesta
+            if (!isset($datos['AcsEvent']['InfoList'])) {
+                throw new \Exception("La clave 'InfoList' no está presente en los datos obtenidos.");
+            }
 
-            foreach ($datos as $evento) {
-                $empleado = Empleado::whereRaw("CONCAT(nombres, ' ', apellidos) = ?", [$evento['employeeName']])->first();
+            $eventos = $datos['AcsEvent']['InfoList'];
 
-                if ($empleado) {
-                    // Definir el rango de almuerzo
-                    $lunchStart = Carbon::createFromTime(12, 30);
-                    $lunchEnd = Carbon::createFromTime(13, 30);
+            // Ordenar eventos por hora para procesarlos en orden cronológico
+            usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
 
-                    // Procesar eventos de almuerzo si no están definidos
-                    $lunchOutTime = null;
-                    $lunchInTime = null;
+            // Agrupar eventos por empleado y fecha
+            $eventosAgrupados = [];
+            foreach ($eventos as $evento) {
+                $fechaEvento = Carbon::parse($evento['time'])->format('Y-m-d');
+                $eventosAgrupados[$evento['name']][$fechaEvento][] = $evento;
+            }
 
-                    $horaEvento = Carbon::parse($evento['startTime']);
+            // Horarios esperados con tolerancia de 30 minutos
+            $horarios = [
+                'entrada' => ['start' => '07:30:00', 'end' => '08:30:00'],
+                'salida_almuerzo' => ['start' => '12:00:00', 'end' => '13:00:00'],
+                'entrada_almuerzo' => ['start' => '13:00:00', 'end' => '14:00:00'],
+                'salida' => ['start' => '16:30:00', 'end' => '17:30:00'],
+            ];
 
-                    if ($horaEvento->between($lunchStart, $lunchEnd)) {
-                        // Determinar si el evento es salida o entrada del almuerzo
-                        if (is_null($evento['lunchOutTime'])) {
-                            $lunchOutTime = $horaEvento;
-                        } elseif (is_null($evento['lunchInTime'])) {
-                            $lunchInTime = $horaEvento;
+            // Procesar eventos agrupados
+            foreach ($eventosAgrupados as $nombreEmpleado => $fechas) {
+                $empleado = Empleado::whereRaw("CONCAT(nombres, ' ', apellidos) = ?", [$nombreEmpleado])->first();
+
+                if (!$empleado) {
+                    continue; // Saltar si no se encuentra el empleado
+                }
+
+                foreach ($fechas as $fecha => $eventosDelDia) {
+                    $asistencia = [
+                        'hora_ingreso' => null,
+                        'hora_salida_almuerzo' => null,
+                        'hora_entrada_almuerzo' => null,
+                        'hora_salida' => null,
+                    ];
+
+                    foreach ($horarios as $tipo => $rango) {
+                        $eventoSeleccionado = null;
+
+                        foreach ($eventosDelDia as $evento) {
+                            $horaEvento = Carbon::parse($evento['time'])->format('H:i:s');
+
+                            if ($horaEvento >= $rango['start'] && $horaEvento <= $rango['end']) {
+                                // Seleccionar el evento más temprano en el rango
+                                if (!$eventoSeleccionado || $horaEvento < $eventoSeleccionado['time']) {
+                                    $eventoSeleccionado = $evento;
+                                }
+                            }
+                        }
+
+                        if ($eventoSeleccionado) {
+                            $asistencia["hora_{$tipo}"] = Carbon::parse($eventoSeleccionado['time'])->format('H:i:s');
+
+                            // Eliminar el evento seleccionado para evitar duplicados
+                            $eventosDelDia = array_filter($eventosDelDia, fn($e) => $e['time'] !== $eventoSeleccionado['time']);
                         }
                     }
 
-                    // Registrar o actualizar asistencia
-                    Asistencia::updateOrCreate(
-                        [
-                            'empleado_id' => $empleado->id,
-                            'hora_ingreso' => $evento['startTime'],
-                        ],
-                        [
-                            'hora_salida' => $evento['endTime'] ?? null,
-                            'hora_salida_almuerzo' => $lunchOutTime,
-                            'hora_entrada_almuerzo' => $lunchInTime,
-                        ]
-                    );
+                    // Verificar que al menos un horario esté presente antes de guardar
+                    if (array_filter($asistencia)) {
+                        Asistencia::updateOrCreate(
+                            [
+                                'empleado_id' => $empleado->id,
+                                'fecha' => $fecha,
+                            ],
+                            $asistencia
+                        );
+                    }
                 }
             }
 
@@ -99,7 +138,7 @@ class AsistenciaController extends Controller
      */
     public function show($id)
     {
-        $asistencia = Asistencia::with('empleado')->find($id);
+        $asistencia = Asistencia::with('empleado_id')->find($id);
 
         if (!$asistencia) {
             return response()->json(['message' => 'Asistencia no encontrada 1.'], 404);
@@ -151,5 +190,4 @@ class AsistenciaController extends Controller
 
         return response()->json(['message' => 'Asistencia eliminada correctamente.']);
     }
-
 }

@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-
 class Asistencia extends Model implements Auditable
 {
     use HasFactory;
@@ -18,20 +17,20 @@ class Asistencia extends Model implements Auditable
     use UppercaseValuesTrait;
     use Filterable;
 
-
-    protected $table = 'rrhh_cp_asistencias'; // Nombre de la tabla
+    protected $table = 'rrhh_cp_asistencias';
 
     // Campos permitidos para inserción masiva
     protected $fillable = [
         'empleado_id',
+        'fecha',
         'hora_ingreso',
         'hora_salida',
         'hora_salida_almuerzo',
         'hora_entrada_almuerzo',
     ];
 
-    private static $whiteListFilter=[
-        '*'
+    private static $whiteListFilter = [
+        '*',
     ];
 
     // Relación con la tabla empleados
@@ -39,4 +38,13 @@ class Asistencia extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class);
     }
+
+    // Casts para formatear automáticamente los valores
+    protected $casts = [
+        'fecha' => 'date:Y-m-d', 
+        'hora_ingreso' => 'datetime:H:i:s',
+        'hora_salida' => 'datetime:H:i:s',
+        'hora_salida_almuerzo' => 'datetime:H:i:s',
+        'hora_entrada_almuerzo' => 'datetime:H:i:s',
+    ];
 }

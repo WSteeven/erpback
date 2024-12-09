@@ -6,6 +6,11 @@ use App\Http\Controllers\RecursosHumanos\ControlPersonal\AsistenciaController;
 use Illuminate\Support\Facades\Route;
 
 
+/**
+ * Consultar Asistencia de Biometrico
+ */
+Route::get('/asistencias/sincronizar', [AsistenciaController::class, 'store']);
+
 Route::apiResources(
     [
         'asistencias' => AsistenciaController::class,
@@ -17,7 +22,4 @@ Route::apiResources(
 
     ]
 );
-/**
- * Consultar Asistencia de Biometrico
- */
-Route::get('/asistencias/sincronizar', [AsistenciaController::class, 'sincronizarAsistencias']);
+

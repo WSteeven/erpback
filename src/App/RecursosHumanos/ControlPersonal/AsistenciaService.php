@@ -9,12 +9,12 @@ use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * TODO: Codigos de minor
+ * TODO: 0x45 => 69 => Employee ID and Fingerprint Authentication Completed
+ * TODO: 0x48 => 72 => Employee ID and Fingerprint and Password Authentication Completed
  * TODO: 0x4b => 75 => Face Authentication Completed
- * TODO: 0x4b => 75 => Face Authentication Completed
- * TODO: 0x4b => 75 => Face Authentication Completed
- * TODO: 0x4b => 75 => Face Authentication Completed
- *
- *
+ * TODO: 0x69 => 105 => Person and ID Card Matched
+ * TODO: 0x98 => 152 => Employee ID Not Exists
+ **
  */
 class AsistenciaService
 {
@@ -38,28 +38,41 @@ class AsistenciaService
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
         $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+        $maxResults = 400; 
+        $searchResultPosition = 0;
+        $eventosTotales = [];
 
-        $ascEventCond = [
-            "searchID" => "1",
-            "searchResultPosition" => 0,
-            "maxResults" => 400,
-            "major" => 5,
-            "minor" => 75,
-            "startTime" => $startTime,
-            "endTime" => $endTime,
-            "picEnable" => false,
-            "eventAttribute" => "attendance",
-            "timeReverseOrder" => true
-        ];
+        do {
+            $ascEventCond = [
+                "searchID" => "1",
+                "searchResultPosition" => $searchResultPosition,
+                "maxResults" => $maxResults,
+                "major" => 5,
+                "minor" => 75,
+                "startTime" => $startTime,
+                "endTime" => $endTime,
+                "picEnable" => false,
+                "eventAttribute" => "attendance",
+                "timeReverseOrder" => true
+            ];
 
-        $response = $this->client->post($endpoint, ["json"=>["AcsEventCond" => $ascEventCond]]);
+            $response = $this->client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+            $data = json_decode($response->getBody(), true);
 
-        if ($response->getStatusCode() === 200) {
-            return json_decode($response->getBody(), true);
-        }
+            if (isset($data['AcsEvent']['InfoList'])) {
+                $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
+                $searchResultPosition += $maxResults;
+            } else {
+                break; // Salir si no hay más eventos
+            }
+        } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
 
-        throw new Exception("Error fetching data");
+        return ['AcsEvent' => ['InfoList' => $eventosTotales]];
     }
+
+
+
+
 
     /**
      * Consultar datos desde la API del biométrico.

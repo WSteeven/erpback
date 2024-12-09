@@ -24,12 +24,12 @@ class AsistenciaRequest extends FormRequest
     public function rules()
     {
         return [
-            'asistencias' => ['required', 'array'], // Validar que sea un array
-            'asistencias.*.empleado_id' => ['required', 'integer'], // Nombre del empleado
-            'asistencias.*.hora_ingreso' => ['required', 'date'], // Hora de ingreso
-            'asistencias.*.hora_salida' => ['nullable', 'date'], // Hora de salida
-            'asistencias.*.hora_salida_almuerzo' => ['nullable', 'date'], // Hora de salida almuerzo
-            'asistencias.*.hora_entrada_almuerzo' => ['nullable', 'date'], // Hora de entrada almuerzo
+            'asistencias.*.empleado_id' => ['required', 'integer'], // ID del empleado
+            'asistencias.*.fecha' => ['required', 'date_format:Y-m-d'], // Fecha de la asistencia
+            'asistencias.*.hora_ingreso' => ['nullable', 'date_format:H:i:s'], // Hora de ingreso
+            'asistencias.*.hora_salida' => ['nullable', 'date_format:H:i:s'], // Hora de salida
+            'asistencias.*.hora_salida_almuerzo' => ['nullable', 'date_format:H:i:s'], // Hora de salida almuerzo
+            'asistencias.*.hora_entrada_almuerzo' => ['nullable', 'date_format:H:i:s'], // Hora de entrada almuerzo
         ];
     }
 
@@ -41,8 +41,7 @@ class AsistenciaRequest extends FormRequest
     public function messages()
     {
         return [
-            'asistencias.required' => 'Los datos de asistencia son obligatorios.',
-            'asistencias.*.empleado.required' => 'El nombre del empleado es obligatorio.',
+            'asistencias.*.empleado_id.required' => 'El nombre del empleado es obligatorio.',
             'asistencias.*.hora_ingreso.required' => 'La hora de ingreso es obligatoria.',
         ];
     }
