@@ -57,7 +57,6 @@ class EmpleadoController extends Controller
         $search = request('search');
         $campos = request('campos') ? explode(',', request('campos')) : '*';
 
-        $user = User::find(auth()->id());
 
         // Devuelve en un array al  empleado resposanble del departamento que se pase como parametro
         // Requiere de campos: es_responsable_departamento=true&departamento_id=
@@ -69,7 +68,7 @@ class EmpleadoController extends Controller
         }
 
         // Si es de RRHH devuelve incluso de inactivos
-        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) {
+        if (auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS])) {
             return $this->servicio->obtenerTodosSinEstado();
         }
 
@@ -202,7 +201,7 @@ class EmpleadoController extends Controller
     public function show(Empleado $empleado)
     {
         $modelo = new EmpleadoResource($empleado);
-        $modelo['conductor'] = new ConductorResource($modelo->conductor);
+        if($modelo->conductor) $modelo['conductor'] = new ConductorResource($modelo->conductor);
         return response()->json(compact('modelo'));
     }
 
