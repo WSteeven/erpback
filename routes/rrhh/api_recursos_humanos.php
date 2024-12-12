@@ -9,6 +9,7 @@ use App\Http\Controllers\RecursosHumanos\Alimentacion\DetalleAlimentacionControl
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\DiscapacidadUsuarioController;
+use App\Http\Controllers\RecursosHumanos\EmpleadoDelegadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ConceptoIngresoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosGeneralesController;
@@ -48,6 +49,7 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
+        'empleados-delegados'=> EmpleadoDelegadoController::class,
         'departamentos' => DepartamentoController::class,
         'rol-pagos' => RolPagosController::class,
         'rol_pago_mes' => RolPagoMesController::class,
@@ -111,6 +113,7 @@ Route::apiResources(
             'rol_pago_mes'=>'rol',
             'tipo_licencia'=>'tipo',
             'valores-cargados-roles'=>'valor',
+            'empleados-delegados'=>'delegacion',
         ],
 
     ]
@@ -118,6 +121,7 @@ Route::apiResources(
 Route::get('discapacidades-usuario', [DiscapacidadUsuarioController::class, 'discapacidadesUsuario']);
 Route::post('registro', [PostulanteController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('empleados-delegados/desactivar/{empleado}', [EmpleadoDelegadoController::class, 'desactivar']);
     Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
     Route::post('rol_pago/estado/{rol_pago}', [RolPagosController::class, 'cambiarEstado']);
     Route::post('rol_pago/actualizar-masivo', [RolPagosController::class, 'actualizarMasivo']);

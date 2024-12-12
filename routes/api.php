@@ -242,6 +242,7 @@ Route::post('detalles/anular/{detalle}', [DetalleProductoController::class, 'des
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/anular/{transaccion}', [TransaccionBodegaEgresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
+Route::get('transferencias/anular/{transferencia}', [TransferenciaController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('pedidos/marcar-completado/{pedido}', [PedidoController::class, 'marcarCompletado']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);

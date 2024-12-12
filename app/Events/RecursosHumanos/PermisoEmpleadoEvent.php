@@ -32,7 +32,7 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
      */
     public function __construct($permisoEmpleado)
     {
-        $ruta = '/permiso-excel';
+        $ruta = '/permiso-nomina';
         $this->permisoEmpleado = $permisoEmpleado;
         $informativa = false;
         switch ($permisoEmpleado->estado_permiso_id) {

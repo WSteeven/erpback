@@ -54,6 +54,7 @@ class UserInfoResource extends JsonResource
             'nombre_cargo' => $empleado->cargo?->nombre,
             'genero' => $empleado->genero,
             'edad' => Empleado::obtenerEdad($empleado),
+            'tiene_delegado'=> (bool) $empleado->delegado?->where('activo', true)->exists()
         ];
     }
 }
