@@ -18,16 +18,10 @@ use Src\Shared\ValidarIdentificacion;
 class GastoRequest extends FormRequest
 {
     private ?string $pais;
-    private int $id_wellington;
-    private int $id_isabel;
-    private int $id_vanessa;
 
     public function __construct()
     {
         $this->pais = config('app.pais');
-        $this->id_wellington = 117;
-        $this->id_isabel = 10;
-//        $this->id_vanessa = 11;
     }
 
     /**
@@ -264,8 +258,7 @@ class GastoRequest extends FormRequest
 
             if (is_null($this->aut_especial)) {
                 $id_jefe = Auth::user()->empleado->jefe_id;
-//                if ($id_jefe == $this->id_wellington) $id_jefe = $this->id_vanessa;
-                if ($id_jefe == $this->id_wellington) $id_jefe = $this->id_isabel;
+//                if ($id_jefe == $this->id_wellington) $id_jefe = $this->id_isabel;
                 $this->merge([
                     'aut_especial' => $id_jefe,
                 ]);

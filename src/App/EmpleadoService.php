@@ -48,16 +48,15 @@ class EmpleadoService
 
     public static function obtenerIdsEmpleadosOtroAutorizador()
     {
-        $id_wellington = 117;
-        $id_veronica_valencia = 155;
-        if (Auth::user()->empleado->id == $id_veronica_valencia)
-            $ids_empleados = Empleado::where('jefe_id', $id_wellington)
-                ->orWhere('jefe_id', $id_veronica_valencia)
-                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
-        else
-            $ids_empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)
-                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
-        return $ids_empleados;
+//        $id_wellington = 117;
+//        $id_veronica_valencia = 155;
+//        if (Auth::user()->empleado->id == $id_veronica_valencia)
+//            $ids_empleados = Empleado::where('jefe_id', $id_wellington)
+//                ->orWhere('jefe_id', $id_veronica_valencia)
+//                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
+//        else
+        return Empleado::where('jefe_id', Auth::user()->empleado->id)
+            ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
     }
 
     public function obtenerPaginacion($offset)

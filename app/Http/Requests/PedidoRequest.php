@@ -10,8 +10,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class PedidoRequest extends FormRequest
 {
-    private int $id_wellington =117;
-    private int $id_veronica_valencia=155;
+//    private int $id_wellington =117;
+//    private int $id_veronica_valencia=155;
 
 
     /**
@@ -108,7 +108,7 @@ class PedidoRequest extends FormRequest
         }
         if ((is_null($this->per_autoriza) || $this->per_autoriza === '') && !$this->tarea) {
             $jefe_id = auth()->user()->empleado->jefe_id;
-            if($jefe_id == $this->id_wellington) $jefe_id =  $this->id_veronica_valencia;
+//            if($jefe_id == $this->id_wellington) $jefe_id =  $this->id_veronica_valencia;
             $this->merge(['per_autoriza' => $jefe_id]);
         }
         if (is_null($this->autorizacion) || $this->autorizacion === '') {

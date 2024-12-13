@@ -20,8 +20,6 @@ class SolicitudVacacionEventOld implements ShouldBroadcast
 
     public SolicitudVacacion $vacacion;
     public Notificacion $notificacion;
-    private int $id_wellington = 117;
-    private int $id_veronica_valencia = 155;
     public int $jefeInmediato = 0;
 
     /**
@@ -52,7 +50,6 @@ class SolicitudVacacionEventOld implements ShouldBroadcast
                 break;
         }
         $this->jefeInmediato = Empleado::find($vacacion->empleado_id)->jefe_id;
-        if($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
         $destinatario = $vacacion->estado != 1 ?  $this->jefeInmediato : $vacacion->empleado_id;
         $remitente = $vacacion->estado != 1 ? $vacacion->empleado_id : $this->jefeInmediato;
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::VACACION, $destinatario, $remitente, $vacacion, $informativa);
