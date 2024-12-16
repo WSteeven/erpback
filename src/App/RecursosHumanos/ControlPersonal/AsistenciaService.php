@@ -9,11 +9,8 @@ use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * TODO: Codigos de minor
- * TODO: 0x45 => 69 => Employee ID and Fingerprint Authentication Completed
- * TODO: 0x48 => 72 => Employee ID and Fingerprint and Password Authentication Completed
+ * TODO: 0x26 => 38 => Fingerprint Authentication Completed
  * TODO: 0x4b => 75 => Face Authentication Completed
- * TODO: 0x69 => 105 => Person and ID Card Matched
- * TODO: 0x98 => 152 => Employee ID Not Exists
  **
  */
 class AsistenciaService
@@ -38,7 +35,7 @@ class AsistenciaService
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
         $endTime = Carbon::now()->endOfMonth()->toIso8601String();
-        $maxResults = 400;
+        $maxResults = 800;
         $searchResultPosition = 0;
         $eventosTotales = [];
 
@@ -48,15 +45,17 @@ class AsistenciaService
                 "searchResultPosition" => $searchResultPosition,
                 "maxResults" => $maxResults,
                 "major" => 5,
-                "minor" => 75,
+                "minor" => 0,
                 "startTime" => $startTime,
                 "endTime" => $endTime,
                 "picEnable" => false,
                 "eventAttribute" => "attendance",
+                "currentVerifyMode" => "cardOrFaceOrFp",
                 "timeReverseOrder" => true
             ];
 
             $response = $this->client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+            //$response = $this->client->post(  $base_uri.'/'.$endpoint, ['verify'=>false,"json" => ["AcsEventCond" => $ascEventCond]]);
             $data = json_decode($response->getBody(), true);
 
             if (isset($data['AcsEvent']['InfoList'])) {
@@ -68,71 +67,90 @@ class AsistenciaService
         } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
 
         return ['AcsEvent' => ['InfoList' => $eventosTotales]];
-
     }
 
-
-
-
-
-    /**
-     * Consultar datos desde la API del biométrico.
-     *
-     * @return array
-     */
-    public
-    function consultarBiometrico()
+    public function obtenerRegistrosDiarios()
     {
-        $url = 'http://186.101.253.242/ISAPI/AccessControl/AcsEvent?format=json';
-        $username = 'admin';
-        $password = 'abc12345';
-        $nc = '00000001';
-        $cnonce = bin2hex(random_bytes(8));
+        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+        $maxResults = 30; // Ajustar al límite del dispositivo
+        $searchResultPosition = 0;
+        $eventosTotales = [];
 
-        $client = new Client(['http_errors' => false]);
-        $initialResponse = $client->request('GET', $url);
-        $authHeader = $initialResponse->getHeader('WWW-Authenticate')[0];
+        try {
+            do {
+                // Crear las condiciones de búsqueda
+                $ascEventCond = [
+                    "searchID" => "1",
+                    "searchResultPosition" => $searchResultPosition,
+                    "maxResults" => $maxResults,
+                    "major" => 5,
+                    "minor" => 0,
+                    "startTime" => $startTime,
+                    "endTime" => $endTime,
+                    "picEnable" => false,
+                    "eventAttribute" => "attendance",
+                    "currentVerifyMode" => "cardOrFaceOrFp",
+                    "timeReverseOrder" => true,
+                ];
 
-        preg_match('/realm="([^"]+)"/', $authHeader, $realmMatch);
-        preg_match('/nonce="([^"]+)"/', $authHeader, $nonceMatch);
-        preg_match('/qop="([^"]+)"/', $authHeader, $qopMatch);
+                // Realizar la consulta
+                $response = $this->client->post($endpoint, [
+                    "json" => ["AcsEventCond" => $ascEventCond],
+                ]);
 
-        $realm = $realmMatch[1];
-        $nonce = $nonceMatch[1];
-        $qop = $qopMatch[1];
+                $data = json_decode($response->getBody(), true);
 
-        $digestHeader = $this->createDigestHeader($username, $password, 'POST', '/ISAPI/AccessControl/AcsEvent?format=json', $realm, $nonce, $qop, $nc, $cnonce);
+                // Validar que la respuesta contiene eventos
+                if (isset($data['AcsEvent']['InfoList']) && is_array($data['AcsEvent']['InfoList'])) {
+                    $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
+                    $searchResultPosition += count($data['AcsEvent']['InfoList']);
+                } else {
+                    break; // Salir si no hay más eventos
+                }
+            } while (count($data['AcsEvent']['InfoList']) === $maxResults);
 
-        $response = $client->request('POST', $url, [
-            'json' => [
-                'AcsEventCond' => [
-                    'searchID' => "1",
-                    'searchResultPosition' => 0,
-                    'maxResults' => 500,
-                    'major' => 5,
-                    'minor' => 75,
-                    'startTime' => Carbon::now()->startOfMonth()->toIso8601String(),
-                    'endTime' => Carbon::now()->toIso8601String(),
-                ],
-            ],
-            'headers' => [
-                'Authorization' => $digestHeader,
-                'Content-Type' => 'application/json',
-            ],
-        ]);
-
-        return json_decode($response->getBody()->getContents(), true)['AcsEvent']['attendance'] ?? [];
+            return ['AcsEvent' => ['InfoList' => $eventosTotales]];
+        } catch (Exception $e) {
+            // Manejar errores en caso de falla
+            throw new Exception("Error al obtener registros: " . $e->getMessage(), 0, $e);
+        }
     }
 
-    private
-    function createDigestHeader($username, $password, $method, $uri, $realm, $nonce, $qop, $nc, $cnonce)
+    public function consultarBiometrico()
     {
-        $ha1 = md5("{$username}:{$realm}:{$password}");
-        $ha2 = md5("{$method}:{$uri}");
-        $response = md5("{$ha1}:{$nonce}:{$nc}:{$cnonce}:{$qop}:{$ha2}");
+        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+        $maxResults = 400;
+        $searchResultPosition = 0;
+        $eventosTotales = [];
 
-        return "Digest username=\"{$username}\", realm=\"{$realm}\", nonce=\"{$nonce}\", uri=\"{$uri}\", qop={$qop}, nc={$nc}, cnonce=\"{$cnonce}\", response=\"{$response}\"";
+        do {
+            $ascEventCond = [
+                "searchID" => "1",
+                "searchResultPosition" => $searchResultPosition,
+                "maxResults" => $maxResults,
+                "major" => 5,
+                "minor" => 0,
+                "startTime" => $startTime,
+                "endTime" => $endTime,
+                "picEnable" => false,
+                "timeReverseOrder" => true
+            ];
+
+            $response = $this->client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+            $data = json_decode($response->getBody(), true);
+
+            if (isset($data['AcsEvent']['InfoList'])) {
+                $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
+                $searchResultPosition += $maxResults;
+            } else {
+                break;
+            }
+        } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
+
+        return ['AcsEvent' => ['InfoList' => $eventosTotales]];
     }
 }
-
-

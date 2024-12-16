@@ -8,6 +8,7 @@ use App\Http\Resources\RecursosHumanos\ControlPersonal\AsistenciaResource;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
 use App\Models\RecursosHumanos\ControlPersonal\Asistencia;
+use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
 use Carbon\Carbon;
 use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
 
@@ -28,7 +29,8 @@ class AsistenciaController extends Controller
      */
     public function index()
     {
-        $asistencias = Asistencia::filter()->get();
+        $asistencias = Asistencia::filter()->orderBy('fecha', 'desc')->get();
+        //$results = HorarioLaboral::filter()->orderBy('fecha', 'desc')->get();
         $results = AsistenciaResource::collection(resource: $asistencias);
 
         return response()->json(compact('results'));
@@ -43,7 +45,8 @@ class AsistenciaController extends Controller
     public function store(AsistenciaRequest $request)
     {
         try {
-            $datos = $this->service->obtenerRegistrosDiarios24Mayo();
+            $datos = $this->service->obtenerRegistrosDiarios();
+            $horario_laborar = HorarioLaboral::first();
 
             // Validar que 'InfoList' exista en la respuesta
             if (!isset($datos['AcsEvent']['InfoList'])) {
@@ -51,6 +54,16 @@ class AsistenciaController extends Controller
             }
 
             $eventos = $datos['AcsEvent']['InfoList'];
+
+            // Filtrar eventos con 'minor' igual a 75 o 38
+            $eventos = array_filter($eventos, function ($evento) {
+                return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
+            });
+
+            // Validar que los eventos tienen la clave 'name'
+            $eventos = array_filter($eventos, function ($evento) {
+                return isset($evento['name']);
+            });
 
             // Ordenar eventos por hora para procesarlos en orden cronológico
             usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
@@ -62,11 +75,11 @@ class AsistenciaController extends Controller
                 $eventosAgrupados[$evento['name']][$fechaEvento][] = $evento;
             }
 
-            // Horarios esperados con tolerancia de 30 minutos
+            // Horarios esperados
             $horarios = [
-                'entrada' => ['start' => '07:30:00', 'end' => '08:30:00'],
-                'salida_almuerzo' => ['start' => '12:00:00', 'end' => '13:00:00'],
-                'entrada_almuerzo' => ['start' => '13:00:00', 'end' => '14:00:00'],
+                'ingreso' => ['start' => '07:00:00', 'end' => '12:29:59'],
+                'salida_almuerzo' => ['start' => '12:30:00', 'end' => '13:00:00'],
+                'entrada_almuerzo' => ['start' => '13:01:00', 'end' => '14:00:00'],
                 'salida' => ['start' => '16:30:00', 'end' => '17:30:00'],
             ];
 
@@ -90,11 +103,12 @@ class AsistenciaController extends Controller
                         $eventoSeleccionado = null;
 
                         foreach ($eventosDelDia as $evento) {
+                            // Convertir la hora del evento a la zona horaria local
                             $horaEvento = Carbon::parse($evento['time'])->format('H:i:s');
 
                             if ($horaEvento >= $rango['start'] && $horaEvento <= $rango['end']) {
                                 // Seleccionar el evento más temprano en el rango
-                                if (!$eventoSeleccionado || $horaEvento < $eventoSeleccionado['time']) {
+                                if (!$eventoSeleccionado || $horaEvento < Carbon::parse($eventoSeleccionado['time'])->format('H:i:s')) {
                                     $eventoSeleccionado = $evento;
                                 }
                             }
@@ -104,7 +118,11 @@ class AsistenciaController extends Controller
                             $asistencia["hora_{$tipo}"] = Carbon::parse($eventoSeleccionado['time'])->format('H:i:s');
 
                             // Eliminar el evento seleccionado para evitar duplicados
-                            $eventosDelDia = array_filter($eventosDelDia, fn($e) => $e['time'] !== $eventoSeleccionado['time']);
+                            $eventosDelDia = array_filter($eventosDelDia, function ($e) use ($eventoSeleccionado) {
+                                $horaEventoSeleccionado = Carbon::parse($eventoSeleccionado['time'])->format('H:i:s');
+                                $horaEvento = Carbon::parse($e['time'])->format('H:i:s');
+                                return $horaEvento !== $horaEventoSeleccionado;
+                            });
                         }
                     }
 
@@ -129,6 +147,7 @@ class AsistenciaController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Display the specified resource.

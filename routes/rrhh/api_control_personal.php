@@ -9,16 +9,11 @@ use App\Http\Controllers\RecursosHumanos\ControlPersonal\AsistenciaController;
 use Illuminate\Support\Facades\Route;
 
 
-/**Otras Rutas */
 
-Route::get('/horario-laboral', [HorarioLaboralController::class, 'index']);
-Route::post('/horario-laboral', [HorarioLaboralController::class, 'store']);
 
 /**
  * Consultar Asistencia de Biometrico
  */
-
-
 
 Route::get('/asistencias/sincronizar', [AsistenciaController::class, 'store']);
 
@@ -36,5 +31,10 @@ Route::apiResources(
     ]
 );
 
-Route::get('/asistencias', [AsistenciaController::class, 'index']);
+
+
+/**Otras Rutas */
+
+Route::get('/horario-laboral', [HorarioLaboralController::class, 'index']);
+Route::post('/horario-laboral', [HorarioLaboralController::class, 'store']);
 
