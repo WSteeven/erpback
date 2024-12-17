@@ -77,6 +77,12 @@ enum RutasStorage: string
     case CURRICULUM = 'public/SeleccionContratacionPersonal/curriculums/';
     case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
 
+    /**
+     * MODULO DE TRABAJO SOCIAL
+     */
+    case RUTAGRAMAS='public/TrabajoSocial/rutagramas';
+    case CROQUIS='public/TrabajoSocial/croquis_empleados';
+
     /**********
      * Bodega
      **********/

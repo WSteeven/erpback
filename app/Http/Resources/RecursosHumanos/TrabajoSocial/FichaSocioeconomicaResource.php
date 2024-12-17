@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\RecursosHumanos\TrabajoSocial;
 
+use App\Models\Empleado;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class FichaSocioeconomicaResource extends JsonResource
@@ -9,11 +11,45 @@ class FichaSocioeconomicaResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'empleado' => Empleado::extraerNombresApellidos($this->empleado),
+            'lugar_nacimiento' => $this->lugar_nacimiento,
+            'canton' => $this->canton->canton,
+            'contacto_emergencia' => $this->contacto_emergencia,
+            'parentesco_contacto_emergencia' => $this->parentesco_contacto_emergencia,
+            'telefono_contacto_emergencia' => $this->telefono_contacto_emergencia,
+            'problemas_ambiente_social_familiar' => $this->problemas_ambiente_social_familiar,
+            'observaciones_ambiente_social_familiar' => $this->observaciones_ambiente_social_familiar,
+            'conocimientos' => $this->conocimientos,
+            'capacitaciones' => $this->capacitaciones,
+            'imagen_rutagrama' => $this->imagen_rutagrama,
+            'vias_transito_regular_trabajo' => $this->vias_transito_regular_trabajo,
+            'conclusiones' => $this->conclusiones,
+        ];
+        if ($controller_method == 'show') {
+            $modelo['empleado'] = $this->empleado_id;
+            $modelo['canton'] = $this->canton_id;
+            $modelo['imagen_rutagrama'] = url($this->imagen_rutagrama);
+            $modelo['tiene_conyuge'] = !!$this->conyuge;
+            $modelo['conyuge'] = $this->conyuge ? new ConyugeResource($this->conyuge) : null;
+            $modelo['tiene_hijos'] = !!$this->hijos->count()>0;
+            $modelo['hijos'] = $this->hijos ? HijoResource::collection($this->hijos) : null;
+            $modelo['tiene_experiencia_previa'] = !!$this->experienciaPrevia;
+            $modelo['experiencia_previa'] = $this->experienciaPrevia ? new ExperienciaPreviaResource($this->experienciaPrevia) : null;
+            $modelo['vivienda'] = $this->vivienda ? new ViviendaResource($this->vivienda) : null;
+            $modelo['situacion_socioeconomica'] = $this->situacionSocioeconomica ? new SituacionSocioeconomicaResource($this->situacionSocioeconomica) : null;
+            $modelo['composicion_familiar'] = $this->composicionFamiliar ?  ComposicionFamiliarResource::collection($this->composicionFamiliar) : null;
+
+
+        }
+
+        return $modelo;
     }
 }

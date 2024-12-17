@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fr_autorizador_directos');
+        Schema::dropIfExists('fr_autorizadores_directos_gastos');
     }
 };

@@ -7,14 +7,32 @@ use App\Http\Requests\RecursosHumanos\TrabajoSocial\FichaSocioeconomicaRequest;
 use App\Http\Resources\RecursosHumanos\TrabajoSocial\FichaSocioeconomicaResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\TrabajoSocial\FichaSocioeconomica;
+use Carbon\Carbon;
+use DB;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\RecursosHumanos\TrabajoSocial\FichaSocioeconomicaService;
+use Src\App\RecursosHumanos\TrabajoSocial\PolymorphicTrabajoSocialModelsService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class FichaSocioeconomicaController extends Controller
 {
     private string $entidad = 'Ficha Socioeconomica';
+    private FichaSocioeconomicaService $service;
+    private PolymorphicTrabajoSocialModelsService $polymorphicTrabajoSocialService;
+
+    public function __construct()
+    {
+        $this->service = new FichaSocioeconomicaService();
+        $this->polymorphicTrabajoSocialService = new PolymorphicTrabajoSocialModelsService();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -23,7 +41,8 @@ class FichaSocioeconomicaController extends Controller
     public function index()
     {
 //        $results = FichaSocioeconomica::filter()->get();
-        $results = FichaSocioeconomica::all();
+        $ids_empleados = Empleado::filter()->pluck('id');
+        $results = FichaSocioeconomica::whereIn('empleado_id', $ids_empleados)->get();
         $results = FichaSocioeconomicaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -33,13 +52,47 @@ class FichaSocioeconomicaController extends Controller
      *
      * @param FichaSocioeconomicaRequest $request
      * @return JsonResponse
+     * @throws ValidationException|Throwable
      */
     public function store(FichaSocioeconomicaRequest $request)
     {
-        $datos = $request->validated();
-        $modelo = FichaSocioeconomica::create($datos);
-        $modelo = new FichaSocioeconomicaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+            $empleado = Empleado::find($datos['empleado_id']);
+            if ($datos['imagen_rutagrama']) $datos['imagen_rutagrama'] = (new GuardarImagenIndividual($datos['imagen_rutagrama'], RutasStorage::RUTAGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+            $ficha = FichaSocioeconomica::create($datos);
+            //conyuge
+            if ($request->tiene_conyuge) $this->service->actualizarConyuge($ficha, $datos['conyuge']);
+            Log::channel('testing')->info('Log', ['Paso actualizar Conyuge']);
+            //hijos
+            if ($request->tiene_hijos) $this->service->actualizarHijos($ficha, $datos['hijos']);
+            Log::channel('testing')->info('Log', ['Paso actualizar Hijos']);
+            //experiencia previa
+            if ($ficha->tiene_experiencia_previa) $this->service->actualizarExperienciaPrevia($ficha, $datos['experiencia_previa']);
+            Log::channel('testing')->info('Log', ['Paso actualizarExperienciaPrevia']);
+            //vivienda es requerido
+            $this->polymorphicTrabajoSocialService->actualizarViviendaPolimorfica($ficha, $datos['vivienda']);
+            Log::channel('testing')->info('Log', ['Paso actualizarViviendaPolimorfica']);
+            //situacion socioeconomica es requerido
+            $this->service->actualizarSituacionSocioeconomica($ficha, $datos['situacion_socioeconomica']);
+            Log::channel('testing')->info('Log', ['Paso actualizarSituacionSocioeconomica']);
+            // composicion_familiar es requerido
+            $this->polymorphicTrabajoSocialService->actualizarComposicionFamiliarPolimorfica($ficha, $datos['composicion_familiar']);
+            Log::channel('testing')->info('Log', ['Paso actualizarComposicionFamiliarPolimorfica']);
+            //salud es requerido
+            $this->polymorphicTrabajoSocialService->actualizarSaludPolimorfica($ficha, $datos['salud']);
+            Log::channel('testing')->info('Log', ['Paso actualizarSaludPolimorfica']);
+
+
+            $modelo = new FichaSocioeconomicaResource($ficha);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['TH', Utils::obtenerMensajeError($e, 'store')]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -62,7 +115,7 @@ class FichaSocioeconomicaController extends Controller
      * @param FichaSocioeconomica $ficha
      * @return JsonResponse
      */
-    public function update(FichaSocioeconomicaRequest $request,FichaSocioeconomica $ficha)
+    public function update(FichaSocioeconomicaRequest $request, FichaSocioeconomica $ficha)
     {
         $ficha->update($request->validated());
         $modelo = new FichaSocioeconomicaResource($ficha->refresh());
@@ -78,7 +131,7 @@ class FichaSocioeconomicaController extends Controller
      */
     public function destroy()
     {
-        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
     public function empleadoTieneFichaSocioeconomica(Empleado $empleado)
