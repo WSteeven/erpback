@@ -5,6 +5,7 @@ namespace App\Http\Resources\RecursosHumanos\TrabajoSocial;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class FichaSocioeconomicaResource extends JsonResource
 {
@@ -17,6 +18,7 @@ class FichaSocioeconomicaResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
+//        Log::channel('testing')->info('Log', ['$controller_method es ', $controller_method]);
         $modelo = [
             'id' => $this->id,
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
@@ -29,23 +31,24 @@ class FichaSocioeconomicaResource extends JsonResource
             'observaciones_ambiente_social_familiar' => $this->observaciones_ambiente_social_familiar,
             'conocimientos' => $this->conocimientos,
             'capacitaciones' => $this->capacitaciones,
-            'imagen_rutagrama' => $this->imagen_rutagrama,
             'vias_transito_regular_trabajo' => $this->vias_transito_regular_trabajo,
             'conclusiones' => $this->conclusiones,
         ];
-        if ($controller_method == 'show') {
+        if ($controller_method == 'show' || $controller_method == 'ultimaFichaEmpleado') {
             $modelo['empleado'] = $this->empleado_id;
             $modelo['canton'] = $this->canton_id;
-            $modelo['imagen_rutagrama'] = url($this->imagen_rutagrama);
+            $modelo['imagen_rutagrama'] = is_null($this->imagen_rutagrama) ? null : url($this->imagen_rutagrama);
             $modelo['tiene_conyuge'] = !!$this->conyuge;
             $modelo['conyuge'] = $this->conyuge ? new ConyugeResource($this->conyuge) : null;
-            $modelo['tiene_hijos'] = !!$this->hijos->count()>0;
+            $modelo['tiene_hijos'] = !!$this->hijos->count() > 0;
+            $modelo['tiene_capacitaciones'] = !!($this->capacitaciones || $this->conocimientos);
             $modelo['hijos'] = $this->hijos ? HijoResource::collection($this->hijos) : null;
             $modelo['tiene_experiencia_previa'] = !!$this->experienciaPrevia;
             $modelo['experiencia_previa'] = $this->experienciaPrevia ? new ExperienciaPreviaResource($this->experienciaPrevia) : null;
             $modelo['vivienda'] = $this->vivienda ? new ViviendaResource($this->vivienda) : null;
             $modelo['situacion_socioeconomica'] = $this->situacionSocioeconomica ? new SituacionSocioeconomicaResource($this->situacionSocioeconomica) : null;
-            $modelo['composicion_familiar'] = $this->composicionFamiliar ?  ComposicionFamiliarResource::collection($this->composicionFamiliar) : null;
+            $modelo['composicion_familiar'] = $this->composicionFamiliar ? ComposicionFamiliarResource::collection($this->composicionFamiliar) : null;
+            $modelo['salud'] = $this->salud ? new SaludResource($this->salud) : null;
 
 
         }

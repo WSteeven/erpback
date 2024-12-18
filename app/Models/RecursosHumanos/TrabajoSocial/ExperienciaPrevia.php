@@ -27,6 +27,9 @@ class ExperienciaPrevia extends Model implements Auditable
         'fecha_retiro',
         'motivo_retiro',
     ];
+    protected $casts=[
+        'asegurado_iess'=>'boolean',
+    ];
 
     public function ficha(){
         return $this->belongsTo(FichaSocioeconomica::class, 'ficha_id', 'id');

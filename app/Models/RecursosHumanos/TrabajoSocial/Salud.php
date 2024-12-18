@@ -17,19 +17,28 @@ class Salud extends Model implements Auditable
 
     protected $table = 'rrhh_ts_salud_empleados';
     protected $fillable = [
+        // las variables comentadas son calculadas, y no se almacenan en la BD
         'empleado_id',
-        'tiene_discapacidad',
+//        'tiene_discapacidad',
         'discapacidades',
-        'discapacidades_familiar_dependiente',
-        'tiene_enfermedad_cronica',
         'enfermedad_cronica',
         'alergias',
         'lugar_atencion',
-        'tiene_familiar_dependiente_discapacitado',
         'nombre_familiar_dependiente_discapacitado',
         'parentesco_familiar_discapacitado',
+        'discapacidades_familiar_dependiente',
+        'frecuencia_asiste_medico',
+        'deporte_practicado', // pueden ser varios
+        'frecuencia_practica_deporte',
+//        'tiene_enfermedad_cronica',
+//        'tiene_familiar_dependiente_discapacitado',
         'model_id',
         'model_type',
+    ];
+
+    protected $casts = [
+        'discapacidades' => 'array',
+        'discapacidades_familiar_dependiente' => 'array',
     ];
 
     public function saludable()

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,7 +12,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_ts_fichas_socioeconomicas', function (Blueprint $table) {
+        Schema::create('rrhh_ts_visitas_domiciliarias', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('empleado_id');
             $table->unsignedBigInteger('canton_id');
@@ -21,13 +20,10 @@ return new class extends Migration
             $table->string('contacto_emergencia')->nullable();
             $table->string('parentesco_contacto_emergencia')->nullable();
             $table->string('telefono_contacto_emergencia')->nullable();
-            $table->string('problemas_ambiente_social_familiar')->nullable();
-            $table->text('observaciones_ambiente_social_familiar')->nullable();
-            $table->text('conocimientos')->nullable();
-            $table->text('capacitaciones')->nullable();
-            $table->text('imagen_rutagrama')->nullable();
-            $table->text('vias_transito_regular_trabajo')->nullable();
-            $table->text('conclusiones')->nullable();
+            $table->text('diagnostico_social');
+            $table->text('imagen_genograma')->nullable();
+            $table->text('imagen_visita_domiciliaria')->nullable();
+            $table->text('observaciones');
             $table->timestamps();
 
             $table->foreign('empleado_id')->references('id')->on('empleados');
@@ -42,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_ts_fichas_socioeconomicas');
+        Schema::dropIfExists('rrhh_ts_visitas_domiciliarias');
     }
 };

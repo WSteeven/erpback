@@ -24,14 +24,21 @@ class PermisosModuloTrabajoSocialSeeder extends Seeder
         $empleado = Role::firstOrCreate(['name' => User::ROL_EMPLEADO]);
         $trabajador_social = Role::firstOrCreate(['name' => User::ROL_TRABAJADOR_SOCIAL]);
 
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_trabajo_social'])->syncRoles([ $trabajador_social]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_trabajo_social'])->syncRoles([$trabajador_social]);
 
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'fichas_socioeconomicas'])->syncRoles([ $trabajador_social]);
+        // fichas socioeconomicas
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'fichas_socioeconomicas'])->syncRoles([$trabajador_social]);
         Permission::firstOrCreate(['name' => Permisos::VER . 'fichas_socioeconomicas'])->syncRoles([$empleado, $trabajador_social]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'fichas_socioeconomicas'])->syncRoles([$trabajador_social]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'fichas_socioeconomicas'])->syncRoles([$trabajador_social]);
         Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'fichas_socioeconomicas'])->syncRoles([$trabajador_social]);
 
+        // visitas domiciliarias
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'visitas_domiciliarias'])->syncRoles([$trabajador_social]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'visitas_domiciliarias'])->syncRoles([$empleado, $trabajador_social]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'visitas_domiciliarias'])->syncRoles([$trabajador_social]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'visitas_domiciliarias'])->syncRoles([$trabajador_social]);
+        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'visitas_domiciliarias'])->syncRoles([$trabajador_social]);
 
 
     }

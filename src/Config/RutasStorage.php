@@ -82,6 +82,8 @@ enum RutasStorage: string
      */
     case RUTAGRAMAS='public/TrabajoSocial/rutagramas';
     case CROQUIS='public/TrabajoSocial/croquis_empleados';
+    case VISITAS_DOMICILIARIAS='public/TrabajoSocial/Visitas-Domiciliarias';
+    case GENOGRAMAS='public/TrabajoSocial/genogramas';
 
     /**********
      * Bodega

@@ -26,7 +26,6 @@ class FichaSocioeconomicaRequest extends FormRequest
         return array_merge([
             'empleado_id' => 'required|exists:empleados,id',
             'lugar_nacimiento' => 'required|string',
-//            'telefono_domicilio' => 'required|string',
             'canton_id' => 'required|exists:cantones,id',
             'contacto_emergencia' => 'required|string',
             'parentesco_contacto_emergencia' => 'required|string',
@@ -56,13 +55,13 @@ class FichaSocioeconomicaRequest extends FormRequest
             'hijos.*.edad' => 'required_if_accepted:tiene_hijos|string',
 
             // experiencia previa
-            'experiencia_previa.nombre_empresa' => 'required_if_accepted:tiene_experiencia_previa|string',
-            'experiencia_previa.cargo' => 'required_if_accepted:tiene_experiencia_previa|string',
-            'experiencia_previa.antiguedad' => 'required_if_accepted:tiene_experiencia_previa|string',
+            'experiencia_previa.nombre_empresa' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
+            'experiencia_previa.cargo' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
+            'experiencia_previa.antiguedad' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
             'experiencia_previa.asegurado_iess' => 'boolean',
-            'experiencia_previa.telefono' => 'required_if_accepted:tiene_experiencia_previa|string',
-            'experiencia_previa.fecha_retiro' => 'required_if_accepted:tiene_experiencia_previa|string',
-            'experiencia_previa.motivo_retiro' => 'required_if_accepted:tiene_experiencia_previa|string',
+            'experiencia_previa.telefono' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
+            'experiencia_previa.fecha_retiro' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
+            'experiencia_previa.motivo_retiro' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
 
             // situacion socioeconomica
             'situacion_socioeconomica' => 'required|array',
@@ -92,7 +91,7 @@ class FichaSocioeconomicaRequest extends FormRequest
         );
     }
 
-    protected function getViviendaRules(): array
+    public function getViviendaRules(): array
     {
         $rules = (new ViviendaRequest())->rules();
         return collect($rules)->mapWithKeys(function ($rule, $key) {
@@ -100,7 +99,7 @@ class FichaSocioeconomicaRequest extends FormRequest
         })->toArray();
     }
 
-    protected function getComposicionFamiliarRules(): array
+    public function getComposicionFamiliarRules(): array
     {
         $rules = (new ComposicionFamiliarRequest())->rules();
         return collect($rules)->mapWithKeys(function ($rule, $key) {
@@ -108,7 +107,7 @@ class FichaSocioeconomicaRequest extends FormRequest
         })->toArray();
     }
 
-    protected function getSaludRequest(): array
+    public function getSaludRequest(): array
     {
         $rules = (new SaludRequest())->rules();
         return collect($rules)->mapWithKeys(function ($rule, $key) {

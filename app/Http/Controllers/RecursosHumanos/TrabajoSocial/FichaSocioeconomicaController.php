@@ -31,6 +31,10 @@ class FichaSocioeconomicaController extends Controller
     {
         $this->service = new FichaSocioeconomicaService();
         $this->polymorphicTrabajoSocialService = new PolymorphicTrabajoSocialModelsService();
+        $this->middleware('can:puede.ver.fichas_socioeconomicas')->only('index', 'show');
+        $this->middleware('can:puede.crear.fichas_socioeconomicas')->only('store');
+        $this->middleware('can:puede.editar.fichas_socioeconomicas')->only('update');
+        $this->middleware('can:puede.eliminar.fichas_socioeconomicas')->only('destroy');
     }
 
     /**
@@ -64,33 +68,31 @@ class FichaSocioeconomicaController extends Controller
             $ficha = FichaSocioeconomica::create($datos);
             //conyuge
             if ($request->tiene_conyuge) $this->service->actualizarConyuge($ficha, $datos['conyuge']);
-            Log::channel('testing')->info('Log', ['Paso actualizar Conyuge']);
+
             //hijos
             if ($request->tiene_hijos) $this->service->actualizarHijos($ficha, $datos['hijos']);
-            Log::channel('testing')->info('Log', ['Paso actualizar Hijos']);
+
             //experiencia previa
             if ($ficha->tiene_experiencia_previa) $this->service->actualizarExperienciaPrevia($ficha, $datos['experiencia_previa']);
-            Log::channel('testing')->info('Log', ['Paso actualizarExperienciaPrevia']);
+
             //vivienda es requerido
             $this->polymorphicTrabajoSocialService->actualizarViviendaPolimorfica($ficha, $datos['vivienda']);
-            Log::channel('testing')->info('Log', ['Paso actualizarViviendaPolimorfica']);
+
             //situacion socioeconomica es requerido
             $this->service->actualizarSituacionSocioeconomica($ficha, $datos['situacion_socioeconomica']);
-            Log::channel('testing')->info('Log', ['Paso actualizarSituacionSocioeconomica']);
+
             // composicion_familiar es requerido
             $this->polymorphicTrabajoSocialService->actualizarComposicionFamiliarPolimorfica($ficha, $datos['composicion_familiar']);
-            Log::channel('testing')->info('Log', ['Paso actualizarComposicionFamiliarPolimorfica']);
+
             //salud es requerido
             $this->polymorphicTrabajoSocialService->actualizarSaludPolimorfica($ficha, $datos['salud']);
-            Log::channel('testing')->info('Log', ['Paso actualizarSaludPolimorfica']);
-
 
             $modelo = new FichaSocioeconomicaResource($ficha);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['TH', Utils::obtenerMensajeError($e, 'store')]);
+            Log::channel('testing')->error('Log', ['TH', Utils::obtenerMensajeError($e, 'store')]);
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
         return response()->json(compact('mensaje', 'modelo'));
@@ -114,12 +116,51 @@ class FichaSocioeconomicaController extends Controller
      * @param FichaSocioeconomicaRequest $request
      * @param FichaSocioeconomica $ficha
      * @return JsonResponse
+     * @throws Throwable|ValidationException
      */
     public function update(FichaSocioeconomicaRequest $request, FichaSocioeconomica $ficha)
     {
-        $ficha->update($request->validated());
-        $modelo = new FichaSocioeconomicaResource($ficha->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+            $empleado = Empleado::find($datos['empleado_id']);
+            if ($datos['imagen_rutagrama'] && Utils::esBase64($datos['imagen_rutagrama'])) {
+                $datos['imagen_rutagrama'] = (new GuardarImagenIndividual($datos['imagen_rutagrama'], RutasStorage::RUTAGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+            } else {
+                unset($datos['imagen_rutagrama']);
+            }
+            $ficha->update($datos);
+
+            //conyuge
+            $this->service->actualizarConyuge($ficha, $datos['conyuge']);
+
+            //hijos
+            $this->service->actualizarHijos($ficha, $datos['hijos']);
+
+            //experiencia previa
+            $this->service->actualizarExperienciaPrevia($ficha, $datos['experiencia_previa']);
+
+            //vivienda es requerido
+            $this->polymorphicTrabajoSocialService->actualizarViviendaPolimorfica($ficha, $datos['vivienda']);
+
+            //situacion socioeconomica es requerido
+            $this->service->actualizarSituacionSocioeconomica($ficha, $datos['situacion_socioeconomica']);
+
+            // composicion_familiar es requerido
+            $this->polymorphicTrabajoSocialService->actualizarComposicionFamiliarPolimorfica($ficha, $datos['composicion_familiar']);
+
+            //salud es requerido
+            $this->polymorphicTrabajoSocialService->actualizarSaludPolimorfica($ficha, $datos['salud']);
+
+
+            $modelo = new FichaSocioeconomicaResource($ficha->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        } catch (Throwable|Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->error('Log', ['TH', Utils::obtenerMensajeError($e, 'update')]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
         return response()->json(compact('modelo', 'mensaje'));
     }
 
@@ -147,8 +188,11 @@ class FichaSocioeconomicaController extends Controller
     {
         if ($empleado->fichaSocioeconomica()->exists()) {
             $ficha = $empleado->fichaSocioeconomica()->first();
-            $modelo = new FichaSocioeconomicaResource($ficha);
-            return response()->json(compact('modelo'));
+            if (!is_null($ficha)) {
+                return $this->show($ficha);
+            }
+//            $modelo = new FichaSocioeconomicaResource($ficha);
+//            return response()->json(compact('modelo'));
         } else throw ValidationException::withMessages(['NotFound' => 'El empleado aún no tiene una ficha socioeconomica registrada']);
     }
 }
