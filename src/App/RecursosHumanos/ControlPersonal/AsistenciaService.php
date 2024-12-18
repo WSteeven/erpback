@@ -123,7 +123,7 @@ class AsistenciaService
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
         $endTime = Carbon::now()->endOfMonth()->toIso8601String();
-        $maxResults = 400;
+        $maxResults = 1000;
         $searchResultPosition = 0;
         $eventosTotales = [];
 
