@@ -60,9 +60,9 @@ class AsistenciaController extends Controller
                 return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
             });
 
-            // Validar que los eventos tienen la clave 'name'
+            // Validar que los eventos tienen las claves 'name' y 'time'
             $eventos = array_filter($eventos, function ($evento) {
-                return isset($evento['name']);
+                return isset($evento['name']) && isset($evento['time']);
             });
 
             // Ordenar eventos por hora para procesarlos en orden cronológico
@@ -77,9 +77,9 @@ class AsistenciaController extends Controller
 
             // Horarios esperados
             $horarios = [
-                'ingreso' => ['start' => '07:00:00', 'end' => '12:29:59'],
-                'salida_almuerzo' => ['start' => '12:30:00', 'end' => '13:00:00'],
-                'entrada_almuerzo' => ['start' => '13:01:00', 'end' => '14:00:00'],
+                'ingreso' => ['start' => '07:00:00', 'end' => '09:00:00'],
+                'salida_almuerzo' => ['start' => '12:30:00', 'end' => '13:00:59'],
+                'entrada_almuerzo' => ['start' => '13:25:00', 'end' => '14:00:00'],
                 'salida' => ['start' => '16:30:00', 'end' => '17:30:00'],
             ];
 
