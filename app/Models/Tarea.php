@@ -135,6 +135,7 @@ class Tarea extends Model implements Auditable
         'imagen_informe',
         'finalizado',
         'metraje_tendido',
+        'fecha_hora_finalizacion',
         'proyecto_id',
         'coordinador_id',
         'fiscalizador_id',

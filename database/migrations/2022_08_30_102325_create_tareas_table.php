@@ -26,11 +26,12 @@ return new class extends Migration
             $table->enum('para_cliente_proyecto', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
             $table->enum('ubicacion_trabajo', [Tarea::CLIENTE_FINAL, Tarea::RUTA]);
             $table->enum('medio_notificacion', [Tarea::CORREO, Tarea::LLAMADA, Tarea::CHAT]);
+            $table->timestamp('fecha_hora_finalizacion')->nullable();
             // $table->boolean('tiene_subtareas');
             $table->boolean('finalizado')->default(false);
 
             // Foreign keys
-            $table->unsignedBigInteger('cliente_id')->nullable(); // cliente principal
+            $table->unsignedBigInteger('cliente_id')->nullable(); // cliente principalsub
             $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('cliente_final_id')->nullable();
