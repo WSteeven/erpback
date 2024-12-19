@@ -12,6 +12,7 @@ use App\Models\Medico\Religion;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
+use App\Models\RecursosHumanos\EmpleadoDelegado;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
@@ -395,6 +396,11 @@ class Empleado extends Model implements Auditable
     public function user()
     {
         return $this->belongsTo(User::class, 'usuario_id', 'id');
+    }
+
+    public function delegado()
+    {
+        return $this->hasOne(EmpleadoDelegado::class);
     }
 
     /**

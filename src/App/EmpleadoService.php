@@ -6,6 +6,7 @@ use App\Http\Resources\EmpleadoResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
+use App\Models\FondosRotativos\Gasto\AutorizadorDirecto;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\Saldo;
@@ -47,16 +48,15 @@ class EmpleadoService
 
     public static function obtenerIdsEmpleadosOtroAutorizador()
     {
-        $id_wellington = 117;
-        $id_veronica_valencia = 155;
-        if (Auth::user()->empleado->id == $id_veronica_valencia)
-            $ids_empleados = Empleado::where('jefe_id', $id_wellington)
-                ->orWhere('jefe_id', $id_veronica_valencia)
-                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
-        else
-            $ids_empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)
-                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
-        return $ids_empleados;
+//        $id_wellington = 117;
+//        $id_veronica_valencia = 155;
+//        if (Auth::user()->empleado->id == $id_veronica_valencia)
+//            $ids_empleados = Empleado::where('jefe_id', $id_wellington)
+//                ->orWhere('jefe_id', $id_veronica_valencia)
+//                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
+//        else
+        return Empleado::where('jefe_id', Auth::user()->empleado->id)
+            ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
     }
 
     public function obtenerPaginacion($offset)
@@ -309,5 +309,14 @@ class EmpleadoService
         });
         // Agregamos los nuevos familiares
         $empleado->familiares()->createMany($mappedCollection->toArray());
+    }
+
+    public static function obtenerAutorizadorDirecto(int $empleado_id, int $aut_especial)
+    {
+        $empleado = Empleado::find($empleado_id); // El empleado que realiza el gasto
+        $autorizacion_directa  = AutorizadorDirecto::where('empleado_id', $empleado->id)->where('activo', true)->first();
+        if($autorizacion_directa) return $autorizacion_directa->autorizador_id;
+
+        return $aut_especial;
     }
 }

@@ -3,17 +3,16 @@
 namespace App\Http\Resources;
 
 use App\Models\TransaccionBodega;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
-use Src\Config\MotivosTransaccionesBodega;
 
 class TransaccionBodegaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -49,9 +48,9 @@ class TransaccionBodegaResource extends JsonResource
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
             'sucursal_id' => $this->sucursal_id,
             'sucursal' => $this->sucursal?->lugar,
-            'tiene_obs_autorizacion' => is_null($this->observacion_aut) ? false : true,
-            'tiene_obs_estado' => is_null($this->observacion_est) ? false : true,
-            'tiene_pedido' => $this->pedido_id ? true : false,
+            'tiene_obs_autorizacion' => !is_null($this->observacion_aut),
+            'tiene_obs_estado' => !is_null($this->observacion_est),
+            'tiene_pedido' => (bool)$this->pedido_id,
             'transferencia' => $this->transferencia_id,
             // 'aviso_liquidacion_cliente'=>TransaccionBodega::verificarEgresoLiquidacionMateriales($this->motivo_id, $this->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales),
             'comprobante' => $this->comprobante,
@@ -86,8 +85,8 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['per_retira'] = $this->per_retira_id;
             $modelo['created_at'] = date('d/m/Y', strtotime($this->created_at));
             $modelo['listadoProductosTransaccion'] = $detalles;
-            $modelo['es_tarea'] = $this->tarea ? true : false;
-            $modelo['es_transferencia'] = $this->transferencia_id ? true : false;
+            $modelo['es_tarea'] = (bool)$this->tarea;
+            $modelo['es_transferencia'] = (bool)$this->transferencia_id;
             $modelo['observacion_est'] =  $this->observacion_est;
         }
 

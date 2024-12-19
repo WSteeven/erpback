@@ -510,16 +510,16 @@ class TransaccionBodegaEgresoController extends Controller
     /**
      * @throws ValidationException
      */
-    public function modificarItemEgreso(Request $request)
+    public function modificarItemEgreso(Request $request,TransaccionBodega $transaccion)
     {
-        // Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
+//         Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
         try {
             switch ($request->tipo) {
                 case 'PENDIENTE':
-                    $this->servicio->modificarItemEgresoPendiente($request);
+                    $this->servicio->modificarItemEgresoPendiente($request, $transaccion);
                     break;
                 case 'PARCIAL':
-                    $this->servicio->modificarItemEgresoParcial($request);
+                    $this->servicio->modificarItemEgresoParcial($request, $transaccion);
                     break;
             }
 

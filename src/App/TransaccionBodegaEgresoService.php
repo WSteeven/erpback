@@ -536,10 +536,10 @@ class TransaccionBodegaEgresoService
     /**
      * @throws Throwable
      */
-    public function modificarItemEgresoPendiente(Request $request)
+    public function modificarItemEgresoPendiente(Request $request, TransaccionBodega $transaccion)
     {
         $item_inventario = Inventario::find($request->item['id']);
-        $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
+        $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $request->item['id'])->first();
         try {
             DB::beginTransaction();
             //primero verificamos si se va a restar o no
@@ -578,10 +578,10 @@ class TransaccionBodegaEgresoService
     /**
      * @throws Throwable
      */
-    public function modificarItemEgresoParcial(Request $request)
+    public function modificarItemEgresoParcial(Request $request, TransaccionBodega $transaccion)
     {
         $item_inventario = Inventario::find($request->item['id']);
-        $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $request->transaccion_id)->where('inventario_id', $request->item['id'])->first();
+        $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $request->item['id'])->first();
         if ($detalle_producto_transaccion->recibido > 0 && $request->item['cantidad'] > $detalle_producto_transaccion->cantidad_inicial) throw new Exception('No se puede despachar más cantidad a un ítem que ya tiene una cantidad recibida mayor a 0');
         if ($request->item['cantidad'] === 0 && $detalle_producto_transaccion->recibido > 0) throw new Exception('No puede establecer cantidad cero para un item que ya tiene un valor de recibido');
         try {
@@ -633,7 +633,7 @@ class TransaccionBodegaEgresoService
                 // pendiente= 7
                 // recibido = 3
                 // cuando cantidad > 0 se suma al inventario la diferencia entre pendiente y cantidad
-                $item_inventario->cantidad += ($detalle_producto_transaccion->cantidad_inicial - $detalle_producto_transaccion->recibido - $detalle_producto_transaccion->recibido);
+                $item_inventario->cantidad += ($detalle_producto_transaccion->cantidad_inicial - $request->item['cantidad']);
             }
             $item_inventario->save();
             $detalle_producto_transaccion->cantidad_inicial = $request->item['cantidad'];

@@ -18,8 +18,8 @@ class LicenciaEmpleadoEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public LicenciaEmpleado $licenciaEmpleado;
     public Notificacion $notificacion;
-    private int $id_wellington = 117;
-    private int $id_veronica_valencia = 155;
+//    private int $id_wellington = 117;
+//    private int $id_veronica_valencia = 155;
     public  int $jefeInmediato=0;
 
     /**
@@ -46,7 +46,7 @@ class LicenciaEmpleadoEvent implements ShouldBroadcast
                 break;
         }
         $this->jefeInmediato =  Empleado::find($licenciaEmpleado->empleado)->jefe_id;
-        if($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
+//        if($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
         $destinatario = $licenciaEmpleado->estado!=1?  $this->jefeInmediato:$licenciaEmpleado->empleado;
         $remitente = $licenciaEmpleado->estado!=1? $licenciaEmpleado->empleado: $this->jefeInmediato;
       $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::LICENCIA_EMPLEADO, $destinatario, $remitente,$licenciaEmpleado,$informativa);

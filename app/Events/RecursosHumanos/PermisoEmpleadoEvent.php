@@ -20,8 +20,8 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
 
     public PermisoEmpleado $permisoEmpleado;
     public Notificacion $notificacion;
-    private int $id_wellington = 117;
-    private int $id_veronica_valencia = 155;
+//    private int $id_wellington = 117;
+//    private int $id_veronica_valencia = 155;
     public int $jefeInmediato = 0;
 
     /**
@@ -32,7 +32,7 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
      */
     public function __construct($permisoEmpleado)
     {
-        $ruta = '/permiso-excel';
+        $ruta = '/permiso-nomina';
         $this->permisoEmpleado = $permisoEmpleado;
         $informativa = false;
         switch ($permisoEmpleado->estado_permiso_id) {
@@ -52,7 +52,7 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
                 break;
         }
         $this->jefeInmediato = Empleado::find($permisoEmpleado->empleado_id)->jefe_id;
-        if ($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
+//        if ($this->jefeInmediato == $this->id_wellington) $this->jefeInmediato = $this->id_veronica_valencia;
         $destinatario = $permisoEmpleado->estado_permiso_id != 1 ? $this->jefeInmediato : $permisoEmpleado->empleado_id;
         $remitente = $permisoEmpleado->estado_permiso_id != 1 ? $permisoEmpleado->empleado_id : $this->jefeInmediato;
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::PERMISO_EMPLEADO, $destinatario, $remitente, $permisoEmpleado, $informativa);

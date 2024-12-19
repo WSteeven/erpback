@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 use Src\Config\EstadosTransacciones;
 
 /**
@@ -19,30 +24,31 @@ use Src\Config\EstadosTransacciones;
  * @property int|null $solicitante_id
  * @property int $cantidad
  * @property int $despachado
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\DetalleProducto|null $detalleProducto
- * @property-read \App\Models\Empleado|null $solicitante
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto query()
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereCantidad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereDespachado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereDetalleId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto wherePedidoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetallePedidoProducto whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read DetalleProducto|null $detalleProducto
+ * @property-read Empleado|null $solicitante
+ * @method static Builder|DetallePedidoProducto acceptRequest(?array $request = null)
+ * @method static Builder|DetallePedidoProducto filter(?array $request = null)
+ * @method static Builder|DetallePedidoProducto ignoreRequest(?array $request = null)
+ * @method static Builder|DetallePedidoProducto newModelQuery()
+ * @method static Builder|DetallePedidoProducto newQuery()
+ * @method static Builder|DetallePedidoProducto query()
+ * @method static Builder|DetallePedidoProducto setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|DetallePedidoProducto setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|DetallePedidoProducto setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|DetallePedidoProducto whereCantidad($value)
+ * @method static Builder|DetallePedidoProducto whereCreatedAt($value)
+ * @method static Builder|DetallePedidoProducto whereDespachado($value)
+ * @method static Builder|DetallePedidoProducto whereDetalleId($value)
+ * @method static Builder|DetallePedidoProducto whereId($value)
+ * @method static Builder|DetallePedidoProducto where($key, $value)
+ * @method static Builder|DetallePedidoProducto wherePedidoId($value)
+ * @method static Builder|DetallePedidoProducto whereSolicitanteId($value)
+ * @method static Builder|DetallePedidoProducto whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class DetallePedidoProducto extends Pivot implements Auditable
 {
@@ -65,7 +71,7 @@ class DetallePedidoProducto extends Pivot implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function detalleProducto()
     {
@@ -83,12 +89,12 @@ class DetallePedidoProducto extends Pivot implements Auditable
     /**
      * La función "verificarDespachoItems" comprueba si todos los artículos de un pedido determinado
      * han sido despachados y actualiza el estado del pedido en consecuencia.
-     * 
-     * @param detallePedidoProducto El parámetro `` es un objeto que representa
+     *
+     * @param DetallePedidoProducto $detallePedidoProducto El parámetro `` es un objeto que representa
      * un detalle específico de un producto en un pedido. Es probable que contenga información como
      * pedido_id, detalle_id, cantidad (cantidad solicitada) y despachado (cantidad despachada) del producto.
      */
-    public static function verificarDespachoItems($detallePedidoProducto)
+    public static function verificarDespachoItems(DetallePedidoProducto $detallePedidoProducto)
     {
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         // $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();

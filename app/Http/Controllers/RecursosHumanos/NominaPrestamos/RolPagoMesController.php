@@ -656,8 +656,10 @@ class RolPagoMesController extends Controller
                 ->where('esta_en_rol_pago', true)
                 ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
                 ->where('salario', '!=', 0)
-                ->whereDoesntHave('rolesPago')
-                ->get();
+                ->whereDoesntHave('rolesPago', function ($query) use ($rol){
+                    // Validar que no haya roles asociados al ID del rol actual
+                            $query->where('rol_pago_id', $rol->id);
+                })->get();
             // Log::channel('testing')->info('Log', ['mes rol', $rol, $mes_rol, $final_mes, $ultimo_dia_mes]);
             // Log::channel('testing')->info('Log', ['empleados sin rol', $empleadosSinRolPago]);
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');

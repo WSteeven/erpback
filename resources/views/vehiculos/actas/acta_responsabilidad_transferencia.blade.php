@@ -207,9 +207,21 @@
             <br><br><br><br><br>
             <table class="firma" style="width: 100%;">
                 <thead align="center">
-                    <th>___________________</th>
-                    <th></th>
-                    <th>___________________</th>
+                <th>
+                    @if(file_exists(public_path($entrega['firma_url'])))
+                        <img src="{{ url($entrega['firma_url']) }}" width="100%" height="50"/>
+                    @else
+                        ___________________
+                    @endif
+                </th>
+                <th></th>
+                <th>
+                    @if(file_exists(public_path($responsable['firma_url'])))
+                        <img src="{{ url($responsable['firma_url']) }}" width="100%" height="50"/>
+                    @else
+                        ___________________
+                    @endif
+                </th>
                 </thead>
                 <tbody>
                     <tr align="center">
