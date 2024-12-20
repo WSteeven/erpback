@@ -13,9 +13,10 @@ use Src\Shared\Utils;
 
 class SolicitudVacacionRequest extends FormRequest
 {
-    private int $id_patricio_pazmino = 2;
-    private int $id_wellington = 117;
-    private int $id_veronica_valencia = 155;
+
+//    private int $id_patricio_pazmino = 2;
+//    private int $id_wellington = 117;
+//    private int $id_veronica_valencia = 155;
 
 
     /**
@@ -83,7 +84,7 @@ class SolicitudVacacionRequest extends FormRequest
     {
         $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
         $autorizador_id = $this->autorizador ?? Empleado::find($empleado_id)->jefe_id;
-        if ($autorizador_id == $this->id_patricio_pazmino || $autorizador_id == $this->id_wellington) $autorizador_id = $this->id_veronica_valencia;
+//        if ($autorizador_id == $this->id_patricio_pazmino || $autorizador_id == $this->id_wellington) $autorizador_id = $this->id_veronica_valencia;
         $periodo_id = is_string($this->periodo) ? Periodo::where('nombre', $this->periodo)->first()->id : $this->periodo;
         $this->merge([
             'empleado_id' => $empleado_id,

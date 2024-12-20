@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Jobs\AnularProformaJob;
 use App\Jobs\Bodega\NotificarPedidoParcialJob;
 use App\Jobs\ClearCacheJob;
+use App\Jobs\FinalizarTareasReactivadasJob;
 use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\PausarTicketsFinJornadaJob;
@@ -79,6 +80,11 @@ class Kernel extends ConsoleKernel
         $schedule->job(new CrearVacacionesEmpleadoJob())->daily();
         $schedule->job(new NotificarPotencialesVacacionesEmpleadoJob())->dailyAt('08:00');
         $schedule->job(new DesactivarEmpleadoDelegadoJob())->everyMinute();
+
+        /*********
+         * TAREAS
+         *********/
+        $schedule->job(new FinalizarTareasReactivadasJob())->hourly();
     }
 
     /**
