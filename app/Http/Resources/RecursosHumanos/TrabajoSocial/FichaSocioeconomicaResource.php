@@ -5,7 +5,6 @@ namespace App\Http\Resources\RecursosHumanos\TrabajoSocial;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class FichaSocioeconomicaResource extends JsonResource
 {
@@ -33,6 +32,7 @@ class FichaSocioeconomicaResource extends JsonResource
             'capacitaciones' => $this->capacitaciones,
             'vias_transito_regular_trabajo' => $this->vias_transito_regular_trabajo,
             'conclusiones' => $this->conclusiones,
+            'created_at' => $this->created_at,
         ];
         if ($controller_method == 'show' || $controller_method == 'ultimaFichaEmpleado') {
             $modelo['empleado'] = $this->empleado_id;

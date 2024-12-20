@@ -40,6 +40,9 @@ class SaludRequest extends FormRequest
             'enfermedad_cronica' => 'nullable|required_if_accepted:salud.tiene_enfermedad_cronica|string',
             'alergias' => 'nullable|string',
             'lugar_atencion' => 'required|string',
+            'frecuencia_asiste_medico' => 'nullable|string',
+            'deporte_practicado' => 'nullable|string',
+            'frecuencia_practica_deporte' => 'nullable|string',
         ];
     }
 }

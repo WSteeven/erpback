@@ -5,8 +5,12 @@ namespace App\Http\Controllers\RecursosHumanos\TrabajoSocial;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\TrabajoSocial\VisitaDomiciliariaRequest;
 use App\Http\Resources\RecursosHumanos\TrabajoSocial\VisitaDomiciliariaResource;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\TrabajoSocial\FichaSocioeconomica;
 use App\Models\RecursosHumanos\TrabajoSocial\VisitaDomiciliaria;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -25,12 +29,12 @@ class VisitaDomiciliariaController extends Controller
 {
     private string $entidad = 'Visita Domiciliaria';
 
-    private VisitaDomiciliariaService $service ;
+    private VisitaDomiciliariaService $service;
     private PolymorphicTrabajoSocialModelsService $polymorphicTrabajoSocialService;
 
     public function __construct()
     {
-        $this->service  = new VisitaDomiciliariaService();
+        $this->service = new VisitaDomiciliariaService();
         $this->polymorphicTrabajoSocialService = new PolymorphicTrabajoSocialModelsService();
         $this->middleware('can:puede.ver.fichas_socioeconomicas')->only('index', 'show');
         $this->middleware('can:puede.crear.fichas_socioeconomicas')->only('store');
@@ -62,9 +66,8 @@ class VisitaDomiciliariaController extends Controller
      */
     public function store(VisitaDomiciliariaRequest $request)
     {
-        Log::channel('testing')->info('Log', ['request',$request->all()]);
+        Log::channel('testing')->info('Log', ['request', $request->all()]);
         try {
-//            throw new Exception(Utils::metodoNoDesarrollado());
             DB::beginTransaction();
             $datos = $request->validated();
             $empleado = Empleado::find($datos['empleado_id']);
@@ -83,7 +86,7 @@ class VisitaDomiciliariaController extends Controller
             $modelo = new VisitaDomiciliariaResource($visita);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
-        }catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->error('Log', ['TH', Utils::obtenerMensajeError($e, 'store')]);
             throw Utils::obtenerMensajeErrorLanzable($e);
@@ -116,11 +119,28 @@ class VisitaDomiciliariaController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
+            $empleado = Empleado::find($visita->empleado_id);
+            if ($datos['imagen_genograma'] && Utils::esBase64($datos['imagen_genograma']))
+                $datos['imagen_genograma'] = (new GuardarImagenIndividual($datos['imagen_genograma'], RutasStorage::GENOGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+            else
+                unset($datos['imagen_genograma']);
+
+            if ($datos['imagen_visita_domiciliaria'] && Utils::esBase64($datos['imagen_visita_domiciliaria']))
+                $datos['imagen_visita_domiciliaria'] = (new GuardarImagenIndividual($datos['imagen_visita_domiciliaria'], RutasStorage::VISITAS_DOMICILIARIAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+            else
+                unset($datos['imagen_visita_domiciliaria']);
+
             $visita->update($datos);
+
+            $this->service->actualizarEconomiaFamiliar($visita, $datos['economia_familiar']);
+            $this->polymorphicTrabajoSocialService->actualizarViviendaPolimorfica($visita, $datos['vivienda']);
+            $this->polymorphicTrabajoSocialService->actualizarComposicionFamiliarPolimorfica($visita, $datos['composicion_familiar']);
+            $this->polymorphicTrabajoSocialService->actualizarSaludPolimorfica($visita, $datos['salud']);
+
             $modelo = new VisitaDomiciliariaResource($visita->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        }catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->error('Log', ['TH', Utils::obtenerMensajeError($e, 'update')]);
             throw Utils::obtenerMensajeErrorLanzable($e);
@@ -139,7 +159,8 @@ class VisitaDomiciliariaController extends Controller
         throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
-    public function empleadoTieneVisitaDomiciliaria(Empleado $empleado){
+    public function empleadoTieneVisitaDomiciliaria(Empleado $empleado)
+    {
         $result = $empleado->visitasDomiciliarias()->exists();
         return response()->json(compact('result'));
     }
@@ -149,11 +170,31 @@ class VisitaDomiciliariaController extends Controller
      */
     public function ultimaVisitaDomiciliariaEmpleado(Empleado $empleado)
     {
-        if($empleado->visitasDomiciliarias()->exists()){
+        if ($empleado->visitasDomiciliarias()->exists()) {
             $visita = $empleado->visitasDomiciliarias()->latest()->first();
-            if($visita){
+            if ($visita) {
                 return $this->show($visita);
             }
         } else throw ValidationException::withMessages(['NotFound' => 'El empleado aún no tiene una ficha socioeconomica registrada']);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function imprimir(VisitaDomiciliaria $visita)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        try {
+            $pdf = Pdf::loadView('trabajo_social.visita_domiciliaria', [
+                'configuracion' => $configuracion,
+                'visita' => $visita,
+                'departamento_rrhh' => Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first(),
+                'departamento_trabajo_social' => Departamento::where('nombre', Departamento::DEPARTAMENTO_TRABAJO_SOCIAL)->first(),
+            ]);
+            $pdf->render();
+            return $pdf->output();
+        }catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e, 'No se puede imprimir el pdf: ');
+        }
     }
 }

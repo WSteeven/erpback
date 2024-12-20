@@ -27,9 +27,12 @@ class VisitaDomiciliariaResource extends JsonResource
             'telefono_contacto_emergencia' => $this->telefono_contacto_emergencia,
             'diagnostico_social' => $this->diagnostico_social,
             'observaciones' => $this->observaciones,
+            'created_at' => $this->created_at,
         ];
 
-        if ($controller_method == 'show' || $controller_method == 'ultimaFichaEmpleado') {
+        if ($controller_method == 'show' || $controller_method == 'ultimaVisitaDomiciliariaEmpleado') {
+            $modelo['imagen_genograma'] = is_null($this->imagen_genograma) ? null : url($this->imagen_genograma);
+            $modelo['imagen_visita_domiciliaria'] = is_null($this->imagen_visita_domiciliaria) ? null : url($this->imagen_visita_domiciliaria);
             $modelo['empleado'] = $this->empleado_id;
             $modelo['canton'] = $this->canton_id;
             $modelo['economia_familiar'] = new EconomiaFamiliarResource($this->economiaFamiliar);

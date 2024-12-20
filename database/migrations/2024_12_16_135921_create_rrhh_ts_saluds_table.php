@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->string('nombre_familiar_dependiente_discapacitado')->nullable();
             $table->string('parentesco_familiar_discapacitado')->nullable();
             $table->text('discapacidades_familiar_dependiente')->nullable();
-            $table->string('frecuencia_asiste_medico');
+            $table->string('frecuencia_asiste_medico')->nullable();
             $table->string('frecuencia_practica_deporte')->nullable();
             $table->string('deporte_practicado')->nullable();
             $table->unsignedBigInteger('model_id');

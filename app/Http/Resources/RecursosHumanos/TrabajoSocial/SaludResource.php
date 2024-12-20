@@ -27,6 +27,10 @@ class SaludResource extends JsonResource
             'lugar_atencion' => $this->lugar_atencion,
             'nombre_familiar_dependiente_discapacitado' => $this->nombre_familiar_dependiente_discapacitado,
             'parentesco_familiar_discapacitado' => $this->parentesco_familiar_discapacitado,
+            'frecuencia_asiste_medico' => $this->frecuencia_asiste_medico,
+            'practica_deporte' => !!$this->deporte_practicado || !!$this->frecuencia_practica_deporte,
+            'deporte_practicado' => $this->deporte_practicado,
+            'frecuencia_practica_deporte' => $this->frecuencia_practica_deporte,
             'model_id' => $this->model_id,
             'model_type' => $this->model_type,
         ];

@@ -5,8 +5,11 @@ namespace App\Http\Controllers\RecursosHumanos\TrabajoSocial;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\TrabajoSocial\FichaSocioeconomicaRequest;
 use App\Http\Resources\RecursosHumanos\TrabajoSocial\FichaSocioeconomicaResource;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\TrabajoSocial\FichaSocioeconomica;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -195,4 +198,25 @@ class FichaSocioeconomicaController extends Controller
 //            return response()->json(compact('modelo'));
         } else throw ValidationException::withMessages(['NotFound' => 'El empleado aún no tiene una ficha socioeconomica registrada']);
     }
+
+    /**
+     * @throws ValidationException
+     */
+    public function imprimir(FichaSocioeconomica $ficha)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        try {
+            $pdf = Pdf::loadView('trabajo_social.ficha_socioeconomica', [
+                'configuracion' => $configuracion,
+                'ficha' => $ficha,
+                'departamento_rrhh' => Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first(),
+                'departamento_trabajo_social' => Departamento::where('nombre', Departamento::DEPARTAMENTO_TRABAJO_SOCIAL)->first(),
+            ]);
+            $pdf->render();
+            return $pdf->output();
+        }catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e, 'No se puede imprimir el pdf: ');
+        }
+    }
+
 }

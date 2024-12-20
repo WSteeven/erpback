@@ -25,7 +25,8 @@ class PolymorphicTrabajoSocialModelsService
         if ($listado['imagen_croquis'] && Utils::esBase64($listado['imagen_croquis'])) {
             $listado['imagen_croquis'] = (new GuardarImagenIndividual($listado['imagen_croquis'], RutasStorage::RUTAGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
         } else {
-            unset($listado['imagen_croquis']);
+            $position = strpos($listado['imagen_croquis'], '/storage');
+            $listado['imagen_croquis'] = substr($listado['imagen_croquis'], $position);
         }
         DB::transaction(function () use ($entidad, $listado) {
             $vivienda = $entidad->vivienda()->first();
