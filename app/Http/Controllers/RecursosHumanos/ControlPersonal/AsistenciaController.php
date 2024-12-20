@@ -77,10 +77,10 @@ class AsistenciaController extends Controller
 
             // Horarios esperados
             $horarios = [
-                'ingreso' => ['start' => '07:00:00', 'end' => '09:00:00'],
-                'salida_almuerzo' => ['start' => '12:30:00', 'end' => '13:00:59'],
+                'ingreso' => ['start' => '00:00:00', 'end' => '11:59:59'],
+                'salida_almuerzo' => ['start' => '12:00:00', 'end' => '13:00:59'],
                 'entrada_almuerzo' => ['start' => '13:01:00', 'end' => '14:00:00'],
-                'salida' => ['start' => '16:30:00', 'end' => '17:30:00'],
+                'salida' => ['start' => '16:30:00', 'end' => '23:59:59'],
             ];
 
             // Procesar eventos agrupados
