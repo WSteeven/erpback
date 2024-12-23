@@ -508,12 +508,17 @@ class SaldoController extends Controller
                 ->where('estado', Gasto::APROBADO)->with(['empleado', 'detalleEstado', 'subDetalle', 'proyecto']);
 
             if ($request->subdetalle != null) {
-                $gastos = $query->whereHas('subDetalle', function ($q) use ($request) {
+                $query->whereHas('subDetalle', function ($q) use ($request) {
                     $q->whereIn('subdetalle_gasto_id', $request['subdetalle']);
-                })->get();
-            } else $gastos = $query->get();
-            $nombre_reporte = 'Reporte Fotografías combustibles';
+                });
+            }
+            if ($request->nodos != null) {
+                $query->whereIn('nodo_id', $request['nodos']);
+            }
             $titulo = 'REPORTE';
+
+            $gastos = $query->get();
+//            Log::channel('testing')->info('Log', ['gastos', $gastos]);
 
             switch ($request->tipo_filtro) {
                 case self::SUBDETALLE:
@@ -562,6 +567,7 @@ class SaldoController extends Controller
         }
         return $results;
     }
+
     private function agruparPorCiudadOM(array $datos)
     {
         $collection = collect($datos);
