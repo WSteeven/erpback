@@ -12,6 +12,7 @@ use App\Jobs\PausarTicketsFinJornadaJob;
 use App\Jobs\RechazarGastoJob;
 use App\Jobs\RecursosHumanos\CrearVacacionesEmpleadoJob;
 use App\Jobs\RecursosHumanos\DesactivarEmpleadoDelegadoJob;
+use App\Jobs\RecursosHumanos\NotificarExpiracionPeriodoPruebaJob;
 use App\Jobs\RecursosHumanos\NotificarPotencialesVacacionesEmpleadoJob;
 use App\Jobs\Vehiculos\ActualizarEstadoSegurosVehiculares;
 use App\Jobs\Vehiculos\ActualizarMantenimientoVehiculoJob;
@@ -27,7 +28,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  Schedule  $schedule
+     * @param Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -80,7 +81,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new CrearVacacionesEmpleadoJob())->daily();
         $schedule->job(new NotificarPotencialesVacacionesEmpleadoJob())->dailyAt('08:00');
         $schedule->job(new DesactivarEmpleadoDelegadoJob())->everyMinute();
-
+        $schedule->job(new NotificarExpiracionPeriodoPruebaJob())->dailyAt('08:00');
         /*********
          * TAREAS
          *********/
