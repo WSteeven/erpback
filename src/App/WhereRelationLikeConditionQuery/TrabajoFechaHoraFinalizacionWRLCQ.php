@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Class WhereRelationLikeConditionQuery.
  */
-class TrabajoFechaHoraCreacionWRLCQ extends BaseClause
+class TrabajoFechaHoraFinalizacionWRLCQ extends BaseClause
 {
     /**
      * @param $query
@@ -18,6 +18,7 @@ class TrabajoFechaHoraCreacionWRLCQ extends BaseClause
      */
     public function apply($query): Builder
     {
-        return $query->where('fecha_hora_creacion', 'like', "%" . $this->values['like'] . "%");
+//        return $query->where('fecha_hora_ejecucion', 'like', "%" . $this->values['like'] . "%");
+        return $query->where('fecha_hora_finalizacion', $this->values['operator'], $this->values['value']);
     }
 }

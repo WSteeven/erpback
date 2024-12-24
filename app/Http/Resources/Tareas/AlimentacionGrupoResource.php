@@ -25,6 +25,7 @@ class AlimentacionGrupoResource extends JsonResource
             'fecha' => $this->fecha,
             'tarea_id' => $this->tarea_id,
             'tarea' => $this->tarea->codigo_tarea . ' | ' . $this->tarea->titulo,
+            'subtarea' => $this->subtarea->codigo_subtarea . ' | ' . $this->subtarea->titulo,
             'coordinador' => Empleado::extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo->nombre,
             'total' => $this->cantidad_personas * AlimentacionGrupo::PRECIO_ALIMENTACION,

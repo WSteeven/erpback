@@ -57,6 +57,7 @@ class Departamento extends Model implements Auditable
     const DEPARTAMENTO_GERENCIA = 'GERENCIA';
     const DEPARTAMENTO_MEDICO = 'MEDICO';
     const DEPARTAMENTO_RRHH = 'RECURSOS HUMANOS';
+    const DEPARTAMENTO_TRABAJO_SOCIAL = 'TRABAJO SOCIAL';
 
     protected $table = 'departamentos';
     protected $fillable = ['nombre', 'activo', 'responsable_id', 'telefono', 'correo'];

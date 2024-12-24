@@ -4,7 +4,6 @@ namespace Src\Shared;
 
 use Exception;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Src\Config\PaisesOperaciones;
 
 // https://github.com/diaspar/validacion-cedula-ruc-ecuador
@@ -116,9 +115,9 @@ class ValidarIdentificacion
 
         // validaciones
         try {
-            Log::channel('testing')->info('Log', ['Metodo validarCedula', $this->pais ]);
-            Log::channel('testing')->info('Log', ['Metodo comparacion', $this->pais == PaisesOperaciones::PERU ]);
-            Log::channel('testing')->info('Log', ['como clase', PaisesOperaciones::PERU ]);
+//            Log::channel('testing')->info('Log', ['Metodo validarCedula', $this->pais ]);
+//            Log::channel('testing')->info('Log', ['Metodo comparacion', $this->pais == PaisesOperaciones::PERU ]);
+//            Log::channel('testing')->info('Log', ['como clase', PaisesOperaciones::PERU ]);
             switch ($this->pais) {
                 case PaisesOperaciones::PERU:
                     return true;

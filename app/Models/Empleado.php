@@ -12,10 +12,13 @@ use App\Models\Medico\Religion;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
+use App\Models\RecursosHumanos\EmpleadoDelegado;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\TipoDiscapacidad;
+use App\Models\RecursosHumanos\TrabajoSocial\FichaSocioeconomica;
+use App\Models\RecursosHumanos\TrabajoSocial\VisitaDomiciliaria;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;
@@ -397,6 +400,11 @@ class Empleado extends Model implements Auditable
         return $this->belongsTo(User::class, 'usuario_id', 'id');
     }
 
+    public function delegado()
+    {
+        return $this->hasOne(EmpleadoDelegado::class);
+    }
+
     /**
      * Relacion uno a muchos.
      * Un empleado tiene muchos registros de saldo.
@@ -554,6 +562,16 @@ class Empleado extends Model implements Auditable
     public function cargo()
     {
         return $this->belongsTo(Cargo::class);
+    }
+
+    public function fichaSocioeconomica()
+    {
+        return $this->hasOne(FichaSocioeconomica::class);
+    }
+
+    public function visitasDomiciliarias()
+    {
+        return $this->hasMany(VisitaDomiciliaria::class);
     }
 
     /**

@@ -92,7 +92,7 @@ class TransaccionBodegaRequest extends FormRequest
                         // $this->transferencia? Log::channel('testing')->info('Log', ['Elemento en transferencia: ', Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first()]): Log::channel('testing')->info('Log', ['Elemento en normal: ', Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first(),!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first()]);
                         //valida que se ingrese cantidad 1 cuando el elemento tiene un serial(identificador de elemento unico)
                         if (array_key_exists('serial', $listado)) {
-                            Log::channel('testing')->info('Log', ['Datos 88 ', $listado, !!Fibra::find($listado['id'])]);
+//                            Log::channel('testing')->info('Log', ['Datos 88 ', $listado, !!Fibra::find($listado['id'])]);
                             $producto = Producto::where('nombre', $listado['producto'])->first();
                             $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
                             $es_fibra = !!Fibra::find($detalle->id);

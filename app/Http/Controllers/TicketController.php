@@ -118,6 +118,7 @@ class TicketController extends Controller
         $request->validate([
             'departamento_responsable' => 'required|numeric|integer',
             'responsable' => 'required|numeric|integer',
+            'cc' => 'nullable|array',
         ]);
 
         $idResponsableAnterior = $ticket->responsable_id;
@@ -125,6 +126,7 @@ class TicketController extends Controller
         $ticket->departamento_responsable_id = $request['departamento_responsable'];
         $ticket->responsable_id = $request['responsable'];
         $ticket->estado = Ticket::REASIGNADO;
+        $ticket['cc'] = json_encode($request['cc']);
         $ticket->save();
 
         $modelo = new TicketResource($ticket->refresh());

@@ -2,12 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-use Src\Shared\Utils;
 use Src\Shared\ValidarIdentificacion;
 
 class EmpleadoRequest extends FormRequest

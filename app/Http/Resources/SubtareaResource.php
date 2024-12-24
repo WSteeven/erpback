@@ -22,7 +22,7 @@ class SubtareaResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
@@ -93,6 +93,7 @@ class SubtareaResource extends JsonResource
             'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null, // $tarea->proyecto_id,
             'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
             'valor_alimentacion' => $this->obtenerValorAlimentacion(),
+            'gastos_adicionales' => $this['gastos_adicionales'],
         ];
 
         if ($controller_method == 'show') {
@@ -135,8 +136,14 @@ class SubtareaResource extends JsonResource
 
     public function obtenerValorAlimentacion()
     {
-        $alimentacion_grupo = $this->alimentacionGrupo;
-        return $alimentacion_grupo?->precio * $alimentacion_grupo?->cantidad_personas;
+        $alimentaciones_grupos = $this->alimentacionGrupo;
+        $suma_total = 0;
+
+        foreach ($alimentaciones_grupos as $alimentacion) {
+            $suma_total += $alimentacion->precio * $alimentacion->cantidad_personas;
+        }
+
+        return $suma_total;
     }
 
     public function extraerNombres($listado)

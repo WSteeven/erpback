@@ -8,6 +8,7 @@ use App\Http\Requests\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoLicenciaEmpleadoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoResource;
 use App\Models\RecursosHumanos\NominaPrestamos\LicenciaEmpleado;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -65,7 +66,7 @@ class LicenciaEmpleadoController extends Controller
 
     public function index()
     {
-        if (Auth::user()->hasRole('RECURSOS HUMANOS')) {
+        if (Auth::user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             $results = LicenciaEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
             $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();

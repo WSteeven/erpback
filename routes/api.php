@@ -242,10 +242,12 @@ Route::post('detalles/anular/{detalle}', [DetalleProductoController::class, 'des
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/anular/{transaccion}', [TransaccionBodegaEgresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
+Route::get('transferencias/anular/{transferencia}', [TransferenciaController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('pedidos/marcar-completado/{pedido}', [PedidoController::class, 'marcarCompletado']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+Route::post('notificaciones/marcar-leidas-todas/{empleado}', [NotificacionController::class, 'marcarLeidasTodas']);
 /******************************************************
  * REPORTES DE BODEGA
  ******************************************************/
@@ -278,7 +280,7 @@ Route::get('comprobantes-filtrados', [TransaccionBodegaEgresoController::class, 
 Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarEgresos'])->middleware('auth:sanctum');
 
 //Modificar egreso
-Route::patch('modificar-item-egreso',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
+Route::patch('modificar-item-egreso/{transaccion}',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);

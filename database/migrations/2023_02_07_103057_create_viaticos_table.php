@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('num_comprobante', 250)->nullable();
             $table->unsignedBigInteger('aut_especial');
             $table->unsignedBigInteger('detalle');
-            $table->integer('cantidad')->length(3);
+            $table->integer('cantidad');
             $table->decimal('valor_u',19,2);
             $table->decimal('total',19,2);
             $table->string('comprobante', 2500);

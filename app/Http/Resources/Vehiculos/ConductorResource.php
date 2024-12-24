@@ -3,16 +3,16 @@
 namespace App\Http\Resources\Vehiculos;
 
 use App\Http\Resources\EmpleadoResource;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Src\Shared\Utils;
 
 class ConductorResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {

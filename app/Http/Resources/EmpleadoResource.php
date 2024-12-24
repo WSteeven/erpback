@@ -2,18 +2,20 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class EmpleadoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
@@ -25,6 +27,7 @@ class EmpleadoResource extends JsonResource
             'identificacion' => $this->identificacion,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
+            'nombres_apellidos' => $this->nombres . ' ' . $this->apellidos,
             'fecha_nacimiento' => date('Y-m-d', strtotime($this->fecha_nacimiento)),
             'telefono' => $this->telefono,
             'email' => $this->user ? $this->user->email : '',
@@ -53,8 +56,8 @@ class EmpleadoResource extends JsonResource
             'tiene_discapacidad' => $this->tiene_discapacidad,
             'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
             'fecha_vinculacion' => $this->fecha_vinculacion,
-            'area' =>  $this->area_id,
-            'area_info' =>  $this->area ? $this->area->nombre : null,
+            'area' => $this->area_id,
+            'area_info' => $this->area ? $this->area->nombre : null,
             'observacion' => $this->observacion,
             'esta_en_rol_pago' => $this->esta_en_rol_pago,
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
@@ -62,7 +65,7 @@ class EmpleadoResource extends JsonResource
             'num_cuenta' => $this->num_cuenta_bancaria,
             'salario' => $this->salario,
             'supa' => $this->supa,
-            'roles' => $this->user ? implode(', ', $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : array(),
+            'roles' => $this->user ? implode(', ', $this->user->getRoleNames()->filter(fn($rol) => $rol !== 'EMPLEADO')->toArray()) : array(),
             'direccion' => $this->direccion,
             'autoidentificacion_etnica' => $this->autoidentificacion_etnica,
             'trabajador_sustituto' => $this->trabajador_sustituto,
@@ -72,8 +75,8 @@ class EmpleadoResource extends JsonResource
             'identidad_genero_info' => $this->identidadGenero,
             'religion' => $this->religion_id,
             'religion_info' => $this->religion,
-            'archivos'=>$this->archivos->count()
-
+            'archivos' => $this->archivos->count(),
+            'estado_civil' => $this->estadoCivil?->nombre,
         );
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
@@ -105,8 +108,8 @@ class EmpleadoResource extends JsonResource
             $modelo['nivel_academico'] = $this->nivel_academico;
             $modelo['titulo'] = $this->titulo;
             $modelo['estado_civil'] = $this->estado_civil_id;
-            $modelo['estado_civil_info'] = $this->estadoCivil  ? $this->estadoCivil->nombre : null;
-            $modelo['area_info'] =  $this->area ? $this->area->nombre : null;
+            $modelo['estado_civil_info'] = $this->estadoCivil ? $this->estadoCivil->nombre : null;
+            $modelo['area_info'] = $this->area ? $this->area->nombre : null;
             $modelo['tipo_contrato'] = $this->tipo_contrato_id;
             $modelo['tipo_contrato_info'] = $this->tipoContrato ? $this->tipoContrato->nombre : null;
             $modelo['genero'] = $this->genero;
@@ -123,6 +126,7 @@ class EmpleadoResource extends JsonResource
                 $data[$campo] = $modelo[$campo];
             }
         }
+//        Log::channel('testing')->info('Log', ['EmpleadoResource', $modelo]);
         return count($campos) ? $data : $modelo;
     }
 

@@ -174,9 +174,11 @@ class TransaccionBodegaIngresoController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable
      */
     public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
     {
+        throw new Exception(Utils::metodoNoDesarrollado());
         $datos = $request->validated();
         // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
         //        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
@@ -266,6 +268,9 @@ class TransaccionBodegaIngresoController extends Controller
                 $transaccion->estado_id = $estado_anulado->id;
                 $transaccion->save();
                 DB::commit();
+                // verificar anular la transferencia
+                if($transaccion->transferencia_id>0) $transaccion->transferencia()->update(['recibida' => false, 'estado'=>Transferencia::TRANSITO]);
+
                 $mensaje = 'Transacción anulada correctamente';
                 $modelo = new TransaccionBodegaResource($transaccion->refresh());
                 return response()->json(compact('modelo', 'mensaje'));
@@ -298,6 +303,7 @@ class TransaccionBodegaIngresoController extends Controller
 
     /**
      * Imprimir
+     * @throws ValidationException
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
@@ -327,6 +333,7 @@ class TransaccionBodegaIngresoController extends Controller
 
     /**
      * Reportes
+     * @throws Exception
      */
     public function reportes(Request $request)
     {
