@@ -87,6 +87,11 @@
             vertical-align: center;
         }
 
+        .custom-table{
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
         .custom-table td {
             line-height: normal;
             border: 1px solid #000;
@@ -191,13 +196,13 @@
                 </td>
             </tr>
             <tr>
-                <td style="width: 33%; padding: 2px;">
+                <td style="width: 33%; padding: 2px; line-height: normal">
                     <strong>Nombre: </strong>{{ $ficha->contacto_emergencia }}
                 </td>
-                <td style="width: 33%; padding: 2px;">
+                <td  style="width: 33%; padding: 2px;line-height: normal">
                     <strong>Parentesco: </strong>{{ $ficha->parentesco_contacto_emergencia }}
                 </td>
-                <td style="width: 33%; padding: 2px;">
+                <td  style="width: 33%; padding: 2px;line-height: normal">
                     <strong>Teléfono: </strong>{{ $ficha->telefono_contacto_emergencia }}
                 </td>
             </tr>
@@ -662,7 +667,7 @@
 
 
         <br><br><br><br>
-        <p style="text-align: center"><strong>PARA USO EXCLUSIVO DE LA EMPRESA</strong></p>
+        <p style="page-break-before:always; text-align: center"><strong>PARA USO EXCLUSIVO DE LA EMPRESA</strong></p>
         <p>Certifico que la información proporcionada fue verificada físicamente y corresponde a la verdad en lo que
             respecta al alcance de mi conocimiento.</p>
         <p><strong>Responsable</strong></p>
