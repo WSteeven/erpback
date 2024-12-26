@@ -82,7 +82,6 @@ class TicketService
         $datos = $request->validated();
         $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
         $datos['responsable_id'] = $responsable_id;
-
         $datos['solicitante_id'] = Auth::user()->empleado->id;
         $datos['tipo_ticket_id'] = $destinatario['tipo_ticket_id']; // $request->safe()->only(['tipo_ticket'])['tipo_ticket'];
         $datos['departamento_responsable_id'] = $destinatario['departamento_id'];
