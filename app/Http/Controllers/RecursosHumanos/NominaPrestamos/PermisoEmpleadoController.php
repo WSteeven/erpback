@@ -9,6 +9,7 @@ use App\Http\Requests\RecursosHumanos\NominaPrestamos\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
 use App\Models\Autorizacion;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -78,7 +79,7 @@ class PermisoEmpleadoController extends Controller
 
     public function index()
     {
-        if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
+        if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
             $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();

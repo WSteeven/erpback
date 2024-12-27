@@ -23,14 +23,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class SolicitudVacacionRequestOld extends FormRequest
 {
-    private int $id_wellington;
-    private int $id_veronica_valencia;
-
-    public function __construct()
-    {
-        $this->id_wellington = 117;
-        $this->id_veronica_valencia = 155;
-    }
 
     /**
      * Determine if the user is authorized to make this request.
@@ -73,7 +65,7 @@ class SolicitudVacacionRequestOld extends FormRequest
     {
         $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
         $autorizador_id = $this->autorizador ?? Empleado::find($empleado_id)->jefe_id;
-        if($autorizador_id == $this->id_wellington) $autorizador_id = $this->id_veronica_valencia;
+//        if($autorizador_id == $this->id_wellington) $autorizador_id = $this->id_veronica_valencia;
         $this->merge([
             'empleado_id' => $empleado_id,
             'reemplazo_id'=> $this->reemplazo,

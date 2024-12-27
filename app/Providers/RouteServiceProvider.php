@@ -62,6 +62,9 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/recursos-humanos')
                 ->group(base_path('routes/rrhh/api_recursos_humanos.php'));
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api/trabajo-social')
+                ->group(base_path('routes/rrhh/api_trabajo_social.php'));
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/seleccion-contratacion')
                 ->group(base_path('routes/rrhh/api_seleccion_contratacion_personal.php'));

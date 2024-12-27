@@ -9,6 +9,7 @@ use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
+use App\Models\Tareas\Nodo;
 use App\Traits\UppercaseValuesTrait;
 use Database\Factories\FondosRotativos\Gasto\GastoFactory;
 use Eloquent;
@@ -126,6 +127,7 @@ class Gasto extends Model implements Auditable
         'id_tarea',
         'id_subtarea',
         'id_proyecto',
+        'nodo_id',
         'ruc',
         'factura',
         'num_comprobante',
@@ -152,6 +154,10 @@ class Gasto extends Model implements Auditable
     public function detalle_info()
     {
         return $this->hasOne(DetalleViatico::class, 'id', 'detalle');
+    }
+    public function nodo()
+    {
+        return $this->belongsTo(Nodo::class);
     }
 
     /**

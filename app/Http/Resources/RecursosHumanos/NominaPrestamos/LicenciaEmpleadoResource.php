@@ -9,8 +9,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class LicenciaEmpleadoResource extends JsonResource
 {
-    private int $id_wellington =117;
-    private int $id_veronica_valencia=155;
+//    private int $id_wellington =117;
+//    private int $id_veronica_valencia=155;
     /**
      * Transform the resource into an array.
      *
@@ -20,7 +20,7 @@ class LicenciaEmpleadoResource extends JsonResource
     public function toArray($request)
     {
         $jefe_id = $this->empleado_info->jefe_id;
-        if($jefe_id == $this->id_wellington) $jefe_id= $this->id_veronica_valencia;
+//        if($jefe_id == $this->id_wellington) $jefe_id= $this->id_veronica_valencia;
         return [
             'id' => $this->id,
             'empleado' => $this->empleado,

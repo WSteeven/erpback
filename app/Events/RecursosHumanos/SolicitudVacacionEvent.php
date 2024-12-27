@@ -23,8 +23,6 @@ class SolicitudVacacionEvent implements ShouldBroadcast
     public Notificacion $notificacion;
     private int $originador;
     private int $destinatario;
-    private int $id_wellington = 117;
-    private int $id_veronica_valencia = 155;
 
     /**
      * Create a new event instance.

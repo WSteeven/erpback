@@ -9,8 +9,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SolicitudVacacionResourceOld extends JsonResource
 {
-    private int $id_wellington =117;
-    private int $id_veronica_valencia=155;
     /**
      * Transform the resource into an array.
      *
@@ -20,7 +18,6 @@ class SolicitudVacacionResourceOld extends JsonResource
     public function toArray($request)
     {
         $jefe_id = $this->empleado_info->jefe_id;
-        if($jefe_id == $this->id_wellington) $jefe_id = $this->id_veronica_valencia;
         // pendiente colocar el id de valencia
         $controller_method = $request->route()->getActionMethod();
         $modelo = [

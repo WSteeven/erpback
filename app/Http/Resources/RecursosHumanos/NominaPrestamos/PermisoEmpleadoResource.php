@@ -10,8 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class PermisoEmpleadoResource extends JsonResource
 {
         private string $mask = 'Y-m-d H:i:s';
-        private int $id_wellington =117;
-        private int $id_veronica_valencia=155;
+//        private int $id_wellington =117;
+//        private int $id_veronica_valencia=155;
     /**
      * Transform the resource into an array.
      *
@@ -22,7 +22,7 @@ class PermisoEmpleadoResource extends JsonResource
     {
 //        $controller_method = $request->route()->getActionMethod();
         $jefe_id = $this->empleado?->jefe_id;
-        if($jefe_id== $this->id_wellington) $jefe_id = $this->id_veronica_valencia;
+//        if($jefe_id== $this->id_wellington) $jefe_id = $this->id_veronica_valencia;
         return [
             'id' => $this->id,
             'tipo_permiso' => $this->tipo_permiso_id,

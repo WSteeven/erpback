@@ -2,10 +2,12 @@
 
 namespace Src\App\RegistroTendido;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Src\Config\RutasStorage;
 use Intervention\Image\Facades\Image;
 use Src\Shared\Utils;
+use Storage;
 use Throwable;
 
 class GuardarImagenIndividual
@@ -35,6 +37,11 @@ class GuardarImagenIndividual
             $nombre_archivo = $this->nombrePredeterminado ? $this->nombrePredeterminado . '.' . $extension : Utils::generarNombreArchivoAleatorio($extension);
             $ruta_relativa = Utils::obtenerRutaRelativaImagen($directorio, $nombre_archivo);
             $ruta_absoluta = Utils::obtenerRutaAbsolutaImagen($directorio, $nombre_archivo);
+
+            // Verificar si el directorio existe y crearlo si no
+            if (!Storage::exists($directorio)) {
+                Storage::makeDirectory($directorio, 0755, true);
+            }
 
             Image::make($imagen_decodificada)->resize(1800, null, function ($constraint) {
                 $constraint->aspectRatio();
