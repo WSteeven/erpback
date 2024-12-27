@@ -35,5 +35,11 @@ class PermisosModuloCapacitacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_capacitacion_formularios'])->syncRoles([$rrhh, $administrador, $coordinador]);
         Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'rrhh_capacitacion_formularios'])->syncRoles([$rrhh, $administrador, $coordinador]);
 
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'rrhh_capacitacion_evaluaciones_desempeno'])->syncRoles([$rrhh, $administrador, $coordinador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_capacitacion_evaluaciones_desempeno'])->syncRoles([$rrhh, $administrador, $coordinador]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'rrhh_capacitacion_evaluaciones_desempeno'])->syncRoles([$rrhh, $administrador, $coordinador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'rrhh_capacitacion_evaluaciones_desempeno'])->syncRoles([$rrhh, $administrador, $coordinador]);
+
+
     }
 }

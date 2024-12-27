@@ -95,13 +95,15 @@ class FormularioController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param Formulario $formulario
      * @return JsonResponse
+     * @throws ValidationException
      */
-    public function destroy(Formulario $formulario)
+    public function destroy()
+//    public function destroy(Formulario $formulario)
     {
-        $formulario->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
+        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
+//        $formulario->delete();
+//        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+//        return response()->json(compact('mensaje'));
     }
 }
