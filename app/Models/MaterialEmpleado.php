@@ -102,6 +102,18 @@ class MaterialEmpleado extends Model implements Auditable
         return $query->where('cantidad_stock', '>', 0);
     }
 
+    public function scopeFilterByCategoria($query, $categoriaId = null)
+    {
+        // Verificar si se ha pasado un 'categoria_id'
+        if ($categoriaId) {
+            $query->whereHas('detalle.producto', function($query) use ($categoriaId) {
+                $query->where('categoria_id', $categoriaId);
+            });
+        }
+
+        return $query;
+    }
+
     /**
      * La función "cargarMaterialEmpleado" se utiliza para cargar materiales para un empleado, mediante un despacho de bodega o preingreso,
      * actualizando las cantidades de stock y despacho si el material ya existe, o creando una nueva

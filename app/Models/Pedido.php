@@ -118,6 +118,7 @@ class Pedido extends Model implements Auditable
         'estado_id',
         'evidencia1',
         'evidencia2',
+        'incidente_id',
     ];
 
     protected $casts = [

@@ -54,6 +54,7 @@ class PermisoRolController extends Controller
         }
         return response()->json(['mensaje' => 'Se actualizaron los permisos del rol', 'rol' => $rol->name, 'permisos' => $rol->getPermissionNames()]);
     }
+    
     public function crearPermisoRol(Request $request)
     {
         $roles = Role::whereIn('id', $request->roles)->get();

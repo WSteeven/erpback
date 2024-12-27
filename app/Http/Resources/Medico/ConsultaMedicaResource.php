@@ -41,6 +41,8 @@ class ConsultaMedicaResource extends JsonResource
             'fecha_hora_solicitud' => Carbon::parse($citaMedica?->created_at)->format('Y-m-d H:i:s'),
             'dias_descanso' => $this->dias_descanso,
             'constante_vital' => $fichasMedicasService->mapearConstanteVital($this),
+            'observaciones_alta' => $this['observaciones_alta'],
+            'restricciones_alta' => $this['restricciones_alta'],
         ];
     }
 

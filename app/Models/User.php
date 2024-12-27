@@ -30,6 +30,7 @@ use OwenIt\Auditing\Models\Audit;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * App\Models\User
@@ -108,20 +109,18 @@ class User extends Authenticatable implements Auditable
     const ROL_COORDINADOR = 'COORDINADOR';
     const ROL_COORDINADOR_BACKUP = 'COORDINADOR_BACKUP';
     const ROL_EMPLEADO = 'EMPLEADO';
-//    const ROL_EMPLEADO_SALIENTE = 'EMPLEADO_SALIENTE';
+    const ROL_EMPLEADO_SALIENTE = 'EMPLEADO_SALIENTE';
     const ROL_GERENTE = 'GERENTE';
-    const ROL_ASISTENTE_GERENCIA = 'ASISTENTE GERENCIA';
     const ROL_GERENTE_PROCESOS = 'GERENTE_PROCESOS';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
-    const ROL_TRABAJADOR_SOCIAL = 'TRABAJADOR_SOCIAL';
     const ROL_SUPERVISOR_TECNICO = 'SUPERVISOR_TECNICO';
     const ROL_FISCALIZADOR = 'FISCALIZADOR';
     const ROL_SSO = 'SEGURIDAD Y SALUD OCUPACIONAL';
     const ROL_TECNICO = 'TECNICO';
     const ROL_LIDER_DE_GRUPO = 'LIDER DE GRUPO';
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
-//    const ROL_SECRETARIO = 'SECRETARIO';
+    const ROL_SECRETARIO = 'SECRETARIO';
     const ROL_CONSULTA = 'CONSULTA';
     const ROL_JEFE_DEPARTAMENTO = 'JEFE DE DEPARTAMENTO';
     const ROL_JEFE_COORDINACION_NEDETEL = 'JEFE_COORDINACION_NEDETEL';
@@ -137,21 +136,25 @@ class User extends Authenticatable implements Auditable
 //    const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
 //    const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
 //    const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
+    const TECNICO_CABLISTA = 'T脡CNICO CABLISTA';
+    const TECNICO_SECRETARIO = 'T脡CNICO SECRETARIO';
+    const TECNICO_AYUDANTE = 'T脡CNICO AYUDANTE';
+    const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
 
-//    const GERENCIA = 'GERENCIA';
-//    const JEFE_TECNICO = 'JEFE TECNICO';
-//    const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
-//    const TECNICO = 'TECNICO';
+    const GERENCIA = 'GERENCIA';
+    const JEFE_TECNICO = 'JEFE TECNICO';
+    const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
+    const TECNICO = 'TECNICO';
 
     // Modulo medico
     const ROL_MEDICO = 'MEDICO';
     //ventas claro
-//    const JEFE_VENTAS = 'JEFE_VENTAS';
+    const JEFE_VENTAS = 'JEFE_VENTAS';
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     const VENDEDOR = 'VENDEDOR';
 
     // Fondos Rotativos
-//    const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
+    const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
 
     // Modulo Vehiculos
     const CHOFER = 'CHOFER';
@@ -208,18 +211,18 @@ class User extends Authenticatable implements Auditable
     }
 
     // Permite a vue acceder a los roles y permisos
-//    public function getAllPermissionsAttribute()
-//    {
-//        $permissions = [];
-//        $user = User::find(Auth::id());
-//
-//        foreach (Permission::all() as $permission) {
-//            if ($user->can($permission->name)) {
-//                $permissions[] = $permission->name;
-//            }
-//        }
-//        return $permissions;
-//    }
+    public function getAllPermissionsAttribute()
+    {
+        $permissions = [];
+        $user = User::find(Auth::id());
+
+        foreach (Permission::all() as $permission) {
+            if ($user->can($permission->name)) {
+                $permissions[] = $permission->name;
+            }
+        }
+        return $permissions;
+    }
 
     /**
      * Este metodo no funciona, da errores.
@@ -237,6 +240,36 @@ class User extends Authenticatable implements Auditable
 //        }
 //        return $permissions;
 //    }
+    public function obtenerPermisos2($user_id)
+    {
+        $permissions = [];
+        $user = User::find($user_id);
+
+        foreach (Permission::all() as $permission) {
+            if ($user->can($permission->name)) {
+                $permissions[] = $permission->name;
+            }
+        }
+        return $permissions;
+    }
+
+    /**
+     * Mejorado el 21/11/2024
+     */
+    public function obtenerPermisos($user_id)
+    {
+        $permissions = [];
+        $user = User::find($user_id);
+
+        foreach (Permission::all() as $permission) {
+            if ($user->can($permission->name)) {
+                $permissions[] = $permission->name;
+            }
+        }
+
+        $es_superadministrador = $user->hasRole(self::ROL_ADMINISTRADOR);
+        return $es_superadministrador ? Permission::all()->pluck('name') : $permissions;
+    }
 
     /**
      * Relacion polimorfica con Archivos uno a muchos.

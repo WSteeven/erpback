@@ -50,6 +50,7 @@ class PedidoRequest extends FormRequest
             'listadoProductos.*.cantidad' => 'required',
             'evidencia1' => 'nullable|string',
             'evidencia2' => 'nullable|string',
+            'incidente_id' => 'required|numeric|integer|exists:sso_incidentes,id',
         ];
     }
     public function attributes()
@@ -174,6 +175,7 @@ class PedidoRequest extends FormRequest
             'tarea_id'=>$this->tarea,
             'sucursal_id'=>$this->sucursal,
             'estado_id'=>$this->estado,
+            'incidente_id'=>$this->incidente,
         ]);
     }
 }

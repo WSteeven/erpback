@@ -35,6 +35,7 @@ class CitaMedicaRequest extends FormRequest
             'motivo_rechazo' => 'nullable|string',
             'motivo_cancelacion' => 'nullable|string',
             'tipo_cambio_cargo' => 'nullable|string',
+            'accidente_id' => 'nullable|numeric|integer|exists:sso_accidentes,id',
         ];
     }
 
@@ -44,6 +45,7 @@ class CitaMedicaRequest extends FormRequest
             // 'fecha_hora_cita' => Carbon::parse($this->fecha_hora_cita)->format('Y-m-d H:i:s'),
             // 'estado_cita_medica_id' => $this->estado_cita_medica,
             'paciente_id' => $this->paciente,
+            'accidente_id' => $this->accidente,
         ]);
     }
 }

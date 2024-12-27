@@ -86,3 +86,6 @@ Route::prefix('seleccion-contratacion')->group(function () {
     Route::get('vacantes/{vacante}', [VacanteController::class, 'show']);
     Route::get('vacantes/show-preview/{vacante}', [VacanteController::class, 'showPreview']);
 });
+
+Route::view('reporte-accidente', 'sso.pdf.informe_accidente');
+
