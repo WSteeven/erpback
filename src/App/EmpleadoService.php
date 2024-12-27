@@ -75,8 +75,8 @@ class EmpleadoService
 
     public function obtenerTodos()
     {
-        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get(
-            [
+        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
+        /*    [
                 'id',
                 'identificacion',
                 'nombres',
@@ -112,8 +112,7 @@ class EmpleadoService
                 'num_cuenta_bancaria',
                 'salario',
                 'supa'
-            ]
-        );
+            ]  */
         // Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
     }

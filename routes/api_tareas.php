@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActividadRealizadaSeguimientoSubtareaController;
 use App\Http\Controllers\ArchivoSeguimientoController;
+use App\Http\Controllers\Tareas\NodoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\RegistroTendidoController;
@@ -53,6 +54,7 @@ Route::apiResources(
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
+        'nodos' => NodoController::class,
         'seguimientos' => SeguimientoSubtareaController::class,
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
         'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,

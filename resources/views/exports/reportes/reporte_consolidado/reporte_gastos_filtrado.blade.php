@@ -144,6 +144,9 @@
                 <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                     <div align="center"><strong>#COMPROBANTE</strong></div>
                 </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                    <div align="center"><strong>RUC</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
                     <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                 </td>
@@ -206,6 +209,9 @@
                         @else
                             <div align="left">{{ $gasto['factura'] }}</div>
                         @endif
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left">{{ $gasto['ruc'] }}</div>
                     </td>
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['observacion'] }}</div>

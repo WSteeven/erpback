@@ -17,6 +17,8 @@ use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\TipoDiscapacidad;
+use App\Models\RecursosHumanos\TrabajoSocial\FichaSocioeconomica;
+use App\Models\RecursosHumanos\TrabajoSocial\VisitaDomiciliaria;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;
@@ -560,6 +562,16 @@ class Empleado extends Model implements Auditable
     public function cargo()
     {
         return $this->belongsTo(Cargo::class);
+    }
+
+    public function fichaSocioeconomica()
+    {
+        return $this->hasOne(FichaSocioeconomica::class);
+    }
+
+    public function visitasDomiciliarias()
+    {
+        return $this->hasMany(VisitaDomiciliaria::class);
     }
 
     /**

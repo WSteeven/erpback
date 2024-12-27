@@ -59,6 +59,7 @@ class GastoRequest extends FormRequest
             'comprobante' => 'required|string',
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|string',
+            'nodo_id' => 'nullable|exists:tar_nodos,id',
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
             'id_usuario' => 'required|exists:empleados,id',
@@ -311,5 +312,9 @@ class GastoRequest extends FormRequest
                'aut_especial' => EmpleadoDelegado::obtenerDelegado($this->aut_especial)
             ]);
         }
+
+        $this->merge([
+            'nodo_id'=>$this->nodo ?:null
+        ]);
     }
 }

@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+@php
+
+
+
+ @endphp
 
 <head>
     <meta charset="UTF-8">
@@ -14,8 +19,8 @@
         .header {
             position: fixed;
             top: -55px;
-            left: 0px;
-            right: 0px;
+            left: 0;
+            right: 0;
             height: 80px;
             text-align: center;
             line-height: 35px;
@@ -24,8 +29,8 @@
         .footer {
             position: fixed;
             bottom: -50px;
-            left: 0px;
-            right: 0px;
+            left: 0;
+            right: 0;
             height: 50px;
             color: #333333;
             text-align: center;
@@ -90,6 +95,9 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                                             <div align="center"><strong>#COMPROBANTE</strong></div>
                                         </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                                            <div align="center"><strong>RUC</strong></div>
+                                        </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
@@ -152,6 +160,9 @@
                                                 @else
                                                     <div align="left">{{ $gasto['factura'] }}</div>
                                                 @endif
+                                            </td>
+                                            <td style="font-size:10px">
+                                                <div align="left">{{ $gasto['ruc'] }}</div>
                                             </td>
                                             <td style="font-size:10px">
                                                 <div align="left">{{ $gasto['observacion'] }}</div>
