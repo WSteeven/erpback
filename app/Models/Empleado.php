@@ -16,6 +16,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\TipoDiscapacidad;
+use App\Models\SSO\CertificacionEmpleado;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;
@@ -815,6 +816,11 @@ class Empleado extends Model implements Auditable
     public function religion()
     {
         return $this->hasOne(Religion::class, 'id', 'religion_id');
+    }
+
+    public function certificacionesEmpleado()
+    {
+        return $this->hasMany(CertificacionEmpleado::class, 'empleado_id');
     }
 
     /*********

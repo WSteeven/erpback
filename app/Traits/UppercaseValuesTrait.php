@@ -57,6 +57,8 @@ trait UppercaseValuesTrait
         if ($key === 'logo_marca_agua' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'descripcion' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'saldoable_type' && is_string($value)) $this->attributes[$key] = $value;
+        if ($key === 'detalles_productos' && is_string($value)) $this->attributes[$key] = $value;
+        if ($key === 'autorizaciones_permisos_foto' && is_string($value)) $this->attributes[$key] = $value;
 
         // Verifica si el nombre de la propiedad contiene la palabra "imagen", para no transformarla en mayuscula
         if (preg_match('/imagen/i', $key)) $this->attributes[$key] = $value;

@@ -89,4 +89,15 @@ enum RutasStorage: string
     case SEGUIMIENTO_CONSUMO_ACTIVOS_FIJOS  = 'public/activos_fijos/seguimientoConsumoActivosFijos';
     case ACTIVOS_FIJOS_ACTA_ENTREGA_RECEPCION  = 'public/activos_fijos/actaEntregaRecepcion';
     case ACTIVOS_FIJOS_JUSTIFICATIVO_USO  = 'public/activos_fijos/justificativoUso';
+
+    /*******
+     * SSO
+     *******/
+    case INCIDENTES  = 'public/sso/incidentes';
+    case SEGUIMIENTOS_INCIDENTES  = 'public/sso/seguimientos_incidentes';
+    case SEGUIMIENTOS_ACCIDENTES  = 'public/sso/seguimientos_accidentes';
+    case ACCIDENTES  = 'public/sso/accidentes';
+    case SOLICITUDES_DESCUENTOS  = 'public/sso/solicitudes_descuentos';
+    case CONSULTAS_MEDICAS  = 'public/sso/consultas_medicas';
+    case INSPECCIONES  = 'public/sso/inspecciones';
 }

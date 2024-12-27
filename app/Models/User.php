@@ -125,16 +125,16 @@ class User extends Authenticatable implements Auditable
     const ROL_JEFE_DEPARTAMENTO = 'JEFE DE DEPARTAMENTO';
     const ROL_JEFE_COORDINACION_NEDETEL = 'JEFE_COORDINACION_NEDETEL';
 
-    //Roles de administración
+    //Roles de administraci贸n
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
     const ROL_ADMINISTRADOR_VEHICULOS = 'ADMINISTRADOR_VEHICULOS';
     const ROL_ADMINISTRADOR_TICKETS_1 = 'ADMINISTRADOR TICKETS 1';
     const ROL_ADMINISTRADOR_TICKETS_2 = 'ADMINISTRADOR TICKETS 2';
     const ROL_ADMINISTRADOR_SISTEMA = 'ADMINISTRADOR SISTEMA';
     // Cargos
-    const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
-    const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
-    const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
+    const TECNICO_CABLISTA = 'T脡CNICO CABLISTA';
+    const TECNICO_SECRETARIO = 'T脡CNICO SECRETARIO';
+    const TECNICO_AYUDANTE = 'T脡CNICO AYUDANTE';
     const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
 
     const GERENCIA = 'GERENCIA';
@@ -224,7 +224,7 @@ class User extends Authenticatable implements Auditable
      * Este metodo no funciona, da errores.
      * Por favor BORRARLO
      */
-    public function obtenerPermisos($user_id)
+    public function obtenerPermisos2($user_id)
     {
         $permissions = [];
         $user = User::find($user_id);
@@ -235,6 +235,24 @@ class User extends Authenticatable implements Auditable
             }
         }
         return $permissions;
+    }
+    
+    /**
+     * Mejorado el 21/11/2024
+     */
+    public function obtenerPermisos($user_id)
+    {
+        $permissions = [];
+        $user = User::find($user_id);
+
+        foreach (Permission::all() as $permission) {
+            if ($user->can($permission->name)) {
+                $permissions[] = $permission->name;
+            }
+        }
+
+        $es_superadministrador = $user->hasRole(self::ROL_ADMINISTRADOR);
+        return $es_superadministrador ? Permission::all()->pluck('name') : $permissions;
     }
 
     /**

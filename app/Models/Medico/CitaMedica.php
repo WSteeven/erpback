@@ -85,7 +85,11 @@ class CitaMedica extends Model implements Auditable
         'fecha_hora_rechazo',
         'fecha_hora_cancelado',
         'tipo_cambio_cargo',
+        'certificado_alta',
+        'observaciones_alta',
+        'restricciones_alta',
         'paciente_id',
+        'accidente_id',
     ];
 
     private static $whiteListFilter = ['*'];

@@ -219,3 +219,6 @@ Route::get('fichas-reintegro/imprimir/{ficha_reintegro}', [FichaReintegroControl
 Route::get('fichas-retiros/imprimir/{ficha_retiro}', [FichaRetiroController::class, 'imprimirPDF']);
 
 Route::put('resultados-examenes', [ResultadoExamenController::class, 'multipleUpdate']);
+
+Route::get('consultas-medicas/files/{consulta_medica}', [ConsultaMedicaController::class, 'indexFiles']);
+Route::post('consultas-medicas/files/{consulta_medica}', [ConsultaMedicaController::class, 'storeFiles']);

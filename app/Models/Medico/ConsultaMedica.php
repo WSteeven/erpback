@@ -3,6 +3,7 @@
 namespace App\Models\Medico;
 
 use App\ModelFilters\Medico\ConsultaMedicaFilter;
+use App\Models\Archivo;
 use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -66,9 +67,16 @@ class ConsultaMedica extends Model implements Auditable
         'dias_descanso',
         'cita_medica_id',
         'registro_empleado_examen_id',
+        'restricciones_alta',
+        'observaciones_alta',
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
 
     public function registroEmpleadoExamen()
     {
