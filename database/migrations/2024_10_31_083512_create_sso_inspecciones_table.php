@@ -23,13 +23,13 @@ return new class extends Migration
             $table->enum('estado', [Inspeccion::CREADO, Inspeccion::FINALIZADO]);
             $table->longText('seguimiento')->nullable();
             $table->unsignedBigInteger('responsable_id');
-            $table->unsignedBigInteger('empleado_involucrado_id');
+            $table->unsignedBigInteger('empleado_involucrado_id')->nullable();
             $table->string('coordenadas')->nullable();
             $table->boolean('tiene_incidencias')->default(false);
 
             // Foreign keys
             $table->foreign('responsable_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('empleado_involucrado_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('empleado_involucrado_id')->references('id')->on('empleados')->nullOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

@@ -17,6 +17,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\TipoDiscapacidad;
+use App\Models\SSO\CertificacionEmpleado;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;

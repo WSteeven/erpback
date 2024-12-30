@@ -24,7 +24,9 @@ return new class extends Migration
 
             // Foreign keys
             $table->foreign('solicitud_descuento_id')->references('id')->on('sso_solicitudes_descuentos')->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign('incidente_id')->references('id')->on('sso_incidentes')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('incidente_id')->references('id')->on('sso_incidentes')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('devolucion_id')->references('id')->on('devoluciones')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('pedido_id')->references('id')->on('pedidos')->nullOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

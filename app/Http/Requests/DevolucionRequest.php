@@ -46,7 +46,7 @@ class DevolucionRequest extends FormRequest
             'sucursal' => 'required|numeric|exists:sucursales,id',
             'pedido_automatico' => 'boolean',
             'cliente' => 'nullable|sometimes|exists:clientes,id',
-            'incidente_id' => 'required|numeric|integer|exists:sso_incidentes,id',
+            'incidente_id' => 'nullable|numeric|integer|exists:sso_incidentes,id',
         ];
     }
     public function attributes()

@@ -544,13 +544,15 @@
             <th>FECHA</th>
             <th>DESCRIPCIÓN GENÉRICA</th>
         </tr>
-        @foreach($seguimiento_accidente['actividades_subtarea'] as $actividad)
-            <tr>
-                <td>{{ $actividad['actividad'] }}</td>
-                <td>{{ $actividad['fecha_hora'] }}</td>
-                <td>{{ $actividad['trabajo_realizado'] }}</td>
-            </tr>
-        @endforeach
+        @if($seguimiento_accidente['actividades_subtarea'])
+            @foreach($seguimiento_accidente['actividades_subtarea'] as $actividad)
+                <tr>
+                    <td>{{ $actividad['actividad'] }}</td>
+                    <td>{{ $actividad['fecha_hora'] }}</td>
+                    <td>{{ $actividad['trabajo_realizado'] }}</td>
+                </tr>
+            @endforeach
+        @endif
     </table>
 
     <h3 id="descripcion-paso">6.2. Descripción del accidente paso a paso</h3>

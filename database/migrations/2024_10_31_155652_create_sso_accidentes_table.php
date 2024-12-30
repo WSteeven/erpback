@@ -17,13 +17,13 @@ return new class extends Migration {
             $table->id();
             $table->string('titulo');
             $table->string('descripcion');
-            $table->string('medidas_preventivas');
+            $table->string('medidas_preventivas')->nullable();
             $table->json('empleados_involucrados');
             $table->string('fecha_hora_ocurrencia');
             $table->string('coordenadas');
             $table->string('consecuencias');
             $table->string('lugar_accidente');
-            $table->enum('estado', [Accidente::REPORTADO, Accidente::EN_CURSO, Accidente::RESUELTO]);
+            $table->enum('estado', [Accidente::CREADO, Accidente::FINALIZADO]);
             $table->unsignedBigInteger('empleado_reporta_id');
 
             // Foreign keys
