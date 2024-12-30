@@ -30,7 +30,9 @@ class FormularioController extends Controller
      */
     public function index()
     {
-        $results = Formulario::all();
+        \Illuminate\Support\Facades\Log::channel('testing')->info('Log', ['Request en formularios', request()->all()]);
+        $results = Formulario::filter()->get();
+        \Illuminate\Support\Facades\Log::channel('testing')->info('Log', ['Resultados', $results]);
         $results = FormularioResource::collection($results);
         return response()->json(compact('results'));
     }

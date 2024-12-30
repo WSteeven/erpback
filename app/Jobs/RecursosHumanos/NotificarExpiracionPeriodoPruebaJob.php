@@ -5,6 +5,7 @@ namespace App\Jobs\RecursosHumanos;
 use App\Events\RecursosHumanos\NotificarExpiracionPeriodoPruebaJefeInmediatoEvent;
 use App\Events\RecursosHumanos\NotificarExpiracionPeriodoPruebaRecursosHumanosEvent;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\Capacitacion\EvaluacionDesempeno;
 use Carbon\Carbon;
 use Carbon\Exceptions\Exception;
 use Illuminate\Bus\Queueable;
@@ -12,7 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -44,12 +45,17 @@ class NotificarExpiracionPeriodoPruebaJob implements ShouldQueue
     public function handle()
     {
         $empleados_nuevos = Empleado::where('estado', true)->whereBetween('fecha_ingreso',[Carbon::now()->subDays(90), Carbon::now()->subDays(80)])->get();
+//        Log::channel('testing')->info('Log', ['Empleados nuevos son: ', $empleados_nuevos]);
+
         foreach ($empleados_nuevos as $empleado) {
+            $tiene_evaluacion_desempeno = EvaluacionDesempeno::where('evaluado_id', $empleado->id)->exists();
             $dias_transcurridos = Carbon::parse($empleado->fecha_ingreso)->diffInDays(Carbon::now());
-            if($dias_transcurridos>79){
+//            Log::channel('testing')->info('Log', ['Empleado-dias: ', Empleado::extraerNombresApellidos($empleado), $dias_transcurridos]);
+//            Log::channel('testing')->info('Log', ['Tiene evaluacion de desempeño: ', $tiene_evaluacion_desempeno]);
+            if($dias_transcurridos>79 && !$tiene_evaluacion_desempeno){
                 event(new NotificarExpiracionPeriodoPruebaJefeInmediatoEvent($empleado, $dias_transcurridos));
             }
-            if($dias_transcurridos>84){
+            if($dias_transcurridos>84 && !$tiene_evaluacion_desempeno){
                 event(new NotificarExpiracionPeriodoPruebaRecursosHumanosEvent($empleado, $dias_transcurridos));
             }
         }

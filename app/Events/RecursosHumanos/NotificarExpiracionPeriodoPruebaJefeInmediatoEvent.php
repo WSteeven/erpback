@@ -32,7 +32,7 @@ class NotificarExpiracionPeriodoPruebaJefeInmediatoEvent implements ShouldBroadc
     {
         $this->empleado = $empleado;
         $this->dias_transcurridos = $dias_transcurridos;
-        $this->jefeId = $empleado->id;
+        $this->jefeId = $empleado->jefe_id;
         $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->ruta, TiposNotificaciones::DEVOLUCION, null, $this->jefeId, $empleado, true);
     }
 

@@ -3,10 +3,12 @@
 
 @php
     use Carbon\Carbon;
-    use Illuminate\Support\Facades\Log;
 
     $fecha = Carbon::now();
-    Log::channel('testing')->info('Log', ['Evaluación en blade', $evaluacion]);
+    $cont_radio  =0;
+    $esRadioHeader = false;
+    $subtotal = 0;
+
     $fecha_creacion = Carbon::parse($evaluacion->created_at)->format('Y-m-d');
     $logo_watermark ='data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion->logo_marca_agua));
 @endphp
@@ -90,6 +92,10 @@
             vertical-align: center;
         }
 
+        .custom-table table {
+            line-height: normal;
+        }
+
         .custom-table td {
             line-height: normal;
             border: 1px solid #000;
@@ -145,36 +151,84 @@
 {{-- Cuerpo --}}
 <main>
     <div class="justificado">
-        <p><strong>Fecha de evaluación: </strong> {{$fecha_creacion}}</p>
-        <p><strong>1). DEL EVALUADO </strong></p>
+        <p><strong>EVALUADO: </strong></p>
         <p><strong>Nombres y Apellidos: </strong>{{$evaluacion->evaluado->nombres}} {{$evaluacion->evaluado->apellidos}}
         </p>
-        <p><strong>Cargo: </strong>{{$evaluacion->evaluado->cargo->nombre}}</p>
-        <p><strong>Área de Trabajo: </strong>{{$evaluacion->evaluado->area->nombre}}</p>
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 50%;">
+                    <p><strong>Fecha de evaluación: </strong> {{$fecha_creacion}}</p>
+                </td>
+                <td style="width: 50%;">
+                    <p><strong>Calificación: </strong>{{ $evaluacion->calificacion }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 50%;">
+                    <p><strong>Cargo: </strong>{{$evaluacion->evaluado->cargo->nombre}}</p>
+                </td>
+                <td style="width: 50%;">
+                    <p><strong>Área de Trabajo: </strong>{{$evaluacion->evaluado->area->nombre}}</p>
+                </td>
+            </tr>
+        </table>
         <p><strong>Escala:</strong></p>
-        <ol>
+        <ol reversed>
             <li>Excelente</li>
             <li>Muy Bueno</li>
             <li>Aceptable</li>
             <li>Susceptible de Mejoras</li>
             <li>Deficiente</li>
         </ol>
-        @foreach($evaluacion->respuestas as $respuesta)
+        @foreach($evaluacion->respuestas as $index=>$respuesta)
             @switch($respuesta['type'])
                 @case('textblock')
-                <h6 style="text-align: center">{{$respuesta['label']}}</h6>
+                    <h5 style="text-align: center">{{$respuesta['label']}}</h5>
+                    @php $esRadioHeader=false; $subtotal=0 @endphp
+                    @break
                 @case('tip')
-                <small style="text-align: center; background-color: #2f75b5">{{$respuesta['label']}}</small>
+                    {{--                    <small style="text-align: center; background-color: #9bbfe0">{{$respuesta['label']}}</small>--}}
+                    @php $esRadioHeader=false; $subtotal=0 @endphp
+                    @break
                 @case('text')
-                <p ><strong>{{$respuesta['label']}}</strong></p>
-                                    <p>{{$respuesta['value']}}</p>
-                @default
-                    <table>
-                    <tr>
-                        <td>{{$respuesta['label']}}</td>
-                        <td>{{$respuesta['valor']}}</td>
-                    </tr>
+                    <div style="border: 1px solid grey; border-radius: 8px; padding-left: 4px; padding-right: 4px; ">
+                        <p><strong>{{$respuesta['label']}}</strong></p>
+                        <hr>
+                        <p>{{$respuesta['valor']}}</p>
+                    </div>
+                    <br>
+                    @php $esRadioHeader=false; $subtotal=0 @endphp
+                    @break
+                @case('radio')
+                    {{--                    se renderiza el encabezado solo una vez por grupo --}}
+                    @php $cont_radio++;
+                    $subtotal = $subtotal+$respuesta['valor']@endphp
+                    @if(!$esRadioHeader)
+                        <table class="custom-table" style="width: 100%">
+                            <thead style="border: 1px solid black">
+                            <th style="width: 10%; text-align: left;">N°</th>
+                            <th style="width: 80%; text-align: center;">Pregunta</th>
+                            <th style="width: 10%; text-align: right;">Puntaje</th>
+                            </thead>
+                        </table>
+                        @php $esRadioHeader=true @endphp
+                    @endif
+                    <table class="custom-table" style="width: 100%">
+                        <tr>
+                            <td style="width: 10%">{{$cont_radio}}</td>
+                            <td style="width: 80%">{{$respuesta['label']}}</td>
+                            <td style="width: 10%; text-align: center"><strong>{{$respuesta['valor']}}</strong></td>
+                        </tr>
+                        @if($evaluacion->respuestas[$index+1]['type']!=='radio')
+                            <tr>
+                                <td colspan="2" style="text-align: right"><strong>SUBTOTAL</strong></td>
+                                <td style="text-align: center"><strong>{{$subtotal}}</strong></td>
+                            </tr>
+                        @endif
                     </table>
+                    @break
+                @default
+                    @php $esRadioHeader=false; $subtotal=0 @endphp
             @endswitch
         @endforeach
 

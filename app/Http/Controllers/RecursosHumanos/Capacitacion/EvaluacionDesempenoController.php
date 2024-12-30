@@ -37,9 +37,7 @@ class EvaluacionDesempenoController extends Controller
     public function index()
     {
         $results = EvaluacionDesempeno::filter()->get();
-        Log::channel('testing')->info('Log', ['Resultados antes del resource', $results]);
         $results = EvaluacionDesempenoResource::collection($results);
-        Log::channel('testing')->info('Log', ['Resultados luego del resource', $results]);
         return response()->json(compact('results'));
     }
 

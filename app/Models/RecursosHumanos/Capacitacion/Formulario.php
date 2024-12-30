@@ -32,6 +32,8 @@ class Formulario extends Model implements  Auditable
         'activo' => 'boolean',
     ];
 
+    private static array $whiteListFilter = ['*'];
+
     const INTERNO = 'INTERNO';
     const  EXTERNO = 'EXTERNO';
 

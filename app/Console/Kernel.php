@@ -82,6 +82,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new NotificarPotencialesVacacionesEmpleadoJob())->dailyAt('08:00');
         $schedule->job(new DesactivarEmpleadoDelegadoJob())->everyMinute();
         $schedule->job(new NotificarExpiracionPeriodoPruebaJob())->dailyAt('08:00');
+//        $schedule->job(new NotificarExpiracionPeriodoPruebaJob())->everyMinute();
         /*********
          * TAREAS
          *********/
