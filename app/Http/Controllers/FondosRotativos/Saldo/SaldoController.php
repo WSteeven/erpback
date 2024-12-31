@@ -353,7 +353,7 @@ class SaldoController extends Controller
                 'ciudad',
                 'subdetalle'
             ])
-                ->filter($request->all())
+                ->filter()
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', Gasto::APROBADO)
                 ->with(
