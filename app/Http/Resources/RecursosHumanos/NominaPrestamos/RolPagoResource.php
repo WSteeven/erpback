@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
-use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
+use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
@@ -11,6 +11,7 @@ use Date;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class RolPagoResource extends JsonResource
 {
@@ -31,7 +32,7 @@ class RolPagoResource extends JsonResource
             'tipo_contrato' => $this->empleado_info->tipo_contrato_id,
             'cargo' => $this->empleado_info->cargo,
             'salario' => number_format($this->salario, 2),
-            'dias' =>  $this->dias,
+            'dias' => $this->dias,
 //            'dias' => is_float($this->dias) ? $this->dias : intval($this->dias),
             'mes' => $this->mes,
             'anticipo' => number_format($this->anticipo, 2),
@@ -161,16 +162,38 @@ class RolPagoResource extends JsonResource
      */
     private function Descuentos(mixed $egresos, string $tipo)
     {
+//        Log::channel('testing')->info('Log', ['en el resource, egresos', $egresos, $tipo]);
         if ($egresos->isEmpty()) {
             return null;
         }
         $egresosArray = $egresos->filter(function ($egreso) use ($tipo) {
-            $tipo_descuento = str_replace("App\\Models\\RecursosHumanos\\NominaPrestamos\\", "", $egreso['descuento_type']);
-            return $tipo_descuento == $tipo;
-        })->map(function ($egreso) {
-            $clave = $egreso['descuento']->nombre;
+//            Log::channel('testing')->info('Log', ['Dentro del array de egresos', $egreso]);
+            switch ($egreso->descuento_type) {
+                case $tipo:
+                    $tipo_descuento = str_replace("App\\Models\\RecursosHumanos\\NominaPrestamos\\", "", $egreso['descuento_type']);
+                    return $tipo_descuento == $tipo;
+                default:
+                    $descuento = Descuento::find($egreso->descuento()->first()->descuento_id);
+//                    Log::channel('testing')->info('Log', ['En el switch entro en default -> descuento', class_basename($descuento->tipoDescuento)]);
+//                    Log::channel('testing')->info('Log', ['En el switch entro en default -> multa', class_basename($descuento->multa)]);
+                    if (!is_null($descuento->tipo_descuento_id))
+                        return class_basename($descuento->tipoDescuento) == $tipo;
+                    if (!is_null($descuento->multa_id))
+                        return class_basename($descuento->multa) == $tipo;
+                    return false;
+            }
+        })->map(function ($egreso) use ($tipo) {
+//            Log::channel('testing')->info('Log', ['Mapeo', $egreso['descuento']]);
             $valor = $egreso->monto;
-            return $clave . ': ' . $valor;
+            switch ($egreso->descuento_type) {
+                case $tipo:
+                    $clave = $egreso['descuento']->nombre;
+                    return $clave . ': ' . $valor;
+                default:
+                    $descuento = Descuento::find($egreso->descuento()->first()->descuento_id);
+                    $clave = $descuento->tipoDescuento?->nombre ?: $descuento->multa?->nombre;
+                    return $clave . ': ' . $valor;
+            }
         })->toArray();
         return implode(', ', $egresosArray);
     }
