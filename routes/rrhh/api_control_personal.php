@@ -25,7 +25,7 @@ Route::apiResources(
     [
         'parameters' => [
             'asistencias' => 'asistencia',
-            'atrasos' => 'atraso'
+            'atrasos' => 'atraso',
         ]
 
     ]
