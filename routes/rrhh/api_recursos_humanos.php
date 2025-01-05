@@ -93,7 +93,7 @@ Route::apiResources(
         'detalle-alimentacion' => DetalleAlimentacionController::class,
 
         'tipos_puestos_trabajos' => TipoPuestoController::class,
-        'tipos-discapacidades' => TipoDiscapacidadController::class,
+        /* 'tipos-discapacidades' => TipoDiscapacidadController::class, */
     ],
     [
         'parameters' => [
