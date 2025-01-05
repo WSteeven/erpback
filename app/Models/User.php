@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
@@ -23,18 +24,19 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableModel;
 
 /**
  * App\Models\User
  *
  * @method static where(string $string, $usuario_id)
+ * @method static whereHas(string $string, $callback)
  * @property int $id
  * @property string $name
  * @property string $email
@@ -107,7 +109,9 @@ class User extends Authenticatable implements Auditable
     const ROL_COORDINADOR = 'COORDINADOR';
     const ROL_COORDINADOR_BACKUP = 'COORDINADOR_BACKUP';
     const ROL_EMPLEADO = 'EMPLEADO';
+    const ROL_EMPLEADO_SALIENTE = 'EMPLEADO_SALIENTE';
     const ROL_GERENTE = 'GERENTE';
+    const ROL_GERENTE_PROCESOS = 'GERENTE_PROCESOS';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
     const ROL_SUPERVISOR_TECNICO = 'SUPERVISOR_TECNICO';
@@ -118,6 +122,8 @@ class User extends Authenticatable implements Auditable
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
     const ROL_SECRETARIO = 'SECRETARIO';
     const ROL_CONSULTA = 'CONSULTA';
+    const ROL_JEFE_DEPARTAMENTO = 'JEFE DE DEPARTAMENTO';
+    const ROL_JEFE_COORDINACION_NEDETEL = 'JEFE_COORDINACION_NEDETEL';
 
     //Roles de administración
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
@@ -126,9 +132,13 @@ class User extends Authenticatable implements Auditable
     const ROL_ADMINISTRADOR_TICKETS_2 = 'ADMINISTRADOR TICKETS 2';
     const ROL_ADMINISTRADOR_SISTEMA = 'ADMINISTRADOR SISTEMA';
     // Cargos
-    const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
-    const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
-    const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
+//    const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
+//    const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
+//    const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
+//    const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
+    const TECNICO_CABLISTA = 'T脡CNICO CABLISTA';
+    const TECNICO_SECRETARIO = 'T脡CNICO SECRETARIO';
+    const TECNICO_AYUDANTE = 'T脡CNICO AYUDANTE';
     const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
 
     const GERENCIA = 'GERENCIA';
@@ -143,7 +153,7 @@ class User extends Authenticatable implements Auditable
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     const VENDEDOR = 'VENDEDOR';
 
-    //Fondos Rotativos
+    // Fondos Rotativos
     const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
 
     // Modulo Vehiculos
@@ -218,7 +228,19 @@ class User extends Authenticatable implements Auditable
      * Este metodo no funciona, da errores.
      * Por favor BORRARLO
      */
-    public function obtenerPermisos($user_id)
+//    public function obtenerPermisos($user_id)
+//    {
+//        $permissions = [];
+//        $user = User::find($user_id);
+//
+//        foreach (Permission::all() as $permission) {
+//            if ($user->can($permission->name)) {
+//                $permissions[] = $permission->name;
+//            }
+//        }
+//        return $permissions;
+//    }
+    public function obtenerPermisos2($user_id)
     {
         $permissions = [];
         $user = User::find($user_id);
@@ -229,6 +251,24 @@ class User extends Authenticatable implements Auditable
             }
         }
         return $permissions;
+    }
+
+    /**
+     * Mejorado el 21/11/2024
+     */
+    public function obtenerPermisos($user_id)
+    {
+        $permissions = [];
+        $user = User::find($user_id);
+
+        foreach (Permission::all() as $permission) {
+            if ($user->can($permission->name)) {
+                $permissions[] = $permission->name;
+            }
+        }
+
+        $es_superadministrador = $user->hasRole(self::ROL_ADMINISTRADOR);
+        return $es_superadministrador ? Permission::all()->pluck('name') : $permissions;
     }
 
     /**
@@ -264,5 +304,9 @@ class User extends Authenticatable implements Auditable
     public function referencias(): MorphMany
     {
         return $this->morphMany(ReferenciaPersonal::class, 'referenciable', 'user_type', 'user_id');
+    }
+    public function discapacidades()
+    {
+        return $this->morphMany(DiscapacidadUsuario::class, 'discapacidadable', 'user_type', 'user_id');
     }
 }

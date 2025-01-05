@@ -4,28 +4,24 @@ namespace App\Http\Requests;
 
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\RecursosHumanos\EmpleadoDelegado;
 use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
+use Src\App\EmpleadoService;
 use Src\Config\PaisesOperaciones;
 use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
 {
     private ?string $pais;
-    private int $id_wellington;
-    private int $id_isabel;
-    private int $id_vanessa;
 
     public function __construct()
     {
         $this->pais = config('app.pais');
-        $this->id_wellington = 117;
-        $this->id_isabel = 10;
-//        $this->id_vanessa = 11;
     }
 
     /**
@@ -63,6 +59,7 @@ class GastoRequest extends FormRequest
             'comprobante' => 'required|string',
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|string',
+            'nodo_id' => 'nullable|exists:tar_nodos,id',
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
             'id_usuario' => 'required|exists:empleados,id',
@@ -246,6 +243,7 @@ class GastoRequest extends FormRequest
      */
     protected function prepareForValidation()
     {
+        $controller_method = $this->route()->getActionMethod();
         $date_viat = Carbon::createFromFormat('Y-m-d', $this->fecha_viat);
         if (!is_null($this->factura))
             $this->merge([
@@ -261,14 +259,13 @@ class GastoRequest extends FormRequest
 
             if (is_null($this->aut_especial)) {
                 $id_jefe = Auth::user()->empleado->jefe_id;
-//                if ($id_jefe == $this->id_wellington) $id_jefe = $this->id_vanessa;
-                if ($id_jefe == $this->id_wellington) $id_jefe = $this->id_isabel;
+//                if ($id_jefe == $this->id_wellington) $id_jefe = $this->id_isabel;
                 $this->merge([
                     'aut_especial' => $id_jefe,
                 ]);
             }
             $this->merge([
-                'id_usuario' => Auth::user()->empleado->id,
+                'id_usuario' => $this->id_usuario ? $this->id_usuario : Auth::user()->empleado->id,
                 'estado' => Gasto::PENDIENTE
             ]);
         }
@@ -302,6 +299,22 @@ class GastoRequest extends FormRequest
             'id_tarea' => $tarea,
             'id_proyecto' => $proyecto,
             'id_lugar' => $this->lugar,
+        ]);
+
+        // Redireccionar aprobación de gastos creados por personas que tienen configurado un AutorizadorDirecto
+        $this->merge([
+            'aut_especial' => EmpleadoService::obtenerAutorizadorDirecto($this->id_usuario, $this->aut_especial)
+        ]);
+
+        // Colocar el autorizador al delegado
+        if($controller_method == 'store'){
+            $this->merge([
+               'aut_especial' => EmpleadoDelegado::obtenerDelegado($this->aut_especial)
+            ]);
+        }
+
+        $this->merge([
+            'nodo_id'=>$this->nodo ?:null
         ]);
     }
 }

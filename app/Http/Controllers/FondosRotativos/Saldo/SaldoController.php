@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoResource;
 use App\Models\Canton;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
@@ -26,8 +27,10 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Proyecto;
 use App\Models\Tarea;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -301,6 +304,8 @@ class SaldoController extends Controller
                     return $this->reporteTransferencia($request, $tipo_reporte);
                 case self::GASTO_IMAGEN:
                     return $this->gastoFiltrado($request, $tipo_reporte, true);
+                case 7:
+                    return $this->fotografiasOM($request, $tipo_reporte);
                 default:
                     throw  new Exception("No hay un reporte para este tipo de filtro");
             }
@@ -325,7 +330,6 @@ class SaldoController extends Controller
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
             $request['id_proyecto'] = $request['proyecto'];
-            $request['sub_detalle'] = $request['id_sub_detalle'];
             $request['id_usuario'] = $request['empleado'];
             $request['id_estado'] = $request['estado'];
             $request['id_tarea'] = $request['tarea'];
@@ -349,7 +353,7 @@ class SaldoController extends Controller
                 'ciudad',
                 'subdetalle'
             ])
-                ->filter($request->all())
+                ->filter()
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', Gasto::APROBADO)
                 ->with(
@@ -367,12 +371,13 @@ class SaldoController extends Controller
 
             if ($request->subdetalle != null) {
                 $gastos = $gastosQuery->whereHas('subDetalle', function ($q) use ($request) {
-                    $q->where('subdetalle_gasto_id', $request['subdetalle']);
+                    $q->whereIn('subdetalle_gasto_id', $request['subdetalle']);
                 })->get();
             } else {
                 $gastos = $gastosQuery->get();
             }
 
+//            Log::channel('testing')->info('Log', ['gastoFiltrado',  $gastos]);
             $usuario = null;
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
@@ -489,6 +494,89 @@ class SaldoController extends Controller
     }
 
     /**
+     * @throws ValidationException
+     */
+    private function fotografiasOM(Request $request, string $tipo)
+    {
+        try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            if ($request->tipo_filtro == 8) {
+                $request['ruc'] = '9999999999999';
+            }
+            $query = Gasto::whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', Gasto::APROBADO)->with(['empleado', 'detalleEstado', 'subDetalle', 'proyecto']);
+
+            if ($request->subdetalle != null) {
+                $query->whereHas('subDetalle', function ($q) use ($request) {
+                    $q->whereIn('subdetalle_gasto_id', $request['subdetalle']);
+                });
+            }
+            if ($request->nodos != null) {
+                $query->whereIn('nodo_id', $request['nodos']);
+            }
+            $titulo = 'REPORTE';
+
+            $gastos = $query->get();
+//            Log::channel('testing')->info('Log', ['gastos', $gastos]);
+
+            switch ($request->tipo_filtro) {
+                case self::SUBDETALLE:
+                    $sub_detalle = SubDetalleViatico::where('id', $request->subdetalle)->first();
+                    $subtitulo = 'SUB DETALLE: ' . $sub_detalle->descripcion;
+                    $titulo .= ' DE FOTOGRAFIAS';
+                    break;
+                default:
+                    $titulo .= ' DE GASTOS POR SUBDETALLE';
+                    $subtitulo = '';
+                    break;
+            }
+
+            $titulo .= ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '.';
+            $configuracion = ConfiguracionGeneral::first();
+            if ($tipo == 'excel')
+                throw new Exception('Este reporte no puede imprimirse en EXCEL. Intentalo en PDF');
+            $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_fotografias_om', [
+                'configuracion' => $configuracion,
+//                'gastos' => $gastos,
+                'gastos' => $this->agruparPorCiudadOM($this->mapearGastosOM($gastos)),
+                'titulo' => $titulo,
+                'subtitulo' => $subtitulo,
+            ]);
+            $pdf->render();
+            return $pdf->output();
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Fotografías OyM');
+        }
+    }
+
+    private function mapearGastosOM(Collection $gastos)
+    {
+        $results = [];
+        foreach ($gastos as $gasto) {
+            $row['empleado'] = Empleado::extraerNombresApellidos($gasto->empleado);
+            $row['grupo'] = $gasto->empleado->grupo?->nombre;
+            $row['nodo'] = $gasto->nodo?->nombre;
+            $row['ruc'] = $gasto->ruc;
+            $row['fecha_viat'] = $gasto->fecha_viat;
+            $row['factura'] = $gasto->factura;
+            $row['canton'] = $gasto->canton->canton;
+            $row['comprobante'] = $gasto->comprobante;
+            $row['comprobante2'] = $gasto->comprobante2;
+            $results[] = $row;
+        }
+        return $results;
+    }
+
+    private function agruparPorCiudadOM(array $datos)
+    {
+        $collection = collect($datos);
+        return $collection->groupBy('canton')->map(function ($item) {
+            return $item->groupBy('grupo');
+        });
+    }
+
+    /**
      * It's a function that receives two parameters, one of them is a request object and the other is a
      * string
      *
@@ -554,9 +642,9 @@ class SaldoController extends Controller
             $transferencia_recibida = 0;
             $transferencias_enviadas = [];
             $transferencias_recibidas = [];
-            $sumatoria_aprobados_fuera_mes=0;
-            $registros_fuera_mes_suman=collect();
-            $registros_fuera_mes_restan=collect();
+            $sumatoria_aprobados_fuera_mes = 0;
+            $registros_fuera_mes_suman = collect();
+            $registros_fuera_mes_restan = collect();
             $total = 0;
             $usuario_canton = '';
             $fecha_anterior = '';
@@ -598,7 +686,7 @@ class SaldoController extends Controller
                 $transferencias_recibidas = $this->saldoService->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $transferencia_recibida = $transferencias_recibidas->sum('monto');
                 $saldo_old = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
-                $registros_fuera_mes_restan =$this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin, false);
+                $registros_fuera_mes_restan = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $sumatoria_fuera_mes_restan = $registros_fuera_mes_restan->sum('saldo_depositado');
                 $registros_fuera_mes_suman = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin);
                 $sumatoria_fuera_mes_suman = $registros_fuera_mes_suman->sum('saldo_depositado');
@@ -612,8 +700,8 @@ class SaldoController extends Controller
             $results = Gasto::empaquetar($gastos);
             $reportes = [
                 'gastos' => $results,
-                'fecha_inicio' => $fecha_inicio,
-                'fecha_fin' => $fecha_fin,
+                'fecha_inicio' => $fecha_inicio->format('d-m-Y'),
+                'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'fecha_anterior' => $fecha_anterior,
                 'usuario' => $usuario,
                 'usuario_canton' => $usuario_canton,
@@ -638,7 +726,7 @@ class SaldoController extends Controller
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->error('Log', ['error', $e->getMessage(), $e->getLine()]);
-            throw Utils::obtenerMensajeErrorLanzable($e, 'gasto');
+            throw Utils::obtenerMensajeErrorLanzable($e, 'SaldoController::gasto');
         }
     }
 
@@ -834,8 +922,8 @@ class SaldoController extends Controller
             $nombre_reporte = 'reporte_consolidado';
             $reportes = [
                 'fecha_anterior' => $fecha_anterior,
-                'fecha_inicio' => $fecha_inicio,
-                'fecha_fin' => $fecha_fin,
+                'fecha_inicio' => $fecha_inicio->format('d-m-Y'),
+                'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'empleado' => $empleado,
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual - $sumatoria_aprobados_fuera_mes : 0,

@@ -93,9 +93,9 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
-    const PENDIENTE = 'PENDIENTE';
-    const COMPLETA = 'COMPLETA';
-    const ANULADA = 'ANULADA';
+    const PENDIENTE = 'PENDIENTE'; // 1
+    const COMPLETA = 'COMPLETA'; // 2
+    const ANULADA = 'ANULADA'; // 3
 
     public $table = 'tar_transf_produc_emplea';
     public $fillable = [

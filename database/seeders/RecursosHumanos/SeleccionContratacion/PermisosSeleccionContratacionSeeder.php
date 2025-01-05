@@ -31,7 +31,7 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         $medico = Role::firstOrCreate(['name' => User::ROL_MEDICO]);
 
         // Módulo Seleccion y Contratacion
-        Permission::firstOrCreate(['name' => Permisos::VER . 'modulo_seleccion_contratacion'])->syncRoles([$rrhh, $administrador, $gerente]);
+//        Permission::firstOrCreate(['name' => Permisos::VER . 'modulo_seleccion_contratacion'])->syncRoles([$rrhh, $administrador, $gerente]);
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_seleccion_contratacion'])->syncRoles([$rrhh, $administrador, $gerente]);
         // solicitud de puestos
         Permission::firstOrCreate(['name' => Permisos::VER . 'rrhh_solicitudes_nuevas_vacantes'])->syncRoles([$rrhh, $administrador, $gerente]);
@@ -88,7 +88,7 @@ class PermisosSeleccionContratacionSeeder extends Seeder
 
         // Permiso para ver los usuarios externos
         Permission::firstOrCreate(['name' => Permisos::VER . 'usuarios_externos'])->syncRoles([$rrhh, $administrador]);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'reportes_rrhh'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'reportes_rrhh'])->syncRoles([$rrhh, $administrador]);
 
         // otros permisos
         Permission::firstOrCreate(['name' => Permisos::VER . 'tipos_discapacidades'])->syncRoles($rrhh);

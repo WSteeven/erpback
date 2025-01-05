@@ -28,6 +28,8 @@ class DepartamentoRequest extends FormRequest
             'nombre' => 'required|string|unique:departamentos',
             'activo' => 'required|boolean',
             'responsable' => 'required|numeric|integer',
+            'telefono'=> 'nullable|sometimes|string',
+            'correo'=>'nullable|sometimes|string|email:rfc,dns',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

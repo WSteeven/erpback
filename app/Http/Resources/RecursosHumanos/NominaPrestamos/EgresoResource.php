@@ -15,22 +15,6 @@ class EgresoResource extends JsonResource
      */
     public function toArray($request)
     {
-        $controller_method = $request->route()->getActionMethod();
-        $tipo ='';
-        if ($this->descuento_type === "App\\Models\\RecursosHumanos\\NominaPrestamos\\DescuentosGenerales") {
-            $tipo= "DESCUENTO_GENERAL";
-        } elseif ($this->descuento_type === "App\\Models\\RecursosHumanos\\NominaPrestamos\\Multas") {
-            $tipo = "MULTA";
-        }
-        $modelo = [
-            'id' => $this->id,
-            'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado != null? $this->empleado->apellidos. ' ' .$this->empleado->nombres:'',
-            'tipo' => $tipo,
-            'descuento' => $this->descuento->nombre,
-            'monto' => $this->monto,
-            'id_descuento' => $this->descuento->id
-        ];
-        return  $modelo;
+        return [];
     }
 }

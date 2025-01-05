@@ -2,217 +2,177 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\VacacionEvent;
+use App\Exports\RecursosHumanos\PlanesVacacionesExport;
+use App\Exports\RecursosHumanos\VacacionesExport;
+use App\Exports\VacacionesPendientesExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RecursosHumanos\NominaPrestamos\VacacionRequest;
+use App\Http\Requests\RecursosHumanos\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
 use App\Models\ConfiguracionGeneral;
-use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
-use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\RecursosHumanos\NominaPrestamos\ValorEmpleadoRolMensual;
 use Carbon\Carbon;
+use DB;
+use Excel;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Pdf;
+use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
 use Src\Shared\Utils;
 use Throwable;
 
 class VacacionController extends Controller
 {
-    private string $entidad = 'Solicitud de vacación';
+    private string $entidad = "Vacacion";
+
     public function __construct()
     {
-        $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
-        $this->middleware('can:puede.crear.vacacion')->only('store');
-        $this->middleware('can:puede.editar.vacacion')->only('update');
-        $this->middleware('can:puede.eliminar.vacacion')->only('destroy');
+        $this->middleware('can:puede.ver.vacaciones')->only('index', 'show');
+        $this->middleware('can:puede.editar.vacaciones')->only('update');
+        $this->middleware('can:puede.eliminar.vacaciones')->only('destroy');
     }
 
     /**
-     * La función de índice recupera datos de vacaciones en función del rol del usuario y los devuelve
-     * como una respuesta JSON.
+     * Display a listing of the resource.
      *
-     * @return JsonResponse respuesta JSON que contiene la variable 'resultados'.
+     * @return JsonResponse
      */
     public function index()
     {
-        if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
-            $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
+        if (request('tipo')) {
+            $results = match (request('tipo')) {
+                'PENDIENTES' => Vacacion::where('completadas', false)->get(),
+                'REALIZADAS' => Vacacion::where('completadas', true)->get(),
+            };
         } else {
-            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
-            $results = Vacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+            $results = Vacacion::ignoreRequest(['tipo'])->filter()->get();
         }
         $results = VacacionResource::collection($results);
-
         return response()->json(compact('results'));
     }
 
     /**
-     * La función almacena datos de vacaciones y realiza comprobaciones de validación.
-     *
-     * @param VacacionRequest $request El parámetro `` es una instancia de la clase
-     * `VacacionRequest`. Se utiliza para validar y recuperar los datos enviados en la solicitud HTTP.
-     *
-     * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
-     * @throws ValidationException|Throwable
+     * @throws Throwable
+     * @throws ValidationException
      */
-    public function store(VacacionRequest $request)
+    public function store(/* VacacionRequest $request */)
     {
-        try {
-            DB::beginTransaction();
-            $datos = $request->validated();
+        throw ValidationException::withMessages([Utils::metodoNoDesarrollado()]);
 
-            $empleado = Empleado::findOrFail($request->empleado_id);
-            $fechaInicio = Carbon::parse($empleado->fecha_ingreso);
-
-            $diferencia = $fechaInicio->diffInYears(
-                $request->fecha_inicio ?? $request->fecha_inicio_rango1_vacaciones
-            );
-            if ($diferencia <= 0) {
-                throw ValidationException::withMessages([
-                    '404' => ['Vacaciones no disponibles debido a fecha establecida es menor a un año de trabajo en la empresa'],
-                ]);
-            }
-
-            $empleado_tiene_vacaciones = Vacacion::where('empleado_id', $request->empleado_id)
-                ->where('periodo_id', $request->periodo_id)
-                ->first();
-            if ($empleado_tiene_vacaciones) {
-                throw ValidationException::withMessages([
-                    '404' => ['Ya ha solicitado vacaciones en este periodo'],
-                ]);
-            }
-
-            $total_dias_aceptable = 15;
-            if ($request->numero_dias != null) {
-                $dias_descuentos_permiso = intval($request->descuento_vacaciones / 24);
-                $resta_dias_permiso = $request->numero_dias - $dias_descuentos_permiso;
-
-//                if ($dias_descuentos_permiso == 0 && $request->numero_dias != $total_dias_aceptable) {
-//                    throw ValidationException::withMessages([
-//                        '404' => ['Por favor ingrese en rangos de vacaciones'],
-//                    ]);
-//                }
-
-                if ($request->descuento_vacaciones > 0 && $resta_dias_permiso == $total_dias_aceptable) {
-                    throw ValidationException::withMessages([
-                        '404' => ['No se puede dar vacaciones en las fechas establecidas por favor disminuya ' . $resta_dias_permiso . ' día' . ($resta_dias_permiso > 1 ? 's' : '')],
-                    ]);
-                }
-            }
-
-            if ($request->numero_dias_rango1 != null && $request->numero_dias_rango2 != null) {
-                $suma_srangos = $request->numero_dias_rango1 + $request->numero_dias_rango2;
-                if ($suma_srangos != $total_dias_aceptable || $request->numero_dias_rango1 < 7 || $request->numero_dias_rango1 > 8 || $request->numero_dias_rango2 < 7 || $request->numero_dias_rango2 > 8) {
-                    throw ValidationException::withMessages([
-                        '404' => ['Por favor ingrese días en rango 1 y rango 2 que sumen 15 y estén entre 7 y 8 respectivamente'],
-                    ]);
-                }
-            }
-
-            $datos['estado'] = Vacacion::PENDIENTE;
-            $vacacion = Vacacion::create($datos);
-            event(new VacacionEvent($vacacion));
-            $modelo = new VacacionResource($vacacion);
-
-            DB::commit();
-
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error al insertar el registro:', $e->getMessage(), $e->getLine()]);
-
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
-            ]);
-        }
+//        try {
+//            DB::beginTransaction();
+//            $datos = $request->validated();
+//
+//            $vacacion = Vacacion::create($datos);
+//
+//            $modelo = new VacacionResource($vacacion);
+//            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+//            DB::commit();
+//        } catch (Throwable $th) {
+//            DB::rollBack();
+//            throw Utils::obtenerMensajeErrorLanzable($th, 'Guardar Vacacion ' . $this->entidad);
+//        }
+//        return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function show( Vacacion $vacacion)
+    /**
+     * Display the specified resource.
+     *
+     * @param Vacacion $vacacion
+     * @return JsonResponse
+     */
+    public function show(Vacacion $vacacion)
     {
         $modelo = new VacacionResource($vacacion);
         return response()->json(compact('modelo'));
     }
-    /**
-     * La función "descuentos_permiso" calcula la duración total de los permisos de vacaciones de un
-     * determinado empleado.
-     *
-     * @param Request $request El parámetro es una instancia de la clase Request, que se utiliza
-     * para recuperar datos de la solicitud HTTP. En este caso, se utiliza para recuperar el valor del
-     * parámetro "empleado" de la solicitud.
-     *
-     */
-    public function descuentos_permiso(Request $request)
-    {
-        return PermisoEmpleado::where('empleado_id', $request->empleado)->where('cargo_vacaciones', 1)
-            ->selectRaw('SUM(TIMESTAMPDIFF(HOUR, fecha_hora_inicio, fecha_hora_fin)) as duracion')
-            ->first();
-    }
 
     /**
-     * La función actualiza un modelo de Vacaciones con los datos validados de la solicitud y devuelve
-     * una respuesta JSON con un mensaje y el modelo actualizado.
+     * Update the specified resource in storage.
      *
-     * @param VacacionRequest $request El parámetro es una instancia de la clase VacacionRequest,
-     * que se utiliza para validar y recuperar los datos de la solicitud HTTP.
+     * @param VacacionRequest $request
      * @param Vacacion $vacacion
-     * @return JsonResponse respuesta JSON que contiene las variables 'mensaje' y 'modelo'.
-     * @throws Exception
+     * @return JsonResponse
+     * @throws Throwable|ValidationException
      */
     public function update(VacacionRequest $request, Vacacion $vacacion)
     {
-        $datos = $request->validated();
-        $datos['estado'] = $request->estado;
-        $vacacion->update($datos);
-        event(new VacacionEvent($vacacion));
-        $modelo = new VacacionResource($vacacion);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje', 'modelo'));
-    }
+        $opto_pago_old = $vacacion->opto_pago;
 
-    /**
-     * La función destruye un objeto Vacaciones y devuelve una respuesta JSON.
-     *
-     * @param Vacacion $vacacion El parámetro Vacaciones es una instancia del modelo Vacaciones.
-     * Representa un registro de vacaciones específico que debe eliminarse de la base de datos.
-     *
-     * @return JsonResponse respuesta JSON que contiene el objeto Vacaciones eliminado.
-     */
-    public function destroy( Vacacion $vacacion)
-    {
-        $vacacion->delete();
-        return response()->json(compact('vacacion'));
+
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+
+            $vacacion->update($datos);
+            // Verificamos si cambió el valor de opto_pago para lanzar el mecanismo de que ese pago se realice en Rol de Pagos
+            if ($opto_pago_old != $vacacion->opto_pago && $vacacion->opto_pago) {
+                // Se crea el registro que será tomado en el rol de pagos del mes selecionado por el usuario
+                $vacacion->valoresRolMensualEmpleado()->create([
+                    'tipo' => ValorEmpleadoRolMensual::INGRESO,
+                    'mes' => $vacacion->mes_pago,
+                    'empleado_id' => $vacacion->empleado_id,
+                    'monto' => VacacionService::calcularMontoPagarVacaciones($vacacion),
+                ]);
+                // Se actualiza los detalles de la vacacion para saber que fueron pagados N dias
+                $vacacion->detalles()->create([
+                    'fecha_inicio' => Carbon::now(),
+                    'fecha_fin' => Carbon::now(),
+                    'dias_utilizados' => VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado($vacacion),
+                    'observacion' => 'Dias de Vacaciones pagadas al seleccionar la opcion opto pago'
+                ]);
+                $vacacion->completadas = true;
+                $vacacion->save();
+            }
+            if ($vacacion->detalles()->sum('dias_utilizados') == $vacacion->dias) $vacacion->update(['completadas' => true]);
+
+            $modelo = new VacacionResource($vacacion->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        } catch (Throwable $th) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($th, 'Actualizar ' . $this->entidad);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
      * @throws ValidationException
      */
-    public function imprimir(Vacacion $vacacion)
+    public function reporteVacaciones(Request $request)
     {
-        $configuracion = ConfiguracionGeneral::first();
-        $resource = new VacacionResource($vacacion);
         try {
-            $pdf = Pdf::loadView('recursos-humanos.nomina_permisos.solicitud_vacacion', [
-                'configuracion' => $configuracion,
-                'vacacion' => $resource->resolve(),
-                'empleado' => Empleado::with('departamento', 'grupo')->find($vacacion->empleado_id),
-                'autorizador' => Empleado::find($vacacion->autorizador_id),
-                'reemplazo' => Empleado::find($vacacion->reemplazo_id),
-            ]);
-            $pdf->setPaper('A4');
-            $pdf->render();
-            return $pdf->output();
-        } catch (Throwable|Exception $th) {
-            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de VacacionController::imprimir', $th->getMessage(), $th->getLine()]);
-            throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
+            $configuracion = ConfiguracionGeneral::first();
+            $results = VacacionService::reporte($request);
+            switch ($request->accion) {
+                case 'excel':
+                    return match ($request->tipo) {
+                        'PLAN_VACACIONES' => Excel::download(new PlanesVacacionesExport($results, $configuracion), 'reporte_planes_vacaciones.xlsx'),
+                        'VACACIONES_PENDIENTES' => Excel::download(new VacacionesPendientesExport($results, $configuracion), 'reporte_vacaciones_pendientes.xlsx'),
+                        default => Excel::download(new VacacionesExport($results, $configuracion), 'reporte_vacaciones.xlsx')
+                    };
+                case 'pdf':
+                    $reporte = $results;
+                    $pdf = match($request->tipo){
+                        'PLAN_VACACIONES'=> Pdf::loadView('recursos-humanos/nomina_permisos/reporte_plan_vacaciones', compact(['reporte', 'configuracion'])),
+                        default => Pdf::loadView('recursos-humanos/nomina_permisos/reporte_vacaciones', compact(['reporte', 'configuracion'])),
+                    };
+                    $pdf->setPaper('A4', 'landscape');
+                    $pdf->render();
+                    return $pdf->output();
+                default:
+                    // Nothing, return the data
+            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->error('Log', ['Request', $ex->getLine(), $ex->getMessage(), $ex]);
+            throw Utils::obtenerMensajeErrorLanzable($ex, 'No se pudo obtener el reporte');
         }
+
+        return response()->json(compact('results'));
     }
+
+
 }

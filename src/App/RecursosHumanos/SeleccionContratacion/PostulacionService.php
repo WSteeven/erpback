@@ -12,7 +12,6 @@ use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Tests\Models\Post;
 use Throwable;
 
 class PostulacionService

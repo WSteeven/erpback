@@ -7,18 +7,12 @@ use App\Models\Proyecto;
 use App\Models\Tareas\Etapa;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 
 class PedidoRequest extends FormRequest
 {
-    private int $id_wellington;
-    private int $id_veronica_valencia;
+//    private int $id_wellington =117;
+//    private int $id_veronica_valencia=155;
 
-    public function __construct()
-    {
-        $this->id_wellington= 117;
-        $this->id_veronica_valencia= 155;
-    }
 
     /**
      * Determine if the user is authorized to make this request.
@@ -42,20 +36,21 @@ class PedidoRequest extends FormRequest
             'fecha_limite' => 'nullable|date',
             'observacion_aut' => 'nullable|string',
             'observacion_est' => 'nullable|string',
-            'solicitante' => 'required|numeric|exists:empleados,id',
-            'responsable' => 'required|numeric|exists:empleados,id',
-            'autorizacion' => 'required|numeric|exists:autorizaciones,id',
-            'per_autoriza' => 'required|numeric|exists:empleados,id',
-            'per_retira' => 'sometimes|nullable|numeric|exists:empleados,id',
-            'cliente' => 'sometimes|nullable|numeric|exists:clientes,id',
-            'proyecto' =>  'sometimes|nullable|numeric|exists:proyectos,id',
-            'etapa' =>  'sometimes|nullable|numeric|exists:tar_etapas,id',
-            'tarea' =>  'sometimes|nullable|numeric|exists:tareas,id',
-            'sucursal' => 'required|numeric|exists:sucursales,id',
-            'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
+            'solicitante_id' => 'required|numeric|exists:empleados,id',
+            'responsable_id' => 'required|numeric|exists:empleados,id',
+            'autorizacion_id' => 'required|numeric|exists:autorizaciones,id',
+            'per_autoriza_id' => 'required|numeric|exists:empleados,id',
+            'per_retira_id' => 'sometimes|nullable|numeric|exists:empleados,id',
+            'cliente_id' => 'sometimes|nullable|numeric|exists:clientes,id',
+            'proyecto_id' =>  'sometimes|nullable|numeric|exists:proyectos,id',
+            'etapa_id' =>  'sometimes|nullable|numeric|exists:tar_etapas,id',
+            'tarea_id' =>  'sometimes|nullable|numeric|exists:tareas,id',
+            'sucursal_id' => 'required|numeric|exists:sucursales,id',
+            'estado_id' => 'required|numeric|exists:estados_transacciones_bodega,id',
             'listadoProductos.*.cantidad' => 'required',
             'evidencia1' => 'nullable|string',
             'evidencia2' => 'nullable|string',
+            'incidente_id' => 'nullable|numeric|integer|exists:sso_incidentes,id',
         ];
     }
     public function attributes()
@@ -94,7 +89,7 @@ class PedidoRequest extends FormRequest
         $user_activo_fijo = User::whereHas("roles", function ($q) {
             $q->where("name", User::ROL_ACTIVOS_FIJOS);
         })->first();
-        Log::channel('testing')->info('Log', ['el activo fijo es:', $user_activo_fijo]);
+//        Log::channel('testing')->info('Log', ['el activo fijo es:', $user_activo_fijo]);
         if (!is_null($this->fecha_limite)) {
             $this->merge([
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
@@ -114,7 +109,7 @@ class PedidoRequest extends FormRequest
         }
         if ((is_null($this->per_autoriza) || $this->per_autoriza === '') && !$this->tarea) {
             $jefe_id = auth()->user()->empleado->jefe_id;
-            if($jefe_id == $this->id_wellington) $jefe_id =  $this->id_veronica_valencia;
+//            if($jefe_id == $this->id_wellington) $jefe_id =  $this->id_veronica_valencia;
             $this->merge(['per_autoriza' => $jefe_id]);
         }
         if (is_null($this->autorizacion) || $this->autorizacion === '') {
@@ -146,7 +141,7 @@ class PedidoRequest extends FormRequest
                 ]);
             }
         }
-        if ($this->para_cliente && in_array($this->method(), ['POST'])) {
+        if ($this->para_cliente && $this->method() == 'POST') {
             $this->merge([
                 'autorizacion' => 2,
                 'per_autoriza' => auth()->user()->empleado->id,
@@ -167,5 +162,20 @@ class PedidoRequest extends FormRequest
                 'observacion_est' => 'NO REALIZADO'
             ]);
         }
+
+        $this->merge([
+            'solicitante_id'=> $this->solicitante,
+            'responsable_id'=> $this->responsable,
+            'autorizacion_id'=>$this->autorizacion,
+            'per_autoriza_id'=>$this->per_autoriza,
+            'per_retira_id'=>$this->per_retira,
+            'cliente_id'=> $this->cliente,
+            'proyecto_id'=> $this->proyecto,
+            'etapa_id'=> $this->etapa,
+            'tarea_id'=>$this->tarea,
+            'sucursal_id'=>$this->sucursal,
+            'estado_id'=>$this->estado,
+            'incidente_id'=>$this->incidente,
+        ]);
     }
 }

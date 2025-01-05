@@ -4,10 +4,15 @@ namespace App\Console;
 
 use App\Jobs\AnularProformaJob;
 use App\Jobs\Bodega\NotificarPedidoParcialJob;
+use App\Jobs\ClearCacheJob;
+use App\Jobs\FinalizarTareasReactivadasJob;
 use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\PausarTicketsFinJornadaJob;
 use App\Jobs\RechazarGastoJob;
+use App\Jobs\RecursosHumanos\CrearVacacionesEmpleadoJob;
+use App\Jobs\RecursosHumanos\DesactivarEmpleadoDelegadoJob;
+use App\Jobs\RecursosHumanos\NotificarPotencialesVacacionesEmpleadoJob;
 use App\Jobs\Vehiculos\ActualizarEstadoSegurosVehiculares;
 use App\Jobs\Vehiculos\ActualizarMantenimientoVehiculoJob;
 use App\Jobs\Vehiculos\CrearMatriculasAnualesVehiculosJob;
@@ -29,6 +34,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         // $schedule->job(new MyJobExample)->everyMinute(); // Execute job every 5 minutes
+        $schedule->job(new ClearCacheJob)->daily(); // Execute job every day at 08:00
         $schedule->job(new AnularProformaJob)->dailyAt('08:00'); // Execute job every day at 08:00
         $schedule->job(new RechazarGastoJob)->monthlyOn(1, '12:00');
         $schedule->job(new NotificarVacacionesJob)->dailyAt('09:00');
@@ -67,6 +73,18 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ActualizarMantenimientoVehiculoJob())->dailyAt('07:00');
         $schedule->job(new NotificarReporteBitacorasDiariasJob())->dailyAt('06:00');
         // $schedule->job(new ActualizarMantenimientoVehiculoJob())->everyMinute();
+
+        /*****************
+         * RECURSOS HUMANOS
+         ****************/
+        $schedule->job(new CrearVacacionesEmpleadoJob())->daily();
+        $schedule->job(new NotificarPotencialesVacacionesEmpleadoJob())->dailyAt('08:00');
+        $schedule->job(new DesactivarEmpleadoDelegadoJob())->everyMinute();
+
+        /*********
+         * TAREAS
+         *********/
+        $schedule->job(new FinalizarTareasReactivadasJob())->hourly();
     }
 
     /**

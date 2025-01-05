@@ -5,6 +5,7 @@ namespace App\Mail\RecursosHumanos\SeleccionContratacion;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
 use App\Models\Canton;
 use App\Models\ConfiguracionGeneral;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\SeleccionContratacion\Examen;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
@@ -27,7 +28,8 @@ class NotificarAgendamientoExamenesMail extends Mailable
     public ConfiguracionGeneral $configuracion;
     public ?string $canton;
     public Empleado $medico;
-
+    public Departamento $departamento_rrhh;
+    public Departamento $departamento_medico;
 
     /**
      * Create a new message instance.
@@ -43,6 +45,8 @@ class NotificarAgendamientoExamenesMail extends Mailable
         $this->configuracion = ConfiguracionGeneral::first();
         $this->canton = Canton::find($this->examen->canton_id)?->canton;
         $this->medico = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_MEDICO);
+        $this->departamento_rrhh = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first();
+        $this->departamento_medico = Departamento::where('nombre', Departamento::DEPARTAMENTO_MEDICO)->first();
     }
 
     /**

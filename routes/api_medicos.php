@@ -17,7 +17,6 @@ use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
 use App\Http\Controllers\Medico\ConsultaMedicaController;
 use App\Http\Controllers\Medico\CuestionarioController;
-use App\Http\Controllers\Medico\CuestionarioPublicoController;
 use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
@@ -220,3 +219,6 @@ Route::get('fichas-reintegro/imprimir/{ficha_reintegro}', [FichaReintegroControl
 Route::get('fichas-retiros/imprimir/{ficha_retiro}', [FichaRetiroController::class, 'imprimirPDF']);
 
 Route::put('resultados-examenes', [ResultadoExamenController::class, 'multipleUpdate']);
+
+Route::get('consultas-medicas/files/{consulta_medica}', [ConsultaMedicaController::class, 'indexFiles']);
+Route::post('consultas-medicas/files/{consulta_medica}', [ConsultaMedicaController::class, 'storeFiles']);

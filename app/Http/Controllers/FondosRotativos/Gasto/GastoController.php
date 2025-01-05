@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Events\FondoRotativoEvent;
+
 use App\Exports\AutorizacionesExport;
 use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
@@ -275,17 +276,16 @@ class GastoController extends Controller
             $fecha_inicio =  $request->fecha_inicio;
             $fecha_fin = $request->fecha_fin;
             $tipo_archivo = $tipo;
-            $id_tipo_reporte = $request->tipo_reporte;
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
-            $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
+            $tipo_reporte = EstadoViatico::find($request->estado);
             $reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'tarea')
-                ->where('estado', $id_tipo_reporte)
+                ->where('estado',$request->estado)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
             $subtotal = Gasto::with('empleado', 'detalle_info', 'subDetalle')
-                ->where('estado', $id_tipo_reporte)
+                ->where('estado', $request->estado)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
             $reporte_empaquetado = Gasto::empaquetar($reporte);

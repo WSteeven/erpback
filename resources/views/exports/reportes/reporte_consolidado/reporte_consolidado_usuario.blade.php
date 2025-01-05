@@ -20,10 +20,6 @@
         }
 
         body {
-            /* background-image: url(
-
-
-        {{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}   ); */
             background-image: url({{ $logo_watermark }});
             background-size: 50% auto;
             background-repeat: no-repeat;
@@ -106,7 +102,7 @@
             </td>
             <td style="width: 100%">
                 <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE CONSOLIDADO
-                        {{ ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</b>
+                        {{ ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b>
                 </div>
             </td>
         </tr>

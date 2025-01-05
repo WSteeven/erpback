@@ -16,10 +16,9 @@ class PeriodoController extends Controller
         $this->middleware('can:puede.eliminar.periodo')->only('update');
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $results = [];
-        $results = Periodo::ignoreRequest(['campos'])->filter()->get();
+        $results = Periodo::ignoreRequest(['campos'])->filter()->orderBy('nombre')->get();
         return response()->json(compact('results'));
     }
     public function show(Request $request, Periodo $periodo)

@@ -96,7 +96,7 @@ class PreingresoMaterialService
                 //buscamos el producto padre del detalle
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
                 //buscamos si el detalle ingresado coincide con uno ya almacenado
-                $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], $item['serial'], $producto->id);
 
                 if ($detalle) {
                     //Si hay detalle con numero de serie y todo tal cual los argumentos dados se hace lo siguiente:
@@ -109,7 +109,7 @@ class PreingresoMaterialService
                     }
                 } else {
                     // no se encontró detalles coincidentes con numero de serie, buscamos sin numero de serie
-                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    $detalle = DetalleProducto::obtenerDetalle( $item['descripcion'], null, $producto->id);
 
                     if ($detalle) { //se encontró detalle, pero se sabe que no tiene el mismo número de serie, entonces se debe crear uno nuevo
                         if ($item['serial']) {
@@ -154,7 +154,7 @@ class PreingresoMaterialService
         try {
             foreach ($listado as $item) {
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
-                $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], $item['serial'], $producto->id);
                 if ($detalle) {
 
                     if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
@@ -184,7 +184,7 @@ class PreingresoMaterialService
     {
         foreach ($listado as $elemento) {
             $producto = Producto::obtenerProductoPorNombre($elemento['producto']);
-            $detalle = DetalleProducto::obtenerDetalle($producto->id, $elemento['descripcion'], $elemento['serial']);
+            $detalle = DetalleProducto::obtenerDetalle($elemento['descripcion'], $elemento['serial'], $producto->id);
             // Si el id del itemPreingreso es encontrado en el listado recibido entonces retorna true
             if ($id == $detalle->id) return true;
         }
@@ -247,7 +247,7 @@ class PreingresoMaterialService
             foreach ($listado as $item) {
                 //primero buscamos si hay un detalle coincidente con los datos recibidos desde el front
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
-                $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], $item['serial'], $producto->id);
 
                 if ($detalle) {
                     //Si hay el detalle, comprobamos si hay algún ítem de Preingreso registrado previamente con el detalle encontrado
@@ -255,7 +255,7 @@ class PreingresoMaterialService
                     if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
                     else self::guardarDetalles($preingreso, [$item]);
                 } else {
-                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], null, $producto->id);
                     if ($detalle) {
                         $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
                         Log::channel('testing')->info('Log', ['item 255:', $itemPreingreso]);

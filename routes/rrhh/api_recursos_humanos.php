@@ -8,9 +8,13 @@ use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionControl
 use App\Http\Controllers\RecursosHumanos\Alimentacion\DetalleAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
+use App\Http\Controllers\RecursosHumanos\DiscapacidadUsuarioController;
+use App\Http\Controllers\RecursosHumanos\EmpleadoDelegadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ConceptoIngresoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosGeneralesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosLeyController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DetalleVacacionController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EgresoRolPagoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludController;
@@ -23,18 +27,21 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoCo
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MultaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PeriodoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PlanVacacionController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirografarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagoMesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudVacacionController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ValorEmpleadoRolMensualController;
+use App\Http\Controllers\RecursosHumanos\PlanificadorController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
-use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoTrabajoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
 use Illuminate\Support\Facades\Route;
@@ -42,12 +49,14 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
+        'empleados-delegados'=> EmpleadoDelegadoController::class,
         'departamentos' => DepartamentoController::class,
         'rol-pagos' => RolPagosController::class,
         'rol_pago_mes' => RolPagoMesController::class,
         'concepto_ingreso' => ConceptoIngresoController::class,
-        'horas_extras_tipo' => HorasExtrasTipoController::class,
+        'horas-extras-tipo' => HorasExtrasTipoController::class,
         'horas_extras_subtipo' => HorasExtrasSubTipoController::class,
+        'descuentos' => DescuentoController::class,
         'descuentos_generales' => DescuentosGeneralesController::class,
         'descuentos_ley' => DescuentosLeyController::class,
         'multa' => MultaController::class,
@@ -60,7 +69,11 @@ Route::apiResources(
         'periodo' => PeriodoController::class,
         'tipo_licencia' => TipoLicenciaController::class,
         'licencia_empleado' => LicenciaEmpleadoController::class,
-        'vacacion' => VacacionController::class,
+        'solicitudes-vacaciones' => SolicitudVacacionController::class,
+        'vacaciones' => VacacionController::class,
+        'detalles-vacaciones' => DetalleVacacionController::class,
+        'planes-vacaciones' => PlanVacacionController::class,
+        'planificadores' => PlanificadorController::class,
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,
@@ -71,6 +84,7 @@ Route::apiResources(
         'rol_pago' => RolPagosController::class,
         'egreso_rol_pago' => EgresoRolPagoController::class,
         'ingreso_rol_pago' => IngresoRolPagoController::class,
+        'valores-cargados-roles' => ValorEmpleadoRolMensualController::class,
         /*******************************
          *  Módulo de Alimentacion
          ******************************/
@@ -88,20 +102,30 @@ Route::apiResources(
             'descuentos_ley' => 'descuento_ley',
             'prestamo_empresarial' => 'prestamo',
             'prestamos_quirografarios' => 'prestamo',
+            'planes-vacaciones' => 'plan',
+            'planificadores' => 'plan',
+            'licencia_empleado'=>'licencia',
             'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
+            'solicitudes-vacaciones' => 'solicitud',
+            'vacaciones' => 'vacacion',
+            'detalles-vacaciones' => 'detalle',
             'rol_pago_mes'=>'rol',
             'tipo_licencia'=>'tipo',
+            'valores-cargados-roles'=>'valor',
+            'empleados-delegados'=>'delegacion',
         ],
 
     ]
 );
+Route::get('discapacidades-usuario', [DiscapacidadUsuarioController::class, 'discapacidadesUsuario']);
 Route::post('registro', [PostulanteController::class, 'store'])->withoutMiddleware(['auth:sanctum']);
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('empleados-delegados/desactivar/{empleado}', [EmpleadoDelegadoController::class, 'desactivar']);
     Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
-    Route::post('rol_pago/estado/{rolPagoId}', [RolPagosController::class, 'cambiar_estado']);
-    Route::post('rol_pago/actualizar_masivo', [RolPagosController::class, 'actualizar_masivo']);
-    Route::post('rol_pago/finalizar_masivo', [RolPagosController::class, 'finalizar_masivo']);
+    Route::post('rol_pago/estado/{rol_pago}', [RolPagosController::class, 'cambiarEstado']);
+    Route::post('rol_pago/actualizar-masivo', [RolPagosController::class, 'actualizarMasivo']);
+    Route::post('rol_pago/finalizar-masivo', [RolPagosController::class, 'finalizarMasivo']);
     Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class, 'prestamos_hipotecario_empleado']);
     Route::put('aprobar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'aprobar_prestamo_empresarial']);
     Route::put('rechazar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'rechazar_prestamo_empresarial']);
@@ -119,24 +143,27 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo_prestamo_quirorafario', [PrestamoQuirografarioController::class, 'archivoPrestamoQuirografario']);
     Route::post('archivo_rol_pago', [RolPagosController::class, 'archivo_rol_pago_empleado']);
     Route::post('archivo_extencion_conyugal', [ExtensionCoverturaSaludController::class, 'archivoExtensionConyugal']);
-    Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
+//    Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
-    Route::get('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
-    Route::get('vacacion/imprimir/{vacacion}', [VacacionController::class, 'imprimir']);
+//    Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
+    Route::get('solicitudes-vacaciones/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
+    Route::get('solicitudes-vacaciones/derecho-vacaciones/{id}', [SolicitudVacacionController::class, 'derechoVacaciones']);
+    Route::get('planificadores/imprimir/{plan}', [PlanificadorController::class, 'imprimir']);
+    Route::post('vacaciones/reporte', [VacacionController::class, 'reporteVacaciones']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);
     Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtenerPrestamoEmpleado']);
     Route::get('otener_saldo_empleado_mes', [SaldoGrupoController::class, 'otener_saldo_empleado_mes']);
-    Route::get('imprimir_rol_pago/{rolPagoId}', [RolPagosController::class, 'imprimir_rol_pago']);
+    Route::get('imprimir_rol_pago/{rol_pago}', [RolPagosController::class, 'imprimir_rol_pago']);
     Route::get('imprimir_rol_pago_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirRolPagoGeneral']);
     Route::get('imprimir_reporte_general_empleado', [EmpleadoController::class, 'imprimir_reporte_general_empleado']);
-    Route::get('verificar-todos_roles-finalizadas', [RolPagoMesController::class, 'verificarTodasRolesFinalizadas']);
+    Route::get('verificar-todos-roles-finalizadas', [RolPagoMesController::class, 'verificarTodasRolesFinalizadas']);
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'finalizarRolPago']);
     Route::get('habilitar-empleado', [EmpleadoController::class, 'HabilitaEmpleado']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirReporteGeneral']);
     Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
-    Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
+    Route::get('enviar-rol-pago-empleado/{rol_pago}',[RolPagosController::class, 'enviarRolPagoEmpleado']);
     Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crearCashRolPago']);
-    Route::get('actualizar-rol-pago/{rolPagoId}',[RolPagoMesController::class, 'refrescarRolPago']);
+    Route::get('actualizar-rol-pago/{rol}',[RolPagoMesController::class, 'refrescarRolPago']);
     Route::get('agregar-nuevos-empleados/{rol}',[RolPagoMesController::class, 'agregarNuevosEmpleados']);
     Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
     Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);

@@ -22,7 +22,7 @@ class SubtareaResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
@@ -57,8 +57,8 @@ class SubtareaResource extends JsonResource
             'hora_fin_trabajo' => $this->cargar('hora_fin_trabajo', $campos) ? $this->hora_fin_trabajo : null,
             'tipo_trabajo' => $this->cargar('tipo_trabajo', $campos) ? $this->tipo_trabajo?->descripcion : null,
             'fecha_hora_creacion' => $this->cargar('fecha_hora_creacion', $campos) ? $this->formatTimestamp($this->fecha_hora_creacion) : null,
-            'fecha_hora_agendado' => $this->cargar('fecha_hora_agendado', $campos) ? $this->formatTimestamp($this->fecha_hora_agendado) : null,
             'fecha_hora_asignacion' => $this->cargar('fecha_hora_asignacion', $campos) ? $this->formatTimestamp($this->fecha_hora_asignacion) : null,
+            'fecha_hora_agendado' => $this->cargar('fecha_hora_agendado', $campos) ? $this->formatTimestamp($this['fecha_inicio_trabajo'] . ' ' . $this['hora_inicio_trabajo']) : null,
             'fecha_hora_ejecucion' => $this->cargar('fecha_hora_ejecucion', $campos) ? $this->formatTimestamp($this->fecha_hora_ejecucion) : null,
             'fecha_hora_finalizacion' => $this->cargar('fecha_hora_finalizacion', $campos) ? $this->formatTimestamp($this->fecha_hora_finalizacion) : null,
             'fecha_hora_realizado' => $this->cargar('fecha_hora_realizado', $campos) ? $this->formatTimestamp($this->fecha_hora_realizado) : null,
@@ -92,7 +92,8 @@ class SubtareaResource extends JsonResource
             'etapa_id' => $tarea->etapa_id,
             'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null, // $tarea->proyecto_id,
             'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
-            'valor_alimentacion' => $this->valor_alimentacion,
+            'valor_alimentacion' => $this->obtenerValorAlimentacion(),
+            'gastos_adicionales' => $this['gastos_adicionales'],
         ];
 
         if ($controller_method == 'show') {
@@ -131,6 +132,18 @@ class SubtareaResource extends JsonResource
     private function formatTimestamp($timestamp)
     {
         if ($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
+    }
+
+    public function obtenerValorAlimentacion()
+    {
+        $alimentaciones_grupos = $this->alimentacionGrupo;
+        $suma_total = 0;
+
+        foreach ($alimentaciones_grupos as $alimentacion) {
+            $suma_total += $alimentacion->precio * $alimentacion->cantidad_personas;
+        }
+
+        return $suma_total;
     }
 
     public function extraerNombres($listado)
@@ -266,14 +279,6 @@ class SubtareaResource extends JsonResource
     private function puedeEjecutarHoy()
     {
         return $this->fecha_inicio_trabajo <= Carbon::today()->toDateString();
-    }
-
-    private function puedeIniciarHora()
-    {
-        $horaInicio = Carbon::parse($this->hora_inicio_trabajo)->format('H:i:s');
-
-        //return $horaInicio;// > Carbon::now(); //$this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);
-        return Carbon::now()->format('H:i:s') >= $horaInicio;
     }
 
     // borrar

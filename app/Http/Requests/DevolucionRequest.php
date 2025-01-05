@@ -31,7 +31,7 @@ class DevolucionRequest extends FormRequest
      */
     public function rules()
     {
-        $rules =  [
+        return [
             'justificacion' => 'required|string',
             'solicitante' => 'required|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
@@ -46,9 +46,8 @@ class DevolucionRequest extends FormRequest
             'sucursal' => 'required|numeric|exists:sucursales,id',
             'pedido_automatico' => 'boolean',
             'cliente' => 'nullable|sometimes|exists:clientes,id',
+            'incidente_id' => 'nullable|numeric|integer|exists:sso_incidentes,id',
         ];
-
-        return $rules;
     }
     public function attributes()
     {
@@ -101,7 +100,8 @@ class DevolucionRequest extends FormRequest
     protected function prepareForValidation() //esto se ejecuta antes de validar las rules
     {
         $this->merge([
-            'estado_bodega' => EstadoTransaccion::PENDIENTE
+            'estado_bodega' => EstadoTransaccion::PENDIENTE,
+            'incidente_id' => $this->incidente,
         ]);
 
         if (is_null($this->per_autoriza) || $this->per_autoriza === '') {

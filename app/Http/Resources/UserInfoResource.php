@@ -42,7 +42,8 @@ class UserInfoResource extends JsonResource
             'roles' => $this->getRoleNames(), // ->toArray()),
             'estado' => $this->empleado != null ? $empleado->estado : false,
             'es_lider' => $this->esTecnicoLider(),
-            'permisos' => $this->getAllPermissions()->pluck('name')->toArray(),
+            // 'permisos' => $this->getAllPermissions()->pluck('name')->toArray(),
+            'permisos' => $this->obtenerPermisos($this->id),
             'cargo' => $this->empleado != null ? $empleado->cargo?->nombre : '',
             'departamento' => $this->empleado ? $empleado->departamento_id : null,
             'es_responsable_departamento' => Departamento::where('responsable_id', $empleado->id)->exists(),
@@ -54,6 +55,7 @@ class UserInfoResource extends JsonResource
             'nombre_cargo' => $empleado->cargo?->nombre,
             'genero' => $empleado->genero,
             'edad' => Empleado::obtenerEdad($empleado),
+            'tiene_delegado'=> (bool) $empleado->delegado?->where('activo', true)->exists()
         ];
     }
 }

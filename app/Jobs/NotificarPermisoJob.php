@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Events\PermisoNotificacionEvent;
+use App\Events\RecursosHumanos\PermisoNotificacionEvent;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use Carbon\Carbon;
 use Exception;

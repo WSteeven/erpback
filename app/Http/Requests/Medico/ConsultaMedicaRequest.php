@@ -35,6 +35,8 @@ class ConsultaMedicaRequest extends FormRequest
             'cita_medica' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
             'dias_descanso' => 'nullable|numeric|integer',
             'dado_alta' => 'boolean',
+            'restricciones_alta' => 'nullable|string',
+            'observaciones_alta' => 'nullable|string',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

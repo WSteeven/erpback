@@ -69,8 +69,8 @@
 
 
         <p>Si tienes alguna pregunta o necesitas información adicional, no dudes en contactarnos. Puedes escribirnos a
-            <a href="mailto:recursos_humanos@jpconstrucred.com">recursos_humanos@jpconstrucred.com</a> o llamarnos al <a
-                href="tel:+593 98 890 9837">+593 98 890 9837</a>.</p>
+            <a href="mailto:{{$departamento_rrhh->correo}}">{{$departamento_rrhh->correo}}</a> o llamarnos al <a
+                href="tel:{{$departamento_rrhh->telefono}}">{{$departamento_rrhh->telefono}}</a>.</p>
 
         <p>Estamos emocionados por tenerte a bordo y deseamos verte en tu primer día. ¡Felicidades nuevamente y
             bienvenido a la familia de <strong>{{ $configuracion->razon_social }}</strong>!</p>
@@ -81,7 +81,7 @@
         <p>Atentamente,</p>
         <p><strong><a href="{{$url}}">FIRSTRED ERP</a></strong> <br>
             <strong>{{ $configuracion->razon_social }} </strong><br>
-            <strong><a href="https://www.jpconstrucred.com">{{ strtolower($configuracion->sitio_web) }}</a></strong>
+            <strong><a href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
         </p>
         <img src="{{ $logo_principal }}" alt="logo" width="120"/>
     </div>

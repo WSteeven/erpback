@@ -4,8 +4,8 @@ namespace Src\App\Vehiculos;
 
 use App\Events\Vehiculos\NotificarAdvertenciasVehiculoBitacora;
 use App\Events\Vehiculos\NotificarBajoNivelCombustible;
-use App\Events\vehiculos\NotificarDiferenciaKmToAdmin;
-use App\Events\vehiculos\NotificarMantenimientoCreado;
+use App\Events\Vehiculos\NotificarDiferenciaKmToAdmin;
+use App\Events\Vehiculos\NotificarMantenimientoCreado;
 use App\Events\Vehiculos\NotificarMantenimientoPendienteRetrasadoEvent;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
 use App\Http\Resources\Vehiculos\VehiculoResource;

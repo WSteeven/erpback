@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Src\App\WhereRelationLikeCondition\TrabajoCantonWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoClienteWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
-use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraCreacionWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraEjecucionWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoProyectoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTareaWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
@@ -209,7 +209,7 @@ class Trabajo extends Model implements Auditable
             TrabajoClienteWRLC::class,
             TrabajoProyectoWRLC::class,
             TrabajoTipoTrabajoWRLC::class,
-            TrabajoFechaHoraCreacionWRLC::class,
+            TrabajoFechaHoraEjecucionWRLC::class,
             TrabajoCantonWRLC::class,
             TrabajoCoordinadorWRLC::class,
             TrabajoTareaWRLC::class,
@@ -271,10 +271,10 @@ class Trabajo extends Model implements Auditable
         return $this->hasMany(ArchivoSubtarea::class);
     }
 
-    public function pausasTrabajo()
-    {
-        return $this->hasMany(PausaTrabajo::class);
-    }
+//    public function pausasTrabajo()
+//    {
+//        return $this->hasMany(PausaTrabajo::class);
+//    }
 
     public function proyecto()
     {

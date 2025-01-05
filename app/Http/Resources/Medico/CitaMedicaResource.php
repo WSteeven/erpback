@@ -35,6 +35,7 @@ class CitaMedicaResource extends JsonResource
             'dado_alta' => $this->consultaMedica?->dado_alta,
             'fecha_hora_accidente' => $this->fecha_hora_accidente,
             'tipo_cambio_cargo' => $this->tipo_cambio_cargo,
+            'accidente' => $this['accidente_id'],
         ];
     }
 }

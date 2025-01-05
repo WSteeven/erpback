@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PermisoResource extends JsonResource
@@ -9,8 +11,8 @@ class PermisoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -22,7 +24,8 @@ class PermisoResource extends JsonResource
         ];
         if($controller_method=='show'){
             $modelo['roles']= $this->roles()->pluck('name');
-            $modelo['empleados']= $this->users()->pluck('name');
+            $ids_users_inactivos = Empleado::where('estado', false)->pluck('usuario_id');
+            $modelo['empleados']= $this->users()->whereNotIn('id',$ids_users_inactivos)->pluck('name');
         }
         return $modelo;
     }

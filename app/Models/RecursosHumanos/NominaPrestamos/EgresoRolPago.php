@@ -3,13 +3,19 @@
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
+use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
+use Throwable;
 
 /**
  * App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago
@@ -20,35 +26,36 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $descuento_type
  * @property string $monto
  * @property int|null $empleado_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read Model|\Eloquent $descuento
+ * @property-read Model|Eloquent $descuento
  * @property-read Empleado|null $empleado
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago query()
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereDescuentoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereDescuentoType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereIdRolPago($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereMonto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EgresoRolPago whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|EgresoRolPago acceptRequest(?array $request = null)
+ * @method static Builder|EgresoRolPago filter(?array $request = null)
+ * @method static Builder|EgresoRolPago ignoreRequest(?array $request = null)
+ * @method static Builder|EgresoRolPago newModelQuery()
+ * @method static Builder|EgresoRolPago newQuery()
+ * @method static Builder|EgresoRolPago query()
+ * @method static Builder|EgresoRolPago setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|EgresoRolPago setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|EgresoRolPago setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|EgresoRolPago whereCreatedAt($value)
+ * @method static Builder|EgresoRolPago whereDescuentoId($value)
+ * @method static Builder|EgresoRolPago whereDescuentoType($value)
+ * @method static Builder|EgresoRolPago whereEmpleadoId($value)
+ * @method static Builder|EgresoRolPago whereId($value)
+ * @method static Builder|EgresoRolPago whereIdRolPago($value)
+ * @method static Builder|EgresoRolPago whereMonto($value)
+ * @method static Builder|EgresoRolPago whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class EgresoRolPago extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
+    use UppercaseValuesTrait;
     use Filterable;
     protected $table = 'egreso_rol_pago';
     protected $fillable = [
@@ -58,7 +65,11 @@ class EgresoRolPago extends Model implements Auditable
         'monto'
     ];
 
-    private static $whiteListFilter = [
+    protected $casts=[
+        'monto'=>'float'
+    ];
+
+    private static array $whiteListFilter = [
         'id',
         'descuento',
         'rol_pago',
@@ -75,78 +86,79 @@ class EgresoRolPago extends Model implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }
+
     /**
-     * This PHP function creates an expense for a payment role and returns a egreso.
+     * Esta función polimorfica crea un registro de egreso en determinado rol
+     * asociado a determinada entidad originadora.
      *
-     * @param rol_pago Rol de pago a la que pertenece egreso
-     * @param monto valor monetario del egreso
-     * @param entidad The variable "entidad" is an instance of a model class that has a relationship with
-     * the "egreso_rol_pago" table. The "->egreso_rol_pago()" method is used to create a new record in the
-     * "egreso_rol_pago" table associated with the "entidad
-     *
-     * @return the newly created "egreso_rol_pago" egreso object.
+     * @param RolPago $rol_pago
+     * @param $monto
+     * @param $entidad
+     * @return Collection
      */
     public static function crearEgresoRol(RolPago $rol_pago, $monto, $entidad)
     {
-        $egreso = $entidad->egreso_rol_pago()->create([
+        if($entidad->egreso_rol_pago()->where('id_rol_pago', $rol_pago->id)->exists()) {
+            Log::channel('testing')->info('Log', ['Ya existe el egreso rol para esta entidad', $entidad->egreso_rol_pago()->where('id_rol_pago', $rol_pago->id)->get()]);
+            return null;
+        }
+        return $entidad->egreso_rol_pago()->create([
             'id_rol_pago' => $rol_pago->id,
             'empleado_id' => $rol_pago->empleado_id,
             'monto' => $monto,
         ]);
-        return $egreso;
     }
     /**
      * La función "editarEgresoRol" actualiza los campos "id_role_pago" y "monto" de la tabla
      * "rol_pago" en la base de datos.
      *
-     * @param rol_pago El parámetro "rol_pago" es el ID del pago del rol que deseas editar. Se utiliza
-     * para identificar el pago del rol específico en la base de datos.
-     * @param monto El parámetro "monto" representa el monto actualizado para la entidad
-     * "egreso_rol_pago".
-     * @param entidad El parámetro "entidad" es una instancia de un modelo u objeto que representa una
-     * entidad en su aplicación. Se utiliza para acceder a la relación entre la entidad y la tabla
-     * "egreso_rol_pago".
-     *
-     * @return el objeto "egreso" actualizado.
      */
-    public static function editarEgresoRol($rol_pago, $monto, $egreso_id, $entidad)
-    {
-        $egreso = $entidad->egreso_rol_pago()->where('id', $egreso_id)->first();
-        $egreso->update([
-            'id_rol_pago' => $rol_pago->id,
-            'empleado_id' => $rol_pago->empleado_id,
-            'monto' => $monto,
-        ]);
-        return $egreso;
-    }
+//    public static function editarEgresoRol(RolPago $rol_pago,float $monto,int $egreso_id, Model $entidad)
+//    {
+//        $egreso = $entidad->egreso_rol_pago()->where('id', $egreso_id)->first();
+//        $egreso->update([
+//            'id_rol_pago' => $rol_pago->id,
+//            'empleado_id' => $rol_pago->empleado_id,
+//            'monto' => $monto,
+//        ]);
+//        return $egreso;
+//    }
 
-    public static function guardarEgresos($egreso, $rolPago)
-    {
-        try {
-            DB::beginTransaction();
-            $id_descuento = $egreso['id_descuento'];
-            $tipo = null;
-            $entidad = null;
-            switch ($egreso['tipo']) {
-                case 'DESCUENTO_GENERAL':
-                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales';
-                    $entidad = DescuentosGenerales::find($id_descuento);
-                    break;
-                case 'MULTA':
-                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\Multas';
-                    $entidad = Multas::find($id_descuento);
-                    break;
-            }
-            if (!$entidad) {
-                throw new \Exception("No se encontró la entidad para el ID de descuento: $id_descuento");
-            }
-            if (isset($egreso['id'])) {
-                EgresoRolPago::editarEgresoRol($rolPago, $egreso['monto'], $egreso['id'], $entidad);
-            }
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
+    /**
+     * Esta función actualiza cualquier cambio realizado en un egreso
+     * @throws Throwable
+     */
+//    public static function guardarEgresos(array $egreso,RolPago $rolPago){
+//        $entidad = "";//new EgresoRolPago();
+//        self::editarEgresoRol($rolPago, $egreso['monto'],$egreso['id'], $entidad);
+//    }
+//    public static function guardarEgresosOld(array $egreso,RolPago $rolPago)
+//    {
+//        try {
+//            DB::beginTransaction();
+//            $id_descuento = $egreso['id_descuento'];
+//            $tipo = null;
+//            $entidad = null;
+//            switch ($egreso['tipo']) {
+//                case 'DESCUENTO_GENERAL':
+//                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales';
+//                    $entidad = DescuentosGenerales::find($id_descuento);
+//                    break;
+//                case 'MULTA':
+//                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\Multas';
+//                    $entidad = Multas::find($id_descuento);
+//                    break;
+//            }
+//            if (!$entidad) {
+//                throw new Exception("No se encontró la entidad para el ID de descuento: $id_descuento");
+//            }
+//            if (isset($egreso['id'])) {
+//                EgresoRolPago::editarEgresoRol($rolPago, $egreso['monto'], $egreso['id'], $entidad);
+//            }
+//            DB::commit();
+//        } catch (Exception $e) {
+//            DB::rollBack();
+//            throw $e;
+//        }
+//    }
 }

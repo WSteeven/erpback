@@ -43,7 +43,7 @@
 
 <style>
     @page {
-        margin: 0cm 15px;
+        margin: 0 15px;
     }
 
     body {
@@ -53,10 +53,7 @@
         background-size: contain;
 
         /** Defina ahora los márgenes reales de cada página en el PDF **/
-        margin-top: 3cm;
-        margin-left: 1cm;
-        margin-right: 1cm;
-        margin-bottom: 2cm;
+        margin: 3cm 1cm 2cm;
 
         /** Define el texto **/
         font-family: Arial, sans-serif;
@@ -65,9 +62,9 @@
     /** Definir las reglas del encabezado **/
     header {
         position: fixed;
-        top: 0cm;
-        left: 0cm;
-        right: 0cm;
+        top: 0;
+        left: 0;
+        right: 0;
         height: 2cm;
         margin-top: 5px;
 
@@ -78,9 +75,9 @@
     /** Definir las reglas del pie de página **/
     footer {
         position: fixed;
-        bottom: 0px;
-        left: 0cm;
-        right: 0cm;
+        bottom: 0;
+        left: 0;
+        right: 0;
         margin-bottom: 5px;
         /* height: 2cm; */
 
@@ -96,8 +93,8 @@
     main {
         position: relative;
         font-size: 12px;
-        left: 0cm;
-        right: 0cm;
+        left: 0;
+        right: 0;
 
     }
 

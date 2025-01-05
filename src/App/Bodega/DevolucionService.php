@@ -2,8 +2,12 @@
 
 namespace Src\App\Bodega;
 
+use App\Events\DevolucionCreadaEvent;
+use App\Http\Requests\DevolucionRequest;
+use App\Http\Resources\DevolucionResource;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
+use App\Models\Condicion;
 use App\Models\DetalleDevolucionProducto;
 use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
@@ -11,10 +15,13 @@ use App\Models\Pedido;
 use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
+use Src\Shared\Utils;
 
 class DevolucionService
 {
@@ -106,7 +113,7 @@ class DevolucionService
     /**
      * La función "verificarItemsDevolucion" comprueba si hay artículos en una devolución que no hayan
      * sido devueltos en su totalidad y actualiza el estado de la devolución en consecuencia.
-     * 
+     *
      * @param DetalleDevolucionProducto $detalleDevolucionProducto Es un objeto que
      * representa un detalle específico de la devolución de un producto. Probablemente contenga
      * información como el ID de devolución, el ID del producto, la cantidad devuelta y la cantidad ya
@@ -158,5 +165,61 @@ class DevolucionService
             Log::channel('testing')->info('Log', ['ERROR', $th->getMessage(), $th->getLine()]);
             throw $th;
         }
+    }
+
+    /**
+     * @throws \Throwable
+     * @throws ValidationException
+     */
+    public static function guardarDevolucion(DevolucionRequest $request) {
+        // Log::channel('testing')->info('Log', ['recibido en el store de devoluciones', $request->all()]);
+        $url = '/devoluciones';
+        try {
+            DB::beginTransaction();
+
+            $devolucion = Devolucion::create(self::mapearRequest($request));
+            $modelo = new DevolucionResource($devolucion);
+
+            if ($request['misma_condicion']) {
+                foreach ($request['listadoProductos'] as $listado) {
+                    $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'condicion_id' => $request['condicion']]);
+                }
+            } else {
+                foreach ($request['listadoProductos'] as $listado) {
+                    $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
+                    $devolucion->detalles()->attach(
+                        $listado['id'],
+                        [
+                            'cantidad' => $listado['cantidad'],
+                            'observacion' => array_key_exists('observacion', $listado) ?  $listado['observacion'] : null,
+                            'condicion_id' => $condicion->id
+                        ]
+                    );
+                }
+            }
+
+
+            DB::commit();
+            $msg = 'Devolución N°' . $devolucion->id . ' ' . $devolucion->solicitante->nombres . ' ' . $devolucion->solicitante->apellidos . ' ha realizado una devolución en la sucursal ' . $devolucion->sucursal->lugar . ' . La autorización está ' . $devolucion->autorizacion->nombre;
+            event(new DevolucionCreadaEvent($msg, $url, $devolucion, $devolucion->solicitante_id, $devolucion->per_autoriza_id, false));
+            return $modelo;
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(['error' => [$e->getMessage() . '. ' . $e->getLine()]]);
+        }
+    }
+
+    private static function mapearRequest(DevolucionRequest $request) {
+        $datos = $request->validated();
+        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+        $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
+        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['stock_personal'] = $request['es_para_stock'];
+        return $datos;
     }
 }

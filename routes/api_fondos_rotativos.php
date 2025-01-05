@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\FondosRotativos\AjusteSaldoFondoRotativoController;
+use App\Http\Controllers\FondosRotativos\Gasto\AutorizadorDirectoController;
 use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
@@ -15,12 +16,14 @@ use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
 use App\Http\Controllers\FondosRotativos\Saldo\ValorAcreditarController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\UmbralFondosRotativosController;
+use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
         'ajustes-saldos' => AjusteSaldoFondoRotativoController::class,
+        'autorizadores-directos' => AutorizadorDirectoController::class,
         'detalles-viaticos' => DetalleViaticoController::class,
         'sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'gastos' => GastoController::class,
@@ -37,7 +40,10 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'ajustes-saldos' => 'ajuste'
+            'ajustes-saldos' => 'ajuste',
+            'transferencia' => 'transferencia',
+            'autorizadores-directos' => 'autorizador',
+
         ],
     ]
 );
@@ -69,6 +75,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::post('reporte-valores-fondos', [GastoController::class, 'reporteValoresFondos']);
+    Route::get('estados-viaticos', function () {
+        $results = EstadoViatico::all(['id', 'descripcion']);
+        return response()->json(compact('results'));
+    });
 });
 
 

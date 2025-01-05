@@ -16460,23 +16460,8 @@ namespace Barryvdh\DomPDF\Facade {
                         return $instance->setEncryption($password, $ownerpassword, $pc);
         }
             }
-            /**
-     *
-     *
-     * @method static BasePDF setBaseHost(string $baseHost)
-     * @method static BasePDF setBasePath(string $basePath)
-     * @method static BasePDF setCanvas(\Dompdf\Canvas $canvas)
-     * @method static BasePDF setCallbacks(array $callbacks)
-     * @method static BasePDF setCss(\Dompdf\Css\Stylesheet $css)
-     * @method static BasePDF setDefaultView(string $defaultView, array $options)
-     * @method static BasePDF setDom(\DOMDocument $dom)
-     * @method static BasePDF setFontMetrics(\Dompdf\FontMetrics $fontMetrics)
-     * @method static BasePDF setHttpContext(resource|array $httpContext)
-     * @method static BasePDF setPaper(string|float[] $paper, string $orientation = 'portrait')
-     * @method static BasePDF setProtocol(string $protocol)
-     * @method static BasePDF setTree(\Dompdf\Frame\FrameTree $tree)
-     * }
 
+    }
 
 namespace Maatwebsite\Excel\Facades {
             /**
@@ -21139,7 +21124,7 @@ namespace  {
             class PDF extends \Barryvdh\DomPDF\Facade\Pdf {}
             class Excel extends \Maatwebsite\Excel\Facades\Excel {}
             class QrCode extends \SimpleSoftwareIO\QrCode\Facades\QrCode {}
-             class Image extends \Intervention\Image\Facades\Image {}
+            class Image extends \Intervention\Image\Facades\Image {}
             class Socialite extends \Laravel\Socialite\Facades\Socialite {}
             class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}
     }

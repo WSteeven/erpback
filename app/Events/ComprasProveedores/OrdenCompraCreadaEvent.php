@@ -54,7 +54,7 @@ class OrdenCompraCreadaEvent implements ShouldBroadcast
 
     /**
      * La función devuelve un mensaje con el ID del pedido y el estado de autorización.
-     * 
+     *
      * @return string una cadena que incluye el ID del pedido y el estado de la autorización. El mensaje le
      * pide al destinatario que verifique y autorice o cancele el pedido.
      */

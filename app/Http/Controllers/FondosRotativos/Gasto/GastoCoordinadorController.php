@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Events\SolicitudFondosEvent;
-use App\Exports\GastoExport;
 use App\Exports\SolicitudFondosExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GastoCoordinadorRequest;

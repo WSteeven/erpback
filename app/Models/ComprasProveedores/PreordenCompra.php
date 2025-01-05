@@ -3,7 +3,6 @@
 namespace App\Models\ComprasProveedores;
 
 use App\Events\ComprasProveedores\PreordenCreadaEvent;
-use App\Events\ComprasProveedores\PreordenEvent;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
@@ -12,16 +11,21 @@ use App\Models\Notificacion;
 use App\Models\Pedido;
 use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 use Src\Config\Autorizaciones;
-use Src\Config\EstadosTransacciones;
+use Throwable;
 
 /**
  * App\Models\ComprasProveedores\PreordenCompra
@@ -34,38 +38,38 @@ use Src\Config\EstadosTransacciones;
  * @property int|null $autorizacion_id
  * @property string $estado
  * @property string|null $causa_anulacion
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Autorizacion|null $autorizacion
  * @property-read Empleado|null $autorizador
- * @property-read \Illuminate\Database\Eloquent\Collection<int, DetalleProducto> $detalles
+ * @property-read Collection<int, DetalleProducto> $detalles
  * @property-read int|null $detalles_count
  * @property-read Notificacion|null $latestNotificacion
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
  * @property-read Pedido|null $pedido
  * @property-read Empleado|null $solicitante
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra query()
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereAutorizacionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereAutorizadorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereCausaAnulacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra wherePedidoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PreordenCompra whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|PreordenCompra acceptRequest(?array $request = null)
+ * @method static Builder|PreordenCompra filter(?array $request = null)
+ * @method static Builder|PreordenCompra ignoreRequest(?array $request = null)
+ * @method static Builder|PreordenCompra newModelQuery()
+ * @method static Builder|PreordenCompra newQuery()
+ * @method static Builder|PreordenCompra query()
+ * @method static Builder|PreordenCompra setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|PreordenCompra setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|PreordenCompra setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|PreordenCompra whereAutorizacionId($value)
+ * @method static Builder|PreordenCompra whereAutorizadorId($value)
+ * @method static Builder|PreordenCompra whereCausaAnulacion($value)
+ * @method static Builder|PreordenCompra whereCreatedAt($value)
+ * @method static Builder|PreordenCompra whereEstado($value)
+ * @method static Builder|PreordenCompra whereId($value)
+ * @method static Builder|PreordenCompra wherePedidoId($value)
+ * @method static Builder|PreordenCompra whereSolicitanteId($value)
+ * @method static Builder|PreordenCompra whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class PreordenCompra extends Model implements Auditable
 {
@@ -87,7 +91,7 @@ class PreordenCompra extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________
@@ -188,12 +192,13 @@ class PreordenCompra extends Model implements Auditable
      * La función "generarPreorden" crea una preorden anticipado para una compra en función de un pedido y
      * artículos determinados.
      *
-     * @param Pedido pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema.
+     * @param Pedido $pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema.
      * Contiene información como la identificación del solicitante (solicitante), la identificación del
      * autorizador (autorizador) y la identificación de la autorización (autorización).
-     * @param Array items El parámetro "elementos" es una matriz de elementos que se asociarán con la
+     * @param array $items El parámetro "elementos" es una matriz de elementos que se asociarán con la
      * preorden. Cada elemento de la matriz representa un detalle del pedido previo y debe contener la
      * información necesaria para crear el registro de detalle en la base de datos.
+     * @throws Throwable
      */
     public static function generarPreorden($pedido, $items)
     {
@@ -219,6 +224,9 @@ class PreordenCompra extends Model implements Auditable
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public static function generarPreordenControlStock($item){
         $url = '/preordenes-compras';
         try {
@@ -237,7 +245,7 @@ class PreordenCompra extends Model implements Auditable
             $msg = self::generarMensajePreordenAutomaticaControlStock($preorden);
             event(new PreordenCreadaEvent($msg, User::ROL_BODEGA, $url, $preorden, true));
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Ha ocurrido un error en el método generarPreordenControlStock', $th->getMessage(), $th->getLine()]);
             throw $th;
@@ -248,9 +256,9 @@ class PreordenCompra extends Model implements Auditable
      * La función "listadoProductos" recupera detalles de productos de una pre-orden de compra y los
      * devuelve en una matriz.
      *
-     * @param int id El parámetro "id" es un número entero que representa el ID de una preorden de compra.
+     * @param int $id El parámetro "id" es un número entero que representa el ID de una preorden de compra.
      *
-     * @return una matriz de detalles del producto para una identificación de compra de pedido
+     * @return array una matriz de detalles del producto para una identificación de compra de pedido
      * anticipado determinada. Cada detalle de producto incluye el ID, el nombre, la descripción, la
      * categoría, la unidad de medida, el número de serie, la cantidad y los valores calculados para el
      * precio, el impuesto, el subtotal y el total.
@@ -279,6 +287,9 @@ class PreordenCompra extends Model implements Auditable
         return $results;
     }
 
+    /**
+     * @throws Throwable
+     */
     public static function itemsPreordenesPendientes()
     {
         try {
@@ -303,12 +314,15 @@ class PreordenCompra extends Model implements Auditable
             }
 
             return $results;
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['Error: ', $th->getMessage(), $th->getLine()]);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public static function eliminarItemsConsolidacion($ids_detalle_id)
     {
         try {
@@ -317,19 +331,22 @@ class PreordenCompra extends Model implements Auditable
             ItemDetallePreordenCompra::whereIn('preorden_id', $ids_preordenes)->whereIn('detalle_id', $ids_detalle_id)->delete();
             self::verificarPreordenesPendientes();
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public static function verificarPreordenesPendientes()
     {
         try {
             DB::beginTransaction();
             PreordenCompra::whereDoesntHave('detalles')->update(['estado' => EstadoTransaccion::ANULADA, 'causa_anulacion' => 'sin elementos, anulada por consolidacion de items']);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw $th;
         }

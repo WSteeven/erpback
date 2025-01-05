@@ -3,58 +3,46 @@
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
-use Carbon\Carbon;
+use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
 
 class VacacionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
+
         $modelo = [
             'id' => $this->id,
-            'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado_info != null ? $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos : '',
-            'id_jefe_inmediato' => $this->empleado_info->jefe_id,
-            'fecha_inicio' =>  $this->fecha_inicio,
-            'fecha_fin' => $this->fecha_fin,
-            'numero_dias' => $this->calcular_dias($this->fecha_inicio,$this->fecha_fin),
-            'fecha_inicio_rango1_vacaciones' =>$this->fecha_inicio_rango1_vacaciones ? Carbon::parse($this->fecha_inicio_rango1_vacaciones)->format('Y-m-d'):null,
-            'fecha_fin_rango1_vacaciones' =>  $this->fecha_fin_rango1_vacaciones? Carbon::parse($this->fecha_fin_rango1_vacaciones)->format('Y-m-d'):null,
-            'numero_dias_rango1' => $this->calcular_dias($this->fecha_inicio_rango1_vacaciones,$this->fecha_fin_rango1_vacaciones),
-            'fecha_inicio_rango2_vacaciones' => $this->fecha_inicio_rango2_vacaciones? Carbon::parse($this->fecha_inicio_rango2_vacaciones)->format('Y-m-d'):null,
-            'fecha_fin_rango2_vacaciones' =>   $this->fecha_fin_rango2_vacaciones?Carbon::parse($this->fecha_fin_rango2_vacaciones)->format('Y-m-d'):null,
-            'numero_dias_rango2' => $this->calcular_dias($this->fecha_inicio_rango2_vacaciones,$this->fecha_fin_rango2_vacaciones),
-            'periodo' =>   $this->periodo_id,
-            'periodo_info' => $this->periodo_info? $this->periodo_info->nombre:'' ,
-            'solicitud' =>   $this->solicitud,
-            'estado' => $this->estado,
-            'estado_permiso_info' => $this->estado_permiso_info ?$this->estado_permiso_info->nombre:'',
-            'numero_rangos' => $this->numero_rangos,
-            'created_at' => $this->created,
-            'reemplazo' => Empleado::extraerNombresApellidos($this->reemplazo)
+            'empleado' => Empleado::extraerNombresApellidos(Empleado::find($this->empleado_id)),
+            'empleado_id' => $this->empleado_id,
+            'periodo' => $this->periodo->nombre,
+            'periodo_id' => $this->periodo_id,
+            'opto_pago' => $this->opto_pago,
+            'completadas' => $this->completadas,
+            'dias_tomados' => $this->detalles()->sum('dias_utilizados'), //esto es calculo
+            'detalles' => DetalleVacacionResource::collection($this->detalles()->get()),
+//            'dias_disponibles' => $this->dias - $this->detalles()->sum('dias_utilizados'), // esto tambien es calculado
+            'dias_disponibles' => VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado(Vacacion::find($this->id)), // esto tambien es calculado
+//            'dias' => $this->dias,
+            'dias' =>$this->detalles()->sum('dias_utilizados') + VacacionService::calcularDiasDeVacacionesPeriodoSeleccionado(Vacacion::find($this->id)),
+            'observacion'=>$this->observacion,
+            'mes_pago'=>$this->mes_pago,
         ];
 
-        if($controller_method === 'show'){
-            $modelo['reemplazo'] = $this->reemplazo_id;
-            $modelo['funciones'] = $this->funciones;
-            $modelo['autorizador'] = $this->autorizador_id;
+        if ($controller_method == 'show') {
+            $modelo['empleado'] = $this->empleado_id;
+            $modelo['fecha_ingreso'] = $this->empleado->fecha_ingreso;
+            $modelo['periodo'] = $this->periodo_id;
         }
         return $modelo;
-    }
-
-    private function calcular_dias($fecha_inicio, $fecha_fin)
-    {
-        $fechaInicio = Carbon::parse($fecha_inicio);
-        $fechaFin = Carbon::parse($fecha_fin);
-        // Calcular la diferencia en días
-        return  $fechaInicio->diffInDays($fechaFin);
     }
 }

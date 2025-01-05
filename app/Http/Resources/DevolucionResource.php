@@ -39,8 +39,8 @@ class DevolucionResource extends JsonResource
             'created_at' => date('Y-m-d', strtotime($this->created_at)),
             'updated_at' => $this->updated_at,
 
-            'es_tarea' => $this->tarea ? true : false,
-            'tiene_observacion_aut' => $this->observacion_aut ? true : false,
+            'es_tarea' => (bool)$this->tarea,
+            'tiene_observacion_aut' => (bool)$this->observacion_aut,
             'cliente' => $this->cliente?->empresa->razon_social,
             'cliente_id' => $this->cliente_id,
             'sucursal' => $this->sucursal?->lugar,

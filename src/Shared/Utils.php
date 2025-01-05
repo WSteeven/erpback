@@ -33,6 +33,7 @@ class Utils
         "November" => "Noviembre",
         "December" => "Diciembre"
     );
+
     public static function esBase64(string $imagen): bool
     {
         return str_contains($imagen, ';base64');
@@ -135,8 +136,9 @@ class Utils
      * método `obtenerMensajeError`, que toma un objeto `Exception` o `Throwable` y un texto
      * personalizado como parámetros.
      */
-    public static function obtenerMensajeErrorLanzable(Exception|Throwable $e, string $textoPersonalizado=''){
-        return ValidationException::withMessages(['error'=> self::obtenerMensajeError($e, $textoPersonalizado)]);
+    public static function obtenerMensajeErrorLanzable(Exception|Throwable $e, string $textoPersonalizado = '')
+    {
+        return ValidationException::withMessages(['error' => self::obtenerMensajeError($e, $textoPersonalizado)]);
     }
 
     /**
@@ -155,6 +157,29 @@ class Utils
     public static function obtenerMensajeError(Exception|Throwable $e, string $textoPersonalizado = '')
     {
         return '[ERROR][' . $e->getLine() . ']: ' . $textoPersonalizado . ' .' . $e->getMessage();
+    }
+
+    public static function metodoNoDesarrollado()
+    {
+        return 'Método no desarrollado, por favor contacta al departamento de Informática para más información.';
+    }
+
+    /**
+     * Calcula la diferencia entre dos fechas incluyendo ambas fechas por defecto para contar los días transcurridos
+     * @param string|null $fecha_inicio
+     * @param string|null $fecha_fin
+     * @param bool $inclusive
+     * @return int
+     */
+    public static function calcularDiasTranscurridos(string|null $fecha_inicio, string|null $fecha_fin, bool $inclusive = true)
+    {
+        $fechaInicio = Carbon::parse($fecha_inicio);
+        $fechaFin = Carbon::parse($fecha_fin);
+        // Calcular la diferencia en días
+        if ($inclusive)
+            return $fechaInicio->diffInDays($fechaFin) + 1;
+        else
+            return $fechaInicio->diffInDays($fechaFin);
     }
 
     /**
@@ -179,7 +204,7 @@ class Utils
      * Para una validación más completa se debe usar expresiones regulares.
      *
      */
-    public static function validarEmail(String $email)
+    public static function validarEmail(string $email)
     { //Aún no está probada
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return true;
@@ -231,12 +256,11 @@ class Utils
         //minuto es la division entre el sobrante y 60 segundos que representa un minuto;
         $minutos = floor($mod_minuto / 60);
         if ($minutos <= 0) {
-            $text =  $min . " segundoxxx(s)";
+            $text = $min . " segundoxxx(s)";
         } elseif ($horas <= 0) {
             $text = $minutos . ' minuto(s)';
         } elseif ($dias <= 0) {
-            if ($type == 'round')
-            //nos apoyamos de la variable type para especificar si se muestra solo las horas
+            if ($type == 'round') //nos apoyamos de la variable type para especificar si se muestra solo las horas
             {
                 $text = $horas . ' hora(s)';
             } else {
@@ -267,12 +291,11 @@ class Utils
         //minuto es la division entre el sobrante y 60 segundos que representa un minuto;
         $minutos = floor($mod_minuto / 60);
         if ($minutos <= 0) {
-            $text =  $sec . " segundoxxx(s)";
+            $text = $sec . " segundoxxx(s)";
         } elseif ($horas <= 0) {
             $text = $minutos . ' minuto(s)';
         } elseif ($dias <= 0) {
-            if ($type == 'round')
-            //nos apoyamos de la variable type para especificar si se muestra solo las horas
+            if ($type == 'round') //nos apoyamos de la variable type para especificar si se muestra solo las horas
             {
                 $text = $horas . ' hora(s)';
             } else {
@@ -402,7 +425,7 @@ class Utils
         return Carbon::now()->diffInDays($nueva_fecha, false);
     }
 
-    public static function convertArrayToString($array, $separator=',')
+    public static function convertArrayToString($array, $separator = ',')
     {
         // Log::channel('testing')->info('Log', ['Array recibido', $array, 'separator', $separator]);
         if (is_array($array) && count($array) > 0) {
@@ -428,6 +451,7 @@ class Utils
             '#e6e6e6'
         ];
     }
+
     public static function coloresBlueTeal()
     {
         return [
@@ -442,6 +466,7 @@ class Utils
             "gray",
         ];
     }
+
     public static function coloresAzulPrincipal()
     {
         return [
@@ -456,6 +481,7 @@ class Utils
             "#ee82ee",
         ];
     }
+
     public static function coloresAmarilloPrincipal()
     {
         return [
@@ -470,6 +496,7 @@ class Utils
             "#f0e68c",
         ];
     }
+
     public static function coloresVintagePrincipal()
     {
         return [
@@ -484,6 +511,7 @@ class Utils
             "#696969",
         ];
     }
+
     public static function coloresAqua()
     {
         return [
@@ -543,6 +571,7 @@ class Utils
             "#1a4795",
         ];
     }
+
     public function coloresTemaMapaCalor()
     {
         return [
@@ -557,6 +586,7 @@ class Utils
             "#7eff00",
         ];
     }
+
     public function coloresTemaMapaFrio()
     {
         return [
@@ -571,6 +601,7 @@ class Utils
             "#ffff87",
         ];
     }
+
     public static function coloresEstadosEgresos()
     {
         return [
@@ -580,6 +611,7 @@ class Utils
             "#e74c3c", // anulada
         ];
     }
+
     public static function coloresEstadosDevoluciones()
     {
         return [
@@ -590,6 +622,7 @@ class Utils
             "#2ecc71", // completa
         ];
     }
+
     public static function coloresAleatorios()
     {
         return [
@@ -605,6 +638,7 @@ class Utils
             "#27ae60"  // Esmeralda
         ];
     }
+
     public static function coloresAleatorios2()
     {
         return [
@@ -650,7 +684,7 @@ class Utils
                 return 10; //octubre
             case '0':
                 return 11; //noviembre
-                // case '11': return null //diciembre, se retorna null por los rezagados
+            // case '11': return null //diciembre, se retorna null por los rezagados
             default:
                 return null;
         }
@@ -675,6 +709,7 @@ class Utils
             return null;
         }
     }
+
     /**
      * ______________________________________________________________________________________
      * FUNCIONES (tomadas del codigo de Yefraina)
@@ -748,23 +783,23 @@ class Utils
                 case 10:
                     return "DIEZ ";
                 case 11:
-                    return  "ONCE ";
+                    return "ONCE ";
                 case 12:
-                    return  "DOCE ";
+                    return "DOCE ";
                 case 13:
                     return "TRECE ";
                 case 14:
-                    return  "CATORCE ";
+                    return "CATORCE ";
                 case 15:
                     return "QUINCE ";
                 case 16:
-                    return  "DIECISEIS ";
+                    return "DIECISEIS ";
                 case 17:
-                    return  "DIECISIETE ";
+                    return "DIECISIETE ";
                 case 18:
                     return "DIECIOCHO ";
                 case 19:
-                    return  "DIECINUEVE ";
+                    return "DIECINUEVE ";
             }
         } else
             $numd = self::unidad($numero);
@@ -773,7 +808,7 @@ class Utils
 
     private static function centena($numc)
     {
-        $numce="";
+        $numce = "";
         if ($numc >= 100) {
             if ($numc >= 900 && $numc <= 999) {
                 $numce = "NOVECIENTOS ";
@@ -923,7 +958,7 @@ class Utils
      * @param string $numero El número entero o decimal del cual se obtendrá su valor en texto
      * @return string El valor expresado en texto, tal como se muestra en los cheques.
      */
-    public static function  obtenerValorMonetarioTexto($numero)
+    public static function obtenerValorMonetarioTexto($numero)
     {
         $pais = config('app.pais');
 
@@ -933,7 +968,7 @@ class Utils
         $num = (int)$num;
 
         $numf = self::milmillon($num);
-        switch($pais){
+        switch ($pais) {
             case PaisesOperaciones::PERU:
                 return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
             default:

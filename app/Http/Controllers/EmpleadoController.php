@@ -13,17 +13,21 @@ use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Licencia;
 use DateTime;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Src\App\EmpleadoService;
-use Src\Shared\Utils;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
-use Src\App\FondosRotativos\ReportePdfExcelService;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Spatie\Permission\Models\Role;
 use Src\App\ArchivoService;
+use Src\App\EmpleadoService;
+use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\PolymorphicGenericService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
+use Src\Shared\Utils;
+use Throwable;
 
 
 class EmpleadoController extends Controller
@@ -31,6 +35,7 @@ class EmpleadoController extends Controller
     private string $entidad = 'Empleado';
     private EmpleadoService $servicio;
     private ReportePdfExcelService $reporteService;
+    private PolymorphicGenericService $polymorphicGenericService;
     private ArchivoService $archivoService;
 
 
@@ -39,6 +44,7 @@ class EmpleadoController extends Controller
         $this->servicio = new EmpleadoService();
         $this->reporteService = new ReportePdfExcelService();
         $this->archivoService = new ArchivoService();
+        $this->polymorphicGenericService = new PolymorphicGenericService();
 
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
@@ -53,7 +59,6 @@ class EmpleadoController extends Controller
         $search = request('search');
         $campos = request('campos') ? explode(',', request('campos')) : '*';
 
-        $user = User::find(auth()->id());
 
         // Devuelve en un array al  empleado resposanble del departamento que se pase como parametro
         // Requiere de campos: es_responsable_departamento=true&departamento_id=
@@ -65,7 +70,7 @@ class EmpleadoController extends Controller
         }
 
         // Si es de RRHH devuelve incluso de inactivos
-        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) {
+        if (auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS])) {
             return $this->servicio->obtenerTodosSinEstado();
         }
 
@@ -96,6 +101,7 @@ class EmpleadoController extends Controller
 
     /**
      * Guardar
+     * @throws Throwable
      */
     public function store(EmpleadoRequest $request)
     {
@@ -120,7 +126,7 @@ class EmpleadoController extends Controller
         try {
             DB::beginTransaction();
             $username = $this->generarNombreUsuario($datos);
-            $email = $username . '@' . explode("@", $datos['email'])[1];
+//            $email = $username . '@' . explode("@", $datos['email'])[1];
             $user = User::create([
                 'name' => $username,
                 'email' => $datos['email'],
@@ -130,17 +136,18 @@ class EmpleadoController extends Controller
             $datos['usuario_id'] = $user->id;
             $datos['fecha_vinculacion'] = $datos['fecha_ingreso'];
             $datos['fecha_nacimiento'] = new DateTime($datos['fecha_nacimiento']);
-            $datos['fecha_salida'] = $datos['fecha_salida'] ? $datos['fecha_salida'] : null;
+            $datos['fecha_salida'] = $datos['fecha_salida'] ?: null;
 
             //Crear empleado
             $empleado = $user->empleado()->create($datos);
-            if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+            if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades($user, $datos['discapacidades']);
             //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
             if (!empty($request->conductor)) {
                 $datos_conductor = $request->conductor;
                 $datos_conductor['empleado_id'] = $empleado->id;
-                $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
-                $conductor = Conductor::create($datos_conductor);
+                $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia']);
+                /* $conductor = */
+                Conductor::create($datos_conductor);
             }
 
 
@@ -175,22 +182,25 @@ class EmpleadoController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    public function existeResponsableGrupo(Request $request)
-    {
-        $request->validate([
-            'grupo_id' => 'required|numeric|integer',
-        ]);
-
-        $responsableActualGrupo = Empleado::where('grupo_id', $request['grupo_id'])->where('es_responsable_grupo', true)->first();
-
-        if ($responsableActualGrupo) {
-            throw ValidationException::withMessages([
-                'responsable_grupo' => ['Ya existe un empleado designado como responsable del grupo. ¿Desea reemplazarlo por el empleado actual?'],
-            ]);
-        }
-
-        return response()->isOk();
-    }
+    /**
+     * @throws ValidationException
+     */
+//    public function existeResponsableGrupo(Request $request)
+//    {
+//        $request->validate([
+//            'grupo_id' => 'required|numeric|integer',
+//        ]);
+//
+//        $responsableActualGrupo = Empleado::where('grupo_id', $request['grupo_id'])->where('es_responsable_grupo', true)->first();
+//
+//        if ($responsableActualGrupo) {
+//            throw ValidationException::withMessages([
+//                'responsable_grupo' => ['Ya existe un empleado designado como responsable del grupo. ¿Desea reemplazarlo por el empleado actual?'],
+//            ]);
+//        }
+//
+//        return response()->isOk();
+//    }
 
     /**
      * Consultar
@@ -198,12 +208,13 @@ class EmpleadoController extends Controller
     public function show(Empleado $empleado)
     {
         $modelo = new EmpleadoResource($empleado);
-        $modelo['conductor'] = new ConductorResource($modelo->conductor);
+        if($modelo->conductor) $modelo['conductor'] = new ConductorResource($modelo->conductor);
         return response()->json(compact('modelo'));
     }
 
     /**
      * Actualizar
+     * @throws Throwable
      */
     public function update(EmpleadoRequest $request, Empleado $empleado)
     {
@@ -228,14 +239,14 @@ class EmpleadoController extends Controller
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
-        if (array_key_exists('discapacidades', $datos)) $this->servicio->agregarDiscapacidades($empleado, $datos['discapacidades']);
+        if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades(User::find($empleado->usuario_id), $datos['discapacidades']);
         if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
 
         //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
         if (!empty($request->conductor)) {
             $datos_conductor = $request->conductor;
             $datos_conductor['empleado_id'] = $empleado->id;
-            $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
+            $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia']);
             //buscamos un conductor
             $conductor = Conductor::find($empleado->id);
             if ($conductor) {
@@ -321,6 +332,10 @@ class EmpleadoController extends Controller
     }
 
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function designarLiderGrupo(Request $request, Empleado $empleado)
     {
         $request->validate([
@@ -392,69 +407,79 @@ class EmpleadoController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function designarSecretarioGrupo(Request $request)
-    {
-        /* $request->validate([
-            'grupo' => 'required|numeric|integer',
-            'nuevo_jefe' => 'required|numeric|integer',
-        ]);
+//    public function designarSecretarioGrupo(Request $request)
+//    {
+//        /* $request->validate([
+//            'grupo' => 'required|numeric|integer',
+//            'nuevo_jefe' => 'required|numeric|integer',
+//        ]);
+//
+//        // Empleados
+//        $empleados = Grupo::find($request['grupo'])->empleados;
+//        $secretarioActual = null;
+//
+//        // Buscar secretario actual
+//        foreach ($empleados as $empleado) {
+//            $es_secretario = in_array(User::ROL_TECNICO_SECRETARIO, $empleado->user->getRoleNames()->toArray()); //()->with(User::ROL_TECNICO_JEFE_CUADRILLA)->first();
+//            if ($es_secretario) $secretarioActual = $empleado->user;
+//        }
+//
+//        $nuevoJefe = User::find(Empleado::find($request['nuevo_jefe'])->usuario_id);
+//
+//        Log::channel('testing')->info('Log', ['Grupo empleado ', Empleado::find($request['nuevo_jefe'])->grupo_id]);
+//        Log::channel('testing')->info('Log', ['Grupo asignado ', $request['grupo']]);
+//
+//        // Validar que el empleado pertenezca al grupo seleccionado
+//        if (Empleado::find($request['nuevo_jefe'])->grupo_id !== $request['grupo']) {
+//            throw ValidationException::withMessages([
+//                'error_grupo' => ['Este empleado no pertenece al grupo seleccionado. Asígnelo y vuelva a intentar.'],
+//            ]);
+//        }
+//
+//        // Validar que nuevo jefe no sea secretario
+//        if (in_array(User::ROL_TECNICO_JEFE_CUADRILLA, $nuevoJefe->getRoleNames()->toArray())) {
+//            throw ValidationException::withMessages([
+//                'jefe_cuadrilla' => ['Este empleado tiene rol de Jefe de cuadrilla. Cámbielo y vuelva a intentar.'],
+//            ]);
+//        }
+//
+//        // Quitar rol de secretario al actual
+//        $nuevosRolesAnteriorJefe = $secretarioActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_TECNICO_SECRETARIO);
+//        $secretarioActual->syncRoles($nuevosRolesAnteriorJefe);
+//
+//        // Agregar rol de secretario a nuevo secretario
+//        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_SECRETARIO);
+//        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
+//
+//        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
+//    }
 
-        // Empleados
-        $empleados = Grupo::find($request['grupo'])->empleados;
-        $secretarioActual = null;
-
-        // Buscar secretario actual
-        foreach ($empleados as $empleado) {
-            $es_secretario = in_array(User::ROL_TECNICO_SECRETARIO, $empleado->user->getRoleNames()->toArray()); //()->with(User::ROL_TECNICO_JEFE_CUADRILLA)->first();
-            if ($es_secretario) $secretarioActual = $empleado->user;
-        }
-
-        $nuevoJefe = User::find(Empleado::find($request['nuevo_jefe'])->usuario_id);
-
-        Log::channel('testing')->info('Log', ['Grupo empleado ', Empleado::find($request['nuevo_jefe'])->grupo_id]);
-        Log::channel('testing')->info('Log', ['Grupo asignado ', $request['grupo']]);
-
-        // Validar que el empleado pertenezca al grupo seleccionado
-        if (Empleado::find($request['nuevo_jefe'])->grupo_id !== $request['grupo']) {
-            throw ValidationException::withMessages([
-                'error_grupo' => ['Este empleado no pertenece al grupo seleccionado. Asígnelo y vuelva a intentar.'],
-            ]);
-        }
-
-        // Validar que nuevo jefe no sea secretario
-        if (in_array(User::ROL_TECNICO_JEFE_CUADRILLA, $nuevoJefe->getRoleNames()->toArray())) {
-            throw ValidationException::withMessages([
-                'jefe_cuadrilla' => ['Este empleado tiene rol de Jefe de cuadrilla. Cámbielo y vuelva a intentar.'],
-            ]);
-        }
-
-        // Quitar rol de secretario al actual
-        $nuevosRolesAnteriorJefe = $secretarioActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_TECNICO_SECRETARIO);
-        $secretarioActual->syncRoles($nuevosRolesAnteriorJefe);
-
-        // Agregar rol de secretario a nuevo secretario
-        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_SECRETARIO);
-        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
-
-        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
-    }
-
+    /**
+     * Obtiene los empleados que tengan los roles enviados en la `$request`. Enviar `$request->excluir:true` para devolver los empleados que no tienen el/los role/s enviados
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function empleadosRoles(Request $request)
     {
         $results = [];
-        $roles = [];
         if (!is_null($request->roles)) {
             $roles = explode(',', $request->roles);
-            $results = EmpleadoRolePermisoResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
-                $query->where('estado', true);
-            })->get());
+            if ($request->excluir) { // devuelve los usuarios que no tienen los roles proporcionados en $request->roles
+//                $roles_filtrados =Role::whereNotIn('name', [User::ROL_TECNICO, User::ROL_LIDER_DE_GRUPO, User::ROL_EMPLEADO])->get();
+                $roles_filtrados = Role::whereNotIn('name', $roles)->get();
+                $results = EmpleadoRolePermisoResource::collection(User::role($roles_filtrados)->with('empleado')->whereHas('empleado', function ($query) {
+                    $query->where('estado', true);
+                })->get());
+            } else
+                $results = EmpleadoRolePermisoResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
+                    $query->where('estado', true);
+                })->get());
         }
         return response()->json(compact('results'));
     }
 
     public function empleadoPermisos(Request $request)
     {
-        $permisos = [];
         $results = [];
         if (!is_null($request->permisos)) {
             $permisos = explode(',', $request->permisos);
@@ -464,6 +489,9 @@ class EmpleadoController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Exception
+     */
     public function imprimir_reporte_general_empleado()
     {
         $reportes = Empleado::where('estado', 1)
@@ -477,7 +505,7 @@ class EmpleadoController extends Controller
         $results = Empleado::empaquetarListado($reportes);
         $nombre_reporte = 'lista_empleados';
         $vista = 'recursos-humanos.empleados';
-        return $this->reporteService->imprimirReporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
+        return $this->reporteService->imprimirReporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista);
     }
 
     /**
@@ -498,7 +526,6 @@ class EmpleadoController extends Controller
         // Comprobamos si el nombre de usuario ya existe
         $query = User::where('name', $nombreUsuario)->get();
         $username = $nombreUsuario;
-        $inicio_username = '';
         if ($query->count() > 0) {
             // Separamos el nombre y el apellido en dos cadenas
             $nombre = explode(" ", $nombres);
@@ -528,16 +555,16 @@ class EmpleadoController extends Controller
         return response()->json(compact('username'));
     }
 
-    public function empleadosConSaldoFondosRotativos(Request $request)
+    public function empleadosConSaldoFondosRotativos()
     {
-        $campos = request('campos') ? explode(',', request('campos')) : '*';
+//        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $empleados = $this->servicio->obtenerEmpleadosConSaldoFondosRotativos();
 
         $results = EmpleadoResource::collection($empleados);
         return response()->json(compact('results'));
     }
 
-    public function empleadosConOrdenes(Request $request)
+    public function empleadosConOrdenes()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         $empleados = Empleado::has('ordenesCompras')->ignoreRequest(['campos'])->filter()->get($campos);
@@ -546,13 +573,16 @@ class EmpleadoController extends Controller
         return response()->json(compact('results'));
     }
 
-    function obtenerEmpleadosFondosRotativos(Request $request)
+    /**
+     * @throws ValidationException
+     */
+    function obtenerEmpleadosFondosRotativos()
     {
         try {
             $empleados = Empleado::has('gastos')->get();
 
             $results = EmpleadoResource::collection($empleados);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th)]);
         }
         return response()->json(compact('results'));
@@ -561,7 +591,7 @@ class EmpleadoController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, Empleado $empleado)
+    public function indexFiles(Empleado $empleado)
     {
         try {
             $results = $this->archivoService->listarArchivos($empleado);
@@ -581,7 +611,7 @@ class EmpleadoController extends Controller
         try {
             $modelo = $this->archivoService->guardarArchivo($empleado, $request->file, RutasStorage::DOCUMENTOS_DIGITALIZADOS_EMPLEADOS->value . $empleado->identificacion);
             $mensaje = 'Archivo subido correctamente';
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpleadoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);

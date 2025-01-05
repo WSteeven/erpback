@@ -63,6 +63,7 @@ use App\Traits\UppercaseValuesTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereTelefono($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereTipoContribuyente($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral first($value)
  * @mixin \Eloquent
  */
 class ConfiguracionGeneral extends Model implements Auditable

@@ -118,6 +118,7 @@ class Prefactura extends Model implements Auditable
     {
         return $this->hasMany(ItemDetallePrefactura::class);
     }
+
     /**
      * Relación uno a muchos (inversa).
      * Uno o varias prefacturas pertencen a un solicitante.
@@ -201,6 +202,7 @@ class Prefactura extends Model implements Auditable
 
         return $results;
     }
+
     public static function obtenerSumaListado($id)
     {
         $prefactura = Prefactura::find($id);
@@ -254,7 +256,10 @@ class Prefactura extends Model implements Auditable
     public static function filtrarPrefacturasEmpleado()
     {
         return Prefactura::where(function ($query) {
-            $query->orWhere('solicitante_id', auth()->user()->empleado->id);
+            $query->orWhere('solicitante_id', auth()->user()->empleado->id)
+                ->orWhereHas('audits',function ($q) {
+                    $q->where('user_id', auth()->user()->id);
+                });
         })->ignoreRequest(['solicitante_id'])->filter()->orderBy('updated_at', 'desc')->get();
     }
 

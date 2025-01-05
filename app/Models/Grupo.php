@@ -5,11 +5,16 @@ namespace App\Models;
 use App\Models\Tareas\CentroCosto;
 use App\Models\Tareas\SubcentroCosto;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Grupo
@@ -17,35 +22,35 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property int $id
  * @property string $nombre
  * @property bool $activo
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $coordinador_id
  * @property string|null $region
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Empleado|null $coordinador
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Empleado> $empleados
+ * @property-read Empleado|null $coordinador
+ * @property-read Collection<int, Empleado> $empleados
  * @property-read int|null $empleados_count
  * @property-read SubcentroCosto|null $subCentroCosto
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subtarea> $subtareas
+ * @property-read Collection<int, Subtarea> $subtareas
  * @property-read int|null $subtareas_count
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo query()
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo whereActivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo whereCoordinadorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo whereRegion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Grupo whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Grupo acceptRequest(?array $request = null)
+ * @method static Builder|Grupo filter(?array $request = null)
+ * @method static Builder|Grupo ignoreRequest(?array $request = null)
+ * @method static Builder|Grupo newModelQuery()
+ * @method static Builder|Grupo newQuery()
+ * @method static Builder|Grupo query()
+ * @method static Builder|Grupo setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Grupo setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Grupo setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Grupo whereActivo($value)
+ * @method static Builder|Grupo whereCoordinadorId($value)
+ * @method static Builder|Grupo whereCreatedAt($value)
+ * @method static Builder|Grupo whereId($value)
+ * @method static Builder|Grupo whereNombre($value)
+ * @method static Builder|Grupo whereRegion($value)
+ * @method static Builder|Grupo whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Grupo extends Model implements Auditable
 {
@@ -65,9 +70,10 @@ class Grupo extends Model implements Auditable
         'activo' => 'boolean',
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'nombre',
         'activo',
+        'region',
         'coordinador_id',
     ];
 

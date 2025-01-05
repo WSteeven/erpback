@@ -118,6 +118,9 @@ use Throwable;
  * @method static Builder|OrdenCompra whereTareaId($value)
  * @method static Builder|OrdenCompra whereTiempo($value)
  * @method static Builder|OrdenCompra whereUpdatedAt($value)
+ * @property int|null $proveedor_internacional_id
+ * @property-read ProveedorInternacional|null $proveedorInternacional
+ * @method static Builder|OrdenCompra whereProveedorInternacionalId($value)
  * @mixin Eloquent
  */
 class OrdenCompra extends Model implements Auditable

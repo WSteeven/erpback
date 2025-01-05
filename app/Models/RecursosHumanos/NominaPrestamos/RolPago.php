@@ -4,12 +4,15 @@ namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
 use Carbon\Carbon;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\RecursosHumanos\NominaPrestamos\RolPago
@@ -45,55 +48,55 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property bool $es_vendedor_medio_tiempo
  * @property bool $sueldo_quincena_modificado
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago> $egreso_rol_pago
+ * @property-read Collection<int, EgresoRolPago> $egreso_rol_pago
  * @property-read int|null $egreso_rol_pago_count
  * @property-read Empleado|null $empleado_info
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago> $ingreso_rol_pago
+ * @property-read Collection<int, IngresoRolPago> $ingreso_rol_pago
  * @property-read int|null $ingreso_rol_pago_count
- * @property-read \App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes|null $rolPagoMes
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago query()
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereAnticipo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereBonificacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereBonoRecurente($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereComisiones($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereDecimoCuarto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereDecimoTercero($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereDias($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereEsVendedorMedioTiempo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereExtensionConyugal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereFondosReserva($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereIess($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereMedioTiempo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereMes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePorcentajeQuincena($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePrestamoEmpresarial($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePrestamoHipotecario($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago wherePrestamoQuirorafario($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereRolFirmado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereRolPagoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSalario($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSueldo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSueldoQuincenaModificado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereSupa($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereTotal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereTotalEgreso($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereTotalIngreso($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RolPago whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read RolPagoMes|null $rolPagoMes
+ * @method static Builder|RolPago acceptRequest(?array $request = null)
+ * @method static Builder|RolPago filter(?array $request = null)
+ * @method static Builder|RolPago ignoreRequest(?array $request = null)
+ * @method static Builder|RolPago newModelQuery()
+ * @method static Builder|RolPago newQuery()
+ * @method static Builder|RolPago query()
+ * @method static Builder|RolPago setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|RolPago setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|RolPago setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|RolPago whereAnticipo($value)
+ * @method static Builder|RolPago whereBonificacion($value)
+ * @method static Builder|RolPago whereBonoRecurente($value)
+ * @method static Builder|RolPago whereComisiones($value)
+ * @method static Builder|RolPago whereCreatedAt($value)
+ * @method static Builder|RolPago whereDecimoCuarto($value)
+ * @method static Builder|RolPago whereDecimoTercero($value)
+ * @method static Builder|RolPago whereDias($value)
+ * @method static Builder|RolPago whereEmpleadoId($value)
+ * @method static Builder|RolPago whereEsVendedorMedioTiempo($value)
+ * @method static Builder|RolPago whereEstado($value)
+ * @method static Builder|RolPago whereExtensionConyugal($value)
+ * @method static Builder|RolPago whereFondosReserva($value)
+ * @method static Builder|RolPago whereId($value)
+ * @method static Builder|RolPago whereIess($value)
+ * @method static Builder|RolPago whereMedioTiempo($value)
+ * @method static Builder|RolPago whereMes($value)
+ * @method static Builder|RolPago wherePorcentajeQuincena($value)
+ * @method static Builder|RolPago wherePrestamoEmpresarial($value)
+ * @method static Builder|RolPago wherePrestamoHipotecario($value)
+ * @method static Builder|RolPago wherePrestamoQuirorafario($value)
+ * @method static Builder|RolPago whereRolFirmado($value)
+ * @method static Builder|RolPago whereRolPagoId($value)
+ * @method static Builder|RolPago whereSalario($value)
+ * @method static Builder|RolPago whereSueldo($value)
+ * @method static Builder|RolPago whereSueldoQuincenaModificado($value)
+ * @method static Builder|RolPago whereSupa($value)
+ * @method static Builder|RolPago whereTotal($value)
+ * @method static Builder|RolPago whereTotalEgreso($value)
+ * @method static Builder|RolPago whereTotalIngreso($value)
+ * @method static Builder|RolPago whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class RolPago extends Model implements Auditable
 {
@@ -135,7 +138,7 @@ class RolPago extends Model implements Auditable
         'porcentaje_quincena',
         'sueldo_quincena_modificado',
     ];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'id',
         'mes',
         'empleado',
@@ -161,6 +164,21 @@ class RolPago extends Model implements Auditable
         'es_vendedor_medio_tiempo' => 'boolean',
         'sueldo_quincena_modificado' => 'boolean',
     ];
+
+    /**
+     * @return array
+     */
+    public static function getDatosBancariosDefault(): array
+    {
+        $row['tipo_pago'] = 'PA';
+        $row['numero_cuenta_empresa'] = '02653010903';
+        $row['moneda'] = 'USD';
+        $row['forma_pago'] = 'CTA';
+        $row['codigo_banco'] = '0036';
+        $row['tipo_cuenta'] = 'AHO';
+        $row['tipo_documento_empleado'] = 'C';
+        return $row;
+    }
 
     public function empleado_info()
     {
@@ -192,9 +210,8 @@ class RolPago extends Model implements Auditable
      * La función "empaquetarListado" toma una matriz de objetos "roles de pagos" y devuelve una matriz ordenada
      * de datos formateados.
      *
-     * @param rol_pagos Conjunto de objetos que representan información de nómina de empleados.
      *
-     * @return una serie de resultados.
+     * @return array serie de resultados.
      */
     public static function empaquetarListado($rol_pagos)
     {
@@ -247,32 +264,24 @@ class RolPago extends Model implements Auditable
      * La función "empaquetarCash" toma un conjunto de "rol_pagos" y devuelve un conjunto ordenado de
      * datos relacionados con pagos en efectivo.
      *
-     * @param rol_pagos Una serie de objetos que representan pagos de nómina.
      *
-     * @return una serie de resultados.
+     * @return array serie de resultados.
      */
     public static function empaquetarCash($rol_pagos)
     {
         $results = [];
         $id = 0;
-        $row = [];
 
         foreach ($rol_pagos as $rol_pago) {
             $cuenta_bancarea_num = intval($rol_pago->empleado_info->num_cuenta_bancaria);
             if ($cuenta_bancarea_num > 0) {
                 $referencia = $rol_pago->rolPagoMes->es_quincena ? 'PAGO ROL PRIMERA QUINCENA MES ' : 'PAGO ROL FIN DE MES ';
+                $row = self::getDatosBancariosDefault();
                 $row['item'] = $id + 1;
                 $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
                 $row['departamento'] = $rol_pago->empleado_info->departamento->nombre;
                 $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
                 $row['email'] =  $rol_pago->empleado_info->user->email;
-                $row['tipo_pago'] = 'PA';
-                $row['numero_cuenta_empresa'] = '02653010903';
-                $row['moneda'] = 'USD';
-                $row['forma_pago'] = 'CTA';
-                $row['codigo_banco'] = '0036';
-                $row['tipo_cuenta'] = 'AHO';
-                $row['tipo_documento_empleado'] = 'C';
                 $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
                 $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
                 $row['total'] = str_replace(".", "", number_format($rol_pago->total, 2, ',', '.'));
@@ -290,10 +299,8 @@ class RolPago extends Model implements Auditable
      * La función "ordenar_por_nombres_apellidos" ordena una matriz de empleados según sus nombres y
      * apellidos.
      *
-     * @param a Una matriz que representa la información del primer empleado.
-     * @param b El parámetro `` es una matriz que representa la información de un empleado.
      *
-     * @return el resultado de la comparación entre los nombres concatenados de los dos empleados.
+     * @return int resultado de la comparación entre los nombres concatenados de los dos empleados.
      */
     private static function  ordenar_por_nombres_apellidos($a, $b)
     {

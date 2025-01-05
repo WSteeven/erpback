@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Resources\EmpleadoResource;
 use App\ModelFilters\SubtareasFilter;
+use App\Models\Tareas\AlimentacionGrupo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -22,6 +23,8 @@ use Laravel\Scout\Searchable;
 use Src\App\WhereRelationLikeCondition\Subtarea\ProyectoWRLC;
 use Src\App\WhereRelationLikeCondition\Tareas\GrupoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraEjecucionWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraFinalizacionWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
 /**
@@ -187,6 +190,7 @@ class Subtarea extends Model implements Auditable
         'empleados_designados',
         'metraje_tendido',
         'valor_alimentacion',
+        'gastos_adicionales',
         'tipo_trabajo_id',
         'tarea_id',
         'grupo_id',
@@ -240,8 +244,9 @@ class Subtarea extends Model implements Auditable
     {
         return [
             /* TrabajoClienteWRLC::class,
-            TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
+            TrabajoFechaHoraEjecucionWRLC::class,
+            TrabajoFechaHoraFinalizacionWRLC::class,
             TrabajoTipoTrabajoWRLC::class,
             TrabajoCoordinadorWRLC::class,
             // ProyectoWRLC::class,
@@ -365,6 +370,11 @@ class Subtarea extends Model implements Auditable
     public function causaIntervencion()
     {
         return $this->belongsTo(CausaIntervencion::class, 'causa_intervencion_id', 'id');
+    }
+
+    public function alimentacionGrupo()
+    {
+        return $this->hasMany(AlimentacionGrupo::class);
     }
 
     public function tecnicosPrincipales($empleados)

@@ -71,7 +71,7 @@ $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(pub
             <p>Atentamente,</p>
             <p><strong><a href="{{$url}}">FIRSTRED ERP</a></strong> <br>
                 <strong>{{ $configuracion->razon_social }} </strong><br>
-                <strong><a href="https://www.jpconstrucred.com">{{ strtolower($configuracion->sitio_web) }}</a></strong>
+                <strong><a href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
             </p>
             <img src="{{ $logo_principal }}" alt="logo" width="120" />
         </div>
