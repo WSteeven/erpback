@@ -38,51 +38,53 @@ class AtrasosController extends Controller
      *
      * @param  \App\Http\Requests\RecursosHumanos\ControlPersonal\AtrasosRequest $request
      * @return \Illuminate\Http\Response
-     */
-    public function store(AtrasosRequest $request)
-    {
-        DB::beginTransaction(); // Iniciar transacción
+     */public function store(AtrasosRequest $request)
+{
+    DB::beginTransaction();
 
-        try {
-            foreach ($request->input('atrasos') as $atrasoData) {
-                $empleado = Empleado::find($atrasoData['empleado_id']);
-                $asistencia = Asistencia::find($atrasoData['asistencia_id']);
-                $horarioLaboral = $empleado->horarioLaboral()->first();
+    try {
+        // Obtener todas las asistencias
+        $asistencias = Asistencia::all(); // Consultar todos los registros de la tabla
 
-                $horaEsperada = Carbon::parse($horarioLaboral->hora_entrada);
-                $horaReal = Carbon::parse($asistencia->hora_ingreso);
+        foreach ($asistencias as $asistencia) {
+            // Suponiendo que la hora esperada está directamente en la tabla de asistencias
+            $horaEsperada = Carbon::parse($asistencia->hora_entrada); // Hora de entrada esperada
+            $horaReal = Carbon::parse($asistencia->hora_ingreso); // Hora de ingreso real
 
-                $minutosAtraso = max(0, $horaReal->diffInMinutes($horaEsperada, false));
-                $segundosAtraso = max(0, $horaReal->diffInSeconds($horaEsperada, false) % 60);
+            // Calcular los minutos y segundos de atraso
+            $minutosAtraso = max(0, $horaReal->diffInMinutes($horaEsperada, false));
+            $segundosAtraso = max(0, $horaReal->diffInSeconds($horaEsperada, false) % 60);
 
-                if ($minutosAtraso > 0 || $segundosAtraso > 0) {
-                    Atrasos::updateOrCreate(
-                        [
-                            'empleado_id' => $empleado->id,
-                            'asistencia_id' => $asistencia->id,
-                            'fecha_atraso' => $atrasoData['fecha_atraso'],
-                        ],
-                        [
-                            'minutos_atraso' => $minutosAtraso,
-                            'segundos_atraso' => $segundosAtraso,
-                            'requiere_justificacion' => $atrasoData['requiere_justificacion'],
-                            'justificacion_atraso' => $atrasoData['justificacion_atraso'] ?? null,
-                        ]
-                    );
-                }
+            // Registrar atraso sólo si hay un atraso real
+            if ($minutosAtraso > 0 || $segundosAtraso > 0) {
+                Atrasos::updateOrCreate(
+                    [
+                        'empleado_id' => $asistencia->empleado_id, // Usando directamente empleado_id de la asistencia
+                        'asistencia_id' => $asistencia->id,       // ID de la asistencia
+                        'fecha_atraso' => $asistencia->fecha,     // Suponiendo que `fecha` está en la tabla asistencia
+                    ],
+                    [
+                        'minutos_atraso' => $minutosAtraso,
+                        'segundos_atraso' => $segundosAtraso,
+                        'requiere_justificacion' => false, // Valor por defecto, ajusta según tus necesidades
+                        'justificacion_atraso' => null,    // No hay justificación por defecto
+                    ]
+                );
             }
-
-            DB::commit(); // Confirmar transacción
-            return response()->json(['message' => 'Atrasos registrados correctamente.']);
-        } catch (\Exception $e) {
-            DB::rollBack(); // Revertir transacción
-            \Log::error('Error registrando atrasos', ['exception' => $e]);
-            return response()->json([
-                'message' => 'Error al registrar atrasos.',
-                'details' => $e->getMessage(),
-            ], 500);
         }
+
+        DB::commit();
+        return response()->json(['message' => 'Atrasos registrados correctamente.']);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error registrando atrasos', ['exception' => $e]);
+        return response()->json([
+            'message' => 'Error al registrar atrasos.',
+            'details' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
 
 
