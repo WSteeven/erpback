@@ -22,7 +22,7 @@ class AtrasosResource extends JsonResource
             'fecha_atraso' => $this->fecha_atraso ? $this->fecha_atraso->format('Y-m-d') : null, // Fecha del atraso
             'minutos_atraso' => $this->minutos_atraso, // Minutos de atraso calculados
             'segundos_atraso' => $this->segundos_atraso, // Segundos de atraso calculados
-            'requiere_justificacion' => $this->requiere_justificacion, // Indicador de si requiere justificación
+            'requiere_justificacion' => $this->requiere_justificacion ? 'sí' : 'no', // Indicador de si requiere justificación
             'justificacion_atraso' => $this->justificacion_atraso, // Texto de la justificación
             'created_at' => $this->created_at->toDateTimeString(), // Fecha y hora de creación
             'updated_at' => $this->updated_at->toDateTimeString(), // Fecha y hora de actualización
