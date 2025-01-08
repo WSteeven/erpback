@@ -3,15 +3,12 @@
 @php
     use App\Models\Empleado;
     use App\Models\Vehiculos\BitacoraVehicular;
-    use Illuminate\Support\Facades\Log;
 
         $fecha = new Datetime();
         $logo_watermark =
             'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 
         $bitacoraModel = BitacoraVehicular::find($bitacora['id']);
-        Log::channel('testing')->info('Log', ['Bitacora vehicular PDF:', $bitacora]);
-        Log::channel('testing')->info('Log', ['Bitacora vehicular PDF -> tanqueos:', $bitacoraModel->tanqueos]);
 
         function determinarClase($valor)
         {
