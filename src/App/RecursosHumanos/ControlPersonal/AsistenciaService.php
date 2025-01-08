@@ -72,10 +72,10 @@ class AsistenciaService
     public function obtenerRegistrosDiarios()
     {
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
-        /* $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-        $endTime = Carbon::now()->endOfMonth()->toIso8601String(); */
-        $startTime = Carbon::now()->subMonth()->startOfMonth()->toIso8601String();
-        $endTime = Carbon::now()->subMonth()->endOfMonth()->toIso8601String();
+        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+        /* $startTime = Carbon::now()->subMonth()->startOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->subMonth()->endOfMonth()->toIso8601String(); */
         $maxResults = 30; // Ajustar al límite del dispositivo
         $searchResultPosition = 0;
         $eventosTotales = [];

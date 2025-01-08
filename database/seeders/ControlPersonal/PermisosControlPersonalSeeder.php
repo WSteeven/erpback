@@ -32,12 +32,12 @@ class PermisosControlPersonalSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'asistencia'])->syncRoles([$control_personal, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'asistencia'])->syncRoles([$control_personal, $administrador]);
 
-        // Justificaciones
+        // atrasos
 
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'justificaciones'])->syncRoles([$control_personal, $empleado, $administrador], $coordinador);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'justificaciones'])->syncRoles([$control_personal, $empleado, $administrador], $coordinador);
-        Permission::firstOrCreate(['name' => Permisos::CREAR . 'justificaciones'])->syncRoles([$empleado, $control_personal, $administrador, $coordinador]);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'justificaciones'])->syncRoles([$control_personal, $administrador, $coordinador]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'atrasos'])->syncRoles([$control_personal, $empleado, $administrador], $coordinador);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'atrasos'])->syncRoles([$control_personal, $empleado, $administrador], $coordinador);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'atrasos'])->syncRoles([$empleado, $control_personal, $administrador, $coordinador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'atrasos'])->syncRoles([$control_personal, $administrador, $coordinador]);
 
         // Horarios de Entrada
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
