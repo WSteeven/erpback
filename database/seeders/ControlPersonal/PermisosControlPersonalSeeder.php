@@ -32,7 +32,7 @@ class PermisosControlPersonalSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'asistencia'])->syncRoles([$control_personal, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'asistencia'])->syncRoles([$control_personal, $administrador]);
 
-        // atrasos
+        // Atrasos
 
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'atrasos'])->syncRoles([$control_personal, $empleado, $administrador], $coordinador);
         Permission::firstOrCreate(['name' => Permisos::VER . 'atrasos'])->syncRoles([$control_personal, $empleado, $administrador], $coordinador);
@@ -43,11 +43,6 @@ class PermisosControlPersonalSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::VER . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
-
-        // Horarios de Almuerzo
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'horario_almuerzo'])->syncRoles([$control_personal, $administrador]);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'horario_almuerzo'])->syncRoles([$control_personal, $administrador]);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'horario_almuerzo'])->syncRoles([$control_personal, $administrador]);
 
         // Opcional: Permisos globales para reportes o gestión completa
         //Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'modulo_control_personal'])->syncRoles([$control_personal, $administrador]);

@@ -27,7 +27,7 @@ class AtrasosController extends Controller
      */
     public function index()
     {
-        $atrasos = Atrasos::filter()->orderBy('fecha_atraso', 'asc')->get();
+        $atrasos = Atrasos::filter()->orderBy('fecha_atraso', 'desc')->get();
         $results = AtrasosResource::collection($atrasos);
 
         return response()->json(compact('results'));
