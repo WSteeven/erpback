@@ -24,8 +24,9 @@ class HorarioLaboralRequest extends FormRequest
     public function rules()
     {
         return [
-            'hora_entrada' => ['required', 'date_format:H:i'], // Hora de entrada en formato HH:MM, obligatoria
-            'hora_salida' => ['required', 'date_format:H:i'], // Hora de salida en formato HH:MM, obligatoria
+            'hora_entrada' => ['required', 'date_format:H:i'],
+            'hora_salida' => ['required', 'date_format:H:i'],
+            'tipo_horario' => ['required', 'string'],
         ];
     }
 }

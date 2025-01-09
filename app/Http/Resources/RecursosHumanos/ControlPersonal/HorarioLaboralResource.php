@@ -20,6 +20,7 @@ class HorarioLaboralResource extends JsonResource
             'id' => $this->id,
             'hora_entrada' => $this->hora_entrada ? Carbon::parse($this->hora_entrada)->format('H:i') : null,
             'hora_salida' => $this->hora_salida ? Carbon::parse($this->hora_salida)->format('H:i') : null,
+            'tipo_horario' => $this->tipo_horario,
         ];
     }
 }

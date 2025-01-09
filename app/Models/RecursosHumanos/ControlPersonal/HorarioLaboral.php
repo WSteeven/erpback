@@ -23,11 +23,13 @@ class HorarioLaboral extends Model implements Auditable
     protected $fillable = [
         'hora_entrada',
         'hora_salida',
+        'tipo_horario',
     ];
 
     protected $casts = [
         'hora_entrada' => 'datetime:H:i',
         'hora_salida' => 'datetime:H:i',
+        'tipo_horario' => 'string',
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
