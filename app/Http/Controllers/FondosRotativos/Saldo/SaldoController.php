@@ -338,6 +338,7 @@ class SaldoController extends Controller
             if ($request->tipo_filtro == 8) {
                 $request['ruc'] = '9999999999999';
             }
+//            Log::channel('testing')->info('Log', ['Request gastoFiltrado', $request->all()]);
 
             $gastosQuery = Gasto::ignoreRequest([
                 'tipo_saldo',
@@ -363,21 +364,29 @@ class SaldoController extends Controller
                     'proyecto'
                 );
 
+//            Log::channel('testing')->info('Log', ['despues de gastosQuery', $request->id_tarea]);
+            if($request->id_tarea)
+                $gastosQuery = $gastosQuery->where('id_tarea', $request->id_tarea);
+
+//            Log::channel('testing')->info('Log', ['despues de filtro de tarea']);
             if ($request->tipo_filtro == 9) {
                 $gastosQuery->whereHas('empleado', function ($query) use ($request) {
                     $query->where('canton_id', $request['ciudad']);
                 });
             }
+//            Log::channel('testing')->info('Log', ['despues de tipo_filtro==9']);
 
             if ($request->subdetalle != null) {
                 $gastos = $gastosQuery->whereHas('subDetalle', function ($q) use ($request) {
                     $q->whereIn('subdetalle_gasto_id', $request['subdetalle']);
                 })->get();
+//                Log::channel('testing')->info('Log', ['en el if de subdetalle']);
             } else {
+//                Log::channel('testing')->info('Log', ['en el else', $gastosQuery->toSql()]);
                 $gastos = $gastosQuery->get();
             }
 
-//            Log::channel('testing')->info('Log', ['gastoFiltrado',  $gastos]);
+//            Log::channel('testing')->info('Log', ['gastoFiltrado', $gastos]);
             $usuario = null;
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
@@ -402,7 +411,7 @@ class SaldoController extends Controller
                 case self::TAREA:
                     $tarea = Tarea::where('id', $request->tarea)->first();
                     $titulo .= 'DE GASTOS POR TAREA ';
-                    $subtitulo = 'TAREA: ' . $tarea->codigo_tarea . ' - ' . $tarea->nombre_tarea;
+                    $subtitulo = 'TAREA: ' . $tarea->codigo_tarea . ' - ' . $tarea->titulo;
                     break;
                 case self::DETALLE:
                     $detalle = DetalleViatico::where('id', $request->detalle)->first();
@@ -487,6 +496,8 @@ class SaldoController extends Controller
             $export_excel = new GastoFiltradoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+        }catch (Throwable $th){
+            Log::channel('testing')->info('Log', ['error throwable', $th->getMessage(), $th->getLine()]);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e, 'gastoFiltrado');
