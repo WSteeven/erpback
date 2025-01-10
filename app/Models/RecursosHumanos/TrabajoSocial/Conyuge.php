@@ -27,6 +27,7 @@ class Conyuge extends Model implements Auditable
         'profesion',
         'telefono',
         'tiene_dependencia_laboral', //boolean
+        'tiene_negocio_propio', //boolean
         'promedio_ingreso_mensual',
     ];
 
