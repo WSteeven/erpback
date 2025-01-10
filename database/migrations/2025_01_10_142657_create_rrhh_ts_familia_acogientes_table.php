@@ -13,9 +13,22 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_ts_familia_acogientes', function (Blueprint $table) {
+        Schema::create('rrhh_ts_familias_acogientes', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('vivienda_id');
+            $table->unsignedBigInteger('canton_id');
+            $table->unsignedBigInteger('parroquia_id');
+            $table->string('tipo_parroquia');
+            $table->string('nombres_apellidos');
+            $table->string('direccion');
+            $table->string('coordenadas');
+            $table->string('telefono');
+
             $table->timestamps();
+
+            $table->foreign('vivienda_id')->references('id')->on('rrhh_ts_viviendas');
+            $table->foreign('canton_id')->references('id')->on('cantones');
+            $table->foreign('parroquia_id')->references('id')->on('parroquias');
         });
     }
 
@@ -26,6 +39,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_ts_familia_acogientes');
+        Schema::dropIfExists('rrhh_ts_familias_acogientes');
     }
 };

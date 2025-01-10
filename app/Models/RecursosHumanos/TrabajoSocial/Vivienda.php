@@ -41,6 +41,13 @@ class Vivienda extends Model implements Auditable
         'servicios_basicos',
         'model_id',
         'model_type',
+
+        'amenaza_inundacion',
+        'amenaza_deslaves',
+        'otras_amenazas_previstas',
+        'otras_amenazas',
+        'existe_peligro_tsunami',
+        'existe_peligro_lahares',
     ];
 
     protected $casts = [

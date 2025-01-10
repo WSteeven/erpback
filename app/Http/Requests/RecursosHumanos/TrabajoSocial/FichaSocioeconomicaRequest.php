@@ -28,8 +28,12 @@ class FichaSocioeconomicaRequest extends FormRequest
             'lugar_nacimiento' => 'required|string',
             'canton_id' => 'required|exists:cantones,id',
             'contacto_emergencia' => 'required|string',
+            'contacto_emergencia_externo' => 'required|string',
             'parentesco_contacto_emergencia' => 'required|string',
+            'parentesco_contacto_emergencia_externo' => 'required|string',
             'telefono_contacto_emergencia' => 'required|string',
+            'telefono_contacto_emergencia_externo' => 'required|string',
+            'ciudad_contacto_emergencia_externo' => 'required|exists:cantones,id',
             'problemas_ambiente_social_familiar' => 'required|array',
             'observaciones_ambiente_social_familiar' => 'nullable|string',
             'tiene_capacitaciones' => 'boolean',
@@ -46,10 +50,14 @@ class FichaSocioeconomicaRequest extends FormRequest
             'conyuge.edad' => 'required_if_accepted:tiene_conyuge|nullable|integer',
             'conyuge.profesion' => 'required_if_accepted:tiene_conyuge|nullable|string',
             'conyuge.telefono' => 'required_if_accepted:tiene_conyuge|nullable|string',
+            'conyuge.tiene_dependencia_laboral' => 'boolean',
+            'conyuge.negocio_propio' => 'required_if_accepted:conyuge.tiene_negocio_propio|nullable|string',
             'conyuge.promedio_ingreso_mensual' => 'required_if_accepted:tiene_conyuge|nullable|numeric',
 
             // hijos
             'hijos' => 'array',
+            'hijos.*.tipo' => 'required_if_accepted:tiene_hijos|string',
+            'hijos.*.genero' => 'required_if_accepted:tiene_hijos|string',
             'hijos.*.nombres_apellidos' => 'required_if_accepted:tiene_hijos|string',
             'hijos.*.ocupacion' => 'required_if_accepted:tiene_hijos|string',
             'hijos.*.edad' => 'required_if_accepted:tiene_hijos|string',
@@ -62,6 +70,7 @@ class FichaSocioeconomicaRequest extends FormRequest
             'experiencia_previa.telefono' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
             'experiencia_previa.fecha_retiro' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
             'experiencia_previa.motivo_retiro' => 'nullable|required_if_accepted:tiene_experiencia_previa|string',
+            'experiencia_previa.salario' => 'nullable|required_if_accepted:tiene_experiencia_previa|numeric',
 
             // situacion socioeconomica
             'situacion_socioeconomica' => 'required|array',

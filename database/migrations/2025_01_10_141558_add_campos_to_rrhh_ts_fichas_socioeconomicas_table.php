@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -20,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('ciudad_contacto_emergencia_externo_id')->nullable();
 
 
-            $table->foreign('ciudad_contacto_emergencia_externo_id')->references('id')->on('cantones');
+            $table->foreign('ciudad_contacto_emergencia_externo_id', 'fk_ciudad_contacto_externo')->references('id')->on('cantones');
         });
     }
 
@@ -32,7 +31,13 @@ return new class extends Migration
     public function down()
     {
         Schema::table('rrhh_ts_fichas_socioeconomicas', function (Blueprint $table) {
-            //
+            $table->dropForeign('ciudad_contacto_emergencia_externo_id');
+            $table->dropColumn([
+                'contacto_emergencia_externo',
+                'parentesco_contacto_emergencia_externo',
+                'telefono_contacto_emergencia_externo',
+                'ciudad_contacto_emergencia_externo_id',
+            ]);
         });
     }
 };
