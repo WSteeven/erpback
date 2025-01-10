@@ -214,7 +214,24 @@ class FichaSocioeconomicaController extends Controller
             ]);
             $pdf->render();
             return $pdf->output();
-        }catch (Exception $e) {
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e, 'No se puede imprimir el pdf: ');
+        }
+    }
+
+    public function imprimirEvaluacionRiesgos(FichaSocioeconomica $ficha)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        try {
+            $pdf = Pdf::loadView('trabajo_social.ficha_evaluacion_riesgos', [
+                'configuracion' => $configuracion,
+                'ficha' => $ficha,
+                'departamento_rrhh' => Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first(),
+                'departamento_trabajo_social' => Departamento::where('nombre', Departamento::DEPARTAMENTO_TRABAJO_SOCIAL)->first(),
+            ]);
+            $pdf->render();
+            return $pdf->output();
+        } catch (Exception $e) {
             throw Utils::obtenerMensajeErrorLanzable($e, 'No se puede imprimir el pdf: ');
         }
     }

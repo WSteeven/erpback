@@ -26,6 +26,7 @@ class ExperienciaPrevia extends Model implements Auditable
         'telefono',
         'fecha_retiro',
         'motivo_retiro',
+        'salario',
     ];
     protected $casts=[
         'asegurado_iess'=>'boolean',
