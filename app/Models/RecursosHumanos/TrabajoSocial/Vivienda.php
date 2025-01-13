@@ -55,6 +55,12 @@ class Vivienda extends Model implements Auditable
         'distribucion_vivienda' => 'json',
         'existe_hacinamiento' => 'boolean',
         'existe_upc_cercano' => 'boolean',
+        'tiene_donde_evacuar' => 'boolean',
+        'amenaza_inundacion' => 'json',
+        'amenaza_deslaves' => 'json',
+        'otras_amenazas_previstas' => 'json',
+        'existe_peligro_tsunami' => 'boolean',
+        'existe_peligro_lahares' => 'boolean',
     ];
 
 

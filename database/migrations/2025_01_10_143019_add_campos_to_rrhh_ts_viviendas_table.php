@@ -13,10 +13,9 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('rrhh_ts_viviendas', function (Blueprint $table) {
-            $table->integer('numero_plantas')->default(1);
+            $table->string('numero_plantas')->nullable();
             $table->integer('numero_personas')->default(1);
             $table->boolean('tiene_donde_evacuar')->default(false);
-
             $table->string('amenaza_inundacion')->nullable();
             $table->string('amenaza_deslaves')->nullable();
             $table->string('otras_amenazas_previstas')->nullable();
@@ -34,7 +33,17 @@ return new class extends Migration {
     public function down()
     {
         Schema::table('rrhh_ts_viviendas', function (Blueprint $table) {
-            //
+            $table->dropColumn([
+                'numero_plantas',
+                'numero_personas',
+                'tiene_donde_evacuar',
+                'amenaza_inundacion',
+                'amenaza_deslaves',
+                'otras_amenazas_previstas',
+                'otras_amenazas',
+                'existe_peligro_tsunami',
+                'existe_peligro_lahares',
+            ]);
         });
     }
 };

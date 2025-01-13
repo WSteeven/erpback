@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('tipo_parroquia');
             $table->string('nombres_apellidos');
             $table->string('direccion');
+            $table->string('referencia');
             $table->string('coordenadas');
             $table->string('telefono');
 

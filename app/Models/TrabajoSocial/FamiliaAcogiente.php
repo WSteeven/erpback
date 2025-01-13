@@ -2,6 +2,7 @@
 
 namespace App\Models\TrabajoSocial;
 
+use App\Models\Canton;
 use App\Models\RecursosHumanos\TrabajoSocial\Vivienda;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -24,12 +25,19 @@ class FamiliaAcogiente extends Model implements Auditable
         'tipo_parroquia',
         'direccion',
         'coordenadas',
+        'referencia',
         'nombres_apellidos',
         'telefono',
     ];
 
-    public function vivienda(){
+    public function vivienda()
+    {
         return $this->belongsTo(Vivienda::class);
+    }
+
+    public function canton()
+    {
+        return $this->belongsTo(Canton::class);
     }
 
 

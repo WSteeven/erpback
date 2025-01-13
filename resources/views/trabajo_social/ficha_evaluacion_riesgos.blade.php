@@ -93,6 +93,11 @@
             border-collapse: collapse;
         }
 
+        .custom-table th { /*Colocar en negrita los encabezados*/
+            font-weight: bold;
+            border: 1px solid #000;
+        }
+
         .custom-table td {
             line-height: normal;
             border: 1px solid #000;
@@ -166,30 +171,52 @@
                 <td>Referencia</td>
                 <td>{{$ficha->vivienda->referencia}}</td>
             </tr>
-            <tr>Observaciones</tr>
-            <tr colspan="3">{{$ficha->conclusiones}}</tr>
+            <tr>
+                <td>Observaciones</td>
+                <td colspan="3">{{$ficha->conclusiones}}</td>
+            </tr>
         </table>
         <br><br>
         <p><strong>II). POSIBLES AMENAZAS EN EL SECTOR</strong></p>
-        <table>
+        <table class="custom-table">
             <tr>
-                <td>Inundaciones</td>
-                <td>Deslaves</td>
+                <th>Inundaciones</th>
+                <th>Deslaves</th>
+                <th>Otras amenazas previstas</th>
             </tr>
             <tr>
-                <td style="width: 50%; line-height: normal">
-                    <ul>@foreach($ficha->capacitaciones as $capacitacion)
-                            <li>{{$capacitacion}}</li>
+                <td style="width: 33%; line-height: normal">
+                    <ul>@foreach($ficha->vivienda->amenaza_inundacion as $amenaza)
+                            <li>{{$amenaza}}</li>
                         @endforeach
                     </ul>
                 </td>
-                <td style="width: 50%; line-height: normal">
-                    <ul>@foreach($ficha->capacitaciones as $capacitacion)
-                            <li>{{$capacitacion}}</li>
+                <td style="width: 33%; line-height: normal">
+                    <ul>@foreach($ficha->vivienda->amenaza_deslaves as $amenaza)
+                            <li>{{$amenaza}}</li>
+                        @endforeach
+                    </ul>
+                </td>
+                <td style="width: 33%; line-height: normal">
+                    <ul>@foreach($ficha->vivienda->otras_amenazas_previstas as $amenaza)
+                            <li>{{$amenaza}}</li>
                         @endforeach
                     </ul>
                 </td>
             </tr>
+            <tr>
+                <td>Otras amenazas:</td>
+                <td colspan="2">{{$ficha->vivienda->otras_amenazas}}</td>
+            </tr>
+            <tr>
+                <td colspan="3">¿En caso de terremoto podría ocurrir
+                    TSUNAMI? <strong>{{$ficha->vivienda->existe_peligro_tsunami?'SI':'NO'}}</strong></td>
+            </tr>
+            <tr>
+                <td colspan="3">¿En caso de erupción volcanica existe peligro de
+                    LAHARES? <strong> {{$ficha->vivienda->existe_peligro_lahares?'SI':'NO'}}</strong></td>
+            </tr>
+
         </table>
         <br><br>
         <p><strong>III). DATOS PERSONALES</strong></p>
@@ -271,7 +298,7 @@
                     <strong>Teléfono: </strong>{{ $ficha->telefono_contacto_emergencia_externo }}
                 </td>
                 <td style="width: 33%; padding: 2px;line-height: normal">
-                    <strong>Ciudad: </strong>{{ $ficha->ciudad_contacto_emergencia_externo }}
+                    <strong>Ciudad: </strong>{{ $ficha->ciudadContactoExterno->canton }}
                 </td>
             </tr>
         </table>
@@ -303,60 +330,53 @@
         <p><strong>IV). DATOS DE LA VIVIENDA</strong></p>
         <table class="custom-table" style="width: 100%;border: 1px solid #000">
             <tr style="font-weight: bold">
-                <td style="width: 25%;">Tenencia</td>
-                <td style="width: 25%;">Mat. Techo</td>
-                <td style="width: 25%;">Mat. Piso</td>
-                <td style="width: 25%;">Mat. Paredes</td>
+                <td style="width: 20%;">Tenencia</td>
+                <td style="width: 20%;">N° Plantas</td>
+                <td style="width: 20%;">Mat. Techo</td>
+                <td style="width: 20%;">Mat. Piso</td>
+                <td style="width: 20%;">Mat. Paredes</td>
             </tr>
             <tr>
-                <td style="width: 25%;">
-                    <p>{{$ficha->vivienda->tipo}}</p>
-                </td>
-                <td style="width: 25%;">
-                    <p>{{$ficha->vivienda->material_techo}}</p>
-                </td>
-                <td style="width: 25%;">
-                    <p>{{$ficha->vivienda->material_piso}}</p>
-                </td>
-                <td style="width: 25%;">
-                    <p>{{$ficha->vivienda->material_paredes}}</p>
-                </td>
+                <td style="width: 20%;"><p>{{$ficha->vivienda->tipo}}</p></td>
+                <td style="width: 20%;"><p>{{$ficha->vivienda->numero_plantas}}</p></td>
+                <td style="width: 20%;"><p>{{$ficha->vivienda->material_techo}}</p></td>
+                <td style="width: 20%;"><p>{{$ficha->vivienda->material_piso}}</p></td>
+                <td style="width: 20%;"><p>{{$ficha->vivienda->material_paredes}}</p></td>
             </tr>
             <tr>
-                <td colspan="4" style="width: 50%;">
+                <td colspan="5" style="width: 50%;">
                     <p><strong>¿En caso de evacuación tiene a donde
                             acudir?: </strong>{{$ficha->vivienda->tiene_donde_evacuar?'SI':'NO'}}
                     </p>
                 </td>
             </tr>
         </table>
-        <p></p>
-
+        <br><br>
         <p><strong>V). DATOS DE LA FAMILIA ACOGIENTE</strong></p>
         <table class="custom-table">
             <tr>
                 <td>Provincia</td>
-                <td>{{$ficha->empleado->canton->provincia->provincia}}</td>
+                <td>{{$ficha->vivienda->familiaAcogiente->canton->provincia->provincia}}</td>
                 <td>Cantón</td>
-                <td>{{$ficha->empleado->canton->canton}}</td>
+                <td>{{$ficha->vivienda->familiaAcogiente->canton->canton}}</td>
             </tr>
             <tr>
                 <td>Dirección exacta de su domicilio</td>
-                <td colspan="3">{{$ficha->vivienda->direccion}}</td>
+                <td colspan="3">{{$ficha->vivienda->familiaAcogiente->direccion}}</td>
             </tr>
             <tr>
                 <td>Coordenadas</td>
-                <td>{{$ficha->vivienda->coordenadas}}</td>
+                <td>{{$ficha->vivienda->familiaAcogiente->coordenadas}}</td>
                 <td>Referencia</td>
-                <td>{{$ficha->vivienda->referencia}}</td>
+                <td>{{$ficha->vivienda->familiaAcogiente->referencia}}</td>
             </tr>
             <tr>
                 <td>Observaciones</td>
                 <td colspan="3">{{$ficha->conclusiones}}</td>
             </tr>
-        </table
+        </table>
 
-        <p></p>
+        <br><br><br><br>
         <p><strong>VI). REGISTRO FOTOGRAFICO DEL DOMICILIO</strong></p>
         @if(file_exists(public_path($ficha->vivienda->imagen_croquis)))
             <img src="{{ url($ficha->vivienda->imagen_croquis) }}" width="100%" height="200" alt="Croquis"/>

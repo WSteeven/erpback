@@ -19,6 +19,8 @@ class HijoResource extends JsonResource
             'id' => $this->id,
             'ficha_id' => $this->ficha_id,
             'empleado_id' => $this->empleado_id,
+            'tipo' => $this->tipo,
+            'genero' => $this->genero,
             'nombres_apellidos' => $this->nombres_apellidos,
             'ocupacion' => $this->ocupacion,
             'edad' => $this->edad,

@@ -17,10 +17,14 @@ class FamiliaAcogienteResource extends JsonResource
     {
         return [
             'vivienda_id' => $this->vivienda_id,
+            'provincia' => $this->canton->provincia_id,
+            'canton' => $this->canton_id,
             'canton_id' => $this->canton_id,
             'parroquia_id' => $this->parroquia_id,
+            'parroquia' => $this->parroquia_id,
             'tipo_parroquia' => $this->tipo_parroquia,
             'direccion' => $this->direccion,
+            'referencia' => $this->referencia,
             'coordenadas' => $this->coordenadas,
             'nombres_apellidos' => $this->nombres_apellidos,
             'telefono' => $this->telefono,

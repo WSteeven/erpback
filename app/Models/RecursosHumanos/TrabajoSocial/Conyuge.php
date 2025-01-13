@@ -27,11 +27,11 @@ class Conyuge extends Model implements Auditable
         'profesion',
         'telefono',
         'tiene_dependencia_laboral', //boolean
-        'tiene_negocio_propio', //boolean
+       //  'tiene_negocio_propio', //boolean
         'negocio_propio',
         'promedio_ingreso_mensual',
     ];
-
+//[ERROR][317]: .Illuminate\Database\Eloquent\Relations\HasOneOrMany::create(): Argument #1 ($attributes) must be of type array, int given, called in C:\laragon\www\backend\src\App\RecursosHumanos\TrabajoSocial\FichaSocioeconomicaService.php on line 43
     public function ficha(){
         return $this->belongsTo(FichaSocioeconomica::class, 'ficha_id', 'id');
     }
