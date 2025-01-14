@@ -26,6 +26,7 @@ class ConyugeResource extends JsonResource
             'profesion' => $this->profesion,
             'telefono' => $this->telefono,
             'tiene_dependencia_laboral' => $this->tiene_dependencia_laboral,
+            'tiene_negocio_propio' => !!$this->negocio_propio,
             'promedio_ingreso_mensual' => $this->promedio_ingreso_mensual,
         ];
     }
