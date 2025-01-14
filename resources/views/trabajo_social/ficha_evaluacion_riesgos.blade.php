@@ -120,7 +120,7 @@
                 </div>
             </td>
             <td style="width: 68%">
-                <div style="text-align: center"><b>FICHA SOCIOECONOMICA</b>
+                <div style="text-align: center"><b>EVALUACION DE RIESGOS</b>
                 </div>
             </td>
             <td style="width: 22%">
@@ -171,10 +171,10 @@
                 <td>Referencia</td>
                 <td>{{$ficha->vivienda->referencia}}</td>
             </tr>
-            <tr>
-                <td>Observaciones</td>
-                <td colspan="3">{{$ficha->conclusiones}}</td>
-            </tr>
+            {{--            <tr>--}}
+            {{--                <td>Observaciones</td>--}}
+            {{--                <td colspan="3">{{$ficha->conclusiones}}</td>--}}
+            {{--            </tr>--}}
         </table>
         <br><br>
         <p><strong>II). POSIBLES AMENAZAS EN EL SECTOR</strong></p>
@@ -352,32 +352,37 @@
             </tr>
         </table>
         <br><br>
-        <p><strong>V). DATOS DE LA FAMILIA ACOGIENTE</strong></p>
-        <table class="custom-table">
-            <tr>
-                <td>Provincia</td>
-                <td>{{$ficha->vivienda->familiaAcogiente->canton->provincia->provincia}}</td>
-                <td>Cantón</td>
-                <td>{{$ficha->vivienda->familiaAcogiente->canton->canton}}</td>
-            </tr>
-            <tr>
-                <td>Dirección exacta de su domicilio</td>
-                <td colspan="3">{{$ficha->vivienda->familiaAcogiente->direccion}}</td>
-            </tr>
-            <tr>
-                <td>Coordenadas</td>
-                <td>{{$ficha->vivienda->familiaAcogiente->coordenadas}}</td>
-                <td>Referencia</td>
-                <td>{{$ficha->vivienda->familiaAcogiente->referencia}}</td>
-            </tr>
-            <tr>
-                <td>Observaciones</td>
-                <td colspan="3">{{$ficha->conclusiones}}</td>
-            </tr>
-        </table>
+        @if($ficha->vivienda->tiene_donde_evacuar)
+            <p><strong>V). DATOS DE LA FAMILIA ACOGIENTE</strong></p>
+            <table class="custom-table">
+                <tr>
+                    <td>Provincia</td>
+                    <td>{{$ficha->vivienda->familiaAcogiente->canton->provincia->provincia}}</td>
+                    <td>Cantón</td>
+                    <td>{{$ficha->vivienda->familiaAcogiente->canton->canton}}</td>
+                </tr>
+                <tr>
+                    <td>Dirección exacta de su domicilio</td>
+                    <td colspan="3">{{$ficha->vivienda->familiaAcogiente->direccion}}</td>
+                </tr>
+                <tr>
+                    <td>Coordenadas</td>
+                    <td>{{$ficha->vivienda->familiaAcogiente->coordenadas}}</td>
+                    <td>Referencia</td>
+                    <td>{{$ficha->vivienda->familiaAcogiente->referencia}}</td>
+                </tr>
+                {{--            <tr>--}}
+                {{--                <td>Observaciones</td>--}}
+                {{--                <td colspan="3">{{$ficha->conclusiones}}</td>--}}
+                {{--            </tr>--}}
+            </table>
 
-        <br><br><br><br>
-        <p><strong>VI). REGISTRO FOTOGRAFICO DEL DOMICILIO</strong></p>
+            <br><br><br><br>
+            <p><strong>VI). REGISTRO FOTOGRAFICO DEL DOMICILIO</strong></p>
+        @else
+            <br><br>
+            <p><strong>V). REGISTRO FOTOGRAFICO DEL DOMICILIO</strong></p>
+        @endif
         @if(file_exists(public_path($ficha->vivienda->imagen_croquis)))
             <img src="{{ url($ficha->vivienda->imagen_croquis) }}" width="100%" height="200" alt="Croquis"/>
         @else
