@@ -176,10 +176,12 @@ class RolPagoResource extends JsonResource
                     $descuento = Descuento::find($egreso->descuento()->first()->descuento_id);
 //                    Log::channel('testing')->info('Log', ['En el switch entro en default -> descuento', class_basename($descuento->tipoDescuento)]);
 //                    Log::channel('testing')->info('Log', ['En el switch entro en default -> multa', class_basename($descuento->multa)]);
+                if($descuento){
                     if (!is_null($descuento->tipo_descuento_id))
                         return class_basename($descuento->tipoDescuento) == $tipo;
                     if (!is_null($descuento->multa_id))
                         return class_basename($descuento->multa) == $tipo;
+                }
                     return false;
             }
         })->map(function ($egreso) use ($tipo) {
