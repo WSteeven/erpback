@@ -42,6 +42,7 @@ class PermisosControlPersonalSeeder extends Seeder
         // Horarios de Entrada
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::VER . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'horario_laboral'])->syncRoles([$control_personal, $administrador]);
 
         // Opcional: Permisos globales para reportes o gestión completa

@@ -21,28 +21,34 @@ class HorarioLaboral extends Model implements Auditable
     protected $table = 'rrhh_cp_horario_laboral';
 
     protected $fillable = [
+        'nombre',
+        'dia',
         'hora_entrada',
         'hora_salida',
-        'tipo_horario',
+        'inicio_pausa',
+        'fin_pausa',
+        'activo',
     ];
 
     protected $casts = [
         'hora_entrada' => 'datetime:H:i',
         'hora_salida' => 'datetime:H:i',
-        'tipo_horario' => 'string',
+        'inicio_pausa' => 'datetime:H:i',
+        'fin_pausa' => 'datetime:H:i',
+        'activo' => 'boolean',
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    public function getHoraEntradaAttribute($value)
-    {
-        return \Carbon\Carbon::parse($value)->format('H:i');
-    }
+//    public function getHoraEntradaAttribute($value)
+//    {
+//        return \Carbon\Carbon::parse($value)->format('H:i');
+//    }
 
-    public function getHoraSalidaAttribute($value)
-    {
-        return \Carbon\Carbon::parse($value)->format('H:i');
-    }
+//    public function getHoraSalidaAttribute($value)
+//    {
+//        return \Carbon\Carbon::parse($value)->format('H:i');
+//    }
 
     private static array $whiteListFilter = [
         '*',

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Log;
 
 /**
  * TODO: Codigos de minor
@@ -32,6 +33,7 @@ class AsistenciaService
      */
     public function obtenerRegistrosDiarios24Mayo()
     {
+        Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios24Mayo:']);
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
         $endTime = Carbon::now()->endOfMonth()->toIso8601String();
@@ -69,6 +71,10 @@ class AsistenciaService
         return ['AcsEvent' => ['InfoList' => $eventosTotales]];
     }
 
+    /**
+     * @throws GuzzleException
+     * @throws Exception
+     */
     public function obtenerRegistrosDiarios()
     {
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
@@ -116,7 +122,8 @@ class AsistenciaService
             return ['AcsEvent' => ['InfoList' => $eventosTotales]];
         } catch (Exception $e) {
             // Manejar errores en caso de falla
-            throw new Exception("Error al obtener registros: " . $e->getMessage(), 0, $e);
+            Log::channel('testing')->info('Log', ['Exception en obtenerRegistrosDiarios:', $e->getLine(), $e->getMessage()]);
+            throw $e;
         }
     }
 

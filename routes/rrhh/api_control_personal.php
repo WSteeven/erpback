@@ -9,34 +9,29 @@ use App\Http\Controllers\RecursosHumanos\ControlPersonal\AtrasosController;
 
 use Illuminate\Support\Facades\Route;
 
-/**
- * Consultar Asistencia de Biometrico
- */
-
-Route::get('/asistencias/sincronizar', [AsistenciaController::class, 'store']);
-Route::get('/atrasos/sincronizar', [AtrasosController::class, 'store']);
-
 
 Route::apiResources(
     [
         'asistencias' => AsistenciaController::class,
-        'atrasos' => AtrasosController::class
+        'atrasos' => AtrasosController::class,
+        'horarios-laborales' => HorarioLaboralController::class
     ],
     [
         'parameters' => [
             'asistencias' => 'asistencia',
             'atrasos' => 'atraso',
+            'horarios-laborales' => 'horario'
         ]
 
     ]
 );
 
+
+/**
+ * Consultar Asistencia de Biometrico
+ */
+
+Route::get('/asistencias/sincronizar', [AsistenciaController::class, 'sincronizarAsistencias']);
+Route::get('/atrasos/sincronizar', [AtrasosController::class, 'store']);
 /**Otras Rutas */
 
-/**Atrasos */
-Route::get('/atrasos', [AtrasosController::class, 'index']);
-
-
-/**Horario Laboral */
-Route::get('/horario-laboral', [HorarioLaboralController::class, 'index']);
-Route::post('/horario-laboral', [HorarioLaboralController::class, 'store']);

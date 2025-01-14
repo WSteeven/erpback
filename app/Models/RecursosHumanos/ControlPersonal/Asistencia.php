@@ -5,11 +5,16 @@ namespace App\Models\RecursosHumanos\ControlPersonal;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ *
+ * @method static Builder|Asistencia  updateOrCreate($attributes, $values )
+ */
 class Asistencia extends Model implements Auditable
 {
     use HasFactory;
@@ -41,7 +46,7 @@ class Asistencia extends Model implements Auditable
 
     // Casts para formatear automáticamente los valores
     protected $casts = [
-        'fecha' => 'date:Y-m-d', 
+        'fecha' => 'date:Y-m-d',
         'hora_ingreso' => 'datetime:H:i:s',
         'hora_salida' => 'datetime:H:i:s',
         'hora_salida_almuerzo' => 'datetime:H:i:s',

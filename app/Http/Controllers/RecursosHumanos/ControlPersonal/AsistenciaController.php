@@ -3,29 +3,33 @@
 namespace App\Http\Controllers\RecursosHumanos\ControlPersonal;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RecursosHumanos\ControlPersonal\AsistenciaRequest;
 use App\Http\Resources\RecursosHumanos\ControlPersonal\AsistenciaResource;
 use App\Models\Empleado;
-use Illuminate\Http\Request;
 use App\Models\RecursosHumanos\ControlPersonal\Asistencia;
-use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
 use Carbon\Carbon;
-use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
-
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
+use Src\Shared\Utils;
 
 class AsistenciaController extends Controller
 {
     public AsistenciaService $service;
+    private string $entidad = 'Asistencia';
 
     public function __construct()
     {
         $this->service = new AsistenciaService();
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -36,21 +40,29 @@ class AsistenciaController extends Controller
         return response()->json(compact('results'));
     }
 
+    // Method POST
+    public function store(Request $request){
+
+        $modelo = Asistencia::create($request->validated());
+
+        return response()->json(compact('modelo'));
+    }
+
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
+     * @throws ValidationException
      */
-    public function store(AsistenciaRequest $request)
+    public function sincronizarAsistencias()
     {
         try {
             $datos = $this->service->obtenerRegistrosDiarios();
-            $horario_laborar = HorarioLaboral::first();
+            // $horario_laborar = HorarioLaboral::first();
 
             // Validar que 'InfoList' exista en la respuesta
             if (!isset($datos['AcsEvent']['InfoList'])) {
-                throw new \Exception("La clave 'InfoList' no está presente en los datos obtenidos.");
+                throw new Exception("La clave 'InfoList' no está presente en los datos obtenidos.");
             }
 
             $eventos = $datos['AcsEvent']['InfoList'];
@@ -65,7 +77,7 @@ class AsistenciaController extends Controller
                 return isset($evento['name']) && isset($evento['time']);
             });
 
-            // Ordenar eventos por hora para procesarlos en orden cronológico
+            // Ordenar eventos por hora para procesarlos en orden cronológico desdel el mas reciente al mas antiguo
             usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
 
             // Agrupar eventos por empleado y fecha
@@ -115,7 +127,7 @@ class AsistenciaController extends Controller
                         }
 
                         if ($eventoSeleccionado) {
-                            $asistencia["hora_{$tipo}"] = Carbon::parse($eventoSeleccionado['time'])->format('H:i:s');
+                            $asistencia["hora_$tipo"] = Carbon::parse($eventoSeleccionado['time'])->format('H:i:s');
 
                             // Eliminar el evento seleccionado para evitar duplicados
                             $eventosDelDia = array_filter($eventosDelDia, function ($e) use ($eventoSeleccionado) {
@@ -139,11 +151,16 @@ class AsistenciaController extends Controller
                 }
             }
             return response()->json(['message' => 'Asistencias sincronizadas correctamente.']);
-        } catch (\Exception $e) {
-            return response()->json([
+        } catch (GuzzleException $e) {
+            Log::channel('testing')->info('Log', ['GuzzleException en sincronizarAsistencias:',$e->getLine(), $e->getMessage()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
+
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Exception en sincronizarAsistencias:', $e->getLine(), $e->getMessage()]);
+            throw ValidationException::withMessages([
                 'message' => 'Error al sincronizar asistencias.',
                 'details' => $e->getMessage(),
-            ], 500);
+            ]);
         }
     }
 
@@ -151,35 +168,24 @@ class AsistenciaController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Asistencia $asistencia
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(Asistencia $asistencia)
     {
-        $asistencia = Asistencia::with('empleado_id')->find($id);
-
-        if (!$asistencia) {
-            return response()->json(['message' => 'Asistencia no encontrada 1.'], 404);
-        }
-
-        return response()->json($asistencia);
+        $modelo = new AsistenciaResource($asistencia);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Asistencia $asistencia
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Asistencia $asistencia)
     {
-        $asistencia = Asistencia::find($id);
-
-        if (!$asistencia) {
-            return response()->json(['message' => 'Asistencia no encontrada 2.'], 404);
-        }
-
         $validatedData = $request->validate([
             'hora_ingreso' => 'sometimes|date',
             'hora_salida' => 'sometimes|date|after:hora_ingreso',
@@ -193,19 +199,13 @@ class AsistenciaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Asistencia $asistencia
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(Asistencia $asistencia)
     {
-        $asistencia = Asistencia::find($id);
-
-        if (!$asistencia) {
-            return response()->json(['message' => 'Asistencia no encontrada 3.'], 404);
-        }
-
         $asistencia->delete();
-
-        return response()->json(['message' => 'Asistencia eliminada correctamente.']);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

@@ -15,8 +15,13 @@ return new class extends Migration
     {
         Schema::create('rrhh_cp_horario_laboral', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
+            $table->string('dia');
             $table->time('hora_entrada')->nullable()->comment('Hora de entrada al trabajo');
             $table->time('hora_salida')->nullable()->comment('Hora de salida del trabajo');
+            $table->time('inicio_pausa')->nullable()->comment('Hora de inicio de pausa para break');
+            $table->time('fin_pausa')->nullable()->comment('Hora de fin de pausa para break');
+            $table->boolean('activo');
             $table->timestamps();
         });
     }

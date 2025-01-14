@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\ControlPersonal\HorarioLaboralRequest;
 use App\Http\Resources\RecursosHumanos\ControlPersonal\HorarioLaboralResource;
 use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
+use Illuminate\Http\JsonResponse;
 use Src\Shared\Utils;
 
 class HorarioLaboralController extends Controller
 {
-    private $entidad = 'Horario Laboral';
+    private string $entidad = 'Horario Laboral';
 
     public function __construct()
     {
@@ -23,11 +24,11 @@ class HorarioLaboralController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
-        $results = HorarioLaboral::filter()->orderBy('hora_entrada', 'asc')->get();
+        $results = HorarioLaboral::filter()->orderBy('nombre')->get();
         $results = HorarioLaboralResource::collection($results);
 
         return response()->json(compact('results'));
