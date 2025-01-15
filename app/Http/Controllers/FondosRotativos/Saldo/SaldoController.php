@@ -365,7 +365,7 @@ class SaldoController extends Controller
                 );
 
 //            Log::channel('testing')->info('Log', ['despues de gastosQuery', $request->id_tarea]);
-            if($request->id_tarea)
+            if ($request->id_tarea)
                 $gastosQuery = $gastosQuery->where('id_tarea', $request->id_tarea);
 
 //            Log::channel('testing')->info('Log', ['despues de filtro de tarea']);
@@ -496,7 +496,7 @@ class SaldoController extends Controller
             $export_excel = new GastoFiltradoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
-        }catch (Throwable $th){
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['error throwable', $th->getMessage(), $th->getLine()]);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -696,13 +696,21 @@ class SaldoController extends Controller
                 $transferencia = $transferencias_enviadas->sum('monto');
                 $transferencias_recibidas = $this->saldoService->obtenerTransferencias($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $transferencia_recibida = $transferencias_recibidas->sum('monto');
+                $ajuste_saldo_ingreso_reporte = $this->saldoService->obtenerAjustesSaldos($fecha_inicio, $fecha_fin, $request->empleado);
+                $ajuste_saldo_ingreso = $ajuste_saldo_ingreso_reporte->sum('monto');
+                $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_ingreso_reporte);
+
+                $ajuste_saldo_egreso_reporte = $this->saldoService->obtenerAjustesSaldos($fecha_inicio, $fecha_fin, $request->empleado, AjusteSaldoFondoRotativo::EGRESO);
+                $ajuste_saldo_egreso = $ajuste_saldo_egreso_reporte->sum('monto');
+                $ajuste_saldo_egreso_reporte = AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_egreso_reporte);
+
                 $saldo_old = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $registros_fuera_mes_restan = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin, false);
                 $sumatoria_fuera_mes_restan = $registros_fuera_mes_restan->sum('saldo_depositado');
                 $registros_fuera_mes_suman = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin);
                 $sumatoria_fuera_mes_suman = $registros_fuera_mes_suman->sum('saldo_depositado');
                 $sumatoria_aprobados_fuera_mes = $sumatoria_fuera_mes_restan - $sumatoria_fuera_mes_suman;
-                $total = $saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales - $sumatoria_aprobados_fuera_mes;
+                $total = ($saldo_old + $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales) + $ajuste_saldo_ingreso - $ajuste_saldo_egreso - $sumatoria_aprobados_fuera_mes;
                 $empleado = Empleado::where('id', $request->empleado)->first();
                 $usuario = $empleado->nombres . '' . ' ' . $empleado->apellidos;
                 $usuario_canton = $empleado->canton->canton;
@@ -715,6 +723,7 @@ class SaldoController extends Controller
                 'fecha_fin' => $fecha_fin->format('d-m-Y'),
                 'fecha_anterior' => $fecha_anterior,
                 'usuario' => $usuario,
+                'empleado' => $empleado,
                 'usuario_canton' => $usuario_canton,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual - $sumatoria_aprobados_fuera_mes : 0,
                 'gastos_aprobados_fuera_mes' => $sumatoria_aprobados_fuera_mes,
@@ -728,6 +737,10 @@ class SaldoController extends Controller
                 'transferencia_recibida' => $transferencia_recibida,
                 'transferencias_enviadas' => $transferencias_enviadas,
                 'transferencias_recibidas' => $transferencias_recibidas,
+                'ajuste_saldo_ingreso' => $ajuste_saldo_ingreso,
+                'ajuste_saldo_ingreso_reporte' => $ajuste_saldo_ingreso_reporte,
+                'ajuste_saldo_egreso' => $ajuste_saldo_egreso,
+                'ajuste_saldo_egreso_reporte' => $ajuste_saldo_egreso_reporte,
             ];
 //            Log::channel('testing')->info('Log', ['gasto con imagen?', $imagen, $request->all(), $reportes]);
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
@@ -908,17 +921,18 @@ class SaldoController extends Controller
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             $transferencia_recibida = $transferencias_recibidas->sum('monto');
-            $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
-                ->where('destinatario_id', $request->empleado)
-                ->where('tipo', AjusteSaldoFondoRotativo::INGRESO)
-                ->get();
-
+//            $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+//                ->where('destinatario_id', $request->empleado)
+//                ->where('tipo', AjusteSaldoFondoRotativo::INGRESO)
+//                ->get();
+            $ajuste_saldo_ingreso_reporte = $this->saldoService->obtenerAjustesSaldos($fecha_inicio, $fecha_fin, $request->empleado);
             $ajuste_saldo_ingreso = $ajuste_saldo_ingreso_reporte->sum('monto');
             $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_ingreso_reporte);
-            $ajuste_saldo_egreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
-                ->where('destinatario_id', $request->empleado)
-                ->where('tipo', AjusteSaldoFondoRotativo::EGRESO)
-                ->get();
+//            $ajuste_saldo_egreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+//                ->where('destinatario_id', $request->empleado)
+//                ->where('tipo', AjusteSaldoFondoRotativo::EGRESO)
+//                ->get();
+            $ajuste_saldo_egreso_reporte = $this->saldoService->obtenerAjustesSaldos($fecha_inicio, $fecha_fin, $request->empleado, AjusteSaldoFondoRotativo::EGRESO);
             $ajuste_saldo_egreso = $ajuste_saldo_egreso_reporte->sum('monto');
             $ajuste_saldo_egreso_reporte = AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_egreso_reporte);
 
