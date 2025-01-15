@@ -31,7 +31,7 @@ Route::apiResources(
  * Consultar Asistencia de Biometrico
  */
 
-Route::get('/asistencias/sincronizar', [AsistenciaController::class, 'sincronizarAsistencias']);
-Route::get('/atrasos/sincronizar', [AtrasosController::class, 'store']);
+Route::get('sincronizar-asistencias', [AsistenciaController::class, 'sincronizarAsistencias']);
+Route::get('atrasos/sincronizar', [AtrasosController::class, 'store']);
 /**Otras Rutas */
 

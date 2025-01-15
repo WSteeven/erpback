@@ -24,13 +24,14 @@ class HorarioLaboralRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre'=>'required|string',
-            'dia'=>'required|string',
+            'nombre' => 'required|string',
+            'dia' => 'required|string',
             'hora_entrada' => ['required', 'date_format:H:i'],
             'hora_salida' => ['required', 'date_format:H:i'],
-            'tiene_pausa'=>'boolean',
-            'inicio_pausa' => ['nullable','required_if_accepted:tiene_pausa', 'date_format:H:i'],
-            'fin_pausa' => ['nullable','required_if_accepted:tiene_pausa', 'date_format:H:i'],
+            'tiene_pausa' => 'boolean',
+            'activo' => 'boolean',
+            'inicio_pausa' => ['nullable', 'required_if_accepted:tiene_pausa', 'date_format:H:i'],
+            'fin_pausa' => ['nullable', 'required_if_accepted:tiene_pausa', 'date_format:H:i'],
         ];
     }
 }

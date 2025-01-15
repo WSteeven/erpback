@@ -77,6 +77,7 @@ class AsistenciaService
      */
     public function obtenerRegistrosDiarios()
     {
+        Log::channel('testing')->info('Log', ['Metodo obtenerRegistrosDiarios:', request()->all()]);
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
         $endTime = Carbon::now()->endOfMonth()->toIso8601String();
