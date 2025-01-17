@@ -7,7 +7,6 @@ use App\Http\Controllers\ControlPersonal\AtrasoController;
 use App\Http\Controllers\ControlPersonal\MarcacionController;
 use App\Http\Controllers\RecursosHumanos\ControlPersonal\HorarioLaboralController;
 use App\Http\Controllers\RecursosHumanos\ControlPersonal\AsistenciaController;
-use App\Http\Controllers\RecursosHumanos\ControlPersonal\AtrasosController;
 
 use Illuminate\Support\Facades\Route;
 

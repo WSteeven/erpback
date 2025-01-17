@@ -3,79 +3,96 @@
 namespace App\Http\Controllers\ControlPersonal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ControlPersonal\AtrasoRequest;
+use App\Http\Resources\ControlPersonal\AtrasoResource;
+use App\Models\ControlPersonal\Atraso;
 use Exception;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Src\App\RecursosHumanos\ControlPersonal\AtrasosService;
 use Src\Shared\Utils;
+use Throwable;
 
 class AtrasoController extends Controller
 {
     public AtrasosService $service;
+    public string $entidad = 'Atraso';
 
     public function __construct()
     {
         $this->service = new AtrasosService();
+        $this->middleware('can:ver.atrasos')->only('index', 'show');
+        $this->middleware('can:editar.atrasos')->only('update');
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
-        //
+        $results = Atraso::filter()->orderBy('fecha_atraso', 'desc')->get();
+        $results = AtrasoResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return Response
+     * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store()
     {
-        //
+        throw ValidationException::withMessages(['error'=> Utils::metodoNoDesarrollado()]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Atraso $atraso
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(Atraso $atraso)
     {
-        //
+        $modelo = new AtrasoResource($atraso);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param AtrasoRequest $request
+     * @param Atraso $atraso
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(AtrasoRequest $request, Atraso $atraso)
     {
-        //
+        $datos = $request->validated();
+
+        $atraso->update($datos);
+        $modelo = new AtrasoResource($atraso->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
+     * @throws ValidationException
      */
-    public function destroy($id)
+    public function destroy()
     {
-        //
+        throw ValidationException::withMessages(['error'=> Utils::metodoNoDesarrollado()]);
     }
 
 
     /**
      * @throws ValidationException
+     * @throws Throwable
      */
     public function sincronizarAtrasos()
     {

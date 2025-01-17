@@ -7,17 +7,22 @@ use App\Models\ControlPersonal\Marcacion;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
 use Carbon\Carbon;
+use DB;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class AtrasosService
 {
 
     /**
      * @throws Exception
+     * @throws Throwable
      */
     public function sincronizarAtrasos()
     {
+        $asistenciaService = new AsistenciaService();
+        $asistenciaService->sincronizarAsistencias();
         try {
             // En esta etapa trabajamos con los horarios y las marcaciones, para determinar si hubo algun atraso,
             // Primero obtenemos el ultimo registro de atraso para trabajar a partir de allí y no hacer muy pesado, volver a evaluar nuevamente
@@ -37,28 +42,29 @@ class AtrasosService
 
                 // Tomamos de ejemplo que todos los empleados se ajustan al horario normal que esta definido
                 $marcaciones_biometrico = $marcacion->marcaciones;
-                Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcaciones biometrico', $dia, $marcaciones_biometrico, Empleado::extraerNombresApellidos($empleado)]);
+                // Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcaciones biometrico', $dia, $marcaciones_biometrico, Empleado::extraerNombresApellidos($empleado)]);
                 foreach ($marcaciones_biometrico as $index => $marcacion_biometrica) {
-                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcacion individual de cada biometrico', $index, $marcacion_biometrica]);
+                    // Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcacion individual de cada biometrico', $index, $marcacion_biometrica]);
                     $hora_biometrico = Carbon::createFromFormat('H:i:s', $marcacion_biometrica);
-                    $hora_entrada = Carbon::parse( $horario->hora_entrada)->format('H:i:s');
+                    $hora_entrada = Carbon::parse($horario->hora_entrada)->format('H:i:s');
 //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $hora_entrada casteada', $hora_entrada, $horario->hora_salida]);
 //                    $hora_salida = Carbon::createFromFormat('H:i:s', $horario->hora_salida);
-                    $hora_salida =Carbon::parse( $horario->hora_salida)->format('H:i:s');
+                    $hora_salida = Carbon::parse($horario->hora_salida)->format('H:i:s');
 //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $hora_salida casteada', $hora_salida, $horario->inicio_pausa]);
-                    $inicio_pausa = Carbon::parse( $horario->inicio_pausa)->format('H:i:s');
+                    $inicio_pausa = Carbon::parse($horario->inicio_pausa)->format('H:i:s');
 //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $inicio_pausa casteada', $inicio_pausa, $horario->fin_pausa]);
-                    $fin_pausa =Carbon::parse( $horario->fin_pausa)->format('H:i:s');
+                    $fin_pausa = Carbon::parse($horario->fin_pausa)->format('H:i:s');
 //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $fin_pausa casteada', $fin_pausa]);
 
                     $resultado = [];
                     if ($hora_biometrico->lessThan($hora_entrada)) {
                         $resultado['estado'] = 'Temprano';
-                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($hora_entrada) . ' segundos antes de la hora de entrada o .'.$hora_biometrico->diffInMinutes($hora_entrada).' minutos';
+                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($hora_entrada) . ' segundos antes de la hora de entrada o .' . $hora_biometrico->diffInMinutes($hora_entrada) . ' minutos';
                         $resultado = [];
                     } elseif ($hora_biometrico->greaterThan($hora_entrada) && $hora_biometrico->lessThan($hora_salida)) {
-                        $resultado['estado'] = 'Atraso';
-                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($hora_entrada) . ' segundos después de la hora de entrada o .'.$hora_biometrico->diffInMinutes($hora_entrada).' minutos';
+                        $resultado['estado'] = Atraso::ENTRADA;
+                        $resultado['segundos'] = $hora_biometrico->diffInSeconds($hora_entrada);
+                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($hora_entrada) . ' segundos después de la hora de entrada o .' . $hora_biometrico->diffInMinutes($hora_entrada) . ' minutos';
                     }
 
                     // Evaluar si la hora está cerca del inicio o fin de la pausa
@@ -68,18 +74,44 @@ class AtrasosService
 //                        $resultado['estado'] = 'Antes de la pausa';
 //                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($inicio_pausa) . ' segundos antes del inicio de la pausa o .'.$hora_biometrico->diffInMinutes($inicio_pausa).' minutos';
                     } elseif ($hora_biometrico->greaterThan($fin_pausa) && $hora_biometrico->lessThan($hora_salida)) {
-                        $resultado['estado'] = 'Después de la pausa';
-                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($fin_pausa) . ' segundos después del fin de la pausa o .'.$hora_biometrico->diffInMinutes($fin_pausa).' minutos';
+                        $resultado['estado'] = Atraso::PAUSA;
+                        $resultado['segundos'] = $hora_biometrico->diffInSeconds($fin_pausa);
+                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($fin_pausa) . ' segundos después del fin de la pausa o .' . $hora_biometrico->diffInMinutes($fin_pausa) . ' minutos';
                     }
-                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> resultado', $resultado]);
+                    if ($resultado)
+                        if ($resultado['estado'] == Atraso::ENTRADA || $resultado['estado'] == Atraso::PAUSA) {
+                            $this->guardarAtraso($resultado['estado'], $resultado['segundos'], $marcacion);
+                        }
+                    // Log::channel('testing')->info('Log', ['sincronizarAtrasos -> resultado', $resultado]);
                 }
-
             }
         } catch (Exception $e) {
             Log::channel('testing')->error('Log', ['error en sincronizarAtrasos ', $e->getLine(), $e->getMessage()]);
             Log::error($e->getMessage());
             throw $e;
         }
+    }
 
+    /**
+     * @throws Throwable
+     */
+    public function guardarAtraso(string $ocurrencia, int $segundos, Marcacion $marcacion)
+    {
+        try {
+            DB::beginTransaction();
+            //buscamos si ya existe un atraso para los argumentos proporcionados, en caso de existir, omitimos
+            Atraso::firstOrCreate([
+                'empleado_id' => $marcacion->empleado_id,
+                'marcacion_id' => $marcacion->id,
+                'ocurrencia' => $ocurrencia,
+                'fecha_atraso' => $marcacion->fecha,
+                'segundos_atraso' => $segundos]);
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::channel('testing')->error('Log', ['error en guardar Atraso', $e->getLine(), $e->getMessage()]);
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

@@ -20,28 +20,39 @@ class Atraso extends Model implements Auditable
     protected $table = 'rrhh_cp_atrasos';
     protected $fillable = [
         'empleado_id',
-        //'revisador_id', //se supone el jefe inmediato o rrhh en su respectivo caso, aun no se sabe si definir variable
+        'justificador_id', //se supone el jefe inmediato o rrhh en su respectivo caso, aun no se sabe si definir variable
         'marcacion_id',
         'fecha_atraso',
         'ocurrencia', // para saber si ocurrio en la hora_entrada o fin_pausa segun el horario laboral
         'segundos_atraso',
-        'justificado',
+        'justificado', //boolean
         'justificacion',
         'imagen_evidencia',
-        'revisado', //pendiente, revisado
+        'revisado', //pendiente, revisado //boolean
     ];
 
     protected $casts = [
-//  'minutos_atraso'=>'i:s'
+        'justificado' => 'boolean',
+        'revisado' => 'boolean',
     ];
-
-    const ENTRADA = 'ENTRADA';
-    const PAUSA = 'PAUSA';
+    private static array $whiteListFilter = ['*'];
+    const ENTRADA = 'HORA DE ENTRADA';
+    const PAUSA = 'FIN PAUSA';
 
 
     protected function empleado()
     {
         return $this->belongsTo(Empleado::class);
+    }
+
+    protected function justificador()
+    {
+        return $this->belongsTo(Empleado::class, 'justificador_id');
+    }
+
+    public function marcacion()
+    {
+        return $this->belongsTo(Marcacion::class);
     }
 
 }

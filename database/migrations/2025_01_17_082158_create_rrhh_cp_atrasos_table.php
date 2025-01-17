@@ -26,6 +26,7 @@ return new class extends Migration {
             $table->boolean('revisado')->default(false);
             $table->timestamps();
 
+            $table->unique(['empleado_id', 'marcacion_id', 'fecha_atraso', 'segundos_atraso'], 'uq_atrasos');
             $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->foreign('justificador_id')->references('id')->on('empleados');
             $table->foreign('marcacion_id')->references('id')->on('rrhh_cp_marcaciones');

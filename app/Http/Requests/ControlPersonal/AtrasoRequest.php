@@ -13,7 +13,7 @@ class AtrasoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,25 @@ class AtrasoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'empleado_id' => 'required|exists:empleados,id',
+            'justificador_id' => 'nullable|exists:empleados,id',
+            'marcacion_id' => 'required|exists:rrhh_cp_marcaciones,id',
+            'fecha_atraso' => 'required|string',
+            'ocurrencia' => 'required|string',
+            'segundos_atraso' => 'required|numeric',
+            'justificado' => 'boolean',
+            'justificacion' => 'nullable|string',
+            'imagen_evidencia' => 'nullable|string',
+            'revisado' => 'boolean',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'empleado_id' => $this->empleado,
+            'justificador_id' => $this->justificador ?: auth()->user()->empleado->id,
+            'marcacion_id' => $this->marcacion,
+        ]);
     }
 }
