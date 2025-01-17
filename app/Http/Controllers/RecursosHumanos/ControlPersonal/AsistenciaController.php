@@ -61,11 +61,12 @@ class AsistenciaController extends Controller
             // $horario_laborar = HorarioLaboral::first();
 
             // Validar que 'InfoList' exista en la respuesta
-            if (!isset($datos['AcsEvent']['InfoList'])) {
-                throw new Exception("La clave 'InfoList' no está presente en los datos obtenidos.");
-            }
-
-            $eventos = $datos['AcsEvent']['InfoList'];
+//            if (!isset($datos['AcsEvent']['InfoList'])) {
+//                throw new Exception("La clave 'InfoList' no está presente en los datos obtenidos.");
+//            }
+//
+//            $eventos = $datos['AcsEvent']['InfoList'];
+            $eventos = $datos;
 
             // Filtrar eventos con 'minor' igual a 75 o 38
             $eventos = array_filter($eventos, function ($evento) {

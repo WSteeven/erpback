@@ -34,7 +34,7 @@ class Asistencia extends Model implements Auditable
         'hora_entrada_almuerzo',
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
 

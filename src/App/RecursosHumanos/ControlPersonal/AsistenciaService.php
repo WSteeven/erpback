@@ -2,6 +2,8 @@
 
 namespace Src\App\RecursosHumanos\ControlPersonal;
 
+use App\Models\ControlPersonal\Marcacion;
+use App\Models\Empleado;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -16,7 +18,7 @@ use Illuminate\Support\Facades\Log;
  */
 class AsistenciaService
 {
-    protected $client;
+    protected Client $client;
 
     public function __construct()
     {
@@ -28,6 +30,7 @@ class AsistenciaService
     }
 
     /**
+     * Este metodo esta implementado en FetchHikVisionRecords
      * @throws GuzzleException
      * @throws Exception
      */
@@ -68,16 +71,20 @@ class AsistenciaService
             }
         } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
 
+        Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios24Mayo-> eventos obtenidos', $eventosTotales]);
         return ['AcsEvent' => ['InfoList' => $eventosTotales]];
     }
 
     /**
+     * INFO: Metodo con el que se esta trabajando, consultando desde asistenciaController
+     *
+     * Obtiene todos los eventos del mes del biometrico.
+     *
      * @throws GuzzleException
      * @throws Exception
      */
     public function obtenerRegistrosDiarios()
     {
-        Log::channel('testing')->info('Log', ['Metodo obtenerRegistrosDiarios:', request()->all()]);
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
         $endTime = Carbon::now()->endOfMonth()->toIso8601String();
@@ -120,7 +127,10 @@ class AsistenciaService
                 }
             } while (count($data['AcsEvent']['InfoList']) === $maxResults);
 
-            return ['AcsEvent' => ['InfoList' => $eventosTotales]];
+//            Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios-> eventos obtenidos', $eventosTotales]);
+
+            return $eventosTotales;
+//            return ['AcsEvent' => ['InfoList' => $eventosTotales]];
         } catch (Exception $e) {
             // Manejar errores en caso de falla
             Log::channel('testing')->info('Log', ['Exception en obtenerRegistrosDiarios:', $e->getLine(), $e->getMessage()]);
@@ -128,39 +138,124 @@ class AsistenciaService
         }
     }
 
-    public function consultarBiometrico()
+    /**
+     * @throws GuzzleException
+     * @throws Exception
+     */
+    public function sincronizarAsistencias()
     {
-        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
-        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
-        $maxResults = 1000;
-        $searchResultPosition = 0;
-        $eventosTotales = [];
+        try {
+            $datos = $this->obtenerRegistrosDiarios();
 
-        do {
-            $ascEventCond = [
-                "searchID" => "1",
-                "searchResultPosition" => $searchResultPosition,
-                "maxResults" => $maxResults,
-                "major" => 5,
-                "minor" => 0,
-                "startTime" => $startTime,
-                "endTime" => $endTime,
-                "picEnable" => false,
-                "timeReverseOrder" => true
-            ];
+            //De los eventos recibidos filtramos para obtener solo los eventos con 'minor' igual a 75 o 38
+            $eventos = array_filter($datos, function ($evento) {
+                return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
+            });
+            // Validar que los eventos tienen las claves 'name' y 'time'
+            $eventos = array_filter($eventos, function ($evento) {
+                return isset($evento['cardNo']);
+            });
+            // Ordenar eventos por hora para procesarlos en orden cronológico desdel el mas reciente al mas antiguo
+            usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
 
-            $response = $this->client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
-            $data = json_decode($response->getBody(), true);
-
-            if (isset($data['AcsEvent']['InfoList'])) {
-                $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
-                $searchResultPosition += $maxResults;
-            } else {
-                break;
+            // Agrupar eventos por empleado y fecha
+            $eventosAgrupados = [];
+            foreach ($eventos as $evento) {
+                $fechaEvento = Carbon::parse($evento['time'])->format('Y-m-d');
+                $eventosAgrupados[$evento['name']][$fechaEvento][] = $evento;
             }
-        } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
+//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos agrupados', $eventosAgrupados]);
 
-        return ['AcsEvent' => ['InfoList' => $eventosTotales]];
+            foreach ($eventosAgrupados as $nombreEmpleado => $fechas) {
+//                Log::channel('testing')->info('Log', ['Eventos agrupados ', $nombreEmpleado, $fechas]);
+                $this->guardarEventosEmpleado($fechas);
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->error('Log', ['GuzzleException en AsistenciaService::sincronizarAsistencias:', $e->getLine(), $e->getMessage()]);
+            throw $e;
+        }
     }
+
+    public function guardarEventosEmpleado($eventosDelDia)
+    {
+        $marcacion = new Marcacion();
+        foreach ($eventosDelDia as $dia => $eventos) {
+//            Log::channel('testing')->info('Log', ['recorrerEventosEmpleado ', $dia, $eventos]);
+            // se tiene el dia y los eventos, falta obtener la cedula del empleado, pero primero filtramos los eventos para eliminar los duplicados en segundos
+            $eventosFiltrados = $this->filtrarEventosPorTiempo($eventos);
+            // se mapea las fechas de los eventos filtrados, ya que esos registros irán a las marcaciones como un json
+            $marcaciones = array_map(function ($evento) {
+                return Carbon::parse($evento['time'])->format('H:i:s');
+            }, $eventosFiltrados);
+            //obtenemos el empleado
+            $empleado = Empleado::where('identificacion', $eventosFiltrados[0]['cardNo'])->first();
+            if (!$empleado) continue; // se salta ese registro si no hay el cardNo, pero no debería entrar aquí
+
+            $marcacion->empleado_id = $empleado->id;
+            $marcacion->fecha = $dia;
+            $marcacionExistente = Marcacion::where('empleado_id', $empleado->id)->where('fecha', $dia)->first();
+            if ($marcacionExistente)
+                $marcacionExistente->update(['marcaciones', $marcaciones]);
+            else {
+                $marcacion->marcaciones = $marcaciones;
+                $marcacion->save();
+            }
+        }
+    }
+
+    /**
+     * Filtra los eventos, para eliminar los duplicados, porque los registros del biometrico muchas veces graba dos registros, cara y huella, entonces se trabaja con el primer registro obtenido y el segundo se descarta, a menos que la diferencia sea superior a 1 minuto, lo cual toma como una marcacion valida
+     * @param $eventos
+     * @return array
+     */
+    public function filtrarEventosPorTiempo($eventos)
+    {
+        $resultado = [];
+        $ultimoTiempo = null;
+        foreach ($eventos as $evento) {
+            $tiempoActual = strtotime($evento['time']);
+            // Verificar si la diferencia es mayor a 1 minuto
+            if ($ultimoTiempo === null || ($tiempoActual - $ultimoTiempo) > 60) {
+                $resultado[] = $evento;
+                $ultimoTiempo = $tiempoActual;
+            }
+        }
+        return $resultado;
+    }
+
+//    public function consultarBiometrico()
+//    {
+//        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+//        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+//        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+//        $maxResults = 1000;
+//        $searchResultPosition = 0;
+//        $eventosTotales = [];
+//
+//        do {
+//            $ascEventCond = [
+//                "searchID" => "1",
+//                "searchResultPosition" => $searchResultPosition,
+//                "maxResults" => $maxResults,
+//                "major" => 5,
+//                "minor" => 0,
+//                "startTime" => $startTime,
+//                "endTime" => $endTime,
+//                "picEnable" => false,
+//                "timeReverseOrder" => true
+//            ];
+//
+//            $response = $this->client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+//            $data = json_decode($response->getBody(), true);
+//
+//            if (isset($data['AcsEvent']['InfoList'])) {
+//                $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
+//                $searchResultPosition += $maxResults;
+//            } else {
+//                break;
+//            }
+//        } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
+//
+//        return ['AcsEvent' => ['InfoList' => $eventosTotales]];
+//    }
 }

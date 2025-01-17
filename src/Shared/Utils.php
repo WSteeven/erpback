@@ -110,7 +110,12 @@ class Utils
         $ruta = str_replace('public/', '', $ruta);
         return '/storage/' . $ruta;
     }
-
+public static function quitarTildes($texto)
+{
+    $buscar  = ['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú'];
+    $reemplazar = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'];
+    return str_replace($buscar, $reemplazar, $texto);
+}
     public static function obtenerMensaje(string $entidad, string $metodo, string $genero = 'M')
     {
         $mensajes = [

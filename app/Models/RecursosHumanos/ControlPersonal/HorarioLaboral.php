@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\ControlPersonal;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,6 +12,9 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * @method static Builder|HorarioLaboral where($column, $value)
+ */
 class HorarioLaboral extends Model implements Auditable
 {
     use HasFactory;
