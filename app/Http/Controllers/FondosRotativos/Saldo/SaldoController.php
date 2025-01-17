@@ -35,7 +35,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
@@ -654,6 +653,10 @@ class SaldoController extends Controller
             $transferencias_enviadas = [];
             $transferencias_recibidas = [];
             $sumatoria_aprobados_fuera_mes = 0;
+            $ajuste_saldo_ingreso = 0;
+            $ajuste_saldo_ingreso_reporte = [];
+            $ajuste_saldo_egreso = 0;
+            $ajuste_saldo_egreso_reporte = [];
             $registros_fuera_mes_suman = collect();
             $registros_fuera_mes_restan = collect();
             $total = 0;
@@ -666,6 +669,7 @@ class SaldoController extends Controller
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
                 $usuario = '';
+                $empleado = new Empleado();
             } else {
                 $fecha = Carbon::parse($fecha_inicio);
                 $fecha_anterior = $fecha->subDay()->format('Y-m-d');
