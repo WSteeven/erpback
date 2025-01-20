@@ -82,7 +82,7 @@ class MarcacionController extends Controller
     {
         try {
             $this->service->sincronizarAsistencias();
-            return response()->json(['message' => 'Asistencias sincronizadas correctamente.']);
+            return response()->json(['message' => 'Marcaciones sincronizadas correctamente.']);
         } catch (GuzzleException $e) {
             Log::channel('testing')->info('Log', ['GuzzleException en sincronizarAsistencias:', $e->getLine(), $e->getMessage()]);
             throw Utils::obtenerMensajeErrorLanzable($e, 'GuzzleException -> sincronizarAsistencias');

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\RecursosHumanos\ControlPersonal\AsistenciaResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\ControlPersonal\Asistencia;
+use App\Models\ControlPersonal\Marcacion;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -41,7 +42,8 @@ class AsistenciaController extends Controller
     }
 
     // Method POST
-    public function store(Request $request){
+    public function store(Request $request)
+    {
 
         $modelo = Asistencia::create($request->validated());
 
@@ -54,18 +56,18 @@ class AsistenciaController extends Controller
      * @return JsonResponse
      * @throws ValidationException
      */
-    public function sincronizarAsistencias()
+/*     public function sincronizarAsistencias()
     {
         try {
             $datos = $this->service->obtenerRegistrosDiarios();
             // $horario_laborar = HorarioLaboral::first();
 
             // Validar que 'InfoList' exista en la respuesta
-//            if (!isset($datos['AcsEvent']['InfoList'])) {
-//                throw new Exception("La clave 'InfoList' no está presente en los datos obtenidos.");
-//            }
-//
-//            $eventos = $datos['AcsEvent']['InfoList'];
+            //            if (!isset($datos['AcsEvent']['InfoList'])) {
+            //                throw new Exception("La clave 'InfoList' no está presente en los datos obtenidos.");
+            //            }
+            //
+            //            $eventos = $datos['AcsEvent']['InfoList'];
             $eventos = $datos;
 
             // Filtrar eventos con 'minor' igual a 75 o 38
@@ -153,9 +155,8 @@ class AsistenciaController extends Controller
             }
             return response()->json(['message' => 'Asistencias sincronizadas correctamente.']);
         } catch (GuzzleException $e) {
-            Log::channel('testing')->info('Log', ['GuzzleException en sincronizarAsistencias:',$e->getLine(), $e->getMessage()]);
+            Log::channel('testing')->info('Log', ['GuzzleException en sincronizarAsistencias:', $e->getLine(), $e->getMessage()]);
             throw Utils::obtenerMensajeErrorLanzable($e);
-
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['Exception en sincronizarAsistencias:', $e->getLine(), $e->getMessage()]);
             throw ValidationException::withMessages([
@@ -163,7 +164,81 @@ class AsistenciaController extends Controller
                 'details' => $e->getMessage(),
             ]);
         }
+    } */
+
+
+
+    public function sincronizarAsistencias()
+    {
+        try {
+            // Obtener registros de la tabla 'marcaciones'
+            $registros = Marcacion::all();
+
+            // Definir horarios esperados
+            $horarios = [
+                'hora_ingreso' => ['start' => '00:00:00', 'end' => '11:59:59'],
+                'hora_salida_almuerzo' => ['start' => '12:00:00', 'end' => '13:00:59'],
+                'hora_entrada_almuerzo' => ['start' => '13:01:00', 'end' => '14:00:00'],
+                'hora_salida' => ['start' => '16:30:00', 'end' => '23:59:59'],
+            ];
+
+            foreach ($registros as $registro) {
+                $empleado = Empleado::find($registro->empleado_id);
+                if (!$empleado) {
+                    continue;
+                }
+
+                $fecha = Carbon::parse($registro->fecha)->format('Y-m-d');
+
+                // Asegurar que el campo 'marcaciones' es un string antes de decodificar
+                $marcacionesJson = is_string($registro->marcaciones) ? $registro->marcaciones : json_encode($registro->marcaciones);
+                $marcaciones = json_decode($marcacionesJson, true);
+
+                if (!is_array($marcaciones) || empty($marcaciones)) {
+                    continue;
+                }
+
+                // Inicializar asistencia
+                $asistencia = [
+                    'hora_ingreso' => null,
+                    'hora_salida_almuerzo' => null,
+                    'hora_entrada_almuerzo' => null,
+                    'hora_salida' => null,
+                ];
+
+                foreach ($horarios as $tipo => $rango) {
+                    $eventoSeleccionado = null;
+
+                    foreach ($marcaciones as $hora) {
+                        if ($hora >= $rango['start'] && $hora <= $rango['end']) {
+                            if (!$eventoSeleccionado || $hora < $eventoSeleccionado) {
+                                $eventoSeleccionado = $hora;
+                            }
+                        }
+                    }
+
+                    if ($eventoSeleccionado) {
+                        $asistencia[$tipo] = $eventoSeleccionado;
+                    }
+                }
+
+                // Guardar asistencia si hay datos
+                if (array_filter($asistencia)) {
+                    Asistencia::updateOrCreate(
+                        ['empleado_id' => $empleado->id, 'fecha' => $fecha],
+                        $asistencia
+                    );
+                }
+            }
+
+            return response()->json(['message' => 'Asistencias sincronizadas correctamente.']);
+        } catch (Exception $e) {
+            Log::error('Error en sincronizarAsistencias: ' . $e->getMessage());
+            return response()->json(['message' => 'Error al sincronizar asistencias', 'details' => $e->getMessage()], 500);
+        }
     }
+
+
 
 
     /**

@@ -78,7 +78,7 @@ class AtrasosService
                         $resultado['segundos'] = $hora_biometrico->diffInSeconds($fin_pausa);
                         $resultado['diferencia'] = $hora_biometrico->diffInSeconds($fin_pausa) . ' segundos después del fin de la pausa o .' . $hora_biometrico->diffInMinutes($fin_pausa) . ' minutos';
                     }
-                    if ($resultado)
+                    if ($resultado){}
                         if ($resultado['estado'] == Atraso::ENTRADA || $resultado['estado'] == Atraso::PAUSA) {
                             $this->guardarAtraso($resultado['estado'], $resultado['segundos'], $marcacion);
                         }
