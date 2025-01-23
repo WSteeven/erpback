@@ -2,14 +2,20 @@
 
 namespace Src\App\Tareas;
 
+use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Models\Autorizacion;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Tareas\TransferenciaProductoEmpleado;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\Shared\Utils;
 
 class TransferenciaProductoEmpleadoService
 {
@@ -192,5 +198,22 @@ class TransferenciaProductoEmpleadoService
         } catch (Exception $e) {
             throw $e; //ValidationException::withMessages(['error' => $e->getMessage()]);
         }
+    }
+
+    public function imprimirTransferenciaProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $fecha_entrega = new DateTime($transferencia_producto_empleado->created_at);
+
+        $pdf = Pdf::loadView('bodega.pdf.transferencia_producto', [
+            'configuracion' => $configuracion,
+            'transferencia' => (new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado))->resolve(),
+            'mes' => Utils::$meses[$fecha_entrega->format('F')],
+            'entrega' => Empleado::find($transferencia_producto_empleado->empleado_origen_id),
+            'responsable' => Empleado::find($transferencia_producto_empleado->empleado_destino_id),
+        ]);
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->render();
+        return $pdf->output();
     }
 }
