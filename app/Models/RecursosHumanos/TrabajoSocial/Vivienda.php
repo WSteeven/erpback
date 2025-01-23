@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\TrabajoSocial;
 
+use App\Models\TrabajoSocial\FamiliaAcogiente;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,14 +21,17 @@ class Vivienda extends Model implements Auditable
     protected $fillable = [
         'empleado_id',
         'tipo',
+        'numero_plantas',
         'material_paredes',
         'material_techo',
         'material_piso',
         'distribucion_vivienda',
         'comodidad_espacio_familiar',
         'numero_dormitorios',
+        'numero_personas',
         'existe_hacinamiento', //boolean
         'existe_upc_cercano', //boolean
+        'tiene_donde_evacuar', //boolean
         'otras_consideraciones',
         'imagen_croquis',
         'telefono',
@@ -37,6 +41,13 @@ class Vivienda extends Model implements Auditable
         'servicios_basicos',
         'model_id',
         'model_type',
+
+        'amenaza_inundacion',
+        'amenaza_deslaves',
+        'otras_amenazas_previstas',
+        'otras_amenazas',
+        'existe_peligro_tsunami',
+        'existe_peligro_lahares',
     ];
 
     protected $casts = [
@@ -44,11 +55,22 @@ class Vivienda extends Model implements Auditable
         'distribucion_vivienda' => 'json',
         'existe_hacinamiento' => 'boolean',
         'existe_upc_cercano' => 'boolean',
+        'tiene_donde_evacuar' => 'boolean',
+        'amenaza_inundacion' => 'json',
+        'amenaza_deslaves' => 'json',
+        'otras_amenazas_previstas' => 'json',
+        'existe_peligro_tsunami' => 'boolean',
+        'existe_peligro_lahares' => 'boolean',
     ];
 
 
     public function viviendable()
     {
         return $this->morphTo();
+    }
+
+    public function familiaAcogiente()
+    {
+        return $this->hasOne(FamiliaAcogiente::class);
     }
 }

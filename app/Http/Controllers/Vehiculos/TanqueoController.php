@@ -37,7 +37,7 @@ class TanqueoController extends Controller
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR_VEHICULOS])) {
-            $results = Tanqueo::orderBy('id', 'desc')->get($campos);
+            $results = Tanqueo::orderBy('id', 'desc')->filter()->get($campos);
         } else {
             $results = Tanqueo::where('solicitante_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->get($campos);
         }

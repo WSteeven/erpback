@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Models\Audit;
@@ -97,6 +98,10 @@ class EgresoRolPago extends Model implements Auditable
      */
     public static function crearEgresoRol(RolPago $rol_pago, $monto, $entidad)
     {
+        if($entidad->egreso_rol_pago()->where('id_rol_pago', $rol_pago->id)->exists()) {
+            Log::channel('testing')->info('Log', ['Ya existe el egreso rol para esta entidad', $entidad->egreso_rol_pago()->where('id_rol_pago', $rol_pago->id)->get()]);
+            return null;
+        }
         return $entidad->egreso_rol_pago()->create([
             'id_rol_pago' => $rol_pago->id,
             'empleado_id' => $rol_pago->empleado_id,

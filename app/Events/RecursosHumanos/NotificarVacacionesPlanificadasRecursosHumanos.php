@@ -32,7 +32,7 @@ class NotificarVacacionesPlanificadasRecursosHumanos implements ShouldBroadcast
     public function __construct($plan)
     {
         $this->plan = $plan;
-
+        $this->departamento_rrhh = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first();
         $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->ruta, TiposNotificaciones::ASIGNACION_VEHICULO, null, $this->departamento_rrhh->responsable_id, $this->plan, false);
     }
 

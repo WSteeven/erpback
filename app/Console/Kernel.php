@@ -13,6 +13,7 @@ use App\Jobs\RechazarGastoJob;
 use App\Jobs\RecursosHumanos\CrearVacacionesEmpleadoJob;
 use App\Jobs\RecursosHumanos\DesactivarEmpleadoDelegadoJob;
 use App\Jobs\RecursosHumanos\NotificarPotencialesVacacionesEmpleadoJob;
+use App\Jobs\TrabajoSocial\NotificarActualizacionFichaSocioeconomicaJob;
 use App\Jobs\Vehiculos\ActualizarEstadoSegurosVehiculares;
 use App\Jobs\Vehiculos\ActualizarMantenimientoVehiculoJob;
 use App\Jobs\Vehiculos\CrearMatriculasAnualesVehiculosJob;
@@ -80,6 +81,12 @@ class Kernel extends ConsoleKernel
         $schedule->job(new CrearVacacionesEmpleadoJob())->daily();
         $schedule->job(new NotificarPotencialesVacacionesEmpleadoJob())->dailyAt('08:00');
         $schedule->job(new DesactivarEmpleadoDelegadoJob())->everyMinute();
+
+        /*****************
+         * TRABAJO SOCIAL
+         ****************/
+        $schedule->job(new NotificarActualizacionFichaSocioeconomicaJob())->daily();
+
 
         /*********
          * TAREAS

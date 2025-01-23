@@ -27,6 +27,7 @@ class TanqueoRequest extends FormRequest
             'vehiculo_id' => 'required|exists:vehiculos,id',
             'solicitante_id' => 'required|exists:empleados,id',
             'combustible_id' => 'required|exists:combustibles,id',
+            'bitacora_id' => 'nullable|exists:veh_bitacoras_vehiculos,id',
             'fecha_hora' => 'required|date_format:Y-m-d',
             'km_tanqueo' => 'required|integer|numeric',
             'monto' => 'required|numeric',
@@ -47,6 +48,7 @@ class TanqueoRequest extends FormRequest
         $this->merge([
             'vehiculo_id' => $this->vehiculo,
             'combustible_id' => $this->combustible,
+            'bitacora_id' => $this->bitacora,
         ]);
     }
 }

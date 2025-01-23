@@ -256,12 +256,12 @@ class NominaService
      */
     public function registrarIngresosProgramados(RolPagoMes $rol_mes)
     {
-        Log::channel('testing')->info('Log', ['registrarIngresosProgramados', $rol_mes]);
+//        Log::channel('testing')->info('Log', ['registrarIngresosProgramados', $rol_mes]);
         $mes = Carbon::createFromFormat('m-Y', $rol_mes->mes)->format('Y-m');
         try {
-
             $valores = ValorEmpleadoRolMensual::where('mes', $mes)
-                ->where('tipo', ValorEmpleadoRolMensual::INGRESO)->get();
+                ->where('tipo', ValorEmpleadoRolMensual::INGRESO)
+                ->whereNull('rol_pago_id')->get();
             foreach ($valores as $valor) {
                 $rol_empleado = RolPago::where('empleado_id', $valor->empleado_id)->where('rol_pago_id', $rol_mes->id)->first();
                 IngresoRolPago::create([
@@ -274,7 +274,6 @@ class NominaService
                 $valor->save();
             }
         } catch (Exception $ex) {
-            Log::channel('testing')->error('Log', [$ex]);
             Log::channel('testing')->error('Log', ['error registrarIngresosProgramados', $ex->getMessage(), $ex->getLine()]);
             throw $ex;
         }
@@ -307,7 +306,7 @@ class NominaService
             $descuentos = Descuento::where('pagado', false)
                 ->where('empleado_id', $rol_empleado->empleado_id)
                 ->where('mes_inicia_cobro', '<=', $mes)->get();
-            if ($descuentos->count() > 0) Log::channel('testing')->info('Log', ['descuentos', $descuentos]);
+//            if ($descuentos->count() > 0) Log::channel('testing')->info('Log', ['descuentos', $descuentos]);
             // Recorremos los descuentos para ver las cuotas por cada uno y tomarlas para registrar esos egresos
             foreach ($descuentos as $descuento) {
                 $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
@@ -404,22 +403,19 @@ class NominaService
         $mesesTrabajados = $hoy->diffInMonths($fechaIngreso);
 //        Log::channel('testing')->info('Log', ['hoy y dias trabajados', $hoy, $diasTrabajados]);
 //        Log::channel('testing')->info('Log', ['meses trabajados', $mesesTrabajados]);
-        if ($mesesTrabajados >= 12 && $this->empleado->acumula_fondos_reserva == 0) {
+        if ($mesesTrabajados >= 13 && $this->empleado->acumula_fondos_reserva == 0) {
 //            Log::channel('testing')->info('Log', ['entro en el if', $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva()]);
             $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-            if ($mesesTrabajados == 12) {
-//                Log::channel('testing')->info('Log', ['entro en if de meses trabajados']);
-                $fechaVinculacion = Carbon::createFromFormat('Y-m-d', $this->empleado->fecha_vinculacion)->year($hoy->year);
-                $diasRestantes = 30 - $fechaVinculacion->day + 1;
-                if ($diasRestantes >= 1) {
-                    $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-//                    Log::channel('testing')->info('Log', ['entro en if de dias restantes >=1', $dias, $diasRestantes, $fondosDeReserva]);
-                }
-                if ($dias < $diasRestantes) {
-                    $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-//                    Log::channel('testing')->info('Log', ['entro en segundo if ', $dias, $diasRestantes, $fondosDeReserva]);
-                }
-            }
+//            if ($mesesTrabajados == 12) {
+//                $fechaVinculacion = Carbon::createFromFormat('Y-m-d', $this->empleado->fecha_vinculacion)->year($hoy->year);
+//                $diasRestantes = 30 - $fechaVinculacion->day + 1;
+//                if ($diasRestantes >= 1) {
+//                    $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+//                }
+//                if ($dias < $diasRestantes) {
+//                    $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+//                }
+//            }
         }
         return floatval(number_format($fondosDeReserva, 2));
     }

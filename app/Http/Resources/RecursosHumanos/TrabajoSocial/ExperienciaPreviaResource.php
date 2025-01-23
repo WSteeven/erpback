@@ -25,6 +25,7 @@ class ExperienciaPreviaResource extends JsonResource
             'telefono'=> $this->telefono,
             'fecha_retiro'=> $this->fecha_retiro,
             'motivo_retiro'=> $this->motivo_retiro,
+            'salario'=> $this->salario,
         ];
     }
 }

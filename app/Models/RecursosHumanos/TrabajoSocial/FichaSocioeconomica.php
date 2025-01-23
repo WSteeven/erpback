@@ -23,8 +23,12 @@ class FichaSocioeconomica extends Model implements Auditable
         'lugar_nacimiento',
         'canton_id',
         'contacto_emergencia',
+        'contacto_emergencia_externo',
         'parentesco_contacto_emergencia',
+        'parentesco_contacto_emergencia_externo',
         'telefono_contacto_emergencia',
+        'telefono_contacto_emergencia_externo',
+        'ciudad_contacto_emergencia_externo_id',
         'problemas_ambiente_social_familiar',
         'observaciones_ambiente_social_familiar',
         'conocimientos',
@@ -52,6 +56,10 @@ class FichaSocioeconomica extends Model implements Auditable
     public function canton()
     {
         return $this->belongsTo(Canton::class);
+    }
+    public function ciudadContactoExterno()
+    {
+        return $this->belongsTo(Canton::class, 'ciudad_contacto_emergencia_externo_id');
     }
 
     public function conyuge()
