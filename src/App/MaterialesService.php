@@ -122,7 +122,7 @@ class MaterialesService
                         break;
                     case 'tareas':
                         $row['transaccion'] = 'TAREA';
-                        $row['descripcion'] = $entidad->titulo;
+                        $row['descripcion'] = $entidad?->titulo;
                         break;
                     default:
                         $row['segmentos'] = $segmentos;
@@ -193,7 +193,7 @@ class MaterialesService
                         break;
                     case 'tareas':
                         $row['transaccion'] = 'TAREA';
-                        $row['descripcion'] = $entidad->titulo;
+                        $row['descripcion'] = $entidad?->titulo;
                         break;
                     default:
                         $row['segmentos'] = $segmentos;

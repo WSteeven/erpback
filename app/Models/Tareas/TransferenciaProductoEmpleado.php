@@ -124,6 +124,10 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
 
+    public function empleadoOrigen()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_origen_id', 'id');
+    }
     public function empleadoDestino()
     {
         return $this->belongsTo(Empleado::class, 'empleado_destino_id', 'id');
