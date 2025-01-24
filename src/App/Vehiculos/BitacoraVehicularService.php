@@ -19,6 +19,7 @@ use App\Models\Vehiculos\ChecklistVehiculo;
 use App\Models\Vehiculos\MantenimientoVehiculo;
 use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -443,5 +444,22 @@ class BitacoraVehicularService
         } catch (Throwable $th) {
             throw new Exception(Utils::obtenerMensajeError($th, 'No se pudo generar el PDF..'), 1, $th);
         }
+    }
+
+    public function reporteBitacoras(Request $request){
+        $results = [];
+        $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
+        switch($request->tipo){
+            case 'todos':
+                $results = BitacoraVehicular::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->where('firmada', true)->get();
+                break;
+            default: // en caso de que se requiera de un solo vehiculo
+            $results = BitacoraVehicular::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+            ->where('vehiculo_id', $request->vehiculo)
+            ->where('firmada', true)->get();
+        }
+        return $results;
     }
 }

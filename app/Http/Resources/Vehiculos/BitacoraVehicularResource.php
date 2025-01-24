@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use App\Models\Tarea;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
@@ -25,6 +26,8 @@ class BitacoraVehicularResource extends JsonResource
             'hora_llegada' => $this->hora_llegada,
             'km_inicial' => $this->km_inicial,
             'km_final' => $this->km_final,
+            'km_recorridos' => $this->km_final ? $this->km_final - $this->km_inicial : 0,
+            'tareas' =>  $this->tareas ? Tarea::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->tareas)))->pluck('codigo_tarea'): null,
             'tanque_inicio' => $this->tanque_inicio,
             'tanque_final' => $this->tanque_final,
             'fecha_finalizacion' => $this->fecha_finalizacion,
@@ -45,7 +48,6 @@ class BitacoraVehicularResource extends JsonResource
             $modelo['checklistImagenVehiculo'] = new ChecklistImagenVehiculoResource($this->checklistImagenVehiculo);
 
             $modelo['vehiculo'] = $this->vehiculo_id;
-
         }
 
         return $modelo;

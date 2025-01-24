@@ -1,16 +1,22 @@
-<?php /** @noinspection PhpDynamicAsStaticMethodCallInspection */
+<?php
+
+/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 
 namespace App\Http\Controllers\Vehiculos;
 
+use App\Exports\Vehiculos\ReporteBitacorasVehiculosExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\BitacoraVehicularRequest;
 use App\Http\Resources\Vehiculos\BitacoraVehicularResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\User;
 use App\Models\Vehiculos\BitacoraVehicular;
 use Carbon\Carbon;
+use Excel;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -24,12 +30,12 @@ use Throwable;
 class BitacoraVehicularController extends Controller
 {
     private string $entidad = 'Bitacora Vehicular';
-//    private ActividadRealizadaService $actividadService;
+    //    private ActividadRealizadaService $actividadService;
     private BitacoraVehicularService $service;
 
     public function __construct()
     {
-//        $this->actividadService = new ActividadRealizadaService();
+        //        $this->actividadService = new ActividadRealizadaService();
         $this->service = new BitacoraVehicularService();
         $this->middleware('can:puede.ver.bitacoras_vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.bitacoras_vehiculos')->only('store');
@@ -51,8 +57,8 @@ class BitacoraVehicularController extends Controller
             if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
                 $results = BitacoraVehicular::ignoreRequest(['chofer_id'])->filter()->orderBy('updated_at', 'desc')->get();
             else {
-//                 $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
-//                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
+                //                 $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
+                //                $results = BitacoraVehicular::filter()->orderBy('updated_at', 'desc')->get();
                 //obtenemos los ids de los registros segun la persona que los modifica
                 $ids_auditorias = Audit::where('auditable_type', BitacoraVehicular::class)->where('user_id', auth()->user()->id)
                     ->distinct('auditable_id') // Asegúrate de que el campo 'auditable_id' sea único
@@ -197,15 +203,15 @@ class BitacoraVehicularController extends Controller
     /**
      * @throws ValidationException
      */
-//    public function indexActividades(BitacoraVehicular $bitacora)
-//    {
-//        try {
-//            $results = $this->actividadService->index($bitacora);
-//            return response()->json(compact('results'));
-//        } catch (Throwable $th) {
-//            throw Utils::obtenerMensajeErrorLanzable($th);
-//        }
-//    }
+    //    public function indexActividades(BitacoraVehicular $bitacora)
+    //    {
+    //        try {
+    //            $results = $this->actividadService->index($bitacora);
+    //            return response()->json(compact('results'));
+    //        } catch (Throwable $th) {
+    //            throw Utils::obtenerMensajeErrorLanzable($th);
+    //        }
+    //    }
 
 
     /**
@@ -242,5 +248,26 @@ class BitacoraVehicularController extends Controller
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
+    }
+
+    public function reporteBitacoras(Request $request)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $results = $this->service->reporteBitacoras($request);
+
+        switch ($request->accion) {
+            case 'excel':
+                return Excel::download(new ReporteBitacorasVehiculosExport($results, $configuracion, $request->fecha_inicio, $request->fecha_fin, $request->umbral), 'reporte_bitacoras_vehiculos.xlsx');
+            case 'pdf':
+                try {
+                    //code...
+                } catch (\Throwable $th) {
+                    Log::channel('testing')->error('Log', ['ERROR', $th->getMessage(), $th->getLine()]);
+                    throw Utils::obtenerMensajeErrorLanzable($th);
+                }
+            default:
+            $results = BitacoraVehicularResource::collection($results);
+        }
+        return response()->json(compact('results'));
     }
 }
