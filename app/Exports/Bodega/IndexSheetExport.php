@@ -33,7 +33,7 @@ class IndexSheetExport implements WithTitle, WithStyles, WithEvents
             'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['argb' => '0879DC']],
         ]);
 
-        $sheet->getColumnDimension('A')->setWidth(40);
+        $sheet->getColumnDimension('A')->setWidth(45);
         $sheet->getColumnDimension('B')->setWidth(90);
     }
 
@@ -60,8 +60,10 @@ class IndexSheetExport implements WithTitle, WithStyles, WithEvents
                     ['Suma transferencias enviadas', 'Suma de las transferencias que envió el empleado responsable.'],
                     ['Preingresos', 'Productos preingresados al empleado responsable.'],
                     ['Suma preingresos', 'Suma de preingresos al empleado responsable.'],
-                    ['Ocupado en tareas', 'Materiales ocupados en tareas por el empleado responsable.'],
-                    ['Suma ocupado en tareas', 'Suma de materiales ocupados en tareas por el empleado responsable.'],
+                    ['Material de stock usado', 'Materiales ocupados en tareas por el empleado responsable.'],
+                    ['Suma material de stock usado', 'Suma de materiales ocupados en tareas por el empleado responsable.'],
+                    ['Material de tarea usado', 'Materiales de tarea ocupados en tareas por el empleado responsable.'],
+                    ['Suma de material de tarea usado', 'Suma de materiales de tarea ocupados en tareas por el empleado responsable.'],
                     ['Stock actual', 'Stock actual calculado a partir de los datos mostrados en este excel.'],
                 ];
 

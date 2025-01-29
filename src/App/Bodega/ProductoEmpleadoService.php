@@ -28,7 +28,7 @@ class ProductoEmpleadoService
                         'cliente' => $propietario,
                         'cantidad' => $item->cantidad_inicial, // Inicializar con la cantidad del ítem actual
                         'detalle_producto_id' => $item->inventario->detalle->id,
-                        'cliente_id' => $item->inventario->cliente_id,//->id,
+                        'cliente_id' => $item->inventario->cliente_id, //->id,
                     ];
                 } else {
                     // Si el elemento ya existe, sumar la cantidad
@@ -73,6 +73,39 @@ class ProductoEmpleadoService
     }
 
     public static function restarSumaCantidadesProductos($array1, $array2)
+    {
+        $results = [];
+
+        // Convertir $array2 en un mapa clave => cantidad
+        $mapArray2 = [];
+        foreach ($array2 as $item) {
+            $key = $item['detalle_producto_id'] . '|' . ($item['cliente_id'] ?? '');
+            $mapArray2[$key] = $item['cantidad'];
+        }
+
+        // Recorrer $array1 y restar cantidades
+        foreach ($array1 as $item) {
+            $key = $item['detalle_producto_id'] . '|' . ($item['cliente_id'] ?? '');
+            $cantidadRestante = $item['cantidad'] - ($mapArray2[$key] ?? 0);
+
+            if ($cantidadRestante > 0) {
+                $results[] = [
+                    'producto' => $item['producto'],
+                    'descripcion' => $item['descripcion'],
+                    'serial' => $item['serial'],
+                    'cliente' => $item['cliente'] ?? '',
+                    'cantidad' => $cantidadRestante,
+                    'detalle_producto_id' => $item['detalle_producto_id'],
+                    'cliente_id' => $item['cliente_id'],
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+
+    public static function restarSumaCantidadesProductosOld($array1, $array2)
     {
         $results = [];
 

@@ -38,9 +38,11 @@ class MaterialesStockExport implements WithMultipleSheets
         $sheets[8] = new SumaProductosStockExport($this->datos['transferencias_enviadas_suma'], 'Suma transferencias enviadas');
         $sheets[9] = new PreingresosExport($this->datos['preingresos'], 'Preingresos');
         $sheets[10] = new SumaProductosStockExport($this->datos['preingresos_suma'], 'Suma preingresos');
-        $sheets[11] = new SeguimientoMaterialStockExport($this->datos['ocupado_en_tareas'], 'Ocupado en tareas');
-        $sheets[12] = new SumaProductosStockExport($this->datos['seguimientos_materiales_stock_suma'], 'Suma ocupado en tareas');
-        $sheets[13] = new SumaProductosStockExport($this->datos['stock_actual'], 'Stock actual');
+        $sheets[11] = new SeguimientoMaterialStockExport($this->datos['ocupado_en_tareas'], 'Material de stock usado');
+        $sheets[12] = new SumaProductosStockExport($this->datos['seguimientos_materiales_stock_suma'], 'Suma material de stock usado');
+        $sheets[13] = new SeguimientoMaterialStockExport($this->datos['material_tarea_ocupado_en_tareas'], 'Material de tarea usado');
+        $sheets[14] = new SumaProductosStockExport($this->datos['material_tarea_ocupado_en_tareas_suma'], 'Suma de material de tarea usado');
+        $sheets[15] = new SumaProductosStockExport($this->datos['stock_actual'], 'Stock actual');
 
         return $sheets;
     }

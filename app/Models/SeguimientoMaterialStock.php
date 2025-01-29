@@ -87,7 +87,7 @@ class SeguimientoMaterialStock extends Model implements Auditable
     /************************************************
      * Reporte Excel - Formulario producto Empleados
      ************************************************/
-    public static function filtrarSeguimientoMaterialStockExcel($request)
+    public static function filtrarSeguimientoMaterialExcel($request)
     {
         $query = SeguimientoMaterialStock::where('cantidad_utilizada', '>', 0)->where('empleado_id', $request['responsable']);
 

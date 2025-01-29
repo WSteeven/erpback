@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ConfiguracionGeneral;
 use App\Models\MaterialEmpleado;
 use App\Models\SeguimientoMaterialStock;
+use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\TransaccionBodega;
 use Illuminate\Http\Request;
 use Log;
@@ -73,15 +74,19 @@ class ProductoEmpleadoController extends Controller
         $productos_transferencias_enviadas = $this->transferenciaProductoEmpleadoService->obtenerProductosTransferencia($transferencias_enviadas);
         $productos_transferencias_enviadas_suma = $this->productoEmpleadoService->obtenerSumaCantidadesProductos($productos_transferencias_enviadas);
 
-        // CONSUMO DE MATERIALES EN SUBTAREAS
-        $seguimientos_materiales_stock = SeguimientoMaterialStock::filtrarSeguimientoMaterialStockExcel($request);
+        // CONSUMO DE MATERIALES stock EN SUBTAREAS
+        $seguimientos_materiales_stock = SeguimientoMaterialStock::filtrarSeguimientoMaterialExcel($request);
         $seguimientos_materiales_stock_suma = $this->productoEmpleadoService->obtenerSumaCantidadesProductos($seguimientos_materiales_stock);
+        
+        // CONSUMO DE MATERIALES tarea EN SUBTAREAS
+        $seguimientos_materiales_tarea = SeguimientoMaterialSubtarea::filtrarSeguimientoMaterialExcel($request);
+        $seguimientos_materiales_tarea_suma = $this->productoEmpleadoService->obtenerSumaCantidadesProductos($seguimientos_materiales_tarea);
 
         // SUMA DE LO QUE RECIBIÓ
-        $recibido = $this->productoEmpleadoService->obtenerSumaCantidadesProductos([...$egresos_suma, ...$productos_preingresos_suma, ...$productos_transferencias_suma]);
+        $recibido = $this->productoEmpleadoService->obtenerSumaCantidadesProductos([...$egresos_suma, ...$productos_preingresos_suma, ...$productos_transferencias_suma, ...$seguimientos_materiales_tarea_suma]);
         $consumido = $this->productoEmpleadoService->obtenerSumaCantidadesProductos([...$productos_transferencias_enviadas_suma, ...$ingresos_suma, ...$seguimientos_materiales_stock_suma]);
         $diferencia = $this->productoEmpleadoService->restarSumaCantidadesProductos($recibido, $consumido);
-        Log::channel('testing')->info('Log', ['Suma:', $diferencia]);
+        // Log::channel('testing')->info('Log', ['Suma:', $diferencia]);
 
         $materiales_stock = [
             'egresos' => collect($egresos),
@@ -96,6 +101,8 @@ class ProductoEmpleadoController extends Controller
             'devoluciones_suma' => collect($ingresos_suma),
             'ocupado_en_tareas' => collect($seguimientos_materiales_stock),
             'seguimientos_materiales_stock_suma' => collect($seguimientos_materiales_stock_suma),
+            'material_tarea_ocupado_en_tareas' => collect($seguimientos_materiales_tarea),
+            'material_tarea_ocupado_en_tareas_suma' => collect($seguimientos_materiales_tarea_suma),
             'stock_actual' => collect($diferencia),
         ];
         return Excel::download(new MaterialesStockExport($materiales_stock), 'reporte.xlsx');

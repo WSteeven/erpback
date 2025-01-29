@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -98,5 +99,46 @@ class SeguimientoMaterialSubtarea extends Model implements Auditable
     public function materialEmpleadoTarea()
     {
         return $this->belongsTo(MaterialEmpleadoTarea::class, 'detalle_producto_id', 'detalle_producto_id');
+    }
+
+    /************************************************
+     * Reporte Excel - Formulario producto Empleados
+     ************************************************/
+    public static function filtrarSeguimientoMaterialExcel($request)
+    {
+        $query = SeguimientoMaterialSubtarea::where('cantidad_utilizada', '>', 0)->where('empleado_id', $request['responsable']);
+
+        // Manejo de las fechas usando Carbon
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = $request->fecha_fin
+            ? Carbon::parse($request->fecha_fin)->endOfDay()
+            : now();
+
+        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+        return self::mapear($query->orderByDesc('id')->get());
+    }
+
+    private static function mapear($seguimientos)
+    {
+        $results = [];
+
+        foreach ($seguimientos as $seguimiento) {
+            $results[] = [
+                'id' => $seguimiento->id,
+                'fecha_actualizacion' => $seguimiento->updated_at,
+                'producto' => $seguimiento->detalleProducto->producto->nombre,
+                'descripcion' => $seguimiento->detalleProducto->descripcion,
+                'serial' => $seguimiento->serial,
+                'categoria' => $seguimiento->detalleProducto->producto->categoria->nombre,
+                'cantidad' => $seguimiento->cantidad_utilizada,
+                'cliente' => $seguimiento->cliente?->empresa->razon_social,
+                'cliente_id' => $seguimiento->cliente_id,
+                'detalle_producto_id' => $seguimiento->detalle_producto_id,
+                'subtarea' => $seguimiento->subtarea->codigo_subtarea,
+            ];
+        }
+
+        return $results;
     }
 }
