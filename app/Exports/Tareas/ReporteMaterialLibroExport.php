@@ -15,15 +15,17 @@ class ReporteMaterialLibroExport implements WithMultipleSheets, WithBackgroundCo
     protected $reporte;
     protected $no_usados;
     protected $seguimiento_stock;
+//    protected $stock_en_fecha_establecida;
 
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function __construct($reporte, $no_usados, $seguimiento_stock)
+    public function __construct($reporte, $no_usados, $seguimiento_stock) //, $stock_en_fecha_establecida)
     {
         $this->reporte = $reporte;
         $this->no_usados = $no_usados;
         $this->seguimiento_stock = $seguimiento_stock;
+//        $this->stock_en_fecha_establecida = $stock_en_fecha_establecida;
     }
 
     public function backgroundColor()
@@ -38,6 +40,7 @@ class ReporteMaterialLibroExport implements WithMultipleSheets, WithBackgroundCo
         $sheets[1] = new ReporteSeguimientoMaterialStockExport($this->seguimiento_stock);
         $sheets[2] = new ReporteMaterialExport($this->obtenerResumen($this->no_usados), 'Materiales stock no usados en tareas');
         $sheets[3] = new ReporteMaterialExport($this->obtenerResumen($this->reporte), 'Historial de auditoria');
+//        $sheets[4] = new ReporteSeguimientoMaterialStockExport($this->stock_en_fecha_establecida); // Puede ser un dia o un rango
         // $sheets[1] = new ReporteMaterialExport($this->reporte, 'Materiales utilizados');
 
         return $sheets;

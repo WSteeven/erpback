@@ -4,6 +4,7 @@ namespace Src\App\Bodega;
 
 use App\Models\Condicion;
 use App\Models\DetalleProducto;
+use App\Models\Empleado;
 use App\Models\Fibra;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
@@ -13,6 +14,7 @@ use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\UnidadMedida;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -24,9 +26,7 @@ use Src\Shared\Utils;
 
 class PreingresoMaterialService
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function filtrarPreingresos(Request $request)
     {
@@ -109,7 +109,7 @@ class PreingresoMaterialService
                     }
                 } else {
                     // no se encontró detalles coincidentes con numero de serie, buscamos sin numero de serie
-                    $detalle = DetalleProducto::obtenerDetalle( $item['descripcion'], null, $producto->id);
+                    $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], null, $producto->id);
 
                     if ($detalle) { //se encontró detalle, pero se sabe que no tiene el mismo número de serie, entonces se debe crear uno nuevo
                         if ($item['serial']) {
@@ -284,4 +284,81 @@ class PreingresoMaterialService
             throw $th;
         }
     }
+
+    /************************************************
+     * Reporte Excel - Formulario producto Empleados
+     ************************************************/
+    public function filtrarPreingresosReporteExcel($request)
+    {
+        $query = PreingresoMaterial::where('autorizacion_id', 2)->where('responsable_id', $request['responsable']);
+
+        // Manejo de las fechas usando Carbon
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = $request->fecha_fin
+            ? Carbon::parse($request->fecha_fin)->endOfDay()
+            : now();
+
+        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+        return $query->orderByDesc('id')->get();
+    }
+
+    public function obtenerProductosPreingresos($preingresos)
+    {
+        $results = []; // Inicializa $results fuera del bucle principal
+
+        foreach ($preingresos as $preingreso) {
+            $detalles = $preingreso->detalles()->get();
+
+            foreach ($detalles as $detalle) {
+                $results[] = [
+                    'id' => $preingreso->id,
+                    'fecha_solicitud' => $preingreso->created_at, 
+                    'producto' => $detalle->producto->nombre,
+                    'descripcion' => $detalle->pivot->descripcion,
+                    'serial' => $detalle->pivot->serial,
+                    'categoria' => $detalle->producto->categoria->nombre,
+                    'cantidad' => $detalle->pivot->cantidad,
+                    'cliente' => $preingreso->cliente?->empresa->razon_social,
+                    'justificacion' => $preingreso->observacion,
+                    'cliente_id' => $preingreso->cliente_id,
+                    'detalle_producto_id' => $detalle->id,
+                    'solicitante' => Empleado::extraerNombresApellidos($preingreso->solicitante),
+                    'unidad_medida' => $detalle->producto->unidadMedida->nombre,
+                    'condicion' => Condicion::find($detalle->pivot->condicion_id)?->nombre,
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+    /* public static function obtenerSumaCantidadesProductos($productos_transferencias)
+    {
+        $results = [];
+        foreach ($productos_transferencias as $item) {
+            $detalleProductoId = $item['detalle_producto_id'];
+            $propietario = $item['cliente_id'];
+
+            // Llave única para identificar elementos
+            $key = $detalleProductoId . '|' . $propietario;
+
+            if (!isset($results[$key])) {
+                // Si el elemento no existe en el array, agregarlo
+                $results[$key] = [
+                    'producto' => $item['producto'],
+                    'descripcion' => $item['descripcion'],
+                    'serial' => $item['serial'],
+                    'propietario' => $item['cliente'],
+                    'cantidad' => $item['cantidad'],
+                ];
+            } else {
+                // Si el elemento ya existe, sumar la cantidad
+                $results[$key]['cantidad'] += $item['cantidad'];
+            }
+        }
+
+        // Convertir resultados a un array indexado
+        return array_values($results);
+    } */
 }

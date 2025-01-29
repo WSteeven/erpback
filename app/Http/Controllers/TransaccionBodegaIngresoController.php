@@ -342,7 +342,7 @@ class TransaccionBodegaIngresoController extends Controller
         $results = [];
         switch ($request->accion) {
             case 'excel':
-                Log::channel('testing')->info('Log', ['Entró en excel']);
+                // Log::channel('testing')->info('Log', ['Entró en excel']);
                 $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
                 $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
                 //imprimir el excel

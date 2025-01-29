@@ -96,6 +96,9 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     const PENDIENTE = 'PENDIENTE'; // 1
     const COMPLETA = 'COMPLETA'; // 2
     const ANULADA = 'ANULADA'; // 3
+    
+    // Autorizacion
+    const APROBADO = 2;
 
     public $table = 'tar_transf_produc_emplea';
     public $fillable = [
