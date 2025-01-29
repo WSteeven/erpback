@@ -83,8 +83,8 @@ class ProductoEmpleadoController extends Controller
         $seguimientos_materiales_tarea_suma = $this->productoEmpleadoService->obtenerSumaCantidadesProductos($seguimientos_materiales_tarea);
 
         // SUMA DE LO QUE RECIBIÓ
-        $recibido = $this->productoEmpleadoService->obtenerSumaCantidadesProductos([...$egresos_suma, ...$productos_preingresos_suma, ...$productos_transferencias_suma, ...$seguimientos_materiales_tarea_suma]);
-        $consumido = $this->productoEmpleadoService->obtenerSumaCantidadesProductos([...$productos_transferencias_enviadas_suma, ...$ingresos_suma, ...$seguimientos_materiales_stock_suma]);
+        $recibido = $this->productoEmpleadoService->obtenerSumaCantidadesProductos([...$egresos_suma, ...$productos_preingresos_suma, ...$productos_transferencias_suma]);
+        $consumido = $this->productoEmpleadoService->obtenerSumaCantidadesProductos([...$productos_transferencias_enviadas_suma, ...$ingresos_suma, ...$seguimientos_materiales_stock_suma, ...$seguimientos_materiales_tarea_suma]);
         $diferencia = $this->productoEmpleadoService->restarSumaCantidadesProductos($recibido, $consumido);
         // Log::channel('testing')->info('Log', ['Suma:', $diferencia]);
 
