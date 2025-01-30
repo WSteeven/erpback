@@ -27,7 +27,7 @@ use Throwable;
 
 class TransaccionBodegaEgresoService
 {
-    private static \Illuminate\Support\Collection|array|Collection $motivos;
+    public static \Illuminate\Support\Collection|array|Collection $motivos;
 
     public function __construct()
     {
@@ -248,7 +248,7 @@ class TransaccionBodegaEgresoService
                 'created_at',
                 [
                     date('Y-m-d', strtotime($request->fecha_inicio)),
-                    $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                    $request->fecha_fin ? date('Y-m-d', strtotime($request->fechad_dfin)) : date("Y-m-d h:i:s")
                 ]
             )
             ->whereHas('comprobante', function ($q) {
@@ -304,7 +304,7 @@ class TransaccionBodegaEgresoService
                     })->orderBy('id', 'desc')->get();
                 break;
             case 3: //persona responsable
-                // Log::channel('testing')->info('Log', ['Entró en persona responsable']);
+                Log::channel('testing')->info('Log', ['Entró en persona responsable', $request]);
                 $results = TransaccionBodega::with('comprobante')
                     ->whereIn('motivo_id', self::$motivos)->where('responsable_id', $request->responsable)
                     ->whereBetween(

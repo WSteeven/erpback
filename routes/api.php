@@ -4,6 +4,7 @@ use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\Bodega\PermisoArmaController;
+use App\Http\Controllers\Bodega\ProductoEmpleadoController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
@@ -178,8 +179,7 @@ Route::apiResources(
         'ubicaciones' => UbicacionController::class,
         'unidades-medidas' => UnidadMedidaController::class,
         'parroquias' => ParroquiaController::class,
-
-
+        'productos-empleados' => ProductoEmpleadoController::class,
         'forma_pago' => FormaPagoController::class
     ],
     [
@@ -205,6 +205,7 @@ Route::apiResources(
             'ubicaciones' => 'ubicacion',
             'unidades-medidas' => 'unidad',
             'tipos-fibras' => 'tipo_fibra',
+            'productos-empleados' => 'producto_empleado',
         ],
         'middleware' => ['auth:sanctum']
     ]
