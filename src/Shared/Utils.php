@@ -39,6 +39,14 @@ class Utils
         return str_contains($imagen, ';base64');
     }
 
+    /**
+     * @param  $url  //ruta de donde tomará la imagen, empieza con http:// o https://
+     * @return string Base64 imagen
+     */
+    public static  function urlToBase64($url)
+    {
+        return 'data:image/png;base64,' . base64_encode(file_get_contents($url));
+    }
     public static function decodificarImagen(string $imagen_base64): string
     {
         $partes = explode(";base64,", $imagen_base64);

@@ -1,8 +1,8 @@
 <html>
 @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+
 @endphp
 
 <head>
@@ -16,8 +16,7 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -79,117 +78,117 @@
     </style>
 </head>
 <body>
-    <header>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
-            <tr class="row" style="width:auto">
-                <td style="width: 10%;">
-                    <div class="col-md-3"><img
-                            src="{{$logo_principal }}"
-                            width="90"></div>
-                </td>
-                <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE ACREDITACIONES
-                            {{ ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</b>
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <hr>
-    </header>
-    <footer>
-        <table style="width: 100%;">
-            <tr>
-                <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
-                        Usuario:
-                        {{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d-m-Y H:i') }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </footer>
-    <main>
-        @if (isset($usuario->nombres))
-            <p
-                style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
-            <div align="center"><strong>{{ $usuario->nombres . ' ' . $usuario->apellidos }}
-                </strong></div>
-            </p>
-            <br>
-        @endif
-        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
-            <tr>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
-                    <div align="center"><strong>#</strong></div>
-                </td>
+<header>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
+        <tr class="row" style="width:auto">
+            <td style="width: 10%;">
+                <div class="col-md-3"><img
+                        src="{{Utils::urlToBase64(url($configuracion->logo_claro)) }}"
+                        width="90" alt="logo"></div>
+            </td>
+            <td style="width: 100%">
+                <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE ACREDITACIONES
+                        {{ ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</b>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <hr>
+</header>
+<footer>
+    <table style="width: 100%;">
+        <tr>
+            <td style="line-height: normal;">
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                    Usuario:
+                    {{ auth('sanctum')->user()->empleado->nombres }}
+                    {{ auth('sanctum')->user()->empleado->apellidos }} el
+                    {{ $fecha->format('d-m-Y H:i') }}
+                </div>
+            </td>
+        </tr>
+    </table>
+</footer>
+<main>
+    @if (isset($usuario->nombres))
+        <p
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
+        <div align="center"><strong>{{ $usuario->nombres . ' ' . $usuario->apellidos }}
+            </strong></div>
+        </p>
+        <br>
+    @endif
+    <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
+        <tr>
+            <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
+                <div align="center"><strong>#</strong></div>
+            </td>
 
-                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                    <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                    <div align="center"><strong>LUGAR</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
-                    <div align="center"><strong>FECHA</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                    <div align="center"><strong>DESCRIPCI&Oacute;N</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
-                    <div align="center"><strong>MONTO</strong></div>
-                </td>
-            </tr>
-            @foreach ($acreditaciones as $acreditacion)
-                <tr>
-                    <td style="font-size:10px" width="6%">
-                        <div align="left">
-                            {{ $acreditacion['item'] }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="29%">
-                        <div align="left">
-                            {{ $acreditacion['empleado']->nombres . ' ' . $acreditacion['empleado']->apellidos }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="15%">
-                        <div align="left">{{ $acreditacion['empleado']->canton->canton }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="17%">
-                        <div align="center">
-                            {{ date('d-m-Y', strtotime($acreditacion['fecha'])) }}</div>
-                    </td>
-                    <td style="font-size:10px" width="29%">
-                        <div align="left">{{ $acreditacion['descripcion_acreditacion'] }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="10%">
-                        <div align="right">
-                            {{ number_format($acreditacion['monto'], 2, ',', '.') }}</div>
-                    </td>
-                </tr>
-            @endforeach
+            <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
+            </td>
+            <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                <div align="center"><strong>LUGAR</strong></div>
+            </td>
+            <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
+                <div align="center"><strong>FECHA</strong></div>
+            </td>
+            <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                <div align="center"><strong>DESCRIPCI&Oacute;N</strong></div>
+            </td>
+            <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
+                <div align="center"><strong>MONTO</strong></div>
+            </td>
+        </tr>
+        @foreach ($acreditaciones as $acreditacion)
             <tr>
-                <td>Total</td>
-                <td style="font-size:10px" width="10%" colspan="6">
+                <td style="font-size:10px" width="6%">
+                    <div align="left">
+                        {{ $acreditacion['item'] }}
+                    </div>
+                </td>
+                <td style="font-size:10px" width="29%">
+                    <div align="left">
+                        {{ $acreditacion['empleado']->nombres . ' ' . $acreditacion['empleado']->apellidos }}
+                    </div>
+                </td>
+                <td style="font-size:10px" width="15%">
+                    <div align="left">{{ $acreditacion['empleado']->canton->canton }}
+                    </div>
+                </td>
+                <td style="font-size:10px" width="17%">
+                    <div align="center">
+                        {{ date('d-m-Y', strtotime($acreditacion['fecha'])) }}</div>
+                </td>
+                <td style="font-size:10px" width="29%">
+                    <div align="left">{{ $acreditacion['descripcion_acreditacion'] }}
+                    </div>
+                </td>
+                <td style="font-size:10px" width="10%">
                     <div align="right">
-                        {{ number_format($total, 2, ',', '.') }}</div>
+                        {{ number_format($acreditacion['monto'], 2, ',', '.') }}</div>
                 </td>
             </tr>
+        @endforeach
+        <tr>
+            <td>Total</td>
+            <td style="font-size:10px" width="10%" colspan="6">
+                <div align="right">
+                    {{ number_format($total, 2, ',', '.') }}</div>
+            </td>
+        </tr>
 
-        </table>
-    </main>
-    <script type="text/php">
-        if (isset($pdf)) {
-                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
-                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 785, $text, $font, 12);
-        }
-    </script>
+    </table>
+</main>
+<script type="text/php">
+    if (isset($pdf)) {
+            $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+            $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+            $pdf->page_text(10, 785, $text, $font, 12);
+    }
+</script>
 </body>
 
 </html>

@@ -1,50 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
     @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    $numcol_egreso = $cantidad_columna_egresos + 6;
-    $tiene_supa = $sumatoria['supa'] > 0;
-    $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
-    $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-    $carry_ingreso = [];
-    $index_ingreso = 0;
-    $carry_egreso = [];
-    $index_egreso = 0;
-    if ($tiene_bono_recurente) {
+        use Src\Shared\Utils;
+        $fecha = new Datetime();
         $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    }
-    if ($tiene_bonificacion) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    }
-    if ($tiene_bonificacion && $tiene_bono_recurente) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 5;
-    }
+        $numcol_egreso = $cantidad_columna_egresos + 6;
+        $tiene_supa = $sumatoria['supa'] > 0;
+        $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
+        $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+        $carry_ingreso = [];
+        $index_ingreso = 0;
+        $carry_egreso = [];
+        $index_egreso = 0;
+        if ($tiene_bono_recurente) {
+            $numcol_ingreso = $cantidad_columna_ingresos + 4;
+        }
+        if ($tiene_bonificacion) {
+            $numcol_ingreso = $cantidad_columna_ingresos + 4;
+        }
+        if ($tiene_bonificacion && $tiene_bono_recurente) {
+            $numcol_ingreso = $cantidad_columna_ingresos + 5;
+        }
 
-    if ($tiene_supa) {
-        $numcol_egreso = $cantidad_columna_egresos + 7;
-    }
-    $sumColumns = [
-        'salario' => 0,
-        'sueldo' => 0,
-        'decimo_tercero' => 0,
-        'decimo_cuarto' => 0,
-        'fondos_reserva' => 0,
-        'iess' => 0,
-        'anticipo' => 0,
-        'bonificacion' => 0,
-        'bono_recurente' => 0,
-        'total_ingreso' => 0,
-        'prestamo_quirorafario' => 0,
-        'prestamo_hipotecario' => 0,
-        'extension_conyugal' => 0,
-        'prestamo_empresarial' => 0,
-        'supa' => 0,
-        'total_egreso' => 0,
-        'total' => 0,
-    ];
+        if ($tiene_supa) {
+            $numcol_egreso = $cantidad_columna_egresos + 7;
+        }
+        $sumColumns = [
+            'salario' => 0,
+            'sueldo' => 0,
+            'decimo_tercero' => 0,
+            'decimo_cuarto' => 0,
+            'fondos_reserva' => 0,
+            'iess' => 0,
+            'anticipo' => 0,
+            'bonificacion' => 0,
+            'bono_recurente' => 0,
+            'total_ingreso' => 0,
+            'prestamo_quirorafario' => 0,
+            'prestamo_hipotecario' => 0,
+            'extension_conyugal' => 0,
+            'prestamo_empresarial' => 0,
+            'supa' => 0,
+            'total_egreso' => 0,
+            'total' => 0,
+        ];
 @endphp
 <head>
     <meta charset="UTF-8">
@@ -57,7 +56,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark  }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -160,7 +159,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ $logo_principal}}"
+                            src="{{ Utils::urlToBase64(url($configuracion->logo_claro))}}" alt="logo"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">

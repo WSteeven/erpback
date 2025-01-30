@@ -3,9 +3,10 @@
 
 @php
     use Carbon\Carbon;
+    use Src\Shared\Utils;
+
     $fecha = Carbon::now();
     $fecha_creacion = Carbon::parse($ficha->created_at)->format('Y-m-d');
-    $logo_watermark ='data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion->logo_marca_agua));
 @endphp
 
 <head>
@@ -18,7 +19,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -114,9 +115,7 @@
         <tr class="row" style="width:auto">
             <td style="width: 10%">
                 <div class="col-md-3">
-                    @if(file_exists(public_path($configuracion->logo_claro)))
-                        <img src="{{ url($configuracion->logo_claro) }}" width="90" alt="Logo">
-                    @endif
+                    <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="Logo">
                 </div>
             </td>
             <td style="width: 68%">
@@ -185,24 +184,32 @@
                 <th>Otras amenazas previstas</th>
             </tr>
             <tr>
-                <td style="width: 33%; line-height: normal">
-                    <ul>@foreach($ficha->vivienda->amenaza_inundacion as $amenaza)
-                            <li>{{$amenaza}}</li>
-                        @endforeach
-                    </ul>
-                </td>
-                <td style="width: 33%; line-height: normal">
-                    <ul>@foreach($ficha->vivienda->amenaza_deslaves as $amenaza)
-                            <li>{{$amenaza}}</li>
-                        @endforeach
-                    </ul>
-                </td>
-                <td style="width: 33%; line-height: normal">
-                    <ul>@foreach($ficha->vivienda->otras_amenazas_previstas as $amenaza)
-                            <li>{{$amenaza}}</li>
-                        @endforeach
-                    </ul>
-                </td>
+                @if($ficha->vivienda->amenaza_inundacion)
+                    <td style="width: 33%; line-height: normal">
+                        <ul>@foreach($ficha->vivienda->amenaza_inundacion as $amenaza)
+                                <li>{{$amenaza}}</li>
+                            @endforeach
+                        </ul>
+                    </td>
+                @endif
+
+                @if($ficha->vivienda->amenaza_deslaves)
+                    <td style="width: 33%; line-height: normal">
+                        <ul>@foreach($ficha->vivienda->amenaza_deslaves as $amenaza)
+                                <li>{{$amenaza}}</li>
+                            @endforeach
+                        </ul>
+                    </td>
+                @endif
+
+                @if($ficha->vivienda->otras_amenazas_previstas)
+                    <td style="width: 33%; line-height: normal">
+                        <ul>@foreach($ficha->vivienda->otras_amenazas_previstas as $amenaza)
+                                <li>{{$amenaza}}</li>
+                            @endforeach
+                        </ul>
+                    </td>
+                @endif
             </tr>
             <tr>
                 <td>Otras amenazas:</td>
@@ -298,7 +305,7 @@
                     <strong>Teléfono: </strong>{{ $ficha->telefono_contacto_emergencia_externo }}
                 </td>
                 <td style="width: 33%; padding: 2px;line-height: normal">
-                    <strong>Ciudad: </strong>{{ $ficha->ciudadContactoExterno->canton }}
+                    <strong>Ciudad: </strong>{{ $ficha->ciudadContactoExterno?->canton }}
                 </td>
             </tr>
         </table>
@@ -383,8 +390,8 @@
             <br><br>
             <p><strong>V). REGISTRO FOTOGRAFICO DEL DOMICILIO</strong></p>
         @endif
-        @if(file_exists(public_path($ficha->vivienda->imagen_croquis)))
-            <img src="{{ url($ficha->vivienda->imagen_croquis) }}" width="100%" height="200" alt="Croquis"/>
+        @if($ficha->vivienda->imagen_croquis)
+            <img src="{{ Utils::urlToBase64(url($ficha->vivienda->imagen_croquis)) }}" width="100%" height="200" alt="Croquis"/>
         @else
             <p>No hay imagen de croquis</p>
         @endif

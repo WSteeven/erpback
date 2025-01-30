@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Src\Shared\Utils;
+use Throwable;
 
 class HistorialVehiculoExport implements FromView, ShouldAutoSize, WithColumnWidths
 {
@@ -32,17 +33,20 @@ class HistorialVehiculoExport implements FromView, ShouldAutoSize, WithColumnWid
         ];
     }
 
+    /**
+     * @throws Throwable
+     */
     public function view(): View
     {
         try {
-            Log::channel('testing')->info('Log', ['Datos para la vista', $this->results]);
+//            Log::channel('testing')->info('Log', ['Datos para la vista', $this->results]);
             return view('vehiculos.excel.historial_vehiculo', [
                 'reporte' => $this->results,
                 'request' => $this->request,
                 'configuracion' => $this->configuracion
             ]);
-        } catch (\Throwable $th) {
-            Log::channel('testing')->info('Log', ['Error en vista de excel', Utils::obtenerMensajeError($th)]);
+        } catch (Throwable $th) {
+            Log::channel('testing')->error('Log', ['Error en vista de excel', Utils::obtenerMensajeError($th)]);
             throw $th;
         }
     }

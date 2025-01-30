@@ -1,16 +1,16 @@
 <html>
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $item=0;
+    use Src\Shared\Utils;
+       $fecha = new Datetime();
+
+       $item=0;
 @endphp
 
 <head>
     <style>
         body {
             font-family: sans-serif;
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -101,89 +101,93 @@
     </style>
 
 <body>
-    <header>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
-            <tr class="row" style="width:auto">
-                <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
-                </td>
-                <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b> {{strtoupper($titulo) }}</b>
-                    </div>
+<header>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
+        <tr class="row" style="width:auto">
+            <td style="width: 10%;">
+                <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90"
+                                           alt="logo">
+                </div>
+            </td>
+            <td style="width: 100%">
+                <div class="col-md-7" align="center"><b> {{strtoupper($titulo) }}</b>
+                </div>
 
-                </td>
-            </tr>
-        </table>
-        <hr>
-    </header>
-    <footer>
-        <table style="width: 100%;">
+            </td>
+        </tr>
+    </table>
+    <hr>
+</header>
+<footer>
+    <table style="width: 100%;">
+        <tr>
+            <td class="page">Página</td>
+            <td style="line-height: normal;">
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
+                </div>
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                    Usuario:
+                    {{ auth('sanctum')->user()->empleado->nombres }}
+                    {{ auth('sanctum')->user()->empleado->apellidos }} el
+                    {{ $fecha->format('d-m-Y H:i') }}
+                </div>
+            </td>
+        </tr>
+    </table>
+</footer>
+<div id="content">
+
+    <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+        <tr>
+            <td width="8%" bgcolor="#a9d08e">
+                <div align="center"><strong>ITEM</strong></div>
+            </td>
+            <td width="50%" bgcolor="#a9d08e">
+                <div align="center"><strong>EMPLEADO</strong></div>
+            </td>
+            <td width="17%" bgcolor="#a9d08e">
+                <div align="center"><strong>MONTO ASIGNADO</strong></div>
+            </td>
+
+        </tr>
+        @if (sizeof($reportes) == 0)
             <tr>
-                <td class="page">Página </td>
-                <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
-                    </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
-                        Usuario:
-                        {{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d-m-Y H:i') }}
-                    </div>
+                <td colspan="12">
+                    <div align="center">NO HAY ACREDITACIONES EN ESTA SEMANA</div>
                 </td>
             </tr>
-        </table>
-    </footer>
-    <div id="content">
-
-        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
-            <tr>
-                <td width="8%" bgcolor="#a9d08e">
-                    <div align="center"><strong>ITEM</strong></div>
-                </td>
-                <td width="50%" bgcolor="#a9d08e">
-                    <div align="center"><strong>EMPLEADO</strong></div>
-                </td>
-                <td width="17%" bgcolor="#a9d08e">
-                    <div align="center"><strong>MONTO ASIGNADO</strong></div>
-                </td>
-
-            </tr>
-            @if (sizeof($reportes) == 0)
-                <tr>
-                    <td colspan="12">
-                        <div align="center">NO HAY ACREDITACIONES EN ESTA SEMANA</div>
-                    </td>
-                </tr>
-            @else
-                @foreach ($reportes as $dato)
+        @else
+            @foreach ($reportes as $dato)
                 @php
                     $item ++;
                 @endphp
-                    <tr>
-                        <td style="font-size:10px">
-                            <div align="center">{{ $item }}</div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div>{{ $dato['empleado'] }}</div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="right">{{ $dato['valor_asignado'] }}</div>
-                        </td>
-                    </tr>
-                @endforeach
                 <tr>
-                    <td colspan="2" style="font-size:10px"> <div align="center"><strong>TOTAL DE MONTO ASIGNADO</strong></div></td>
                     <td style="font-size:10px">
-                        <div align="right"> {{ $suma }}</div>
+                        <div align="center">{{ $item }}</div>
                     </td>
-                    <td></td>
+                    <td style="font-size:10px">
+                        <div>{{ $dato['empleado'] }}</div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="right">{{ $dato['valor_asignado'] }}</div>
+                    </td>
                 </tr>
-            @endif
+            @endforeach
+            <tr>
+                <td colspan="2" style="font-size:10px">
+                    <div align="center"><strong>TOTAL DE MONTO ASIGNADO</strong></div>
+                </td>
+                <td style="font-size:10px">
+                    <div align="right"> {{ $suma }}</div>
+                </td>
+                <td></td>
+            </tr>
+        @endif
 
-        </table>
-        </p>
-    </div>
+    </table>
+    </p>
+</div>
 
 </body>
 
