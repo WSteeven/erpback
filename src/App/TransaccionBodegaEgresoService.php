@@ -248,7 +248,7 @@ class TransaccionBodegaEgresoService
                 'created_at',
                 [
                     date('Y-m-d', strtotime($request->fecha_inicio)),
-                    $request->fecha_fin ? date('Y-m-d', strtotime($request->fechad_dfin)) : date("Y-m-d h:i:s")
+                    $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
                 ]
             )
             ->whereHas('comprobante', function ($q) {
