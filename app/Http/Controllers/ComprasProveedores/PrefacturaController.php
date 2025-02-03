@@ -175,7 +175,7 @@ class PrefacturaController extends Controller
             $prefactura = $prefactura->resolve();
             $cliente = $cliente->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($prefactura['sum_total']);
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['prefactura' => $prefactura, 'cliente' => $cliente, 'empleado_solicita' => $empleado_solicita]]);
+//            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['prefactura' => $prefactura, 'cliente' => $cliente, 'empleado_solicita' => $empleado_solicita]]);
             $pdf = Pdf::loadView('compras_proveedores.prefactura', compact(['prefactura', 'cliente', 'empleado_solicita', 'valor', 'configuracion', 'texto_iva']));
             $pdf->setPaper('A4');
             $pdf->setOption(['isRemoteEnabled' => true]);
@@ -183,7 +183,7 @@ class PrefacturaController extends Controller
 
             return $pdf->output();
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
             return response()->json('Ha ocurrido un error al intentar imprimir la prefactura' . $e->getMessage() . ' ' . $e->getLine(), 422);
         }
     }
@@ -230,7 +230,7 @@ class PrefacturaController extends Controller
      */
     public function dashboard(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
+//        Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
 
         $results = $this->servicio->obtenerDashboard($request);
 

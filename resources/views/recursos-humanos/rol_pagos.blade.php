@@ -2,12 +2,11 @@
 <html lang="es">
 {{-- Aquí codigo PHP --}}
 @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
     $rol_pago = $roles_pago[0];
     if ($responsable->firma_url) {
-        $firma_aprobacion = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($responsable->firma_url, 1)));
+        $firma_aprobacion = Utils::urlToBase64(url($responsable->firma_url));
     }
 @endphp
 
@@ -32,15 +31,13 @@
 
         body {
             font-family: sans-serif;
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
 
         /** Definir las reglas del encabezado **/
-
-
 
 
         div {
@@ -127,253 +124,258 @@
 
 
 <body>
-    <header>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10pt;">
-            <tr class="row" style="width:auto">
-                <td>
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
-                </td>
-                <td>
-                    <p class="encabezado-rol"> <strong>JP CONSTRUCRED C.LTDA</strong></p><br>
-                    <p class="encabezado-rol"><strong>RUC 0993375739001</strong></p><br>
-                    <div class="col-md-7" align="center"><b>Rol de Pagos de {{ $rol_pago['mes'] }}</b></div>
-                </td>
-                <td>
+<header>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10pt;">
+        <tr class="row" style="width:auto">
+            <td>
+                <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo"
+                                           width="90"></div>
+            </td>
+            <td>
+                <p class="encabezado-rol"><strong>JP CONSTRUCRED C.LTDA</strong></p><br>
+                <p class="encabezado-rol"><strong>RUC 0993375739001</strong></p><br>
+                <div class="col-md-7" align="center"><b>Rol de Pagos de {{ $rol_pago['mes'] }}</b></div>
+            </td>
+            <td>
 
-                </td>
+            </td>
 
-            </tr>
-        </table>
-        <hr>
-    </header>
-    <footer>
-        <table class="firma" style="width: 100%;">
-            <thead>
-                <th align="center">
-                    __________________________________________<br />
-                    <b>{{ $rol_pago['empleado_info'] }}</b>
-                    <br>
-                    <b>{{ $rol_pago['identificacion_empleado'] }}</b>
-                </th>
-                <th align="center"></th>
-                <th align="center">
-                    @isset($firma_aprobacion)
-                        <img src="{{ $firma_aprobacion }}" alt="" width="100%" height="40">
-                    @endisset
-                    __________________________________________<br />
-                    <b>{{ $responsable->nombres . ' ' . $responsable->apellidos }}</b>
-                    <br>
-                    <b>APROBADO POR</b>
-                </th>
-            </thead>
+        </tr>
+    </table>
+    <hr>
+</header>
+<footer>
+    <table class="firma" style="width: 100%;">
+        <tr>
+            <td></td>
+            <th style="width: 20%;"></th>
+            <td>@isset($firma_aprobacion)
+                    <img src="{{ $firma_aprobacion }}" alt="" width="100%" height="40">
+                @endisset</td>
+        </tr>
+        <tr>
+            <th style="vertical-align: top; text-align: center">
+                __________________________________________<br/>
+                <b>{{ $rol_pago['empleado_info'] }}</b>
+                <br>
+                <b>{{ $rol_pago['identificacion_empleado'] }}</b>
+            </th>
+            <th style="width: 20%;"></th> <!-- Espacio en blanco sin contenido -->
+            <th style="vertical-align: top; text-align: center">
+                __________________________________________<br/>
+                <b>{{ $responsable->nombres . ' ' . $responsable->apellidos }}</b>
+                <br>
+                <b>APROBADO POR</b>
+            </th>
+        </tr>
+    </table>
+    <p style="text-align: center; margin-top: 10px">Este Rol de pago es fiel copia del original que reposa en
+        Contabilidad</p>
+</footer>
 
-        </table>
-        <p>Este Rol de pago es fiel copia del original que reposa en Contabilidad</p>
-    </footer>
+<!-- aqui va el contenido del document<br><br>o -->
+<main>
+    <table align="center" class="cuerpo">
+        <tr>
+            <td><strong>NOMBRES:</strong>{{ $rol_pago['empleado_info'] }} </td>
+            <td><strong>CARGO: </strong>{{ $rol_pago['cargo'] }}</td>
 
-    <!-- aqui va el contenido del document<br><br>o -->
-    <main>
-        <table align="center" class="cuerpo">
-            <tr>
-                <td><strong>NOMBRES:</strong>{{ $rol_pago['empleado_info'] }} </td>
-                <td><strong>CARGO: </strong>{{ $rol_pago['cargo'] }}</td>
+        </tr>
+        <tr>
+            <td class="encabezado-tabla-rol"><strong>INGRESOS</strong></td>
+            <td class="encabezado-tabla-rol"><strong>DESCUENTOS</strong></td>
+        </tr>
+        <tr>
+            <td>
+                <table class="descripcion">
+                    <tr>
+                        <td>Días Laborado</td>
 
-            </tr>
-            <tr>
-                <td class="encabezado-tabla-rol"><strong>INGRESOS</strong> </td>
-                <td class="encabezado-tabla-rol"><strong>DESCUENTOS</strong></td>
-            </tr>
-            <tr>
-                <td>
-                    <table class="descripcion">
+                        <td>
+                            {{ $rol_pago['dias_laborados'] }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Sueldo</td>
+
+                        <td>
+                            {{ $rol_pago['sueldo'] }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Décimo Tercero</td>
+
+                        <td>
+                            {{ $rol_pago['decimo_tercero'] }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Décimo Cuarto</td>
+
+                        <td>
+                            {{ $rol_pago['decimo_cuarto'] }}
+                        </td>
+                    </tr>
+                    @if ($rol_pago['bonificacion'] != 0)
                         <tr>
-                            <td>Días Laborado</td>
+                            <td>Bono</td>
 
                             <td>
-                                {{ $rol_pago['dias_laborados'] }}
+                                {{ $rol_pago['bonificacion'] }}
                             </td>
                         </tr>
+                    @endif
+                    @if ($rol_pago['bono_recurente'] != 0)
                         <tr>
-                            <td>Sueldo</td>
+                            <td>Bono Recurente</td>
 
                             <td>
-                                {{ $rol_pago['sueldo'] }}
+                                {{ $rol_pago['bono_recurente'] }}
                             </td>
                         </tr>
+                    @endif
+                    @if ($rol_pago['fondos_reserva'] != 0)
                         <tr>
-                            <td>Décimo Tercero</td>
+                            <td>Fondos de Reserva</td>
 
                             <td>
-                                {{ $rol_pago['decimo_tercero'] }}
+                                {{ $rol_pago['fondos_reserva'] }}
                             </td>
                         </tr>
-                        <tr>
-                            <td>Décimo Cuarto</td>
+                    @endif
 
-                            <td>
-                                {{ $rol_pago['decimo_cuarto'] }}
-                            </td>
-                        </tr>
-                        @if ($rol_pago['bonificacion'] != 0)
-                            <tr>
-                                <td>Bono</td>
-
-                                <td>
-                                    {{ $rol_pago['bonificacion'] }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if ($rol_pago['bono_recurente'] != 0)
-                            <tr>
-                                <td>Bono Recurente</td>
-
-                                <td>
-                                    {{ $rol_pago['bono_recurente'] }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if ($rol_pago['fondos_reserva'] != 0)
-                            <tr>
-                                <td>Fondos de Reserva</td>
-
-                                <td>
-                                    {{ $rol_pago['fondos_reserva'] }}
-                                </td>
-                            </tr>
-                        @endif
-
-                        @foreach ($rol_pago['ingresos'] as $ingreso)
-                            <tr>
-                                <td>
-                                    {{ $ingreso->concepto_ingreso_info->nombre }}
-                                </td>
-
-                                <td>
-                                    {{ $ingreso->monto }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </table>
-                </td>
-
-                <td>
-                    <table class="descripcion">
-                        <tr>
-                            <td>IESS (9.45%)</td>
-
-                            <td>
-                                {{ $rol_pago['iess'] }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Anticipo Quincena</td>
-
-                            <td>
-                                {{ $rol_pago['anticipo'] }}
-                            </td>
-                        </tr>
-                        @if ($rol_pago['prestamo_quirorafario'] > 0)
-                            <tr>
-                                <td>Prestamo Quirorafario</td>
-
-                                <td>
-                                    {{ $rol_pago['prestamo_quirorafario'] }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if ($rol_pago['prestamo_hipotecario'] > 0)
-                            <tr>
-                                <td>Prestamo Hipotecario</td>
-
-                                <td>
-                                    {{ $rol_pago['prestamo_hipotecario'] }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if ($rol_pago['extension_conyugal'] > 0)
-                            <tr>
-                                <td>Extension de Salud</td>
-
-                                <td>
-                                    {{ $rol_pago['extension_conyugal'] }}
-                                </td>
-                            </tr>
-                        @endif
-                        @if ($rol_pago['prestamo_empresarial'] > 0)
-                            <tr>
-                                <td>
-                                    Prestamo Empresarial
-                                </td>
-
-                                <td>
-                                    {{ $rol_pago['prestamo_empresarial'] }}
-                                </td>
-                            </tr>
-                        @endif
-                        @foreach ($rol_pago['egresos'] as $descuento)
-                            <tr>
-                                <td>
-                                    {{ $descuento->descuento->nombre }}
-                                </td>
-
-                                <td>
-                                    {{ $descuento->monto }}
-                                </td>
-                            </tr>
-                        @endforeach
-                        @if ($rol_pago['supa'] > 0)
-                            <tr>
-                                <td>SUPA</td>
-
-                                <td>
-                                    {{ $rol_pago['supa'] }}
-                                </td>
-                            </tr>
-                        @endif
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <table class="descripcion">
+                    @foreach ($rol_pago['ingresos'] as $ingreso)
                         <tr>
                             <td>
-                                TOTAL INGRESOS
+                                {{ $ingreso->concepto_ingreso_info->nombre }}
                             </td>
-                            <td class="totales">
-                                {{ $rol_pago['total_ingreso'] }}
+
+                            <td>
+                                {{ $ingreso->monto }}
                             </td>
                         </tr>
-                    </table>
-                </td>
-                <td>
-                    <table class="descripcion">
+                    @endforeach
+                </table>
+            </td>
+
+            <td>
+                <table class="descripcion">
+                    <tr>
+                        <td>IESS (9.45%)</td>
+
+                        <td>
+                            {{ $rol_pago['iess'] }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Anticipo Quincena</td>
+
+                        <td>
+                            {{ $rol_pago['anticipo'] }}
+                        </td>
+                    </tr>
+                    @if ($rol_pago['prestamo_quirorafario'] > 0)
                         <tr>
-                            <td>TOTAL EGRESOS</td>
-                            <td class="totales">
-                                {{ $rol_pago['total_egreso'] }}
+                            <td>Prestamo Quirorafario</td>
+
+                            <td>
+                                {{ $rol_pago['prestamo_quirorafario'] }}
                             </td>
                         </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <table class="descripcion">
+                    @endif
+                    @if ($rol_pago['prestamo_hipotecario'] > 0)
+                        <tr>
+                            <td>Prestamo Hipotecario</td>
+
+                            <td>
+                                {{ $rol_pago['prestamo_hipotecario'] }}
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($rol_pago['extension_conyugal'] > 0)
+                        <tr>
+                            <td>Extension de Salud</td>
+
+                            <td>
+                                {{ $rol_pago['extension_conyugal'] }}
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($rol_pago['prestamo_empresarial'] > 0)
                         <tr>
                             <td>
-                                NETO A RECIBIR
+                                Prestamo Empresarial
                             </td>
-                            <td class="totales">
-                                {{ $rol_pago['total'] }}
+
+                            <td>
+                                {{ $rol_pago['prestamo_empresarial'] }}
                             </td>
                         </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </main>
+                    @endif
+                    @foreach ($rol_pago['egresos'] as $descuento)
+                        <tr>
+                            <td>
+                                {{ $descuento->descuento->nombre }}
+                            </td>
+
+                            <td>
+                                {{ $descuento->monto }}
+                            </td>
+                        </tr>
+                    @endforeach
+                    @if ($rol_pago['supa'] > 0)
+                        <tr>
+                            <td>SUPA</td>
+
+                            <td>
+                                {{ $rol_pago['supa'] }}
+                            </td>
+                        </tr>
+                    @endif
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table class="descripcion">
+                    <tr>
+                        <td>
+                            TOTAL INGRESOS
+                        </td>
+                        <td class="totales">
+                            {{ $rol_pago['total_ingreso'] }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table class="descripcion">
+                    <tr>
+                        <td>TOTAL EGRESOS</td>
+                        <td class="totales">
+                            {{ $rol_pago['total_egreso'] }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table class="descripcion">
+                    <tr>
+                        <td>
+                            NETO A RECIBIR
+                        </td>
+                        <td class="totales">
+                            {{ $rol_pago['total'] }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</main>
 
 
 </body>

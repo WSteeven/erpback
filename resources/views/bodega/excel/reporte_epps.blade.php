@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{{--@php--}}
-{{--    if ($bodeguero->firma_url) {--}}
-{{--            $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($bodeguero->firma_url, 1)));--}}
-{{--        }--}}
-{{--        if ($persona_retira->firma_url) {--}}
-{{--            $retira_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_retira->firma_url, 1)));--}}
-{{--        }--}}
-{{--@endphp--}}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

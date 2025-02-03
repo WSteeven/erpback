@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use Src\App\Tareas\MaterialesUtilizadosTareaService;
 
 /**
  * App\Models\MaterialEmpleado
@@ -106,7 +105,7 @@ class MaterialEmpleado extends Model implements Auditable
     {
         // Verificar si se ha pasado un 'categoria_id'
         if ($categoriaId) {
-            $query->whereHas('detalle.producto', function($query) use ($categoriaId) {
+            $query->whereHas('detalle.producto', function ($query) use ($categoriaId) {
                 $query->where('categoria_id', $categoriaId);
             });
         }

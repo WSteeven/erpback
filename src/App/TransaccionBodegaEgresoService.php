@@ -27,7 +27,7 @@ use Throwable;
 
 class TransaccionBodegaEgresoService
 {
-    private static \Illuminate\Support\Collection|array|Collection $motivos;
+    public static \Illuminate\Support\Collection|array|Collection $motivos;
 
     public function __construct()
     {
@@ -239,7 +239,7 @@ class TransaccionBodegaEgresoService
         $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
         $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
         $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
-        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
+//        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
         return TransaccionBodega::with('comprobante')
             ->whereIn('motivo_id', self::$motivos)
             ->whereIn('id', $ids_transacciones)
@@ -304,7 +304,7 @@ class TransaccionBodegaEgresoService
                     })->orderBy('id', 'desc')->get();
                 break;
             case 3: //persona responsable
-                // Log::channel('testing')->info('Log', ['Entró en persona responsable']);
+                Log::channel('testing')->info('Log', ['Entró en persona responsable', $request]);
                 $results = TransaccionBodega::with('comprobante')
                     ->whereIn('motivo_id', self::$motivos)->where('responsable_id', $request->responsable)
                     ->whereBetween(

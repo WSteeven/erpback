@@ -66,7 +66,7 @@ class VisitaDomiciliariaController extends Controller
      */
     public function store(VisitaDomiciliariaRequest $request)
     {
-        Log::channel('testing')->info('Log', ['request', $request->all()]);
+//        Log::channel('testing')->info('Log', ['request', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();

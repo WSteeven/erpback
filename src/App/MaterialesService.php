@@ -62,7 +62,7 @@ class MaterialesService
     }
 
 
-    public function obtenerMaterialesEmpleadoIntervalo(int $empleado_id, string  $fecha_inicio, string $fecha_fin = null)
+    public function obtenerMaterialesEmpleadoIntervalo(int $empleado_id, string $fecha_inicio, string $fecha_fin = null)
     {
         $fecha_fin = $fecha_fin != null ? $fecha_fin : Carbon::now();
         $results = [];
@@ -86,7 +86,7 @@ class MaterialesService
                 $row['cantidad_actual'] = array_key_exists('cantidad_stock', $audit->new_values) ? $audit->new_values['cantidad_stock'] : 0;
                 $row['cantidad_afectada'] = abs($row['cantidad_anterior'] - $row['cantidad_actual']);
                 // $row['movimiento'] = $audit->url;
-                $url =  parse_url($audit->url);
+                $url = parse_url($audit->url);
                 // if (array_key_exists('query', $url)) {
                 //     $row['URL'] = $url;
                 // } else {
@@ -122,7 +122,7 @@ class MaterialesService
                         break;
                     case 'tareas':
                         $row['transaccion'] = 'TAREA';
-                        $row['descripcion'] = $entidad->titulo;
+                        $row['descripcion'] = $entidad?->titulo;
                         break;
                     default:
                         $row['segmentos'] = $segmentos;
@@ -146,7 +146,7 @@ class MaterialesService
         return $results;
     }
 
-    public function obtenerMaterialesEmpleadoIntervaloNoOcupados(int $empleado_id, string  $fecha_inicio) //8629
+    public function obtenerMaterialesEmpleadoIntervaloNoOcupados(int $empleado_id, string $fecha_inicio) //8629
     {
         $results = [];
 
@@ -168,7 +168,7 @@ class MaterialesService
                 $row['cantidad_anterior'] = array_key_exists('cantidad_stock', $audit->old_values) ? $audit->old_values['cantidad_stock'] : 0;
                 $row['cantidad_actual'] = array_key_exists('cantidad_stock', $audit->new_values) ? $audit->new_values['cantidad_stock'] : 0;
                 $row['cantidad_afectada'] = abs($row['cantidad_anterior'] - $row['cantidad_actual']);
-                $url =  parse_url($audit->url);
+                $url = parse_url($audit->url);
                 $segmentos = explode('/', $url['path']);
                 $segmentos = array_filter($segmentos);
                 $id = end($segmentos);
@@ -193,7 +193,7 @@ class MaterialesService
                         break;
                     case 'tareas':
                         $row['transaccion'] = 'TAREA';
-                        $row['descripcion'] = $entidad->titulo;
+                        $row['descripcion'] = $entidad?->titulo;
                         break;
                     default:
                         $row['segmentos'] = $segmentos;
@@ -245,7 +245,7 @@ class MaterialesService
         }
         // "App\\Models\\Tarea"
         // "path":"/api/tareas/actualizar-cantidad-utilizada-stock",
-        // "query":"cantidad_anterior=0&cantidad_utilizada=1&cliente_id=3&detalle_producto_id=265&empleado_id=53&subtarea_id=8072"}] 
+        // "query":"cantidad_anterior=0&cantidad_utilizada=1&cliente_id=3&detalle_producto_id=265&empleado_id=53&subtarea_id=8072"}]
     }
 
     private function obtenerSegmentoRuta($url)
@@ -276,7 +276,7 @@ class MaterialesService
         return implode('/', $ruta);
     }
 
-    public function obtenerSeguimientoMaterialesEmpleado(int $empleado_id, string  $fecha_inicio, string $fecha_fin = null)
+    public function obtenerSeguimientoMaterialesEmpleado(int $empleado_id, string $fecha_inicio, string $fecha_fin = null)
     {
         return SeguimientoMaterialStock::where('empleado_id', $empleado_id)->where(function ($q) use ($fecha_inicio, $fecha_fin) {
             $q->whereBetween('created_at', [$fecha_inicio, $fecha_fin])->orWhereBetween('updated_at', [$fecha_inicio, $fecha_fin]);
@@ -299,5 +299,17 @@ class MaterialesService
             ->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')
             ->get();
         return $materialStockUsado;
+    }
+
+    public function obtenerMaterialesStockEnFechaEstablecida(int $empleado_id, string $fecha_inicio, string $fecha_fin = null)
+    {
+        $fecha_fin = $fecha_fin ?? Carbon::now();
+//        $results = [];
+
+        $materiales = MaterialEmpleado::with(['audits' => function ($query) use ($fecha_inicio, $fecha_fin) {
+            $query->whereBetween('created_at', [$fecha_inicio, $fecha_fin]);
+        }])->where('empleado_id', $empleado_id)->orderBy('detalle_producto_id', 'asc')->get();
+
+        Log::channel('testing')->info('Log', compact('materiales'));
     }
 }

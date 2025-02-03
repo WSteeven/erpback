@@ -36,6 +36,15 @@ class TransferenciaProductoEmpleadoController extends Controller
 
     public function index(Request $request)
     {
+        if (request('export') == 'pdf') {
+            if(request('id')) {
+                $transferencia = TransferenciaProductoEmpleado::find(request('id'));
+                return $this->transferenciaService->imprimirTransferenciaProducto($transferencia);
+            }
+            // $export = new DashboardTicketExport($listado, 'Dashboard Tickets Por Área');
+            // return Excel::download($export, 'reporte_tickets.xlsx');
+        }
+
         $results = $this->transferenciaService->filtrarTransferencias($request);
         $results = TransferenciaProductoEmpleadoResource::collection($results);
         return response()->json(compact('results'));

@@ -211,7 +211,7 @@ class RolPagoMesController extends Controller
         $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
         foreach ($roles as $rol_pago) {
             $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-            $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
+            $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
         }
         $mensaje = 'Rol de pago enviado correctamente';
         return response()->json(compact('mensaje'));

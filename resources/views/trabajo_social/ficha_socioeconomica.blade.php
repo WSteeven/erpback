@@ -3,9 +3,11 @@
 
 @php
     use Carbon\Carbon;
+    use Src\Shared\Utils;
+
     $fecha = Carbon::now();
     $fecha_creacion = Carbon::parse($ficha->created_at)->format('Y-m-d');
-    $logo_watermark ='data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion->logo_marca_agua));
+//    $logo_watermark ='data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion->logo_marca_agua));
 @endphp
 
 <head>
@@ -17,7 +19,8 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+{{--            background-image: url({{ $logo_watermark }});--}}
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -108,9 +111,10 @@
         <tr class="row" style="width:auto">
             <td style="width: 10%">
                 <div class="col-md-3">
-                    @if(file_exists(public_path($configuracion->logo_claro)))
-                        <img src="{{ url($configuracion->logo_claro) }}" width="90" alt="Logo">
-                    @endif
+{{--                    @if(file_exists(public_path($configuracion->logo_claro)))--}}
+                        <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="Logo">
+{{--                        <img src="{{ url($configuracion->logo_claro) }}" width="90" alt="Logo">--}}
+{{--                    @endif--}}
                 </div>
             </td>
             <td style="width: 68%">
@@ -645,8 +649,8 @@
         <p>Dirección: <strong>{{ $ficha->vivienda->direccion }}</strong></p>
         <p>Referencia: <strong>{{ $ficha->vivienda->referencia }}</strong></p>
 
-        @if(file_exists(public_path($ficha->vivienda->imagen_croquis)))
-            <img src="{{ url($ficha->vivienda->imagen_croquis) }}" width="100%" height="200" alt="Croquis"/>
+        @if($ficha->vivienda->imagen_croquis)
+            <img src="{{ Utils::urlToBase64(url($ficha->vivienda->imagen_croquis)) }}" width="100%" height="200" alt="Croquis"/>
         @else
             <p>No hay imagen de croquis</p>
         @endif
@@ -655,8 +659,8 @@
         <p><strong>12). RUTAGRAMA Y VIAS DE ACCESO </strong></p>
         <p>Vías de tránsito regular al trabajo: <strong>{{ $ficha->vias_transito_regular_trabajo }}</strong></p>
 
-        @if(file_exists(public_path($ficha->imagen_rutagrama)))
-            <img src="{{ url($ficha->imagen_rutagrama) }}" width="100%" height="200" alt="Rutagrama"/>
+        @if($ficha->imagen_rutagrama)
+            <img src="{{ Utils::urlToBase64(url($ficha->imagen_rutagrama)) }}" width="100%" height="200" alt="Rutagrama"/>
         @else
             <p>No hay imagen de rutagrama</p>
         @endif
@@ -678,8 +682,8 @@
         <table class="firma" style="width: 100%;">
             <thead style="text-align: center">
             <th>
-                @if(file_exists(public_path($ficha->empleado->firma_url)))
-                    <img src="{{ url($ficha->empleado->firma_url) }}" width="100%" height="50"
+                @if($ficha->empleado->firma_url)
+                    <img src="{{ Utils::urlToBase64(url($ficha->empleado->firma_url)) }}" width="100%" height="50"
                          alt="firma empleado visitado"/>
                 @else
                     ___________________
@@ -687,8 +691,9 @@
             </th>
             <th></th>
             <th>
-                @if(file_exists(public_path($departamento_trabajo_social?->responsable->firma_url)))
-                    <img src="{{ url($departamento_trabajo_social?->responsable->firma_url) }}" width="100%" height="50"
+{{--                @if(file_exists(public_path($departamento_trabajo_social?->responsable->firma_url)))--}}
+                @if($departamento_trabajo_social?->responsable->firma_url)
+                    <img src="{{ Utils::urlToBase64(url($departamento_trabajo_social?->responsable->firma_url)) }}" width="100%" height="50"
                          alt="firma Trabajador Social"/>
                 @else
                     ___________________
@@ -707,11 +712,11 @@
         <table class="firma" style="width: 100%;">
             <tr>
                 <td style="text-align: center">
-                    @if(file_exists(public_path($departamento_rrhh->responsable->firma_url)))
-                        <img src="{{ url($departamento_rrhh->responsable->firma_url) }}" width="100%" height="50"
+                    @if($departamento_rrhh->responsable->firma_url)
+                        <img src="{{ Utils::urlToBase64(url($departamento_rrhh->responsable->firma_url)) }}" width="100%" height="50"
                              alt="firma RRHH"/>
                     @else
-                        ___________________
+                        ___________________ <br><br><br><br>
                     @endif
                     <b>RRHH</b> <br> <br>   <br><br>
                     {{$departamento_rrhh->responsable->nombres}} {{$departamento_rrhh->responsable->apellidos}} <br><br><br><br>

@@ -145,19 +145,16 @@ class ConductorController extends Controller
 
     /******************
      * REPORTES
-     *****************/
+     ****************
+     * @throws ValidationException
+     */
     public function reporteConductorLicencia(Request $request)
     {
-        Log::channel('testing')->info('Log',  ['reporteConductorLicencia', $request->all()]);
-        $configuracion = ConfiguracionGeneral::first();
-        $results = [];
         try {
-            $results = [];
             if ($request->boolean('todos'))
                 $results = Conductor::all();
             else
                 $results = Conductor::where('empleado_id', $request->conductor)->get();
-            $reporte = $results;
             $results =$this->vehiculoService->empaquetarInformacionConductores($results, $request->tipo_licencia);
             switch ($request->accion) {
                 case 'excel':

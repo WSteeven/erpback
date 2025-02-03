@@ -49,6 +49,7 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|DetalleProductoTransaccion whereRecibido($value)
  * @method static Builder|DetalleProductoTransaccion whereTransaccionId($value)
  * @method static Builder|DetalleProductoTransaccion whereUpdatedAt($value)
+ * @method static Builder|DetalleProductoTransaccion where($value)
  * @mixin Eloquent
  */
 class DetalleProductoTransaccion extends Model implements Auditable

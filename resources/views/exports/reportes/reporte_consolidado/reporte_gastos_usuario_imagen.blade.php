@@ -1,10 +1,7 @@
 <html>
 @php
-    $fecha = new Datetime();
-    $logo_principal =
-    'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark =
-    'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    use Src\Shared\Utils;
+        $fecha = new Datetime();
 @endphp
 
 <head>
@@ -18,7 +15,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -112,7 +109,7 @@
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
         <tr class="row" style="width:auto">
             <td style="width: 10%;">
-                <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo"></div>
             </td>
             <td style="width: 100%">
                 <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE GASTOS
@@ -479,9 +476,9 @@
 
                 <td style="font-size:10px">
                     <div class="col-md-3">
-                        @if(file_exists(public_path($gasto['comprobante'])))
+                        @if($gasto['comprobante'])
                             <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="comprobante">
-                                <img src="{{ url($gasto['comprobante']) }}" width="250"/>
+                                <img src="{{ Utils::urlToBase64(url($gasto['comprobante'])) }}" width="250" alt="comprobante"/>
                             </a>
                         @else
                             <!-- Puedes agregar una imagen de placeholder aquí si el archivo no existe -->
@@ -491,9 +488,9 @@
                 </td>
                 <td style="font-size:10px">
                     <div class="col-md-3">
-                        @if(file_exists(public_path($gasto['comprobante2'])))
+                        @if($gasto['comprobante2'])
                             <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="comprobante2">
-                                <img src="{{ url($gasto['comprobante2']) }}" width="250"/>
+                                <img src="{{ Utils::urlToBase64(url($gasto['comprobante2'])) }}" width="250" alt="comprobante2"/>
                             </a>
                         @else
                             <!-- Puedes agregar una imagen de placeholder aquí si el archivo no existe -->
@@ -609,7 +606,7 @@
                             @endphp
                             @if($comprobante)
                                 <a href="{{ url($comprobante) }}" target="_blank" title="comprobante">
-                                    <img src="{{ url($comprobante) }}" width="250"/>
+                                    <img src="{{ Utils::urlToBase64(url($comprobante)) }}" width="250" alt="comprobante"/>
                                 </a>
                             @else
                                 <!-- Puedes agregar una imagen de placeholder aquí si el archivo no existe -->
@@ -624,7 +621,7 @@
                             @endphp
                             @if($comprobante2)
                                 <a href="{{ url($comprobante2) }}" target="_blank" title="nombreImagen">
-                                    <img src="{{ url($comprobante2) }}" width="250"/>
+                                    <img src="{{Utils::urlToBase64( url($comprobante2)) }}" width="250" alt="comprobante2"/>
                                 </a>
                             @else
                                 <p>Imagen no disponible</p>
@@ -720,7 +717,7 @@
                             <a href="{{ url($transferencia_enviada['comprobante']) }}" target="_blank"
                                title="nombreImagen">
                                 <img
-                                    src="{{ url( $transferencia_enviada['comprobante']) }}"
+                                    src="{{ Utils::urlToBase64(url( $transferencia_enviada['comprobante'])) }}" alt="logo"
                                     style="max-width: 100%; height: auto;"/>
                             </a>
                         </div>
@@ -926,7 +923,7 @@
                             <a href="{{ url($transferencia_recibida_data['comprobante']) }}" target="_blank"
                                title="nombreImagen">
                                 <img
-                                    src="{{ url($transferencia_recibida_data['comprobante']) }}"
+                                    src="{{ Utils::urlToBase64(url($transferencia_recibida_data['comprobante'])) }}" alt="logo"
                                     style="max-width: 100%; height: auto;"/>
                             </a>
                         </div>

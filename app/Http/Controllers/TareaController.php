@@ -38,7 +38,7 @@ class TareaController extends Controller
     public function __construct()
     {
         $this->tareaService = new TareaService();
-        $this->paginationService = new PaginationService();
+        $this->paginationService = new PaginationService(); // 3604 - 3950
     }
 
     public function listar()

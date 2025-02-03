@@ -2,17 +2,15 @@
 <html lang="es">
 
 @php
-    use Carbon\Carbon;
+    use Carbon\Carbon;use Illuminate\Support\Facades\Log;use Src\Shared\Utils;
+
+
     $fecha = new Datetime();
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     if ($empleado->firma_url) {
-        $empleado_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado->firma_url, 1)));
+        $empleado_firma = Utils::urlToBase64(url($empleado->firma_url));
     }
     if ($autorizador->firma_url) {
-        $autorizador_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($autorizador->firma_url, 1)));
+        $autorizador_firma = Utils::urlToBase64(url($autorizador->firma_url));
     }
 @endphp
 
@@ -25,7 +23,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -97,7 +95,8 @@
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:14px;">
         <tr class="row" style="width:auto">
             <td style="width: 10%">
-                <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90"
+                                           alt="logo"></div>
             </td>
             <td style="width: 68%">
                 <div align="center"><b>SOLICITUD DE TRÁMITE DE VACACIONES</b>
@@ -133,7 +132,8 @@
 {{-- Cuerpo --}}
 <main>
     <div class="justificado">
-        <p style="text-align: left">Lugar y fecha: {{ ucfirst($empleado->canton->canton) }}, {{ Carbon::parse($vacacion['created_at'])->format('Y-m-d') }}.</p>
+        <p style="text-align: left">Lugar y fecha: {{ ucfirst($empleado->canton->canton) }}
+            , {{ Carbon::parse($vacacion['created_at'])->format('Y-m-d') }}.</p>
         <p></p>
         <p><strong>SECCION DEL SOLICITANTE</strong></p>
         <p>El/la suscrit@: <strong>{{$empleado->nombres}} {{$empleado->apellidos}}</strong> con número de
@@ -147,7 +147,7 @@
 
         <p>Solicito se me conceda hacer uso de <strong> {{ $vacacion['dias_solicitados'] }}</strong>
             días correspondientes a mis vacaciones anuales:</p>
-            <p>Desde el {{ $vacacion['fecha_inicio'] }} hasta el: {{ $vacacion['fecha_fin'] }}.</p>
+        <p>Desde el {{ $vacacion['fecha_inicio'] }} hasta el: {{ $vacacion['fecha_fin'] }}.</p>
 
         <br>
         <p><strong>SECCION DEL AUTORIZADOR</strong></p>
@@ -179,7 +179,7 @@
             <th>
 
                 @isset($empleado_firma)
-                    <img src="{{ $empleado_firma }}" alt="" width="100%" height="40">
+                    <img src="{{ $empleado_firma }}" alt="firma del empleado" width="100%" height="40">
                 @endisset
                 @empty($empleado_firma)
                     ___________________<br/>
@@ -187,9 +187,9 @@
             </th>
             <th></th>
             <th>
-                @if ($vacacion['autorizacion']==2)
+                @if ($vacacion['autorizacion_id']==2)
                     @isset($autorizador_firma)
-                        <img src="{{ $autorizador_firma }}" alt="" width="100%" height="40">
+                        <img src="{{ $autorizador_firma }}" alt="firma del autorizador" width="100%" height="40">
                     @endisset
                 @endif
                 @empty($autorizador_firma)

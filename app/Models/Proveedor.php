@@ -170,10 +170,10 @@ class Proveedor extends Model implements Auditable
             ->withTimestamps();
     }
 
-//    public function ordenesCompras()
-//    {
-//        return $this->hasMany(OrdenCompra::class, 'proveedor_id');
-//    }
+    public function ordenesCompras()
+    {
+        return $this->hasMany(OrdenCompra::class, 'proveedor_id');
+    }
 
     /**
      * Relacion polimorfica a una notificacion.

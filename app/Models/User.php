@@ -102,6 +102,7 @@ class User extends Authenticatable implements Auditable
     const ROL_ADMINISTRATIVO = 'ADMINISTRATIVO';
     const ROL_AUDITOR = 'AUDITOR_INTERNO';
     const ROL_COORDINADOR_BODEGA = 'COORDINADOR DE BODEGA';
+    const ROL_AUXILIAR_BODEGA = 'AUXILIAR_BODEGA';
     const ROL_BODEGA = 'BODEGA';
     const ROL_BODEGA_TELCONET = 'BODEGA TELCONET';
     const ROL_COMPRAS = 'COMPRAS';

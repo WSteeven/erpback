@@ -127,8 +127,9 @@ class TareaService
 
         // $seguimientoStock = $this->mapearSeguimientoStock($seguimientoStock);
         Log::channel('testing')->info($seguimientoStock);
+//        $stock_en_fecha_establecida = $materialService->obtenerMaterialesStockEnFechaEstablecida(request('empleado_id'), $fecha_inicio);
 
-        $export = new ReporteMaterialLibroExport($reporte, $noUsados, $seguimientoStock);
+        $export = new ReporteMaterialLibroExport($reporte, $noUsados, $seguimientoStock); //, $stock_en_fecha_establecida);
         return Excel::download($export, 'reporte_materiales.xlsx');
     }
 

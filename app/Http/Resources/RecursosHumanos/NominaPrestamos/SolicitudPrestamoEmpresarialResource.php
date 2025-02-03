@@ -2,31 +2,30 @@
 
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
-use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class SolicitudPrestamoEmpresarialResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
-        $controller_method = $request->route()->getActionMethod();
-        $modelo = [
+        return [
             'id' => $this->id,
             'solicitante' => $this->solicitante,
             'solicitante_info' => $this->empleado_info!=null?$this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos:'',
-            'fecha' =>  $controller_method === 'show'?$this->fecha:$this->cambiar_fecha($this->fecha),
+            'fecha' =>  $this->fecha,
+//            'fecha' =>  $controller_method === 'show'?$this->fecha:$this->cambiar_fecha($this->fecha),
             'monto' =>  $this->monto,
             'plazo' => $this->plazo,
             'motivo' =>  $this->motivo,
             'observacion' => $this->observacion,
-            'cargo_utilidad' =>$this->periodo_id != null ? true:false,
+            'cargo_utilidad' => $this->periodo_id != null,
             'periodo' =>   $this->periodo_id,
             'periodo_info' => $this->periodo_info? $this->periodo_info->nombre:'' ,
             'valor_utilidad' => $this->valor_utilidad,
@@ -34,12 +33,6 @@ class SolicitudPrestamoEmpresarialResource extends JsonResource
             'estado' => $this->estado,
             'estado_info' =>  $this->estado_info!=null ? $this->estado_info->nombre:'',
         ];
-        return $modelo;
-    }
-    private function cambiar_fecha($fecha)
-    {
-        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
-        return $fecha_formateada;
     }
 
 }

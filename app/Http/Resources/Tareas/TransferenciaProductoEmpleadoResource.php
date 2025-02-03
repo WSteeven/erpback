@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tareas;
 
+use App\Models\Empleado;
 use App\Models\Tareas\TransferenciaProductoEmpleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,8 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             'id' => $this->id,
             'justificacion' => $this->justificacion,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
+            'empleado_origen' => Empleado::extraerNombresApellidos($this->empleadoOrigen),
+            'empleado_destino' => Empleado::extraerNombresApellidos($this->empleadoDestino),
             'solicitante_id' => $this->solicitante_id,
             'tarea_origen' => $this->descripcionTarea($this->tareaOrigen), //$this->tareaOrigen?->titulo,
             'tarea_destino' => $this->descripcionTarea($this->tareaDestino), //$this->tareaDestino?->titulo,
@@ -36,8 +39,7 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             'updated_at' => $this->updated_at,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
             'cliente' => $this->cliente_id,
-            // 'cliente' => $this->sucursal?->cliente?->empresa?->razon_social,
-            // 'cliente_id' => $this->sucursal?->cliente_id,
+            'nombre_cliente' => $this->cliente?->empresa->razon_social,
         ];
 
         if ($controller_method == 'show') {

@@ -521,12 +521,12 @@ class EmpleadoController extends Controller
     function generarNombreUsuario(array $request)
     {
         $nombreUsuario = $request['usuario'];
-        $nombres = str_replace('ñ', 'n', $request['nombres']);
-        $apellidos = str_replace('ñ', 'n', $request['apellidos']);
+        $nombres = str_replace(['ñ', 'Ñ'], ['n', 'N'], $request['nombres']);
+        $apellidos = str_replace(['ñ', 'Ñ'], ['n', 'N'], $request['apellidos']);
         // Comprobamos si el nombre de usuario ya existe
         $query = User::where('name', $nombreUsuario)->get();
         $username = $nombreUsuario;
-        if ($query->count() > 0) {
+        if ($query->count() > 0 && (!$request['sobreescribir'])){
             // Separamos el nombre y el apellido en dos cadenas
             $nombre = explode(" ", $nombres);
             // ['primer', 'segundo']
@@ -542,15 +542,16 @@ class EmpleadoController extends Controller
                 }
             }
         }
-        return str_replace('ñ', 'n', $username);
+        return  str_replace(['ñ', 'Ñ'], ['n', 'N'],  $username); // Se usa para reemplazar las eñes en mayusculas y en minusculas
     }
 
     function obtenerNombreUsuario(Request $request)
     {
         $datos = $request->validate([
-            'nombres' => ['required', 'string'],
+            'nombres' => 'required|string',
             'apellidos' => 'required|string',
-            'usuario' => 'required|string']);
+            'usuario' => 'required|string',
+            'sobreescribir'=>'boolean']);
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
     }

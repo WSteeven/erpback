@@ -103,6 +103,7 @@ class RolPago extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+
     protected $table = 'rol_pago';
     const CREADO = 'CREADO';
     const EJECUTANDO = 'EJECUTANDO';
@@ -189,6 +190,7 @@ class RolPago extends Model implements Auditable
     {
         return $this->hasMany(EgresoRolPago::class, 'id_rol_pago', 'id')->with('descuento', 'empleado');
     }
+
     public function ingreso_rol_pago()
     {
         return $this->hasMany(IngresoRolPago::class, 'id_rol_pago', 'id')->with('concepto_ingreso_info');
@@ -213,7 +215,57 @@ class RolPago extends Model implements Auditable
      *
      * @return array serie de resultados.
      */
-    public static function empaquetarListado($rol_pagos)
+    public static function empaquetarListado(Collection|RolPago $rol_pagos)
+    {
+        // Aseguramos que lo recibido siempre sea una coleccion a pesar de recibirse un solo registro.
+        $rol_pagos = $rol_pagos instanceof Collection ? $rol_pagos : collect([$rol_pagos]);
+
+        //Función para formatear números
+        $formatNumber = fn($value) => number_format((float)$value, 2, '.', '');
+
+        // Mapear la coleccion a un array con los datos formateados
+        $results = $rol_pagos->map(function ($rol_pago, $index) use ($formatNumber) {
+            return [
+                'item' => $index + 1,
+                'id' => $rol_pago->id,
+                'empleado_info' => $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres,
+                'cedula' => $rol_pago->empleado_info->identificacion,
+                'salario' => $rol_pago->empleado_info->salario,
+                'mes' => ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F \d\e Y')),
+                'identificacion_empleado' => $rol_pago->empleado_info->identificacion,
+                'cargo' => $rol_pago->empleado_info->cargo != null ? $rol_pago->empleado_info->cargo->nombre : '',
+                'departamento' => $rol_pago->empleado_info->departamento != null ? $rol_pago->empleado_info->departamento->nombre : '',
+                'ciudad' => $rol_pago->empleado_info->canton != null ? $rol_pago->empleado_info->canton->canton : '',
+                'dias_laborados' => (int)$rol_pago->dias,
+                'sueldo' => $formatNumber($rol_pago->sueldo),
+                'decimo_tercero' => $formatNumber($rol_pago->decimo_tercero),
+                'decimo_cuarto' => $formatNumber($rol_pago->decimo_cuarto),
+                'fondos_reserva' => $formatNumber($rol_pago->fondos_reserva),
+                'bonificacion' => $formatNumber($rol_pago->bonificacion),
+                'bono_recurente' => $formatNumber($rol_pago->bono_recurente),
+                'iess' => $formatNumber($rol_pago->iess),
+                'anticipo' => $formatNumber($rol_pago->anticipo),
+                'prestamo_quirorafario' => $formatNumber($rol_pago->prestamo_quirorafario),
+                'prestamo_hipotecario' => $formatNumber($rol_pago->prestamo_hipotecario),
+                'extension_conyugal' => $formatNumber($rol_pago->extension_conyugal),
+                'prestamo_empresarial' => $formatNumber($rol_pago->prestamo_empresarial),
+                'total_ingreso' => $formatNumber($rol_pago->total_ingreso),
+                'total_egreso' => $formatNumber($rol_pago->total_egreso),
+                'total' => $formatNumber($rol_pago->total),
+                'supa' => $formatNumber($rol_pago->supa),
+                'ingresos' => $rol_pago->ingreso_rol_pago,
+                'egresos' => $rol_pago->egreso_rol_pago,
+                'egresos_cantidad_columna' => count($rol_pago->egreso_rol_pago),
+                'ingresos_cantidad_columna' => count($rol_pago->ingreso_rol_pago),
+                'rol_firmado' => $rol_pago->rol_firmado ? json_decode($rol_pago->rol_firmado)->ruta : null,
+            ];
+        })->toArray();
+
+        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+
+        return array_values($results); //Reindexar el array
+    }
+    /*public static function empaquetarListado($rol_pagos)
     {
         $results = [];
         $id = 0;
@@ -258,7 +310,7 @@ class RolPago extends Model implements Auditable
         usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
 
         return $results;
-    }
+    }*/
 
     /**
      * La función "empaquetarCash" toma un conjunto de "rol_pagos" y devuelve un conjunto ordenado de
@@ -278,12 +330,12 @@ class RolPago extends Model implements Auditable
                 $referencia = $rol_pago->rolPagoMes->es_quincena ? 'PAGO ROL PRIMERA QUINCENA MES ' : 'PAGO ROL FIN DE MES ';
                 $row = self::getDatosBancariosDefault();
                 $row['item'] = $id + 1;
-                $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
+                $row['empleado_info'] = $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
                 $row['departamento'] = $rol_pago->empleado_info->departamento->nombre;
-                $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
-                $row['email'] =  $rol_pago->empleado_info->user->email;
+                $row['numero_cuenta_bancareo'] = $rol_pago->empleado_info->num_cuenta_bancaria;
+                $row['email'] = $rol_pago->empleado_info->user->email;
                 $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
-                $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
+                $row['identificacion'] = $rol_pago->empleado_info->identificacion;
                 $row['total'] = str_replace(".", "", number_format($rol_pago->total, 2, ',', '.'));
                 $results[$id] = $row;
 
@@ -302,7 +354,7 @@ class RolPago extends Model implements Auditable
      *
      * @return int resultado de la comparación entre los nombres concatenados de los dos empleados.
      */
-    private static function  ordenar_por_nombres_apellidos($a, $b)
+    private static function ordenar_por_nombres_apellidos($a, $b)
     {
         $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];
         $nameB = $b['empleado_info'] . ' ' . $b['empleado_info'];

@@ -50,7 +50,6 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['request', $request->paginate, $request->all()]);
         $results = $this->servicio->listar(null, null, $request->paginate);
         return TransaccionBodegaResource::collection($results);
         // return response()->json(compact('results'));
@@ -157,7 +156,7 @@ class TransaccionBodegaIngresoController extends Controller
             } else throw new Exception('Este usuario no puede realizar ingreso de materiales');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
@@ -221,7 +220,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             } catch (Exception $e) {
                 DB::rollBack();
-                Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+                Log::channel('testing')->error('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
             }
 
@@ -276,7 +275,7 @@ class TransaccionBodegaIngresoController extends Controller
                 return response()->json(compact('modelo', 'mensaje'));
             } catch (Exception $e) {
                 DB::rollBack();
-                Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+                Log::channel('testing')->error('Log', ['ERROR al anular la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
                 throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
                 // return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
             }
@@ -326,7 +325,7 @@ class TransaccionBodegaIngresoController extends Controller
             // file_put_contents($ruta, $file); //en caso de que se quiera guardar el documento en el backend
             return $pdf->output();
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
@@ -339,16 +338,13 @@ class TransaccionBodegaIngresoController extends Controller
     {
         // Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         $configuracion = ConfiguracionGeneral::first();
-        $results = [];
         switch ($request->accion) {
             case 'excel':
-                Log::channel('testing')->info('Log', ['Entró en excel']);
                 $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
                 $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
                 //imprimir el excel
                 return Excel::download(new TransaccionBodegaIngresoExport(collect($registros)), 'reporte.xlsx');
             case 'pdf':
-                Log::channel('testing')->info('Log', ['Entró en pdf']);
                 try {
                     $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
                     $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
@@ -359,7 +355,8 @@ class TransaccionBodegaIngresoController extends Controller
                     $pdf->render();
                     return $pdf->output();
                 } catch (Exception $ex) {
-                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw Utils::obtenerMensajeErrorLanzable($ex);
                 }
                 break;
             default:

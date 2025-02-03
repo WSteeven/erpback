@@ -3,10 +3,9 @@
 @php
     use App\Models\Empleado;
     use App\Models\Vehiculos\BitacoraVehicular;
+    use Src\Shared\Utils;
 
         $fecha = new Datetime();
-        $logo_watermark =
-            'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 
         $bitacoraModel = BitacoraVehicular::find($bitacora['id']);
 
@@ -47,7 +46,7 @@
     }
 
     body {
-        background-image: url({{ $logo_watermark }});
+        background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
@@ -143,8 +142,8 @@
         <tr class="row" style="width:auto">
             <td>
                 <div class="col-md-3">
-                    @if(file_exists(public_path($configuracion->logo_claro)))
-                        <img src="{{ url($configuracion->logo_claro) }}" width="90" alt="Logo">
+                    @if($configuracion->logo_claro)
+                        <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="Logo">
                     @endif
                 </div>
             </td>
@@ -274,10 +273,10 @@
                     <td>{{ $tanqueo->monto }}</td>
                     <td>{{ $tanqueo->combustible->nombre }}</td>
                     <td>
-                        @if(file_exists(public_path($tanqueo->imagen_comprobante)))
+                        @if($tanqueo->imagen_comprobante)
                             <a href="{{ url($tanqueo->imagen_comprobante) }}" target="_blank" title="comprobante"
                                style="display: inline-block">
-                                <img src="{{url($tanqueo->imagen_comprobante)}}" alt="Imagen de comprobante" width="100"
+                                <img src="{{Utils::urlToBase64(url($tanqueo->imagen_comprobante))}}" alt="Imagen de comprobante" width="100"
                                      height="100">
                             </a>
                         @else
@@ -285,10 +284,10 @@
                         @endif
                     </td>
                     <td>
-                        @if(file_exists(public_path($tanqueo->imagen_tablero)))
+                        @if($tanqueo->imagen_tablero)
                             <a href="{{ url($tanqueo->imagen_tablero) }}" target="_blank" title="comprobante"
                                style="display: inline-block">
-                                <img src="{{url($tanqueo->imagen_tablero)}}" alt="imagen_tablero" width="100"
+                                <img src="{{Utils::urlToBase64(url($tanqueo->imagen_tablero))}}" alt="imagen_tablero" width="100"
                                      height="100">
                             </a>
                         @else
@@ -481,7 +480,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_frontal'] ? url($bitacora['checklistImagenVehiculo']['imagen_frontal']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Frontal">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_frontal']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_frontal'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_frontal']) ? Utils::urlToBase64(url($bitacora['checklistImagenVehiculo']['imagen_frontal'])) : '' }}" alt="imagen_frontal"
                         height="150" width="150" style="object-fit: contain;"/>
                 </a>
             </td>
@@ -489,7 +488,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_trasera'] ? url($bitacora['checklistImagenVehiculo']['imagen_trasera']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Trasera">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_trasera']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_trasera'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_trasera']) ? Utils::urlToBase64(url( $bitacora['checklistImagenVehiculo']['imagen_trasera'])) : '' }}" alt="imagen_trasera"
                         height="150" width="150" style="object-fit: fill;"/>
                 </a>
             </td>
@@ -497,7 +496,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda'] ? url($bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Lateral Izquierda">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda']) ? Utils::urlToBase64(url($bitacora['checklistImagenVehiculo']['imagen_lateral_izquierda'])) : '' }}" alt="imagen_lateral_izquierda"
                         height="150" width="150" style="object-fit: scale-down;"/>
                 </a>
             </td>
@@ -505,7 +504,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_lateral_derecha'] ? url($bitacora['checklistImagenVehiculo']['imagen_lateral_derecha']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Lateral Derecha">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_lateral_derecha']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_lateral_derecha'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_lateral_derecha']) ? Utils::urlToBase64(url($bitacora['checklistImagenVehiculo']['imagen_lateral_derecha'])) : '' }}" alt="imagen_lateral_derecha"
                         height="150" width="150" style="object-fit: cover;"/>
                 </a>
             </td>
@@ -521,7 +520,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_tablero_km'] ? url($bitacora['checklistImagenVehiculo']['imagen_tablero_km']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Frontal">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_tablero_km']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_tablero_km'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_tablero_km']) ? Utils::urlToBase64(url($bitacora['checklistImagenVehiculo']['imagen_tablero_km'])) : '' }}" alt="imagen_tablero_km"
                         height="150" width="150" style="object-fit: cover;"/>
                 </a>
             </td>
@@ -529,7 +528,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_tablero_radio'] ? url($bitacora['checklistImagenVehiculo']['imagen_tablero_radio']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Frontal">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_tablero_radio']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_tablero_radio'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_tablero_radio']) ? Utils::urlToBase64(url($bitacora['checklistImagenVehiculo']['imagen_tablero_radio'])) : '' }}" alt="imagen_tablero_radio"
                         height="150" width="150" style="object-fit: cover;"/>
                 </a>
             </td>
@@ -537,7 +536,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_asientos'] ? url($bitacora['checklistImagenVehiculo']['imagen_asientos']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Frontal">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_asientos']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_asientos'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_asientos']) ? Utils::urlToBase64(url($bitacora['checklistImagenVehiculo']['imagen_asientos'])) : '' }}"
                         height="150" width="150" style="object-fit: cover;"/>
                 </a>
             </td>
@@ -545,7 +544,7 @@
                 <a href="{{ $bitacora['checklistImagenVehiculo']['imagen_accesorios'] ? url($bitacora['checklistImagenVehiculo']['imagen_accesorios']) : '#' }}"
                    style="display: block;" target="_blank" title="Imagen Frontal">
                     <img
-                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_accesorios']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $bitacora['checklistImagenVehiculo']['imagen_accesorios'])) : '' }}"
+                        src="{{ !is_null($bitacora['checklistImagenVehiculo']['imagen_accesorios']) ? Utils::urlToBase64(url($bitacora['checklistImagenVehiculo']['imagen_accesorios'])) : '' }}"
                         height="150" width="150" style="object-fit: cover;"/>
                 </a>
             </td>
@@ -562,8 +561,8 @@
         <th align="center"></th>
         <th align="center">
             @if ($bitacora['firmada'])
-                @if(file_exists(public_path($chofer->firma_url)))
-                    <img src="{{ url($chofer->firma_url) }}" width="100" height="100"
+                @if($chofer->firma_url)
+                    <img src="{{ Utils::urlToBase64(url($chofer->firma_url)) }}" width="100" height="100"
                          alt="firma chofer responsable"/>
                 @else
                     ___________________

@@ -104,11 +104,11 @@ class BitacoraVehicularController extends Controller
             $this->service->notificarDiferenciasKmBitacoras($chofer->ultimaBitacora);
             $this->service->actualizarDatosRelacionadosBitacora($chofer->ultimaBitacora, $request);
             // $bitacora = BitacoraVehicular::create($datos);
-            Log::channel('testing')->info('Log', ['BitacoraVehicularRecienCreada', $chofer->ultimaBitacora]);
+//            Log::channel('testing')->info('Log', ['BitacoraVehicularRecienCreada', $chofer->ultimaBitacora]);
             $modelo = new BitacoraVehicularResource($chofer->ultimaBitacora);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error al guardar la bitacora', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->error('Log', ['Ha ocurrido un error al guardar la bitacora', $ex->getMessage(), $ex->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
         return response()->json(compact('mensaje', 'modelo'));
@@ -149,7 +149,7 @@ class BitacoraVehicularController extends Controller
     public function update(BitacoraVehicularRequest $request, BitacoraVehicular $bitacora)
     {
         try {
-            Log::channel('testing')->info('Log', ['request', $request->all()]);
+//            Log::channel('testing')->info('Log', ['request', $request->all()]);
             //Validacion de datos
             $datos = $request->validated();
             $datos['tareas'] = Utils::convertArrayToString($request->tareas);
@@ -173,7 +173,7 @@ class BitacoraVehicularController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
         } catch (Throwable $th) {
-            Log::channel('testing')->info('Log', ['error', $th->getLine(), $th->getMessage()]);
+            Log::channel('testing')->error('Log', ['error', $th->getLine(), $th->getMessage()]);
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
@@ -245,7 +245,7 @@ class BitacoraVehicularController extends Controller
         try {
             return $this->service->generarPdf($bitacora);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR en el try-catch global del metodo imprimir de BitacoraVehicularService', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }

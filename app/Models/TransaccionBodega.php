@@ -686,7 +686,7 @@ class TransaccionBodega extends Model implements Auditable
                     $row['categoria'] = $item->inventario->detalle->producto->categoria->nombre;
                     $row['condicion'] = $item->inventario->condicion->nombre;
                     $row['despachado'] = $item->recibido ==0? $item->cantidad_inicial : $item->recibido;
-                    $row['transaccion_id']= $item->transaccion_id;
+                    $row['transaccion_id']= $item->transaccion_id;  
 
 
                     $results[$cont] = $row;
@@ -706,6 +706,7 @@ class TransaccionBodega extends Model implements Auditable
             foreach ($items as $item) {
                 $row['inventario_id'] = $item->inventario_id;
                 $row['descripcion'] = $item->inventario->detalle->descripcion;
+                // $row['detalle_producto_id'] = $item->inventario->detalle->id;
                 $row['serial'] = $item->inventario->detalle->serial;
                 $row['fecha'] = $item->created_at;
                 $row['estado'] = $item->inventario->condicion->nombre;

@@ -83,7 +83,7 @@ class SolicitudVacacionController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error al insertar el registro:', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['Ha ocurrido un error al insertar el registro:', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -167,7 +167,7 @@ class SolicitudVacacionController extends Controller
             $pdf->render();
             return $pdf->output();
         } catch (Throwable|Exception $th) {
-            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de VacacionController::imprimir', $th->getMessage(), $th->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR en el try-catch global del metodo imprimir de VacacionController::imprimir', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
         }
     }
@@ -201,8 +201,8 @@ class SolicitudVacacionController extends Controller
             }else{
                 //Significa que si hay vacaciones para el empleado pero que seguramente ya estan completadas
                 $vacacion = Vacacion::where('empleado_id', $id)->orderBy('created_at', 'desc')->first();
-                Log::channel('testing')->info('Log', ['Ultima vacacion', $vacacion]);
-                Log::channel('testing')->info('Log', ['Ultima periodo', $vacacion->periodo->nombre]);
+//                Log::channel('testing')->info('Log', ['Ultima vacacion', $vacacion]);
+//                Log::channel('testing')->info('Log', ['Ultima periodo', $vacacion->periodo->nombre]);
                 $ultimo_anio = explode('-', $vacacion->periodo->nombre)[1];
                 $periodo = Periodo::where('nombre', 'LIKE', $ultimo_anio.'%')->first();
                 $row['periodo'] = $periodo->nombre;

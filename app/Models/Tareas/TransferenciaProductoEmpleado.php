@@ -96,6 +96,9 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     const PENDIENTE = 'PENDIENTE'; // 1
     const COMPLETA = 'COMPLETA'; // 2
     const ANULADA = 'ANULADA'; // 3
+    
+    // Autorizacion
+    const APROBADO = 2;
 
     public $table = 'tar_transf_produc_emplea';
     public $fillable = [
@@ -124,6 +127,10 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
 
+    public function empleadoOrigen()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_origen_id', 'id');
+    }
     public function empleadoDestino()
     {
         return $this->belongsTo(Empleado::class, 'empleado_destino_id', 'id');

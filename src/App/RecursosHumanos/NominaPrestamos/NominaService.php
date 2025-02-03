@@ -326,7 +326,7 @@ class NominaService
         foreach ($descuentos as $descuento) {
             $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
             $cuota?->update(['pagada' => true, 'comentario' => 'PAGADO EN ROL DEL MES ' . $mes]);
-            if(!$descuento->pagado && $descuento->cuotas()->where('pagada', false)->count()===0) $descuento->update(['pagado' => true]);
+            if (!$descuento->pagado && $descuento->cuotas()->where('pagada', false)->count() === 0) $descuento->update(['pagado' => true]);
         }
     }
 
@@ -421,20 +421,28 @@ class NominaService
     }
 
     /**
+     * Envia un rol de pago a un empleado
      * @throws Exception
      */
-    public function enviar_rol_pago($rolPagoId, $destinatario)
+    public function enviar_rol_pago(RolPago $rol_pago, Empleado $destinatario)
     {
-        $roles_pagos = RolPago::where('id', $rolPagoId)->get();
-        $results = RolPago::empaquetarListado($roles_pagos);
-        $recursosHumanos = Departamento::where('id', 7)->first()->responsable_id;
-        $responsable = Empleado::where('id', $recursosHumanos)->first();
-        $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
-        $vista = 'recursos-humanos.rol_pagos';
-        $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
-        $user = User::where('id', $destinatario->usuario_id)->first();
-        Mail::to($user->email)
-            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
+        try {
+//            Log::channel('testing')->info('Log', ["Se enviara el rol " . $rol_pago->id . " al destinatario: ", Empleado::extraerNombresApellidos($destinatario)]);
+//            Log::channel('testing')->info('Log', ["rol individual", $rol_pago]);
+            $results = RolPago::empaquetarListado($rol_pago);
+//            Log::channel('testing')->info('Log', ["rol empaquetado", $results]);
+            $responsable = Departamento::where('id', 7)->first()->responsable;
+            $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
+            $vista = 'recursos-humanos.rol_pagos';
+            $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
+            $user = User::where('id', $destinatario->usuario_id)->first();
+//            Log::channel('testing')->info('Log', ["Paso con exito", $user->email, "ruta_archivo", $results[0]['rol_firmado']]);
+            Mail::to($user->email)
+                ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
+        } catch (Exception $ex) {
+            Log::channel('testing')->error('Log', ["error en enviar_rol_pago con estos args", $rol_pago, $destinatario]);
+            throw $ex;
+        }
     }
 
     /**
