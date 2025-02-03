@@ -45,7 +45,13 @@ class Utils
      */
     public static  function urlToBase64($url)
     {
-        return 'data:image/png;base64,' . base64_encode(file_get_contents($url));
+        $options = stream_context_create([
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ]
+        ]);
+        return 'data:image/png;base64,' . base64_encode(file_get_contents($url, false, $options));
     }
     public static function decodificarImagen(string $imagen_base64): string
     {

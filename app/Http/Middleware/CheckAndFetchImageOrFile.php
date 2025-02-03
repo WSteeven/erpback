@@ -40,15 +40,25 @@ class CheckAndFetchImageOrFile
             $filePath = str_replace('storage/', '', ltrim($path, '/'));
 //            Log::channel('testing')->info('Log', ['filePath despues de no encontrarse en local', $filePath]);
 
-            $fastAPIUrl = env('FAST_API_URL').$filePath;
-            $response = @file_get_contents($fastAPIUrl);
+            $options = stream_context_create([
+                "ssl" => [
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                ]
+            ]);
+
+            $fastAPIUrl = env('FAST_API_URL') . $filePath;
+            $response = @file_get_contents($fastAPIUrl, false, $options);
             if ($response === false) {
                 throw new Exception('Archivo no encontrado', 404);
             }
             // Decodifica la respuesta del servidor remoto
             $remoteData = json_decode($response, true);
+            // Log::channel('testing')->info('Log', ['remoteData', $remoteData]);
             if (isset($remoteData['url'])) {
-                return redirect($remoteData['url']);
+                // return redirect($remoteData['url']);
+                return redirect()->away($remoteData['url']);
+
             }
             throw new Exception('Error al procesar la solicitud', 500);
         }

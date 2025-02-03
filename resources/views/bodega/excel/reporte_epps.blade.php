@@ -45,7 +45,7 @@
                 style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
                 <tr>
                     <td>
-                        <img src="{{ url($configuracion['logo_claro']) }}" width="90" alt="logo empresa">
+                        <img src="{{ public_path($configuracion['logo_claro']) }}" width="90" alt="logo empresa">
                     </td>
                     <td style="font-size:16px; text-align: center; font-weight:bold" colspan="4">
                         <div align="center"><strong>COMPROBANTE DE EGRESO</strong></div>
@@ -131,11 +131,11 @@
                 </tr>
                 <tr>
                     <td colspan="3" style="text-align: center">
-                        <img src="{{ url($bodeguero->firma_url)  }}" width="90" alt="firma bodega"
+                        <img src="{{ public_path($bodeguero->firma_url)  }}" width="90" alt="firma bodega"
                              onerror="this.onerror=null; this.src='{{ public_path('storage/image_not_found.png') }}';">
                     </td>
                     <td colspan="4" style="text-align: center">
-                        <img src="{{ url($responsable->firma_url)  }}" width="90" alt="firma responsable"
+                        <img src="{{ public_path($responsable->firma_url)  }}" width="90" alt="firma responsable"
                              onerror="this.onerror=null; this.src='{{ public_path('storage/image_not_found.png') }}';">
                     </td>
 
