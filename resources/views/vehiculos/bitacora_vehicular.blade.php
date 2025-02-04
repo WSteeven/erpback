@@ -299,19 +299,23 @@
             </tbody>
         </table>
     @endif
-
+ <br>
     @if (count($bitacora['actividadesRealizadas']) > 0)
 
         <table style="width: 100%; border: #000000; border-collapse: collapse;" border="1">
             <thead style="background-color:#F2F2F2 ">
             <th style="width: 20%">FECHA Y HORA</th>
-            <th style="width: 80%">ACTIVIDAD</th>
+            <th style="width: 50%">ACTIVIDAD</th>
+            <th style="width: 15%">TAREA</th>
+            <th style="width: 15%">KILOMETRAJE</th>
             </thead>
             <tbody>
             @foreach ($bitacora['actividadesRealizadas'] as $actividad)
                 <tr>
                     <td>{{ $actividad['fecha_hora'] }}</td>
                     <td>{{ strtoupper($actividad['actividad_realizada']) }}</td>
+                    <td style="text-align: center">{{ $actividad['tarea_id'] }}</td>
+                    <td style="text-align: center">{{ $actividad['kilometraje'] }}</td>
                 </tr>
             @endforeach
             </tbody>

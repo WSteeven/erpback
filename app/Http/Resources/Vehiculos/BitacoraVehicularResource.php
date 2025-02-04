@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use App\Http\Resources\ActividadRealizadaResource;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -42,7 +43,7 @@ class BitacoraVehicularResource extends JsonResource
             $modelo['imagen_inicial'] = $this->imagen_inicial ? url($this->imagen_inicial) : null;
             $modelo['tareas'] = $this->tareas ? array_map('intval', Utils::convertirStringComasArray($this->tareas)) : null;
             $modelo['tickets'] = $this->tickets ? array_map('intval', Utils::convertirStringComasArray($this->tickets)) : null;
-            $modelo['actividadesRealizadas'] = $this->actividades;
+            $modelo['actividadesRealizadas'] = ActividadRealizadaResource::collection($this->actividades);
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo;
             $modelo['checklistVehiculo'] = $this->checklistVehiculo;
             $modelo['checklistImagenVehiculo'] = new ChecklistImagenVehiculoResource($this->checklistImagenVehiculo);
