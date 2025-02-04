@@ -163,7 +163,6 @@ class InventarioController extends Controller
     public function reporteInventarioPdf($id)
     {
         $configuracion = ConfiguracionGeneral::first();
-        $items = [];
         if ($id == 0) {
             $items = Inventario::where('cantidad', '!=', 0)
                 ->orWhere('por_recibir', '!=', 0)->orWhere('por_entregar', '!=', 0)->get();

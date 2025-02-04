@@ -17,6 +17,7 @@ use App\Http\Controllers\Vehiculos\TanqueoController;
 use App\Http\Controllers\Vehiculos\TipoVehiculoController;
 use App\Http\Controllers\Vehiculos\TransferenciaVehiculoController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
+use App\Models\Vehiculos\BitacoraVehicular;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources(
@@ -91,6 +92,7 @@ Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactiv
  */
 Route::post('reporte-conductor-licencia', [ConductorController::class, 'reporteConductorLicencia'])->middleware('auth:sanctum');
 Route::post('reporte-combustibles', [TanqueoController::class, 'reporteCombustibles'])->middleware('auth:sanctum');
+Route::post('reporte-bitacoras', [BitacoraVehicularController::class, 'reporteBitacoras']);
 Route::get('reporte-seguros-vehiculos', [SeguroVehicularController::class, 'reporte'])->middleware('auth:sanctum');
 /**
  * RUTAS PARA IMPRIMIR PDFs

@@ -125,16 +125,16 @@ class ProyectoController extends Controller
                 $q->where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%');
             })->groupBy('tarea_id')->pluck('tarea_id');
         } else {
-            Log::channel('testing')->info('Log', ['d' => $empleado_id]);
+//            Log::channel('testing')->info('Log', ['d' => $empleado_id]);
             $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)
             ->orWhereRaw("JSON_CONTAINS(empleados_designados, '\"$empleado_id\"')")
             ->disponible()->get('tarea_id');
-            Log::channel('testing')->info('Log', ['d' => 'No tiene grupo']);
+//            Log::channel('testing')->info('Log', ['d' => 'No tiene grupo']);
         }
-        
+
         $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('etapa_id');
-        Log::channel('testing')->info('Log', compact('tareas_ids_subtareas'));
-        Log::channel('testing')->info('Log', compact('ids_etapas'));
+//        Log::channel('testing')->info('Log', compact('tareas_ids_subtareas'));
+//        Log::channel('testing')->info('Log', compact('ids_etapas'));
         $ids_proyectos_tareas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('proyecto_id');
         $ids_proyectos = Etapa::where(function ($query) use ($ids_etapas, $empleado_id) {
             $query->whereIn('id', $ids_etapas)->orWhere('responsable_id', $empleado_id);

@@ -11,13 +11,13 @@ use App\Models\Vehiculos\MultaConductor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class MultaConductorController extends Controller
 {
-    private $entidad = 'Multa';
+    private string $entidad = 'Multa';
     public function __construct()
     {
         $this->middleware('can:puede.ver.multas_conductores')->only('index', 'show');
@@ -34,9 +34,13 @@ class MultaConductorController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(MultaConductorRequest $request)
     {
-        Log::channel('testing')->info('Log', ['request', $request->all()]);
+//        Log::channel('testing')->info('Log', ['request', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();
@@ -53,12 +57,11 @@ class MultaConductorController extends Controller
             $conductor->save();
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $mensaje = '(' . $e->getLine() . ') Hubo un error al registrar la multa del conductor: ' . $e->getMessage();
             throw ValidationException::withMessages([
                 '500' => [$mensaje],
             ]);
-            return response()->json(compact('mensaje'), 500);
         }
     }
 
@@ -69,6 +72,10 @@ class MultaConductorController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function update(MultaConductorRequest $request, MultaConductor $multa)
     {
         try {
@@ -81,12 +88,11 @@ class MultaConductorController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $mensaje = '(' . $e->getLine() . ') Hubo un error al actualizar la multa del conductor: ' . $e->getMessage();
             throw ValidationException::withMessages([
                 '500' => [$mensaje],
             ]);
-            return response()->json(compact('mensaje'), 500);
         }
     }
 

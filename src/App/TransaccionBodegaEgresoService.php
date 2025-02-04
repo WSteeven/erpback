@@ -239,7 +239,7 @@ class TransaccionBodegaEgresoService
         $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
         $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
         $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
-        // Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
+//        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
         return TransaccionBodega::with('comprobante')
             ->whereIn('motivo_id', self::$motivos)
             ->whereIn('id', $ids_transacciones)

@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use App\Http\Resources\ActividadRealizadaResource;
+use App\Models\Tarea;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
@@ -25,6 +27,8 @@ class BitacoraVehicularResource extends JsonResource
             'hora_llegada' => $this->hora_llegada,
             'km_inicial' => $this->km_inicial,
             'km_final' => $this->km_final,
+            'km_recorridos' => $this->km_final ? $this->km_final - $this->km_inicial : 0,
+            'tareas' =>  $this->tareas ? Tarea::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->tareas)))->pluck('codigo_tarea'): null,
             'tanque_inicio' => $this->tanque_inicio,
             'tanque_final' => $this->tanque_final,
             'fecha_finalizacion' => $this->fecha_finalizacion,
@@ -39,13 +43,12 @@ class BitacoraVehicularResource extends JsonResource
             $modelo['imagen_inicial'] = $this->imagen_inicial ? url($this->imagen_inicial) : null;
             $modelo['tareas'] = $this->tareas ? array_map('intval', Utils::convertirStringComasArray($this->tareas)) : null;
             $modelo['tickets'] = $this->tickets ? array_map('intval', Utils::convertirStringComasArray($this->tickets)) : null;
-            $modelo['actividadesRealizadas'] = $this->actividades;
+            $modelo['actividadesRealizadas'] = ActividadRealizadaResource::collection($this->actividades);
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo;
             $modelo['checklistVehiculo'] = $this->checklistVehiculo;
             $modelo['checklistImagenVehiculo'] = new ChecklistImagenVehiculoResource($this->checklistImagenVehiculo);
 
             $modelo['vehiculo'] = $this->vehiculo_id;
-
         }
 
         return $modelo;

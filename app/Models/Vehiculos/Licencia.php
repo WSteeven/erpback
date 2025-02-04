@@ -71,6 +71,6 @@ class Licencia extends Model implements Auditable
         $itemsNoEncontrados = Licencia::where('conductor_id', $conductor_id)
             ->whereNotIn('tipo_licencia', $tiposEncontrados)
             ->delete();
-        Log::channel('testing')->info('Log', ['Eliminados', $itemsNoEncontrados]);
+//        Log::channel('testing')->info('Log', ['Eliminados', $itemsNoEncontrados]);
     }
 }

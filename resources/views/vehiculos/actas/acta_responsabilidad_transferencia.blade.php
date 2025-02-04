@@ -2,12 +2,9 @@
 <html lang="es">
 
 @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
     $fecha_entrega = new Datetime($transferencia['fecha_entrega']);
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 @endphp
 
 <head>
@@ -19,7 +16,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -91,7 +88,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:14px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo"></div>
                 </td>
                 <td style="width: 68%">
                     <div align="center"><b>ACTA DE TRANSFERENCIA DE VEHICULOS</b>
@@ -208,16 +205,16 @@
             <table class="firma" style="width: 100%;">
                 <thead align="center">
                 <th>
-                    @if(file_exists(public_path($entrega['firma_url'])))
-                        <img src="{{ url($entrega['firma_url']) }}" width="100%" height="50"/>
+                    @if($entrega['firma_url'])
+                        <img src="{{ Utils::urlToBase64(url($entrega['firma_url'])) }}" width="100%" height="50" alt="firma de la persona que entrega"/>
                     @else
                         ___________________
                     @endif
                 </th>
                 <th></th>
                 <th>
-                    @if(file_exists(public_path($responsable['firma_url'])))
-                        <img src="{{ url($responsable['firma_url']) }}" width="100%" height="50"/>
+                    @if($responsable['firma_url'])
+                        <img src="{{ Utils::urlToBase64(url($responsable['firma_url'])) }}" width="100%" height="50" alt="firma responsable"/>
                     @else
                         ___________________
                     @endif

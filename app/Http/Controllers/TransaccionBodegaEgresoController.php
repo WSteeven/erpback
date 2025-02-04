@@ -405,6 +405,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Reportes
+     * @throws ValidationException
      */
     public function reportes(Request $request)
     {
@@ -428,6 +429,7 @@ class TransaccionBodegaEgresoController extends Controller
                     return $pdf->output();
                 } catch (Exception $ex) {
                     Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw Utils::obtenerMensajeErrorLanzable($ex);
                 }
                 break;
             default:

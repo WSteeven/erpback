@@ -2,10 +2,9 @@
 <html lang="es">
 {{-- Aquí codigo PHP --}}
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    // $rol_pago = $roles_pago[0];
+    use Src\Shared\Utils;
+        $fecha = new Datetime();
+        // $rol_pago = $roles_pago[0];
 @endphp
 
 <head>
@@ -30,7 +29,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -122,7 +121,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10pt;">
             <tr class="row" style="width:auto">
                 <td>
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo"></div>
                 </td>
                 <td>
                     <p class="encabezado-rol"> <strong>{{$configuracion['razon_social']}}</strong></p>
