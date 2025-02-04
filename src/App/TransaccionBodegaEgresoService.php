@@ -239,7 +239,7 @@ class TransaccionBodegaEgresoService
         $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
         $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
         $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
-        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
+        // Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
         return TransaccionBodega::with('comprobante')
             ->whereIn('motivo_id', self::$motivos)
             ->whereIn('id', $ids_transacciones)
@@ -248,7 +248,7 @@ class TransaccionBodegaEgresoService
                 'created_at',
                 [
                     date('Y-m-d', strtotime($request->fecha_inicio)),
-                    $request->fecha_fin ? date('Y-m-d', strtotime($request->fechad_dfin)) : date("Y-m-d h:i:s")
+                    $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
                 ]
             )
             ->whereHas('comprobante', function ($q) {

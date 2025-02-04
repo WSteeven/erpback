@@ -1,12 +1,15 @@
 <?php
 
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ComprasProveedores\BeneficiarioController;
 use App\Http\Controllers\ComprasProveedores\CalificacionDepartamentoProveedorController;
 use App\Http\Controllers\ComprasProveedores\CategoriaOfertaProveedorController;
 use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
 use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
+use App\Http\Controllers\ComprasProveedores\CuentaBancariaController;
 use App\Http\Controllers\ComprasProveedores\DatoBancarioProveedorController;
 use App\Http\Controllers\ComprasProveedores\DetalleDepartamentoProveedorController;
+use App\Http\Controllers\ComprasProveedores\GeneradorCashController;
 use App\Http\Controllers\ComprasProveedores\NovedadOrdenCompraController;
 use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
 use App\Http\Controllers\ComprasProveedores\PagoProveedoresController;
@@ -34,6 +37,9 @@ Route::apiResources([
     'proformas' => ProformaController::class,
     'prefacturas' => PrefacturaController::class,
     'proveedores-internacionales' => ProveedorInternacionalController::class,
+    'generador-cash' => GeneradorCashController::class,
+    'beneficiarios' => BeneficiarioController::class,
+    'cuentas-bancarias' => CuentaBancariaController::class,
 ], [
     'parameters' => [
         'contactos-proveedores' => 'contacto',
@@ -49,6 +55,9 @@ Route::apiResources([
         'preordenes-compras' => 'preorden',
         'proveedores-internacionales' => 'proveedor',
         'prefacturas' => 'prefactura',
+        'generador-cash' => 'generador_cash',
+        'beneficiarios' => 'beneficiario',
+        'cuentas-bancarias' => 'cuenta_bancaria',
     ],
     'middleware' => ['auth:sanctum']
 ]);

@@ -60,7 +60,7 @@ class IncidenteController extends Controller
             $datos = $request->validated();
             $datos['detalles_productos'] = isset($datos['detalles_productos']) ? json_encode($datos['detalles_productos']) : null;
             $datos['estado'] = Incidente::CREADO;
-            $datos['empleado_reporta_id'] = Auth::user()->id;
+            $datos['empleado_reporta_id'] = Auth::user()->empleado->id;
             $modelo = Incidente::create($datos);
             $modelo = new IncidenteResource($modelo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
