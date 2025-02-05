@@ -14,7 +14,8 @@ class BeneficiarioResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
             'id' => $this['id'],
             'codigo_beneficiario' => $this['codigo_beneficiario'],
             'tipo_documento' => $this['tipo_documento'],
@@ -25,5 +26,11 @@ class BeneficiarioResource extends JsonResource
             'localidad' => $this['localidad'],
             'canton' => $this['canton_id'],
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['cuentas_bancarias'] = CuentaBancariaResource::collection($this->cuentasBancarias()->latest()->get());
+        }
+
+        return $modelo;
     }
 }

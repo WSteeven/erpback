@@ -14,12 +14,19 @@ class CuentaBancariaResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
             'id' => $this['id'],
             'tipo_cuenta' => $this['tipo_cuenta'],
             'numero_cuenta' => $this['numero_cuenta'],
             'banco' => $this->banco->nombre,
             'codigo_banco' => $this->banco->codigo,
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['banco'] = $this->banco_id;
+        }
+
+        return $modelo;
     }
 }

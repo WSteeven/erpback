@@ -10,6 +10,7 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Log;
 use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 use Throwable;
@@ -38,7 +39,7 @@ class BeneficiarioController extends Controller
 
         if ($paginate) $results = $this->paginationService->paginate($query, 100, request('page'));
         else $results = $query->get();
-        
+
         return BeneficiarioResource::collection($results);
     }
 
@@ -84,12 +85,12 @@ class BeneficiarioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Beneficiario $beneficiario)
+    public function update(BeneficiarioRequest $request, Beneficiario $beneficiario)
     {
         return DB::transaction(function () use ($request, $beneficiario) {
             $datos = $request->validated();
             $beneficiario->update($datos);
-            $this->gestionarCuentasBancarias($request, $beneficiario);
+            $this->gestionarCuentasBancarias($datos, $beneficiario);
             $modelo = new BeneficiarioResource($beneficiario->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
@@ -108,40 +109,29 @@ class BeneficiarioController extends Controller
         //
     }
 
-    private function gestionarCuentasBancarias(Request $request, Beneficiario $beneficiario)
+    private function gestionarCuentasBancarias($datos, Beneficiario $beneficiario)
     {
-        // Obtener IDs de las cuentas enviadas en la solicitud
-        $cuentasEnviadas = collect($request->input('cuentas_bancarias', []));
+        // Obtener cuentas enviadas en la solicitud como colección
+        $cuentasEnviadas = collect($datos['cuentas_bancarias']);
 
-        // Obtener IDs de cuentas bancarias existentes en la base de datos
-        $cuentasActuales = $beneficiario->cuentasBancarias()->pluck('id')->toArray();
+        // Obtener los IDs de las cuentas enviadas
+        $idsCuentasEnviadas = $cuentasEnviadas->pluck('id')->filter()->toArray();
 
-        // Filtrar cuentas nuevas (las que no tienen ID)
-        $nuevasCuentas = $cuentasEnviadas->whereNull('id')->all();
+        // Eliminar las cuentas que no están en la solicitud
+        $beneficiario->cuentasBancarias()->whereNotIn('id', $idsCuentasEnviadas)->delete();
 
-        // Filtrar cuentas que deben actualizarse (las que tienen ID y ya existen en la BD)
-        $cuentasAActualizar = $cuentasEnviadas->whereIn('id', $cuentasActuales)->all();
-
-        // Filtrar cuentas a eliminar (las que están en la BD pero no llegaron en la solicitud)
-        $cuentasAEliminar = array_diff($cuentasActuales, $cuentasEnviadas->pluck('id')->filter()->toArray());
-
-        // Agregar nuevas cuentas
-        if (!empty($nuevasCuentas)) {
-            $beneficiario->cuentasBancarias()->createMany($nuevasCuentas);
-        }
-
-        // Actualizar cuentas existentes
-        foreach ($cuentasAActualizar as $cuenta) {
-            $beneficiario->cuentasBancarias()->where('id', $cuenta['id'])->update([
-                'tipo_cuenta' => $cuenta['tipo_cuenta'],
-                'numero_cuenta' => $cuenta['numero_cuenta'],
-                'banco_id' => $cuenta['banco'],
-            ]);
-        }
-
-        // Eliminar cuentas que ya no están en la solicitud
-        if (!empty($cuentasAEliminar)) {
-            $beneficiario->cuentasBancarias()->whereIn('id', $cuentasAEliminar)->delete();
+        // Procesar actualización de cuentas existentes
+        foreach ($cuentasEnviadas as $cuenta) {
+            if (isset($cuenta['id'])) {
+                // Si la cuenta ya existe, actualizarlo
+                $cuentaEncontrada = $beneficiario->cuentasBancarias()->find($cuenta['id']);
+                if ($cuentaEncontrada) {
+                    $cuentaEncontrada->update($cuenta);
+                }
+            } else {
+                // Si la cuenta no tiene ID, crearlo
+                $beneficiario->cuentasBancarias()->create($cuenta);
+            }
         }
     }
 }

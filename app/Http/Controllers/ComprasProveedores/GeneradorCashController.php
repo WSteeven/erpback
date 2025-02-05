@@ -101,7 +101,6 @@ class GeneradorCashController extends Controller
     {
         return DB::transaction(function () use ($request, $generador_cash) {
             $datos = $request->validated();
-            // $datos['actualizador_id'] = Auth::user()->empleado->id;
 
             // Actualizar el modelo principal
             $generador_cash->update($datos);

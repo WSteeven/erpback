@@ -28,7 +28,7 @@ class GeneradorCashRequest extends FormRequest
             'pagos.*.id' => 'nullable|numeric|integer',
             'pagos.*.tipo' => 'required|in:PA,CO',
             'pagos.*.num_cuenta_empresa' => 'required|string',
-            // 'pagos.*.num_secuencial' => 'required|numeric|integer',
+            'pagos' => 'required',
             'pagos.*.num_comprobante' => 'nullable|string',
             'pagos.*.moneda' => 'required|string',
             'pagos.*.valor' => 'required|string',
@@ -37,6 +37,13 @@ class GeneradorCashRequest extends FormRequest
             'pagos.*.referencia_adicional' => 'nullable|string',
             'pagos.*.beneficiario_id' => 'required|numeric|integer|exists:cmp_beneficiarios,id',
             'pagos.*.cuenta_banco_id' => 'required|numeric|integer|exists:cmp_cuentas_bancarias,id',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'pagos.required' => 'Es necesario que registre al menos un pago.',
         ];
     }
 }
