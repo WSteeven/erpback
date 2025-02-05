@@ -33,7 +33,7 @@ class GeneradorCashController extends Controller
      */
     public function index()
     {
-        if (request('export') == 'xlsx') {
+        if (request('export')) {
             $generador = GeneradorCash::ignoreRequest(['export', 'titulo'])->filter()->first();
             $results = $generador->pagos->sortByDesc('created_at') // Ordenar por fecha de creación, más reciente primero
                 ->values()
@@ -41,19 +41,49 @@ class GeneradorCashController extends Controller
                     $pagoResource = new PagoResource($pago);
                     $pagoResource = $pagoResource->resolve();
                     $pagoResource['num_secuencial'] = $index + 1;
+                    $pagoResource['valor'] = $this->formatearValor($pagoResource['valor']);
                     unset($pagoResource['id']);
                     unset($pagoResource['generador_cash_id']);
                     unset($pagoResource['beneficiario_id']);
                     unset($pagoResource['cuenta_banco_id']);
                     return $pagoResource;
                 });
-            $export = new CashGenericoExport($results, 'Cash');
-            return Excel::download($export, 'cash.xlsx');
+
+            if (request('export') == 'xlsx') {
+                $export = new CashGenericoExport($results, 'Cash');
+                return Excel::download($export, 'cash.xlsx');
+            }
+
+            if (request('export') == 'txt') {
+                // Generar el contenido del archivo de texto sin encabezados
+                $fileContent = '';
+
+                // Agregar los datos de los pagos sin incluir los encabezados
+                foreach ($results as $pago) {
+                    $fileContent .= implode("\t", array_values($pago)) . "\n";
+                }
+
+                // Crear la respuesta con el archivo para descarga
+                return response($fileContent)
+                    ->header('Content-Type', 'text/plain')
+                    ->header('Content-Disposition', 'attachment; filename="cash.txt"');
+            }
         }
+
+
 
         $results = GeneradorCash::ignoreRequest(['campos'])->filter()->latest()->get();
         $results = GeneradorCashResource::collection($results);
         return response()->json(compact('results'));
+    }
+
+    private function formatearValor($value)
+    {
+        // Asegurar que el valor es numérico
+        $val = str_replace([',', '.'], '', $value);
+
+        // Formatear sin decimales y con 13 caracteres de longitud
+        return str_pad($val, 13, '0', STR_PAD_LEFT);
     }
 
     /**
