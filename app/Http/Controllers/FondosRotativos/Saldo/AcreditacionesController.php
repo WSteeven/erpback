@@ -4,17 +4,14 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AcreditacionRequest;
-use App\Http\Resources\ComprasProveedores\PagoProveedoresResource;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
-use App\Imports\ComprasProveedores\PagoProveedoresImport;
 use App\Imports\FondosRotativos\AcreditacionesImport;
-use App\Models\ComprasProveedores\PagoProveedores;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -28,28 +25,35 @@ class AcreditacionesController extends Controller
 {
     private string $entidad = 'Acreditacion';
     private PaginationService $paginationService;
+
     public function __construct()
     {
-         $this->paginationService = new PaginationService();
+        $this->paginationService = new PaginationService();
         $this->middleware('can:puede.ver.acreditacion')->only('index', 'show');
         $this->middleware('can:puede.crear.acreditacion')->only('store');
         $this->middleware('can:puede.editar.acreditacion')->only('update');
         $this->middleware('can:puede.puede.eliminar.acreditacion')->only('update');
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      * @noinspection PhpUndefinedMethodInspection
      */
     public function index(Request $request)
     {
         $search = $request->search;
         $paginate = $request->paginate;
-        if($search) $query = Acreditaciones::search($search);
+        if ($search) $query = Acreditaciones::whereHas('usuario', function ($query) use ($search) {
+            $query->where('nombres', 'like', '%' . $search . '%')
+                ->orWhere('apellidos', 'like', '%' . $search . '%');
+        })->orWhere('descripcion_acreditacion', 'like', '%' . $search . '%')
+            ->orWhere('motivo', 'like', '%' . $search . '%')
+            ->orWhere('monto', 'like', '%' . $search . '%');
         else $query = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos', 'paginate'])->filter()->orderBy('id', 'desc');
 
-        if($paginate) $results = $this->paginationService->paginate($query,100, $request->page);
+        if ($paginate) $results = $this->paginationService->paginate($query, 100, $request->page);
         else $results = $query->get();
         return AcreditacionResource::collection($results);
 //        return response()->json(compact('results'));
@@ -111,6 +115,7 @@ class AcreditacionesController extends Controller
             ]);
         }
     }
+
     /**
      * Display the specified resource.
      *
@@ -142,14 +147,14 @@ class AcreditacionesController extends Controller
     {
         DB::beginTransaction();
         try {
-            $acreditacion_repetida = Acreditaciones::where('id_estado',  EstadoAcreditaciones::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
+            $acreditacion_repetida = Acreditaciones::where('id_estado', EstadoAcreditaciones::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
             if ($acreditacion_repetida->count() > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Acreditación  ya fue anulada'],
                 ]);
             }
             $acreditacion = Acreditaciones::find($request->id);
-            $acreditacion->motivo =  $request->descripcion_acreditacion;
+            $acreditacion->motivo = $request->descripcion_acreditacion;
             $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
             $acreditacion->save();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -170,7 +175,7 @@ class AcreditacionesController extends Controller
      * @param Acreditaciones $acreditacion
      * @return JsonResponse
      */
-    public function update(AcreditacionRequest $request,Acreditaciones $acreditacion)
+    public function update(AcreditacionRequest $request, Acreditaciones $acreditacion)
     {
         $datos = $request->validated();
         $modelo = $acreditacion->update($datos);
