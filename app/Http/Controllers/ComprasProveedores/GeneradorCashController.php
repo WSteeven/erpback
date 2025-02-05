@@ -36,6 +36,7 @@ class GeneradorCashController extends Controller
         if (request('export') == 'xlsx') {
             $generador = GeneradorCash::ignoreRequest(['export', 'titulo'])->filter()->first();
             $results = $generador->pagos->sortByDesc('created_at') // Ordenar por fecha de creación, más reciente primero
+                ->values()
                 ->map(function ($pago, $index) {
                     $pagoResource = new PagoResource($pago);
                     $pagoResource = $pagoResource->resolve();

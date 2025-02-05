@@ -27,7 +27,6 @@ class Pago extends Model implements Auditable
     protected $fillable = [
         'tipo',
         'num_cuenta_empresa',
-        'num_secuencial',
         'num_comprobante',
         'moneda',
         'valor',
