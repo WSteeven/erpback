@@ -260,7 +260,7 @@ class BitacoraVehicularController extends Controller
                 return Excel::download(new ReporteBitacorasVehiculosExport($results, $configuracion, $request->fecha_inicio, $request->fecha_fin, $request->umbral), 'reporte_bitacoras_vehiculos.xlsx');
             case 'pdf':
                 try {
-                    //code...
+                    throw  new Exception("Este reporte no está configurado para imprimirse en PDF.");
                 } catch (\Throwable $th) {
                     Log::channel('testing')->error('Log', ['ERROR', $th->getMessage(), $th->getLine()]);
                     throw Utils::obtenerMensajeErrorLanzable($th);
