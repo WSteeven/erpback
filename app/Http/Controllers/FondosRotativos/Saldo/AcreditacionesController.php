@@ -4,23 +4,33 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AcreditacionRequest;
+use App\Http\Resources\ComprasProveedores\PagoProveedoresResource;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
+use App\Imports\ComprasProveedores\PagoProveedoresImport;
+use App\Imports\FondosRotativos\AcreditacionesImport;
+use App\Models\ComprasProveedores\PagoProveedores;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 use Throwable;
 
 class AcreditacionesController extends Controller
 {
     private string $entidad = 'Acreditacion';
+    private PaginationService $paginationService;
     public function __construct()
     {
+         $this->paginationService = new PaginationService();
         $this->middleware('can:puede.ver.acreditacion')->only('index', 'show');
         $this->middleware('can:puede.crear.acreditacion')->only('store');
         $this->middleware('can:puede.editar.acreditacion')->only('update');
@@ -29,14 +39,20 @@ class AcreditacionesController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      * @noinspection PhpUndefinedMethodInspection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
-        $results = AcreditacionResource::collection($results);
-        return response()->json(compact('results'));
+        $search = $request->search;
+        $paginate = $request->paginate;
+        if($search) $query = Acreditaciones::search($search);
+        else $query = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos', 'paginate'])->filter()->orderBy('id', 'desc');
+
+        if($paginate) $results = $this->paginationService->paginate($query,100, $request->page);
+        else $results = $query->get();
+        return AcreditacionResource::collection($results);
+//        return response()->json(compact('results'));
     }
 
 
@@ -66,6 +82,35 @@ class AcreditacionesController extends Controller
         }
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function storeLotes(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $this->validate($request, [
+                'file' => 'required|mimes:xls,xlsx'
+            ]);
+            if (!$request->hasFile('file')) {
+                throw ValidationException::withMessages([
+                    'file' => ['Debe seleccionar al menos un archivo.'],
+                ]);
+            }
+
+            Excel::import(new AcreditacionesImport($request->file->getClientOriginalName()), $request->file);
+            $mensaje = 'Archivo subido exitosamente!';
+            DB::commit();
+            return response()->json(compact('mensaje'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->error('Log', ['ERROR al leer el archivo', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'file' => [$e->getMessage(), $e->getLine()],
+            ]);
+        }
+    }
     /**
      * Display the specified resource.
      *
