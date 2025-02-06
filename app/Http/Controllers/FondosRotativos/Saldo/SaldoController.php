@@ -325,67 +325,88 @@ class SaldoController extends Controller
      */
     private function gastoFiltrado(Request $request, string $tipo, $imagen = false)
     {
+        $gastosQuery = null;
         try {
-            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
-            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $request['id_proyecto'] = $request['proyecto'];
+            $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+            $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
             $request['id_usuario'] = $request['empleado'];
-            $request['id_estado'] = $request['estado'];
-            $request['id_tarea'] = $request['tarea'];
-            $request['aut_especial'] = $request['autorizador'];
 
-            if ($request->tipo_filtro == 8) {
-                $request['ruc'] = '9999999999999';
+            switch ($request->tipo_filtro) {
+
+                case '1': // Proyecto
+                    $gastosQuery = Gasto::where('id_proyecto', $request->id_proyecto);
+                    break;
+                case '2': // Tarea
+                    $gastosQuery = Gasto::where('id_tarea', $request->id_tarea);
+
+                    break;
+                case '3': //Detalle
+                    $gastosQuery = Gasto::where('detalle', $request->detalle);
+                    break;
+                case '4': // subdetalle
+                    if ($request->subdetalle != null)
+                        $gastosQuery = Gasto::whereHas('subDetalle', function ($q) use ($request) {
+                            $q->whereIn('subdetalle_gasto_id', $request->subdetalle);
+                        });
+                    break;
+                case '5'://Autorizacion
+                    $gastosQuery = Gasto::where('aut_especial', $request->aut_especial);
+                    break;
+                case '6': //Empleado
+                    $gastosQuery = Gasto::where('id_usuario', $request->empleado);
+                    break;
+                case '7':// RUC
+                    $gastosQuery = Gasto::where('ruc', $request->ruc);
+
+                    break;
+                case '8': // sin factura
+                    $request['ruc'] = '9999999999999';
+                    $gastosQuery = Gasto::where('ruc', $request->ruc);
+                    break;
+                case '9': //ciudad
+                    $gastosQuery = Gasto::where('id_lugar', $request->id_lugar);
+//                    if ($request->tipo_filtro == 9) {
+//                        $gastosQuery->whereHas('empleado', function ($query) use ($request) {
+//                            $query->where('canton_id', $request['ciudad']);
+//                        });
+//                    }
+                    break;
+                case '10': // grupo
+                    $ids_empleados_grupo = match ($request->grupo) {
+                        0 => Empleado::whereNull('grupo_id')->pluck('id'),
+                        default => Empleado::where('grupo_id', $request->grupo)->pluck('id'),
+                    };
+                    $gastosQuery = Gasto::whereIn('id_usuario', $ids_empleados_grupo);
+                    break;
+                default: // todos o case '0'
+                    $gastosQuery = Gasto::ignoreRequest([
+                        'tipo_saldo',
+                        'tipo_filtro',
+                        'sub_detalle',
+                        'empleado',
+                        'tarea',
+                        'autorizador',
+                        'fecha_inicio',
+                        'fecha_fin',
+                        'estado',
+                        'proyecto',
+                        'ciudad',
+                        'subdetalle'
+                    ])
+                        ->filter()
+                        ->with(
+                            'empleado',
+                            'detalleEstado',
+                            'subDetalle',
+                            'proyecto'
+                        );
             }
-//            Log::channel('testing')->info('Log', ['Request gastoFiltrado', $request->all()]);
+            // Se aplica filtro de rangos de fechas y obtener solo gastos aprobados
+            $gastosQuery->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', Gasto::APROBADO);
 
-            $gastosQuery = Gasto::ignoreRequest([
-                'tipo_saldo',
-                'tipo_filtro',
-                'sub_detalle',
-                'empleado',
-                'tarea',
-                'autorizador',
-                'fecha_inicio',
-                'fecha_fin',
-                'estado',
-                'proyecto',
-                'ciudad',
-                'subdetalle'
-            ])
-                ->filter()
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where('estado', Gasto::APROBADO)
-                ->with(
-                    'empleado',
-                    'detalleEstado',
-                    'subDetalle',
-                    'proyecto'
-                );
+            $gastos = $gastosQuery->get();
 
-//            Log::channel('testing')->info('Log', ['despues de gastosQuery', $request->id_tarea]);
-            if ($request->id_tarea)
-                $gastosQuery = $gastosQuery->where('id_tarea', $request->id_tarea);
-
-//            Log::channel('testing')->info('Log', ['despues de filtro de tarea']);
-            if ($request->tipo_filtro == 9) {
-                $gastosQuery->whereHas('empleado', function ($query) use ($request) {
-                    $query->where('canton_id', $request['ciudad']);
-                });
-            }
-//            Log::channel('testing')->info('Log', ['despues de tipo_filtro==9']);
-
-            if ($request->subdetalle != null) {
-                $gastos = $gastosQuery->whereHas('subDetalle', function ($q) use ($request) {
-                    $q->whereIn('subdetalle_gasto_id', $request['subdetalle']);
-                })->get();
-//                Log::channel('testing')->info('Log', ['en el if de subdetalle']);
-            } else {
-//                Log::channel('testing')->info('Log', ['en el else', $gastosQuery->toSql()]);
-                $gastos = $gastosQuery->get();
-            }
-
-//            Log::channel('testing')->info('Log', ['gastoFiltrado', $gastos]);
             $usuario = null;
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
@@ -403,12 +424,12 @@ class SaldoController extends Controller
             $usuario_canton = '';
             switch ($request->tipo_filtro) {
                 case self::PROYECTO:
-                    $proyecto = Proyecto::where('id', $request->proyecto)->first();
+                    $proyecto = Proyecto::where('id', $request->id_proyecto)->first();
                     $titulo .= 'DE GASTOS POR PROYECTO ';
                     $subtitulo = 'PROYECTO: ' . $proyecto->codigo_proyecto . ' - ' . $proyecto->nombre;
                     break;
                 case self::TAREA:
-                    $tarea = Tarea::where('id', $request->tarea)->first();
+                    $tarea = Tarea::where('id', $request->id_tarea)->first();
                     $titulo .= 'DE GASTOS POR TAREA ';
                     $subtitulo = 'TAREA: ' . $tarea->codigo_tarea . ' - ' . $tarea->titulo;
                     break;
@@ -423,7 +444,7 @@ class SaldoController extends Controller
                     $subtitulo = 'SUBDETALLE: ' . $sub_detalle->descripcion;
                     break;
                 case self::AUTORIZADORGASTO:
-                    $autorizador = Empleado::where('id', $request->autorizador)->first();
+                    $autorizador = Empleado::where('id', $request->aut_especial)->first();
                     $titulo .= 'DE GASTOS POR AUTORIZADOR ';
                     $subtitulo = 'AUTORIZADOR: ' . $autorizador->nombres . ' ' . $autorizador->apellidos;
                     break;
@@ -465,12 +486,12 @@ class SaldoController extends Controller
                     $subtitulo = 'RUC: ' . $ruc->ruc;
                     break;
                 case self::CIUDAD:
-                    $ciudad = Canton::where('id', $request['ciudad'])->first();
+                    $ciudad = Canton::where('id', $request['id_lugar'])->first();
                     $titulo .= 'DE GASTOS POR CIUDAD ';
                     $subtitulo = 'Ciudad: ' . $ciudad->canton;
                     break;
             }
-            $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '.';
+            $titulo .= 'DEL ' . $fecha_inicio->format('Y-m-d') . ' AL ' . $fecha_fin->format('Y-m-d') . '.';
             $tipo_filtro = $request->tipo_filtro;
             $reportes = [
                 'gastos' => $results,
@@ -495,10 +516,8 @@ class SaldoController extends Controller
             $export_excel = new GastoFiltradoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
-        } catch (Throwable $th) {
-            Log::channel('testing')->info('Log', ['error throwable', $th->getMessage(), $th->getLine()]);
-        } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        } catch (Throwable|Exception $e) {
+            Log::channel('testing')->error('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e, 'gastoFiltrado');
         }
     }
@@ -597,12 +616,10 @@ class SaldoController extends Controller
     private function acreditacion(Request $request, string $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
-            $fecha_inicio = $date_inicio->format('Y-m-d');
-            $fecha_fin = $date_fin->format('Y-m-d');
+            $fecha_inicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
+            $fecha_fin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
             $usuario = null;
-            if ($request->empleado == null) {
+            if ($request->empleado == null || $request->empleado == 0) {
                 $acreditaciones = Acreditaciones::with('usuario')
                     ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
@@ -616,6 +633,15 @@ class SaldoController extends Controller
                     ->get();
                 $usuario = Empleado::where('id', $request->empleado)
                     ->first();
+            }
+            if($request->grupo){
+                $ids_empleados_grupo = match ($request->grupo) {
+                    0 => Empleado::whereNull('grupo_id')->pluck('id'),
+                    default => Empleado::where('grupo_id', $request->grupo)->pluck('id'),
+                };
+                $acreditaciones = Acreditaciones::whereIn('id_usuario', $ids_empleados_grupo)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->get();
             }
             $sumaMontos = $acreditaciones->sum('monto');
             $nombre_reporte = 'reporte_saldoActual';
