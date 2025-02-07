@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -40,10 +41,10 @@ class Utils
     }
 
     /**
-     * @param  $url  //ruta de donde tomará la imagen, empieza con http:// o https://
+     * @param  $url //ruta de donde tomará la imagen, empieza con http:// o https://
      * @return string Base64 imagen
      */
-    public static  function urlToBase64($url)
+    public static function urlToBase64($url)
     {
         $options = stream_context_create([
             "ssl" => [
@@ -53,6 +54,49 @@ class Utils
         ]);
         return 'data:image/png;base64,' . base64_encode(file_get_contents($url, false, $options));
     }
+
+    /**
+     * Función para obtener las imagenes necesarias para imprimir en una vista de un reporte de Excel.
+     * Busca en local si existe la imagen, caso contrario busca en la carpeta temporal y si no existe,
+     * la descarga dentro de la carpeta temporal y sirve la ruta de la imagen.
+     *
+     * @param string|null $relativePath ruta de imagen de la base de datos.
+     * @return string|null
+     */
+    public static function getImagePath(?string $relativePath)
+    {
+
+        $localPath = public_path($relativePath);
+
+        // Si la imagen ya existe en el servidor, usarla directamente
+        if (file_exists($localPath)) return $localPath;
+
+        $relativePath = str_replace('storage/', '', ltrim($relativePath, '/'));
+
+        // Ruta en el servidor remoto
+        $remoteUrl = env('FAST_API_URL_FOR_DOWNLOAD') . $relativePath;
+
+
+        // Directorio donde guardaremos las imagenes descargadas
+        $tempDirectory = storage_path('app/public/temp_images/');
+        if (!file_exists($tempDirectory)) mkdir($tempDirectory, 0777, true);
+
+        $tempPath = $tempDirectory . basename($relativePath);
+
+        // Si la imagen no ha sido descargada previamente
+        if (!file_exists($tempPath)) {
+            try {
+                $response = Http::withOptions(['verify' => false])->get($remoteUrl);
+                if ($response->successful())
+                    file_put_contents($tempPath, $response->body());
+                else return null;
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+        return public_path('storage/temp_images/'.basename($relativePath)); // Retorna la nueva ruta local
+    }
+
     public static function decodificarImagen(string $imagen_base64): string
     {
         $partes = explode(";base64,", $imagen_base64);
