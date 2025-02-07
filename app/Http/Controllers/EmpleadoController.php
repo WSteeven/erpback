@@ -227,12 +227,12 @@ class EmpleadoController extends Controller
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
         if ($datos['foto_url'] && Utils::esBase64($datos['foto_url'])) {
-            $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
+            $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES, $empleado->foto_url))->execute();
         } else {
             unset($datos['foto_url']);
         }
         if ($datos['firma_url'] && Utils::esBase64($datos['firma_url'])) {
-            $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
+            $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS, $empleado->firma_url))->execute();
         } else {
             unset($datos['firma_url']);
         }

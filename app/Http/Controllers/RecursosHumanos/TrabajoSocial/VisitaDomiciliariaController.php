@@ -72,9 +72,9 @@ class VisitaDomiciliariaController extends Controller
             $datos = $request->validated();
             $empleado = Empleado::find($datos['empleado_id']);
             if ($datos['imagen_genograma'])
-                $datos['imagen_genograma'] = (new GuardarImagenIndividual($datos['imagen_genograma'], RutasStorage::GENOGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+                $datos['imagen_genograma'] = (new GuardarImagenIndividual($datos['imagen_genograma'], RutasStorage::GENOGRAMAS, null,$empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
             if ($datos['imagen_visita_domiciliaria'])
-                $datos['imagen_visita_domiciliaria'] = (new GuardarImagenIndividual($datos['imagen_visita_domiciliaria'], RutasStorage::VISITAS_DOMICILIARIAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+                $datos['imagen_visita_domiciliaria'] = (new GuardarImagenIndividual($datos['imagen_visita_domiciliaria'], RutasStorage::VISITAS_DOMICILIARIAS,null, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
 
             $visita = VisitaDomiciliaria::create($datos);
 
@@ -121,12 +121,12 @@ class VisitaDomiciliariaController extends Controller
             $datos = $request->validated();
             $empleado = Empleado::find($visita->empleado_id);
             if ($datos['imagen_genograma'] && Utils::esBase64($datos['imagen_genograma']))
-                $datos['imagen_genograma'] = (new GuardarImagenIndividual($datos['imagen_genograma'], RutasStorage::GENOGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+                $datos['imagen_genograma'] = (new GuardarImagenIndividual($datos['imagen_genograma'], RutasStorage::GENOGRAMAS, $visita->imagen_genograma, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
             else
                 unset($datos['imagen_genograma']);
 
             if ($datos['imagen_visita_domiciliaria'] && Utils::esBase64($datos['imagen_visita_domiciliaria']))
-                $datos['imagen_visita_domiciliaria'] = (new GuardarImagenIndividual($datos['imagen_visita_domiciliaria'], RutasStorage::VISITAS_DOMICILIARIAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+                $datos['imagen_visita_domiciliaria'] = (new GuardarImagenIndividual($datos['imagen_visita_domiciliaria'], RutasStorage::VISITAS_DOMICILIARIAS, $visita->imagen_visita_domiciliaria, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
             else
                 unset($datos['imagen_visita_domiciliaria']);
 

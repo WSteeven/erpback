@@ -71,7 +71,7 @@ class PreingresoMaterialService
     {
         $fotografia = null;
         // se guarda la imagen en caso de haber
-        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia'])) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
+        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia'])) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS,null, $preingreso_id . '_' . $item['producto'] .'_'. time()))->execute();
         $unidad = UnidadMedida::where('nombre', $item['unidad_medida'])->first();
         $condicion = Condicion::where('nombre', $item['condicion'])->first();
 
@@ -223,7 +223,7 @@ class PreingresoMaterialService
             //Si la fotografia recibida es la actualización de algun item ya guardado, se borra la imagen del servidor y se guarda la nueva imagen
             Utils::eliminarArchivoServidor($itemPreingreso->fotografia);
 
-            $fotografia = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $itemPreingreso->preingreso_id . '_' . $datos['producto'] . time()))->execute();
+            $fotografia = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, null, $itemPreingreso->preingreso_id . '_' . $datos['producto'] .'_'. time()))->execute();
             $itemPreingreso->fotografia = $fotografia;
             $itemPreingreso->save();
         }
@@ -313,7 +313,7 @@ class PreingresoMaterialService
             foreach ($detalles as $detalle) {
                 $results[] = [
                     'id' => $preingreso->id,
-                    'fecha_solicitud' => $preingreso->created_at, 
+                    'fecha_solicitud' => $preingreso->created_at,
                     'producto' => $detalle->producto->nombre,
                     'descripcion' => $detalle->pivot->descripcion,
                     'serial' => $detalle->pivot->serial,

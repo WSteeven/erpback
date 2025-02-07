@@ -100,7 +100,7 @@ class NoticiaController extends Controller
             $datos = $request->validated();
 
             if ($datos['imagen_noticia'] && Utils::esBase64($datos['imagen_noticia'])) {
-                $datos['imagen_noticia'] = (new GuardarImagenIndividual($datos['imagen_noticia'], RutasStorage::IMAGENES_NOTICIAS))->execute();
+                $datos['imagen_noticia'] = (new GuardarImagenIndividual($datos['imagen_noticia'], RutasStorage::IMAGENES_NOTICIAS, $noticia->imagen_noticia))->execute();
             } else {
                 unset($datos['imagen_noticia']);
             }

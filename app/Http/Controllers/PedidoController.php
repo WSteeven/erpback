@@ -151,10 +151,10 @@ class PedidoController extends Controller
             DB::beginTransaction();
             $datos = $request->validated();
 
-            if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS, $pedido->evidencia1))->execute();
             else unset($datos['evidencia1']);
 
-            if ($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS, $pedido->evidencia2))->execute();
             else unset($datos['evidencia2']);
 
             // Respuesta
