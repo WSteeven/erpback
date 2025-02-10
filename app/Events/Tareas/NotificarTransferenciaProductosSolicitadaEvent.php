@@ -56,7 +56,7 @@ class NotificarTransferenciaProductosSolicitadaEvent implements ShouldBroadcast
     private function obtenerMensaje() {
         $nombres_emisor = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->empleado_origen_id));
         $justificacion = $this->transferencia->justificacion;
-        $codigo = 'TRANS_PROD-' . $this->transferencia->id;
+        $codigo = 'TRANSF-' . $this->transferencia->id;
         return $nombres_emisor . ' ha solicitado la transferencia de sus productos. Tranferencia: ' . $codigo . ' Justificación: ' . $justificacion;
     }
 }
