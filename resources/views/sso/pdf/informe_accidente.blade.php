@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 @php
+    use Src\Shared\Utils;
     $logo_principal =
         'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . '/img/logo_ufinet.png'));
 @endphp
@@ -675,7 +676,8 @@
     <div class="gallery">
         @foreach($seguimiento_accidente['archivos'] as $ruta)
             <div class="gallery-item">
-                <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $ruta)) }}">
+                {{-- <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $ruta)) }}"> --}}
+                <img src="{{ Utils::urlToBase64(url($ruta)) }}">
             </div>
         @endforeach
     </div>

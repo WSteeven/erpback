@@ -160,30 +160,30 @@ class MaterialEmpleado extends Model implements Auditable
      */
     public static function descargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id, int|null $transaccion_cliente_id)
     {
-        try {
+        // try {
+        $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
+            ->where('empleado_id', $empleado_id)
+            ->where('cliente_id', $cliente_id)
+            ->where('cantidad_stock', '>=', $cantidad)->first();
+        if ($material) {
+            $material->cantidad_stock -= $cantidad;
+            $material->devuelto += $cantidad;
+            $material->save();
+        } else {
             $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
                 ->where('empleado_id', $empleado_id)
-                ->where('cliente_id', $cliente_id)
+                ->where('cliente_id', $transaccion_cliente_id)
                 ->where('cantidad_stock', '>=', $cantidad)->first();
             if ($material) {
                 $material->cantidad_stock -= $cantidad;
                 $material->devuelto += $cantidad;
                 $material->save();
-            } else {
-                $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
-                    ->where('empleado_id', $empleado_id)
-                    ->where('cliente_id', $transaccion_cliente_id)
-                    ->where('cantidad_stock', '>=', $cantidad)->first();
-                if ($material) {
-                    $material->cantidad_stock -= $cantidad;
-                    $material->devuelto += $cantidad;
-                    $material->save();
-                } else
-                    throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado');
-            }
-        } catch (\Throwable $th) {
-            throw new Exception($th->getMessage() . '. ' . $th->getLine());
+            } else
+                throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado');
         }
+        /*  } catch (\Throwable $th) {
+            throw new Exception($th->getMessage() . '. ' . $th->getLine());
+        } */
     }
 
     /**
