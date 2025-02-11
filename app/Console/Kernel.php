@@ -28,12 +28,13 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  Schedule  $schedule
+     * @param Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('clean:temp-images')->daily();
+        $schedule->command('clean:old-files')->daily(); // para borrar diariamente las imagenes que ya cumplan el periodo valido
         // $schedule->command('inspire')->hourly();
         // $schedule->job(new MyJobExample)->everyMinute(); // Execute job every 5 minutes
         $schedule->job(new ClearCacheJob)->daily(); // Execute job every day at 08:00
