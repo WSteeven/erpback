@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Src\Config\PaisesOperaciones;
 use Throwable;
 
 class Utils
@@ -94,7 +93,7 @@ class Utils
                 return null;
             }
         }
-        return public_path('storage/temp_images/'.basename($relativePath)); // Retorna la nueva ruta local
+        return public_path('storage/temp_images/' . basename($relativePath)); // Retorna la nueva ruta local
     }
 
     public static function decodificarImagen(string $imagen_base64): string
@@ -1026,11 +1025,11 @@ class Utils
         $num = (int)$num;
 
         $numf = self::milmillon($num);
-        switch ($pais) {
-            case PaisesOperaciones::PERU:
-                return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
-            default:
-                return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
-        }
+//        switch ($pais) {
+//            case PaisesOperaciones::PERU:
+//                return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
+//            default:
+        return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+//        }
     }
 }
