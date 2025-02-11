@@ -13,6 +13,7 @@ use App\Jobs\RechazarGastoJob;
 use App\Jobs\RecursosHumanos\CrearVacacionesEmpleadoJob;
 use App\Jobs\RecursosHumanos\DesactivarEmpleadoDelegadoJob;
 use App\Jobs\RecursosHumanos\NotificarPotencialesVacacionesEmpleadoJob;
+use App\Jobs\TrabajoSocial\NotificarActualizacionFichaSocioeconomicaJob;
 use App\Jobs\Vehiculos\ActualizarEstadoSegurosVehiculares;
 use App\Jobs\Vehiculos\ActualizarMantenimientoVehiculoJob;
 use App\Jobs\Vehiculos\CrearMatriculasAnualesVehiculosJob;
@@ -27,11 +28,13 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  Schedule  $schedule
+     * @param Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('clean:temp-images')->daily();
+        $schedule->command('clean:old-files')->daily(); // para borrar diariamente las imagenes que ya cumplan el periodo valido
         // $schedule->command('inspire')->hourly();
         // $schedule->job(new MyJobExample)->everyMinute(); // Execute job every 5 minutes
         $schedule->job(new ClearCacheJob)->daily(); // Execute job every day at 08:00
@@ -80,6 +83,12 @@ class Kernel extends ConsoleKernel
         $schedule->job(new CrearVacacionesEmpleadoJob())->daily();
         $schedule->job(new NotificarPotencialesVacacionesEmpleadoJob())->dailyAt('08:00');
         $schedule->job(new DesactivarEmpleadoDelegadoJob())->everyMinute();
+
+        /*****************
+         * TRABAJO SOCIAL
+         ****************/
+        $schedule->job(new NotificarActualizacionFichaSocioeconomicaJob())->daily();
+
 
         /*********
          * TAREAS

@@ -139,6 +139,11 @@ class BitacoraVehicular extends Pivot implements Auditable
         return $this->belongsTo(Vehiculo::class);
     }
 
+    public function tanqueos()
+    {
+        return $this->hasMany(Tanqueo::class, 'bitacora_id', 'id');
+    }
+
     public function actividades()
     {
         return $this->morphMany(ActividadRealizada::class, 'actividable');

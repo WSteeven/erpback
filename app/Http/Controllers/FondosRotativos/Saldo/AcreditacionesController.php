@@ -5,38 +5,58 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AcreditacionRequest;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
+use App\Imports\FondosRotativos\AcreditacionesImport;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 use Throwable;
 
 class AcreditacionesController extends Controller
 {
     private string $entidad = 'Acreditacion';
+    private PaginationService $paginationService;
+
     public function __construct()
     {
+        $this->paginationService = new PaginationService();
         $this->middleware('can:puede.ver.acreditacion')->only('index', 'show');
         $this->middleware('can:puede.crear.acreditacion')->only('store');
         $this->middleware('can:puede.editar.acreditacion')->only('update');
         $this->middleware('can:puede.puede.eliminar.acreditacion')->only('update');
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
      * @noinspection PhpUndefinedMethodInspection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
-        $results = AcreditacionResource::collection($results);
-        return response()->json(compact('results'));
+        $search = $request->search;
+        $paginate = $request->paginate;
+        if ($search) $query = Acreditaciones::whereHas('usuario', function ($query) use ($search) {
+            $query->where('nombres', 'like', '%' . $search . '%')
+                ->orWhere('apellidos', 'like', '%' . $search . '%');
+        })->orWhere('descripcion_acreditacion', 'like', '%' . $search . '%')
+            ->orWhere('motivo', 'like', '%' . $search . '%')
+            ->orWhere('monto', 'like', '%' . $search . '%');
+        else $query = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos', 'paginate'])->filter()->orderBy('id', 'desc');
+
+        if ($paginate) $results = $this->paginationService->paginate($query, 100, $request->page);
+        else $results = $query->get();
+        return AcreditacionResource::collection($results);
+//        return response()->json(compact('results'));
     }
 
 
@@ -62,6 +82,36 @@ class AcreditacionesController extends Controller
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
+            ]);
+        }
+    }
+
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function storeLotes(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $this->validate($request, [
+                'file' => 'required|mimes:xls,xlsx'
+            ]);
+            if (!$request->hasFile('file')) {
+                throw ValidationException::withMessages([
+                    'file' => ['Debe seleccionar al menos un archivo.'],
+                ]);
+            }
+
+            Excel::import(new AcreditacionesImport($request->file->getClientOriginalName()), $request->file);
+            $mensaje = 'Archivo subido exitosamente!';
+            DB::commit();
+            return response()->json(compact('mensaje'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->error('Log', ['ERROR al leer el archivo', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'file' => [$e->getMessage(), $e->getLine()],
             ]);
         }
     }
@@ -97,14 +147,14 @@ class AcreditacionesController extends Controller
     {
         DB::beginTransaction();
         try {
-            $acreditacion_repetida = Acreditaciones::where('id_estado',  EstadoAcreditaciones::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
+            $acreditacion_repetida = Acreditaciones::where('id_estado', EstadoAcreditaciones::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
             if ($acreditacion_repetida->count() > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Acreditación  ya fue anulada'],
                 ]);
             }
             $acreditacion = Acreditaciones::find($request->id);
-            $acreditacion->motivo =  $request->descripcion_acreditacion;
+            $acreditacion->motivo = $request->descripcion_acreditacion;
             $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
             $acreditacion->save();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -125,7 +175,7 @@ class AcreditacionesController extends Controller
      * @param Acreditaciones $acreditacion
      * @return JsonResponse
      */
-    public function update(AcreditacionRequest $request,Acreditaciones $acreditacion)
+    public function update(AcreditacionRequest $request, Acreditaciones $acreditacion)
     {
         $datos = $request->validated();
         $modelo = $acreditacion->update($datos);

@@ -126,9 +126,11 @@ class TransferenciasController extends Controller
     public function update(TransferenciaSaldoRequest $request, Transferencias $transferencia)
     {
         try {
-            $datos = $request->all();
-            if ($request->comprobante != null)
-                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
+            $datos = $request->validated();
+            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante']))
+                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::TRANSFERENCIASALDO, $transferencia->comprobante))->execute();
+            else unset($datos['comprobante']);
+
             $transferencia->update($datos);
             $modelo = new TransferenciaResource($transferencia->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

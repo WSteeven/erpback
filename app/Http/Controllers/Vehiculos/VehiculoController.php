@@ -18,6 +18,7 @@ use Src\App\ArchivoService;
 use Src\App\Vehiculos\VehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class VehiculoController extends Controller
 {
@@ -153,24 +154,25 @@ class VehiculoController extends Controller
     }
 
 
-    public function historial(Request $request,  Vehiculo $vehiculo)
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function historial(Request $request, Vehiculo $vehiculo)
     {
-        $results = [];
-        Log::channel('testing')->info('Log', ['req', $request->all()]);
+        //        Log::channel('testing')->info('Log', ['req', $request->all()]);
         $results = $this->servicio->obtenerHistorial($vehiculo, $request);
         $configuracion = ConfiguracionGeneral::first();
         try {
             switch ($request->accion) {
                 case 'excel':
                     return Excel::download(new HistorialVehiculoExport($results, $request), 'historial_vehiculo.xlsx');
-                    throw new Exception('No se puede exportar reportes de excel aún');
-                    // return Excel::download(new VehiculoExport)
                 case 'pdf':
                     throw new Exception('No se puede exportar reportes de pdf aún');
                 default:
                     // $results = new VehiculoResource($vehiculo);
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
         return response()->json(compact('results'));

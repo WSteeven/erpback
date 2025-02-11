@@ -2,10 +2,10 @@
 <html lang="es">
 
 @php
+    use Src\Shared\Utils;
     use Carbon\Carbon;
 
     $fecha = Carbon::now();
-    $logo_watermark ='data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion->logo_marca_agua));
     $copyright = 'Esta informacion es propiedad de ' . $configuracion->razon_social . ' - Prohibida su divulgacion';
 
 @endphp
@@ -19,7 +19,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -96,8 +96,8 @@
         <tr class="row" style="width:auto">
             <td style="width: 10%">
                 <div class="col-md-3">
-                    @if(file_exists(public_path($configuracion->logo_claro)))
-                        <img src="{{ url($configuracion->logo_claro) }}" width="90" alt="Logo">
+                    @if($configuracion->logo_claro)
+                        <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="Logo">
                     @endif
                 </div>
             </td>
@@ -137,7 +137,7 @@
                         @foreach($registros as $index => $registro)
                             <td style="text-align: center">
                                 <a href="{{ url($registro['comprobante']) }}" target="_blank" title="comprobante">
-                                    <img src="{{ url($registro['comprobante']) }}"
+                                    <img src="{{ Utils::urlToBase64(url($registro['comprobante'])) }}"
                                          style="width: 100%; max-width: 150px; height: auto;" alt="imagen"/>
                                 </a>
                             </td>

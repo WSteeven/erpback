@@ -2,25 +2,26 @@
 
 namespace App\Mail;
 
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class RolPagoEmail extends Mailable
 {
     use Queueable, SerializesModels;
+
     private $reportes;
     private $pdf;
     private Empleado $empleado;
     private $ruta_archivo;
+    public ConfiguracionGeneral $configuracion;
+
     /**
      * Create a new message instance.
      *
@@ -32,17 +33,18 @@ class RolPagoEmail extends Mailable
         $this->pdf = $pdf;
         $this->empleado = $empleado;
         $this->ruta_archivo = $ruta_archivo;
+        $this->configuracion = ConfiguracionGeneral::first();
     }
 
     /**
      * Get the message envelope.
      *
-     * @return \Illuminate\Mail\Mailables\Envelope
+     * @return Envelope
      */
     public function envelope()
     {
         return new Envelope(
-            from: new Address('no-reply@jpconstrucred.com', 'JP CONSTRUCRED C.LTDA'),
+            from: new Address(env('MAIL_USERNAME'), 'JP CONSTRUCRED C.LTDA'),
             subject: 'Rol de Pagos de ' . $this->reportes['roles_pago'][0]['mes'],
         );
     }
@@ -50,7 +52,7 @@ class RolPagoEmail extends Mailable
     /**
      * Get the message content definition.
      *
-     * @return \Illuminate\Mail\Mailables\Content
+     * @return Content
      */
     public function content()
     {
@@ -68,17 +70,19 @@ class RolPagoEmail extends Mailable
     public function attachments()
     {
         $filename = 'rol_pago' . time() . '.pdf';
-        if ($this->ruta_archivo != null) {
-            $path = str_replace("storage/", "public/",  $this->ruta_archivo);
-            return [
-                Attachment::fromStorage($path)
-                    ->as('rol_pago_' .$this->reportes['roles_pago'][0]['mes'])
-                    ->withMime('application/pdf'),
-            ];
-        } else {
-            return [
-                Attachment::fromData(fn () => $this->pdf, $filename)->withMime('application/pdf')
-            ];
-        }
+        // Se comenta este codigo porque la variable ruta_archivo siempre es falsa (30-01-2025)
+//        if ($this->ruta_archivo != null) {
+//            Log::channel('testing')->info('Log', ["if del adjunto"]);
+//            $path = str_replace("storage/", "public/",  $this->ruta_archivo);
+//            return [
+//                Attachment::fromStorage($path)
+//                    ->as('rol_pago_' .$this->reportes['roles_pago'][0]['mes'])
+//                    ->withMime('application/pdf'),
+//            ];
+//        } else {
+        return [
+            Attachment::fromData(fn() => $this->pdf, $filename)->withMime('application/pdf')
+        ];
+//        }
     }
 }

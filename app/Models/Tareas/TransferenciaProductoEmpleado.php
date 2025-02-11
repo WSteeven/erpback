@@ -96,6 +96,9 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     const PENDIENTE = 'PENDIENTE'; // 1
     const COMPLETA = 'COMPLETA'; // 2
     const ANULADA = 'ANULADA'; // 3
+    
+    // Autorizacion
+    const APROBADO = 2;
 
     public $table = 'tar_transf_produc_emplea';
     public $fillable = [
@@ -103,6 +106,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
         'causa_anulacion',
         // 'estado',
         'observacion_aut',
+        'novedades_transferencia_recibida',
         'solicitante_id',
         'empleado_origen_id',
         'empleado_destino_id',
@@ -124,6 +128,10 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
 
+    public function empleadoOrigen()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_origen_id', 'id');
+    }
     public function empleadoDestino()
     {
         return $this->belongsTo(Empleado::class, 'empleado_destino_id', 'id');
@@ -176,7 +184,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
 
     public function detallesTransferenciaProductoEmpleado()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad')->withTimestamps();
+        return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad', 'recibido')->withTimestamps();
     }
 
     public function archivos()
@@ -196,7 +204,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     {
         // $detalles = TransferenciaProductoEmpleado::find($id)->detallesTransferenciaProductoEmpleado()->get();
         $detalles = $this->detallesTransferenciaProductoEmpleado()->get();
-        Log::channel('testing')->info('Log', compact('detalles'));
+        // Log::channel('testing')->info('Log', compact('detalles'));
         $results = [];
         $id = 0;
         $row = [];
@@ -208,6 +216,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
             $row['serial'] = $detalle->serial;
             $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
+            $row['recibido'] = $detalle->pivot?->recibido;
             $row['cliente_id'] = $this->cliente_id; ///$detalle->pivot->cliente_id;
             // $row['condiciones'] = $condicion?->nombre;
             $row['observacion'] = $detalle->pivot->observacion;

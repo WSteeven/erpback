@@ -25,10 +25,10 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\Bodega\DevolucionService;
 use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
-use Dotenv\Exception\ValidationException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
@@ -367,6 +367,9 @@ class InventarioService
     }
     public static function obtenerInventarios($fecha_inicio, $fecha_fin) {}
 
+    /**
+     * @throws ValidationException
+     */
     public function kardex(int $detalle_id, $fecha_inicio, $fecha_fin, $tipo_rpt = null, int $sucursal_id = null)
     {
         $fecha_fin = Carbon::parse($fecha_fin)->endOfDay();
@@ -507,7 +510,7 @@ class InventarioService
         $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
 
         rsort($results); //aqui se ordena el array en forma descendente
-        Log::channel('testing')->info('Log', ['Results', $results]);
+//        Log::channel('testing')->info('Log', ['Results', $results]);
         switch ($tipo_rpt) {
             case 'excel':
                 try {

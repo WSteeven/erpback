@@ -53,7 +53,6 @@ class PedidoController extends Controller
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
             $results = $this->servicio->filtrarPedidosAdministrador($estado);
         } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
-            // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
             $results = $this->servicio->filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
             $results = $this->servicio->filtrarPedidosActivosFijos($estado);
@@ -80,7 +79,6 @@ class PedidoController extends Controller
     {
         $ids_sucursales_telconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
-        // Log::channel('testing')->info('Log', ['Request recibida en pedido:', $request->all()]);
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
@@ -148,16 +146,15 @@ class PedidoController extends Controller
     {
         $ids_sucursales_telconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
-        // Log::channel('testing')->info('Log', ['entro en el update del pedido',$idsSucursalesTelconet]);
         try {
             // Adaptacion de foreign keys
             DB::beginTransaction();
             $datos = $request->validated();
 
-            if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS, $pedido->evidencia1))->execute();
             else unset($datos['evidencia1']);
 
-            if ($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS, $pedido->evidencia2))->execute();
             else unset($datos['evidencia2']);
 
             // Respuesta
@@ -179,8 +176,6 @@ class PedidoController extends Controller
             }
 
 
-            // Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
-            // Log::channel('testing')->info('Log', ['Verificar las notificaciones', $pedido->latestNotificacion()]);
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
@@ -214,7 +209,6 @@ class PedidoController extends Controller
      */
     public function showPreview(Pedido $pedido)
     {
-        // Log::channel('testing')->info('Log', ['El pedido consultado es: ', $pedido]);
         $modelo = new PedidoResource($pedido);
 
         return response()->json(compact('modelo'));
@@ -282,7 +276,7 @@ class PedidoController extends Controller
             //SE GENERA Y RETORNA EL PDF
             return $pdf->output();
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'));
         }
@@ -340,7 +334,7 @@ class PedidoController extends Controller
                         $pdf->render();
                         return $pdf->stream();
                     } catch (Exception $ex) {
-                        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                        Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
                         throw ValidationException::withMessages([
                             'Error al generar reporte' => [$ex->getMessage()],
                         ]);

@@ -65,7 +65,7 @@ Route::apiResources(
         'extension_cobertura_salud' => ExtensionCoverturaSaludController::class,
         'prestamo_empresarial' => PrestamoEmpresarialController::class,
         'rubros' => RubroController::class,
-        'solicitud_prestamo_empresarial' => SolicitudPrestamoEmpresarialController::class,
+        'solicitud-prestamo-empresarial' => SolicitudPrestamoEmpresarialController::class,
         'periodo' => PeriodoController::class,
         'tipo_licencia' => TipoLicenciaController::class,
         'licencia_empleado' => LicenciaEmpleadoController::class,
@@ -108,6 +108,7 @@ Route::apiResources(
             'permiso_empleado'=>'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
             'solicitudes-vacaciones' => 'solicitud',
+            'solicitud-prestamo-empresarial' => 'solicitud',
             'vacaciones' => 'vacacion',
             'detalles-vacaciones' => 'detalle',
             'rol_pago_mes'=>'rol',
@@ -165,7 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crearCashRolPago']);
     Route::get('actualizar-rol-pago/{rol}',[RolPagoMesController::class, 'refrescarRolPago']);
     Route::get('agregar-nuevos-empleados/{rol}',[RolPagoMesController::class, 'agregarNuevosEmpleados']);
-    Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
+    Route::post('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
     Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
     Route::get('crear-cash-alimentacion/{alimentacion_id}',[AlimentacionController::class, 'crear_cash_alimentacion']);
     Route::get('imprimir-reporte-general-alimentacion/{id}',[AlimentacionController::class, 'reporte_alimentacion']);

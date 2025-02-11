@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $suma_salario =0;
+    use Src\Shared\Utils;
+        $fecha = new Datetime();
+        $suma_salario =0;
 
-    function determinarClase($valor)
-    {
-        return match ($valor) {
-            'Finalizado' => 'verde',
-            'En Proceso' => 'naranja',
-            default => 'gris',
-        };
-    }
-    function empleado(int $id){
-        $empleado = \App\Models\Empleado::find($id);
-        return \App\Models\Empleado::extraerNombresApellidos($empleado);
-    }
+        function determinarClase($valor)
+        {
+            return match ($valor) {
+                'Finalizado' => 'verde',
+                'En Proceso' => 'naranja',
+                default => 'gris',
+            };
+        }
+        function empleado(int $id){
+            $empleado = \App\Models\Empleado::find($id);
+            return \App\Models\Empleado::extraerNombresApellidos($empleado);
+        }
 @endphp
 
 <head>
@@ -32,7 +31,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -131,8 +130,8 @@
         <tr class="row" style="width:auto">
             <td style="width: 10%;">
                 <div class="col-md-3"><img
-                        src="{{ $logo_principal }}"
-                        width="90"></div>
+                        src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}"
+                        width="90" alt="logo"></div>
             </td>
             <td style="width: 100%">
                 <div class="col-md-7" align="center"><b style="font-size: 75%">PLANIFICACION</b>
@@ -162,7 +161,8 @@
     </table>
 </footer>
 <main>
-    <div style="text-align: center !important; font-size: 24px; background-color: #DBDBDB;" colspan="7">{{$plan->nombre}}</div>
+    <div style="text-align: center !important; font-size: 24px; background-color: #DBDBDB;"
+         colspan="7">{{$plan->nombre}}</div>
     <div align="right">Completado {{$plan->completado}}%</div>
     <br>
     <table style="width: 100%; border: #000000; border-collapse: collapse;" border="1">

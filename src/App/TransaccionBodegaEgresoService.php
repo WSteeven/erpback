@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Models\Comprobante;
+use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
@@ -27,7 +28,7 @@ use Throwable;
 
 class TransaccionBodegaEgresoService
 {
-    private static \Illuminate\Support\Collection|array|Collection $motivos;
+    public static \Illuminate\Support\Collection|array|Collection $motivos;
 
     public function __construct()
     {
@@ -239,7 +240,7 @@ class TransaccionBodegaEgresoService
         $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
         $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
         $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
-        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
+//        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
         return TransaccionBodega::with('comprobante')
             ->whereIn('motivo_id', self::$motivos)
             ->whereIn('id', $ids_transacciones)
@@ -304,7 +305,7 @@ class TransaccionBodegaEgresoService
                     })->orderBy('id', 'desc')->get();
                 break;
             case 3: //persona responsable
-                // Log::channel('testing')->info('Log', ['Entró en persona responsable']);
+                Log::channel('testing')->info('Log', ['Entró en persona responsable', $request]);
                 $results = TransaccionBodega::with('comprobante')
                     ->whereIn('motivo_id', self::$motivos)->where('responsable_id', $request->responsable)
                     ->whereBetween(
@@ -612,6 +613,12 @@ class TransaccionBodegaEgresoService
                     $item_inventario->save();
                     $detalle_producto_transaccion->delete();
                     $this->actualizarTransaccionEgreso($request->transaccion_id);
+                    if(!is_null($detalle_producto_transaccion->transaccion->pedido_id)){
+                        // Se actualiza la cantidad en el pedido
+                        $item_pedido = DetallePedidoProducto::where('pedido_id', $detalle_producto_transaccion->transaccion->pedido_id)->where('detalle_id', $item_inventario->detalle_id)->first();
+                        $item_pedido->despachado -= $detalle_producto_transaccion->cantidad_inicial;
+                        $item_pedido->save();
+                    }
                     DB::commit();
                     return;
                 }

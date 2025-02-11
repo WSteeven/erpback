@@ -58,7 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('monto_acreditar_usuario/{id}', [ValorAcreditarController::class, 'montoAcreditarUsuario']);
     Route::post('autorizaciones_fecha/{tipo}', [GastoController::class, 'reporteAutorizaciones']);
     Route::post('consolidado/{tipo}', [SaldoController::class, 'consolidado']);
-    Route::post('consolidado_filtrado/{tipo}', [SaldoController::class, 'consolidadoFiltrado']);
+    Route::post('consolidado-filtrado/{tipo}', [SaldoController::class, 'consolidadoFiltrado']);
     Route::get('gastocontabilidad', [SaldoController::class, 'gastoContabilidad']);
     Route::get('autorizaciones_gastos', [GastoController::class, 'autorizacionesGastos']);
     Route::get('autorizaciones_transferencia', [TransferenciasController::class, 'autorizacionesTransferencia']);
@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('rechazar-transferencia', [TransferenciasController::class, 'rechazarTransferencia']);
     Route::post('anular-transferencia', [TransferenciasController::class, 'anularTransferencia']);
     Route::post('anular-acreditacion', [AcreditacionesController::class, 'anularAcreditacion']);
+    Route::post('acreditaciones-lotes', [AcreditacionesController::class, 'storeLotes']);
     Route::get('crear-cash-acreditacion-saldo/{id}', [AcreditacionSemanaController::class, 'crearCashAcreditacionSaldo']);
     Route::get('acreditacion-saldo-semana/{id}', [AcreditacionSemanaController::class, 'acreditacionSaldoSemana']);
     Route::get('actualizar-valores-saldo-semana/{id}', [AcreditacionSemanaController::class, 'acreditacionSaldoSemana']);

@@ -27,10 +27,17 @@ class Conyuge extends Model implements Auditable
         'profesion',
         'telefono',
         'tiene_dependencia_laboral', //boolean
+        //  'tiene_negocio_propio', //boolean
+        'negocio_propio',
         'promedio_ingreso_mensual',
     ];
+    protected $casts = [
+        'tiene_dependencia_laboral' => 'boolean',
+        'tiene_negocio_propio' => 'boolean'
+    ];
 
-    public function ficha(){
+    public function ficha()
+    {
         return $this->belongsTo(FichaSocioeconomica::class, 'ficha_id', 'id');
     }
 }

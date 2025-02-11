@@ -57,13 +57,17 @@ class VentaController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws \Throwable
+     * @throws ValidationException
+     */
     public function store(VentaRequest $request)
     {
-        Log::channel('testing')->info('Log', ['ventas requesst', $request->all()]);
+//        Log::channel('testing')->info('Log', ['ventas requesst', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            Log::channel('testing')->info('Log', ['datos', $datos]);
+//            Log::channel('testing')->info('Log', ['datos', $datos]);
             $venta = Venta::create($datos);
             $modelo = new VentaResource($venta);
             DB::commit();

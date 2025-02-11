@@ -124,6 +124,7 @@ class GastoCoordinadorController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje', 'modelo'));
     }
+
     /**
      * La función `reporte` genera un informe basado en la entrada del usuario y maneja excepciones.
      *
@@ -133,9 +134,10 @@ class GastoCoordinadorController extends Controller
      * se generará. Es un parámetro de cadena que probablemente especifica el formato o tipo de informe,
      * como PDF, Excel.
      *
-     * @return La función `reporte` devuelve el resultado de llamar al método `imprimir_reporte` en el
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse función `reporte` devuelve el resultado de llamar al método `imprimir_reporte` en el
      * objeto `reporteService`. El método está siendo llamado con los parámetros ``, `'A4'`,
      * `'landscape'`, ``, ``, `` y ``.
+     * @throws ValidationException
      */
     public function reporte(Request $request, string $tipo)
     {
@@ -160,6 +162,7 @@ class GastoCoordinadorController extends Controller
             return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 }

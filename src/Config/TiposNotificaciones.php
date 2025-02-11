@@ -49,4 +49,5 @@ enum TiposNotificaciones: string{
     case CANDIDATO_SELECCIONADO = 'CANDIDATO SELECCIONADO';
     // Activos fijos
     case ENTREGA_ACTIVO_FIJO = 'ENTREGA ACTIVO FIJO';
+    case FICHA_SOCIOECONOMICA = 'FICHA SOCIOECONOMICA';
 }
