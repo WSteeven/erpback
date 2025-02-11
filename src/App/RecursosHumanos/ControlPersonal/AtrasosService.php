@@ -38,7 +38,11 @@ class AtrasosService
                 // Aqui se busca si el empleado tiene enlazado algun horario diferente para trabajar con aquel
                 //                Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcacion', $marcacion]);
                 $dia = Carbon::parse($marcacion->fecha)->locale('es-ES')->dayName;
+                Log::channel('testing')->info('Log', ['dia', $dia]);
                 $horario = HorarioLaboral::where('dia', 'LIKE', '%' . $dia . '%')->where('activo', true)->first();
+                Log::channel('testing')->info('Log', ['horario   ', $horario]);
+                if (!$horario) continue;
+//                if (!$horario) throw new Exception('Aún no hay un horario que haga match con el día seleccionado');
 
                 // Tomamos de ejemplo que todos los empleados se ajustan al horario normal que esta definido
                 $marcaciones_biometrico = $marcacion->marcaciones;
@@ -79,11 +83,12 @@ class AtrasosService
                         $resultado['diferencia'] = $hora_biometrico->diffInSeconds($fin_pausa) . ' segundos después del fin de la pausa o .' . $hora_biometrico->diffInMinutes($fin_pausa) . ' minutos';
                     }
                     if ($resultado) {
+                     Log::channel('testing')->info('Log', ['sincronizarAtrasos -> resultado', $resultado]);
                     }
+
                     if ($resultado['estado'] == Atraso::ENTRADA || $resultado['estado'] == Atraso::PAUSA) {
                         $this->guardarAtraso($resultado['estado'], $resultado['segundos'], $marcacion);
                     }
-                    // Log::channel('testing')->info('Log', ['sincronizarAtrasos -> resultado', $resultado]);
                 }
             }
         } catch (Exception $e) {

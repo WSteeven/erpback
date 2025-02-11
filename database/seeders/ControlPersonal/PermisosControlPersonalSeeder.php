@@ -27,10 +27,10 @@ class PermisosControlPersonalSeeder extends Seeder
         $coordinador = Role::firstOrCreate(['name' => User::ROL_COORDINADOR]);
         $administrador = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR]);
 
-        // Asistencia
-        Permission::firstOrCreate(['name' => Permisos::VER . 'asistencia'])->syncRoles([$control_personal, $empleado, $administrador]);
-        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'asistencia'])->syncRoles([$control_personal, $administrador]);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'asistencia'])->syncRoles([$control_personal, $administrador]);
+        // Asistencias
+        Permission::firstOrCreate(['name' => Permisos::VER . 'asistencias'])->syncRoles([$control_personal, $empleado, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'asistencias'])->syncRoles([$control_personal, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'asistencias'])->syncRoles([$control_personal, $administrador]);
 
         // Atrasos
 

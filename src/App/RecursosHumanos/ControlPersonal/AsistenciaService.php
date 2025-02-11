@@ -222,40 +222,4 @@ class AsistenciaService
         }
         return $resultado;
     }
-
-//    public function consultarBiometrico()
-//    {
-//        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
-//        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-//        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
-//        $maxResults = 1000;
-//        $searchResultPosition = 0;
-//        $eventosTotales = [];
-//
-//        do {
-//            $ascEventCond = [
-//                "searchID" => "1",
-//                "searchResultPosition" => $searchResultPosition,
-//                "maxResults" => $maxResults,
-//                "major" => 5,
-//                "minor" => 0,
-//                "startTime" => $startTime,
-//                "endTime" => $endTime,
-//                "picEnable" => false,
-//                "timeReverseOrder" => true
-//            ];
-//
-//            $response = $this->client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
-//            $data = json_decode($response->getBody(), true);
-//
-//            if (isset($data['AcsEvent']['InfoList'])) {
-//                $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
-//                $searchResultPosition += $maxResults;
-//            } else {
-//                break;
-//            }
-//        } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
-//
-//        return ['AcsEvent' => ['InfoList' => $eventosTotales]];
-//    }
 }
