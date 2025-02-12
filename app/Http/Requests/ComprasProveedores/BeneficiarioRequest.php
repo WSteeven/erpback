@@ -32,6 +32,7 @@ class BeneficiarioRequest extends FormRequest
             'direccion' => 'nullable|string',
             'telefono' => 'nullable|string',
             'localidad' => 'nullable|string',
+            'correo' => 'nullable|string',
             'canton_id' => 'nullable|numeric|integer|exists:cantones,id',
             'cuentas_bancarias' => 'required',
             'cuentas_bancarias.*.id' => 'nullable|numeric|integer',

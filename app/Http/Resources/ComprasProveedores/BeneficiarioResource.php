@@ -24,6 +24,7 @@ class BeneficiarioResource extends JsonResource
             'direccion' => $this['direccion'],
             'telefono' => $this['telefono'],
             'localidad' => $this['localidad'],
+            'correo' => $this['correo'],
             'canton' => $this['canton_id'],
         ];
 
