@@ -396,7 +396,7 @@ class TicketController extends Controller
         });
 
         $results = array_values($auditoria->filter(fn($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
-        Log::channel('testing')->info('Log', compact('results'));
+        // Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
 }

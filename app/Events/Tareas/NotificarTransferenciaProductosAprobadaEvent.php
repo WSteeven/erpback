@@ -14,37 +14,41 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
 
-class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
+/**
+ * Evento que se emite cuando una transferencia de productos ha sido aprobada.
+ * Se notifica a encargado de bodega y jefe inmediato.
+ */
+class NotificarTransferenciaProductosAprobadaEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Notificacion $notificacion;
     public TransferenciaProductoEmpleado $transferencia;
+    public $destinatario_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(TransferenciaProductoEmpleado $transferencia)
+    public function __construct(TransferenciaProductoEmpleado $transferencia, $destinatario_id)
     {
         $this->transferencia = $transferencia;
 
-        $ruta = '/aceptar-transferencia-producto';
-        $emisor_id = $transferencia->empleado_origen_id;
-        $destinatario_id = $transferencia->empleado_destino_id;
+        $ruta = '/transferencia-producto-empleado';
+        $this->destinatario_id = $destinatario_id;
 
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $ruta, TiposNotificaciones::TRANSFERENCIA_PRODUCTOS, $emisor_id, $destinatario_id, $transferencia, true);
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $ruta, TiposNotificaciones::TRANSFERENCIA_PRODUCTOS, $transferencia->empleado_destino_id, $destinatario_id, $transferencia, true);
     }
 
-    /**
+    /**Fno-shadow
      * Get the channels the event should broadcast on.
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
     public function broadcastOn()
     {
-        return new Channel('transferencia-productos-realizada-tracker-' . $this->transferencia->empleado_destino_id);
+        return new Channel('transferencia-productos-realizada-tracker-' . $this->destinatario_id);
     }
 
     public function broadcastAs()
@@ -55,9 +59,10 @@ class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
     private function obtenerMensaje()
     {
         $nombres_emisor = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->empleado_origen_id));
+        $nombres_destinatario = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->empleado_destino_id));
         $nombres_autorizador = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->autorizador_id));
         $justificacion = $this->transferencia->justificacion;
         $codigo = 'TRANSF-' . $this->transferencia->id;
-        return 'Aceptación de transferencia PENDIENTE. ' . $nombres_emisor . ' le ha realizado la transferencia ' . $codigo . '. Justificación: ' . $justificacion . ' autorizado por ' . $nombres_autorizador . '.';
+        return 'Transferencia APROBADA exitosamente!. ' . $nombres_destinatario . ' ha aceptado la transferencia realizada por ' . $nombres_emisor . '. Código: ' . $codigo . '. Justificación: ' . $justificacion . '. Autorizado por ' . $nombres_autorizador . '.';
     }
 }

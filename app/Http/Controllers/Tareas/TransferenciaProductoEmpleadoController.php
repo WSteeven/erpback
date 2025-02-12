@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tareas;
 
+use App\Events\Tareas\NotificarTransferenciaProductosAprobadaEvent;
 use App\Events\Tareas\NotificarTransferenciaProductosRealizadaEvent;
 use App\Events\Tareas\NotificarTransferenciaProductosSolicitadaEvent;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
@@ -11,6 +12,7 @@ use App\Models\Tareas\TransferenciaProductoEmpleado;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
 use App\Http\Controllers\Controller;
 use App\Models\Autorizacion;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -18,6 +20,7 @@ use Src\Shared\Utils;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
+use Src\App\EmpleadoService;
 use Src\Config\RutasStorage;
 
 class TransferenciaProductoEmpleadoController extends Controller
@@ -123,6 +126,17 @@ class TransferenciaProductoEmpleadoController extends Controller
 
                 // Transferir materiales de origen a destino
                 $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
+
+                // Notificar a encargado de bodega y jefe inmediato de origen y destino
+                $empleadoService = new EmpleadoService();
+                $destinatarios_id = $empleadoService->getUsersWithRoles([User::ROL_COORDINADOR_BODEGA], 'id')->pluck('id');
+                $destinatarios_id->push($transferencia_producto_empleado->empleadoDestino->jefe_id);
+                $destinatarios_id->push($transferencia_producto_empleado->empleadoOrigen->jefe_id);
+                $destinatarios_id->push($transferencia_producto_empleado->empleado_origen_id);
+
+                foreach ($destinatarios_id as $destinatario_id) {
+                    event(new NotificarTransferenciaProductosAprobadaEvent($transferencia_producto_empleado, $destinatario_id));
+                }
             }
 
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
