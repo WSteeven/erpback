@@ -30,54 +30,8 @@ class AsistenciaService
     }
 
     /**
-     * Este metodo esta implementado en FetchHikVisionRecords
-     * @throws GuzzleException
-     * @throws Exception
-     */
-    public function obtenerRegistrosDiarios24Mayo()
-    {
-        Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios24Mayo:']);
-        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
-        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
-        $maxResults = 800;
-        $searchResultPosition = 0;
-        $eventosTotales = [];
-
-        do {
-            $ascEventCond = [
-                "searchID" => "1",
-                "searchResultPosition" => $searchResultPosition,
-                "maxResults" => $maxResults,
-                "major" => 5,
-                "minor" => 0,
-                "startTime" => $startTime,
-                "endTime" => $endTime,
-                "picEnable" => false,
-                "eventAttribute" => "attendance",
-                "currentVerifyMode" => "cardOrFaceOrFp",
-                "timeReverseOrder" => true
-            ];
-
-            $response = $this->client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
-            //$response = $this->client->post(  $base_uri.'/'.$endpoint, ['verify'=>false,"json" => ["AcsEventCond" => $ascEventCond]]);
-            $data = json_decode($response->getBody(), true);
-
-            if (isset($data['AcsEvent']['InfoList'])) {
-                $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
-                $searchResultPosition += $maxResults;
-            } else {
-                break; // Salir si no hay más eventos
-            }
-        } while (count($data['AcsEvent']['InfoList'] ?? []) === $maxResults);
-
-        Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios24Mayo-> eventos obtenidos', $eventosTotales]);
-        return ['AcsEvent' => ['InfoList' => $eventosTotales]];
-    }
-
-    /**
      * INFO: Metodo con el que se esta trabajando, consultando desde asistenciaController
-     *
+     * Este metodo esta implementado en FetchHikVisionRecords
      * Obtiene todos los eventos del mes del biometrico.
      *
      * @throws GuzzleException
@@ -204,7 +158,9 @@ class AsistenciaService
     }
 
     /**
-     * Filtra los eventos, para eliminar los duplicados, porque los registros del biometrico muchas veces graba dos registros, cara y huella, entonces se trabaja con el primer registro obtenido y el segundo se descarta, a menos que la diferencia sea superior a 1 minuto, lo cual toma como una marcacion valida
+     * Filtra los eventos, para eliminar los duplicados, porque los registros del biometrico muchas veces graba
+     * dos registros, cara y huella, entonces se trabaja con el primer registro obtenido y el segundo se descarta,
+     * a menos que la diferencia sea superior a 1 minuto, lo cual toma como una marcacion valida
      * @param $eventos
      * @return array
      */

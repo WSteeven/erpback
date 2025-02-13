@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\ControlPersonal;
 
+use App\Models\Empleado;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MarcacionResource extends JsonResource
@@ -9,11 +11,16 @@ class MarcacionResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'empleado' => Empleado::extraerNombresApellidos($this->empleado),
+            'fecha' => $this->fecha,
+            'marcaciones' => $this->marcaciones,
+        ];
     }
 }

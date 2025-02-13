@@ -24,7 +24,7 @@ class Marcacion extends Model implements Auditable
         'marcaciones',
     ];
     protected $casts=[
-      'marcaciones' => 'array',
+      'marcaciones' => 'json',
     ];
 
     private static array $whiteListFilter = [

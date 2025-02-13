@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\ControlPersonal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ControlPersonal\MarcacionResource;
+use App\Models\ControlPersonal\Marcacion;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
@@ -23,56 +26,59 @@ class MarcacionController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
-        //
+        $results = Marcacion::filter()->orderBy('fecha', 'desc')->get();
+
+        $results = MarcacionResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @return Response
+     * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store()
     {
-        //
+        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * @param Marcacion $marcacion
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(Marcacion $marcacion)
     {
-        //
+        $modelo = new MarcacionResource($marcacion);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
+     * @throws ValidationException
      */
-    public function update(Request $request, $id)
+    public function update()
     {
-        //
+        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
+     * @throws ValidationException
      */
-    public function destroy($id)
+    public function destroy()
     {
-        //
+        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
     }
 
     /**

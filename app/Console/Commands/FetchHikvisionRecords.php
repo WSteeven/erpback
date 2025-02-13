@@ -2,9 +2,13 @@
 
 namespace App\Console\Commands;
 
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
+use Src\App\RecursosHumanos\ControlPersonal\AtrasosService;
+use Throwable;
 
 class FetchHikvisionRecords extends Command
 {
@@ -27,17 +31,19 @@ class FetchHikvisionRecords extends Command
      * Execute the console command.
      *
      * @return int
+     * @throws GuzzleException
+     * @throws Throwable
      */
-    public function handle(AsistenciaService $service)
+//    public function handle(AsistenciaService $service)
+    public function handle(AtrasosService $service)
     {
         try {
-            $records = $service->obtenerRegistrosDiarios24Mayo();
 
+            $service->sincronizarAtrasos();
 
-            Log::channel('testing')->info('Log', ['Registros obtenidos en 24Mayo', $records]);
 
             $this->info('Access records fetched successfully.');
-        }catch (\Exception $exception){
+        }catch (Exception $exception){
             $this->error("Failed to fetch access records: " . $exception->getMessage());
         }
 

@@ -103,15 +103,18 @@ class EmpleadoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $validador = new ValidarIdentificacion();
-            if (!$validador->validarCedula($this->identificacion)) {
-                Log::channel('testing')->info('Log', ['Dentro del if']);
-                $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
+            if ($this->method() == 'POST') { // para que valide solo al momento de guardar el empleado
+                $validador = new ValidarIdentificacion();
+                if (!$validador->validarCedula($this->identificacion)) {
+                    Log::channel('testing')->info('Log', ['Dentro del if']);
+                    $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
+                }
             }
             // if(substr_count($this->identificacion, '9')<9){
             // }
         });
     }
+
     public function prepareForValidation()
 
     {

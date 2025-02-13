@@ -54,6 +54,7 @@ class EmpleadoResource extends JsonResource
             'tiene_discapacidad' => $this->tiene_discapacidad,
             'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
             'fecha_vinculacion' => $this->fecha_vinculacion,
+            'fecha_salida' => $this->fecha_salida,
             'area' => $this->area_id,
             'area_info' => $this->area ? $this->area->nombre : null,
             'observacion' => $this->observacion,

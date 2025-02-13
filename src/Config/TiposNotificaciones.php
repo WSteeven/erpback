@@ -50,4 +50,7 @@ enum TiposNotificaciones: string{
     // Activos fijos
     case ENTREGA_ACTIVO_FIJO = 'ENTREGA ACTIVO FIJO';
     case FICHA_SOCIOECONOMICA = 'FICHA SOCIOECONOMICA';
+
+    // Control de personal
+    case ATRASO = 'ATRASO';
 }

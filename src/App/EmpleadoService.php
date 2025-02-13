@@ -15,6 +15,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -46,6 +47,15 @@ class EmpleadoService
         return $results;
     } */
 
+    /**
+     * Obtiene todos los ids de los empleados cuyo jefe_id sea igual al id del empleado de la sesión logueada.
+     * @return Collection
+     */
+    public static function obtenerIdsEmpleadosSubordinadosJefe()
+    {
+        return Empleado::where('jefe_id', Auth::user()->empleado->id)
+            ->pluck('id');
+    }
     public static function obtenerIdsEmpleadosOtroAutorizador()
     {
 //        $id_wellington = 117;

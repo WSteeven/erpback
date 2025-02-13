@@ -63,7 +63,7 @@ class ProformaService
 
     public static function filtrarProformasJefeTecnico($request)
     {
-        $ids_buscar = [3, 27];//3=Jonathan Veintimilla, 27=Joao Celi
+        $ids_buscar = [30, 27];//3=Jonathan Veintimilla, 27=Joao Celi
         $query = Proforma::where(function ($q) use ($ids_buscar) {
             $q->orWhereIn('solicitante_id', $ids_buscar)
                 ->orWhereIn('autorizador_id', $ids_buscar);

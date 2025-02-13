@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ControlPersonal\AtrasoRequest;
 use App\Http\Resources\ControlPersonal\AtrasoResource;
 use App\Models\ControlPersonal\Atraso;
+use App\Models\User;
+use Auth;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
+use Src\App\EmpleadoService;
 use Src\App\RecursosHumanos\ControlPersonal\AtrasosService;
 use Src\Shared\Utils;
 use Throwable;
@@ -22,8 +25,8 @@ class AtrasoController extends Controller
     public function __construct()
     {
         $this->service = new AtrasosService();
-        $this->middleware('can:ver.atrasos')->only('index', 'show');
-        $this->middleware('can:editar.atrasos')->only('update');
+        $this->middleware('can:puede.ver.atrasos')->only('index', 'show');
+        $this->middleware('can:puede.editar.atrasos')->only('update');
     }
 
     /**
@@ -33,7 +36,13 @@ class AtrasoController extends Controller
      */
     public function index()
     {
-        $results = Atraso::filter()->orderBy('fecha_atraso', 'desc')->get();
+        if (auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_ADMINISTRADOR, User::ROL_CONSULTA])) {
+            $results = Atraso::filter()->orderBy('fecha_atraso', 'desc')->get();
+        } else {
+            $ids_empleados = EmpleadoService::obtenerIdsEmpleadosSubordinadosJefe();
+            $results = Atraso::whereIn('empleado_id', $ids_empleados)->filter()->orderBy('fecha_atraso', 'desc')->get();
+        }
+
         $results = AtrasoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -46,7 +55,7 @@ class AtrasoController extends Controller
      */
     public function store()
     {
-        throw ValidationException::withMessages(['error'=> Utils::metodoNoDesarrollado()]);
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
     /**
@@ -57,6 +66,10 @@ class AtrasoController extends Controller
      */
     public function show(Atraso $atraso)
     {
+        // Se marca como revisada solo si el jefe inmediato ha visto el registro de atraso
+        if ($atraso->empleado->jefe_id === Auth::user()->empleado->id && !$atraso->revisado)
+            $atraso->update(['revisado' => true]);
+
         $modelo = new AtrasoResource($atraso);
         return response()->json(compact('modelo'));
     }
@@ -86,7 +99,7 @@ class AtrasoController extends Controller
      */
     public function destroy()
     {
-        throw ValidationException::withMessages(['error'=> Utils::metodoNoDesarrollado()]);
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
 
@@ -103,7 +116,6 @@ class AtrasoController extends Controller
             throw Utils::obtenerMensajeErrorLanzable($e, 'sincronizarAtrasos');
         }
     }
-
 
 
 }

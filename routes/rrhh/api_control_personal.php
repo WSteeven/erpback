@@ -15,13 +15,15 @@ Route::apiResources(
     [
         'asistencias' => AsistenciaController::class,
         'atrasos' => AtrasoController::class,
-        'horarios-laborales' => HorarioLaboralController::class
+        'horarios-laborales' => HorarioLaboralController::class,
+        'marcaciones' => MarcacionController::class,
     ],
     [
         'parameters' => [
             'asistencias' => 'asistencia',
             'atrasos' => 'atraso',
-            'horarios-laborales' => 'horario'
+            'horarios-laborales' => 'horario',
+            'marcaciones' => 'marcacion',
         ]
 
     ]

@@ -3,6 +3,7 @@
 namespace App\Models\ControlPersonal;
 
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,12 +41,12 @@ class Atraso extends Model implements Auditable
     const PAUSA = 'FIN PAUSA';
 
 
-    protected function empleado()
+    public function empleado()
     {
         return $this->belongsTo(Empleado::class);
     }
 
-    protected function justificador()
+    public function justificador()
     {
         return $this->belongsTo(Empleado::class, 'justificador_id');
     }
@@ -55,4 +56,12 @@ class Atraso extends Model implements Auditable
         return $this->belongsTo(Marcacion::class);
     }
 
+    /**
+     * Relación polimorfica a una notificación.
+     * Un pedido puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Src\App\RecursosHumanos\ControlPersonal;
 
+use App\Events\ControlPersonal\NotificarAtrasoJefeInmediato;
 use App\Models\ControlPersonal\Atraso;
 use App\Models\ControlPersonal\Marcacion;
 use App\Models\Empleado;
@@ -28,7 +29,7 @@ class AtrasosService
             // Primero obtenemos el ultimo registro de atraso para trabajar a partir de allí y no hacer muy pesado, volver a evaluar nuevamente
             $ultimoAtraso = Atraso::latest()->first();
             if ($ultimoAtraso) {
-                $marcaciones = Marcacion::where('id', '>', $ultimoAtraso->marcacion_id)->get();
+                $marcaciones = Marcacion::where('fecha', '>=', $ultimoAtraso->fecha_atraso)->orderBy('fecha', 'asc')->get();
             } else {
                 $marcaciones = Marcacion::orderBy('fecha', 'asc')->get();
             }
@@ -38,15 +39,12 @@ class AtrasosService
                 // Aqui se busca si el empleado tiene enlazado algun horario diferente para trabajar con aquel
                 //                Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcacion', $marcacion]);
                 $dia = Carbon::parse($marcacion->fecha)->locale('es-ES')->dayName;
-                Log::channel('testing')->info('Log', ['dia', $dia]);
                 $horario = HorarioLaboral::where('dia', 'LIKE', '%' . $dia . '%')->where('activo', true)->first();
-                Log::channel('testing')->info('Log', ['horario   ', $horario]);
                 if (!$horario) continue;
-//                if (!$horario) throw new Exception('Aún no hay un horario que haga match con el día seleccionado');
 
                 // Tomamos de ejemplo que todos los empleados se ajustan al horario normal que esta definido
                 $marcaciones_biometrico = $marcacion->marcaciones;
-                // Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcaciones biometrico', $dia, $marcaciones_biometrico, Empleado::extraerNombresApellidos($empleado)]);
+
                 foreach ($marcaciones_biometrico as $index => $marcacion_biometrica) {
                     // Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcacion individual de cada biometrico', $index, $marcacion_biometrica]);
                     $hora_biometrico = Carbon::createFromFormat('H:i:s', $marcacion_biometrica);
@@ -59,12 +57,11 @@ class AtrasosService
                     //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $inicio_pausa casteada', $inicio_pausa, $horario->fin_pausa]);
                     $fin_pausa = Carbon::parse($horario->fin_pausa)->format('H:i:s');
                     //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $fin_pausa casteada', $fin_pausa]);
-
                     $resultado = [];
                     if ($hora_biometrico->lessThan($hora_entrada)) {
                         $resultado['estado'] = 'Temprano';
                         $resultado['diferencia'] = $hora_biometrico->diffInSeconds($hora_entrada) . ' segundos antes de la hora de entrada o .' . $hora_biometrico->diffInMinutes($hora_entrada) . ' minutos';
-                        $resultado = [];
+
                     } elseif ($hora_biometrico->greaterThan($hora_entrada) && $hora_biometrico->lessThan($hora_salida)) {
                         $resultado['estado'] = Atraso::ENTRADA;
                         $resultado['segundos'] = $hora_biometrico->diffInSeconds($hora_entrada);
@@ -82,18 +79,19 @@ class AtrasosService
                         $resultado['segundos'] = $hora_biometrico->diffInSeconds($fin_pausa);
                         $resultado['diferencia'] = $hora_biometrico->diffInSeconds($fin_pausa) . ' segundos después del fin de la pausa o .' . $hora_biometrico->diffInMinutes($fin_pausa) . ' minutos';
                     }
-                    if ($resultado) {
-                     Log::channel('testing')->info('Log', ['sincronizarAtrasos -> resultado', $resultado]);
-                    }
 
-                    if ($resultado['estado'] == Atraso::ENTRADA || $resultado['estado'] == Atraso::PAUSA) {
-                        $this->guardarAtraso($resultado['estado'], $resultado['segundos'], $marcacion);
+
+                    if ($resultado) {
+//                        Log::channel('testing')->info('Log', ['sincronizarAtrasos -> resultado', $resultado]);
+
+                        if ($resultado['estado'] == Atraso::ENTRADA || $resultado['estado'] == Atraso::PAUSA) {
+                            $this->guardarAtraso($resultado['estado'], $resultado['segundos'], $marcacion);
+                        }
                     }
                 }
             }
         } catch (Exception $e) {
             Log::channel('testing')->error('Log', ['error en sincronizarAtrasos ', $e->getLine(), $e->getMessage()]);
-            Log::error($e->getMessage());
             throw $e;
         }
     }
@@ -106,13 +104,21 @@ class AtrasosService
         try {
             DB::beginTransaction();
             //buscamos si ya existe un atraso para los argumentos proporcionados, en caso de existir, omitimos
-            Atraso::firstOrCreate([
+            $atraso  = Atraso::firstOrCreate([
                 'empleado_id' => $marcacion->empleado_id,
                 'marcacion_id' => $marcacion->id,
                 'ocurrencia' => $ocurrencia,
                 'fecha_atraso' => $marcacion->fecha,
                 'segundos_atraso' => $segundos
-            ]);
+            ],[]);
+
+            if($atraso->wasRecentlyCreated){
+                // Se envia el evento de notificacion al jefe inmediato del empleado cuyo atraso se registra
+                $empleado  =Empleado::find($marcacion->empleado_id);
+                if($empleado){
+                    event(new NotificarAtrasoJefeInmediato($atraso));
+                }
+            }
 
             DB::commit();
         } catch (Exception $e) {
