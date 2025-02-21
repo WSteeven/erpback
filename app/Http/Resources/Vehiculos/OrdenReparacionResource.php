@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use App\Models\Empleado;
 use App\Models\Vehiculos\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -12,7 +13,7 @@ class OrdenReparacionResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
@@ -21,15 +22,16 @@ class OrdenReparacionResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
+            'autorizador' => Empleado::extraerNombresApellidos($this->autorizador),
             'vehiculo' => $this->vehiculo->placa,
             'autorizacion' => $this->autorizacion->nombre,
             'observacion' => $this->observacion,
             'km_realizado' => $this->kmRealizado($this->vehiculo_id, $this->created_at),
-            'fecha' => date(Utils::MASKFECHA, strtotime($this->created_at)),
+            'fecha' =>$this->fecha,
             'servicios' => $this->servicios ? ServicioResource::collection(Servicio::whereIn('id', array_map('intval', Utils::convertirStringComasArray($this->servicios)))->get())->map(function ($item) {
                 return $item->nombre;
             }) : null,
-
+            'valor_reparacion' => $this->valor_reparacion,
         ];
 
         if ($controller_method == 'show') {
