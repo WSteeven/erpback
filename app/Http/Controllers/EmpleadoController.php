@@ -484,7 +484,9 @@ class EmpleadoController extends Controller
         if (!is_null($request->permisos)) {
             $permisos = explode(',', $request->permisos);
             $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->whereHas('empleado', function ($query){
+                $query->where('estado', true);
+            })->get());
         }
         return response()->json(compact('results'));
     }
