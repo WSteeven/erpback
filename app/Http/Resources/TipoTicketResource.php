@@ -22,7 +22,7 @@ class TipoTicketResource extends JsonResource
             'activo' => $this->activo,
             'categoria_tipo_ticket' => $this->categoriaTipoTicket?->nombre,
             'categoria_tipo_ticket_id' => $this->categoria_tipo_ticket_id,
-            'departamento' => $this->categoriaTipoTicket?->departamento->nombre,
+            'departamento' => $this->categoriaTipoTicket?->departamento?->nombre,
         ];
 
         if ($controller_method == 'show') {
