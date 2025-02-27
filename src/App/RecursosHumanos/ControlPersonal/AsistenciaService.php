@@ -149,7 +149,7 @@ class AsistenciaService
             $marcacion->fecha = $dia;
             $marcacionExistente = Marcacion::where('empleado_id', $empleado->id)->where('fecha', $dia)->first();
             if ($marcacionExistente)
-                $marcacionExistente->update(['marcaciones', $marcaciones]);
+                $marcacionExistente->update(['marcaciones' => $marcaciones]);
             else {
                 $marcacion->marcaciones = $marcaciones;
                 $marcacion->save();
