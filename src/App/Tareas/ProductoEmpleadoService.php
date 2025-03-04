@@ -76,6 +76,7 @@ class ProductoEmpleadoService
                 'id' => $item->detalle_producto_id,
                 'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
+                'descripcion' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),

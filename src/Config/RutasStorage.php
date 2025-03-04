@@ -108,4 +108,9 @@ enum RutasStorage: string
     case SOLICITUDES_DESCUENTOS  = 'public/sso/solicitudes_descuentos';
     case CONSULTAS_MEDICAS  = 'public/sso/consultas_medicas';
     case INSPECCIONES  = 'public/sso/inspecciones';
+    
+    /*************
+     * Seguridad
+     *************/
+    case ACTIVIDADES_BITACORAS  = 'public/seguridad/actividadesBitacoras';
 }
