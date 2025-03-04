@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Intervention\Image\ImageManagerStatic as Image;
 use Throwable;
 
 class Utils
@@ -102,15 +103,26 @@ class Utils
         return base64_decode($partes[1]);
     }
 
-    public static function obtenerMimeType(string $imagen_base64): string
-    {
-        return explode("/", mime_content_type($imagen_base64))[1];
+    public static function obtenerMimeType(string $imagen_base64):string{
+        // Eliminar el prefijo "data:image/jpeg;base64," si existe
+        $base64_image = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
+
+        // Decodificar la cadena Base64 a datos binarios
+        $image_data = base64_decode($base64_image);
+
+        // Crear una instancia de Image a partir de los datos binarios
+        $image = Image::make($image_data);
+
+        // Obtener el mime type de la imagen
+        $mime_type = $image->mime();
+
+        return $mime_type;
     }
 
     public static function obtenerExtension(string $imagen_base64): string
     {
         $mime_type = self::obtenerMimeType($imagen_base64);
-        return explode("+", $mime_type)[0];
+        return explode("/", $mime_type)[1];
     }
 
     public static function arrayToCsv(string $campos, array $listado): string
