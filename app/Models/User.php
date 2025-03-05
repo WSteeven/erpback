@@ -133,10 +133,10 @@ class User extends Authenticatable implements Auditable
     const ROL_ADMINISTRADOR_TICKETS_2 = 'ADMINISTRADOR TICKETS 2';
     const ROL_ADMINISTRADOR_SISTEMA = 'ADMINISTRADOR SISTEMA';
     // Cargos
-//    const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
-//    const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
-//    const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
-//    const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
+    //    const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
+    //    const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
+    //    const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
+    //    const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
     const TECNICO_CABLISTA = 'T脡CNICO CABLISTA';
     const TECNICO_SECRETARIO = 'T脡CNICO SECRETARIO';
     const TECNICO_AYUDANTE = 'T脡CNICO AYUDANTE';
@@ -162,6 +162,9 @@ class User extends Authenticatable implements Auditable
     const AYUDANTE_CHOFER = 'AYUDANTE_CHOFER';
     const MECANICO_GENERAL = 'MECANICO_GENERAL';
 
+    // Modulo de seguridad
+    const ROL_SUPERVISOR_GUARDIAS = 'SUPERVISOR DE GUARDIAS';
+    const ROL_GUARDIA = 'GUARDIA';
 
     /**
      * The attributes that are mass assignable.
@@ -229,18 +232,18 @@ class User extends Authenticatable implements Auditable
      * Este metodo no funciona, da errores.
      * Por favor BORRARLO
      */
-//    public function obtenerPermisos($user_id)
-//    {
-//        $permissions = [];
-//        $user = User::find($user_id);
-//
-//        foreach (Permission::all() as $permission) {
-//            if ($user->can($permission->name)) {
-//                $permissions[] = $permission->name;
-//            }
-//        }
-//        return $permissions;
-//    }
+    //    public function obtenerPermisos($user_id)
+    //    {
+    //        $permissions = [];
+    //        $user = User::find($user_id);
+    //
+    //        foreach (Permission::all() as $permission) {
+    //            if ($user->can($permission->name)) {
+    //                $permissions[] = $permission->name;
+    //            }
+    //        }
+    //        return $permissions;
+    //    }
     public function obtenerPermisos2($user_id)
     {
         $permissions = [];
