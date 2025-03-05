@@ -31,6 +31,18 @@ class PrendaZonaRequest extends FormRequest
                 'integer',
                 'exists:seg_zonas,id',
             ],
+            'empleado_id' => [
+                'required',
+                'numeric',
+                'integer',
+                'exists:empleados,id',
+            ],
+            'cliente_id' => [
+                'required',
+                'numeric',
+                'integer',
+                'exists:clientes,id',
+            ],
             'tiene_restricciones' => 'boolean',
             'detalles_productos.*.id' => 'required|numeric|integer|exists:detalles_productos,id',
             'detalles_productos.*.descripcion' => 'required|string',

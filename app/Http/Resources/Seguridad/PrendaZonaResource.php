@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Seguridad;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PrendaZonaResource extends JsonResource
@@ -19,6 +20,9 @@ class PrendaZonaResource extends JsonResource
         $modelo = [
             'id' => $this['id'],
             'zona' => $this->zona->nombre,
+            'empleado_id' => $this->empleado_id,
+            'empleado_apellidos_nombres' => Empleado::extraerApellidosNombres($this->empleado),
+            'cliente_id' => $this->cliente_id,
             'tiene_restricciones' => $this->tiene_restricciones,
         ];
 

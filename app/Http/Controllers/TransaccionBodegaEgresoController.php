@@ -65,12 +65,12 @@ class TransaccionBodegaEgresoController extends Controller
         request()->validate(
             [
                 'empleado_id' => 'required|numeric|integer|exists:empleados,id',
-                'cliente_id' => 'required|numeric|integer|exists:clientes,id',
+                'cliente_id' => 'nullable|numeric|integer|exists:clientes,id',
                 'subtarea_id' => 'nullable|numeric|integer|exists:subtareas,id',
             ],
             [
                 'empleado_id.required' => 'El campo empleado es obligatorio.',
-                'cliente_id.required' => 'El campo cliente es obligatorio.',
+                // 'cliente_id.required' => 'El campo cliente es obligatorio.',
             ]
         );
 
