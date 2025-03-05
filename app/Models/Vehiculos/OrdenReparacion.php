@@ -81,6 +81,7 @@ class OrdenReparacion extends Model implements Auditable
         'observacion',
         'fecha',
         'valor_reparacion',
+        'motivo',
     ];
 
     protected $casts = [
