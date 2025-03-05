@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('seg_prendas_zonas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('zona_id')->constrained('seg_zonas')->onDelete('cascade');
+            $table->foreignId('empleado_id')->constrained('empleados')->onDelete('cascade');
+            $table->foreignId('cliente_id')->constrained('clientes')->onDelete('cascade');
             $table->boolean('tiene_restricciones')->default(false);
             $table->json('detalles_productos')->nullable();
             $table->timestamps();

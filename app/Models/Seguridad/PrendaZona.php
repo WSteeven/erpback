@@ -2,6 +2,7 @@
 
 namespace App\Models\Seguridad;
 
+use App\Models\Empleado;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,8 @@ class PrendaZona extends Model implements Auditable
         'detalles_productos',
         'tiene_restricciones',
         'zona_id',
+        'empleado_id',
+        'cliente_id',
     ];
 
     private static array $whiteListFilter = ['*'];
@@ -30,5 +33,10 @@ class PrendaZona extends Model implements Auditable
     public function zona()
     {
         return $this->belongsTo(Zona::class);
+    }
+
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class);
     }
 }
