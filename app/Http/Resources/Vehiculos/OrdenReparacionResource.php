@@ -32,6 +32,7 @@ class OrdenReparacionResource extends JsonResource
                 return $item->nombre;
             }) : null,
             'valor_reparacion' => $this->valor_reparacion,
+            'motivo' => $this->motivo,
         ];
 
         if ($controller_method == 'show') {
