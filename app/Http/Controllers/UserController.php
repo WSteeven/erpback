@@ -154,9 +154,9 @@ class UserController extends Controller
 
             $usuario->remember_token = $confirmation_code;
             $usuario->save();
-            Mail::send('email.recoveryPassword', ['credenciales' => $credenciales, 'configuracion' => $configuracion], function ($msj) use ($email, $username) {
+            Mail::send('email.recoveryPassword', ['credenciales' => $credenciales, 'configuracion' => $configuracion], function ($msj) use ($email, $username, $configuracion) {
                 $msj->to($email, $username);
-                $msj->subject('Recuperacion de Contraseña de JPCONSTRUCRED');
+                $msj->subject('Recuperacion de Contraseña de '.$configuracion->razon_social);
             });
             $mensaje = 'Porfavor revise su código de confirmación en su  Correo Institucional.';
             return response()->json(compact('mensaje'));
@@ -165,14 +165,17 @@ class UserController extends Controller
             throw ValidationException::withMessages(['error'=> 'Correo Institucional no existe']);
         }
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function updateContrasenaRecovery(Request $request)
     {
         $code = $request->input('code');
         $contrasena_usuario =  Hash::make($request->input('password'));
         $user = User::where('remember_token', $code)->first();
         if (!$user) {
-            $mensaje = 'Correo no verificado.';
-            return response()->json(compact('mensaje'), 401);
+            throw ValidationException::withMessages(['error'=> 'El código ingresado no es válido']);
         }
         $confirmation_code = ' ';
         $user->remember_token = $confirmation_code;
@@ -181,6 +184,10 @@ class UserController extends Controller
         $mensaje = 'Contraseña actualizada con éxito.';
         return response()->json(compact('mensaje'));
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function updatePassword(Request $request)
     {
         $user = User::find(Auth::user()->id);
