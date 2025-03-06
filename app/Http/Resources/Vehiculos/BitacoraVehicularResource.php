@@ -4,6 +4,7 @@ namespace App\Http\Resources\Vehiculos;
 
 use App\Http\Resources\ActividadRealizadaResource;
 use App\Models\Tarea;
+use App\Models\Vehiculos\Vehiculo;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;
@@ -37,6 +38,7 @@ class BitacoraVehicularResource extends JsonResource
             'chofer_id' => $this->chofer_id,
             'vehiculo' => $this->vehiculo->placa,
             'vehiculo_id' => $this->vehiculo_id,
+            'es_vehiculo_propio' => $this->vehiculo->tipo===Vehiculo::PROPIO,
         ];
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {
@@ -47,6 +49,7 @@ class BitacoraVehicularResource extends JsonResource
             $modelo['checklistAccesoriosVehiculo'] = $this->checklistAccesoriosVehiculo;
             $modelo['checklistVehiculo'] = $this->checklistVehiculo;
             $modelo['checklistImagenVehiculo'] = new ChecklistImagenVehiculoResource($this->checklistImagenVehiculo);
+            if($this->vehiculo->tipo===Vehiculo::ALQUILADO) $modelo['chofer'] = $this->chofer_id;
 
             $modelo['vehiculo'] = $this->vehiculo_id;
         }

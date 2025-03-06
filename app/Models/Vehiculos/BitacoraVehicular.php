@@ -107,6 +107,7 @@ class BitacoraVehicular extends Pivot implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'firmada' => 'boolean',
+        'es_vehiculo_propio' => 'boolean',
     ];
 
     const LLENO = 'LLENO';
