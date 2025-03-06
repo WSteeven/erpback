@@ -8,6 +8,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -55,7 +56,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  */
 class MaterialEmpleado extends Model implements Auditable
 {
-    use HasFactory, Filterable, AuditableModel;
+    use HasFactory, Filterable, AuditableModel, Searchable;
 
     protected $table = 'materiales_empleados';
 
@@ -70,6 +71,13 @@ class MaterialEmpleado extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function toSearchableArray()
+    {
+        return [
+            'descripcion' => $this->detalle->descripcion,
+        ];
+    }
 
     public function cliente()
     {

@@ -53,7 +53,26 @@ class ProductoEmpleadoService
         } else {
             // Mi bodega
             if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
-            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal', 'categoria_id'])->filter()->tieneStock()->filterByCategoria(request('categoria_id'))->get();
+            else {
+                if (request('search')) {
+                    $searchResults = MaterialEmpleado::whereHas('detalle', function ($q) {
+                        $q->where('descripcion', 'like', '%' . request('search') . '%')
+                        ->orWhere('serial', 'like', '%' . request('search') . '%');
+                    });
+
+                    $results = $searchResults
+                        ->when(request()->filled('empleado_id'), function ($query) {
+                            return $query->where('empleado_id', request('empleado_id'));
+                        })
+                        ->when(request()->filled('cliente_id'), function ($query) {
+                            return $query->where('cliente_id', request('cliente_id'));
+                        })
+                        ->where('cantidad_stock', '>', 0)
+                        ->get();
+                } else {
+                    $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal', 'categoria_id', 'search'])->filter()->tieneStock()->filterByCategoria(request('categoria_id'))->get();
+                }
+            }
         }
 
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->where('cliente_id', request('cliente_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
