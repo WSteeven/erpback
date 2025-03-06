@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Models\Comprobante;
+use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
@@ -612,6 +613,12 @@ class TransaccionBodegaEgresoService
                     $item_inventario->save();
                     $detalle_producto_transaccion->delete();
                     $this->actualizarTransaccionEgreso($request->transaccion_id);
+                    if(!is_null($detalle_producto_transaccion->transaccion->pedido_id)){
+                        // Se actualiza la cantidad en el pedido
+                        $item_pedido = DetallePedidoProducto::where('pedido_id', $detalle_producto_transaccion->transaccion->pedido_id)->where('detalle_id', $item_inventario->detalle_id)->first();
+                        $item_pedido->despachado -= $detalle_producto_transaccion->cantidad_inicial;
+                        $item_pedido->save();
+                    }
                     DB::commit();
                     return;
                 }

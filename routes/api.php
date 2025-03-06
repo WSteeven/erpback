@@ -307,7 +307,7 @@ Route::get('empleados-fondos-rotativos', [EmpleadoController::class, 'obtenerEmp
 
 Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
-    Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
+    Route::get('obtener-fecha', fn () => Carbon::now()->format('Y-m-d H:i:s'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);

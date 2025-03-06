@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 @php
+    use Src\Shared\Utils;
+
     $fecha = new Datetime();
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.';
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $logo_principal = Utils::urlToBase64(url($configuracion['logo_claro']));
+    // 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = Utils::urlToBase64(url($configuracion['logo_marca_agua']));
+    // 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 @endphp
 
 
@@ -147,7 +149,7 @@
             </tr>
             <tr>
                 <td>Autorizador: <b>{{ $transferencia['autorizador'] }}</b></td>
-                <td>Estado: <b>{{ $transferencia['estado'] }}</b></td>
+                <td>Estado: <b>{{ $transferencia['autorizacion'] }}</b></td>
             </tr>
             <tr>
                 <td>Tarea origen: <b>{{ $transferencia['tarea_origen'] }}</b></td>
@@ -155,31 +157,36 @@
             </tr>
             <tr>
                 <td>Justificación: <b>{{ $transferencia['justificacion'] }}</b></td>
+                <td>Novedades al recibir recepción: <b>{{ $transferencia['novedades_transferencia_recibida'] }}</b></td>
             </tr>
         </table>
 
         <br>
-        
+
         <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 98%;" align="center">
             <thead>
+                <th>#</th>
                 <th>Producto</th>
                 <th>Descripcion</th>
                 <th>Categoria</th>
                 <th>Serial</th>
-                <th>Cantidad</th>
+                <th>Cantidad enviada</th>
+                <th>Cantidad recibida</th>
             </thead>
             <tbody style="font-size: 10px;">
                 @foreach ($transferencia['listado_productos'] as $listado)
                     <tr>
+                        <td><b>{{ $loop->iteration }}</b></td>
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
                         <td>{{ $listado['categoria'] }}</td>
                         <td>{{ $listado['serial'] }}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
+                        <td align="center">{{ $listado['recibido'] }}</td>
                     </tr>
                 @endforeach
             </tbody>
-        </table> 
+        </table>
     </main>
 
 

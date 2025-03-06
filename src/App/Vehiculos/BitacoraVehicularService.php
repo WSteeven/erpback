@@ -117,42 +117,42 @@ class BitacoraVehicularService
         if ($checklist) {
             //se modifica el registro obtenido, imagenes que hayan cambiado o nuevas y asi mismo en la base de datos
             if ($datos['imagen_frontal'] && Utils::esBase64($datos['imagen_frontal'])) {
-                $datos['imagen_frontal'] = (new GuardarImagenIndividual($datos['imagen_frontal'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_frontal'] = (new GuardarImagenIndividual($datos['imagen_frontal'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $checklist->imagen_frontal))->execute();
             } else {
                 unset($datos['imagen_frontal']);
             }
             if ($datos['imagen_trasera'] && Utils::esBase64($datos['imagen_trasera'])) {
-                $datos['imagen_trasera'] = (new GuardarImagenIndividual($datos['imagen_trasera'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_trasera'] = (new GuardarImagenIndividual($datos['imagen_trasera'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $checklist->imagen_trasera))->execute();
             } else {
                 unset($datos['imagen_trasera']);
             }
             if ($datos['imagen_lateral_derecha'] && Utils::esBase64($datos['imagen_lateral_derecha'])) {
-                $datos['imagen_lateral_derecha'] = (new GuardarImagenIndividual($datos['imagen_lateral_derecha'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_lateral_derecha'] = (new GuardarImagenIndividual($datos['imagen_lateral_derecha'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS,$checklist->imagen_lateral_derecha))->execute();
             } else {
                 unset($datos['imagen_lateral_derecha']);
             }
             if ($datos['imagen_lateral_izquierda'] && Utils::esBase64($datos['imagen_lateral_izquierda'])) {
-                $datos['imagen_lateral_izquierda'] = (new GuardarImagenIndividual($datos['imagen_lateral_izquierda'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_lateral_izquierda'] = (new GuardarImagenIndividual($datos['imagen_lateral_izquierda'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $checklist->imagen_lateral_izquierda))->execute();
             } else {
                 unset($datos['imagen_lateral_izquierda']);
             }
             if ($datos['imagen_tablero_km'] && Utils::esBase64($datos['imagen_tablero_km'])) {
-                $datos['imagen_tablero_km'] = (new GuardarImagenIndividual($datos['imagen_tablero_km'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_tablero_km'] = (new GuardarImagenIndividual($datos['imagen_tablero_km'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $checklist->imagen_tablero_km))->execute();
             } else {
                 unset($datos['imagen_tablero_km']);
             }
             if ($datos['imagen_tablero_radio'] && Utils::esBase64($datos['imagen_tablero_radio'])) {
-                $datos['imagen_tablero_radio'] = (new GuardarImagenIndividual($datos['imagen_tablero_radio'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_tablero_radio'] = (new GuardarImagenIndividual($datos['imagen_tablero_radio'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $checklist->imagen_tablero_radio))->execute();
             } else {
                 unset($datos['imagen_tablero_radio']);
             }
             if ($datos['imagen_asientos'] && Utils::esBase64($datos['imagen_asientos'])) {
-                $datos['imagen_asientos'] = (new GuardarImagenIndividual($datos['imagen_asientos'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_asientos'] = (new GuardarImagenIndividual($datos['imagen_asientos'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $checklist->imagen_asientos))->execute();
             } else {
                 unset($datos['imagen_asientos']);
             }
             if ($datos['imagen_accesorios'] && Utils::esBase64($datos['imagen_accesorios'])) {
-                $datos['imagen_accesorios'] = (new GuardarImagenIndividual($datos['imagen_accesorios'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_accesorios'] = (new GuardarImagenIndividual($datos['imagen_accesorios'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $checklist->imagen_accesorios))->execute();
             } else {
                 unset($datos['imagen_accesorios']);
             }

@@ -7,11 +7,12 @@ use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Src\Config\PaisesOperaciones;
+use Intervention\Image\ImageManagerStatic as Image;
 use Throwable;
 
 class Utils
@@ -40,10 +41,10 @@ class Utils
     }
 
     /**
-     * @param  $url  //ruta de donde tomará la imagen, empieza con http:// o https://
+     * @param  $url //ruta de donde tomará la imagen, empieza con http:// o https://
      * @return string Base64 imagen
      */
-    public static  function urlToBase64($url)
+    public static function urlToBase64($url)
     {
         $options = stream_context_create([
             "ssl" => [
@@ -53,21 +54,75 @@ class Utils
         ]);
         return 'data:image/png;base64,' . base64_encode(file_get_contents($url, false, $options));
     }
+
+    /**
+     * Función para obtener las imagenes necesarias para imprimir en una vista de un reporte de Excel.
+     * Busca en local si existe la imagen, caso contrario busca en la carpeta temporal y si no existe,
+     * la descarga dentro de la carpeta temporal y sirve la ruta de la imagen.
+     *
+     * @param string|null $relativePath ruta de imagen de la base de datos.
+     * @return string|null
+     */
+    public static function getImagePath(?string $relativePath)
+    {
+
+        $localPath = public_path($relativePath);
+
+        // Si la imagen ya existe en el servidor, usarla directamente
+        if (file_exists($localPath)) return $localPath;
+
+        $relativePath = str_replace('storage/', '', ltrim($relativePath, '/'));
+
+        // Ruta en el servidor remoto
+        $remoteUrl = env('FAST_API_URL_FOR_DOWNLOAD') . $relativePath;
+
+
+        // Directorio donde guardaremos las imagenes descargadas
+        $tempDirectory = storage_path('app/public/temp_images/');
+        if (!file_exists($tempDirectory)) mkdir($tempDirectory, 0777, true);
+
+        $tempPath = $tempDirectory . basename($relativePath);
+
+        // Si la imagen no ha sido descargada previamente
+        if (!file_exists($tempPath)) {
+            try {
+                $response = Http::withOptions(['verify' => false])->get($remoteUrl);
+                if ($response->successful())
+                    file_put_contents($tempPath, $response->body());
+                else return null;
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+        return public_path('storage/temp_images/' . basename($relativePath)); // Retorna la nueva ruta local
+    }
+
     public static function decodificarImagen(string $imagen_base64): string
     {
         $partes = explode(";base64,", $imagen_base64);
         return base64_decode($partes[1]);
     }
 
-    public static function obtenerMimeType(string $imagen_base64): string
-    {
-        return explode("/", mime_content_type($imagen_base64))[1];
+    public static function obtenerMimeType(string $imagen_base64):string{
+        // Eliminar el prefijo "data:image/jpeg;base64," si existe
+        $base64_image = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
+
+        // Decodificar la cadena Base64 a datos binarios
+        $image_data = base64_decode($base64_image);
+
+        // Crear una instancia de Image a partir de los datos binarios
+        $image = Image::make($image_data);
+
+        // Obtener el mime type de la imagen
+        $mime_type = $image->mime();
+
+        return $mime_type;
     }
 
     public static function obtenerExtension(string $imagen_base64): string
     {
         $mime_type = self::obtenerMimeType($imagen_base64);
-        return explode("+", $mime_type)[0];
+        return explode("/", $mime_type)[1];
     }
 
     public static function arrayToCsv(string $campos, array $listado): string
@@ -982,11 +1037,11 @@ class Utils
         $num = (int)$num;
 
         $numf = self::milmillon($num);
-        switch ($pais) {
-            case PaisesOperaciones::PERU:
-                return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
-            default:
-                return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
-        }
+//        switch ($pais) {
+//            case PaisesOperaciones::PERU:
+//                return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
+//            default:
+        return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+//        }
     }
 }

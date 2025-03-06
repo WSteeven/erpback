@@ -30,7 +30,7 @@ class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
     {
         $this->transferencia = $transferencia;
 
-        $ruta = '/transferencia-producto-empleado';
+        $ruta = '/aceptar-transferencia-producto';
         $emisor_id = $transferencia->empleado_origen_id;
         $destinatario_id = $transferencia->empleado_destino_id;
 
@@ -57,7 +57,7 @@ class NotificarTransferenciaProductosRealizadaEvent implements ShouldBroadcast
         $nombres_emisor = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->empleado_origen_id));
         $nombres_autorizador = Empleado::extraerNombresApellidos(Empleado::find($this->transferencia->autorizador_id));
         $justificacion = $this->transferencia->justificacion;
-        $codigo = 'TRANS_PROD-' . $this->transferencia->id;
-        return $nombres_emisor . ' le ha realizado la transferencia con código ' . $codigo . ' y justificación: ' . $justificacion . ' autorizado por ' . $nombres_autorizador;
+        $codigo = 'TRANSF-' . $this->transferencia->id;
+        return 'Aceptación de transferencia PENDIENTE. ' . $nombres_emisor . ' le ha realizado la transferencia ' . $codigo . '. Justificación: ' . $justificacion . ' autorizado por ' . $nombres_autorizador . '.';
     }
 }

@@ -44,6 +44,7 @@ class GeneradorCashRequest extends FormRequest
     {
         return [
             'pagos.required' => 'Es necesario que registre al menos un pago.',
+            'pagos.*.cuenta_banco_id.exists' => 'La cuenta bancaria seleccionada en la fila :index no existe.',
         ];
     }
 }

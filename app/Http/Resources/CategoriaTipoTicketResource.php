@@ -19,7 +19,7 @@ class CategoriaTipoTicketResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'departamento' => $this->departamento->nombre,
+            'departamento' => $this->departamento?->nombre,
             'departamento_id' => $this->departamento_id,
             'activo' => $this->activo,
         ];

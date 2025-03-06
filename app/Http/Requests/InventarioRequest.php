@@ -7,7 +7,6 @@ use App\Models\Inventario;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
 
 class InventarioRequest extends FormRequest
 {

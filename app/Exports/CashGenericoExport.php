@@ -14,7 +14,6 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class CashGenericoExport extends DefaultValueBinder implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles, WithStrictNullComparison, WithCustomValueBinder, WithColumnWidths
@@ -54,23 +53,6 @@ class CashGenericoExport extends DefaultValueBinder implements FromCollection, S
             'REFERENCIA ADICIONAL',
         ];
     }
-
-    /* public function bindValue(Cell $cell, $value)
-    {
-        if ($cell->getColumn() == 'G') {
-            $val = str_replace(',', '', $value);
-            $val = str_replace('.', '', $value);
-            $numeroFormateado = str_pad($val, 13, '0', STR_PAD_LEFT);
-            $cell->setValueExplicit($numeroFormateado, DataType::TYPE_STRING);
-            return true;
-        }
-        if (is_numeric($value)) {
-            $cell->setValueExplicit($value, DataType::TYPE_STRING);
-
-            return true;
-        }
-        return parent::bindValue($cell, $value);
-    } */
 
     public function bindValue(Cell $cell, $value)
     {

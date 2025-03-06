@@ -62,11 +62,17 @@ class TransaccionBodegaEgresoController extends Controller
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado()
     {
-        request()->validate([
-            'empleado_id' => 'required|numeric|integer|exists:empleados,id',
-            'cliente_id' => 'nullable|numeric|integer|exists:clientes,id',
-            'subtarea_id' => 'nullable|numeric|integer|exists:subtareas,id',
-        ]);
+        request()->validate(
+            [
+                'empleado_id' => 'required|numeric|integer|exists:empleados,id',
+                'cliente_id' => 'nullable|numeric|integer|exists:clientes,id',
+                'subtarea_id' => 'nullable|numeric|integer|exists:subtareas,id',
+            ],
+            [
+                'empleado_id.required' => 'El campo empleado es obligatorio.',
+                // 'cliente_id.required' => 'El campo cliente es obligatorio.',
+            ]
+        );
 
         $results = $this->productosEmpleadoService->obtenerProductos();
         return response()->json(compact('results'));
@@ -458,8 +464,7 @@ class TransaccionBodegaEgresoController extends Controller
                 default:
                     throw ValidationException::withMessages(['error' => 'Método no implementado']);
             }
-
-        } catch (Throwable|Exception $th) {
+        } catch (Throwable | Exception $th) {
             throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
         }
     }
@@ -512,9 +517,9 @@ class TransaccionBodegaEgresoController extends Controller
     /**
      * @throws ValidationException
      */
-    public function modificarItemEgreso(Request $request,TransaccionBodega $transaccion)
+    public function modificarItemEgreso(Request $request, TransaccionBodega $transaccion)
     {
-//         Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
+        //         Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
         try {
             switch ($request->tipo) {
                 case 'PENDIENTE':

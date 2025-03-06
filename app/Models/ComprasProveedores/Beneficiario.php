@@ -24,6 +24,7 @@ class Beneficiario extends Model implements Auditable
         'direccion',
         'telefono',
         'localidad',
+        'correo',
         'canton_id',
     ];
 
@@ -33,6 +34,7 @@ class Beneficiario extends Model implements Auditable
     {
         return [
             'identificacion_beneficiario' => $this['identificacion_beneficiario'],
+            'nombre_beneficiario' => $this['nombre_beneficiario'],
         ];
     }
 

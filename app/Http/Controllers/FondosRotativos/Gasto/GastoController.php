@@ -139,7 +139,7 @@ class GastoController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
+            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update', $gasto);
             $gasto->update($datos);
             $gasto_service = new GastoService($gasto);
             $gasto_service->validarGastoVehiculo($request);
@@ -328,7 +328,7 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
-            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
+            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update', $gasto);
             if ($gasto) {
                 $gasto->update($datos);
                 $gasto_service = new GastoService($gasto);

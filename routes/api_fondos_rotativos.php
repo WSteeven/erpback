@@ -58,7 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('monto_acreditar_usuario/{id}', [ValorAcreditarController::class, 'montoAcreditarUsuario']);
     Route::post('autorizaciones_fecha/{tipo}', [GastoController::class, 'reporteAutorizaciones']);
     Route::post('consolidado/{tipo}', [SaldoController::class, 'consolidado']);
-    Route::post('consolidado_filtrado/{tipo}', [SaldoController::class, 'consolidadoFiltrado']);
+    Route::post('consolidado-filtrado/{tipo}', [SaldoController::class, 'consolidadoFiltrado']);
     Route::get('gastocontabilidad', [SaldoController::class, 'gastoContabilidad']);
     Route::get('autorizaciones_gastos', [GastoController::class, 'autorizacionesGastos']);
     Route::get('autorizaciones_transferencia', [TransferenciasController::class, 'autorizacionesTransferencia']);

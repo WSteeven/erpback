@@ -3,7 +3,6 @@
 namespace App\Http;
 
 use App\Http\Middleware\CheckAndFetchImageOrFile;
-use App\Http\Middleware\HandleMissingFiles;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel

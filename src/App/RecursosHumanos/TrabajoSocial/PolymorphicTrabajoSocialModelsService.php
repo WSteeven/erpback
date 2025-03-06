@@ -23,7 +23,7 @@ class PolymorphicTrabajoSocialModelsService
         $empleado = Empleado::find($entidad->empleado_id);
         $listado['empleado_id'] = $entidad->empleado_id;
         if ($listado['imagen_croquis'] && Utils::esBase64($listado['imagen_croquis'])) {
-            $listado['imagen_croquis'] = (new GuardarImagenIndividual($listado['imagen_croquis'], RutasStorage::RUTAGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+            $listado['imagen_croquis'] = (new GuardarImagenIndividual($listado['imagen_croquis'], RutasStorage::RUTAGRAMAS, $entidad->vivienda()->first()?->imagen_croquis, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
         } else {
             $position = strpos($listado['imagen_croquis'], '/storage');
             $listado['imagen_croquis'] = substr($listado['imagen_croquis'], $position);

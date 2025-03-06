@@ -9,6 +9,7 @@ use App\Models\Tareas\TransferenciaProductoEmpleado;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Log;
 
 class TransferenciaProductoEmpleadoRequest extends FormRequest
 {
@@ -32,23 +33,35 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
         $rules =  [
             'justificacion' => 'required|string',
             'causa_anulacion' => 'nullable|string',
-            // 'estado' => ['sometimes', Rule::in([TransferenciaProductoEmpleado::PENDIENTE, TransferenciaProductoEmpleado::ANULADA, TransferenciaProductoEmpleado::COMPLETA])],
             'observacion_aut' => 'nullable|string',
-            'solicitante' => 'required|exists:empleados,id',
-            'empleado_origen' => 'required|exists:empleados,id',
-            'empleado_destino' => 'required|exists:empleados,id',
-            'proyecto_origen' => 'sometimes|nullable|exists:proyectos,id',
-            'proyecto_destino' => 'sometimes|nullable|exists:proyectos,id',
-            'etapa_origen' => 'sometimes|nullable|exists:tar_etapas,id',
-            'etapa_destino' => 'sometimes|nullable|exists:tar_etapas,id',
-            'tarea_origen' => 'sometimes|nullable|exists:tareas,id',
-            'tarea_destino' => 'sometimes|nullable|exists:tareas,id',
-            'autorizacion' => 'nullable|numeric|integer|exists:autorizaciones,id',
-            'autorizador' => 'required|numeric|exists:empleados,id',
-            'listado_productos.*.cantidad' => 'required',
-            // 'listado_productos.*.cliente_id' => 'required',
-            // 'listado_productos.*.descripcion' => 'required',
+            'novedades_transferencia_recibida' => 'nullable|string',
+            'solicitante_id' => 'required|exists:empleados,id',
+            'empleado_origen_id' => 'required|exists:empleados,id',
+            'empleado_destino_id' => 'required|exists:empleados,id',
+            'proyecto_origen_id' => 'sometimes|nullable|exists:proyectos,id',
+            'proyecto_destino_id' => 'sometimes|nullable|exists:proyectos,id',
+            'etapa_origen_id' => 'sometimes|nullable|exists:tar_etapas,id',
+            'etapa_destino_id' => 'sometimes|nullable|exists:tar_etapas,id',
+            'tarea_origen_id' => 'sometimes|nullable|exists:tareas,id',
+            'tarea_destino_id' => 'sometimes|nullable|exists:tareas,id',
+            'autorizacion_id' => 'nullable|numeric|integer|exists:autorizaciones,id',
+            'autorizador_id' => 'required|numeric|exists:empleados,id',
+            'cliente_id' => 'required|numeric|exists:clientes,id',
+            'listado_productos.*.cantidad' => 'required|numeric|integer',
+            'listado_productos.*.recibido' => 'nullable|numeric|integer',
         ];
+
+        if ($this->isMethod('patch')) {
+            $rules = collect($rules)->only(array_keys($this->all()))->toArray(); // Esta regla está bien para pach, verificado el 14/8/2024
+        }
+
+        /* if ($this->isMethod('patch')) {
+            // Filtramos solo las reglas de los campos que vienen en la solicitud
+            $inputKeys = array_keys($this->all()); // Obtener las claves de los datos enviados
+            Log::channel('testing')->info('Log', ['input', $inputKeys]);
+            $rules = array_intersect_key($rules, array_flip($inputKeys)); // Mantener solo las reglas de los datos enviados
+            Log::channel('testing')->info('Log', ['Reglas', $rules]);
+        } */
 
         return $rules;
     }
@@ -58,6 +71,29 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
         return [
             'listado_productos.*.cantidad' => 'listado',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        // if ($this->isMethod('post')) {
+        $data = [
+            'solicitante_id' => $this['solicitante'],
+            'empleado_origen_id' => $this['empleado_origen'],
+            'empleado_destino_id' => $this['empleado_destino'],
+            'proyecto_origen_id' => $this['proyecto_origen'],
+            'proyecto_destino_id' => $this['proyecto_destino'],
+            'etapa_origen_id' => $this['etapa_origen'],
+            'etapa_destino_id' => $this['etapa_destino'],
+            'tarea_origen_id' => $this['tarea_origen'],
+            'tarea_destino_id' => $this['tarea_destino'],
+            'autorizacion_id' => $this['autorizacion'],
+            'autorizador_id' => $this['autorizador'],
+            'cliente_id' => $this['cliente'],
+        ];
+
+        // Filtrar los valores nulos y solo fusionar los que existen
+        $this->merge(array_filter($data, fn($value) => !is_null($value)));
+        // }
     }
 
     public function messages()
@@ -72,16 +108,19 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
         if ($this->autorizacion === Autorizacion::CANCELADO_ID) return;
 
         $validator->after(function ($validator) {
-            foreach ($this->listado_productos as $listado) {
-                $material = null;
+            if ($this->listado_productos) {
 
-                $material = MaterialEmpleadoTarea::where('tarea_id', $this->tarea_origen)
-                    ->where('empleado_id', $this->empleado_origen)
-                    ->where('detalle_producto_id', $listado['id'])
-                    ->first();
+                foreach ($this->listado_productos as $listado) {
+                    $material = null;
 
-                if ($material && $listado['cantidad'] > $material->cantidad_stock) {
-                    $validator->errors()->add('listado_productos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock. En stock ' . $material->cantidad_stock);
+                    $material = MaterialEmpleadoTarea::where('tarea_id', $this->tarea_origen)
+                        ->where('empleado_id', $this->empleado_origen)
+                        ->where('detalle_producto_id', $listado['id'])
+                        ->first();
+
+                    if ($material && $listado['recibido'] > $material->cantidad_stock) {
+                        $validator->errors()->add('listado_productos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock. En stock ' . $material->cantidad_stock);
+                    }
                 }
             }
         });

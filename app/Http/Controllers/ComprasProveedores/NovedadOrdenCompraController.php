@@ -7,14 +7,15 @@ use App\Http\Requests\ComprasProveedores\NovedadOrdenCompraRequest;
 use App\Http\Resources\ComprasProveedores\NovedadOrdenCompraResource;
 use App\Models\ComprasProveedores\NovedadOrdenCompra;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class NovedadOrdenCompraController extends Controller
 {
-    private $entidad = 'Novedad';
+    private string $entidad = 'Novedad';
 
     public function __construct()
     {
@@ -22,7 +23,7 @@ class NovedadOrdenCompraController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -35,8 +36,9 @@ class NovedadOrdenCompraController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param NovedadOrdenCompraRequest $request
+     * @return JsonResponse
+     * @throws Throwable
      */
     public function store(NovedadOrdenCompraRequest $request)
     {
@@ -56,40 +58,8 @@ class NovedadOrdenCompraController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\ComprasProveedores\NovedadOrdenCompra  $novedadOrdenCompra
-     * @return \Illuminate\Http\Response
-     */
-    public function show(NovedadOrdenCompra $novedadOrdenCompra)
-    {
-        //
-    }
 
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ComprasProveedores\NovedadOrdenCompra  $novedadOrdenCompra
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, NovedadOrdenCompra $novedadOrdenCompra)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\ComprasProveedores\NovedadOrdenCompra  $novedadOrdenCompra
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(NovedadOrdenCompra $novedadOrdenCompra)
-    {
-        //
-    }
 
 
 }

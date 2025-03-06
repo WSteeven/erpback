@@ -156,7 +156,7 @@ class BitacoraVehicularController extends Controller
             $datos['tickets'] = Utils::convertArrayToString($request->tickets);
 
             if ($datos['imagen_inicial'] && Utils::esBase64($datos['imagen_inicial'])) {
-                $datos['imagen_inicial'] = (new GuardarImagenIndividual($datos['imagen_inicial'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS))->execute();
+                $datos['imagen_inicial'] = (new GuardarImagenIndividual($datos['imagen_inicial'], RutasStorage::FOTOGRAFIAS_DIARIAS_VEHICULOS, $bitacora->imagen_inicial))->execute();
             } else {
                 unset($datos['imagen_inicial']);
             }

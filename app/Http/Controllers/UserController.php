@@ -134,6 +134,10 @@ class UserController extends Controller
         ->where('empleados.estado','!=',false)->orderby('users.name', 'asc')->get();
         return response()->json(['results' => UserInfoResource::collection($users)]);
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function recuperarPassword(Request $request)
     {
         $configuracion = ConfiguracionGeneral::first();
@@ -150,31 +154,40 @@ class UserController extends Controller
 
             $usuario->remember_token = $confirmation_code;
             $usuario->save();
-            Mail::send('email.recoveryPassword', [$credenciales, $configuracion], function ($msj) use ($email, $username) {
+            Mail::send('email.recoveryPassword', ['credenciales' => $credenciales, 'configuracion' => $configuracion], function ($msj) use ($email, $username, $configuracion) {
                 $msj->to($email, $username);
-                $msj->subject('Recuperacion de Contraseña de JPCONSTRUCRED');
+                $msj->subject('Recuperacion de Contraseña de '.$configuracion->razon_social);
             });
-            return response()
-                ->json('Porfavor revise su codigo de confirmacion en su  Correo Institucional ');
+            $mensaje = 'Porfavor revise su código de confirmación en su  Correo Institucional.';
+            return response()->json(compact('mensaje'));
+
         } else {
-            return response()->json('Correo Institucional no existe', 401);
+            throw ValidationException::withMessages(['error'=> 'Correo Institucional no existe']);
         }
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function updateContrasenaRecovery(Request $request)
     {
         $code = $request->input('code');
         $contrasena_usuario =  Hash::make($request->input('password'));
-        $users = User::where('remember_token', $code)->first();
-        if ($users == null) {
-            return response()->json('Correo no verificado', 401);
+        $user = User::where('remember_token', $code)->first();
+        if (!$user) {
+            throw ValidationException::withMessages(['error'=> 'El código ingresado no es válido']);
         }
         $confirmation_code = ' ';
-        $users->remember_token = $confirmation_code;
-        $users->password = $contrasena_usuario;
-        $users->save();
-        return response()
-            ->json('Contraseña Actualizada con exito');
+        $user->remember_token = $confirmation_code;
+        $user->password = $contrasena_usuario;
+        $user->save();
+        $mensaje = 'Contraseña actualizada con éxito.';
+        return response()->json(compact('mensaje'));
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function updatePassword(Request $request)
     {
         $user = User::find(Auth::user()->id);

@@ -80,7 +80,7 @@ class GastoService
     /**
      * @throws Throwable
      */
-    public static function  convertirComprobantesBase64Url(array $datos, $tipo_metodo = 'store')
+    public static function  convertirComprobantesBase64Url(array $datos, $tipo_metodo = 'store', Gasto $gasto=null)
     {
         switch ($tipo_metodo) {
             case 'store':
@@ -93,12 +93,12 @@ class GastoService
                 break;
             case 'update':
                 if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
-                    $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                    $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS, $gasto?->comprobante))->execute();
                 } else {
                     unset($datos['comprobante']);
                 }
                 if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
-                    $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                    $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS,$gasto?->comprobante2))->execute();
                 } else {
                     unset($datos['comprobante2']);
                 }
