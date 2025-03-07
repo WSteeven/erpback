@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
 use App\Models\Empleado;
+use App\Models\EstadoTransaccion;
 use App\Models\Grupo;
 use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
@@ -14,8 +15,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 use Throwable;
 
@@ -67,6 +68,7 @@ class GastoCoordinador extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     use UppercaseValuesTrait;
+
     protected $table = 'gastos_coordinador';
     protected $primaryKey = 'id';
     protected $fillable = [
@@ -76,31 +78,47 @@ class GastoCoordinador extends Model implements Auditable
         'monto',
         'observacion',
         'id_usuario',
+        'revisado',
+        'estado_id'
     ];
-    private static array $whiteListFilter = [
-        'fecha_gasto',
-        'lugar',
-        'grupo',
-        'monto',
-        'observacion',
-        'id_usuario',
+
+    protected $casts = [
+        'revisado'=>'boolean'
     ];
+    private static array $whiteListFilter = ['*'];
+//        'fecha_gasto',
+//        'lugar',
+//        'grupo',
+//        'monto',
+//        'observacion',
+//        'id_usuario',
+//    ];
+
+    public function estado()
+    {
+        return $this->belongsTo(EstadoTransaccion::class);
+    }
+
     public function motivoGasto()
     {
         return $this->hasOne(MotivoGasto::class, 'id', 'id_motivo');
     }
+
     public function empleado()
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
     }
+
     public function grupo()
     {
         return $this->hasOne(Grupo::class, 'id', 'id_grupo');
     }
+
     public function canton()
     {
         return $this->hasOne(Canton::class, 'id', 'id_lugar');
     }
+
     public function detalleMotivoGasto()
     {
         return $this->belongsToMany(MotivoGasto::class, 'detalle_motivo_gastos', 'id_gasto_coordinador', 'id_motivo_gasto');
@@ -132,6 +150,7 @@ class GastoCoordinador extends Model implements Auditable
 
         return $results;
     }
+
     private static function obtenerNombresMotivos($motivos)
     {
         $nombres = array();
@@ -144,6 +163,7 @@ class GastoCoordinador extends Model implements Auditable
             return '';
         }
     }
+
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');

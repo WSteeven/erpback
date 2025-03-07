@@ -32,8 +32,13 @@ class GastoCoordinadorResource extends JsonResource
             'observacion' => $this->observacion,
             'usuario' => $this->id_usuario,
             'empleado_info' => $this->empleado->nombres . ' ' . $this->empleado->apellidos,
+            'estado'=>$this->estado->nombre,
+            'revisado'=>$this->revisado
         ];
-        return $modelo;
+        if ($controller_method == 'show') {
+            $modelo['estado']= $this->estado_id;
+        }
+            return $modelo;
     }
     /**
      * La funcion "detalleMotivoGasto" permite listar collecction de  motivos de los gastos solicitados

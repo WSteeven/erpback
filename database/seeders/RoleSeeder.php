@@ -7,6 +7,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Src\Config\Permisos;
 
 class RoleSeeder extends Seeder
 {
@@ -422,8 +423,11 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.gasto'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.elegir.autorizador.gasto'])->syncRoles([$empleado]);
         //Gasto coordinadores
-        Permission::firstOrCreate(['name' => 'puede.ver.gasto_coordinador'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER.'gasto_coordinador'])->syncRoles([$coordinador, $contabilidad, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.gasto_coordinador'])->syncRoles([$coordinador,$contabilidad, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.crear.gasto_coordinador'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR.'gasto_coordinador'])->syncRoles([$contabilidad]);
+
         //Motivo gasto
         Permission::firstOrCreate(['name' => 'puede.ver.motivo_gasto'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.crear.motivo_gasto'])->syncRoles([$administrador_fondos]);
