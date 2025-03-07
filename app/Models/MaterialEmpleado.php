@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Scout\Searchable;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  * App\Models\MaterialEmpleado
@@ -83,10 +85,12 @@ class MaterialEmpleado extends Model implements Auditable
     {
         return $this->belongsTo(Cliente::class);
     }
+
     public function detalle()
     {
-        return $this->belongsTo(DetalleProducto::class,  'detalle_producto_id', 'id');
+        return $this->belongsTo(DetalleProducto::class, 'detalle_producto_id', 'id');
     }
+
     public function empleado()
     {
         return $this->belongsTo(Empleado::class);
@@ -133,30 +137,41 @@ class MaterialEmpleado extends Model implements Auditable
      * empleado.
      * @param int $cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
      * cargando el material.
+     * @throws Exception
      */
     public static function cargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id)
     {
         try {
-            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
-                ->where('empleado_id', $empleado_id)
-                ->where('cliente_id', $cliente_id)->first();
-            if ($material) {
-                $material->cantidad_stock += $cantidad;
-                $material->despachado += $cantidad;
-                $material->save();
-            } else { // se crea el material
-                MaterialEmpleado::create([
-                    'cantidad_stock' => $cantidad,
-                    'despachado' => $cantidad,
-                    'empleado_id' => $empleado_id,
-                    'detalle_producto_id' => $detalle_id,
-                    'cliente_id' => $cliente_id,
-                ]);
-            }
+            return DB::transaction(function () use ($detalle_id, $empleado_id, $cantidad, $cliente_id) {
+                $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
+                    ->where('empleado_id', $empleado_id)
+                    ->where('cliente_id', $cliente_id)
+                    ->lockForUpdate() //Bloquea la fila mientras se actualiza
+                    ->first();
+
+                if ($material) {
+                    $material->cantidad_stock += $cantidad;
+                    $material->despachado += $cantidad;
+                    $material->save();
+                } else { // se crea el material
+                    MaterialEmpleado::create([
+                        'cantidad_stock' => $cantidad,
+                        'despachado' => $cantidad,
+                        'empleado_id' => $empleado_id,
+                        'detalle_producto_id' => $detalle_id,
+                        'cliente_id' => $cliente_id,
+                    ]);
+                }
+            });
+        } catch (QueryException $e) { //catch para capturar los errores de base de datos
+            if ($e->getCode() == '23000') // Código de error para violación de clave única
+                throw new Exception('El material ya ha sido registrado con las mismas cantidades (Restricción de clave única).');
+            throw new Exception('Ocurrió un error inesperado');
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage() . '. ' . $th->getLine());
         }
     }
+
     /**
      * La función "descargarMaterialEmpleado" se utiliza para actualizar el stock y cantidad de
      * devolución de un material asignado a un empleado.
@@ -220,6 +235,7 @@ class MaterialEmpleado extends Model implements Auditable
             throw new Exception($th->getMessage() . '. ' . $th->getLine());
         }
     }
+
     public static function actualizarMaterialesEmpleado($registroAntiguo, $registro, $empleado)
     {
         try {
