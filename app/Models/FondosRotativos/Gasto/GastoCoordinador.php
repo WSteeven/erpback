@@ -79,6 +79,7 @@ class GastoCoordinador extends Model implements Auditable
         'observacion',
         'id_usuario',
         'revisado',
+        'observacion_contabilidad',
         'estado_id'
     ];
 

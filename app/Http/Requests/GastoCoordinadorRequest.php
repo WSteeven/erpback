@@ -34,6 +34,8 @@ class GastoCoordinadorRequest extends FormRequest
             'id_usuario' => 'required|integer',
             'id_lugar' => 'required|integer',
             'id_grupo' => 'required|integer',
+            'observacion_contabilidad' => 'nullable|string',
+            'estado_id'=>'required|integer|exists:estados_transacciones_bodega,id',
         ];
     }
     protected function prepareForValidation()
@@ -41,9 +43,10 @@ class GastoCoordinadorRequest extends FormRequest
         $user =Auth::user()->empleado->id;
         $this->merge([
             'fecha_gasto' =>  date('Y-m-d'),
-            'id_usuario' => $user,
+            'id_usuario' =>$this->id_usuario?: $user,
             'id_lugar' => $this->lugar,
             'id_grupo' => $this->grupo,
+            'estado_id'=> $this->estado,
         ]);
 
     }

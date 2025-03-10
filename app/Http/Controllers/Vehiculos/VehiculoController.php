@@ -45,7 +45,7 @@ class VehiculoController extends Controller
     {
 //        $campos = request('campos') ? explode(',', request('campos')) : '*';
         //  $results = Vehiculo::get($campos);
-        $results = Vehiculo::filter()->get();
+        $results = Vehiculo::ignoreRequest(['campos'])->filter()->get();
         $results = VehiculoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -68,7 +68,7 @@ class VehiculoController extends Controller
             DB::beginTransaction();
             $modelo = Vehiculo::create($datos);
             $modelo = new VehiculoResource($modelo);
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'M');
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $ex) {
             DB::rollBack();
@@ -107,7 +107,7 @@ class VehiculoController extends Controller
         //Respuesta
         $vehiculo->update($datos);
         $modelo = new VehiculoResource($vehiculo->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update', 'M');
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -141,6 +141,7 @@ class VehiculoController extends Controller
 
     /**
      * Guardar archivos
+     * @throws Throwable
      */
     public function storeFiles(Request $request, Vehiculo $vehiculo)
     {

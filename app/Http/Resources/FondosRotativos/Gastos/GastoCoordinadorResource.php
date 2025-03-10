@@ -13,7 +13,7 @@ class GastoCoordinadorResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
@@ -31,19 +31,22 @@ class GastoCoordinadorResource extends JsonResource
             'monto' => $this->monto,
             'observacion' => $this->observacion,
             'usuario' => $this->id_usuario,
+            'id_usuario' => $this->id_usuario,
             'empleado_info' => $this->empleado->nombres . ' ' . $this->empleado->apellidos,
-            'estado'=>$this->estado->nombre,
-            'revisado'=>$this->revisado
+            'estado' => $this->estado->nombre,
+            'revisado' => $this->revisado,
+            'observacion_contabilidad' => $this->observacion_contabilidad
         ];
         if ($controller_method == 'show') {
-            $modelo['estado']= $this->estado_id;
+            $modelo['estado'] = $this->estado_id;
         }
-            return $modelo;
+        return $modelo;
     }
+
     /**
      * La funcion "detalleMotivoGasto" permite listar collecction de  motivos de los gastos solicitados
      * por el cordinador para su respectiva acreditacion de saldos.
-     * @param Collection $motivo_info: motivos de gasto solicitados
+     * @param Collection $motivo_info : motivos de gasto solicitados
      * @return 'devuelve listado de motivos de gastos en un string  separado por comas'
      */
     private function detalleMotivoGasto(Collection $motivo_info)
@@ -59,7 +62,6 @@ class GastoCoordinadorResource extends JsonResource
         }
         return $descripcion;
     }
-
 
 
     /**
