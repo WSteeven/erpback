@@ -22,8 +22,6 @@ class Visitante extends Model implements Auditable
         'motivo_visita',
         'persona_visitada',
         'placa_vehiculo',
-        'fecha_hora_ingreso',
-        'fecha_hora_salida',
         'observaciones',
         'actividad_bitacora_id',
     ];
