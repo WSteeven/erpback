@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('motivo_visita');
             $table->string('persona_visitada');
             $table->string('placa_vehiculo')->nullable();
-            $table->string('fecha_hora_ingreso');
-            $table->string('fecha_hora_salida')->nullable();
+            // $table->string('fecha_hora_ingreso');
+            // $table->string('fecha_hora_salida')->nullable();
             $table->string('observaciones')->nullable();
             $table->foreignId('actividad_bitacora_id')->constrained('seg_actividades_bitacora')->onDelete('cascade');
 

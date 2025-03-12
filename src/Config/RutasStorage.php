@@ -113,4 +113,5 @@ enum RutasStorage: string
      * Seguridad
      *************/
     case ACTIVIDADES_BITACORAS  = 'public/seguridad/actividadesBitacoras';
+    case ACTIVIDADES_BITACORAS_ARCHIVOS  = 'public/seguridad/actividadesBitacorasArchivos';
 }

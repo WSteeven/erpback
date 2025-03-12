@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
+use Illuminate\Support\Facades\DB;
 
 class SeguimientoService
 {
@@ -133,40 +134,42 @@ class SeguimientoService
     // Descontar individual material de tarea
     public function actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request)
     {
-        $request->validate([
-            'empleado_id' => 'required|numeric|integer',
-            'tarea_id' => 'required|numeric|integer',
-            'subtarea_id' => 'required|numeric|integer',
-            'detalle_producto_id' => 'required|numeric|integer',
-            'cantidad_utilizada' => 'required|numeric|integer',
-            'cantidad_anterior' => 'required|numeric|integer',
-        ]);
-
-        $idEmpleado = $request['empleado_id'];
-        $idSubtarea = $request['subtarea_id'];
-        $idDetalleProducto = $request['detalle_producto_id'];
-        $cantidadUtilizada = $request['cantidad_utilizada'];
-        $cliente_id = $request['cliente_id'];
-
-        $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->where('cliente_id', $cliente_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
-
-        if ($materialSubtarea) {
-            $materialSubtarea->cantidad_utilizada =  $cantidadUtilizada;
-            $materialSubtarea->save();
-        } else {
-            $idGrupo = Empleado::find($request['empleado_id'])->grupo_id;
-
-            SeguimientoMaterialSubtarea::create([
-                'cantidad_utilizada' => $cantidadUtilizada,
-                'subtarea_id' => $idSubtarea,
-                'empleado_id' => $idEmpleado,
-                'grupo_id' => $idGrupo,
-                'detalle_producto_id' => $idDetalleProducto,
-                'cliente_id' => $cliente_id,
+        return DB::transaction(function () use ($request) {
+            $request->validate([
+                'empleado_id' => 'required|numeric|integer',
+                'tarea_id' => 'required|numeric|integer',
+                'subtarea_id' => 'required|numeric|integer',
+                'detalle_producto_id' => 'required|numeric|integer',
+                'cantidad_utilizada' => 'required|numeric|integer',
+                'cantidad_anterior' => 'required|numeric|integer',
             ]);
-        }
 
-        return $this->actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request);
+            $idEmpleado = $request['empleado_id'];
+            $idSubtarea = $request['subtarea_id'];
+            $idDetalleProducto = $request['detalle_producto_id'];
+            $cantidadUtilizada = $request['cantidad_utilizada'];
+            $cliente_id = $request['cliente_id'];
+
+            $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->where('cliente_id', $cliente_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
+
+            if ($materialSubtarea) {
+                $materialSubtarea->cantidad_utilizada =  $cantidadUtilizada;
+                $materialSubtarea->save();
+            } else {
+                $idGrupo = Empleado::find($request['empleado_id'])->grupo_id;
+
+                SeguimientoMaterialSubtarea::create([
+                    'cantidad_utilizada' => $cantidadUtilizada,
+                    'subtarea_id' => $idSubtarea,
+                    'empleado_id' => $idEmpleado,
+                    'grupo_id' => $idGrupo,
+                    'detalle_producto_id' => $idDetalleProducto,
+                    'cliente_id' => $cliente_id,
+                ]);
+            }
+
+            return $this->actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request);
+        });
     }
 
     public function actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTareaHistorial($request)
