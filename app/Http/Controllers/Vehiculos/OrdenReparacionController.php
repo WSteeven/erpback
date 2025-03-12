@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Vehiculos;
 
 use App\Events\Vehiculos\NotificarOrdenInternaActualizada;
 use App\Events\Vehiculos\NotificarOrdenInternaAlAdminVehiculos;
-use App\Exports\vehiculos\OrdenReparacionExport;
+use App\Exports\Vehiculos\OrdenReparacionExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\OrdenReparacionRequest;
 use App\Http\Resources\Vehiculos\OrdenReparacionResource;
