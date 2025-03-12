@@ -168,7 +168,7 @@ class OrdenReparacionController extends Controller
         $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
         $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
 
-        $results = OrdenReparacion::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+        $results = OrdenReparacion::whereBetween('fecha', [$fecha_inicio, $fecha_fin])
 //                    ->where('autorizacion_id', Autorizacion::APROBADO_ID)
             ->get();
         $autorizadas = $results->where('autorizacion_id', Autorizacion::APROBADO_ID);

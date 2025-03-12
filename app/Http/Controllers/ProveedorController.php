@@ -70,7 +70,7 @@ class ProveedorController extends Controller
      */
     public function store(ProveedorRequest $request)
     {
-        $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
+        $departamento_financiero = Departamento::where('nombre', Departamento::DEPARTAMENTO_FINANCIERO)->first();
         try {
             DB::beginTransaction();
             $datos = $request->validated();

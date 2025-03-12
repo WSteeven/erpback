@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Carbon\Carbon;
+use App\Models\EstadoTransaccion;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,18 +35,19 @@ class GastoCoordinadorRequest extends FormRequest
             'id_lugar' => 'required|integer',
             'id_grupo' => 'required|integer',
             'observacion_contabilidad' => 'nullable|string',
-            'estado_id'=>'required|integer|exists:estados_transacciones_bodega,id',
+            'estado_id' => 'nullable|integer|exists:estados_transacciones_bodega,id',
         ];
     }
+
     protected function prepareForValidation()
     {
-        $user =Auth::user()->empleado->id;
+        $user = Auth::user()->empleado->id;
         $this->merge([
-            'fecha_gasto' =>  date('Y-m-d'),
-            'id_usuario' =>$this->id_usuario?: $user,
+            'fecha_gasto' => date('Y-m-d'),
+            'id_usuario' => $this->id_usuario ?: $user,
             'id_lugar' => $this->lugar,
             'id_grupo' => $this->grupo,
-            'estado_id'=> $this->estado,
+            'estado_id' => $this->estado ?: EstadoTransaccion::PENDIENTE_ID,
         ]);
 
     }

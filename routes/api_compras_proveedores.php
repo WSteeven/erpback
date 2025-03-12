@@ -64,6 +64,8 @@ Route::apiResources([
 
 Route::post('generador-cash-duplicate/{id}', [GeneradorCashController::class, 'duplicate']);
 
+Route::get('obtener-calificacion-individual', [CalificacionDepartamentoProveedorController::class, 'calificacionIndividualCompleta'])->middleware('auth:sanctum');
+
 Route::get('ofertas-proveedores', fn () => ['results' => OfertaProveedor::all()])->middleware('auth:sanctum');
 Route::get('log-contactos-proveedores', [ContactoProveedorController::class, 'auditoria'])->middleware('auth:sanctum');
 

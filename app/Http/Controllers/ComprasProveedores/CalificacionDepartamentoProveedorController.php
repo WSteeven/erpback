@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ComprasProveedores;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ComprasProveedores\CalificacionDepartamentoProveedorResource;
+use App\Http\Resources\ComprasProveedores\DetalleDepartamentoProveedorResource;
 use App\Models\ComprasProveedores\CalificacionDepartamentoProveedor;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\Proveedor;
@@ -20,6 +21,7 @@ use Throwable;
 class CalificacionDepartamentoProveedorController extends Controller
 {
     private ArchivoService $archivoService;
+
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
@@ -67,7 +69,7 @@ class CalificacionDepartamentoProveedorController extends Controller
             Proveedor::guardarCalificacion($request->proveedor_id); //Aquí se llama a la función para guardar la calificacion del proveedor
             $modelo = $detalle->refresh();
 
-            return response()->json(['mensaje' => 'Se crearon exitosamente las calificaciones',  'permisos' => $modelos, 'modelo' => $modelo]);
+            return response()->json(['mensaje' => 'Se crearon exitosamente las calificaciones', 'permisos' => $modelos, 'modelo' => $modelo]);
         } catch (Exception $e) {
             DB::rollback();
             Log::channel('testing')->info('Log', ['Request recibida CalificacionDepartamentoProveedorController', 'Ha ocurrido un error al insertar los registros', $e->getMessage(), $e->getLine()]);
@@ -95,8 +97,8 @@ class CalificacionDepartamentoProveedorController extends Controller
     public function storeFiles(Request $request, $detalle)
     {
         // Log::channel('testing')->info('Log', ['Recibido del front en storeFiles', $request->all(), $detalle]);
-        $results=[];
-        $mensaje='';
+        $results = [];
+        $mensaje = '';
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
             if ($detalle_dept) {
@@ -109,4 +111,20 @@ class CalificacionDepartamentoProveedorController extends Controller
             return response()->json(compact('mensaje'), 500);
         }
     }
+
+    public function calificacionIndividualCompleta(Request $request)
+    {
+        $calificacion = DetalleDepartamentoProveedor::where('proveedor_id', $request->proveedor_id)
+            ->where('departamento_id', $request->departamento_id)->first();
+
+        $calificaciones = CalificacionDepartamentoProveedor::where('detalle_departamento_id', $calificacion->id)->get();
+
+        $results['calificacion'] = new DetalleDepartamentoProveedorResource($calificacion);
+        $results['calificaciones_detalladas'] =CalificacionDepartamentoProveedorResource::collection($calificaciones);
+
+
+        return response()->json(compact('results'));
+    }
+
+
 }

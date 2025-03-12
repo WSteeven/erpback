@@ -54,6 +54,7 @@ class Departamento extends Model implements Auditable
 
     const DEPARTAMENTO_SSO = 5;
     const DEPARTAMENTO_CONTABILIDAD = 'CONTABILIDAD';
+    const DEPARTAMENTO_FINANCIERO = 'FINANCIERO';
     const DEPARTAMENTO_GERENCIA = 'GERENCIA';
     const DEPARTAMENTO_MEDICO = 'MEDICO';
     const DEPARTAMENTO_RRHH = 'RECURSOS HUMANOS';
