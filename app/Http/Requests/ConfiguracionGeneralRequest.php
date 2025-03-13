@@ -35,6 +35,7 @@ class ConfiguracionGeneralRequest extends FormRequest
             'direccion_principal' => 'required|string',
             'telefono' => 'required|string',
             'moneda' => 'required|string',
+            'iva' => 'required|numeric',
             'tipo_contribuyente' => 'required|string',
             'celular1' => 'required|string',
             'celular2' => 'nullable|string',
