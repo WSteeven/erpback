@@ -3,6 +3,7 @@
 namespace App\Http\Requests\RecursosHumanos\TrabajoSocial;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class FichaSocioeconomicaRequest extends FormRequest
 {
@@ -129,13 +130,30 @@ class FichaSocioeconomicaRequest extends FormRequest
         })->toArray();
     }
 
+    public function messages()
+    {
+//        return array_merge(
+//           [], $this->getSaludMessages(),
+//        );
+        return [
+            'salud.discapacidades.required_if_accepted'=>'Un campo dependiente es requerido. Verifica discapacidades del empleado.',
+            'salud.discapacidades_familiar_dependiente.required_if_accepted'=>'Un campo dependiente es requerido. Verifica discapacidades de familiar dependiente.'
+        ];
+    }
+
     protected function prepareForValidation()
     {
+        Log::channel('testing')->error('Log', ['prepareforvalidation',$this->situacion_socioeconomica]);
+        Log::channel('testing')->error('Log', ['prepareforvalidation',$this->situacion_socioeconomica['cantidad_prestamos']]);
         $this->merge([
             'empleado_id' => $this->empleado,
             'canton_id' => $this->canton,
             'ciudad_contacto_emergencia_externo_id' => $this->ciudad_contacto_emergencia_externo,
-
+            'situacion_socioeconomica'=>array_merge($this->situacion_socioeconomica,[
+                'cantidad_prestamos'=> $this->situacion_socioeconomica['cantidad_prestamos']?:0,
+                'cantidad_tarjetas_credito'=> $this->situacion_socioeconomica['cantidad_tarjetas_credito']?:0,
+                'ingresos_adicionales'=> $this->situacion_socioeconomica['ingresos_adicionales']?:0,
+            ])
             //
 //            'vivienda.familia_acogiente.provincia_id' => $this->vivienda['familia_acogiente']['provincia'],
 //            'vivienda.familia_acogiente.canton_id' => $this->vivienda['familia_acogiente']['canton'],

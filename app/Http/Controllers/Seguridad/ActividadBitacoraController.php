@@ -134,7 +134,7 @@ class ActividadBitacoraController extends Controller
     public function storeFiles(Request $request, ActividadBitacora $actividad_bitacora)
     {
         try {
-            $modelo  = $this->archivoService->guardarArchivo($actividad_bitacora, $request->file, RutasStorage::ACTIVIDADES_BITACORAS->value . '_' . $actividad_bitacora->id);
+            $modelo  = $this->archivoService->guardarArchivo($actividad_bitacora, $request->file, RutasStorage::ACTIVIDADES_BITACORAS_ARCHIVOS->value);
             $mensaje = 'Archivo subido correctamente';
         } catch (Exception $ex) {
             return $ex;

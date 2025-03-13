@@ -338,8 +338,10 @@ class SeguimientoSubtareaController extends Controller
 
     public function actualizarCantidadUtilizadaMaterialTarea(Request $request)
     {
-        $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request);
-        return response()->json(compact('modelo'));
+        return DB::transaction(function () use ($request) {
+            $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request);
+            return response()->json(compact('modelo'));
+        });
     }
 
     public function actualizarCantidadUtilizadaMaterialStock(Request $request)

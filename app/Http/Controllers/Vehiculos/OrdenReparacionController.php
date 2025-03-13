@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Vehiculos;
 
 use App\Events\Vehiculos\NotificarOrdenInternaActualizada;
 use App\Events\Vehiculos\NotificarOrdenInternaAlAdminVehiculos;
+use App\Exports\Vehiculos\OrdenReparacionExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\OrdenReparacionRequest;
 use App\Http\Resources\Vehiculos\OrdenReparacionResource;
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Vehiculos\OrdenReparacion;
+use Excel;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -109,20 +111,22 @@ class OrdenReparacionController extends Controller
 
     }
 
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
     public function reporte(Request $request)
     {
         $configuracion = ConfiguracionGeneral::first();
         $results = $this->obtenerReportes($request);
 
-//        switch ($request->accion) {
-//            case 'excel':
-//            case 'pdf':
-//            default:
-//                $results;
-//        }
-        return response()->json(compact('results'));
-
-
+        switch ($request->accion) {
+            case 'pdf':
+            case 'excel':
+                return Excel::download(new OrdenReparacionExport($results['results']), 'reporte_ordenes_reparaciones.xlsx');
+            default:
+                return response()->json(compact('results'));
+        }
     }
 
     /**
@@ -175,7 +179,7 @@ class OrdenReparacionController extends Controller
         $pendientes = $results->where('autorizacion_id', Autorizacion::PENDIENTE_ID);
         $canceladas = $results->where('autorizacion_id', Autorizacion::CANCELADO_ID);
 //        $valor_gastado = $results->sum('valor_reparacion'); // no se usa porque esto calcula de todas
-        $valor_gastado = round($autorizadas->sum('valor_reparacion'),2);
+        $valor_gastado = round($autorizadas->sum('valor_reparacion'), 2);
         $results = OrdenReparacionResource::collection($results);
         return compact('autorizadas', 'pendientes', 'canceladas', 'valor_gastado', 'results');
     }
