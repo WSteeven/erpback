@@ -70,7 +70,7 @@ class ProductoEmpleadoService
                         ->where('cantidad_stock', '>', 0)
                         ->get();
                 } else {
-                    $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal', 'categoria_id', 'search'])->filter()->tieneStock()->filterByCategoria(request('categoria_id'))->get();
+                    $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal', 'categoria_id', 'search', 'destino'])->filter()->tieneStock()->filterByCategoria(request('categoria_id'))->get();
                 }
             }
         }

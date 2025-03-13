@@ -85,7 +85,7 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function obtenerMaterialesEmpleadoConsolidado(Request $request)
+    public function obtenerMaterialesEmpleadoConsolidadoOld(Request $request)
     {
         try {
             if (!$request->exists('cliente_id')) $request->merge(['cliente_id' => null]);
@@ -102,6 +102,48 @@ class TransaccionBodegaEgresoController extends Controller
             } else if ($request['stock_personal']) {
                 $results = $this->productosEmpleadoService->obtenerProductos();
                 $results = $this->mapearProductosEmpleado(collect($results));
+                return response()->json(compact('results'));
+            }
+
+            $resultado1 = MaterialEmpleado::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $resultado2 = MaterialEmpleadoTarea::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $results = $resultado1->concat($resultado2);
+
+            $results = $this->mapear($results);
+
+            return response()->json(compact('results'));
+        } catch (Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            return response()->json(compact('mensaje'));
+        }
+    }
+    public function obtenerMaterialesEmpleadoConsolidado(Request $request)
+    {
+        try {
+            if (!$request->exists('cliente_id')) $request->merge(['cliente_id' => null]);
+
+            $request->validate([
+                'cliente_id' => 'nullable|sometimes|numeric|integer',
+                'empleado_id' => 'required|numeric|integer',
+            ]);
+
+            if ($request['proyecto_id'] || $request['etapa_id'] || $request['tarea_id']) { // Si el origen es de tarea
+                $resultado2 = $this->productosTareaEmpleadoService->listarProductosConStock($request['proyecto_id'], $request['etapa_id'], $request['tarea_id']);
+                $results = $this->mapear($resultado2);
+
+                if($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
+                if($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
+
+                return response()->json(compact('results'));
+            } else if ($request['stock_personal']) { // Si el origen es de stock personal
+                $results = $this->productosEmpleadoService->obtenerProductos();
+                $results = $this->mapearProductosEmpleado(collect($results));
+
+                if($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
+                if($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
+
+                $results = $results->values();
+
                 return response()->json(compact('results'));
             }
 

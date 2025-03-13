@@ -148,7 +148,7 @@ class ProductoTareaEmpleadoService
                 'stock_actual' => intval($item->cantidad_stock),
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
-                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
                 'transacciones' => count($ids_egresos) > 0 ? 'Egresos:' . $ids_egresos . '; ' . (count($ids_items_preingresos) > 0 ? 'Preingresos:' . $ids_items_preingresos : '') : '',
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
@@ -189,5 +189,18 @@ class ProductoTareaEmpleadoService
             ->where('cliente_id', request('cliente_id'))
             ->whereDate('created_at', Carbon::now()->format('Y-m-d'))
             ->get();
+    }
+
+    public function filtrarMaterialesEquipos($productos) // Destino Tarea
+    {
+        return $productos->filter(function ($producto) {
+            return in_array($producto['categoria'], ['MATERIAL', 'EQUIPO']);
+        });
+    }
+    public function filtrarHerramientasAccesoriosEquiposPropios($productos) // Destino Stock
+    {
+        return $productos->filter(function ($producto) {
+            return in_array($producto['categoria'], ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA']);
+        });
     }
 }
