@@ -7,13 +7,14 @@ use App\Http\Requests\ComprasProveedores\CriterioCalificacionRequest;
 use App\Http\Resources\ComprasProveedores\CriterioCalificacionResource;
 use App\Models\ComprasProveedores\CriterioCalificacion;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class CriterioCalificacionController extends Controller
 {
-    private $entidad = 'Criterio';
+    private string $entidad = 'Criterio';
     public function __construct()
     {
         $this->middleware('can:puede.ver.criterios_calificaciones')->only('index', 'show');
@@ -24,11 +25,10 @@ class CriterioCalificacionController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['Request en el index:', $request->all()]);
         if (auth()->user()->hasRole([User::ROL_COMPRAS, User::ROL_ADMINISTRADOR])) {
             if ($request->boolean('only_me')) { //variable auxiliar para listar solo los criterios que pertenecen a mi departamento
                 $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->ignoreRequest(['only_me'])->filter()->get();
@@ -44,17 +44,14 @@ class CriterioCalificacionController extends Controller
     }
 
 
-
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param CriterioCalificacionRequest $request
+     * @return JsonResponse
      */
     public function store(CriterioCalificacionRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         //Adaptacion de foreing keys
         $datos = $request->validated();
         $datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];
@@ -69,8 +66,8 @@ class CriterioCalificacionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\CriterioCalificacion  $criterioCalificacion
-     * @return \Illuminate\Http\Response
+     * @param CriterioCalificacion $criterio
+     * @return JsonResponse
      */
     public function show(CriterioCalificacion $criterio)
     {
@@ -81,9 +78,9 @@ class CriterioCalificacionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\CriterioCalificacion  $criterioCalificacion
-     * @return \Illuminate\Http\Response
+     * @param CriterioCalificacionRequest $request
+     * @param CriterioCalificacion $criterio
+     * @return JsonResponse
      */
     public function update(CriterioCalificacionRequest $request, CriterioCalificacion $criterio)
     {
@@ -103,8 +100,8 @@ class CriterioCalificacionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\CriterioCalificacion  $criterioCalificacion
-     * @return \Illuminate\Http\Response
+     * @param CriterioCalificacion $criterio
+     * @return JsonResponse
      */
     public function destroy(CriterioCalificacion $criterio)
     {

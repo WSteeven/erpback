@@ -5,6 +5,7 @@ namespace App\Models\ComprasProveedores;
 use App\Models\Archivo;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
@@ -112,6 +113,14 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
         return $this->morphMany(Archivo::class, 'archivable');
     }
 
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una detalle_departamento_proveedor puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
 
     /**
      * ______________________________________________________________________________________

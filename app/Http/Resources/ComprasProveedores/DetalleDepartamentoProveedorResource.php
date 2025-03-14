@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\ComprasProveedores;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,7 +24,8 @@ class DetalleDepartamentoProveedorResource extends JsonResource
             'empleado'=>$this->empleado ? $this->empleado->nombres . ' ' . $this->empleado->apellidos : 'N/A',
             'calificacion'=>$this->calificacion,
             'fecha_calificacion'=>$this->fecha_calificacion,
-            'created_at'=>date('d/m/Y', strtotime($this->created_at)),
+//            'created_at'=>date('d/m/Y', strtotime($this->created_at)),
+            'created_at'=>Carbon::parse($this->created_at)->format('Y-m'),//format('Y-m-d'),
         ];
     }
 }
