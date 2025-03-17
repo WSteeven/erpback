@@ -5,13 +5,19 @@ namespace App\Models\ComprasProveedores;
 use App\Models\Archivo;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\ComprasProveedores\DetalleDepartamentoProveedor
@@ -22,35 +28,35 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int|null $empleado_id
  * @property float|null $calificacion
  * @property string|null $fecha_calificacion
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Archivo> $archivos
  * @property-read int|null $archivos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ComprasProveedores\CriterioCalificacion> $calificaciones_criterios
+ * @property-read Collection<int, CriterioCalificacion> $calificaciones_criterios
  * @property-read int|null $calificaciones_criterios_count
  * @property-read Departamento $departamento
  * @property-read Empleado|null $empleado
  * @property-read Proveedor $proveedor
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor query()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereCalificacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereDepartamentoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereFechaCalificacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereProveedorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleDepartamentoProveedor whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|DetalleDepartamentoProveedor acceptRequest(?array $request = null)
+ * @method static Builder|DetalleDepartamentoProveedor filter(?array $request = null)
+ * @method static Builder|DetalleDepartamentoProveedor ignoreRequest(?array $request = null)
+ * @method static Builder|DetalleDepartamentoProveedor newModelQuery()
+ * @method static Builder|DetalleDepartamentoProveedor newQuery()
+ * @method static Builder|DetalleDepartamentoProveedor query()
+ * @method static Builder|DetalleDepartamentoProveedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|DetalleDepartamentoProveedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|DetalleDepartamentoProveedor setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|DetalleDepartamentoProveedor whereCalificacion($value)
+ * @method static Builder|DetalleDepartamentoProveedor whereCreatedAt($value)
+ * @method static Builder|DetalleDepartamentoProveedor whereDepartamentoId($value)
+ * @method static Builder|DetalleDepartamentoProveedor whereEmpleadoId($value)
+ * @method static Builder|DetalleDepartamentoProveedor whereFechaCalificacion($value)
+ * @method static Builder|DetalleDepartamentoProveedor whereId($value)
+ * @method static Builder|DetalleDepartamentoProveedor whereProveedorId($value)
+ * @method static Builder|DetalleDepartamentoProveedor whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class DetalleDepartamentoProveedor extends Model implements Auditable
 {
@@ -71,7 +77,7 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['departamento_id', 'proveedor_id', 'empleado_id'];
+    private static array $whiteListFilter = ['departamento_id', 'proveedor_id', 'empleado_id'];
 
     /**
      * ______________________________________________________________________________________
@@ -94,7 +100,7 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
 
-    public function calificaciones_criterios(){ 
+    public function calificaciones_criterios(){
         return $this->belongsToMany(CriterioCalificacion::class, 'calificacion_departamento_proveedor', 'detalle_departamento_id', 'criterio_calificacion_id')
         ->withPivot('comentario', 'peso', 'puntaje', 'calificacion')->withTimestamps();
     }
@@ -107,6 +113,14 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
         return $this->morphMany(Archivo::class, 'archivable');
     }
 
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una detalle_departamento_proveedor puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
 
     /**
      * ______________________________________________________________________________________

@@ -70,7 +70,7 @@ class ProveedorController extends Controller
      */
     public function store(ProveedorRequest $request)
     {
-        $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
+        $departamento_financiero = Departamento::where('nombre', Departamento::DEPARTAMENTO_FINANCIERO)->first();
         try {
             DB::beginTransaction();
             $datos = $request->validated();
@@ -81,10 +81,10 @@ class ProveedorController extends Controller
             $proveedor->servicios_ofertados()->attach($request->tipos_ofrece);
             $proveedor->categorias_ofertadas()->attach($datos['categorias_ofrece']);
             $proveedor->departamentos_califican()->sync($request->departamentos);
-            if (is_int($request->departamentos)) {
-                if ($departamento_financiero->id != $request->departamentos)
+            if (is_int($request->departamentos)) { // en caso de que `$request->departamentos` solo sea un valor, se agregará el departamento financiero
+                if ($departamento_financiero->id != $request->departamentos)// siempre y cuando el valor de `$request->departamentos` sea diferente al del dept financiero.
                     $proveedor->departamentos_califican()->attach($departamento_financiero->id);
-            } else {
+            } else { // si el id de departamento financiero no viene desde el front, este se agregará automaticamente
                 if (!in_array($departamento_financiero->id, $request->departamentos)) {
                     $proveedor->departamentos_califican()->attach($departamento_financiero->id);
                 }

@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Jobs\AnularProformaJob;
 use App\Jobs\Bodega\NotificarPedidoParcialJob;
 use App\Jobs\ClearCacheJob;
+use App\Jobs\ComprasProveedores\CrearDetalleDepartamentoProveedorJob;
 use App\Jobs\FinalizarTareasReactivadasJob;
 use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
@@ -49,6 +50,10 @@ class Kernel extends ConsoleKernel
         // $schedule->job(new MyJobExample)->dailyAt('08:00'); // Execute job every
 
         // $colocar el job que envia el comprobante a recursos humanos y sso cuando ya finalice
+        /************************
+         * COMPRAS Y PROVEEDORES
+         ***********************/
+        $schedule->job(new CrearDetalleDepartamentoProveedorJob())->everyMinute(); //->daily();
 
         /*****************
          * VEHICULOS

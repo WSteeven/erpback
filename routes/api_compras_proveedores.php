@@ -63,6 +63,10 @@ Route::apiResources([
 ]);
 
 Route::post('generador-cash-duplicate/{id}', [GeneradorCashController::class, 'duplicate']);
+Route::post('recalificaciones-proveedores', [CalificacionDepartamentoProveedorController::class, 'guardarRecalificacion']);
+
+//Route::get('obtener-calificacion-individual', [CalificacionDepartamentoProveedorController::class, 'calificacionIndividualCompleta'])->middleware('auth:sanctum');
+Route::get('obtener-calificacion-individual', [CalificacionDepartamentoProveedorController::class, 'todasCalificacionIndividualesCompletas'])->middleware('auth:sanctum');
 
 Route::get('ofertas-proveedores', fn () => ['results' => OfertaProveedor::all()])->middleware('auth:sanctum');
 Route::get('log-contactos-proveedores', [ContactoProveedorController::class, 'auditoria'])->middleware('auth:sanctum');
