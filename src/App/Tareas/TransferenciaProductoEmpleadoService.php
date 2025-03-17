@@ -26,7 +26,7 @@ class TransferenciaProductoEmpleadoService
     public static function filtrarTransferencias($request)
     {
         $user = auth()->user();
-        $rolesAutorizados = [User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA, User::ROL_AUXILIAR_BODEGA];
+        $rolesAutorizados = [User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA, User::ROL_AUXILIAR_BODEGA, User::ROL_CONSULTA, User::ROL_GERENTE_PROCESOS];
 
         if ($user->hasRole($rolesAutorizados) || $request['filtrar']) {
             return TransferenciaProductoEmpleado::ignoreRequest(['todos', 'filtrar'])->filter()->latest()->get();
@@ -158,7 +158,7 @@ class TransferenciaProductoEmpleadoService
                     else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($producto['id'], $empleado_origen_id, $tarea_origen_id, $producto['cantidad'], $cliente_id); // -- Es origen proyecto o tarea cliente final
 
                     if (!$tarea_destino_id) MaterialEmpleado::cargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['cantidad'], $cliente_id); // -- Es destino stock
-                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['cantidad'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final   
+                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['cantidad'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final
                 } catch (\Throwable $th) {
                     throw $th;
                 }
@@ -188,7 +188,7 @@ class TransferenciaProductoEmpleadoService
                     else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($producto['id'], $empleado_origen_id, $tarea_origen_id, $producto['recibido'], $cliente_id); // -- Es origen proyecto o tarea cliente final
 
                     if (!$tarea_destino_id) MaterialEmpleado::cargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['recibido'], $cliente_id); // -- Es destino stock
-                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['recibido'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final   
+                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['recibido'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final
                 } catch (\Throwable $th) {
                     throw $th;
                 }

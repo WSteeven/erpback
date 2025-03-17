@@ -46,7 +46,8 @@ class TicketService
         return $tickets_creados;
     }
 
-    public function crearMultiplesDepartamentos($destinatarios, $request): array
+    // Destinatarios por defecto los responsables de
+    public function crearMultiplesDepartamentos($destinatarios, $request): array // destinatarios aqui viene el tipo_ticket
     {
         $tickets_creados = [];
 
@@ -59,10 +60,10 @@ class TicketService
     }
 
     // Request: Destinatario['tipo_ticket_id', 'departamento_id']
-    public function crearTicket($request, $destinatario)
+    public function crearTicketOld($request, $destinatario)
     {
         $datos = $request->validated();
-        $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
+        // $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
         $datos['responsable_id'] = $request['ticket_para_mi'] ? $request['responsable_id'] : EmpleadoDelegado::obtenerDelegado(Departamento::find($destinatario['departamento_id'])->responsable_id);  // $destinatario->responsable_id;
         $datos['solicitante_id'] = Auth::user()->empleado->id;
         $datos['tipo_ticket_id'] = $destinatario['tipo_ticket_id'];
@@ -78,10 +79,39 @@ class TicketService
         return Ticket::create($datos);
     }
 
+    public function crearTicket($request, $destinatario)
+    {
+        $datos = $request->validated();
+        $datos['responsable_id'] = $this->obtenerResponsableTicket($request, $destinatario);
+        $datos['solicitante_id'] = Auth::user()->empleado->id;
+        $datos['tipo_ticket_id'] = $destinatario['tipo_ticket_id'];
+        $datos['departamento_responsable_id'] = $destinatario['departamento_id'];
+        $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
+        $datos['cc'] = json_encode($request['cc']);
+
+        Log::channel('testing')->info('Log', ['Datos', $datos]);
+
+        // Calcular estados
+        $datos['estado'] = Ticket::ASIGNADO;
+
+        return Ticket::create($datos);
+    }
+
+    private function obtenerResponsableTicket($request, $destinatario)
+    {
+        $responsable = null;
+
+        if ($request['ticket_para_mi']) $responsable = $request['responsable_id'];
+        else if ($destinatario['destinatario_automatico']) $responsable = $destinatario['destinatario_automatico'];
+        else $responsable = EmpleadoDelegado::obtenerDelegado(Departamento::find($destinatario['departamento_id'])->responsable_id);
+
+        return $responsable;
+    }
+
     public function crearTicketInterno($request, $destinatario, $responsable_id)
     {
         $datos = $request->validated();
-        $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
+        // $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
         $datos['responsable_id'] = $responsable_id;
         $datos['solicitante_id'] = Auth::user()->empleado->id;
         $datos['tipo_ticket_id'] = $destinatario['tipo_ticket_id']; // $request->safe()->only(['tipo_ticket'])['tipo_ticket'];

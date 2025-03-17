@@ -320,6 +320,12 @@ class EmpleadoService
         $empleado->familiares()->createMany($mappedCollection->toArray());
     }
 
+    /**
+     * Método que busca un autorizador directo para un determinado empleado y retorna el ID del autorizador directo encontrado, caso contrario, el proporcionado.
+     * @param int $empleado_id ID del empleado que realiza el gasto.
+     * @param int $aut_especial ID del empleado autorizador.
+     * @return int el ID del autorizador.
+     */
     public static function obtenerAutorizadorDirecto(int $empleado_id, int $aut_especial)
     {
         $empleado = Empleado::find($empleado_id); // El empleado que realiza el gasto

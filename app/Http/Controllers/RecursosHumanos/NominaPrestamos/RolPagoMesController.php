@@ -717,7 +717,7 @@ class RolPagoMesController extends Controller
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
-                'Error al generar rol pago por empleado' => [$ex->getMessage()],
+                'Error al generar rol pago por empleado' => [$ex->getMessage()], 
             ]);
         }
     }

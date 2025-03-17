@@ -276,7 +276,12 @@ class Tarea extends Model implements Auditable
      *********/
     public function scopePorRol($query)
     {
-        if (User::find(Auth::id())->hasRole(User::ROL_COORDINADOR)) return $this->scopePorCoordinador($query);
+        $usuario = Auth::user();
+        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
+
+        if ($esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) return $this->scopePorCoordinador($query);
         else return $query;
     }
 

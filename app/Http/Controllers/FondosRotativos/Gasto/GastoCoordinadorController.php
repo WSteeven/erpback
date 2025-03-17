@@ -12,18 +12,22 @@ use App\Models\FondosRotativos\Gasto\GastoCoordinador;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class GastoCoordinadorController extends Controller
 {
-    private $entidad = 'gasto_coordinador';
-    private $reporteService;
+    private string $entidad = 'gasto_coordinador';
+    private ReportePdfExcelService $reporteService;
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
@@ -32,17 +36,15 @@ class GastoCoordinadorController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return array
      */
     public function index()
     {
-        $results = [];
         $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->orderBy('fecha_gasto', 'desc')->get();
+        if ($usuario->hasRole(User::ROL_CONTABILIDAD)) {
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->filter()->orderBy('fecha_gasto', 'desc')->get();
         } else {
-            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->where('id_usuario', $usuario->empleado->id)->orderBy('fecha_gasto', 'desc')->get();
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->where('id_usuario', $usuario->empleado->id)->filter()->orderBy('fecha_gasto', 'desc')->get();
         }
         $results = GastoCoordinadorResource::collection($results);
         return compact('results');
@@ -51,8 +53,10 @@ class GastoCoordinadorController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param GastoCoordinadorRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function store(GastoCoordinadorRequest $request)
     {
@@ -77,21 +81,28 @@ class GastoCoordinadorController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param GastoCoordinador $gasto_coordinador
+     * @return JsonResponse
      */
     public function show(GastoCoordinador $gasto_coordinador)
     {
+        // Se actualiza el revisado
+        if (auth()->user()->hasRole(User::ROL_CONTABILIDAD) && !$gasto_coordinador->revisado) {
+            $gasto_coordinador->update(['revisado' => true]);
+        }
+
         $modelo = new GastoCoordinadorResource($gasto_coordinador);
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param GastoCoordinadorRequest $request
+     * @param GastoCoordinador $gasto_coordinador
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
     public function update(GastoCoordinadorRequest $request, GastoCoordinador $gasto_coordinador)
     {
@@ -114,10 +125,10 @@ class GastoCoordinadorController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $modelo = GastoCoordinador::find($id);
         $modelo->delete();
@@ -128,21 +139,21 @@ class GastoCoordinadorController extends Controller
     /**
      * La función `reporte` genera un informe basado en la entrada del usuario y maneja excepciones.
      *
-     * @param Request request La función "reporte" que proporcionó parece estar manejando la generación de
+     * @param Request $request La función "reporte" que proporcionó parece estar manejando la generación de
      * un informe basado en los datos de la solicitud. Aquí hay un desglose de la función:
-     * @param string tipo El parámetro `tipo` en la función `reporte` parece indicar el tipo de informe que
+     * @param string $tipo El parámetro `tipo` en la función `reporte` parece indicar el tipo de informe que
      * se generará. Es un parámetro de cadena que probablemente especifica el formato o tipo de informe,
      * como PDF, Excel.
      *
-     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse función `reporte` devuelve el resultado de llamar al método `imprimir_reporte` en el
+     * @return Response|BinaryFileResponse función `reporte` devuelve el resultado de llamar al método `imprimir_reporte` en el
      * objeto `reporteService`. El método está siendo llamado con los parámetros ``, `'A4'`,
      * `'landscape'`, ``, ``, `` y ``.
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function reporte(Request $request, string $tipo)
     {
         try {
-            $datos = $request->all();
+//            $datos = $request->all();
             $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');

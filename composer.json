@@ -12,7 +12,7 @@
         "beyondcode/laravel-websockets": "^1.13",
         "doctrine/dbal": "^3.7",
         "guzzlehttp/guzzle": "^7.5",
-        "intervention/image": "^2.7",
+        "intervention/image": "2.7",
         "laravel/fortify": "^1.13",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",

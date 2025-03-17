@@ -3,6 +3,8 @@
 namespace Src\App\ComprasProveedores;
 
 use App\Models\ComprasProveedores\Proforma;
+use App\Models\Empleado;
+use App\Models\User;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
 
@@ -63,7 +65,8 @@ class ProformaService
 
     public static function filtrarProformasJefeTecnico($request)
     {
-        $ids_buscar = [30, 27];//3=Jonathan Veintimilla, 27=Joao Celi
+//        $ids_buscar = [3, 27, 30];//3=Jonathan Veintimilla, 27=Joao Celi, 30 Nicolas Pazmiño
+        $ids_buscar = Empleado::whereIn('usuario_id', User::role(User::ROL_JEFE_TECNICO)->with('empleado')->pluck('id'))->pluck('id');
         $query = Proforma::where(function ($q) use ($ids_buscar) {
             $q->orWhereIn('solicitante_id', $ids_buscar)
                 ->orWhereIn('autorizador_id', $ids_buscar);

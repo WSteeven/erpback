@@ -112,6 +112,7 @@ class Ticket extends Model implements Auditable
     const FINALIZADO_SOLUCIONADO = 'FINALIZADO SOLUCIONADO';
     const CALIFICADO = 'CALIFICADO';
     const ETIQUETADOS_A_MI = 'ETIQUETADOS_A_MI';
+    const RECURRENTE = 'RECURRENTE'; 
 
     // Prioridad
     const ALTA = 'ALTA';
@@ -150,6 +151,13 @@ class Ticket extends Model implements Auditable
         'departamento_responsable_id',
         'tipo_ticket_id',
         'motivo_cancelado_ticket_id',
+        // recurrente
+        'is_recurring',
+        'recurrence_active',
+        'recurrence_frequency',
+        'recurrence_time',
+        'recurrence_day_of_week',
+        'recurrence_day_of_month',
     ];
 
     protected $casts = ['ticket_interno' => 'boolean', 'ticket_para_mi' => 'boolean'];

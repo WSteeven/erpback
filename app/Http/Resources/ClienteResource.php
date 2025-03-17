@@ -14,7 +14,7 @@ class ClienteResource extends BaseResource
             'empresa' => $this->empresa_id,
             'ruc' => $this->empresa?->identificacion,
             'razon_social' => $this->empresa?->razon_social,
-            'canton' => $this->parroquia?->canton->canton,
+            'canton' => $this->parroquia?->canton?->canton,
             'parroquia' => $this->parroquia?->parroquia,
             'requiere_bodega' => $this->requiere_bodega,
             'estado' => $this->estado,

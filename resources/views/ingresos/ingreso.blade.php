@@ -7,12 +7,6 @@
     ini_set('max_execution_time', 300); //poner el tiempo maximo de ejecucion en 5 minutes
     $fecha = new Datetime();
     $mensaje_qr = $configuracion['razon_social'] . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
-    // if ($cliente->logo_url) {
-    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
-    // } else {
-    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-    // }
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
 
     if ($persona_entrega->firma_url) {
         $entrega_firma = Utils::urlToBase64(url($persona_entrega->firma_url));

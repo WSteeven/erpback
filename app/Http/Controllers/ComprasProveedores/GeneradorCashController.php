@@ -42,6 +42,7 @@ class GeneradorCashController extends Controller
                     $pagoResource = $pagoResource->resolve();
                     $pagoResource['num_secuencial'] = $index + 1;
                     $pagoResource['valor'] = $this->formatearValor($pagoResource['valor']);
+                    $pagoResource['referencia_adicional'] = '|' . strtolower($pagoResource['referencia_adicional']);
                     unset($pagoResource['id']);
                     unset($pagoResource['generador_cash_id']);
                     unset($pagoResource['beneficiario_id']);
@@ -162,6 +163,28 @@ class GeneradorCashController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         });
     }
+
+    public function duplicate($id)
+    {
+        $original = GeneradorCash::findOrFail($id);
+
+        $duplicate = $original->replicate(); // Duplica el registro
+        $duplicate->titulo = $original->titulo . ' (Copia)';
+        $duplicate->save(); // Guarda el nuevo registro
+
+        // Duplica los detalles asociados (hasMany)
+        foreach ($original->pagos as $pago) {
+            $nuevoDetalle = $pago->replicate();
+            $nuevoDetalle->generador_cash_id = $duplicate->id; // Asignamos el nuevo ID
+            $nuevoDetalle->save();
+        }
+
+        return response()->json([
+            'mensaje' => 'Registro duplicado correctamente',
+            'modelo' => new GeneradorCashResource($duplicate)
+        ], 201);
+    }
+
 
 
     /**
