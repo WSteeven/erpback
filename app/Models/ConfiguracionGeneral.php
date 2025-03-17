@@ -25,6 +25,7 @@ use App\Traits\UppercaseValuesTrait;
  * @property string|null $direccion_principal
  * @property string|null $telefono
  * @property string $moneda
+ * @property string $iva
  * @property string|null $tipo_contribuyente
  * @property string|null $celular1
  * @property string|null $celular2
@@ -84,6 +85,7 @@ class ConfiguracionGeneral extends Model implements Auditable
         'direccion_principal',
         'telefono',
         'moneda',
+        'iva',
         'tipo_contribuyente',
         'celular1',
         'celular2',

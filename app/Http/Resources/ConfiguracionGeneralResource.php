@@ -29,6 +29,7 @@ class ConfiguracionGeneralResource extends JsonResource
             'direccion_principal' => $this->direccion_principal,
             'telefono' => $this->telefono,
             'moneda' => $this->moneda,
+            'iva' => $this->iva,
             'tipo_contribuyente' => $this->tipo_contribuyente,
             'celular1' => $this->celular1,
             'celular2' => $this->celular2,

@@ -44,23 +44,6 @@ class Kernel extends ConsoleKernel
         $schedule->job(new NotificarVacacionesJob)->dailyAt('09:00');
         $schedule->job(new NotificarPermisoJob)->dailyAt('09:00');
         $schedule->job(new NotificarPedidoParcialJob)->dailyAt('08:00');
-        // Programación para días de semana lunes a viernes
-        // ->dailyAt('17:00')
-        $schedule->job(new PausarTicketsFinJornadaJob)
-            ->everyFourHours()
-            ->timezone('America/Guayaquil')
-            ->days([Schedule::MONDAY, Schedule::TUESDAY, Schedule::WEDNESDAY, Schedule::THURSDAY, Schedule::FRIDAY])
-            ->between('17:00', '8:00');
-        /*  ->when(function () {
-                 return !in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
-             }) */
-
-        // Programación para fines de semana
-        $schedule->job(new PausarTicketsFinJornadaJob)
-            ->everyFourHours()
-            ->when(function () {
-                return in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
-            });
 
         // $schedule->job(new NotificarPedidoParcialJob)->everyMinute();
 
@@ -99,6 +82,26 @@ class Kernel extends ConsoleKernel
          * TAREAS
          *********/
         $schedule->job(new FinalizarTareasReactivadasJob())->hourly();
+
+        /***********
+         * Tickets
+         ***********/
+        // Programación para días de semana lunes a viernes
+        $schedule->job(new PausarTicketsFinJornadaJob)
+            ->everyFourHours()
+            ->timezone('America/Guayaquil')
+            ->days([Schedule::MONDAY, Schedule::TUESDAY, Schedule::WEDNESDAY, Schedule::THURSDAY, Schedule::FRIDAY])
+            ->between('17:00', '8:00');
+
+        // Programación para fines de semana
+        $schedule->job(new PausarTicketsFinJornadaJob)
+            ->everyFourHours()
+            ->when(function () {
+                return in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
+            });
+
+        $schedule->command('tickets:generate-recurring')->everyMinute(); // Para testing
+        // En producción podrías usar ->dailyAt('08:00');
     }
 
     /**

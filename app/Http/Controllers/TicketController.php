@@ -399,4 +399,26 @@ class TicketController extends Controller
         // Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
+
+    // Actualizar el estado de recurrencia
+    public function toggleRecurrence($id, Request $request)
+    {
+        $ticket = Ticket::where('id', $id)
+            ->whereNull('parent_ticket_id')
+            ->where('is_recurring', true)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'recurrence_active' => 'required|boolean'
+        ]);
+
+        $ticket->update([
+            'recurrence_active' => $validated['recurrence_active']
+        ]);
+
+        return response()->json([
+            'mensaje' => $ticket->recurrence_active ? 'Recurrencia reanudada' : 'Recurrencia pausada',
+            'modelo' => $ticket
+        ]);
+    }
 }
