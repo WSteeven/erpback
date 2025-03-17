@@ -48,7 +48,7 @@ class CrearDetalleDepartamentoProveedorJob implements ShouldQueue
                     $registro_calificacion = $proveedor->calificacionesDepartamentos()->whereNotNull('fecha_calificacion')->orderBy('fecha_calificacion', 'desc')->first();
                     if ($registro_calificacion->fecha_calificacion <= Carbon::now()->subYear()) {
                         foreach ($proveedor->calificacionesDepartamentos()->groupBy('departamento_id')->get() as $detalle_departamento_proveedor) {
-//                        Log::channel('testing')->info('Log', ['detalle_departamento_proveedr',$detalle_departamento_proveedor]);
+//                        Log::channel('testing')->info('Log', ['detalle_departamento_proveedor', $detalle_departamento_proveedor]);
                             $nuevo_detalle_departamento_proveedor = DetalleDepartamentoProveedor::create([
                                 'departamento_id' => $detalle_departamento_proveedor->departamento_id,
                                 'proveedor_id' => $proveedor->id]);

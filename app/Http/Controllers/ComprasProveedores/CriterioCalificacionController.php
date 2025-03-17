@@ -9,7 +9,6 @@ use App\Models\ComprasProveedores\CriterioCalificacion;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class CriterioCalificacionController extends Controller
@@ -84,7 +83,6 @@ class CriterioCalificacionController extends Controller
      */
     public function update(CriterioCalificacionRequest $request, CriterioCalificacion $criterio)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida en update:', $request->all()]);
         //Adaptacion de foreing keys
         $datos = $request->validated();
         $datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];

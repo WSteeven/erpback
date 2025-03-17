@@ -205,6 +205,46 @@ class Proveedor extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
+    private static function obtenerRegistrosCalificacionElegidos(Collection $datos)
+    {
+        $results = [];
+        foreach ($datos as $anio) {
+            foreach ($anio as $calificacion){
+                if(is_null($calificacion->empleado_id)||is_null($calificacion->calificacion)||is_null($calificacion->fecha_calificacion)){
+                return $anio;
+                }
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function guardarCalificacion(int $proveedor_id)
+    {
+        $proveedor = Proveedor::find($proveedor_id);
+        $calificaciones_agrupadas_por_anio = $proveedor->calificacionesDepartamentos->groupBy(function ($item){
+            return Carbon::parse($item->created_at)->year;
+        });
+        $calificaciones_elegidas = self::obtenerRegistrosCalificacionElegidos($calificaciones_agrupadas_por_anio);
+        $calificaciones = [];
+        foreach ($calificaciones_elegidas as $index => $calificacion) {
+            if ($calificacion->calificacion != null) {
+                $row['departamento_id'] = $calificacion->departamento_id;
+                $row['calificacion'] = $calificacion->calificacion;
+                $calificaciones[$index] = $row;
+            }
+        }
+        $suma = self::calcularPesos($calificaciones);
+        if (count($calificaciones) == count($calificaciones_elegidas))
+            $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::CALIFICADO]);
+        elseif (empty($calificaciones)) $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::SIN_CALIFICAR]);
+        else $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::PARCIAL]);
+
+        $proveedor->refresh();
+    }
+
     /**
      * Actualiza la calificación y el estado de un proveedor en
      * función de las calificaciones otorgadas por los diferentes departamentos.
@@ -213,7 +253,7 @@ class Proveedor extends Model implements Auditable
      * guardar la calificación.
      * @throws Exception
      */
-    public static function guardarCalificacion(int $proveedor_id, $recalificacion=false)
+    public static function guardarCalificacionOld(int $proveedor_id, $recalificacion=false)
     {
         $proveedor = Proveedor::find($proveedor_id);
 
