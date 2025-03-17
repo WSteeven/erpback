@@ -27,7 +27,7 @@ class TicketResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'codigo' => $this->codigo,
+            'codigo' => 'TCKT-' . $this->id,
             'asunto' => $this->asunto,
             'descripcion' => $this->descripcion,
             'prioridad' => $this->prioridad,
@@ -72,6 +72,13 @@ class TicketResource extends JsonResource
                 'tipo_ticket_id' => $this->tipo_ticket_id,
             ]],
             'cc' => $this->cc ? Empleado::obtenerNombresApellidosEmpleados(json_decode($this->cc)) : null,
+            // recurrente
+            'is_recurring' => $this['is_recurring'],
+            'recurrence_active' => $this['recurrence_active'],
+            'recurrence_frequency' => $this['recurrence_frequency'],
+            'recurrence_time' => $this['recurrence_time'],
+            'recurrence_day_of_week' => $this['recurrence_day_of_week'],
+            'recurrence_day_of_month' => $this['recurrence_day_of_month'],
         ];
 
         if ($controller_method == 'show') {
@@ -80,6 +87,13 @@ class TicketResource extends JsonResource
             $modelo['departamento_responsable'] = $this->departamento_responsable_id;
             $modelo['tipo_ticket'] = $this->tipo_ticket_id;
             $modelo['categoria_tipo_ticket'] = $this->tipoTicket->categoria_tipo_ticket_id;
+            $modelo['categoria_tipo_ticket'] = $this->tipoTicket->categoria_tipo_ticket_id;
+            $modelo['is_recurring'] = !!$this['is_recurring'];
+            $modelo['recurrence_active'] = !!$this['recurrence_active'];
+            $modelo['recurrence_frequency'] = $this['recurrence_frequency'];
+            $modelo['recurrence_time'] = $this['recurrence_time'];
+            $modelo['recurrence_day_of_week'] = $this['recurrence_day_of_week'];
+            $modelo['recurrence_day_of_month'] = $this['recurrence_day_of_month'];
             $modelo['cc'] = json_decode($this->cc);
         }
 

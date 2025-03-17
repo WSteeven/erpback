@@ -83,10 +83,10 @@ class Kernel extends ConsoleKernel
          ***********/
         // Programación para días de semana lunes a viernes
         $schedule->job(new PausarTicketsFinJornadaJob)
-            ->everyFourHours()
             ->timezone('America/Guayaquil')
             ->days([Schedule::MONDAY, Schedule::TUESDAY, Schedule::WEDNESDAY, Schedule::THURSDAY, Schedule::FRIDAY])
-            ->between('17:00', '8:00');
+            ->between('17:00', '8:00')
+            ->everyFourHours();
 
         // Programación para fines de semana
         $schedule->job(new PausarTicketsFinJornadaJob)

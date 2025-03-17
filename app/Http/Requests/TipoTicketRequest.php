@@ -25,8 +25,9 @@ class TipoTicketRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'nombre' => 'required|string',//|unique:tipos_tickets',
+            'nombre' => 'required|string', //|unique:tipos_tickets',
             'categoria_tipo_ticket' => 'required|numeric|integer',
+            'destinatario_id' => 'nullable|numeric|integer|exists:empleados,id',
             'activo' => 'required|boolean',
         ];
 
@@ -37,5 +38,14 @@ class TipoTicketRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    protected function prepareForValidation()
+    {
+        if ($this->isMethod('post') || $this->isMethod('put')) {
+            $this->merge([
+                'destinatario_id' => $this['destinatario'],
+            ]);
+        }
     }
 }

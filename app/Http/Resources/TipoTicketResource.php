@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TipoTicketResource extends JsonResource
@@ -23,6 +24,8 @@ class TipoTicketResource extends JsonResource
             'categoria_tipo_ticket' => $this->categoriaTipoTicket?->nombre,
             'categoria_tipo_ticket_id' => $this->categoria_tipo_ticket_id,
             'departamento' => $this->categoriaTipoTicket?->departamento?->nombre,
+            'destinatario' => $this->destinatario ? Empleado::extraerApellidosNombres($this->destinatario) : null,
+            'destinatario_id' => $this->destinatario_id,
         ];
 
         if ($controller_method == 'show') {

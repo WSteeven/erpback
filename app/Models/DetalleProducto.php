@@ -398,7 +398,7 @@ class DetalleProducto extends Model implements Auditable
      * @return DetalleProducto detalle recien creado .
      * @throws Exception|Throwable
      */
-    public static function crearDetalle(Request|DetalleProductoRequest $request, array|Collection $datos)
+    public static function crearDetalle($request, array|Collection $datos) // Se quitó Request|DetalleProductoRequest porque no dejaba guardar desde la llamada en PreingresoMaterialService linea 131
     {
         Log::channel('testing')->info('Log', ['Lo que se recibe para crear:', $request, $datos]);
         try {
