@@ -23,6 +23,7 @@ class GeneradorCashResource extends JsonResource
             'creador' => Empleado::extraerNombresApellidos($this->creador),
             'created_at' => Carbon::parse($this['created_at'])->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::parse($this['updated_at'])->format('Y-m-d H:i:s'),
+            'valor_total' => '<b>' . $this->pagos()->sum('valor') . '</b>',
             'total_pagos' => $this->pagos()->count(),
         ];
 

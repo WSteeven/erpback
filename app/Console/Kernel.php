@@ -53,7 +53,7 @@ class Kernel extends ConsoleKernel
         /************************
          * COMPRAS Y PROVEEDORES
          ***********************/
-        $schedule->job(new CrearDetalleDepartamentoProveedorJob())->everyMinute(); //->daily();
+        $schedule->job(new CrearDetalleDepartamentoProveedorJob())->daily();
 
         /*****************
          * VEHICULOS
@@ -100,7 +100,7 @@ class Kernel extends ConsoleKernel
                 return in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
             });
 
-        $schedule->command('tickets:generate-recurring')->everyMinute(); // Para testing
+        $schedule->command('tickets:generate-recurring')->dailyAt('08:00');
         // En producción podrías usar ->dailyAt('08:00');
     }
 
