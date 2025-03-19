@@ -7,8 +7,9 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use Src\App\WhereRelationLikeCondition\ControlPersonal\MarcacionEmpleadoWRLC;
 
 class Marcacion extends Model implements Auditable
 {
@@ -23,13 +24,25 @@ class Marcacion extends Model implements Auditable
         'fecha',
         'marcaciones',
     ];
-    protected $casts=[
-      'marcaciones' => 'json',
+    protected $casts = [
+        'marcaciones' => 'json',
     ];
 
     private static array $whiteListFilter = [
         '*',
+        'empleado.nombres',
+        'empleado.apellidos',
     ];
+    private array $aliasListFilter = [
+        'empleado.nombres' => 'empleado',
+        'empleado.apellidos' => 'empleado',
+    ];
+
+
+    public function EloquentFilterCustomDetection()
+    {
+        return [MarcacionEmpleadoWRLC::class];
+    }
 
     public function empleado()
     {

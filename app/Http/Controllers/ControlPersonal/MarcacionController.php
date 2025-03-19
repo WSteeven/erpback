@@ -8,32 +8,45 @@ use App\Models\ControlPersonal\Marcacion;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
+use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 
 class MarcacionController extends Controller
 {
     public AsistenciaService $service;
+    private PaginationService $paginationService;
 
     public function __construct()
     {
         $this->service = new AsistenciaService();
+        $this->paginationService = new PaginationService();
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = Marcacion::filter()->orderBy('fecha', 'desc')->get();
+        $search = $request->search;
+        $paginate = $request->paginate;
+        if($search) $query = Marcacion::whereHas('empleado', function ($query) use ($search) {
+            $query->where('nombres', 'like', '%' . $search . '%')
+                ->orWhere('apellidos', 'like', '%' . $search . '%');
+        })->orWhere('fecha', 'like', '%' . $search . '%');
+        else $query = Marcacion::ignoreRequest(['campos', 'paginate'])->filter()->orderBy('fecha', 'desc');
 
-        $results = MarcacionResource::collection($results);
-        return response()->json(compact('results'));
+        if ($paginate) $results = $this->paginationService->paginate($query, null, $request->page);
+        else $results = $query->get();
+        return MarcacionResource::collection($results);
+//        return response()->json(compact('results'));
     }
 
     /**
@@ -44,7 +57,7 @@ class MarcacionController extends Controller
      */
     public function store()
     {
-        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
     /**
@@ -67,7 +80,7 @@ class MarcacionController extends Controller
      */
     public function update()
     {
-        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
     /**
@@ -78,7 +91,7 @@ class MarcacionController extends Controller
      */
     public function destroy()
     {
-        throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
     /**
