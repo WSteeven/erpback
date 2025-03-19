@@ -171,7 +171,7 @@ class NominaService
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
 //                $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
-                throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual');
+                throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual. Revisa la fecha de ingreso del empleado '.Empleado::extraerNombresApellidos($this->empleado).' cuya fecha de ingreso es: '. $fechaIngresada);
             }
         } else {
             // La fecha ingresada no pertenece al mes actual
