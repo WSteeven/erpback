@@ -56,6 +56,8 @@ class TransaccionBodegaRequest extends FormRequest
             'cliente_id' => 'sometimes|exists:clientes,id',
             'listadoProductosTransaccion.*.cantidad' => 'required',
             'codigo_permiso_traslado' => 'nullable|string',
+            'proveedor_id' => 'nullable|numeric|integer',
+            'fecha_compra' => 'nullable|string',
         ];
         if ($this->route()->uri() === 'api/transacciones-egresos') {
             // $rules['autorizacion'] = 'nullable';

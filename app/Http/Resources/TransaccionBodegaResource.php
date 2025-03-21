@@ -64,6 +64,8 @@ class TransaccionBodegaResource extends JsonResource
             // 'tipo' => $this->motivo?->tipo?->nombre,
             //variables auxiliares
             'codigo_permiso_traslado' => $this->codigo_permiso_traslado,
+            'proveedor_id' => $this->proveedor_id,
+            'fecha_compra' => $this->fecha_compra,
         ];
 
         if ($controller_method == 'show') {
@@ -76,6 +78,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['transferencia'] = $this->transferencia_id;
             $modelo['tipo'] = $this->tipo_id;
             $modelo['motivo'] = $this->motivo_id;
+            $modelo['nombre_motivo'] = $this->motivo->nombre;
             $modelo['tarea'] = $this->tarea_id;
             $modelo['cliente'] = $this->cliente_id;
             $modelo['cliente_id'] = $this->cliente_id;

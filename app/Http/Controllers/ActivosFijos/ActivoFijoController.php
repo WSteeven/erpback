@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\ActivosFijos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ActivosFijos\ActivoFijoRequest;
 use App\Http\Resources\ActivosFijos\ActivoFijoResource;
 use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Models\ActivosFijos\ActivoFijo;
+use App\Models\ConfiguracionGeneral;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Log;
 use Src\App\ActivosFijos\ControlActivoFijoService;
 use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
 use Src\App\Tareas\ProductoEmpleadoService;
+use Src\Shared\Utils;
 
 class ActivoFijoController extends Controller
 {
@@ -77,9 +82,16 @@ class ActivoFijoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ActivoFijoRequest $request, ActivoFijo $activo_fijo)
     {
-        //
+        return DB::transaction(function () use ($request, $activo_fijo) {
+            $datos = $request->validated();
+
+            $activo_fijo->update($datos);
+            $modelo = new ActivoFijoResource($activo_fijo->refresh());
+            $mensaje = Utils::obtenerMensaje('Registro activo fijo', 'update');
+            return response()->json(compact('mensaje', 'modelo'));
+        });
     }
 
     /**
@@ -125,5 +137,35 @@ class ActivoFijoController extends Controller
 
         $results = $this->productoEmpleadoService->obtenerActivosFijosAsignados(request('empleado_id'));
         return response()->json(compact('results'));
+    }
+
+    public function printLabel(Request $request)
+    {
+        $template = file_get_contents(storage_path('app/design2.prn'));
+        // $template = file_get_contents(storage_path('app/label_template.zpl'));
+        // $template = file_get_contents(storage_path('app/100x50-QR.prn'));
+
+        $activoFijo = ActivoFijo::find($request['id']);
+
+        $detalleProducto = $activoFijo->detalleProducto;
+
+        $configuracion = ConfiguracionGeneral::first();
+
+        $replacements = [
+            '{CODIGO_QR}' => str_pad($activoFijo->id, 6, '0', STR_PAD_LEFT),
+            '{NOMBRE_EMPRESA}' => $configuracion->razon_social,
+            '{TIPO_PRODUCTO}' => $detalleProducto->producto->nombre,
+            '{MARCA}' => $detalleProducto->modelo->marca?->nombre,
+            '{MODELO}' => $detalleProducto->modelo?->nombre,
+            '{SERIE}' => $detalleProducto->serial,
+            '{FECHA_COMPRA}' => TransaccionBodega::obtenerFechaCompraDetalle($detalleProducto->id),
+            '{CODIGO_BARRAS}' => str_pad($activoFijo->id, 6, '0', STR_PAD_LEFT),
+        ];
+
+        // Log::channel('testing')->info('Log', ['Replacement ', $replacements]);
+
+        $zpl = str_replace(array_keys($replacements), array_values($replacements), $template);
+
+        return response($zpl, 200)->header('Content-Type', 'text/plain');
     }
 }

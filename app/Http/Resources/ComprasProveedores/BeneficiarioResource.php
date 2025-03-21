@@ -23,11 +23,11 @@ class BeneficiarioResource extends JsonResource
             'identificacion_beneficiario' => $this['identificacion_beneficiario'],
             'nombre_beneficiario' => $this['nombre_beneficiario'],
             'resumen_cuentas_bancarias' => $this->mapearResumenCuentasBancarias(CuentaBancariaResource::collection($this->cuentasBancarias()->latest()->get())),
-            /* 'direccion' => $this['direccion'],
+            'correo' => $this['correo'],
+            'direccion' => $this['direccion'],
             'telefono' => $this['telefono'],
             'localidad' => $this['localidad'],
-            'correo' => $this['correo'],
-            'canton' => $this['canton_id'], */
+            'canton' => $this['canton_id'], 
         ];
 
         if ($controller_method == 'show') {

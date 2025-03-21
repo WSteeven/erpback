@@ -57,6 +57,8 @@ class ActivoFijo extends Model implements Auditable
 
     protected $table = 'af_activos_fijos';
     protected $fillable = [
+        'codigo_personalizado',
+        'codigo_sistema_anterior',
         'detalle_producto_id',
         'cliente_id',
     ];

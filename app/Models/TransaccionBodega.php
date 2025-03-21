@@ -127,6 +127,8 @@ class TransaccionBodega extends Model implements Auditable
     const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
 
+    const COMPRA_PROVEEDOR = 'COMPRA A PROVEEDOR';
+
     /***********************
      * Constantes archivos
      ***********************/
@@ -158,6 +160,8 @@ class TransaccionBodega extends Model implements Auditable
         'autorizacion_id',
         'proveedor',
         'estado_id',
+        'proveedor_id',
+        'fecha_compra',
         'codigo_permiso_traslado',
     ];
     protected $casts = [
@@ -438,7 +442,14 @@ class TransaccionBodega extends Model implements Auditable
         return collect($armamentos)->filter(fn($producto) => $producto['categoria'] === 'ARMAS DE FUEGO');
     }
 
-
+    public static function obtenerFechaCompraDetalle(int $detalle_id) {
+        $ids_inventarios = Inventario::where('detalle_id', $detalle_id)->pluck('detalle_id');
+        $ids_detalles_transaccion = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
+        $transaccion = TransaccionBodega::whereIn('id', $ids_detalles_transaccion)
+        ->where('motivo_id', Motivo::where('nombre', TransaccionBodega::COMPRA_PROVEEDOR)->first()->id)
+        ->whereNotNull('fecha_compra')->orderBy('id', 'desc')->first();
+        return $transaccion? $transaccion->fecha_compra : 'No configurado';
+    }
 
 
     // Registro de materiales despachados en materiales_empleado_tarea

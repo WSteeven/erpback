@@ -361,3 +361,5 @@ Route::post('actualizar-cantidad-material-empleado', [InventarioController::clas
 Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtenerDatosOrganigrama'])->middleware('auth:sanctum');
 
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
+
+Route::put('transacciones-ingresos-editar-fecha-compra/{transaccion}', [TransaccionBodegaIngresoController::class, 'editarFechaCompra']);
