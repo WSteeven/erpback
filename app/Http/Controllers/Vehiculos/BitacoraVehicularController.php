@@ -54,7 +54,7 @@ class BitacoraVehicularController extends Controller
             $results = BitacoraVehicular::ignoreRequest(['filtrar'])->filter()->orderBy('id', 'desc')->get();
         } else {
 
-            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
+            if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR_VEHICULOS, User::ROL_ADMINISTRADOR, User::ROL_CONSULTA]))
                 $results = BitacoraVehicular::ignoreRequest(['chofer_id'])->filter()->orderBy('updated_at', 'desc')->get();
             else {
                 //                 $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
