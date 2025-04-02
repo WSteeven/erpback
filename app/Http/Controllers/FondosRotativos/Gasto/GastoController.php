@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Events\FondoRotativoEvent;
-
 use App\Exports\AutorizacionesExport;
 use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
@@ -11,8 +10,8 @@ use App\Http\Requests\GastoRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
-use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
@@ -38,6 +37,7 @@ class GastoController extends Controller
 {
     private string $entidad = 'gasto';
     private ReportePdfExcelService $reporteService;
+
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
@@ -47,6 +47,7 @@ class GastoController extends Controller
         $this->middleware('can:puede.eliminar.gasto')->only('destroy');
         $this->middleware('can:puede.ver.reporte_autorizaciones')->only('reporte_autorizaciones');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -74,7 +75,7 @@ class GastoController extends Controller
     public function autorizacionesGastos()
     {
         try {
-            $usuario_autenticado =  Auth::user();
+            $usuario_autenticado = Auth::user();
             if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
                 $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc')->get();
             } else {
@@ -156,6 +157,7 @@ class GastoController extends Controller
             ]);
         }
     }
+
     /**
      * It shows the gasto
      *
@@ -213,10 +215,10 @@ class GastoController extends Controller
             $gastos_reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'authEspecialUser')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', Gasto::APROBADO)
-                ->where('id_usuario', '=',  $datos_usuario_logueado->id)
+                ->where('id_usuario', '=', $datos_usuario_logueado->id)
                 ->get();
             $gastos_realizados = $gastos_reporte->sum('total');
-            $transferencias_enviadas = Transferencias::where('usuario_envia_id',  $datos_usuario_logueado->id)
+            $transferencias_enviadas = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
                 ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
@@ -224,7 +226,7 @@ class GastoController extends Controller
             $transferencia_enviada = $transferencias_enviadas->sum('monto');
             $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
                 ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado',  Transferencias::APROBADO)
+                ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             $transferencia_recibida = $transferencias_recibidas->sum('monto');
@@ -273,14 +275,14 @@ class GastoController extends Controller
     public function reporteAutorizaciones(Request $request, $tipo)
     {
         try {
-            $fecha_inicio =  $request->fecha_inicio;
+            $fecha_inicio = $request->fecha_inicio;
             $fecha_fin = $request->fecha_fin;
             $tipo_archivo = $tipo;
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::find($request->estado);
             $reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'tarea')
-                ->where('estado',$request->estado)
+                ->where('estado', $request->estado)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
@@ -292,7 +294,7 @@ class GastoController extends Controller
             $div = $tipo_reporte->nombre == 'Aprobado' ? 10 : 12;
             $resto = 0;
             $DateAndTime = date('Y-m-d H:i:s');
-            $reportes =  [
+            $reportes = [
                 'div' => $div,
                 'resto' => $resto,
                 'datos_reporte' => $reporte_empaquetado,
@@ -450,5 +452,31 @@ class GastoController extends Controller
             throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
         }
         return response()->json(compact('results'));
+    }
+
+
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function activarGastoRechazado(Request $request, Gasto $gasto)
+    {
+        try {
+            DB::beginTransaction();
+            if (!($gasto->estado == 2 && $gasto->detalle_estado == 'RECHAZADO POR EL SISTEMA')) throw new Exception('El gasto no puede ser activado porque no está Rechazado por el Sistema');
+            $request->validate(['motivo'=>['required', 'string']]);
+            $gasto->estado = EstadoViatico::POR_APROBAR_ID;
+            $gasto->detalle_estado = null;
+            $gasto->motivo = $request->motivo;
+            $gasto->activador_id = auth()->user()->empleado->id; // Se setea como activador el usuario que realiza la activacion
+            $gasto->save();
+            DB::commit();
+            $modelo = new GastoResource($gasto->refresh());
+            $mensaje = 'Gasto activado exitosamente!';
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

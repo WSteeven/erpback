@@ -63,6 +63,7 @@ class GastoResource extends JsonResource
             'tiene_factura' => !($this->subDetalle != null) || $this->tieneFactura($this->subDetalle),
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
+            'updated_at'=> Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
             'centro_costo' => $this->tarea !== null ? $this->tarea->centroCosto?->nombre:'',
             'subcentro_costo' => $this->empleado?->grupo==null ?'':$this->empleado?->grupo?->subCentroCosto?->nombre,
         ];
