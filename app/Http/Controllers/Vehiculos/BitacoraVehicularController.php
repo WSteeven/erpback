@@ -12,9 +12,11 @@ use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\User;
 use App\Models\Vehiculos\BitacoraVehicular;
+use App\Models\Vehiculos\Vehiculo;
 use Carbon\Carbon;
 use Excel;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -219,10 +221,27 @@ class BitacoraVehicularController extends Controller
      */
     public function firmar(BitacoraVehicular $bitacora)
     {
+        Log::channel('testing')->error('Log', ['firmar', request()->all()]);
         try {
             if (is_null($bitacora->km_final) || $bitacora->km_final < $bitacora->km_inicial)
                 throw new Exception("Debes ingresar un kilometraje final que sea superior al kilometraje inicial. Por favor corrige y vuelve a intentarlo");
             if (!$bitacora->firmada) {
+
+                if ($bitacora->vehiculo->tipo === Vehiculo::PROPIO) {
+                    $imagenes = collect([
+                        $bitacora->checklistImagenVehiculo->imagen_frontal,
+                        $bitacora->checklistImagenVehiculo->imagen_trasera,
+                        $bitacora->checklistImagenVehiculo->imagen_lateral_derecha,
+                        $bitacora->checklistImagenVehiculo->imagen_lateral_izquierda,
+                        $bitacora->checklistImagenVehiculo->imagen_tablero_km,
+                        $bitacora->checklistImagenVehiculo->imagen_tablero_radio,
+                        $bitacora->checklistImagenVehiculo->imagen_asientos,
+                        $bitacora->checklistImagenVehiculo->imagen_accesorios,
+                    ]);
+                    if ($imagenes->contains(null)) {
+                        throw new Exception("Debes subir todas las imágenes del checklist de imágenes del vehículo");
+                    }
+                }
                 $bitacora->firmada = true;
                 $bitacora->fecha_finalizacion = Carbon::now();
                 $bitacora->save();
@@ -266,7 +285,7 @@ class BitacoraVehicularController extends Controller
                     throw Utils::obtenerMensajeErrorLanzable($th);
                 }
             default:
-            $results = BitacoraVehicularResource::collection($results);
+                $results = BitacoraVehicularResource::collection($results);
         }
         return response()->json(compact('results'));
     }
