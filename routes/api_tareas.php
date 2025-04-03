@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActividadRealizadaSeguimientoSubtareaController;
 use App\Http\Controllers\ArchivoSeguimientoController;
+use App\Http\Controllers\Tareas\NodoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\RegistroTendidoController;
@@ -16,7 +17,7 @@ use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
-use App\Http\Controllers\MovilizacionSubtareaController;
+use App\Http\Controllers\MovilizacionSubtareaController;// 9018-2
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\ReporteModuloTareaController;
 use App\Http\Controllers\RutaTareaController;
@@ -53,6 +54,7 @@ Route::apiResources(
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
+        'nodos' => NodoController::class,
         'seguimientos' => SeguimientoSubtareaController::class,
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
         'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,

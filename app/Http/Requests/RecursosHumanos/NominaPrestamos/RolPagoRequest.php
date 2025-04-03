@@ -2,14 +2,12 @@
 
 namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
-use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
+use Throwable;
 
 class RolPagoRequest extends FormRequest
 {
@@ -48,7 +46,7 @@ class RolPagoRequest extends FormRequest
             'prestamo_hipotecario' => 'required',
             'prestamo_empresarial' => 'required',
             'medio_tiempo' => 'nullable',
-            'es_vendedor_medio_tiempo' => 'nullable',
+            'es_vendedor_medio_tiempo' => 'boolean',
             'egresos' => 'nullable',
             'iess' =>  'required',
             'extension_conyugal' => 'required',
@@ -59,6 +57,10 @@ class RolPagoRequest extends FormRequest
             'sueldo_quincena_modificado'=>'required|boolean',
         ];
     }
+
+    /**
+     * @throws Throwable
+     */
     protected function prepareForValidation()
     {
         $mes = Carbon::createFromFormat('m-Y', $this->mes)->format('Y-m');
@@ -68,7 +70,7 @@ class RolPagoRequest extends FormRequest
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
         $nominaService->setRolPago($rol);
-        $nominaService->setVendedorMedioTiempo($this->es_vendedor_medio_tiempo);
+//        $nominaService->setVendedorMedioTiempo($this->es_vendedor_medio_tiempo);
         $dias =  $this->dias;
         $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena, $this->sueldo);
         $salario = $nominaService->calcularSalario();
@@ -77,11 +79,11 @@ class RolPagoRequest extends FormRequest
         $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva($this->dias);
         $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
         $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;
-        $totalIngresos =  $rol->es_quincena ? 0 : $totalIngresos = !empty($this->ingresos)
+        $totalIngresos =  $rol->es_quincena ? 0 :  (!empty($this->ingresos)
             ? array_reduce($this->ingresos, function ($acumulado, $ingreso) {
                 return $acumulado + (float) $ingreso['monto'];
             }, 0)
-            : 0;
+            : 0);
         $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
         $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS($dias);
         $anticipo = $rol->es_quincena ? 0 : $nominaService->calcularAnticipo();
@@ -90,7 +92,7 @@ class RolPagoRequest extends FormRequest
         $extension_conyugal =  $rol->es_quincena ? 0 : $nominaService->extensionesCoberturaSalud();
         $prestamo_empresarial = $rol->es_quincena ? 0 : $prestamoService->prestamosEmpresariales();
         $supa =  $rol->es_quincena ? 0 : $nominaService->calcularSupa();
-        $totalEgresos = $totalEgresos = !empty($this->egresos)
+        $totalEgresos = !empty($this->egresos)
             ? array_reduce($this->egresos, function ($acumulado, $egreso) {
                 return $acumulado + (float) $egreso['monto'];
             }, 0) : 0;

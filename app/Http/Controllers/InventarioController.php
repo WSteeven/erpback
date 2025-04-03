@@ -25,11 +25,11 @@ use App\Models\TransaccionBodega;
 use App\Models\VistaInventarioPercha;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use OwenIt\Auditing\Models\Audit;
 use Src\App\InventarioService;
@@ -163,7 +163,6 @@ class InventarioController extends Controller
     public function reporteInventarioPdf($id)
     {
         $configuracion = ConfiguracionGeneral::first();
-        $items = [];
         if ($id == 0) {
             $items = Inventario::where('cantidad', '!=', 0)
                 ->orWhere('por_recibir', '!=', 0)->orWhere('por_entregar', '!=', 0)->get();
@@ -203,157 +202,155 @@ class InventarioController extends Controller
         return $this->servicio->kardex($request['detalle_id'], $request['fecha_inicio'], $request['fecha_fin'], $request['tipo_rpt'], $request['sucursal_id']);
 
         // Log::channel('testing')->info('Log', ['Request kardex', $request->all()]);
-        $configuracion = ConfiguracionGeneral::first();
-        // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $results = [];
-        $preingresos = [];
-        $transferencias = [];
-        $cont = 0;
-        $cantAudit = 0;
-        $row = [];
-        $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
-        $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $ids_itemsInventario = Inventario::where('detalle_id', $request->detalle_id)
-            ->when($request->sucursal_id, function ($q) use ($request) {
-                $q->where('sucursal_id', $request->sucursal_id);
-            })->orderBy('updated_at', 'desc')->get('id');
-        if ($request->fecha_inicio && $request->fecha_fin) {
-            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
-                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])
-                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-        }
-        if ($request->fecha_inicio && !$request->fecha_fin) {
-            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
-                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])
-                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-        }
-        if (!$request->fecha_inicio && !$request->fecha_fin) {
-            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
-                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-        }
+//        $configuracion = ConfiguracionGeneral::first();
+//        // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+//        $results = [];
+//        $preingresos = [];
+//        $transferencias = [];
+//        $cont = 0;
+//        $cantAudit = 0;
+//        $row = [];
+//        $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
+//        $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+//        $ids_itemsInventario = Inventario::where('detalle_id', $request->detalle_id)
+//            ->when($request->sucursal_id, function ($q) use ($request) {
+//                $q->where('sucursal_id', $request->sucursal_id);
+//            })->orderBy('updated_at', 'desc')->get('id');
+//        if ($request->fecha_inicio && $request->fecha_fin) {
+//            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
+//                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])
+//                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+//        }
+//        if ($request->fecha_inicio && !$request->fecha_fin) {
+//            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
+//                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])
+//                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+//        }
+//        if (!$request->fecha_inicio && !$request->fecha_fin) {
+//            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
+//                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+//        }
         //Obtener los ingresos y egresos anulados
-        $movimientosIngresosAnulados = DetalleProductoTransaccion::withWhereHas('transaccion', function ($query) use ($ids_motivos_ingresos, $movimientos) {
-            $query->whereIn('motivo_id', $ids_motivos_ingresos)
-                ->whereIn('id', $movimientos->pluck('transaccion_id'))
-                ->where('estado_id', EstadosTransacciones::ANULADA);
-        })
-            ->whereIn('inventario_id', $ids_itemsInventario)
-            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-        $movimientosEgresosAnulados = DetalleProductoTransaccion::withWhereHas('transaccion', function ($query) use ($ids_motivos_ingresos, $movimientos) {
-            $query->where('estado_id', EstadosTransacciones::ANULADA)
-                ->whereIn('id', $movimientos->pluck('transaccion_id'))
-                ->whereNotIn('motivo_id', $ids_motivos_ingresos);
-        })
-            ->whereIn('inventario_id', $ids_itemsInventario)
-            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+//        $movimientosIngresosAnulados = DetalleProductoTransaccion::withWhereHas('transaccion', function ($query) use ($ids_motivos_ingresos, $movimientos) {
+//            $query->whereIn('motivo_id', $ids_motivos_ingresos)
+//                ->whereIn('id', $movimientos->pluck('transaccion_id'))
+//                ->where('estado_id', EstadosTransacciones::ANULADA);
+//        })
+//            ->whereIn('inventario_id', $ids_itemsInventario)
+//            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+//        $movimientosEgresosAnulados = DetalleProductoTransaccion::withWhereHas('transaccion', function ($query) use ($ids_motivos_ingresos, $movimientos) {
+//            $query->where('estado_id', EstadosTransacciones::ANULADA)
+//                ->whereIn('id', $movimientos->pluck('transaccion_id'))
+//                ->whereNotIn('motivo_id', $ids_motivos_ingresos);
+//        })
+//            ->whereIn('inventario_id', $ids_itemsInventario)
+//            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
 
-        foreach ($movimientos as $movimiento) {
-            // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
-            // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
-            if ($cont == 0) {
-                $audit = Audit::where('auditable_id', $movimiento->inventario_id)
-                    ->where('auditable_type', Inventario::class)
-                    ->whereBetween('updated_at', [
-                        Carbon::parse($movimiento->created_at)->subSecond(2),
-                        Carbon::parse($movimiento->created_at)->addSecond(2),
-                    ])
-                    ->first();
-                // Log::channel('testing')->info('Log', ['audit', $audit]);
-                if ($audit) $cantAudit = count($audit->old_values) > 0 ? $audit->old_values['cantidad'] : 0;
-            }
-            $row['id'] = $movimiento->inventario->detalle->id;
-            $row['id'] = $cont + 1;
-            $row['detalle'] = $movimiento->inventario->detalle->descripcion;
-            $row['num_transaccion'] = $movimiento->transaccion->id;
-            $row['motivo'] = $movimiento->transaccion->motivo->nombre;
-            $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
-            $row['sucursal'] = $movimiento->inventario->sucursal?->lugar;
-            $row['cantidad'] = $movimiento->cantidad_inicial;
-            $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
-            $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
-            // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
-            $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
-            $results[$cont] = $row;
-            $cont++;
-            //Aqui se verifica si contiene el id actual la collection de ingresos anulados
-            $ingresoCoincidente = $movimientosIngresosAnulados->firstWhere('id', $movimiento->id);
-            if ($ingresoCoincidente !== null) {
-                //Se ingresa el movimiento como anulado y se resta al inventario
-                $row['id'] = $cont + 1;
-                $row['detalle'] = $ingresoCoincidente->inventario->detalle->descripcion;
-                $row['num_transaccion'] = $ingresoCoincidente->transaccion->id;
-                $row['motivo'] = $ingresoCoincidente->transaccion->motivo->nombre;
-                $row['tipo'] = 'ANULACION';
-                $row['sucursal'] = $ingresoCoincidente->inventario->sucursal->lugar;
-                $row['cantidad'] = $ingresoCoincidente->cantidad_inicial;
-                $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
-                $row['cant_actual'] = $row['cant_anterior'] - $movimiento->cantidad_inicial;
-                $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
-                $results[$cont] = $row;
-                $cont++;
-            }
-            //Aqui se verifica si contiene el id actual la collection de egresos anulados
-            $egresoCoincidente = $movimientosEgresosAnulados->firstWhere('id', $movimiento->id);
-            if ($egresoCoincidente !== null) {
-                //Se ingresa el movimiento como anulado y se suma al inventario
-                $row['id'] = $cont + 1;
-                $row['detalle'] = $egresoCoincidente->inventario->detalle->descripcion;
-                $row['num_transaccion'] = $egresoCoincidente->transaccion->id;
-                $row['motivo'] = $egresoCoincidente->transaccion->motivo->nombre;
-                $row['tipo'] = 'ANULACION';
-                $row['sucursal'] = $egresoCoincidente->inventario->sucursal->lugar;
-                $row['cantidad'] = $egresoCoincidente->cantidad_inicial;
-                $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
-                $row['cant_actual'] = $row['cant_anterior'] + $egresoCoincidente->cantidad_inicial;
-                $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
-                $results[$cont] = $row;
-                $cont++;
-            }
-        }
-
-        //Aqui se filtra los preingresos donde ha sido visto el ítem
-        $preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
-        $preingresos = ItemDetallePreingresoMaterialResource::collection($preingresos);
-
-        //Aquí se filtra las transferencias de productos
-        $transferencias = DetalleTransferenciaProductoEmpleado::where('detalle_producto_id', $request->detalle_id)
-            ->when($request->fecha_inicio, function ($q) use ($request) {
-                $q->where('created_at', '>=', $request->fecha_inicio);
-            })
-            ->when($request->fecha_fin, function ($q) use ($request) {
-                $q->where('created_at', '<=', $request->fecha_fin);
-            })->orderBy('created_at', 'desc')->get();
-        $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
-
-        rsort($results); //aqui se ordena el array en forma descendente
-        switch ($request->tipo_rpt) {
-            case 'excel':
-                try {
-                    return Excel::download(new KardexExport(collect($results)), 'kardex.xlsx');
-                } catch (Exception $ex) {
-                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
-                    throw ValidationException::withMessages([
-                        'error' => [$ex->getMessage()],
-                    ]);
-                }
-                break;
-            case 'pdf':
-                try {
-                    $pdf = Pdf::loadView('bodega.reportes.kardex', compact('results', 'configuracion'));
-                    $pdf->setPaper('A4', 'landscape');
-                    $pdf->render();
-                    $file = $pdf->output();
-                    return $file;
-                } catch (Exception $ex) {
-                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
-                    throw ValidationException::withMessages([
-                        'error' => [$ex->getMessage()],
-                    ]);
-                }
-                break;
-            default:
-                return response()->json(compact('results', 'preingresos', 'transferencias'));
-        }
+//        foreach ($movimientos as $movimiento) {
+//            if ($cont == 0) {
+//                $audit = Audit::where('auditable_id', $movimiento->inventario_id)
+//                    ->where('auditable_type', Inventario::class)
+//                    ->whereBetween('updated_at', [
+//                        Carbon::parse($movimiento->created_at)->subSecond(2),
+//                        Carbon::parse($movimiento->created_at)->addSecond(2),
+//                    ])
+//                    ->first();
+//                // Log::channel('testing')->info('Log', ['audit', $audit]);
+//                if ($audit) $cantAudit = count($audit->old_values) > 0 ? $audit->old_values['cantidad'] : 0;
+//            }
+//            $row['id'] = $movimiento->inventario->detalle->id;
+//            $row['id'] = $cont + 1;
+//            $row['detalle'] = $movimiento->inventario->detalle->descripcion;
+//            $row['num_transaccion'] = $movimiento->transaccion->id;
+//            $row['motivo'] = $movimiento->transaccion->motivo->nombre;
+//            $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
+//            $row['sucursal'] = $movimiento->inventario->sucursal?->lugar;
+//            $row['cantidad'] = $movimiento->cantidad_inicial;
+//            $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
+//            $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
+//            // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
+//            $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
+//            $results[$cont] = $row;
+//            $cont++;
+//            //Aqui se verifica si contiene el id actual la collection de ingresos anulados
+//            $ingresoCoincidente = $movimientosIngresosAnulados->firstWhere('id', $movimiento->id);
+//            if ($ingresoCoincidente !== null) {
+//                //Se ingresa el movimiento como anulado y se resta al inventario
+//                $row['id'] = $cont + 1;
+//                $row['detalle'] = $ingresoCoincidente->inventario->detalle->descripcion;
+//                $row['num_transaccion'] = $ingresoCoincidente->transaccion->id;
+//                $row['motivo'] = $ingresoCoincidente->transaccion->motivo->nombre;
+//                $row['tipo'] = 'ANULACION';
+//                $row['sucursal'] = $ingresoCoincidente->inventario->sucursal->lugar;
+//                $row['cantidad'] = $ingresoCoincidente->cantidad_inicial;
+//                $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
+//                $row['cant_actual'] = $row['cant_anterior'] - $movimiento->cantidad_inicial;
+//                $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
+//                $results[$cont] = $row;
+//                $cont++;
+//            }
+//            //Aqui se verifica si contiene el id actual la collection de egresos anulados
+//            $egresoCoincidente = $movimientosEgresosAnulados->firstWhere('id', $movimiento->id);
+//            if ($egresoCoincidente !== null) {
+//                //Se ingresa el movimiento como anulado y se suma al inventario
+//                $row['id'] = $cont + 1;
+//                $row['detalle'] = $egresoCoincidente->inventario->detalle->descripcion;
+//                $row['num_transaccion'] = $egresoCoincidente->transaccion->id;
+//                $row['motivo'] = $egresoCoincidente->transaccion->motivo->nombre;
+//                $row['tipo'] = 'ANULACION';
+//                $row['sucursal'] = $egresoCoincidente->inventario->sucursal->lugar;
+//                $row['cantidad'] = $egresoCoincidente->cantidad_inicial;
+//                $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
+//                $row['cant_actual'] = $row['cant_anterior'] + $egresoCoincidente->cantidad_inicial;
+//                $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
+//                $results[$cont] = $row;
+//                $cont++;
+//            }
+//        }
+//
+//        //Aqui se filtra los preingresos donde ha sido visto el ítem
+//        $preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
+//        $preingresos = ItemDetallePreingresoMaterialResource::collection($preingresos);
+//
+//        //Aquí se filtra las transferencias de productos
+//        $transferencias = DetalleTransferenciaProductoEmpleado::where('detalle_producto_id', $request->detalle_id)
+//            ->when($request->fecha_inicio, function ($q) use ($request) {
+//                $q->where('created_at', '>=', $request->fecha_inicio);
+//            })
+//            ->when($request->fecha_fin, function ($q) use ($request) {
+//                $q->where('created_at', '<=', $request->fecha_fin);
+//            })->orderBy('created_at', 'desc')->get();
+//        $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
+//
+//        rsort($results); //aqui se ordena el array en forma descendente
+//        switch ($request->tipo_rpt) {
+//            case 'excel':
+//                try {
+//                    return Excel::download(new KardexExport(collect($results)), 'kardex.xlsx');
+//                } catch (Exception $ex) {
+//                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+//                    throw ValidationException::withMessages([
+//                        'error' => [$ex->getMessage()],
+//                    ]);
+//                }
+//                break;
+//            case 'pdf':
+//                try {
+//                    $pdf = Pdf::loadView('bodega.reportes.kardex', compact('results', 'configuracion'));
+//                    $pdf->setPaper('A4', 'landscape');
+//                    $pdf->render();
+//                    $file = $pdf->output();
+//                    return $file;
+//                } catch (Exception $ex) {
+//                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+//                    throw ValidationException::withMessages([
+//                        'error' => [$ex->getMessage()],
+//                    ]);
+//                }
+//                break;
+//            default:
+//                return response()->json(compact('results', 'preingresos', 'transferencias'));
+//        }
     }
 
 

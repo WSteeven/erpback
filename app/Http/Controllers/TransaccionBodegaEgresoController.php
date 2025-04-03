@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 // Dependencias
 
-use App\Events\TransaccionEgresoEvent;
+use App\Events\Bodega\TransaccionEgresoEvent;
 use App\Exports\Bodega\MaterialesDespachadosResponsableExport;
 use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
-use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Cliente;
@@ -63,11 +62,17 @@ class TransaccionBodegaEgresoController extends Controller
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado()
     {
-        request()->validate([
-            'empleado_id' => 'required|numeric|integer|exists:empleados,id',
-            'cliente_id' => 'nullable|numeric|integer|exists:clientes,id',
-            'subtarea_id' => 'nullable|numeric|integer|exists:subtareas,id',
-        ]);
+        request()->validate(
+            [
+                'empleado_id' => 'required|numeric|integer|exists:empleados,id',
+                'cliente_id' => 'nullable|numeric|integer|exists:clientes,id',
+                'subtarea_id' => 'nullable|numeric|integer|exists:subtareas,id',
+            ],
+            [
+                'empleado_id.required' => 'El campo empleado es obligatorio.',
+                // 'cliente_id.required' => 'El campo cliente es obligatorio.',
+            ]
+        );
 
         $results = $this->productosEmpleadoService->obtenerProductos();
         return response()->json(compact('results'));
@@ -80,7 +85,7 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function obtenerMaterialesEmpleadoConsolidado(Request $request)
+    public function obtenerMaterialesEmpleadoConsolidadoOld(Request $request)
     {
         try {
             if (!$request->exists('cliente_id')) $request->merge(['cliente_id' => null]);
@@ -97,6 +102,48 @@ class TransaccionBodegaEgresoController extends Controller
             } else if ($request['stock_personal']) {
                 $results = $this->productosEmpleadoService->obtenerProductos();
                 $results = $this->mapearProductosEmpleado(collect($results));
+                return response()->json(compact('results'));
+            }
+
+            $resultado1 = MaterialEmpleado::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $resultado2 = MaterialEmpleadoTarea::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $results = $resultado1->concat($resultado2);
+
+            $results = $this->mapear($results);
+
+            return response()->json(compact('results'));
+        } catch (Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            return response()->json(compact('mensaje'));
+        }
+    }
+    public function obtenerMaterialesEmpleadoConsolidado(Request $request)
+    {
+        try {
+            if (!$request->exists('cliente_id')) $request->merge(['cliente_id' => null]);
+
+            $request->validate([
+                'cliente_id' => 'nullable|sometimes|numeric|integer',
+                'empleado_id' => 'required|numeric|integer',
+            ]);
+
+            if ($request['proyecto_id'] || $request['etapa_id'] || $request['tarea_id']) { // Si el origen es de tarea
+                $resultado2 = $this->productosTareaEmpleadoService->listarProductosConStock($request['proyecto_id'], $request['etapa_id'], $request['tarea_id']);
+                $results = $this->mapear($resultado2);
+
+                if($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
+                if($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
+
+                return response()->json(compact('results'));
+            } else if ($request['stock_personal']) { // Si el origen es de stock personal
+                $results = $this->productosEmpleadoService->obtenerProductos();
+                $results = $this->mapearProductosEmpleado(collect($results));
+
+                if($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
+                if($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
+
+                $results = $results->values();
+
                 return response()->json(compact('results'));
             }
 
@@ -159,6 +206,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Guardar
+     * @throws ValidationException|Throwable
      */
     public function store(TransaccionBodegaRequest $request)
     {
@@ -166,27 +214,6 @@ class TransaccionBodegaEgresoController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-            //            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            //            if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-            //            $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-            //            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            //            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-            //            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-            //            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            //            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            //            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-            //            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            //            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-            //            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
-            //            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-            //            if ($request->subtarea) $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-            //            if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-
-            //datos de las relaciones muchos a muchos
-            //            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            //            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-
 
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
@@ -229,7 +256,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e,  'Ha ocurrido un error al insertar el registro');
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -247,6 +274,7 @@ class TransaccionBodegaEgresoController extends Controller
     /**
      * Actualizar
      */
+    /*
     public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
     {
         $datos = $request->validated();
@@ -310,12 +338,7 @@ class TransaccionBodegaEgresoController extends Controller
             $mensaje = 'Estado actualizado correctamente';
         }
         return response()->json(compact('mensaje', 'modelo'));
-        // }
-
-        /* $message = 'No tienes autorización para modificar esta solicitud';
-        $errors = ['message' => $message];
-        return response()->json(['errors' => $errors], 422); */
-    }
+    }*/
 
     /**
      * Eliminar
@@ -329,6 +352,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Anular una transacción de egreso y revertir el stock del inventario
+     * @throws ValidationException|Throwable
      */
     public function anular(TransaccionBodega $transaccion)
     {
@@ -359,7 +383,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de egreso', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
+            throw  Utils::obtenerMensajeErrorLanzable($e, 'Ha ocurrido un error al anular la transacción');
         }
     }
 
@@ -378,6 +402,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Imprimir
+     * @throws ValidationException
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
@@ -403,6 +428,9 @@ class TransaccionBodegaEgresoController extends Controller
         }
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function imprimirActaEntregaRecepcion(TransaccionBodega $transaccion)
     {
         $configuracion = ConfiguracionGeneral::first();
@@ -425,6 +453,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Reportes
+     * @throws ValidationException
      */
     public function reportes(Request $request)
     {
@@ -448,6 +477,7 @@ class TransaccionBodegaEgresoController extends Controller
                     return $pdf->output();
                 } catch (Exception $ex) {
                     Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw Utils::obtenerMensajeErrorLanzable($ex);
                 }
                 break;
             default:
@@ -476,8 +506,7 @@ class TransaccionBodegaEgresoController extends Controller
                 default:
                     throw ValidationException::withMessages(['error' => 'Método no implementado']);
             }
-
-        } catch (Throwable|Exception $th) {
+        } catch (Throwable | Exception $th) {
             throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
         }
     }
@@ -527,16 +556,19 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function modificarItemEgreso(Request $request)
+    /**
+     * @throws ValidationException
+     */
+    public function modificarItemEgreso(Request $request, TransaccionBodega $transaccion)
     {
-        // Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
+        //         Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
         try {
             switch ($request->tipo) {
                 case 'PENDIENTE':
-                    $this->servicio->modificarItemEgresoPendiente($request);
+                    $this->servicio->modificarItemEgresoPendiente($request, $transaccion);
                     break;
                 case 'PARCIAL':
-                    $this->servicio->modificarItemEgresoParcial($request);
+                    $this->servicio->modificarItemEgresoParcial($request, $transaccion);
                     break;
             }
 

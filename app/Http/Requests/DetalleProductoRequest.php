@@ -67,6 +67,7 @@ class DetalleProductoRequest extends FormRequest
             'fecha_caducidad' => 'nullable|date_format:Y-m-d',
             'fotografia' => 'nullable|string',
             'fotografia_detallada' => 'nullable|string',
+            'codigo_activo_fijo' => 'nullable|string',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

@@ -4,15 +4,93 @@ namespace App\Models;
 
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use Src\Config\EstadosTransacciones;
+use OwenIt\Auditing\Models\Audit;
 
+/**
+ * App\Models\Pedido
+ *
+ * @property int $id
+ * @property string $justificacion
+ * @property string|null $fecha_limite
+ * @property string|null $observacion_aut
+ * @property string|null $observacion_est
+ * @property int|null $solicitante_id
+ * @property int|null $responsable_id
+ * @property int|null $autorizacion_id
+ * @property string|null $causa_anulacion
+ * @property int|null $per_autoriza_id
+ * @property int|null $proyecto_id
+ * @property int|null $etapa_id
+ * @property int|null $tarea_id
+ * @property int|null $sucursal_id
+ * @property int|null $estado_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property int|null $cliente_id
+ * @property int|null $per_retira_id
+ * @property string|null $evidencia1
+ * @property string|null $evidencia2
+ * @property string|null $observacion_bodega
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $autoriza
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Cliente|null $cliente
+ * @property-read Collection<int, DetalleProducto> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read EstadoTransaccion|null $estado
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Empleado|null $responsable
+ * @property-read Empleado|null $retira
+ * @property-read Empleado|null $solicitante
+ * @property-read Sucursal|null $sucursal
+ * @property-read Tarea|null $tarea
+ * @property-read Collection<int, TransaccionBodega> $transacciones
+ * @property-read int|null $transacciones_count
+ * @method static Builder|Pedido acceptRequest(?array $request = null)
+ * @method static Builder|Pedido filter(?array $request = null)
+ * @method static Builder|Pedido ignoreRequest(?array $request = null)
+ * @method static Builder|Pedido newModelQuery()
+ * @method static Builder|Pedido newQuery()
+ * @method static Builder|Pedido query()
+ * @method static Builder|Pedido setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Pedido setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Pedido setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Pedido whereAutorizacionId($value)
+ * @method static Builder|Pedido whereCausaAnulacion($value)
+ * @method static Builder|Pedido whereClienteId($value)
+ * @method static Builder|Pedido whereCreatedAt($value)
+ * @method static Builder|Pedido whereEstadoId($value)
+ * @method static Builder|Pedido whereEtapaId($value)
+ * @method static Builder|Pedido whereEvidencia1($value)
+ * @method static Builder|Pedido whereEvidencia2($value)
+ * @method static Builder|Pedido whereFechaLimite($value)
+ * @method static Builder|Pedido whereId($value)
+ * @method static Builder|Pedido whereJustificacion($value)
+ * @method static Builder|Pedido whereObservacionAut($value)
+ * @method static Builder|Pedido whereObservacionBodega($value)
+ * @method static Builder|Pedido whereObservacionEst($value)
+ * @method static Builder|Pedido wherePerAutorizaId($value)
+ * @method static Builder|Pedido wherePerRetiraId($value)
+ * @method static Builder|Pedido whereProyectoId($value)
+ * @method static Builder|Pedido whereResponsableId($value)
+ * @method static Builder|Pedido whereSolicitanteId($value)
+ * @method static Builder|Pedido whereSucursalId($value)
+ * @method static Builder|Pedido whereTareaId($value)
+ * @method static Builder|Pedido whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Pedido extends Model implements Auditable
 {
     use HasFactory;
@@ -31,15 +109,16 @@ class Pedido extends Model implements Auditable
         'responsable_id',
         'autorizacion_id',
         'per_autoriza_id',
-        'sucursal_id',
-        'estado_id',
-        'evidencia1',
-        'evidencia2',
         'per_retira_id',
         'cliente_id',
         'proyecto_id',
         'etapa_id',
         'tarea_id',
+        'sucursal_id',
+        'estado_id',
+        'evidencia1',
+        'evidencia2',
+        'incidente_id',
     ];
 
     protected $casts = [
@@ -47,7 +126,7 @@ class Pedido extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________

@@ -3,7 +3,6 @@
 namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,7 +37,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
                 'valor_utilidad' => 'nullable|numeric',
                 'motivo' => 'nullable|string',
                 'foto' => 'nullable|string',
-                 'estado' => 'required|numeric',
+                'estado' => 'required|numeric',
                 'observacion' => 'nullable|string',
             ];
         } else {

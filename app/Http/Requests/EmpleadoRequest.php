@@ -2,12 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-use Src\Shared\Utils;
 use Src\Shared\ValidarIdentificacion;
 
 class EmpleadoRequest extends FormRequest
@@ -106,7 +104,8 @@ class EmpleadoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $validador = new ValidarIdentificacion();
-            if (!$validador->validarCedula($this->identificacion)) {
+            Log::channel('testing')->info('Log', ['reuqest del empleado',request()->all(), $this->method(), $this->all()]);
+            if (!$validador->validarCedula($this->identificacion?:"")) {
                 Log::channel('testing')->info('Log', ['Dentro del if']);
                 $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
             }

@@ -2,12 +2,13 @@
 
 namespace Src\App\ComprasProveedores;
 
-use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
+use App\Http\Resources\ComprasProveedores\ProveedorInternacionalResource;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\ComprasProveedores\ProveedorInternacional;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
@@ -15,26 +16,23 @@ use App\Models\Producto;
 use App\Models\Proveedor;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
+use Src\Config\PaisesOperaciones;
 use Src\Shared\Utils;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class OrdenCompraService
 {
-    protected $validador;
-    public function __construct()
-    {
-        $this->validador = new OrdenCompraRequest();
-    }
 
     public function filtrarOrdenes(Request $request)
     {
-        $results = collect([]);
+        $results = collect();
         $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
         $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
         $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
@@ -64,12 +62,21 @@ class OrdenCompraService
         return $results->unique();
     }
 
+    /**
+     * @throws Exception
+     */
     public static function generarPdf(OrdenCompra $orden_compra, $guardar, $descargar)
     {
+        $pais = env('COUNTRY');
+        $texto_iva = match ($pais) {
+            PaisesOperaciones::PERU => 'IGV',
+            default => 'IVA',
+        };
         try {
             $configuracion = ConfiguracionGeneral::first();
-            if (!$orden_compra->proveedor_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
-            $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
+            if (!$orden_compra->proveedor_id && !$orden_compra->proveedor_internacional_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
+            if($orden_compra->proveedor_id) $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
+            if($orden_compra->proveedor_internacional_id) $proveedor = new ProveedorInternacionalResource(ProveedorInternacional::find($orden_compra->proveedor_internacional_id));
             $empleado_solicita = Empleado::find($orden_compra->solicitante_id);
             $orden = new OrdenCompraResource($orden_compra);
 
@@ -77,8 +84,8 @@ class OrdenCompraService
             $orden = $orden->resolve();
             $proveedor = $proveedor->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
-            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor', 'configuracion']));
-            $pdf->setPaper('A4', 'portrait');
+            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor', 'configuracion', 'texto_iva']));
+            $pdf->setPaper('A4');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
             $file = $pdf->output(); //se genera el pdf
@@ -108,23 +115,27 @@ class OrdenCompraService
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function crearOrdenCompra(array $datos, array $items)
     {
         try {
-            // $this->validador->setData($datos);
-            // if ($this->validador->fails()) throw new \Exception($this->validador->errors()->first());
             DB::beginTransaction();
             $orden = OrdenCompra::create($datos);
             $this->guardarDetalles($orden, $items);
             DB::commit();
             return $orden;
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollback();
             Log::channel('testing')->info('Log', ['ERROR crearOrdenCompra', $th->getMessage(), $th->getLine()]);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function guardarDetalles($orden, $items)
     {
         try {
@@ -171,9 +182,11 @@ class OrdenCompraService
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public static function obtenerDashboard(Request $request)
     {
-        $results = [];
         $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
         $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
         $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
@@ -221,7 +234,6 @@ class OrdenCompraService
                 $results = self::dividirOrdenesPorValores($ordenes);
                 break;
             default:
-                // Log::channel('testing')->info('Log', ['Entró en default, se lanzará un error']);
                 throw new Exception('Error al filtrar las ordenes de compras para el dashboard');
         }
 
@@ -232,7 +244,6 @@ class OrdenCompraService
 
     public static function dividirOrdenesPorEstados($ordenes)
     {
-        $results = [];
         $pendientes = $ordenes->filter(function ($orden) {
             return $orden->autorizacion_id == Autorizaciones::PENDIENTE;
         });
@@ -277,7 +288,7 @@ class OrdenCompraService
                 ]
             ],
         ]);
-        array_push($graficos, $graficoCreadas);
+        $graficos[] = $graficoCreadas;
 
         //Configuramos el segundo gráfico
         $graficoAprobadas = new Collection([
@@ -293,7 +304,7 @@ class OrdenCompraService
                 ]
             ],
         ]);
-        array_push($graficos, $graficoAprobadas);
+        $graficos[] = $graficoAprobadas;
 
         return compact(
             'graficos',
@@ -319,7 +330,6 @@ class OrdenCompraService
      */
     public static function dividirOrdenesPorProveedores($ordenes)
     {
-        $results = [];
         //filtramos las ordenes de compras revisadas y realizadas en adelante
         $todas_sin_proveedor = $ordenes->filter(function ($orden) {
             return $orden->proveedor_id == null;
@@ -388,7 +398,7 @@ class OrdenCompraService
                 ]
             ],
         ]);
-        array_push($graficos, $graficoCreadas);
+        $graficos[] = $graficoCreadas;
         /**
          * // Configuramos el segundo gráfico
          * $graficoAprobadas = new Collection([
@@ -430,7 +440,6 @@ class OrdenCompraService
      */
     public static function dividirOrdenesPorValores($ordenes)
     {
-        $results = [];
         //filtramos las ordenes de compras revisadas, realizadas y pagadas en adelante
         $todas = $ordenes;
 
@@ -501,7 +510,7 @@ class OrdenCompraService
                 ]
             ],
         ]);
-        array_push($graficos, $graficoCreadas);
+        $graficos[] = $graficoCreadas;
 
         //Configuramos el segundo gráfico
         $graficoCreadas = new Collection([
@@ -525,7 +534,7 @@ class OrdenCompraService
                 ]
             ],
         ]);
-        array_push($graficos, $graficoCreadas);
+        $graficos[] = $graficoCreadas;
 
         return compact(
             'graficos',

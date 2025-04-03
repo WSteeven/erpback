@@ -37,7 +37,7 @@ class TanqueoController extends Controller
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR_VEHICULOS])) {
-            $results = Tanqueo::orderBy('id', 'desc')->get($campos);
+            $results = Tanqueo::orderBy('id', 'desc')->filter()->get($campos);
         } else {
             $results = Tanqueo::where('solicitante_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->get($campos);
         }
@@ -98,10 +98,10 @@ class TanqueoController extends Controller
         //Adaptación de foreign keys
         $datos = $request->validated();
         if ($datos['imagen_comprobante'] && Utils::esBase64($datos['imagen_comprobante'])) {
-            $datos['imagen_comprobante'] = (new GuardarImagenIndividual($datos['imagen_comprobante'], RutasStorage::EVIDENCIAS_TANQUEOS_COMBUSTIBLES))->execute();
+            $datos['imagen_comprobante'] = (new GuardarImagenIndividual($datos['imagen_comprobante'], RutasStorage::EVIDENCIAS_TANQUEOS_COMBUSTIBLES, $tanqueo->imagen_comprobante))->execute();
         } else unset($datos['imagen_comprobante']);
         if ($datos['imagen_tablero'] && Utils::esBase64($datos['imagen_tablero'])) {
-            $datos['imagen_tablero'] = (new GuardarImagenIndividual($datos['imagen_tablero'], RutasStorage::EVIDENCIAS_TANQUEOS_COMBUSTIBLES))->execute();
+            $datos['imagen_tablero'] = (new GuardarImagenIndividual($datos['imagen_tablero'], RutasStorage::EVIDENCIAS_TANQUEOS_COMBUSTIBLES, $tanqueo->imagen_tablero))->execute();
         } else unset($datos['imagen_tablero']);
 
         //Respuesta

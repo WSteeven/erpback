@@ -31,6 +31,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api_publica.php'));
@@ -61,7 +63,13 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/recursos-humanos')
-                ->group(base_path('routes/api_recursos_humanos.php'));
+                ->group(base_path('routes/rrhh/api_recursos_humanos.php'));
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api/trabajo-social')
+                ->group(base_path('routes/rrhh/api_trabajo_social.php'));
+            Route::middleware('api', 'auth:sanctum')
+                ->prefix('api/seleccion-contratacion')
+                ->group(base_path('routes/rrhh/api_seleccion_contratacion_personal.php'));
 
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/medico')
@@ -78,6 +86,14 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/intranet')
                 ->group(base_path('routes/api_intranet.php'));
+
+            Route::middleware('api', 'auth:sanctum')
+                ->prefix('api/sso')
+                ->group(base_path('routes/api_sso.php'));
+
+            Route::middleware('api', 'auth:sanctum')
+                ->prefix('api/seguridad')
+                ->group(base_path('routes/api_seguridad.php'));
         });
     }
 

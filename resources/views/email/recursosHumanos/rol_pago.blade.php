@@ -2,9 +2,8 @@
 <html lang="es">
 {{-- Aquí codigo PHP --}}
 @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
     $rol_pago = $roles_pago[0];
 @endphp
 
@@ -13,13 +12,13 @@
     <title>Rol de Pagos</title>
     <style>
         @page {
-            margin: 0cm 15px;
+            margin: 0 15px;
         }
 
         header {
-            top: 0cm;
-            left: 0cm;
-            right: 0cm;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 4cm;
 
             /** Estilos extra personales **/
@@ -28,15 +27,11 @@
         }
 
         body {
-            background-image: url('img/logoBN10.png');
             background-repeat: no-repeat;
             background-position: center;
         }
 
         /** Definir las reglas del encabezado **/
-
-
-
 
         div {
             color: #000000 !important;
@@ -64,8 +59,7 @@
             width: 100%;
         }
 
-        .descripcion td,
-        descripcion th {
+        .descripcion td, th {
             border: none;
         }
 
@@ -90,8 +84,8 @@
             position: fixed;
             bottom: 90px;
             font-size: 7pt;
-            left: 0cm;
-            right: 0cm;
+            left: 0;
+            right: 0;
             height: 2cm;
 
             /** Estilos extra personales **/
@@ -127,7 +121,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10pt;">
             <tr class="row" style="width:auto">
                 <td>
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo"></div>
                 </td>
                 <td>
                     <p class="encabezado-rol"> <strong>JP CONSTRUCRED C.LTDA</strong></p><br>
@@ -360,7 +354,7 @@
             </thead>
 
         </table>
-        <p>Este Rol de pago es fiel copia del original que reposa en Contabilidad</p>
+        <p style="text-align: center">Este Rol de pago es fiel copia del original que reposa en Contabilidad</p>
     </main>
 
 

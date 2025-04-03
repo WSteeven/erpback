@@ -16,6 +16,39 @@ use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Tareas\CentroCosto
+ *
+ * @property int $id
+ * @property string $nombre
+ * @property int|null $cliente_id
+ * @property bool $activo
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Cliente|null $cliente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tareas\SubcentroCosto> $subcentros
+ * @property-read int|null $subcentros_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Tarea> $tareas
+ * @property-read int|null $tareas_count
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto whereActivo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto whereNombre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CentroCosto whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class CentroCosto extends Model implements Auditable
 {
     use HasFactory;

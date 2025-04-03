@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('actividades_realizadas_seguimientos_tickets', function (Blueprint $table) {
-            $table->fullText('observacion')->change();
+            $table->string('observacion')->change();
         });
     }
 };

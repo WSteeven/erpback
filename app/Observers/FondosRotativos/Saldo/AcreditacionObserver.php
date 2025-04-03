@@ -3,16 +3,17 @@
 namespace App\Observers\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use Src\App\FondosRotativos\SaldoService;
+use Throwable;
 
 class AcreditacionObserver
 {
     /**
      * Handle the Acreditaciones "created" event.
      *
-     * @param  \App\Models\FondosRotativos\Saldo\Acreditaciones  $acreditaciones
+     * @param Acreditaciones $acreditaciones
      * @return void
+     * @throws Throwable
      */
     public function created(Acreditaciones $acreditaciones)
     {
@@ -22,8 +23,9 @@ class AcreditacionObserver
     /**
      * Handle the Acreditaciones "updated" event.
      *
-     * @param  \App\Models\FondosRotativos\Saldo\Acreditaciones  $acreditaciones
+     * @param Acreditaciones $acreditaciones
      * @return void
+     * @throws Throwable
      */
     public function updated(Acreditaciones $acreditaciones)
     {
@@ -33,7 +35,7 @@ class AcreditacionObserver
     /**
      * Handle the Acreditaciones "deleted" event.
      *
-     * @param  \App\Models\Acreditaciones  $acreditaciones
+     * @param Acreditaciones $acreditaciones
      * @return void
      */
     public function deleted(Acreditaciones $acreditaciones)
@@ -44,7 +46,7 @@ class AcreditacionObserver
     /**
      * Handle the Acreditaciones "restored" event.
      *
-     * @param  \App\Models\Acreditaciones  $acreditaciones
+     * @param Acreditaciones $acreditaciones
      * @return void
      */
     public function restored(Acreditaciones $acreditaciones)
@@ -55,13 +57,17 @@ class AcreditacionObserver
     /**
      * Handle the Acreditaciones "force deleted" event.
      *
-     * @param  \App\Models\Acreditaciones  $acreditaciones
+     * @param Acreditaciones $acreditaciones
      * @return void
      */
     public function forceDeleted(Acreditaciones $acreditaciones)
     {
         //
     }
+
+    /**
+     * @throws Throwable
+     */
     private function guardarAcreditacion(Acreditaciones $acreditacion){
         $data = array(
             'fecha' =>  $acreditacion->fecha,
@@ -71,6 +77,10 @@ class AcreditacionObserver
         );
         SaldoService::guardarSaldo($acreditacion, $data);
     }
+
+    /**
+     * @throws Throwable
+     */
     private function anulacionAcreditacion(Acreditaciones $acreditacion){
         $data = array(
             'fecha' =>  $acreditacion->fecha,

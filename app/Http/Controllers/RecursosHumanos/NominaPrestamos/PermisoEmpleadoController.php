@@ -2,39 +2,43 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Events\PermisoEmpleadoEvent;
-use App\Events\PermisoNotificacionEvent;
+use App\Events\RecursosHumanos\PermisoEmpleadoEvent;
+use App\Events\RecursosHumanos\PermisoNotificacionEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
 use App\Models\Autorizacion;
-use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
+use Src\App\EmpleadoService;
+use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class PermisoEmpleadoController extends Controller
 {
-    private string $entidad = 'PERMISO_EMPLEADO';
+    private string $entidad = 'Permiso';
     private ArchivoService $archivoService;
+    private VacacionService $vacacionService;
 
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
+        $this->vacacionService = new VacacionService();
         $this->middleware('can:puede.ver.permiso_nomina')->only('index', 'show');
         $this->middleware('can:puede.crear.permiso_nomina')->only('store');
     }
 
     /**
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function archivoPermisoEmpleado(Request $request)
     {
@@ -68,17 +72,18 @@ class PermisoEmpleadoController extends Controller
     public function indexArchivoPermisoEmpleado(Request $request)
     {
         $permiso = PermisoEmpleado::where('id', $request->permiso_id)->first();
+        $request['permiso_id'] = null;
         $results = $this->archivoService->listarArchivos($permiso);
         return response()->json(compact('results'));
     }
 
     public function index()
     {
-        if (auth()->user()->hasRole('RECURSOS HUMANOS')) {
+        if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
-            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+            $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
         }
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));
@@ -92,6 +97,10 @@ class PermisoEmpleadoController extends Controller
 //        return $permisoEmpleado;
 //    }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(PermisoEmpleadoRequest $request)
     {
         try {
@@ -120,24 +129,32 @@ class PermisoEmpleadoController extends Controller
     }
 
     /**
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public function update(PermisoEmpleadoRequest $request, PermisoEmpleado $permiso)
     {
-        $autorizacion_id_old = $permiso->estado_permiso_id;
-        $datos = $request->validated();
-        $datos['estado_permiso_id'] = $request->safe()->only(['estado'])['estado'];
-        $permiso->update($datos);
-        if ($permiso->estado_permiso_id !== $autorizacion_id_old) {
-            event(new PermisoEmpleadoEvent($permiso));
-            if ($datos['estado_permiso_id'] == Autorizacion::APROBADO_ID) {
-                event(new PermisoNotificacionEvent($permiso));
+        try {
+            $autorizacion_id_old = $permiso->estado_permiso_id;
+            $datos = $request->validated();
+            DB::beginTransaction();
+            $permiso->update($datos);
+            if ($permiso->estado_permiso_id !== $autorizacion_id_old) {
+                event(new PermisoEmpleadoEvent($permiso));
+                if ($datos['estado_permiso_id'] == Autorizacion::APROBADO_ID) {
+                    if ($permiso->cargo_vacaciones) $this->vacacionService->registrarDiasVacacionMediantePermisoEmpleado($permiso);
+                    event(new PermisoNotificacionEvent($permiso));
+                }
             }
-        }
-        $modelo = new PermisoEmpleadoResource($permiso);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            $modelo = new PermisoEmpleadoResource($permiso);
+            DB::commit();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(compact('mensaje', 'modelo'));
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Throwable|Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->error('Log', ['ERROR en el update de permiso de empleado', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     public function destroy(PermisoEmpleado $permiso)

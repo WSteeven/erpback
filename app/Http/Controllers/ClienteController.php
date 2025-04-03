@@ -10,14 +10,15 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class ClienteController extends Controller
 {
-    private $entidad = 'Cliente';
+    private string $entidad = 'Cliente';
     public function __construct()
     {
         $this->middleware('can:puede.ver.clientes')->only('index', 'show');
@@ -31,7 +32,6 @@ class ClienteController extends Controller
     public function index(Request $request)
     {
         $search = $request['search'];
-        $campos = explode(',', $request['campos']);
 
         $results = [];
         if ($request['campos']) {
@@ -50,8 +50,11 @@ class ClienteController extends Controller
         $results = ClienteResource::collection($results);
         return response()->json(compact('results'));
     }
+
     /**
      * Guardar
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function store(ClienteRequest $request)
     {
@@ -72,8 +75,9 @@ class ClienteController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR en el insert de clientes', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
+            Log::channel('testing')->error('Log', ['ERROR en el insert de clientes', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
+
         }
     }
 
@@ -90,6 +94,8 @@ class ClienteController extends Controller
 
     /**
      * Actualizar
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function update(ClienteRequest $request, Cliente  $cliente)
     {
@@ -100,7 +106,7 @@ class ClienteController extends Controller
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
-            if ($datos['logo_url'] && Utils::esBase64($datos['logo_url'])) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES))->execute();
+            if ($datos['logo_url'] && Utils::esBase64($datos['logo_url'])) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES, $cliente->logo_url))->execute();
             else unset($datos['logo_url']);
 
             // Respuesta
@@ -111,8 +117,8 @@ class ClienteController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR al actualizar el cliente', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro' . $e->getMessage() . $e->getLine()], 422);
+            Log::channel('testing')->error('Log', ['ERROR al actualizar el cliente', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 

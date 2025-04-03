@@ -17,6 +17,7 @@ class TipoPuestoTrabajoResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
+            'activo' => $this->activo,
         ];
     }
 }

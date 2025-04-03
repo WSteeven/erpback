@@ -4,13 +4,14 @@ namespace App\Http\Requests;
 
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\RecursosHumanos\EmpleadoDelegado;
 use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
+use Src\App\EmpleadoService;
 use Src\Config\PaisesOperaciones;
 use Src\Shared\ValidarIdentificacion;
 
@@ -58,6 +59,7 @@ class GastoRequest extends FormRequest
             'comprobante' => 'required|string',
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|string',
+            'nodo_id' => 'nullable|exists:tar_nodos,id',
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
             'id_usuario' => 'required|exists:empleados,id',
@@ -84,8 +86,8 @@ class GastoRequest extends FormRequest
                 'comprobante2' => 'required|string',
                 'detalle_estado' => 'nullable|string',
                 'es_vehiculo_alquilado' => 'boolean',
-                'vehiculo' =>  $this->es_vehiculo_alquilado ? 'nullable' : 'required|integer',
-                'placa' =>  $this->es_vehiculo_alquilado ? 'required|string' : 'nullable',
+                'vehiculo' => $this->es_vehiculo_alquilado ? 'nullable' : 'required|integer',
+                'placa' => $this->es_vehiculo_alquilado ? 'required|string' : 'nullable',
                 'kilometraje' => 'required|integer',
                 'id_tarea' => 'nullable',
                 'id_proyecto' => 'nullable',
@@ -96,11 +98,12 @@ class GastoRequest extends FormRequest
         }
         return $rules;
     }
+
     /**
      * Esto se ejecuta despues de validar
      * Configure the validator instance.
      *
-     * @param \Illuminate\Validation\Validator $validator
+     * @param Validator $validator
      * @return void
      */
     public function withValidator($validator)
@@ -110,7 +113,7 @@ class GastoRequest extends FormRequest
                 if ($this->route()->getActionMethod() === 'store') {
                     $this->validarNumeroComprobante($validator);
                     $this->comprobarRuc($validator, $this->ruc);
-                   // $this->comprobarTiempo($validator);
+                    // $this->comprobarTiempo($validator);
                 }
                 if ($this->route()->getActionMethod() === 'aprobarGasto') {
                     $gasto = Gasto::where('id', $this->id)->lockForUpdate()->first();
@@ -133,18 +136,18 @@ class GastoRequest extends FormRequest
             }
         });
     }
-   /* private function comprobarTiempo($validator)
-    {
-        $hora_limite = '15:00:00';
-        $fechaActual = Carbon::now();
-        $ultimoDiaMes = $fechaActual->copy()->endOfMonth();
-        $fecha_limite = $ultimoDiaMes->format('d-m-Y');
-        if ($fechaActual->isSameDay($ultimoDiaMes)) {
-            if ($fechaActual->format('H:i:s') > $hora_limite) {
-                $validator->errors()->add('hora_limite', 'Solo se podrán subir facturas para aprobación hasta ' . $fecha_limite . ' ' . $hora_limite);
-            }
-        }
-    }*/
+    /* private function comprobarTiempo($validator)
+     {
+         $hora_limite = '15:00:00';
+         $fechaActual = Carbon::now();
+         $ultimoDiaMes = $fechaActual->copy()->endOfMonth();
+         $fecha_limite = $ultimoDiaMes->format('d-m-Y');
+         if ($fechaActual->isSameDay($ultimoDiaMes)) {
+             if ($fechaActual->format('H:i:s') > $hora_limite) {
+                 $validator->errors()->add('hora_limite', 'Solo se podrán subir facturas para aprobación hasta ' . $fecha_limite . ' ' . $hora_limite);
+             }
+         }
+     }*/
 
 
     /**
@@ -160,6 +163,10 @@ class GastoRequest extends FormRequest
             }
         }
     }
+
+    /**
+     * @throws Exception
+     */
     public function validarNumeroComprobante($validator)
     {
         $factura = Gasto::where('factura', '!=', null)
@@ -199,7 +206,7 @@ class GastoRequest extends FormRequest
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
         }
         if ($this->factura !== null) {
-            switch($this->pais){
+            switch ($this->pais) {
                 case PaisesOperaciones::PERU:
                     return true;
                 default:
@@ -215,7 +222,7 @@ class GastoRequest extends FormRequest
                     ];
                     $index = array_search($this->detalle, array_column($numFacturaObjeto, 'detalle'));
                     $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
-                    $num_fact = str_replace(' ', '',  $this->factura);
+                    $num_fact = str_replace(' ', '', $this->factura);
                     if (!!$this->factura) {
                         if ($this->detalle == DetalleViatico::PEAJE) {
                             if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
@@ -236,27 +243,29 @@ class GastoRequest extends FormRequest
      */
     protected function prepareForValidation()
     {
+        $controller_method = $this->route()->getActionMethod();
         $date_viat = Carbon::createFromFormat('Y-m-d', $this->fecha_viat);
         if (!is_null($this->factura))
             $this->merge([
                 'factura' => str_replace('_', ' ', $this->factura),
             ]);
         $this->merge([
-            'fecha_viat' =>  $date_viat->format('Y-m-d'),
+            'fecha_viat' => $date_viat->format('Y-m-d'),
         ]);
         $this->merge([
-            'comprobante' =>  $this->comprobante1,
+            'comprobante' => $this->comprobante1,
         ]);
         if ($this->route()->getActionMethod() === 'store') {
 
             if (is_null($this->aut_especial)) {
                 $id_jefe = Auth::user()->empleado->jefe_id;
+//                if ($id_jefe == $this->id_wellington) $id_jefe = $this->id_isabel;
                 $this->merge([
                     'aut_especial' => $id_jefe,
                 ]);
             }
             $this->merge([
-                'id_usuario' => Auth::user()->empleado->id,
+                'id_usuario' => $this->id_usuario ? $this->id_usuario : Auth::user()->empleado->id,
                 'estado' => Gasto::PENDIENTE
             ]);
         }
@@ -290,6 +299,22 @@ class GastoRequest extends FormRequest
             'id_tarea' => $tarea,
             'id_proyecto' => $proyecto,
             'id_lugar' => $this->lugar,
+        ]);
+
+        // Redireccionar aprobación de gastos creados por personas que tienen configurado un AutorizadorDirecto
+        $this->merge([
+            'aut_especial' => EmpleadoService::obtenerAutorizadorDirecto($this->id_usuario, $this->aut_especial)
+        ]);
+
+        // Colocar el autorizador al delegado
+        if($controller_method == 'store'){
+            $this->merge([
+               'aut_especial' => EmpleadoDelegado::obtenerDelegado($this->aut_especial)
+            ]);
+        }
+
+        $this->merge([
+            'nodo_id'=>$this->nodo ?:null
         ]);
     }
 }

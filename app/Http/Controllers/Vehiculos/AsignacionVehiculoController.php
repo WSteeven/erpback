@@ -24,12 +24,13 @@ use Src\App\ArchivoService;
 use Src\App\Vehiculos\VehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class AsignacionVehiculoController extends Controller
 {
-    private $entidad = 'Asignación';
-    private $archivoService;
-    private $vehiculoService;
+    private string $entidad = 'Asignación';
+    private ArchivoService $archivoService;
+    private VehiculoService $vehiculoService;
 
     public function __construct()
     {
@@ -63,6 +64,9 @@ class AsignacionVehiculoController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws ValidationException|Throwable
+     */
     public function store(AsignacionVehiculoRequest $request)
     {
         $datos = $request->validated();
@@ -77,7 +81,7 @@ class AsignacionVehiculoController extends Controller
             $modelo = new AsignacionVehiculoResource($asignacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puedo guardar: ')]);
         }
@@ -90,6 +94,9 @@ class AsignacionVehiculoController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws ValidationException|Throwable
+     */
     public function update(AsignacionVehiculoRequest $request, AsignacionVehiculo $asignacion)
     {
         $datos = $request->validated();
@@ -112,7 +119,7 @@ class AsignacionVehiculoController extends Controller
                 event(new NotificarAsignacionVehiculoEvent($asignacion));
 
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puedo actualizar: ')]);
         }
@@ -127,6 +134,10 @@ class AsignacionVehiculoController extends Controller
         return response()->json(compact('mensaje'));
     }
 
+    /**
+     * @throws ValidationException
+     * @throws Exception
+     */
     public function actaEntrega(AsignacionVehiculo $asignacion)
     {
         $configuracion = ConfiguracionGeneral::first();
@@ -143,14 +154,17 @@ class AsignacionVehiculoController extends Controller
                 'entrega' => Empleado::find($asignacion->entrega_id),
                 'responsable' => Empleado::find($asignacion->responsable_id),
             ]);
-            $pdf->setPaper('A4', 'portrait');
+            $pdf->setPaper('A4');
             $pdf->render();
             return $pdf->output();
-        } catch (\Throwable $th) {
+        } catch (Throwable|Exception $th) {
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
         }
     }
 
+    /**
+     * @throws ValidationException|Throwable
+     */
     public function devolverVehiculo(Request $request, AsignacionVehiculo $asignacion)
     {
         $request->validate(['observacion' => ['string', 'required']]);
@@ -166,7 +180,7 @@ class AsignacionVehiculoController extends Controller
             //actualizamos el custodio del vehículo
             $this->vehiculoService->actualizarCustodioVehiculo($asignacion->vehiculo_id);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
@@ -178,7 +192,7 @@ class AsignacionVehiculoController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, AsignacionVehiculo $asignacion)
+    public function indexFiles(AsignacionVehiculo $asignacion)
     {
         try {
             $results = $this->archivoService->listarArchivos($asignacion);
@@ -188,7 +202,6 @@ class AsignacionVehiculoController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('results'));
     }
 
     /**
@@ -200,7 +213,7 @@ class AsignacionVehiculoController extends Controller
             $modelo = $this->archivoService->guardarArchivo($asignacion, $request->file, RutasStorage::EVIDENCIAS_VEHICULOS_ASIGNADOS->value . $asignacion->vehiculo->placa);
             $mensaje = 'Archivo subido correctamente';
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de AsignacionVehiculoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);

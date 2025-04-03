@@ -1,24 +1,14 @@
 <?php
 
 use App\Exports\RegistroTendidoExport;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Mail\Notificar;
-use App\Models\Empleado;
-use App\Models\PrestamoTemporal;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use Src\App\MaterialesService;
-use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,24 +30,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::name('imprimir')->get('/imprimir-pdf', [Controller::class, 'imprimir']);
+Route::name('imprimir')->get('/imprimir-pdf', [TransaccionBodegaIngresoController::class, 'imprimir']);
 // Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->name('imprimir');
-// Route::name('imprimir')->get('/imprimir-single/{prestamo}', [PrestamoTemporalController::class, 'print']);
 
 //pedidos
-Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->name('imprimir');
 
 
 Route::view('resumen-tendido', 'pdf-excel.resumen_tendido'); //resources\views\pdf-excel\resumen_tendido.php
-Route::get('resumen-tendido', fn () => Excel::download(new RegistroTendidoExport, 'users.xlsx'));
+Route::get('resumen-tendido', fn() => Excel::download(new RegistroTendidoExport, 'users.xlsx'));
 
 Route::get('/notificar', function () {
-    $response = Mail::to('wilsonsteeven@outlook.com')->cc(['wilson972906@gmail.com', 'wcordova@jpconstrucred.com', 'full.stack.developer1997@gmail.com'])->send(new Notificar());
+    $response = Mail::to('wcordova@jpconstrucred.com')->cc(['full.stack.developer1997@gmail.com'])->send(new Notificar());
 
     dump($response);
 });
 
-Route::get('social-network/{driver}',[LoginSocialNetworkController::class, 'handleCallback']);
+Route::get('social-network/{driver}', [LoginSocialNetworkController::class, 'handleCallback']);
 Route::get('login-social-network', [LoginSocialNetworkController::class, 'login']);
 Route::get('social-network/{driver}', [LoginSocialNetworkController::class, 'handleCallback']);
 
@@ -66,3 +54,14 @@ Route::get('social-network/{driver}', [LoginSocialNetworkController::class, 'han
 
 //     Log::channel('testing')->info('Log', ['Recibe fondos', $empleado->acumula_fondos_reserva==0]);
 // });
+
+Route::get('get-file/{file_path}', [FileController::class, 'getFile'])->where('file_path', '.*')->name('get-file');
+
+//Route::get('get-file/{file_path}', function ($file_path) {
+    // Decodifica la URL en caso de que tenga caracteres especiales.
+//    $file_path = urldecode($file_path);
+
+    //Verifica si el archivo existe
+//    $full_path =
+
+//});

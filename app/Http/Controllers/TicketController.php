@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ActualizarNotificacionesEvent;
-use App\Events\TicketEvent;
+use App\Events\Tickets\TicketEvent;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Mail\Tickets\EnviarMailTicket;
@@ -16,6 +16,7 @@ use App\Models\TicketRechazado;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -36,9 +37,14 @@ class TicketController extends Controller
     public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
+
+        if (request('estado') === Ticket::ETIQUETADOS_A_MI) $results = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest()->get($campos);
+        else if (request('estado') === Ticket::RECURRENTE) $results = Ticket::ignoreRequest(['estado'])->filter()->where('is_recurring', true)->latest()->get();
+        else $results = Ticket::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+
+        /* $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
             $q->orWhereJsonContains('cc', intval(request('responsable_id')))->where('estado', Ticket::EJECUTANDO);
-        })->latest()->get($campos);
+        })->latest()->get($campos); */
 
         $results = TicketResource::collection($results);
         return response()->json(compact('results'));
@@ -72,6 +78,7 @@ class TicketController extends Controller
 
         // event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
         $this->servicio->notificarTicketsAsignados($tickets_creados);
+        $this->servicio->notificarTicketsCC($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
         $ids_tickets_creados = array_map(fn($ticket) => $ticket->id, $tickets_creados);
@@ -113,6 +120,7 @@ class TicketController extends Controller
         $request->validate([
             'departamento_responsable' => 'required|numeric|integer',
             'responsable' => 'required|numeric|integer',
+            'cc' => 'nullable|array',
         ]);
 
         $idResponsableAnterior = $ticket->responsable_id;
@@ -120,6 +128,7 @@ class TicketController extends Controller
         $ticket->departamento_responsable_id = $request['departamento_responsable'];
         $ticket->responsable_id = $request['responsable'];
         $ticket->estado = Ticket::REASIGNADO;
+        $ticket['cc'] = json_encode($request['cc']);
         $ticket->save();
 
         $modelo = new TicketResource($ticket->refresh());
@@ -131,7 +140,7 @@ class TicketController extends Controller
                 'ticket_id' => $ticket->id,
                 'fecha_hora' => Carbon::now(),
                 'observacion' => 'TICKET REASIGNADO',
-                'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
+                'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::query()->find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
                 'responsable_id' => $idResponsableAnterior,
             ]);
 
@@ -389,7 +398,48 @@ class TicketController extends Controller
         });
 
         $results = array_values($auditoria->filter(fn($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
-        Log::channel('testing')->info('Log', compact('results'));
+        // Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(TicketRequest $request, Ticket $ticket)
+    {
+        return DB::transaction(function () use ($request, $ticket) {
+            $datos = $request->validated();
+            $ticket->update($datos);
+            $modelo = new TicketResource($ticket->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        });
+    }
+
+    // Actualizar el estado de recurrencia
+    /* public function toggleRecurrence($id, Request $request)
+    {
+        $ticket = Ticket::where('id', $id)
+            ->whereNull('parent_ticket_id')
+            ->where('is_recurring', true)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'recurrence_active' => 'required|boolean'
+        ]);
+
+        $ticket->update([
+            'recurrence_active' => $validated['recurrence_active']
+        ]);
+
+        return response()->json([
+            'mensaje' => $ticket->recurrence_active ? 'Recurrencia reanudada' : 'Recurrencia pausada',
+            'modelo' => $ticket
+        ]);
+    } */
 }

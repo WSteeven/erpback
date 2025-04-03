@@ -13,12 +13,13 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
+use Str;
 
 class TareaEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Tarea $tarea;
+    public array $tarea;
     public Notificacion $notificacion;
     public string $destinatario;
 
@@ -29,7 +30,12 @@ class TareaEvent implements ShouldBroadcast
      */
     public function __construct(Tarea $tarea, int $emisor, int $destinatario)
     {
-        $this->tarea = $tarea;
+        $this->tarea = [
+            'id' => $tarea->id,
+            'titulo' => $tarea->titulo,
+            'descripcion' => Str::limit($tarea->descripcion, 150),
+        ];
+
         $this->destinatario = $destinatario;
 
         $ruta = '/gasto';

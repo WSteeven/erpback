@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TanqueoResource extends JsonResource
@@ -9,8 +10,8 @@ class TanqueoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -23,6 +24,7 @@ class TanqueoResource extends JsonResource
             'fecha_hora' => date('Y-m-d', strtotime($this->fecha_hora)),
             'km_tanqueo' => $this->km_tanqueo,
             'monto' => $this->monto,
+            'bitacora'=>$this->bitacora_id,
         ];
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {

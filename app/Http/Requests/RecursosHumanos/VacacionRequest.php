@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\RecursosHumanos;
 
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,27 +27,17 @@ class VacacionRequest extends FormRequest
         return [
             'empleado_id' => 'required|exists:empleados,id',
             'periodo_id' => 'required|exists:periodos,id',
-            'derecho_vacaciones' => 'nullable|date_format:Y-m-d',
-            'fecha_inicio' => 'nullable|date_format:Y-m-d',
-            'fecha_fin' => 'nullable|date_format:Y-m-d',
-            'fecha_inicio_rango1_vacaciones' => 'nullable|date_format:Y-m-d',
-            'fecha_fin_rango1_vacaciones' => 'nullable|date_format:Y-m-d',
-            'fecha_inicio_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
-            'fecha_fin_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
-            'descuento_vacaciones' => 'required|integer',
-            'numero_dias' => 'required|integer',
-            'numero_dias_rango1' => 'nullable|integer',
-            'numero_dias_rango2' => 'nullable|integer'
+            'opto_pago' => 'boolean',
+            'observacion' => 'nullable|string',
+            'mes_pago' => 'nullable|string',
         ];
     }
+
     protected function prepareForValidation()
     {
-        $empleado_id = $this->empleado ?? Auth::user()->empleado->id;
         $this->merge([
-            'empleado_id' => $empleado_id,
+            'empleado_id' => $this->empleado ?? Auth::user()->empleado->id,
             'periodo_id' => $this->periodo,
-            'fecha_inicio' => $this->fecha_inicio,
-            'fecha_fin' =>$this->fecha_fin,
         ]);
     }
 }

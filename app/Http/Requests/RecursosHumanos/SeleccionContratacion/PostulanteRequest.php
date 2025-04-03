@@ -24,13 +24,23 @@ class PostulanteRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombres' => 'required|string' ,
+            'nombres' => 'required|string',
             'apellidos' => 'required|string',
             'tipo_documento_identificacion' => 'required|string',
-            'numero_documento_identificacion'=>'string|required|unique:rrhh_postulantes,numero_documento_identificacion|min:10',
-            'telefono' => 'required|string' ,
-            'email' => 'required|email|max:255|unique:users',
+            'numero_documento_identificacion' => 'string|required|unique:rrhh_postulantes,numero_documento_identificacion|min:10',
+            'telefono' => 'required|string',
+            'email' => 'required|email|max:255|unique:rrhh_users_externals,email',
             'password' => 'required|string|min:8',
+            'fecha_nacimiento' => 'string|required',
+            'correo_personal' => 'string|required'
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if (is_null($this->correo_personal) || $this->correo_personal == '')
+            $this->merge([
+                'correo_personal' => $this->email
+            ]);
     }
 }

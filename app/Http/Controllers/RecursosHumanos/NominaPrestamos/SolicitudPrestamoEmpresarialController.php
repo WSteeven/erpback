@@ -7,25 +7,22 @@ use App\Events\SolicitudPrestamoGerenciaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
-use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
-use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use DateTime;
+use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
-use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class SolicitudPrestamoEmpresarialController extends Controller
 {
-    private $entidad = 'Solicitud Prestamo Empresarial';
+    private string $entidad = 'Solicitud Prestamo Empresarial';
     public function __construct()
     {
         $this->middleware('can:puede.ver.solicitud_prestamo_empresarial')->only('index', 'show');
@@ -34,26 +31,23 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $this->middleware('can:puede.eliminar.solicitud_prestamo_empresarial')->only('destroy');
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $results = [];
         $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('GERENTE') ||  $usuario_ac->hasRole('RECURSOS HUMANOS')) {
-            $results = SolicitudPrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
-            $results = SolicitudPrestamoEmpresarialResource::collection($results);
-            return response()->json(compact('results'));
+        if ($usuario->hasRole('GERENTE') ||  $usuario->hasRole('RECURSOS HUMANOS')) {
+            $results = SolicitudPrestamoEmpresarial::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         } else {
-            $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->empleado->id)->ignoreRequest(['campos'])->filter()->get();
-            $results = SolicitudPrestamoEmpresarialResource::collection($results);
-            return response()->json(compact('results'));
+            $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         }
+        $results = SolicitudPrestamoEmpresarialResource::collection($results);
+        return response()->json(compact('results'));
     }
-    public function show(Request $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
-    {
-        $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
-        return response()->json(compact('modelo'), 200);
-    }
+
+
+    /**
+     * @throws ValidationException
+     * @throws Throwable
+     */
     public function store(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
@@ -73,87 +67,106 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 '404' => ['Solo se permite prestamo menor o igual a 2 SBU ($' . ($rubro->valor_rubro * 2) . ')'],
             ]);
         }
-        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::create($datos);
-        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
-        if ($SolicitudPrestamoEmpresarial->estado == 4) {
-            event(new SolicitudPrestamoGerenciaEvent($SolicitudPrestamoEmpresarial));
+        $solicitud = SolicitudPrestamoEmpresarial::create($datos);
+
+        event(new SolicitudPrestamoEvent($solicitud));
+        if ($solicitud->estado == 4) {
+            event(new SolicitudPrestamoGerenciaEvent($solicitud));
         }
-        $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
+
+        $modelo = new SolicitudPrestamoEmpresarialResource($solicitud);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
+
+    public function show(SolicitudPrestamoEmpresarial $solicitud)
+    {
+        $modelo = new SolicitudPrestamoEmpresarialResource($solicitud);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * @throws Exception
+     * @throws Throwable
+     */
+    public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $solicitud)
     {
         switch ($request->estado) {
-            case 2:
-                return $this->aprobar_prestamo_empresarial($request);
-                break;
-            case 3:
-                return  $this->rechazar_prestamo_empresarial($request);
-                break;
-            case 4:
-                return $this->validar_prestamo_empresarial($request);
-                break;
+            case 2: // Aprobado
+                return $this->aprobar_prestamo_empresarial($request, $solicitud);
+            case 3: // Cancelado
+                return  $this->rechazar_prestamo_empresarial($request, $solicitud);
+            case 4: // Validado
+                return $this->validar_prestamo_empresarial($request, $solicitud);
+            default:
+                $modelo = new SolicitudPrestamoEmpresarialResource($solicitud);
+                $mensaje = 'No se reconoce el estado proporcionado, sin modificaciones';
+                return response()->json(compact('mensaje', 'modelo'));
         }
     }
-    public function validar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
+
+    /**
+     * @throws Throwable
+     */
+    public function validar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $solicitud)
     {
         $datos = $request->validated();
-        $valor_cuota = !is_null($request->monto) ? $request->monto : 0;
-        $plazo_prestamo = !is_null($request->plazo) ? $request->plazo : 0;
-        $valor_pago = $valor_cuota / $plazo_prestamo;
-        $empleado = Empleado::find($request->solicitante);
-        $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
-        $salario = $empleado->salario;
-        $anticipo = $salario *  $porcentaje_anticipo;
-        $datos['estado'] = $request->estado;
-        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
-        $SolicitudPrestamoEmpresarial->update($datos);
-        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
-        event(new SolicitudPrestamoGerenciaEvent($SolicitudPrestamoEmpresarial));
-        $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
+        $solicitud->update($datos);
+        event(new SolicitudPrestamoEvent($solicitud));
+        event(new SolicitudPrestamoGerenciaEvent($solicitud));
+        $modelo = new SolicitudPrestamoEmpresarialResource($solicitud);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function destroy(Request $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
+
+    public function destroy(SolicitudPrestamoEmpresarial $solicitud)
     {
-        $SolicitudPrestamoEmpresarial->delete();
-        return response()->json(compact('SolicitudPrestamoEmpresarial'));
+        $solicitud->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
-    public function aprobar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
+
+    /**
+     * @throws Exception
+     * @throws Throwable
+     */
+    public function aprobar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $solicitud)
     {
         $datos = $request->validated();
-        $datos['estado'] = 2;
-        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
-        $SolicitudPrestamoEmpresarial->update($datos);
-        $PrestamoEmpresarial = new PrestamoEmpresarial();
-        $PrestamoEmpresarial->solicitante = $request->solicitante;
-        $PrestamoEmpresarial->fecha = $request->fecha;
-        $PrestamoEmpresarial->monto = $request->monto;
-        $PrestamoEmpresarial->plazo = $request->plazo;
-        $PrestamoEmpresarial->estado = PrestamoEmpresarial::ACTIVO;
-        $PrestamoEmpresarial->periodo_id = $request->periodo_id;
-        $PrestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
-        $PrestamoEmpresarial->id_solicitud_prestamo_empresarial = $SolicitudPrestamoEmpresarial->id;
-        $PrestamoEmpresarial->save();
-        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
-        $this->tabla_plazos($PrestamoEmpresarial);
-        $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
+        $solicitud->update($datos);
+        $prestamoEmpresarial = new PrestamoEmpresarial();
+        $prestamoEmpresarial->solicitante = $request->solicitante;
+        $prestamoEmpresarial->fecha = $request->fecha;
+        $prestamoEmpresarial->monto = $request->monto;
+        $prestamoEmpresarial->plazo = $request->plazo;
+        $prestamoEmpresarial->estado = PrestamoEmpresarial::ACTIVO;
+        $prestamoEmpresarial->periodo_id = $request->periodo_id;
+        $prestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
+        $prestamoEmpresarial->id_solicitud_prestamo_empresarial = $solicitud->id;
+        $prestamoEmpresarial->save();
+        event(new SolicitudPrestamoEvent($solicitud));
+        $this->tabla_plazos($prestamoEmpresarial);
+        $modelo = new SolicitudPrestamoEmpresarialResource($solicitud);
         $mensaje = "Solicitud de Prestamo a sido Aprobada";
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function rechazar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
+
+    /**
+     * @throws Throwable
+     */
+    public function rechazar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $solicitud)
     {
         $datos = $request->validated();
-        $datos['estado'] = 3;
-        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
-        $SolicitudPrestamoEmpresarial->update($datos);
-        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
-        $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
+        $solicitud->update($datos);
+        event(new SolicitudPrestamoEvent($solicitud));
+        $modelo = new SolicitudPrestamoEmpresarialResource($solicitud);
         $mensaje = "Solicitud de Prestamo a sido Rechazada"; //Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
-        return $SolicitudPrestamoEmpresarial;
     }
+
+    /**
+     * @throws Exception
+     */
     public function tabla_plazos(PrestamoEmpresarial $prestamo)
     {
         $valor_cuota = !is_null($prestamo->monto) ? $prestamo->monto : 0;
@@ -174,13 +187,13 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 'valor_a_pagar' => 0,
                 'pago_couta' => false,
             ];
-            array_push($plazos, $plazo);
+            $plazos[] = $plazo;
         }
         if ($valor_utilidad != 0) {
             $periodo = Periodo::where('id', $prestamo->periodo_id)->first();
             $nombrePeriodo = $periodo->nombre;
             $anio = explode('-', $nombrePeriodo)[0];
-            $indice =  $prestamo->plazo + 1;
+            $indice =  (int)$prestamo->plazo + 1;
             $plazo = [
                 'num_cuota' =>  $indice,
                 'fecha_vencimiento' => '30-04-' . $anio,
@@ -189,18 +202,18 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 'valor_a_pagar' => 0,
                 'pago_couta' => false,
             ];
-            array_push($plazos, $plazo);
+            $plazos[] = $plazo;
         }
         $this->crear_plazos($prestamo, $plazos);
     }
+
+    /**
+     * @throws Exception
+     */
     public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
     {
-        $day = 1000 * 60 * 60 * 24;
-        $week = 7 * $day;
-        $month = 4 * $week;
-        $year = 12 * $month;
         $partes = explode('-', $prestamo->fecha);
-        $fechaActual = new \DateTime(
+        $fechaActual = new DateTime(
             $partes[2] . '-' . $partes[1] . '-' . $partes[0]
         );
         switch ($plazo) {
@@ -211,21 +224,19 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 $fechaActual->modify('+' . $cuota . ' week');
                 break;
             case 'meses':
-                $mes = $fechaActual->format('m') + $cuota;
+                $mes = (int)$fechaActual->format('m') + $cuota;
+                $fechaActual->setDate($fechaActual->format('Y'), (int)$fechaActual->format('m') + $cuota, 30);
                 if ($mes == 14) {
-                    $fechaActual->setDate($fechaActual->format('Y'), $fechaActual->format('m') + $cuota, 30);
                     $fechaActual->modify('-1 day');
-                } else {
-                    $fechaActual->setDate($fechaActual->format('Y'), $fechaActual->format('m') + $cuota, 30);
                 }
                 break;
             case 'anios':
                 $fechaActual->modify('+' . $cuota . ' year');
                 break;
         }
-        $fechaFormateada = $fechaActual->format('d-m-Y');
-        return $fechaFormateada;
+        return $fechaActual->format('d-m-Y');
     }
+
     public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
     {
         $plazosActualizados = collect($plazos)->map(function ($plazo) use ($prestamoEmpresarial) {
@@ -242,4 +253,5 @@ class SolicitudPrestamoEmpresarialController extends Controller
         })->toArray();
         PlazoPrestamoEmpresarial::insert($plazosActualizados);
     }
+
 }

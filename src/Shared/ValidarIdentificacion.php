@@ -4,7 +4,6 @@ namespace Src\Shared;
 
 use Exception;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Src\Config\PaisesOperaciones;
 
 // https://github.com/diaspar/validacion-cedula-ruc-ecuador
@@ -87,8 +86,9 @@ class ValidarIdentificacion
                 case PaisesOperaciones::PERU:
                     return true;
                 default :
-                    $existe_ruc = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc);
-                    return $existe_ruc->body() == 'true';
+//                    $response = Http::withOptions(['verify'=>false])->get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc); //opcion para cuando el SRI presenta problemas de cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=
+                    $response = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc);
+                    return $response->body() == 'true';
             }
         } catch (Exception $e) {
             throw match ($this->pais) {
@@ -115,9 +115,9 @@ class ValidarIdentificacion
 
         // validaciones
         try {
-            Log::channel('testing')->info('Log', ['Metodo validarCedula', $this->pais ]);
-            Log::channel('testing')->info('Log', ['Metodo comparacion', $this->pais == PaisesOperaciones::PERU ]);
-            Log::channel('testing')->info('Log', ['como clase', PaisesOperaciones::PERU ]);
+//            Log::channel('testing')->info('Log', ['Metodo validarCedula', $this->pais ]);
+//            Log::channel('testing')->info('Log', ['Metodo comparacion', $this->pais == PaisesOperaciones::PERU ]);
+//            Log::channel('testing')->info('Log', ['como clase', PaisesOperaciones::PERU ]);
             switch ($this->pais) {
                 case PaisesOperaciones::PERU:
                     return true;

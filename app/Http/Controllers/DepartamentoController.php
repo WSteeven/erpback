@@ -5,13 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RecursosHumanos\DepartamentoRequest;
 use App\Http\Resources\DepartamentoResource;
 use App\Models\Departamento;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class DepartamentoController extends Controller
 {
-    private $entidad = 'Departamento';
+    private string $entidad = 'Departamento';
 
     public function listar()
     {
@@ -27,7 +25,7 @@ class DepartamentoController extends Controller
     /*********
      * Listar
      *********/
-    public function index(Request $request)
+    public function index()
     {
         // Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
         $results = $this->listar();

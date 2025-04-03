@@ -26,6 +26,8 @@ Route::get('categorias-motivos-consumo-activos-fijos', [CategoriaMotivoConsumoAc
 Route::get('motivos-consumo-activos-fijos', [MotivoConsumoActivoFijoController::class, 'index']);
 Route::get('stock-responsables-activos-fijos', [ActivoFijoController::class, 'obtenerAsignacionesProductos']); // activos fijos asignados al usuario
 Route::get('activos-fijos-asignados', [ActivoFijoController::class, 'obtenerActivosFijosAsignados']); // activos fijos asignados al usuario pasado
+Route::get('reporte-activos-fijos', [ActivoFijoController::class, 'reporteActivosFijos']); // activos fijos asignados al usuario pasado
+Route::get('activos-fijos-imprimir-etiqueta/{id}', [ActivoFijoController::class, 'printLabel']);
 // Route::get('seguimiento-consumo-activos-fijos', [SeguimientoConsumoActivosFijosController::class, 'index']);
 
 /*************************

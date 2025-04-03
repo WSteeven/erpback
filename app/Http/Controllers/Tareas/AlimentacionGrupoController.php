@@ -8,6 +8,7 @@ use App\Http\Resources\Tareas\AlimentacionGrupoResource;
 use App\Models\Tareas\AlimentacionGrupo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 
@@ -50,18 +51,21 @@ class AlimentacionGrupoController extends Controller
     {
         $data = $request->validated();
         $listado = $data['alimentacion_grupos'];
+        $elementos_insertados = collect([]);
 
         foreach ($listado as $alimentacionGrupo) {
             // $alimentacionGrupo['tipo_alimentacion_id'] = $tipo_alimentacion_id;
-            AlimentacionGrupo::create($alimentacionGrupo);
+            $elementos_insertados->push(AlimentacionGrupo::create($alimentacionGrupo));
             // Varios tipos de alimentacion
             /* foreach ($alimentacionGrupo['tipos_alimentacion'] as $tipo_alimentacion_id) {
                 $alimentacionGrupo['tipo_alimentacion_id'] = $tipo_alimentacion_id;
                 AlimentacionGrupo::create($alimentacionGrupo);
             } */
         }
+        
+        $modelo = AlimentacionGrupoResource::collection($elementos_insertados);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
-        return response()->json(compact('mensaje'));
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**
@@ -88,13 +92,11 @@ class AlimentacionGrupoController extends Controller
         DB::beginTransaction();
 
         try {
-            $actualizado = $alimentacion_grupo->update($request->except(['id']));
+            $actualizado = $alimentacion_grupo->update($request->except('id'));
 
             // Respuesta
             $modelo = new AlimentacionGrupoResource($alimentacion_grupo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-
-            return response()->json(compact('mensaje', 'modelo'));
 
             DB::commit();
         } catch (\Exception $e) {

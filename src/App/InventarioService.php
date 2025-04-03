@@ -25,10 +25,10 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\Bodega\DevolucionService;
 use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
-use Dotenv\Exception\ValidationException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
@@ -165,12 +165,12 @@ class InventarioService
         $tituloGrafico = 'Ingresos a bodega';
         $graficos = [];
 
-        //Ordenamos los datos en orden descendente
+        // Ordenamos los datos en orden descendente
         arsort($data);
 
         // Definimos un límite superior para la cantidad de elementos a mostrar directamente
         $limit = 4;
-        //Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
+        // Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
         $displayedData  = [];
         $othersData  = [];
 
@@ -367,6 +367,9 @@ class InventarioService
     }
     public static function obtenerInventarios($fecha_inicio, $fecha_fin) {}
 
+    /**
+     * @throws ValidationException
+     */
     public function kardex(int $detalle_id, $fecha_inicio, $fecha_fin, $tipo_rpt = null, int $sucursal_id = null)
     {
         $fecha_fin = Carbon::parse($fecha_fin)->endOfDay();
@@ -440,7 +443,8 @@ class InventarioService
             $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
             $row['sucursal'] = $movimiento->inventario->sucursal?->lugar;
             $row['condicion'] = $movimiento->inventario->condicion->nombre;
-            $row['cantidad'] = $movimiento->recibido; //cantidad_inicial;
+            $row['cantidad'] = $movimiento->cantidad_inicial;
+            $row['cantidad_recibida'] = $movimiento->recibido; //cantidad_inicial;
             $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
             $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
             // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
@@ -498,11 +502,15 @@ class InventarioService
             })
             ->when($fecha_fin, function ($q) use ($fecha_fin) {
                 $q->where('created_at', '<=', $fecha_fin);
-            })->orderBy('created_at', 'desc')->get();
+            })->orderBy('created_at', 'desc')
+            ->whereHas('transferencia', function ($q) {
+                return $q->where('autorizacion_id', Autorizacion::APROBADO_ID);
+            })
+            ->get();
         $transferencias = DetalleTransferenciaProductoEmpleadoResource::collection($transferencias);
 
         rsort($results); //aqui se ordena el array en forma descendente
-        Log::channel('testing')->info('Log', ['Results', $results]);
+//        Log::channel('testing')->info('Log', ['Results', $results]);
         switch ($tipo_rpt) {
             case 'excel':
                 try {

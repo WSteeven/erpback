@@ -8,6 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Procesador
+ *
+ * @property int $id
+ * @property string $nombre
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\ComputadoraTelefono|null $computadoraTelefono
+ * @method static \Illuminate\Database\Eloquent\Builder|Procesador newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Procesador newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Procesador query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Procesador whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Procesador whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Procesador whereNombre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Procesador whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Procesador extends Model implements Auditable
 {
     use HasFactory;

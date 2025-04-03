@@ -2,21 +2,17 @@
 <html lang="es">
 
 @php
+    use Src\Shared\Utils;
+
     ini_set('max_execution_time', 300); //poner el tiempo maximo de ejecucion en 5 minutes
     $fecha = new Datetime();
     $mensaje_qr = $configuracion['razon_social'] . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
-    // if ($cliente->logo_url) {
-    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
-    // } else {
-    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-    // }
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+
     if ($persona_entrega->firma_url) {
-        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
+        $entrega_firma = Utils::urlToBase64(url($persona_entrega->firma_url));
     }
     if ($persona_atiende->firma_url) {
-        $atiende_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_atiende->firma_url, 1)));
+        $atiende_firma = Utils::urlToBase64(url($persona_atiende->firma_url));
     }
 @endphp
 
@@ -29,7 +25,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -106,7 +102,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="70"></div>
                 </td>
                 <td style="width: 68%">
                     @if ($transaccion['transferencia'])

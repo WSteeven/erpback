@@ -3,12 +3,44 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
+/**
+ * App\Models\Autorizacion
+ *
+ * @property int $id
+ * @property string $nombre
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Pedido|null $pedido
+ * @property-read TransaccionBodega|null $transaccion
+ * @property-read Transferencia|null $transferencia
+ * @method static Builder|Autorizacion acceptRequest(?array $request = null)
+ * @method static Builder|Autorizacion filter(?array $request = null)
+ * @method static Builder|Autorizacion ignoreRequest(?array $request = null)
+ * @method static Builder|Autorizacion newModelQuery()
+ * @method static Builder|Autorizacion newQuery()
+ * @method static Builder|Autorizacion query()
+ * @method static Builder|Autorizacion setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Autorizacion setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Autorizacion setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Autorizacion whereCreatedAt($value)
+ * @method static Builder|Autorizacion whereId($value)
+ * @method static Builder|Autorizacion whereNombre($value)
+ * @method static Builder|Autorizacion whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Autorizacion extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;
@@ -24,12 +56,14 @@ class Autorizacion extends Model implements Auditable
     const PENDIENTE = 'PENDIENTE';
     const APROBADO = 'APROBADO';
     const CANCELADO = 'CANCELADO';
+    const VALIDADO = 'VALIDADO';
 
     const PENDIENTE_ID = 1;
     const APROBADO_ID = 2;
     const CANCELADO_ID = 3;
+    const VALIDADO_ID = 4;
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
 

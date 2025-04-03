@@ -39,6 +39,7 @@ class BitacoraVehicularRequest extends FormRequest
             'tanque_final' => 'numeric|sometimes|nullable',
             'firmada' => 'boolean|sometimes',
             'chofer_id' => 'sometimes|exists:empleados,id',
+            'registrador_id' => 'required|exists:empleados,id',
             'vehiculo_id' => 'numeric|exists:vehiculos,id',
             'checklistAccesoriosVehiculo' => 'required|array',
             'checklistVehiculo' => 'required|array',
@@ -82,7 +83,10 @@ class BitacoraVehicularRequest extends FormRequest
                     $validator->errors()->add('km_final', 'Por favor verifica y corrige el formulario.');
                 }
             }
+
             if (!auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS)) { // Si no es administrador de vehiculos, verifica el ultimo KM
+                $bitacora_activa = BitacoraVehicular::where('vehiculo_id', $this->vehiculo_id)->where('firmada', false)->exists();
+                if ($bitacora_activa && $this->controllerMethod==='store') $validator->errors()->add('vehiculo_id','El vehículo ya tiene una bitacora activa, por favor finalizala para poder crear otra');
                 //Verificamos si el km_inicial no es inferior al ultimo registrado
                 $ultima_bitacora = BitacoraVehicular::where('vehiculo_id', $this->vehiculo_id)->where('firmada', true)->orderBy('id', 'desc')->first();
                 if ($ultima_bitacora) {
@@ -99,6 +103,7 @@ class BitacoraVehicularRequest extends FormRequest
         $this->controllerMethod = $this->route()->getActionMethod();
         $this->merge([
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
+            'registrador_id'=> auth()->user()->empleado->id,
             // 'vehiculo_id' => Vehiculo::where('placa', $this->vehiculo)->first()?->id,
         ]);
         // if (is_null($this->checklistAccesoriosVehiculo['observacion_accesorios_vehiculo']))
@@ -119,5 +124,6 @@ class BitacoraVehicularRequest extends FormRequest
                 'checklistImagenVehiculo.bitacora_id' => $this->id,
             ]);
         }
+
     }
 }

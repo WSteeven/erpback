@@ -1,70 +1,70 @@
 <?php
 
-use App\Http\Controllers\DetalleProductoTransaccionController;
-use App\Http\Controllers\TransaccionBodegaIngresoController;
-use App\Http\Controllers\TransaccionBodegaEgresoController;
-use App\Http\Controllers\MovimientoProductoController;
-use App\Http\Controllers\EstadoTransaccionController;
-use App\Http\Controllers\TransaccionBodegaController;
-use App\Http\Controllers\ProductoEnPerchaController;
-use App\Http\Controllers\DetalleProductoController;
-use App\Http\Controllers\TipoTransaccionController;
-use App\Http\Controllers\ImagenProductoController;
-use App\Http\Controllers\CodigoClienteController;
-use App\Http\Controllers\UnidadMedidaController;
-use App\Http\Controllers\ValidarCedulaController;
-use App\Http\Controllers\TransferenciaController;
-use App\Http\Controllers\AutorizacionController;
-use App\Http\Controllers\ControlStockController;
-use App\Http\Controllers\ProcesadorController;
-use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\Bodega\PermisoArmaController;
+use App\Http\Controllers\Bodega\ProductoEmpleadoController;
 use App\Http\Controllers\CargoController;
-use App\Http\Controllers\DevolucionController;
-use App\Http\Controllers\InventarioController;
-use App\Http\Controllers\PermisoRolController;
-use App\Http\Controllers\CondicionController;
-use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CategoriaController;
-use App\Http\Controllers\ProveedorController;
-use App\Http\Controllers\TipoFibraController;
-use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\TraspasoController;
-use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\CodigoClienteController;
 use App\Http\Controllers\ComprobanteController;
+use App\Http\Controllers\CondicionController;
 use App\Http\Controllers\ConfiguracionGeneralController;
-use App\Http\Controllers\EmpresaController;
-use App\Http\Controllers\PermisoController;
-use App\Http\Controllers\TableroController;
-use App\Http\Controllers\ModeloController;
-use App\Http\Controllers\MotivoController;
-use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\PerchaController;
+use App\Http\Controllers\ControlStockController;
+use App\Http\Controllers\DetalleProductoController;
+use App\Http\Controllers\DetalleProductoTransaccionController;
+use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\DiscoController;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EstadoTransaccionController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GrupoController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\MarcaController;
-use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Controllers\ImagenProductoController;
+use App\Http\Controllers\Intranet\OrganigramaController;
+use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LoginSocialNetworkController;
+use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\ModeloController;
+use App\Http\Controllers\MotivoController;
+use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ParroquiaController;
-use App\Http\Resources\UserInfoResource;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\PerchaController;
+use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\PreingresoMaterialController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProcesadorController;
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProductoEnPerchaController;
+use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
-use App\Http\Resources\CantonResource;
+use App\Http\Controllers\SpanController;
+use App\Http\Controllers\SucursalController;
+use App\Http\Controllers\TableroController;
+use App\Http\Controllers\TipoFibraController;
+use App\Http\Controllers\TipoTransaccionController;
+use App\Http\Controllers\TransaccionBodegaController;
+use App\Http\Controllers\TransaccionBodegaEgresoController;
+use App\Http\Controllers\TransaccionBodegaIngresoController;
+use App\Http\Controllers\TransferenciaController;
+use App\Http\Controllers\TraspasoController;
+use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\UnidadMedidaController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
+use App\Http\Resources\UserInfoResource;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +77,9 @@ use Carbon\Carbon;
 |
 */
 
+Route::get('auth/{provider}', [LoginSocialNetworkController::class, 'redirectToProvider']);
+Route::get('auth/{provider}/callback', [LoginSocialNetworkController::class, 'handleProviderCallback']);
+
 Route::get('tablero', [TableroController::class, 'index']);
 Route::get('auditorias', [AuditoriaController::class, 'index'])->middleware('auth:sanctum');
 Route::get('modelos-auditorias', [AuditoriaController::class, 'modelos']);
@@ -86,10 +89,11 @@ Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']
 Route::post('asignar-permisos-usuario', [PermisoRolController::class, 'asignarPermisosUsuario']);
 Route::post('crear-permiso', [PermisoRolController::class, 'crearPermisoRol']);
 Route::post('usuarios/login', [LoginController::class, 'login']);
+Route::post('usuarios-externos/login', [LoginSocialNetworkController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
 Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
-Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
+// Route::get('login-social-network/{driver}',[LoginSocialNetworkController::class, 'login']);
 Route::get('auth-social',[LoginSocialNetworkController::class, 'getDataFromSession']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
@@ -175,8 +179,7 @@ Route::apiResources(
         'ubicaciones' => UbicacionController::class,
         'unidades-medidas' => UnidadMedidaController::class,
         'parroquias' => ParroquiaController::class,
-
-
+        'productos-empleados' => ProductoEmpleadoController::class,
         'forma_pago' => FormaPagoController::class
     ],
     [
@@ -202,6 +205,7 @@ Route::apiResources(
             'ubicaciones' => 'ubicacion',
             'unidades-medidas' => 'unidad',
             'tipos-fibras' => 'tipo_fibra',
+            'productos-empleados' => 'producto_empleado',
         ],
         'middleware' => ['auth:sanctum']
     ]
@@ -236,10 +240,12 @@ Route::post('detalles/anular/{detalle}', [DetalleProductoController::class, 'des
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/anular/{transaccion}', [TransaccionBodegaEgresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
+Route::get('transferencias/anular/{transferencia}', [TransferenciaController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('pedidos/marcar-completado/{pedido}', [PedidoController::class, 'marcarCompletado']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+Route::post('notificaciones/marcar-leidas-todas/{empleado}', [NotificacionController::class, 'marcarLeidasTodas']);
 /******************************************************
  * REPORTES DE BODEGA
  ******************************************************/
@@ -272,7 +278,7 @@ Route::get('comprobantes-filtrados', [TransaccionBodegaEgresoController::class, 
 Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarEgresos'])->middleware('auth:sanctum');
 
 //Modificar egreso
-Route::patch('modificar-item-egreso',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
+Route::patch('modificar-item-egreso/{transaccion}',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
@@ -301,7 +307,7 @@ Route::get('empleados-fondos-rotativos', [EmpleadoController::class, 'obtenerEmp
 
 Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
-    Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
+    Route::get('obtener-fecha', fn () => Carbon::now()->format('Y-m-d H:i:s'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
@@ -348,4 +354,12 @@ Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaContro
 
 Route::post('actualizar-materiales-empleados', [InventarioController::class, 'actualizarMaterialesEmpleado'])->middleware('auth:sanctum');
 Route::post('actualizar-cantidad-material-empleado', [InventarioController::class, 'actualizarCantidadMaterialEmpleado'])->middleware('auth:sanctum');
+
+
+
+// Obtener los datos del organigrama
+Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtenerDatosOrganigrama'])->middleware('auth:sanctum');
+
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
+
+Route::put('transacciones-ingresos-editar-fecha-compra/{transaccion}', [TransaccionBodegaIngresoController::class, 'editarFechaCompra']);

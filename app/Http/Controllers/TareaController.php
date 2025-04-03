@@ -140,7 +140,7 @@ class TareaController extends Controller
                     $guardar_imagen = new GuardarImagenIndividual($request['imagen_informe'], RutasStorage::TAREAS);
                     $request['imagen_informe'] = $guardar_imagen->execute();
                 }
-
+                Log::channel('testing')->info('Log', ['Excepto: ', $request->except(['id'])]);
                 $actualizado = $tarea->update($request->except(['id']));
             }
 
@@ -154,12 +154,12 @@ class TareaController extends Controller
                 event(new TareaEvent($tarea, Auth::user()->empleado->id, $destinatario));
             }
             DB::commit();
+            return response()->json(compact('modelo', 'mensaje'));
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
 
-        return response()->json(compact('modelo', 'mensaje'));
     } // 103 a 112 // pregunta 93
 
     /**

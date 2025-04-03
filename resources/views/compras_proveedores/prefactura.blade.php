@@ -1,10 +1,7 @@
 <html>
 @php
-    $fecha = new Datetime();
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    use Src\Shared\Utils;
+        $fecha = new Datetime();
 @endphp
 
 <head>
@@ -18,8 +15,7 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -109,7 +105,7 @@
                     <table width="95%" border="0" style="font-family:Arial; font-size:10px;">
                         <tr>
                             <td align="center">
-                                <div align="center"><img src="{{ $logo_principal }}" alt="" width="218"
+                                <div align="center"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="" width="218"
                                         height="85" /></div>
                             </td>
                         </tr>
@@ -223,7 +219,7 @@
                 <th>Medida</th>
                 <th>Precio U.</th>
                 <th>Desc.</th>
-                <th>IVA</th>
+                <th>{{$texto_iva}}</th>
                 <th>Subtotal</th>
                 <th>Total</th>
             </thead>
@@ -278,7 +274,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td align="right">IVA {{ $prefactura['iva'] }}%</td>
+                            <td align="right">{{$texto_iva}} {{ $prefactura['iva'] }}%</td>
                             <td align="right">{{ $prefactura['sum_iva'] }}</td>
                         </tr>
                         <tr>

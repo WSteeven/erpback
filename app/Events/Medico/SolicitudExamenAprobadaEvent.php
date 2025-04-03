@@ -5,14 +5,11 @@ namespace App\Events\Medico;
 use App\Models\Empleado;
 use App\Models\Medico\SolicitudExamen;
 use App\Models\Notificacion;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Src\Config\ModulosPusherEvent;
 use Src\Config\PusherEvents;
 use Src\Config\TiposNotificaciones;
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\FondosRotativos\AjusteSaldoFondoRotativoController;
+use App\Http\Controllers\FondosRotativos\Gasto\AutorizadorDirectoController;
 use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
@@ -9,19 +10,20 @@ use App\Http\Controllers\FondosRotativos\Gasto\MotivoGastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
 use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionSemanaController;
-use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
 use App\Http\Controllers\FondosRotativos\Saldo\ValorAcreditarController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\UmbralFondosRotativosController;
+use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
         'ajustes-saldos' => AjusteSaldoFondoRotativoController::class,
+        'autorizadores-directos' => AutorizadorDirectoController::class,
         'detalles-viaticos' => DetalleViaticoController::class,
         'sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'gastos' => GastoController::class,
@@ -38,7 +40,10 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'ajustes-saldos' => 'ajuste'
+            'ajustes-saldos' => 'ajuste',
+            'transferencia' => 'transferencia',
+            'autorizadores-directos' => 'autorizador',
+
         ],
     ]
 );
@@ -53,7 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('monto_acreditar_usuario/{id}', [ValorAcreditarController::class, 'montoAcreditarUsuario']);
     Route::post('autorizaciones_fecha/{tipo}', [GastoController::class, 'reporteAutorizaciones']);
     Route::post('consolidado/{tipo}', [SaldoController::class, 'consolidado']);
-    Route::post('consolidado_filtrado/{tipo}', [SaldoController::class, 'consolidadoFiltrado']);
+    Route::post('consolidado-filtrado/{tipo}', [SaldoController::class, 'consolidadoFiltrado']);
     Route::get('gastocontabilidad', [SaldoController::class, 'gastoContabilidad']);
     Route::get('autorizaciones_gastos', [GastoController::class, 'autorizacionesGastos']);
     Route::get('autorizaciones_transferencia', [TransferenciasController::class, 'autorizacionesTransferencia']);
@@ -64,12 +69,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('rechazar-transferencia', [TransferenciasController::class, 'rechazarTransferencia']);
     Route::post('anular-transferencia', [TransferenciasController::class, 'anularTransferencia']);
     Route::post('anular-acreditacion', [AcreditacionesController::class, 'anularAcreditacion']);
+    Route::post('acreditaciones-lotes', [AcreditacionesController::class, 'storeLotes']);
     Route::get('crear-cash-acreditacion-saldo/{id}', [AcreditacionSemanaController::class, 'crearCashAcreditacionSaldo']);
     Route::get('acreditacion-saldo-semana/{id}', [AcreditacionSemanaController::class, 'acreditacionSaldoSemana']);
     Route::get('actualizar-valores-saldo-semana/{id}', [AcreditacionSemanaController::class, 'acreditacionSaldoSemana']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::post('reporte-valores-fondos', [GastoController::class, 'reporteValoresFondos']);
+    Route::put('activar-gasto-rechazado/{gasto}', [GastoController::class, 'activarGastoRechazado']);
+
+    Route::get('estados-viaticos', function () {
+        $results = EstadoViatico::all(['id', 'descripcion']);
+        return response()->json(compact('results'));
+    });
 });
 
 

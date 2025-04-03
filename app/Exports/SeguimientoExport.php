@@ -250,8 +250,11 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
     {
         $empleados_designados = [];
 
-        foreach ($this->subtarea->empleados_designados as $empleado_id) {
-            array_push($empleados_designados, Empleado::extraerNombresApellidos(Empleado::find($empleado_id)));
+        if ($this->subtarea->empleados_designados) {
+
+            foreach ($this->subtarea->empleados_designados as $empleado_id) {
+                array_push($empleados_designados, Empleado::extraerNombresApellidos(Empleado::find($empleado_id)));
+            }
         }
 
         return $empleados_designados;

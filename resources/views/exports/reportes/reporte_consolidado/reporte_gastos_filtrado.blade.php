@@ -1,9 +1,8 @@
 <html>
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $total = 0;
+    use Src\Shared\Utils;
+        $fecha = new Datetime();
+        $total = 0;
 @endphp
 
 <head>
@@ -17,8 +16,7 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -89,7 +87,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">{{ $titulo }}</b></div>
@@ -143,6 +141,9 @@
                 @endif
                 <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                     <div align="center"><strong>#COMPROBANTE</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                    <div align="center"><strong>RUC</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
                     <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
@@ -208,6 +209,9 @@
                         @endif
                     </td>
                     <td style="font-size:10px">
+                        <div align="left">{{ $gasto['ruc'] }}</div>
+                    </td>
+                    <td style="font-size:10px">
                         <div align="left">{{ $gasto['observacion'] }}</div>
                     </td>
                     <td style="font-size:10px">
@@ -241,7 +245,7 @@
                             <div align="right"><strong>Total</strong></div>
                         </td>
                     @else
-                        <td colspan="11" style="font-size:10px" width="29%">
+                        <td colspan="12" style="font-size:10px" width="29%">
                             <div align="right"><strong>Total</strong></div>
                         </td>
                     @endif

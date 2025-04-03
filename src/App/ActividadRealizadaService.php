@@ -42,7 +42,7 @@ class ActividadRealizadaService
         try {
             DB::beginTransaction();
             if ($actividad['fotografia'] && Utils::esBase64($actividad['fotografia']))
-                $actividad['fotografia'] = (new GuardarImagenIndividual($actividad['fotografia'], $ruta))->execute();
+                $actividad['fotografia'] = (new GuardarImagenIndividual($actividad['fotografia'], $ruta, $entidad->actividades()->where('id', $actividad['id'])->first()?->fotografia))->execute();
             else unset($actividad['fotografia']);
 
             $modelo = $entidad->actividades()->where('id', $actividad['id'])->update($actividad);

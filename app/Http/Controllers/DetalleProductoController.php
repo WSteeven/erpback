@@ -19,7 +19,7 @@ use Src\Shared\Utils;
 
 class DetalleProductoController extends Controller
 {
-    private $entidad = 'Detalle de producto';
+    private string $entidad = 'Detalle de producto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.detalles')->only('index', 'show');
@@ -44,7 +44,7 @@ class DetalleProductoController extends Controller
         if ($request->tipo_busqueda) {
             switch ($request->tipo_busqueda) {
                 case 'only_inventario':
-                    $results = DetalleProducto::whereHas('inventarios')->get()->take(5000);
+                    $results = DetalleProducto::whereHas('inventarios')->get()->take(10000);
                     $results2 = DetalleProducto::whereHas('itemsPreingresos')->get()->take(5000);
                     $results = $results->merge($results2);
                     $results = DetalleProductoResource::collection($results);
@@ -177,10 +177,10 @@ class DetalleProductoController extends Controller
             // Log::channel('testing')->info('Log', ['datos validados:', $datos]);
 
             // Respuesta
-            if ($datos['fotografia'] && Utils::esBase64($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            if ($datos['fotografia'] && Utils::esBase64($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO, $detalle->fotografia))->execute();
             else unset($datos['fotografia']);
 
-            if ($datos['fotografia_detallada'] && Utils::esBase64($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            if ($datos['fotografia_detallada'] && Utils::esBase64($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO, $detalle->fotografia_detallada))->execute();
             else unset($datos['fotografia_detallada']);
 
             $detalle->update($datos);

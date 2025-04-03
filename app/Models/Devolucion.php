@@ -10,6 +10,70 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * App\Models\Devolucion
+ *
+ * @property int $id
+ * @property string $justificacion
+ * @property int $solicitante_id
+ * @property int|null $per_autoriza_id
+ * @property int|null $autorizacion_id
+ * @property string|null $observacion_aut
+ * @property int|null $tarea_id
+ * @property int|null $canton_id
+ * @property int|null $sucursal_id
+ * @property int|null $cliente_id
+ * @property bool $pedido_automatico
+ * @property bool $stock_personal
+ * @property string|null $causa_anulacion
+ * @property string $estado
+ * @property string $estado_bodega
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Empleado|null $autoriza
+ * @property-read \App\Models\Autorizacion|null $autorizacion
+ * @property-read \App\Models\Canton|null $canton
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read \App\Models\Notificacion|null $latestNotificacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \App\Models\Empleado|null $solicitante
+ * @property-read \App\Models\Sucursal|null $sucursal
+ * @property-read \App\Models\Tarea|null $tarea
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereCantonId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereCausaAnulacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereEstadoBodega($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereJustificacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereObservacionAut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion wherePedidoAutomatico($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion wherePerAutorizaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereStockPersonal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereSucursalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Devolucion extends Model implements Auditable
 {
     use HasFactory;
@@ -33,6 +97,7 @@ class Devolucion extends Model implements Auditable
         'estado_bodega',
         'pedido_automatico',
         'cliente_id',
+        'incidente_id',
     ];
 
     protected $casts = [

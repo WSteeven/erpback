@@ -39,6 +39,7 @@ enum RutasStorage: string
     case DOCUMENTOS_ROL_EMPLEADO = 'roles_de_pago';
     case CALIFICACIONES_PROVEEDORES = 'public/proveedores/calificaciones_proveedores';
     case EMPRESAS = 'public/empresas/';
+    case PROVEEDORES_INTERNACIONALES = 'public/ComprasProveedores/proveedores_internacionales/';
     case PROVEEDORES = 'public/proveedores/empresas/';
     case CONFIGURACION_GENERAL = 'public/configuracion_general';
     case FOTOGRAFIAS_NOVEDADES_ORDENES_COMPRAS  = 'public/fotografias_novedades_ordenes_compras';
@@ -68,6 +69,22 @@ enum RutasStorage: string
     case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';
     case SOLICITUD_EXAMEN  = 'public/solicitudes_examenes/archivos';
 
+    /**
+     * MODULO DE SELECCION Y CONTRATACION
+     */
+    case SOLICITUD_NUEVO_EMPLEADO = 'public/SeleccionContratacionPersonal/solicitudes_personal';
+    case DOCUMENTOS_POSTULANTES = 'public/SeleccionContratacionPersonal/postulantes/';
+    case CURRICULUM = 'public/SeleccionContratacionPersonal/curriculums/';
+    case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
+
+    /**
+     * MODULO DE TRABAJO SOCIAL
+     */
+    case RUTAGRAMAS='public/TrabajoSocial/rutagramas';
+    case CROQUIS='public/TrabajoSocial/croquis_empleados';
+    case VISITAS_DOMICILIARIAS='public/TrabajoSocial/Visitas-Domiciliarias';
+    case GENOGRAMAS='public/TrabajoSocial/genogramas';
+
     /**********
      * Bodega
      **********/
@@ -80,4 +97,21 @@ enum RutasStorage: string
     case SEGUIMIENTO_CONSUMO_ACTIVOS_FIJOS  = 'public/activos_fijos/seguimientoConsumoActivosFijos';
     case ACTIVOS_FIJOS_ACTA_ENTREGA_RECEPCION  = 'public/activos_fijos/actaEntregaRecepcion';
     case ACTIVOS_FIJOS_JUSTIFICATIVO_USO  = 'public/activos_fijos/justificativoUso';
+
+    /*******
+     * SSO
+     *******/
+    case INCIDENTES  = 'public/sso/incidentes';
+    case SEGUIMIENTOS_INCIDENTES  = 'public/sso/seguimientos_incidentes';
+    case SEGUIMIENTOS_ACCIDENTES  = 'public/sso/seguimientos_accidentes';
+    case ACCIDENTES  = 'public/sso/accidentes';
+    case SOLICITUDES_DESCUENTOS  = 'public/sso/solicitudes_descuentos';
+    case CONSULTAS_MEDICAS  = 'public/sso/consultas_medicas';
+    case INSPECCIONES  = 'public/sso/inspecciones';
+    
+    /*************
+     * Seguridad
+     *************/
+    case ACTIVIDADES_BITACORAS  = 'public/seguridad/actividadesBitacoras';
+    case ACTIVIDADES_BITACORAS_ARCHIVOS  = 'public/seguridad/actividadesBitacorasArchivos';
 }

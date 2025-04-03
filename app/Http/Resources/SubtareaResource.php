@@ -22,7 +22,7 @@ class SubtareaResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
@@ -57,8 +57,8 @@ class SubtareaResource extends JsonResource
             'hora_fin_trabajo' => $this->cargar('hora_fin_trabajo', $campos) ? $this->hora_fin_trabajo : null,
             'tipo_trabajo' => $this->cargar('tipo_trabajo', $campos) ? $this->tipo_trabajo?->descripcion : null,
             'fecha_hora_creacion' => $this->cargar('fecha_hora_creacion', $campos) ? $this->formatTimestamp($this->fecha_hora_creacion) : null,
-            'fecha_hora_agendado' => $this->cargar('fecha_hora_agendado', $campos) ? $this->formatTimestamp($this->fecha_hora_agendado) : null,
             'fecha_hora_asignacion' => $this->cargar('fecha_hora_asignacion', $campos) ? $this->formatTimestamp($this->fecha_hora_asignacion) : null,
+            'fecha_hora_agendado' => $this->cargar('fecha_hora_agendado', $campos) ? $this->formatTimestamp($this['fecha_inicio_trabajo'] . ' ' . $this['hora_inicio_trabajo']) : null,
             'fecha_hora_ejecucion' => $this->cargar('fecha_hora_ejecucion', $campos) ? $this->formatTimestamp($this->fecha_hora_ejecucion) : null,
             'fecha_hora_finalizacion' => $this->cargar('fecha_hora_finalizacion', $campos) ? $this->formatTimestamp($this->fecha_hora_finalizacion) : null,
             'fecha_hora_realizado' => $this->cargar('fecha_hora_realizado', $campos) ? $this->formatTimestamp($this->fecha_hora_realizado) : null,
@@ -80,6 +80,7 @@ class SubtareaResource extends JsonResource
             'coordinador' => $this->cargar('coordinador', $campos) ? $this->extraerNombresApellidos($this->tarea->coordinador) : null,
             'coordinador_id' => $this->cargar('coordinador_id', $campos) ? $this->tarea->coordinador_id : null,
             'grupo' => $this->cargar('grupo', $campos) ? $this->grupoResponsable?->nombre : null,
+            'grupo_id' => $this->cargar('grupo_id', $campos) ? $this->obtenerGrupo() : null,
             'tiene_subtareas' => $this->cargar('tiene_subtareas', $campos) ? $tarea->tiene_subtareas : null,
             'causa_intervencion_id' => $this->cargar('empleado', $campos) ? $this->causa_intervencion_id : null,
             'puede_ejecutar' => $this->cargar('puede_ejecutar', $campos) ? $this->verificarSiPuedeEjecutar() : null,
@@ -89,9 +90,10 @@ class SubtareaResource extends JsonResource
             'cantidad_adjuntos' => $this->cargar('cantidad_adjuntos', $campos) ? $this->archivos?->count() : null,
             'metraje_tendido' => $this->cargar('metraje_tendido', $campos) ? $this->metraje_tendido : null,
             'etapa_id' => $tarea->etapa_id,
-            'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null,// $tarea->proyecto_id,
+            'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null, // $tarea->proyecto_id,
             'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
-            'valor_alimentacion' => $this->valor_alimentacion,
+            'valor_alimentacion' => $this->obtenerValorAlimentacion(),
+            'gastos_adicionales' => $this['gastos_adicionales'],
         ];
 
         if ($controller_method == 'show') {
@@ -132,15 +134,27 @@ class SubtareaResource extends JsonResource
         if ($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
     }
 
+    public function obtenerValorAlimentacion()
+    {
+        $alimentaciones_grupos = $this->alimentacionGrupo;
+        $suma_total = 0;
+
+        foreach ($alimentaciones_grupos as $alimentacion) {
+            $suma_total += $alimentacion->precio * $alimentacion->cantidad_personas;
+        }
+
+        return $suma_total;
+    }
+
     public function extraerNombres($listado)
     {
-        $nombres = $listado->map(fn ($item) => $item->nombre)->toArray();
+        $nombres = $listado->map(fn($item) => $item->nombre)->toArray();
         return implode('; ', $nombres);
     }
 
     public function mapGrupoSeleccionado($gruposSeleccionados)
     {
-        return $gruposSeleccionados->map(fn ($grupo) => [
+        return $gruposSeleccionados->map(fn($grupo) => [
             'id' => $grupo->grupo_id,
             'nombre' => Grupo::select('nombre')->where('id', $grupo->grupo_id)->first()->nombre,
             'responsable' => $grupo->responsable,
@@ -228,6 +242,11 @@ class SubtareaResource extends JsonResource
         }
     }
 
+    private function obtenerGrupo()
+    {
+        return $this->grupo_id ?? $this->empleado->grupo_id;
+    }
+
     private function extraerNombresApellidos($empleado)
     {
         if (!$empleado) return null;
@@ -262,14 +281,6 @@ class SubtareaResource extends JsonResource
         return $this->fecha_inicio_trabajo <= Carbon::today()->toDateString();
     }
 
-    private function puedeIniciarHora()
-    {
-        $horaInicio = Carbon::parse($this->hora_inicio_trabajo)->format('H:i:s');
-
-        //return $horaInicio;// > Carbon::now(); //$this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);
-        return Carbon::now()->format('H:i:s') >= $horaInicio;
-    }
-
     // borrar
     public function obtenerIdEmpleadoResponsable()
     {
@@ -277,7 +288,7 @@ class SubtareaResource extends JsonResource
             $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
             //$usuarioLider  = $empleados->filter(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
 
-            $liderIndex = $empleados->search(fn ($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+            $liderIndex = $empleados->search(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
             if ($liderIndex >= 0) return $empleados->get($liderIndex)->id;
 
             //if ($usuarioLider) return $usuarioLider[1]->id;
@@ -290,4 +301,3 @@ class SubtareaResource extends JsonResource
         return null;
     }
 }
-    

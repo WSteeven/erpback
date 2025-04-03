@@ -1,9 +1,11 @@
 <html>
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $num_registro = 1;
+    use Illuminate\Support\Carbon;
+    use Src\Shared\Utils;
+     $fecha = new Datetime();
+     $num_registro = 1;
+     $mes_inicio_reporte = Carbon::parse($fecha_inicio)->format('Y-m');
+
 @endphp
 
 <head>
@@ -17,8 +19,7 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -90,173 +91,182 @@
 </head>
 
 <body>
-    <header>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
-            <tr class="row" style="width:auto">
-                <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
-                </td>
-                <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE ESTADO DE CUENTA</b></div>
+<header>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
+        <tr class="row" style="width:auto">
+            <td style="width: 10%;">
+                <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo"></div>
+            </td>
+            <td style="width: 100%">
+                <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE ESTADO DE CUENTA</b></div>
+            </td>
+        </tr>
+    </table>
+    <hr>
+</header>
+<footer>
+    <table style="width: 100%;">
+        <tr>
+            <td style="line-height: normal;">
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                    Usuario:
+                    {{ auth('sanctum')->user()->empleado->nombres }}
+                    {{ auth('sanctum')->user()->empleado->apellidos }} el
+                    {{ $fecha->format('d-m-Y H:i') }}
+                </div>
+            </td>
+        </tr>
+    </table>
+</footer>
+<main>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+        <tr height="29">
+            <td height="15">
+                <div align="left">
+                    <b>FECHA: </b>DEL
+                    {{ date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                </div>
+            </td>
+        </tr>
+        <tr height="29">
+            <td height="15">
+                <div align="left">
+                    <b>EMPLEADO:</b> {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                </div>
+            </td>
+        </tr>
+        @if ($empleado->grupo)
+            <tr height="29">
+                <td height="15">
+                    <div align="left">
+                        <b>GRUPO:</b> {{ $empleado->grupo->nombre }}
+                    </div>
                 </td>
             </tr>
-        </table>
-        <hr>
-    </header>
-    <footer>
-        <table style="width: 100%;">
+        @endif
+
+        <tr height="29">
+            <td height="15">
+                <div align="left">
+                    <b>LUGAR:</b> {{ $empleado->canton->canton }}
+                </div>
+            </td>
+        </tr>
+        <tr height="29">
+            <td height="15">
+                <div align="left">
+                    <b>CARGO:</b> {{ $empleado->cargo->nombre }}
+                </div>
+            </td>
+        </tr>
+        <tr height="29">
+            <td height="15">
+                <div align="left">
+                    <b>SALDO ACTUAL:</b> {{ number_format($nuevo_saldo, 2, ',', ' ') }}
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+        <tr>
+            <td width="3%" bgcolor="#a9d08e">
+                <div align="center"><strong>#</strong></div>
+            </td>
+            <td width="4%" bgcolor="#a9d08e">
+                <div align="center"><strong>FECHA REGISTRO</strong></div>
+            </td>
+            <td width="4%" bgcolor="#a9d08e">
+                <div align="center"><strong>FECHA</strong></div>
+            </td>
+            <td width="4%" bgcolor="#a9d08e">
+                <div align="center"><strong>#COMPROBANTE</strong></div>
+            </td>
+            <td width="13%" bgcolor="#a9d08e">
+                <div align="center"><strong>DESCRIPCI&Oacute;N</strong></div>
+            </td>
+            <td width="13%" bgcolor="#a9d08e">
+                <div align="center"><strong>OBSERVACIÓN</strong></div>
+            </td>
+            <td width="3%" bgcolor="#a9d08e">
+                <div align="center"><strong>INGRESO</strong></div>
+            </td>
+            <td width="3%" bgcolor="#a9d08e">
+                <div align="center"><strong>GASTO</strong></div>
+            </td>
+            <td width="3%" bgcolor="#a9d08e">
+                <div align="center"><strong>SALDO</strong></div>
+            </td>
+        </tr>
+        @if (sizeof($reportes_unidos) == 0)
             <tr>
-                <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
-                        Usuario:
-                        {{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d-m-Y H:i') }}
-                    </div>
+                <td colspan="12">
+                    <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                 </td>
             </tr>
-        </table>
-    </footer>
-    <main>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
-            <tr height="29">
-                <td height="15">
-                    <div align="left">
-                        <b>FECHA: </b>DEL
-                        {{ date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}
-                    </div>
-                </td>
-            </tr>
-            <tr height="29">
-                <td height="15">
-                    <div align="left">
-                        <b>EMPLEADO:</b> {{ $empleado->nombres . ' ' . $empleado->apellidos }}
-                    </div>
-                </td>
-            </tr>
-            @if ($empleado->grupo)
-                <tr height="29">
-                    <td height="15">
-                        <div align="left">
-                            <b>GRUPO:</b> {{ $empleado->grupo->nombre }}
+        @else
+            @php
+                $saldo_act = $saldo_anterior;
+            @endphp
+            @foreach ($reportes_unidos as $dato)
+                @php
+                    $saldo_act = $saldo_act + $dato['ingreso'] - $dato['gasto'];
+                    // Comparar si la fecha del registro es anterior al mes de inicio del reporte
+                $mes_dato = Carbon::parse($dato['fecha'])->format('Y-m');
+                $resaltar = $mes_dato< $mes_inicio_reporte; // Si la fecha del registro es menor al mes del reporte
+                @endphp
+                <tr @if($resaltar) style="background-color: lightgray;" @endif>
+                    <td style="font-size:10px">
+                        <div align="center">{{ $num_registro }}</div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ date('Y-m-d H:i:s', strtotime($dato['created_at'])) }}</div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ date('d-m-Y', strtotime($dato['fecha'])) }}</div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ $dato['num_comprobante'] }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ strtoupper($dato['descripcion']) }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ $dato['observacion'] }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ number_format($dato['ingreso'], 2, ',', '.') }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ number_format($dato['gasto'], 2, ',', '.') }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">
+                            {{ isset($dato['saldo']) ? number_format($dato['saldo'], 2, ',', '.') : number_format($saldo_act, 2, ',', '.') }}
                         </div>
                     </td>
                 </tr>
-            @endif
-
-            <tr height="29">
-                <td height="15">
-                    <div align="left">
-                        <b>LUGAR:</b> {{ $empleado->canton->canton }}
-                    </div>
-                </td>
-            </tr>
-            <tr height="29">
-                <td height="15">
-                    <div align="left">
-                        <b>CARGO:</b> {{ $empleado->cargo->nombre }}
-                    </div>
-                </td>
-            </tr>
-            <tr height="29">
-                <td height="15">
-                    <div align="left">
-                        <b>SALDO ACTUAL:</b> {{ number_format($nuevo_saldo, 2, ',', ' ') }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
-            <tr>
-                <td width="3%" bgcolor="#a9d08e">
-                    <div align="center"><strong>#</strong></div>
-                </td>
-                <td width="4%" bgcolor="#a9d08e">
-                    <div align="center"><strong>FECHA</strong></div>
-                </td>
-                <td width="4%" bgcolor="#a9d08e">
-                    <div align="center"><strong>#COMPROBANTE</strong></div>
-                </td>
-                <td width="13%" bgcolor="#a9d08e">
-                    <div align="center"><strong>DESCRIPCI&Oacute;N</strong></div>
-                </td>
-                <td width="13%" bgcolor="#a9d08e">
-                    <div align="center"><strong>OBSERVACIÓN</strong></div>
-                </td>
-                <td width="3%" bgcolor="#a9d08e">
-                    <div align="center"><strong>INGRESO</strong></div>
-                </td>
-                <td width="3%" bgcolor="#a9d08e">
-                    <div align="center"><strong>GASTO</strong></div>
-                </td>
-                <td width="3%" bgcolor="#a9d08e">
-                    <div align="center"><strong>SALDO</strong></div>
-                </td>
-            </tr>
-            @if (sizeof($reportes_unidos) == 0)
-                <tr>
-                    <td colspan="12">
-                        <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
-                    </td>
-                </tr>
-            @else
                 @php
-                    $saldo_act = $saldo_anterior;
+                    $num_registro++;
                 @endphp
-                @foreach ($reportes_unidos as $dato)
-                    @php
-                        $saldo_act = $saldo_act + $dato['ingreso'] - $dato['gasto'];
-                    @endphp
-                    <tr>
-                        <td style="font-size:10px">
-                            <div align="center">{{ $num_registro }}</div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ date('d-m-Y', strtotime($dato['fecha'])) }}</div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ $dato['num_comprobante'] }}
-                            </div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ strtoupper($dato['descripcion']) }}
-                            </div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ $dato['observacion'] }}
-                            </div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ number_format($dato['ingreso'], 2, ',', '.') }}
-                            </div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ number_format($dato['gasto'], 2, ',', '.') }}
-                            </div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">
-                                {{ isset($dato['saldo']) ? number_format($dato['saldo'], 2, ',', '.') : number_format($saldo_act, 2, ',', '.') }}
-                            </div>
-                        </td>
-                    </tr>
-                    @php
-                        $num_registro++;
-                    @endphp
-                @endforeach
-            @endif
-        </table>
-    </main>
-    <script type="text/php">
-        if (isset($pdf)) {
-                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
-                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 785, $text, $font, 12);
-        }
-    </script>
+            @endforeach
+        @endif
+    </table>
+</main>
+<script type="text/php">
+    if (isset($pdf)) {
+            $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+            $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+            $pdf->page_text(10, 785, $text, $font, 12);
+    }
+</script>
 </body>
 
 </html>

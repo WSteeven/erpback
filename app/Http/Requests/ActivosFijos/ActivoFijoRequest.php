@@ -13,7 +13,7 @@ class ActivoFijoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,8 +23,17 @@ class ActivoFijoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
+        $rules = [
+            'codigo_personalizado' => 'nullable|string',
+            'codigo_sistema_anterior' => 'nullable|string',
+            'detalle_producto_id' => 'nullable|numeric|integer|exists:detalles_productos,id',
+            'cliente_id' => 'nullable|numeric|integer|exists:clientes,id',
         ];
+
+        if ($this->isMethod('patch')) {
+            $rules = collect($rules)->only(array_keys($this->all()))->toArray(); // Esta regla está bien para pach, verificado el 14/8/2024
+        }
+
+        return $rules;
     }
 }

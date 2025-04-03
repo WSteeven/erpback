@@ -2,12 +2,9 @@
 <html lang="es">
 
 @php
-    $fecha = new Datetime();
-    $fecha_entrega = new Datetime($asignacion['fecha_entrega']);
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    use Src\Shared\Utils;
+       $fecha = new Datetime();
+       $fecha_entrega = new Datetime($asignacion['fecha_entrega']);
 @endphp
 
 <head>
@@ -19,7 +16,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -91,7 +88,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:14px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     <div align="center"><b>ACTA DE ENTREGA RECEPCION VEHICULOS</b>
@@ -208,9 +205,21 @@
             <br><br><br><br><br>
             <table class="firma" style="width: 100%;">
                 <thead align="center">
-                    <th>___________________</th>
+                    <th>
+                        @if($entrega['firma_url'])
+                                <img src="{{ Utils::urlToBase64(url($entrega['firma_url'])) }}" alt="firma persona entrega" width="100%" height="50"/>
+                        @else
+                            ___________________
+                        @endif
+                    </th>
                     <th></th>
-                    <th>___________________</th>
+                    <th>
+                        @if($responsable['firma_url'])
+                            <img src="{{ Utils::urlToBase64(url($responsable['firma_url'])) }}" width="100%" alt="firma persona responsable" height="50"/>
+                        @else
+                            ___________________
+                        @endif
+                    </th>
                 </thead>
                 <tbody>
                     <tr align="center">
@@ -231,7 +240,10 @@
             <br><br><br><br>
             <table class="firma" style="width: 100%">
                 <thead>
-                    <th align="center">___________________</th>
+{{--                    <th align="center">___________________</th>--}}
+                    <th align="center">
+                        <img src="{{asset('img/logoBN10.png')}}" width="80" height="50"/>
+                    </th>
                 </thead>
                 <tbody align="center">
                     <tr>

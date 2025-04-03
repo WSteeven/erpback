@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Empleado;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DepartamentoResource extends JsonResource
@@ -10,8 +11,8 @@ class DepartamentoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -23,6 +24,8 @@ class DepartamentoResource extends JsonResource
             'activo' => $this->activo,
             'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
             'responsable_id' => $this->responsable_id,
+            'telefono' => $this->telefono,
+            'correo' => $this->correo,
         ];
 
         if ($controller_method == 'show') {

@@ -37,9 +37,6 @@ class LicenciaEmpleadoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $fecha_inicio = Carbon::createFromFormat('d-m-Y',$this->fecha_inicio);
-        $fecha_fin = Carbon::createFromFormat('d-m-Y',$this->fecha_fin);
-
         if (is_null($this->empleado)) {
             $empleado = Auth::user()->empleado->id;
             $this->merge([
@@ -47,8 +44,8 @@ class LicenciaEmpleadoRequest extends FormRequest
             ]);
         }
         $this->merge([
-            'fecha_inicio' => $fecha_inicio->format('Y-m-d'),
-            'fecha_fin' => $fecha_fin->format('Y-m-d'),
+            'fecha_inicio' => Carbon::parse($this->fecha_inicio)->format('Y-m-d'),
+            'fecha_fin' => Carbon::parse($this->fecha_fin)->format('Y-m-d'),
         ]);
     }
 }

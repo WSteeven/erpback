@@ -12,6 +12,43 @@ use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * App\Models\Ventas\Vendedor
+ *
+ * @property int $empleado_id
+ * @property int $modalidad_id
+ * @property string|null $tipo_vendedor
+ * @property int|null $jefe_inmediato_id
+ * @property bool $activo
+ * @property string|null $causa_desactivacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $empleado
+ * @property-read Empleado|null $jefe_inmediato
+ * @property-read \App\Models\Ventas\Modalidad|null $modalidad
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ventas\Venta> $ventas
+ * @property-read int|null $ventas_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereActivo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereCausaDesactivacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereJefeInmediatoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereModalidadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereTipoVendedor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Vendedor extends Model implements Auditable
 {
     use HasFactory;

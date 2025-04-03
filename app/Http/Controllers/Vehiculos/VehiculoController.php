@@ -9,6 +9,7 @@ use App\Http\Resources\Vehiculos\VehiculoResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Vehiculos\Vehiculo;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,12 +19,13 @@ use Src\App\ArchivoService;
 use Src\App\Vehiculos\VehiculoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class VehiculoController extends Controller
 {
-    private $entidad = 'Vehiculo';
-    private $archivoService;
-    private $servicio;
+    private string $entidad = 'Vehiculo';
+    private ArchivoService $archivoService;
+    private VehiculoService $servicio;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
@@ -37,13 +39,13 @@ class VehiculoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
-        $campos = request('campos') ? explode(',', request('campos')) : '*';
+//        $campos = request('campos') ? explode(',', request('campos')) : '*';
         //  $results = Vehiculo::get($campos);
-        $results = Vehiculo::all();
+        $results = Vehiculo::ignoreRequest(['campos'])->filter()->get();
         $results = VehiculoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -52,8 +54,9 @@ class VehiculoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param VehiculoRequest $request
+     * @return JsonResponse
+     * @throws Throwable|ValidationException
      */
     public function store(VehiculoRequest $request)
     {
@@ -65,7 +68,7 @@ class VehiculoController extends Controller
             DB::beginTransaction();
             $modelo = Vehiculo::create($datos);
             $modelo = new VehiculoResource($modelo);
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'M');
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $ex) {
             DB::rollBack();
@@ -79,8 +82,8 @@ class VehiculoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Vehiculo  $vehiculo
-     * @return \Illuminate\Http\Response
+     * @param Vehiculo $vehiculo
+     * @return JsonResponse
      */
     public function show(Vehiculo $vehiculo)
     {
@@ -92,9 +95,9 @@ class VehiculoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Vehiculo  $vehiculo
-     * @return \Illuminate\Http\Response
+     * @param VehiculoRequest $request
+     * @param Vehiculo $vehiculo
+     * @return JsonResponse
      */
     public function update(VehiculoRequest $request, Vehiculo $vehiculo)
     {
@@ -104,7 +107,7 @@ class VehiculoController extends Controller
         //Respuesta
         $vehiculo->update($datos);
         $modelo = new VehiculoResource($vehiculo->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update', 'M');
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -112,8 +115,8 @@ class VehiculoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Vehiculo  $vehiculo
-     * @return \Illuminate\Http\Response
+     * @param Vehiculo $vehiculo
+     * @return JsonResponse
      */
     public function destroy(Vehiculo $vehiculo)
     {
@@ -138,6 +141,7 @@ class VehiculoController extends Controller
 
     /**
      * Guardar archivos
+     * @throws Throwable
      */
     public function storeFiles(Request $request, Vehiculo $vehiculo)
     {
@@ -153,24 +157,25 @@ class VehiculoController extends Controller
     }
 
 
-    public function historial(Request $request,  Vehiculo $vehiculo)
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function historial(Request $request, Vehiculo $vehiculo)
     {
-        $results = [];
-        Log::channel('testing')->info('Log', ['req', $request->all()]);
+        //        Log::channel('testing')->info('Log', ['req', $request->all()]);
         $results = $this->servicio->obtenerHistorial($vehiculo, $request);
         $configuracion = ConfiguracionGeneral::first();
         try {
             switch ($request->accion) {
                 case 'excel':
                     return Excel::download(new HistorialVehiculoExport($results, $request), 'historial_vehiculo.xlsx');
-                    throw new Exception('No se puede exportar reportes de excel aún');
-                    // return Excel::download(new VehiculoExport)
                 case 'pdf':
                     throw new Exception('No se puede exportar reportes de pdf aún');
                 default:
                     // $results = new VehiculoResource($vehiculo);
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th);
         }
         return response()->json(compact('results'));

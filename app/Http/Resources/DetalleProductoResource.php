@@ -53,9 +53,6 @@ class DetalleProductoResource extends JsonResource
             'custodia' => $this->fibra ? $this->fibra->custodia : null,
             'puntas' => $this->fibra ? 'P. Inicial: ' . $this->fibra->punta_inicial . ', P. Final: ' . $this->fibra->punta_final . ', Custodia: ' . $this->fibra->custodia : null,
 
-            'es_generico' => $this->es_generico,
-            'nombre_alternativo' => $this->nombre_alternativo,
-
             'adicionales' => $this->color || $this->talla || $this->capacidad ? $this->color . ', ' . $this->talla . ',  ' . $this->tipo : null,
 
             'color' => $this->color,
@@ -67,6 +64,7 @@ class DetalleProductoResource extends JsonResource
             'permiso' => $this->permisoArma?->nombre,
 
             'caducidad' => $this->caducidad,
+            'codigo_activo_fijo' => $this->codigo_activo_fijo,
 
 
             //variables auxiliares

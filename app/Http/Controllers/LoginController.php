@@ -5,21 +5,23 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserInfoResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
+    /**
+     * @throws ValidationException
+     */
     public function login(Request $request)
     {
         $request->validate([
+//            'name' => 'email:rfc,dns',
             'name' => 'required|string',
             'password' => 'required',
         ]);
 
-        $user = User::where('name', $request['name'])->first();
+        $user = User::where('name', $request['name'])->orWhere('email', $request['name'])->first();
         // Log::channel('testing')->info('Log', ['Diferencia de dias: ' . $user->updated_at->diffInDays(now())]);
         if (!$user) {
             throw ValidationException::withMessages([
@@ -33,7 +35,7 @@ class LoginController extends Controller
             ])->status(412);
         }
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Usuario o contraseña incorrectos'],
             ]);
@@ -42,7 +44,7 @@ class LoginController extends Controller
         if ($user->empleado->estado) {
             $token = $user->createToken('auth_token')->plainTextToken;
             $modelo = new UserInfoResource($user);
-            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer','user_type'=>'empleado', 'modelo' => $modelo], 200);
+            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer','user_type'=>'empleado', 'modelo' => $modelo]);
         }
 
         return response()->json(["mensaje" => "El usuario no esta activo"], 401);

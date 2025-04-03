@@ -2,18 +2,19 @@
 
 namespace App\Http\Resources\FondosRotativos\Gastos;
 
+use App\Models\Empleado;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class GastoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -36,13 +37,13 @@ class GastoResource extends JsonResource
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,
-            'sub_detalle_info' => $this->subdetalleInfo($this?->subDetalle) ,
+            'sub_detalle_info' => $this->subdetalleInfo($this->subDetalle) ,
             'beneficiarios' => $this->beneficiarioGasto != null ? $this->beneficiarioGasto->pluck('empleado_id') : null,
             'beneficiarios_info' => $this->beneficiarioEmpleadoInfo($this->beneficiarioGasto),
             'sub_detalle' => $this->subDetalle != null ? $this->subDetalle->pluck('id') : null,
             'vehiculo' => $this->gastoVehiculo != null ? $this->gastoVehiculo->id_vehiculo : '',
             'placa' =>  $this->gastoVehiculo != null ? $this->gastoVehiculo->placa : '',
-            'es_vehiculo_alquilado' =>  $this->gastoVehiculo != null ? $this->gastoVehiculo->es_vehiculo_alquilado : null,
+            'es_vehiculo_alquilado' =>   !!$this->gastoVehiculo?->es_vehiculo_alquilado,
             'kilometraje' => $this->gastoVehiculo != null ? $this->gastoVehiculo->kilometraje : '',
             'detalle' => $this->detalle,
             'cantidad' => $this->cantidad,
@@ -54,34 +55,38 @@ class GastoResource extends JsonResource
             'observacion' => $this->observacion,
             'observacion_anulacion' => $this->observacion_anulacion,
             'id_usuario' => $this->id_usuario,
-            'empleado_info' => $this?->empleado?->nombres . ' ' . $this?->empleado?->apellidos,
+            'empleado_info' => Empleado::extraerNombresApellidos($this->empleado),
             'estado' => $this->estado,
-            'estado_info' => $this?->estadoViatico?->descripcion,
-            'estado' => $this->estado,
+            'estado_info' => $this->estadoViatico?->descripcion,
             'id_lugar' => $this->id_lugar,
             'tiene_factura_info' => $this->subDetalle != null ? $this->subDetalle : true,
-            'tiene_factura' => $this->subDetalle != null ? $this->tieneFactura($this->subDetalle) : true,
+            'tiene_factura' => !($this->subDetalle != null) || $this->tieneFactura($this->subDetalle),
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
-            'centro_costo' => $this->tarea !== null ? $this->tarea?->centroCosto?->nombre:'',
-            'subcentro_costo' => $this?->empleado?->grupo==null ?'':$this?->empleado?->grupo?->subCentroCosto?->nombre,
+            'updated_at'=> Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
+            'centro_costo' => $this->tarea !== null ? $this->tarea->centroCosto?->nombre:'',
+            'subcentro_costo' => $this->empleado?->grupo==null ?'':$this->empleado?->grupo?->subCentroCosto?->nombre,
         ];
+
+        if($controller_method =='show'){
+            $modelo['nodo'] = $this->nodo_id;
+        }
         return $modelo;
     }
 
-  /**
-   * La función "tieneFactura" comprueba si algún artículo del array tiene factura y devuelve verdadero
-   * si al menos un artículo tiene factura.
-   *
-   * @param array subdetalle_info Según el fragmento de código proporcionado, la función `tieneFactura`
-   * toma una matriz `` como entrada e itera sobre sus elementos para verificar si
-   * alguno de los elementos tiene una clave llamada "tiene_factura" con un valor verdadero. Si se
-   * encuentra tal elemento
-   *
-   * @return La función `tieneFactura` devuelve un valor booleano, ya sea `verdadero` o `falso`, en
-   * función de si algún elemento en la matriz `` tiene la clave "tiene_factura"
-   * establecida en un valor verdadero.
-   */
+    /**
+     * La función "tieneFactura" comprueba si algún artículo del array tiene factura y devuelve verdadero
+     * si al menos un artículo tiene factura.
+     *
+     * @param Collection $subdetalle_info Según el fragmento de código proporcionado, la función `tieneFactura`
+     * toma una matriz `` como entrada e itera sobre sus elementos para verificar si
+     * alguno de los elementos tiene una clave llamada "tiene_factura" con un valor verdadero. Si se
+     * encuentra tal elemento
+     *
+     * @return boolean La función `tieneFactura` devuelve un valor booleano, ya sea `verdadero` o `falso`, en
+     * función de si algún elemento en la matriz `` tiene la clave "tiene_factura"
+     * establecida en un valor verdadero.
+     */
     private function tieneFactura(Collection $subdetalle_info)
     {
         $tieneFactura = false;
@@ -93,20 +98,20 @@ class GastoResource extends JsonResource
         }
         return $tieneFactura;
     }
-   /**
-    * La función "subdetalleInfo" concatena las descripciones de los subdetalles en una matriz con
-    * comas entre ellas.
-    *
-    * @param array subdetalle_info Parece que la función `subdetalleInfo` está diseñada para concatenar
-    * la propiedad `descripcion` de cada objeto en la matriz ``, separada por comas.
-    *
-    * @return La función `subdetalleInfo` devuelve una cadena concatenada de descripciones de la matriz
-    * `subdetalle_info`, separadas por comas.
-    */
+
+    /**
+     * La función "subdetalleInfo" concatena las descripciones de los subdetalles en una matriz con
+     * comas entre ellas.
+     *
+     * @param Collection $subdetalle_info Parece que la función `subdetalleInfo` está diseñada para concatenar
+     * la propiedad `descripcion` de cada objeto en la matriz ``, separada por comas.
+     *
+     * @return string La función `subdetalleInfo` devuelve una cadena concatenada de descripciones de la matriz
+     * `subdetalle_info`, separadas por comas.
+     */
     private function subdetalleInfo(Collection $subdetalle_info)
     {
         $descripcion = '';
-        if (!is_null($subdetalle_info)) {
             $i = 0;
             foreach ($subdetalle_info as $sub_detalle) {
                 $descripcion .= $sub_detalle->descripcion;
@@ -115,18 +120,18 @@ class GastoResource extends JsonResource
                     $descripcion .= ', ';
                 }
             }
-        }
         return $descripcion;
     }
+
     /**
      * La función `beneficiarioEmpleadoInfo` toma una serie de beneficiarios y devuelve una cadena
      * concatenada de los nombres de sus empleados.
      *
-     * @param array beneficiarios La función `beneficiarioEmpleadoInfo` toma una matriz de
+     * @param Collection $beneficiarios La función `beneficiarioEmpleadoInfo` toma una matriz de
      * `beneficiarios` como entrada. Se espera que cada `beneficiario` en la matriz tenga una propiedad
      * `empleado` que a su vez tenga propiedades `nombres` y `apellidos`.
      *
-     * @return La función `beneficiarioEmpleadoInfo` devuelve una cadena concatenada de los nombres
+     * @return string La función `beneficiarioEmpleadoInfo` devuelve una cadena concatenada de los nombres
      * completos de los empleados asociados con el conjunto de beneficiarios dado. Los nombres
      * completos se obtienen accediendo a las propiedades `nombres` y `apellidos` del objeto `empleado`
      * dentro de cada objeto beneficiario. Los nombres se concatenan con un espacio entre ellos, y si
@@ -149,17 +154,16 @@ class GastoResource extends JsonResource
  * La función "cambiarFecha" toma una cadena de fecha como entrada, la analiza usando Carbon y devuelve
  * la fecha formateada como 'Y-m-d'.
  *
- * @param string fecha La función `cambiarFecha` toma un parámetro de cadena llamado ``, que
+ * @param string $fecha La función `cambiarFecha` toma un parámetro de cadena llamado ``, que
  * representa una fecha en un formato específico. La función utiliza la biblioteca Carbon para analizar
  * la cadena de fecha de entrada y luego formatearla como 'Y-m-d', que representa la fecha en el
  * formato año-mes-día. Finalmente,
  *
- * @return La función `cambiarFecha` toma una cadena `` como entrada, la analiza usando Carbon y
+ * @return string La función `cambiarFecha` toma una cadena `` como entrada, la analiza usando Carbon y
  * luego la formatea en formato 'Y-m-d' (Año-Mes-Día). Luego se devuelve la fecha formateada.
  */
     private function cambiarFecha(string $fecha)
     {
-        $fecha_formateada = Carbon::parse($fecha)->format('Y-m-d');
-        return $fecha_formateada;
+        return Carbon::parse($fecha)->format('Y-m-d');
     }
 }

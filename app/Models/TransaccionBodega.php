@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
-use App\Events\PedidoCreadoEvent;
+use App\Events\Bodega\PedidoCreadoEvent;
 use App\Models\ActivosFijos\ActivoFijo;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -14,10 +18,103 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use OwenIt\Auditing\Models\Audit;
 use Src\Config\MotivosTransaccionesBodega;
 use Throwable;
 
 
+/**
+ * App\Models\TransaccionBodega
+ *
+ * @property int $id
+ * @property string|null $justificacion
+ * @property Comprobante|null $comprobante
+ * @property string|null $proveedor
+ * @property string|null $fecha_limite
+ * @property string|null $observacion_aut
+ * @property string|null $observacion_est
+ * @property int $solicitante_id
+ * @property int|null $responsable_id
+ * @property int|null $motivo_id
+ * @property int|null $proyecto_id
+ * @property int|null $etapa_id
+ * @property int|null $tarea_id
+ * @property int|null $devolucion_id
+ * @property int|null $pedido_id
+ * @property int|null $transferencia_id
+ * @property int|null $sucursal_id
+ * @property int|null $cliente_id
+ * @property int|null $per_autoriza_id
+ * @property int|null $per_atiende_id
+ * @property int|null $per_retira_id
+ * @property int|null $autorizacion_id
+ * @property int|null $estado_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $codigo_permiso_traslado
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Empleado|null $atiende
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $autoriza
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Cliente|null $cliente
+ * @property-read Collection<int, DetalleProductoTransaccion> $detallesTransaccion
+ * @property-read int|null $detalles_transaccion_count
+ * @property-read Devolucion|null $devolucion
+ * @property-read EstadoTransaccion|null $estado
+ * @property-read Collection<int, Inventario> $items
+ * @property-read int|null $items_count
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read Motivo|null $motivo
+ * @property-read Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Pedido|null $pedido
+ * @property-read Empleado|null $responsable
+ * @property-read Empleado|null $retira
+ * @property-read Empleado|null $solicitante
+ * @property-read Sucursal|null $sucursal
+ * @property-read Tarea|null $tarea
+ * @property-read TipoTransaccion|null $tipo
+ * @property-read Transferencia|null $transferencia
+ * @method static Builder|TransaccionBodega acceptRequest(?array $request = null)
+ * @method static Builder|TransaccionBodega filter(?array $request = null)
+ * @method static Builder|TransaccionBodega ignoreRequest(?array $request = null)
+ * @method static Builder|TransaccionBodega newModelQuery()
+ * @method static Builder|TransaccionBodega newQuery()
+ * @method static Builder|TransaccionBodega query()
+ * @method static Builder|TransaccionBodega setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|TransaccionBodega setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|TransaccionBodega setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|TransaccionBodega whereAutorizacionId($value)
+ * @method static Builder|TransaccionBodega whereClienteId($value)
+ * @method static Builder|TransaccionBodega whereCodigoPermisoTraslado($value)
+ * @method static Builder|TransaccionBodega whereComprobante($value)
+ * @method static Builder|TransaccionBodega whereCreatedAt($value)
+ * @method static Builder|TransaccionBodega whereDevolucionId($value)
+ * @method static Builder|TransaccionBodega whereEstadoId($value)
+ * @method static Builder|TransaccionBodega whereEtapaId($value)
+ * @method static Builder|TransaccionBodega whereFechaLimite($value)
+ * @method static Builder|TransaccionBodega whereId($value)
+ * @method static Builder|TransaccionBodega whereJustificacion($value)
+ * @method static Builder|TransaccionBodega whereMotivoId($value)
+ * @method static Builder|TransaccionBodega whereObservacionAut($value)
+ * @method static Builder|TransaccionBodega whereObservacionEst($value)
+ * @method static Builder|TransaccionBodega wherePedidoId($value)
+ * @method static Builder|TransaccionBodega wherePerAtiendeId($value)
+ * @method static Builder|TransaccionBodega wherePerAutorizaId($value)
+ * @method static Builder|TransaccionBodega wherePerRetiraId($value)
+ * @method static Builder|TransaccionBodega whereProveedor($value)
+ * @method static Builder|TransaccionBodega whereProyectoId($value)
+ * @method static Builder|TransaccionBodega whereResponsableId($value)
+ * @method static Builder|TransaccionBodega whereSolicitanteId($value)
+ * @method static Builder|TransaccionBodega whereSucursalId($value)
+ * @method static Builder|TransaccionBodega whereTareaId($value)
+ * @method static Builder|TransaccionBodega whereTransferenciaId($value)
+ * @method static Builder|TransaccionBodega whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class TransaccionBodega extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
@@ -29,6 +126,8 @@ class TransaccionBodega extends Model implements Auditable
     const ACEPTADA = 'ACEPTADA';
     const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
+
+    const COMPRA_PROVEEDOR = 'COMPRA A PROVEEDOR';
 
     /***********************
      * Constantes archivos
@@ -61,6 +160,8 @@ class TransaccionBodega extends Model implements Auditable
         'autorizacion_id',
         'proveedor',
         'estado_id',
+        'proveedor_id',
+        'fecha_compra',
         'codigo_permiso_traslado',
     ];
     protected $casts = [
@@ -341,7 +442,14 @@ class TransaccionBodega extends Model implements Auditable
         return collect($armamentos)->filter(fn($producto) => $producto['categoria'] === 'ARMAS DE FUEGO');
     }
 
-
+    public static function obtenerFechaCompraDetalle(int $detalle_id) {
+        $ids_inventarios = Inventario::where('detalle_id', $detalle_id)->pluck('detalle_id');
+        $ids_detalles_transaccion = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
+        $transaccion = TransaccionBodega::whereIn('id', $ids_detalles_transaccion)
+        ->where('motivo_id', Motivo::where('nombre', TransaccionBodega::COMPRA_PROVEEDOR)->first()->id)
+        ->whereNotNull('fecha_compra')->orderBy('id', 'desc')->first();
+        return $transaccion? $transaccion->fecha_compra : 'No configurado';
+    }
 
 
     // Registro de materiales despachados en materiales_empleado_tarea
@@ -389,10 +497,11 @@ class TransaccionBodega extends Model implements Auditable
 
     /**
      * Funcion para actualizar el pedido y su listado en cada egreso.
+     * @throws Throwable
      */
     public static function actualizarPedido($transaccion)
     {
-        Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
+//        Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
         $url_pedido = '/pedidos';
         $estado_completa = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $estado_parcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
@@ -402,20 +511,20 @@ class TransaccionBodega extends Model implements Auditable
             // Log::channel('testing')->info('Log', ['Detalles despachados en el egreso son: ', $detalles]);
             foreach ($detalles as $detalle) { //filtra los detalles que se despacharon en el egreso
                 $item_inventario = Inventario::find($detalle['inventario_id']);
-                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $item_inventario]);
+//                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $item_inventario]);
                 $detalle_pedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $item_inventario->detalle_id)->first();
-                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detalle_pedido]);
+//                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detalle_pedido]);
                 if ($detalle_pedido) {
                     $detalle_pedido->despachado = $detalle_pedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                     $detalle_pedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
                 } else {
-                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detalle_pedido]);
+//                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detalle_pedido]);
 
                     // Log::channel('testing')->info('Log', ['DetalleProducto: ', $d]);
                     // $ids_detalles = DetalleProducto::where('producto_id', $d->producto_id)->get('id'); //ids relacionados que pertenecen al mismo producto_id
                     // Log::channel('testing')->info('Log', ['Todos los DetalleProductos hermanos del detalle despachado: ', DetalleProducto::where('producto_id', $d->producto_id)->get()]);
 
-                    $detalle_pedido = DetallePedidoProducto::create([
+                    DetallePedidoProducto::create([
                         'detalle_id' => $item_inventario->detalle_id,
                         'pedido_id' => $pedido->id,
                         'cantidad' => $detalle['cantidad_inicial'],
@@ -424,7 +533,7 @@ class TransaccionBodega extends Model implements Auditable
                     ]);
 
                     // $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
-                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detalle_pedido]);
+//                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detalle_pedido]);
                     // $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
                     // $detallePedido->save();
                 }
@@ -439,9 +548,10 @@ class TransaccionBodega extends Model implements Auditable
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
                 event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
-            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido->estado_id]);
-        } catch (Exception $e) {
+//            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido->estado_id]);
+        } catch (Throwable|Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
+            throw $e;
         }
     }
 
@@ -586,7 +696,8 @@ class TransaccionBodega extends Model implements Auditable
                     $row['fecha'] = $d->comprobante()->first()->updated_at;
                     $row['categoria'] = $item->inventario->detalle->producto->categoria->nombre;
                     $row['condicion'] = $item->inventario->condicion->nombre;
-                    $row['despachado'] = $item->recibido;
+                    $row['despachado'] = $item->recibido ==0? $item->cantidad_inicial : $item->recibido;
+                    $row['transaccion_id']= $item->transaccion_id;  
 
 
                     $results[$cont] = $row;
@@ -606,6 +717,7 @@ class TransaccionBodega extends Model implements Auditable
             foreach ($items as $item) {
                 $row['inventario_id'] = $item->inventario_id;
                 $row['descripcion'] = $item->inventario->detalle->descripcion;
+                // $row['detalle_producto_id'] = $item->inventario->detalle->id;
                 $row['serial'] = $item->inventario->detalle->serial;
                 $row['fecha'] = $item->created_at;
                 $row['estado'] = $item->inventario->condicion->nombre;

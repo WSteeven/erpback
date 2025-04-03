@@ -15,7 +15,7 @@ class TipoVehiculoSeeder extends Seeder
      */
     public function run()
     {
-        
+
         TipoVehiculo::firstOrCreate(['nombre' => 'SEDAN']);
         TipoVehiculo::firstOrCreate(['nombre' => 'HATHBACK']);
         TipoVehiculo::firstOrCreate(['nombre' => 'SUV']);

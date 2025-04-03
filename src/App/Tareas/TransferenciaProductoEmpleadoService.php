@@ -2,14 +2,21 @@
 
 namespace Src\App\Tareas;
 
+use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Models\Autorizacion;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Tareas\TransferenciaProductoEmpleado;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use DateTime;
 use Exception;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
+use Log;
+use Src\Shared\Utils;
+use Illuminate\Support\Facades\DB;
 
 class TransferenciaProductoEmpleadoService
 {
@@ -18,45 +25,16 @@ class TransferenciaProductoEmpleadoService
      **********************************************************************************/
     public static function filtrarTransferencias($request)
     {
-        $results = [];
-        switch ($request->estado) {
-            case Autorizacion::PENDIENTE:
-                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA])) {
-                    $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::PENDIENTE_ID)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::PENDIENTE_ID)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case Autorizacion::CANCELADO:
-                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA])) {
-                    $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::CANCELADO_ID)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::CANCELADO_ID)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case Autorizacion::APROBADO:
-                if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA])) {
-                    $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::APROBADO_ID)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = TransferenciaProductoEmpleado::where('autorizacion_id', Autorizacion::APROBADO_ID)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            default:
-                $results = TransferenciaProductoEmpleado::where('solicitante_id', auth()->user()->empleado->id)->orWhere('autorizador_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
+        $user = auth()->user();
+        $rolesAutorizados = [User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA, User::ROL_AUXILIAR_BODEGA, User::ROL_CONSULTA, User::ROL_GERENTE_PROCESOS];
+
+        if ($user->hasRole($rolesAutorizados) || $request['filtrar']) {
+            return TransferenciaProductoEmpleado::ignoreRequest(['todos', 'filtrar'])->filter()->latest()->get();
+        } else {
+            return TransferenciaProductoEmpleado::where('autorizacion_id', $request['autorizacion_id'])->where(function ($q) use ($user) {
+                $q->where('autorizador_id', $user->empleado->id)->orWhere('solicitante_id', $user->empleado->id)->orWhere('empleado_destino_id', $user->empleado->id);
+            })->latest()->get();
         }
-        return $results;
     }
 
     /************************
@@ -109,8 +87,6 @@ class TransferenciaProductoEmpleadoService
             foreach (request('listado_productos') as $producto) {
                 $productoOrigen = $esOrigenStock ? $this->buscarProductoStock($empleado_origen_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_origen_id, $producto['id'], $proyecto_origen_id, $etapa_origen_id, $tarea_origen_id, $cliente_id);
 
-                Log::channel('testing')->info('Log', compact('productoOrigen'));
-
                 if ($productoOrigen) { // de aqui
                     // Restar productos origen
                     $productoOrigen->cantidad_stock -= $producto['cantidad']; // esto tambien
@@ -121,12 +97,10 @@ class TransferenciaProductoEmpleadoService
 
                     // Si se encuentra el producto de destino se suma
                     if ($productoDestino) {
-                        Log::channel('testing')->info('se encontro el producto destino');
                         $productoDestino->cantidad_stock += $producto['cantidad'];
                         $productoDestino->despachado += $producto['cantidad'];
                         $productoDestino->save();
                     } else {
-                        Log::channel('testing')->info('se crea el producto destino ');
                         // Caso contrario se crea el producto destino
                         // Si no tiene tarea de destino el destino es stock
                         if (!$tarea_destino_id) {
@@ -161,7 +135,7 @@ class TransferenciaProductoEmpleadoService
 
 
     // ---------------------------------------------------------------------------------
-    public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado, bool $esOrigenStock)
+    public function ajustarValoresProductoOld2(TransferenciaProductoEmpleado $transferencia_producto_empleado, bool $esOrigenStock)
     {
         try {
             $cliente_id = $transferencia_producto_empleado->cliente_id; // Trabaja con el cliente de la transferencia
@@ -184,7 +158,7 @@ class TransferenciaProductoEmpleadoService
                     else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($producto['id'], $empleado_origen_id, $tarea_origen_id, $producto['cantidad'], $cliente_id); // -- Es origen proyecto o tarea cliente final
 
                     if (!$tarea_destino_id) MaterialEmpleado::cargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['cantidad'], $cliente_id); // -- Es destino stock
-                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['cantidad'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final   
+                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['cantidad'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final
                 } catch (\Throwable $th) {
                     throw $th;
                 }
@@ -192,5 +166,110 @@ class TransferenciaProductoEmpleadoService
         } catch (Exception $e) {
             throw $e; //ValidationException::withMessages(['error' => $e->getMessage()]);
         }
+    }
+    public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado, bool $esOrigenStock)
+    {
+        return DB::transaction(function () use ($transferencia_producto_empleado, $esOrigenStock) {
+            $cliente_id = $transferencia_producto_empleado->cliente_id; // Trabaja con el cliente de la transferencia
+
+            // Origen
+            $empleado_origen_id = $transferencia_producto_empleado->empleado_origen_id;
+            $tarea_origen_id = $transferencia_producto_empleado->tarea_origen_id;
+
+            // Destino
+            $empleado_destino_id = $transferencia_producto_empleado->empleado_destino_id;
+            $proyecto_destino_id = $transferencia_producto_empleado->proyecto_destino_id;
+            $etapa_destino_id = $transferencia_producto_empleado->etapa_destino_id;
+            $tarea_destino_id = $transferencia_producto_empleado->tarea_destino_id;
+
+            foreach (request('listado_productos') as $producto) {
+                try {
+                    if ($esOrigenStock) MaterialEmpleado::descargarMaterialEmpleado($producto['id'], $empleado_origen_id, $producto['recibido'], $cliente_id, null); // -- Es origen stock
+                    else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($producto['id'], $empleado_origen_id, $tarea_origen_id, $producto['recibido'], $cliente_id); // -- Es origen proyecto o tarea cliente final
+
+                    if (!$tarea_destino_id) MaterialEmpleado::cargarMaterialEmpleado($producto['id'], $empleado_destino_id, $producto['recibido'], $cliente_id); // -- Es destino stock
+                    else MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($producto['id'], $empleado_destino_id, $tarea_destino_id, $producto['recibido'], $cliente_id, $proyecto_destino_id, $etapa_destino_id); // -- Es destino proyecto o tarea para cliente final
+                } catch (\Throwable $th) {
+                    throw $th;
+                }
+            }
+        });
+    }
+
+    public function imprimirTransferenciaProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $fecha_entrega = new DateTime($transferencia_producto_empleado->created_at);
+
+        $pdf = Pdf::loadView('bodega.pdf.transferencia_producto', [
+            'configuracion' => $configuracion,
+            'transferencia' => (new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado))->resolve(),
+            'mes' => Utils::$meses[$fecha_entrega->format('F')],
+            'entrega' => Empleado::find($transferencia_producto_empleado->empleado_origen_id),
+            'responsable' => Empleado::find($transferencia_producto_empleado->empleado_destino_id),
+        ]);
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->render();
+        return $pdf->output();
+    }
+
+    public function filtrarTransferenciasPorEmpleadoDestino($request)
+    {
+        $query = TransferenciaProductoEmpleado::where('empleado_destino_id', $request->responsable)->where('autorizacion_id', TransferenciaProductoEmpleado::APROBADO);
+
+        // Manejo de las fechas usando Carbon
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = $request->fecha_fin
+            ? Carbon::parse($request->fecha_fin)->endOfDay()
+            : now();
+
+        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+        return $query->orderByDesc('id')->get();
+    }
+
+    public function filtrarTransferenciasPorEmpleadoOrigen($request)
+    {
+        $query = TransferenciaProductoEmpleado::where('empleado_origen_id', $request->responsable)->where('autorizacion_id', TransferenciaProductoEmpleado::APROBADO);
+
+        // Manejo de las fechas usando Carbon
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = $request->fecha_fin
+            ? Carbon::parse($request->fecha_fin)->endOfDay()
+            : now();
+
+        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+        return $query->orderByDesc('id')->get();
+    }
+
+    public function obtenerProductosTransferencia($transferencias)
+    {
+        $results = []; // Inicializa $results fuera del bucle principal
+
+        foreach ($transferencias as $transferencia) {
+            $detalles = $transferencia->detallesTransferenciaProductoEmpleado()->get();
+
+            foreach ($detalles as $detalle) {
+                $results[] = [
+                    'transferencia' => $transferencia->id,
+                    'fecha_solicitud' => $transferencia->created_at,
+                    'producto' => $detalle->producto->nombre,
+                    'descripcion' => $detalle->descripcion,
+                    'serial' => $detalle->serial,
+                    'categoria' => $detalle->producto->categoria->nombre,
+                    'cantidad' => $detalle->pivot->cantidad ?? 0,
+                    'cliente' => $transferencia->cliente?->empresa->razon_social,
+                    'justificacion' => $transferencia->justificacion,
+                    'cliente_id' => $transferencia->cliente_id,
+                    'detalle_producto_id' => $detalle->id,
+                    'solicitante' => Empleado::extraerNombresApellidos($transferencia->solicitante),
+                    'empleado_envia' => Empleado::extraerNombresApellidos($transferencia->empleadoOrigen),
+                    'empleado_recibe' => Empleado::extraerNombresApellidos($transferencia->empleadoDestino),
+                ];
+            }
+        }
+
+        return $results;
     }
 }

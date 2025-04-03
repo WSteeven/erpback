@@ -21,7 +21,7 @@ class GrupoWRLCQ extends BaseClause
         $operador = 'like';
 
         return $query->whereHas('grupo', function ($q) use ($operador, $valor) {
-            $q->where('nombre', $operador, $valor);
+            $q->where('nombre', $operador, '%' . $valor . '%');
         });
     }
 }

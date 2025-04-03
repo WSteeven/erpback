@@ -12,6 +12,45 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 
+/**
+ * App\Models\ControlStock
+ *
+ * @property int $id
+ * @property int $detalle_id
+ * @property int $sucursal_id
+ * @property int $cliente_id
+ * @property int|null $minimo
+ * @property int|null $reorden
+ * @property int|null $maximo
+ * @property string $estado
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Cliente $cliente
+ * @property-read \App\Models\DetalleProducto $detalle
+ * @property-read \App\Models\Sucursal $sucursal
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereDetalleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereMaximo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereMinimo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereReorden($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereSucursalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ControlStock whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class ControlStock extends Model implements Auditable
 {
     use HasFactory;

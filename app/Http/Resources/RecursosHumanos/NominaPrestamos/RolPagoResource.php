@@ -2,38 +2,41 @@
 
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
+use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
 use Carbon\Carbon;
+use Date;
+use DateTime;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
-use App\Http\Resources\RecursosHumanos\NominaPrestamos\EgresoResource;
 
 class RolPagoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'fecha' => $this->cambiar_fecha($this->created_at),
+            'fecha' => $this->formatearFecha($this->created_at),
             'empleado' => $this->empleado_id,
-            'empleado_info' =>  $this->empleado_info->apellidos . ' ' . $this->empleado_info->nombres,
+            'empleado_info' => $this->empleado_info->apellidos . ' ' . $this->empleado_info->nombres,
             'tipo_contrato' => $this->empleado_info->tipo_contrato_id,
             'cargo' => $this->empleado_info->cargo,
             'salario' => number_format($this->salario, 2),
-            'dias' => is_float($this->dias) ? $this->dias : intval($this->dias),
+            'dias' => $this->dias,
+//            'dias' => is_float($this->dias) ? $this->dias : intval($this->dias),
             'mes' => $this->mes,
             'anticipo' => number_format($this->anticipo, 2),
-            'iess' =>  number_format($this->iess, 2),
-            'salario' => number_format($this->salario, 2),
+            'iess' => number_format($this->iess, 2),
             'sueldo' => number_format($this->sueldo, 2),
             'supa' => $this->empleado_info->supa,
             'extension_cobertura_salud' => number_format(ExtensionCoverturaSalud::where('empleado_id', $this->empleado_id)->where('mes', $this->mes)->sum('aporte'), 2),
@@ -49,10 +52,10 @@ class RolPagoResource extends JsonResource
             'multa_info' => $this->Descuentos($this->egreso_rol_pago, 'Multas'),
             'decimo_tercero' => number_format($this->decimo_tercero, 2),
             'decimo_cuarto' => number_format($this->decimo_cuarto, 2),
-            'ingresos' =>  $this->ingreso_rol_pago,
+            'ingresos' => $this->ingreso_rol_pago,
             'egresos' => $this->Egresos($this->egreso_rol_pago),
             'total_ingreso' => number_format($this->total_ingreso, 2),
-            'total_egreso' =>  number_format($this->total_egreso, 2),
+            'total_egreso' => number_format($this->total_egreso, 2),
             'total' => number_format($this->total, 2),
             'estado' => $this->estado,
             'rol_pago_id' => $this->rol_pago_id,
@@ -65,21 +68,22 @@ class RolPagoResource extends JsonResource
         ];
 
         if ($controller_method == 'show') {
-            $modelo['egresos'] = EgresoResource::collection($this->egreso_rol_pago);
+            $modelo['egresos'] = EgresoRolPagoResource::collection($this->egreso_rol_pago);
             $modelo['ingresos'] = IngresoRolPagoResource::collection($this->ingreso_rol_pago);
         }
         return $modelo;
     }
+
     /**
      * La función calcula el porcentaje del anticipo en función del salario del empleado, teniendo en
      * cuenta si se trata de un pago quincenal o no.
      *
-     * @param es_quincena Un parámetro booleano que indica si se trata de un período de pago quincenal
+     * @param boolean $es_quincena Un parámetro booleano que indica si se trata de un período de pago quincenal
      * o no.
      *
-     * @return el porcentaje calculado del anticipo o salario, según sea quincenal o no.
+     * @return float|int porcentaje calculado del anticipo o salario, según sea quincenal o no.
      */
-    private function calcularPorcentajeAnticipo($es_quincena)
+    private function calcularPorcentajeAnticipo(bool $es_quincena)
     {
         $porcentaje = $this->anticipo > 0 ? ($this->anticipo / $this->empleado_info->salario) * 100 : 0;
         if ($es_quincena) {
@@ -87,21 +91,16 @@ class RolPagoResource extends JsonResource
         }
         return $porcentaje;
     }
+
     /**
      * La función "DescuentosLey" calcula y devuelve una representación en cadena de las diversas
      * deducciones de la nómina de un empleado, incluyendo la contribución de IESS, SUPA, extensión de
      * cobertura de salud y deducciones de hipotecas y préstamos.
      *
-     * @param empleado El parámetro `` es un objeto que representa a un empleado. Es probable
-     * que contenga información como la identificación del empleado, el nombre y otros detalles.
-     * @param rol_pago El parámetro `` es un objeto que representa la nómina de un mes
-     * específico. Contiene información como el mes, el salario del empleado y otros detalles
-     * relacionados con la nómina.
-     *
-     * @return una cadena que representa los descuentos aplicados a la nómina de un empleado. La cadena
+     * @return array|string|string[] cadena que representa los descuentos aplicados a la nómina de un empleado. La cadena
      * contiene los nombres de los descuentos y sus valores correspondientes, separados por comas.
      */
-    private function  DescuentosLey($empleado, $rol_pago)
+    private function DescuentosLey($empleado, $rol_pago)
     {
         $descuentos = [
             'Aporte IESS' => number_format($rol_pago->iess, 2),
@@ -127,13 +126,13 @@ class RolPagoResource extends JsonResource
      * La función ConceptoIngreso toma un arreglo de ingresos, extrae los valores concepto_ingreso_info
      * y monto, y devuelve una cadena con el formato "concepto: monto" para cada ingreso.
      *
-     * @param ingresos Se espera que el parámetro `` sea una colección o matriz de ingresos.
+     * @param mixed $ingresos Se espera que el parámetro `` sea una colección o matriz de ingresos.
      * Cada ingreso debe tener una propiedad `concepto_ingreso_info`, que es un objeto que contiene
      * información sobre el concepto_ingreso, y una propiedad `monto`, que representa el monto del
      *
-     * @return una cadena que representa el concepto de ingresos.
+     * @return string cadena que representa el concepto de ingresos.
      */
-    private function  ConceptoIngreso($ingresos)
+    private function ConceptoIngreso(mixed $ingresos)
     {
         if ($ingresos->isEmpty()) {
             return null;
@@ -145,39 +144,62 @@ class RolPagoResource extends JsonResource
             return $clave . ': ' . $valor;
         })->toArray();
 
-        $ingresosString = implode(', ', $ingresosArray);
-
-        return $ingresosString;
+        return implode(', ', $ingresosArray);
     }
+
     /**
      * La función "Descuentos" toma una colección de "egresos" y un parámetro "tipo", filtra los egresos
      * según el tipo, asigna los egresos filtrados a un formato de cadena y devuelve la cadena
      * resultante.
      *
-     * @param egresos Se espera que el parámetro `` sea una colección de objetos. Parece que se
+     * @param mixed $egresos Se espera que el parámetro `` sea una colección de objetos. Parece que se
      * usa para filtrar y procesar una lista de gastos.
-     * @param tipo El parámetro "tipo" es una cadena que representa el tipo de descuento. Se utiliza
+     * @param string $tipo El parámetro "tipo" es una cadena que representa el tipo de descuento. Se utiliza
      * para filtrar la colección "egresos" e incluir solo los que tienen un valor "descuento_type"
      * coincidente.
      *
-     * @return una cadena que contiene los nombres y valores de los descuentos.
+     * @return string cadena que contiene los nombres y valores de los descuentos.
      */
-    private function Descuentos($egresos, $tipo)
+    private function Descuentos(mixed $egresos, string $tipo)
     {
+//        Log::channel('testing')->info('Log', ['en el resource, egresos', $egresos, $tipo]);
         if ($egresos->isEmpty()) {
             return null;
         }
         $egresosArray = $egresos->filter(function ($egreso) use ($tipo) {
-            $tipo_descuento = str_replace("App\\Models\\RecursosHumanos\\NominaPrestamos\\", "", $egreso['descuento_type']);
-            return $tipo_descuento == $tipo;
-        })->map(function ($egreso) {
-            $clave = $egreso['descuento']->nombre;
+//            Log::channel('testing')->info('Log', ['Dentro del array de egresos', $egreso]);
+            switch ($egreso->descuento_type) {
+                case $tipo:
+                    $tipo_descuento = str_replace("App\\Models\\RecursosHumanos\\NominaPrestamos\\", "", $egreso['descuento_type']);
+                    return $tipo_descuento == $tipo;
+                default:
+                    $descuento = Descuento::find($egreso->descuento()->first()->descuento_id);
+//                    Log::channel('testing')->info('Log', ['En el switch entro en default -> descuento', class_basename($descuento->tipoDescuento)]);
+//                    Log::channel('testing')->info('Log', ['En el switch entro en default -> multa', class_basename($descuento->multa)]);
+                if($descuento){
+                    if (!is_null($descuento->tipo_descuento_id))
+                        return class_basename($descuento->tipoDescuento) == $tipo;
+                    if (!is_null($descuento->multa_id))
+                        return class_basename($descuento->multa) == $tipo;
+                }
+                    return false;
+            }
+        })->map(function ($egreso) use ($tipo) {
+//            Log::channel('testing')->info('Log', ['Mapeo', $egreso['descuento']]);
             $valor = $egreso->monto;
-            return $clave . ': ' . $valor;
+            switch ($egreso->descuento_type) {
+                case $tipo:
+                    $clave = $egreso['descuento']->nombre;
+                    return $clave . ': ' . $valor;
+                default:
+                    $descuento = Descuento::find($egreso->descuento()->first()->descuento_id);
+                    $clave = $descuento->tipoDescuento?->nombre ?: $descuento->multa?->nombre;
+                    return $clave . ': ' . $valor;
+            }
         })->toArray();
-        $egresosString = implode(', ', $egresosArray);
-        return $egresosString;
+        return implode(', ', $egresosArray);
     }
+
     /**
      * La función "Egresos" transforma una matriz de "egresos" añadiendo una nueva clave "tipo" basada en
      * el valor de "descuento_type".
@@ -185,7 +207,7 @@ class RolPagoResource extends JsonResource
      * @param egresos Se espera que el parámetro `` sea un objeto que se pueda convertir en una
      * matriz. Parece contener datos relacionados con gastos o egresos.
      *
-     * @return una matriz de elementos transformados. Cada elemento de la matriz original se transforma
+     * @return array|array[] matriz de elementos transformados. Cada elemento de la matriz original se transforma
      * en un nuevo elemento con pares clave-valor adicionales. Se añade la clave "tipo" con un valor
      * basado en el valor "descuento_type" del elemento original. A continuación, se devuelve la matriz
      * transformada.
@@ -194,7 +216,7 @@ class RolPagoResource extends JsonResource
     {
         $arregloOriginal = $egresos->toArray();
         // Creamos una función anónima para transformar cada elemento del arreglo
-        $arregloTransformado = array_map(function ($elemento) {
+        return array_map(function ($elemento) {
             // Creamos un nuevo elemento con los datos del elemento original
             $nuevoElemento = [
                 "id" => $elemento["id"],
@@ -217,19 +239,18 @@ class RolPagoResource extends JsonResource
 
             return $nuevoElemento;
         }, $arregloOriginal);
-        return $arregloTransformado;
     }
+
     /**
      * La función "cambiar_fecha" toma una fecha como entrada y devuelve la fecha en formato
      * "dd-mm-yyyy".
      *
-     * @param fecha El parámetro "fecha" es una cadena de fecha que debe formatearse.
+     * @param string|Date|DateTime $fecha El parámetro "fecha" es una cadena de fecha que debe formatearse.
      *
-     * @return la fecha formateada en el formato 'd-m-Y'.
+     * @return string fecha formateada en el formato 'd-m-Y'.
      */
-    private function cambiar_fecha($fecha)
+    private function formatearFecha(string|Date|DateTime $fecha)
     {
-        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
-        return $fecha_formateada;
+        return Carbon::parse($fecha)->format('d-m-Y');
     }
 }

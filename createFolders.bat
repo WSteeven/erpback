@@ -54,6 +54,12 @@ mkdir "%basePath%\public\vehiculos\evidencias_vehiculos_transferidos"
 mkdir "%basePath%\public\detalles_resultados_examenes\archivos"
 mkdir "%basePath%\public\esquemas_vacunas\archivos"
 mkdir "%basePath%\public\solicitudes_examenes\archivos"
+mkdir "%basePath%\public\bodega\imagenesPermisosArmas"
+mkdir "%basePath%\public\sso\incidentes"
+mkdir "%basePath%\public\sso\seguimientos_incidentes"
+mkdir "%basePath%\public\sso\accidentes"
+mkdir "%basePath%\public\sso\solicitudes_descuentos"
+mkdir "%basePath%\public\sso\inspecciones"
 
 echo Carpetas creadas exitosamente.
 pause

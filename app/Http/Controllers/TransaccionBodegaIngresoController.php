@@ -50,7 +50,6 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['request', $request->paginate, $request->all()]);
         $results = $this->servicio->listar(null, null, $request->paginate);
         return TransaccionBodegaResource::collection($results);
         // return response()->json(compact('results'));
@@ -63,7 +62,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function store(TransaccionBodegaRequest $request)
     {
         try {
-            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
+            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_BODEGA_TELCONET,  User::ROL_CONTABILIDAD])) {
                 $datos = $request->validated();
                 DB::beginTransaction();
                 //                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
@@ -111,6 +110,7 @@ class TransaccionBodegaIngresoController extends Controller
                         $producto = Producto::where('nombre', $listado['producto'])->first();
                         $transaccion->transferencia_id ? $detalle = DetalleProducto::find($listado['detalle_id']) : $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
                         if ($listado['serial'] != null) $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
+                        TransaccionBodega::activarDetalle($detalle); //Aquí se activa el ítem del detalle
                         // $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
                         // $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
                         $item_inventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
@@ -157,7 +157,7 @@ class TransaccionBodegaIngresoController extends Controller
             } else throw new Exception('Este usuario no puede realizar ingreso de materiales');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
@@ -174,9 +174,11 @@ class TransaccionBodegaIngresoController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable
      */
     public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
     {
+        throw new Exception(Utils::metodoNoDesarrollado());
         $datos = $request->validated();
         // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
         //        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
@@ -219,7 +221,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             } catch (Exception $e) {
                 DB::rollBack();
-                Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+                Log::channel('testing')->error('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
             }
 
@@ -266,12 +268,15 @@ class TransaccionBodegaIngresoController extends Controller
                 $transaccion->estado_id = $estado_anulado->id;
                 $transaccion->save();
                 DB::commit();
+                // verificar anular la transferencia
+                if ($transaccion->transferencia_id > 0) $transaccion->transferencia()->update(['recibida' => false, 'estado' => Transferencia::TRANSITO]);
+
                 $mensaje = 'Transacción anulada correctamente';
                 $modelo = new TransaccionBodegaResource($transaccion->refresh());
                 return response()->json(compact('modelo', 'mensaje'));
             } catch (Exception $e) {
                 DB::rollBack();
-                Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+                Log::channel('testing')->error('Log', ['ERROR al anular la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
                 throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
                 // return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
             }
@@ -298,6 +303,7 @@ class TransaccionBodegaIngresoController extends Controller
 
     /**
      * Imprimir
+     * @throws ValidationException
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
@@ -320,28 +326,26 @@ class TransaccionBodegaIngresoController extends Controller
             // file_put_contents($ruta, $file); //en caso de que se quiera guardar el documento en el backend
             return $pdf->output();
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
 
     /**
      * Reportes
+     * @throws Exception
      */
     public function reportes(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         $configuracion = ConfiguracionGeneral::first();
-        $results = [];
         switch ($request->accion) {
             case 'excel':
-                Log::channel('testing')->info('Log', ['Entró en excel']);
                 $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
                 $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
                 //imprimir el excel
                 return Excel::download(new TransaccionBodegaIngresoExport(collect($registros)), 'reporte.xlsx');
             case 'pdf':
-                Log::channel('testing')->info('Log', ['Entró en pdf']);
                 try {
                     $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
                     $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
@@ -352,7 +356,8 @@ class TransaccionBodegaIngresoController extends Controller
                     $pdf->render();
                     return $pdf->output();
                 } catch (Exception $ex) {
-                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw Utils::obtenerMensajeErrorLanzable($ex);
                 }
                 break;
             default:
@@ -363,5 +368,17 @@ class TransaccionBodegaIngresoController extends Controller
 
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
+    }
+
+    public function editarFechaCompra(Request $request, TransaccionBodega $transaccion)
+    {
+        $request->validate(['fecha_compra' => 'required|date_format:Y-m-d']);
+
+        return DB::transaction(function () use ($request, $transaccion) {
+            $transaccion->fecha_compra = $request->fecha_compra;
+            $transaccion->save();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            return response()->json(compact('mensaje'));
+        });
     }
 }

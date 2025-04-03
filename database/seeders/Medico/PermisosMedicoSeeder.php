@@ -18,6 +18,7 @@ class PermisosMedicoSeeder extends Seeder
     const AUTORIZAR = 'puede.autorizar';
     /**
      * Run the database seeds.
+     * php artisan db:seed --class=Database\Seeders\Medico\PermisosMedicoSeeder
      *
      * @return void
      */

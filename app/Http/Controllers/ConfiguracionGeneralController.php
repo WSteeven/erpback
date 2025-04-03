@@ -5,15 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ConfiguracionGeneralRequest;
 use App\Http\Resources\ConfiguracionGeneralResource;
 use App\Models\ConfiguracionGeneral;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
-use Illuminate\Support\Facades\Url;
+use Throwable;
 
 class ConfiguracionGeneralController extends Controller
 {
-    private $entidad = 'Configuración General';
 
     public function __construct()
     {
@@ -33,26 +32,21 @@ class ConfiguracionGeneralController extends Controller
 
     /**
      * actualizar
+     * @throws Throwable
      */
     public function store(ConfiguracionGeneralRequest $request)
     {
         $datos = $request->validated();
-
         $configuracion = ConfiguracionGeneral::first();
 
+        if ($datos['logo_claro']) $datos['logo_claro'] = $this->guardarImagen($datos['logo_claro'], 'logo_claro', $configuracion?->logo_claro);
+        if ($datos['logo_oscuro']) $datos['logo_oscuro'] = $this->guardarImagen($datos['logo_oscuro'], 'logo_oscuro', $configuracion?->logo_oscuro);
+        if ($datos['logo_marca_agua']) $datos['logo_marca_agua'] = $this->guardarImagen($datos['logo_marca_agua'], 'logo_marca_agua', $configuracion?->logo_marca_agua);
+
         if ($configuracion) {
-
-            if ($datos['logo_claro']) $datos['logo_claro'] = $this->guardarImagen($datos['logo_claro'], 'logo_claro');
-            if ($datos['logo_oscuro']) $datos['logo_oscuro'] = $this->guardarImagen($datos['logo_oscuro'], 'logo_oscuro');
-            if ($datos['logo_marca_agua']) $datos['logo_marca_agua'] = $this->guardarImagen($datos['logo_marca_agua'], 'logo_marca_agua');
-
             $configuracion->update($datos);
         } else {
-            if ($datos['logo_claro']) $datos['logo_claro'] = $this->guardarImagen($datos['logo_claro'], 'logo_claro');
-            if ($datos['logo_oscuro']) $datos['logo_oscuro'] = $this->guardarImagen($datos['logo_oscuro'], 'logo_oscuro');
-            if ($datos['logo_marca_agua']) $datos['logo_marca_agua'] = $this->guardarImagen($datos['logo_marca_agua'], 'logo_marca_agua');
-
-            $configuracion = ConfiguracionGeneral::create($datos);
+            ConfiguracionGeneral::create($datos);
         }
 
         /* $modelo = new ConfiguracionGeneralResource($configuracion->refresh());
@@ -62,13 +56,16 @@ class ConfiguracionGeneralController extends Controller
         return response()->json(compact('mensaje'));
     }
 
-    private function guardarImagen($imagen, $nombre_predeterminado)
+    /**
+     * @throws Throwable
+     */
+    private function guardarImagen($imagen, $nombre_predeterminado, $ruta_a_eliminar = null)
     {
         $timestamp = time();
         if ($imagen) {
             if (Utils::esBase64($imagen)) {
                 $nombre = $timestamp . '_' . $nombre_predeterminado;
-                return (new GuardarImagenIndividual($imagen, RutasStorage::CONFIGURACION_GENERAL, $nombre))->execute();
+                return (new GuardarImagenIndividual($imagen, RutasStorage::CONFIGURACION_GENERAL,  $ruta_a_eliminar, $nombre))->execute();
             } else {
                 $componentesUrl = parse_url($imagen);
                 return $componentesUrl['path'];

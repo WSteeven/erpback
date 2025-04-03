@@ -4,6 +4,7 @@ namespace App\Http\Resources\Tareas;
 
 use App\Models\Empleado;
 use App\Models\Tareas\AlimentacionGrupo;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AlimentacionGrupoResource extends JsonResource
@@ -23,7 +24,8 @@ class AlimentacionGrupoResource extends JsonResource
             'precio' => $this->precio,
             'fecha' => $this->fecha,
             'tarea_id' => $this->tarea_id,
-            'tarea' => $this->tarea->codigo_tarea,
+            'tarea' => $this->tarea->codigo_tarea . ' | ' . $this->tarea->titulo,
+            'subtarea' => $this->subtarea->codigo_subtarea . ' | ' . $this->subtarea->titulo,
             'coordinador' => Empleado::extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo->nombre,
             'total' => $this->cantidad_personas * AlimentacionGrupo::PRECIO_ALIMENTACION,

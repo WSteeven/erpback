@@ -10,13 +10,15 @@ use App\Http\Requests\GastoRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
-use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,15 +28,16 @@ use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\FondosRotativos\SaldoService;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
-use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 
 class GastoController extends Controller
 {
-    private $entidad = 'gasto';
-    private $reporteService;
+    private string $entidad = 'gasto';
+    private ReportePdfExcelService $reporteService;
+
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
@@ -44,59 +47,59 @@ class GastoController extends Controller
         $this->middleware('can:puede.eliminar.gasto')->only('destroy');
         $this->middleware('can:puede.ver.reporte_autorizaciones')->only('reporte_autorizaciones');
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function index(Request $request)
+    public function index()
     {
         $fechaActual = Carbon::now();
         $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d'); //Se consultara los gastos cuya fecha sea posterior a los ultimos 6 meses
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
-        $results = [];
         if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
             $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->where('fecha_viat', '>=', $fechaViatico)->filter()->orderBy('id', 'desc')->get();
-            $results = GastoResource::collection($results);
-            return response()->json(compact('results'));
         } else {
             $usuario = Auth::user()->empleado;
             $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc')->get();
-            $results = GastoResource::collection($results);
-            return response()->json(compact('results'));
         }
+        $results = GastoResource::collection($results);
+        return response()->json(compact('results'));
     }
-    public function autorizacionesGastos(Request $request)
+
+    /**
+     * @throws ValidationException
+     */
+    public function autorizacionesGastos()
     {
         try {
-            $usuario_autenticado =  Auth::user();
-            $results = [];
+            $usuario_autenticado = Auth::user();
             if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
                 $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc')->get();
-                $results = GastoResource::collection($results);
-                return response()->json(compact('results'));
             } else {
                 $fechaActual = Carbon::now();
                 $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d');
                 $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->where('fecha_viat', '>=', $fechaViatico)->filter()->orderBy('id', 'desc')->get();
-                $results = GastoResource::collection($results);
-                return response()->json(compact('results'));
             }
+            $results = GastoResource::collection($results);
+            return response()->json(compact('results'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al consultar' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Gasto  $gasto
-     * @return \Illuminate\Http\Response
+     * @param GastoRequest $request
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
     public function store(GastoRequest $request)
     {
@@ -122,19 +125,22 @@ class GastoController extends Controller
             ]);
         }
     }
+
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\FondosRotativos\Gasto\Gasto $gasto
-     * @return \Illuminate\Http\Response
+     * @param GastoRequest $request
+     * @param Gasto $gasto
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
     public function update(GastoRequest $request, Gasto $gasto)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
+            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update', $gasto);
             $gasto->update($datos);
             $gasto_service = new GastoService($gasto);
             $gasto_service->validarGastoVehiculo($request);
@@ -151,27 +157,28 @@ class GastoController extends Controller
             ]);
         }
     }
+
     /**
      * It shows the gasto
      *
-     * @param Gasto gasto The model that will be used to retrieve the data.
+     * @param Gasto $gasto The model that will be used to retrieve the data.
      *
-     * @return A JSON object with the data of the gasto.
+     * @return JsonResponse JSON object with the data of the gasto.
      */
     public function show(Gasto $gasto)
     {
         $modelo = new GastoResource($gasto);
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * La función `destroy` elimina una instancia de Gasto y devuelve una respuesta JSON con un mensaje.
      *
-     * @param Gasto gasto La función `destruir` que proporcionó se utiliza para eliminar un objeto `Gasto`
+     * @param Gasto $gasto La función `destruir` que proporcionó se utiliza para eliminar un objeto `Gasto`
      * de la base de datos. Luego de eliminar el objeto `Gasto`, recupera un mensaje usando el método
      * `Utils::obtenerMensaje` para la acción 'destruir' sobre la entidad. Finalmente, devuelve un JSON.
      *
-     * @return Una respuesta JSON que contiene el mensaje obtenido del método `Utils::obtenerMensaje` luego
+     * @return JsonResponse respuesta JSON que contiene el mensaje obtenido del método `Utils::obtenerMensaje` luego
      * de eliminar la entidad `Gasto`.
      */
     public function destroy(Gasto $gasto)
@@ -180,16 +187,18 @@ class GastoController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+
     /**
      * It generates a report of the expenses of a user in a given period of time.
      * </code>
      *
-     * @param Request request The request object.
-     * @param tipo The type of file you want to generate.
+     * @param Request $request The request object.
+     * @param string $tipo The type of file you want to generate.
      *
-     * @return The data is being returned in the form of a collection.
+     * @return Response|BinaryFileResponse data is being returned in the form of a collection.
+     * @throws ValidationException
      */
-    public function generarReporte(Request $request, $tipo)
+    public function generarReporte(Request $request, string $tipo)
     {
         try {
             $datos_usuario_logueado = $request->usuario == null ? Empleado::where('id', Auth::user()->empleado->id)->first() : Empleado::where('id', $request->usuario)->first();
@@ -206,10 +215,10 @@ class GastoController extends Controller
             $gastos_reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'authEspecialUser')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', Gasto::APROBADO)
-                ->where('id_usuario', '=',  $datos_usuario_logueado->id)
+                ->where('id_usuario', '=', $datos_usuario_logueado->id)
                 ->get();
             $gastos_realizados = $gastos_reporte->sum('total');
-            $transferencias_enviadas = Transferencias::where('usuario_envia_id',  $datos_usuario_logueado->id)
+            $transferencias_enviadas = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
                 ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
@@ -217,7 +226,7 @@ class GastoController extends Controller
             $transferencia_enviada = $transferencias_enviadas->sum('monto');
             $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
                 ->with('empleadoRecibe', 'empleadoEnvia')
-                ->where('estado',  Transferencias::APROBADO)
+                ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             $transferencia_recibida = $transferencias_recibidas->sum('monto');
@@ -252,38 +261,40 @@ class GastoController extends Controller
             return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'GenerarReporte');
         }
     }
+
     /**
      * It takes a request, gets some data from the request, gets some data from the database, and then
      * returns a file
      *
-     * @param Request request The request object.
+     * @param Request $request The request object.
+     * @throws ValidationException
      */
     public function reporteAutorizaciones(Request $request, $tipo)
     {
         try {
-            $fecha_inicio =  $request->fecha_inicio;
+            $fecha_inicio = $request->fecha_inicio;
             $fecha_fin = $request->fecha_fin;
             $tipo_archivo = $tipo;
-            $id_tipo_reporte = $request->tipo_reporte;
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
-            $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
+            $tipo_reporte = EstadoViatico::find($request->estado);
             $reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'tarea')
-                ->where('estado', $id_tipo_reporte)
+                ->where('estado', $request->estado)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
             $subtotal = Gasto::with('empleado', 'detalle_info', 'subDetalle')
-                ->where('estado', $id_tipo_reporte)
+                ->where('estado', $request->estado)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
             $reporte_empaquetado = Gasto::empaquetar($reporte);
             $div = $tipo_reporte->nombre == 'Aprobado' ? 10 : 12;
             $resto = 0;
             $DateAndTime = date('Y-m-d H:i:s');
-            $reportes =  [
+            $reportes = [
                 'div' => $div,
                 'resto' => $resto,
                 'datos_reporte' => $reporte_empaquetado,
@@ -303,15 +314,15 @@ class GastoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+
     /**
      * It updates the status of the expense to 1, which means it is approved.
      *
-     * @param Request request The request object.
-     *
-     * @return A JSON object with the success message.
+     * @param GastoRequest $request
+     * @return JsonResponse JSON object with the success message.
+     * @throws ValidationException|Throwable
      */
     public function aprobarGasto(GastoRequest $request)
     {
@@ -319,7 +330,7 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
-            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
+            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update', $gasto);
             if ($gasto) {
                 $gasto->update($datos);
                 $gasto_service = new GastoService($gasto);
@@ -340,23 +351,17 @@ class GastoController extends Controller
     }
 
     /**
-     * It updates the status of the expense to 1, which means it is rejected.
-     *
-     * @param Request request The request object.
-     *
-     * @return A JSON object with the success message.
-     */
-    /**
      * La función `rechazarGasto` en PHP maneja el rechazo de un registro de gastos, actualiza su estado,
      * activa un evento, marca una notificación como leída y revierte la transacción en caso de error.
      *
-     * @param Request request La función `rechazarGasto` se utiliza para rechazar un gasto (gasto) en base
+     * @param Request $request La función `rechazarGasto` se utiliza para rechazar un gasto (gasto) en base
      * a los datos de la solicitud proporcionados. Aquí hay un desglose de la función:
      *
-     * @return una respuesta JSON con un mensaje de éxito 'Gasto rechazado' si la operación es exitosa. Si
+     * @return JsonResponse respuesta JSON con un mensaje de éxito 'Gasto rechazado' si la operación es exitosa. Si
      * ocurre una excepción durante el proceso, detectará la excepción, revertirá la transacción y
      * devolverá una respuesta JSON con un mensaje de error que indica que ocurrió un error al rechazar el
      * gasto junto con el mensaje de excepción y el número de línea.
+     * @throws Throwable|ValidationException
      */
     public function rechazarGasto(Request $request)
     {
@@ -376,20 +381,21 @@ class GastoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+
     /**
      * La función `anularGasto` en PHP se utiliza para marcar un gasto específico como cancelado y manejar
      * cualquier error que pueda ocurrir durante el proceso.
      *
-     * @param Request request La función `anularGasto` se utiliza para cancelar un gasto específico (gasto)
+     * @param Request $request La función `anularGasto` se utiliza para cancelar un gasto específico (gasto)
      * en función de los datos de la solicitud proporcionados. Aquí hay un desglose de la función:
      *
-     * @return una respuesta JSON con un mensaje de éxito 'Gasto rechazado' si la operación es exitosa. Si
+     * @return JsonResponse respuesta JSON con un mensaje de éxito 'Gasto rechazado' si la operación es exitosa. Si
      * ocurre un error durante el proceso, arrojará una ValidationException con un mensaje de error 'Error
      * al insertar registro' que contiene el mensaje de excepción. Además devolverá una respuesta JSON con
      * un mensaje de error 'Ha ocurrido un error al rechazar el gasto
+     * @throws Throwable|ValidationException
      */
     public function anularGasto(Request $request)
     {
@@ -414,25 +420,24 @@ class GastoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-
 
 
     /**
      * La función `reporteValoresFondos` recupera valores de fondos basados en la información de los
      * empleados y maneja excepciones con el registro.
      *
-     * @param Request request Según el fragmento de código proporcionado, la función `reporteValoresFondos`
+     * @param Request $request Según el fragmento de código proporcionado, la función `reporteValoresFondos`
      * toma un objeto `Solicitud` como parámetro. Este objeto "Solicitud" probablemente contenga datos
      * enviados desde una solicitud del lado del cliente, como datos de formulario o parámetros de
      * consulta.
      *
-     * @return La función `reporteValoresFondos` está devolviendo una respuesta JSON que contiene la
+     * @return JsonResponse función `reporteValoresFondos` está devolviendo una respuesta JSON que contiene la
      * variable `resultados`. La variable `resultados` es una matriz que contiene los valores obtenidos al
      * llamar al método `obtenerValoresFondosRotativos` en `EmpleadoService` si `->todos` es
      * verdadero, o contiene el valor obtenido al llamar a `obtenerValoresFond
+     * @throws ValidationException
      */
     public function reporteValoresFondos(Request $request)
     {
@@ -442,10 +447,36 @@ class GastoController extends Controller
                 $results = $empleadoService->obtenerValoresFondosRotativos();
             else
                 $results = [$empleadoService->obtenerValoresFondosRotativosEmpleado(Empleado::find($request->empleado ? $request->empleado : auth()->user()->empleado->id))];
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
         }
         return response()->json(compact('results'));
+    }
+
+
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function activarGastoRechazado(Request $request, Gasto $gasto)
+    {
+        try {
+            DB::beginTransaction();
+            if (!($gasto->estado == 2 && $gasto->detalle_estado == 'RECHAZADO POR EL SISTEMA')) throw new Exception('El gasto no puede ser activado porque no está Rechazado por el Sistema');
+            $request->validate(['motivo'=>['required', 'string']]);
+            $gasto->estado = EstadoViatico::POR_APROBAR_ID;
+            $gasto->detalle_estado = null;
+            $gasto->motivo = $request->motivo;
+            $gasto->activador_id = auth()->user()->empleado->id; // Se setea como activador el usuario que realiza la activacion
+            $gasto->save();
+            DB::commit();
+            $modelo = new GastoResource($gasto->refresh());
+            $mensaje = 'Gasto activado exitosamente!';
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

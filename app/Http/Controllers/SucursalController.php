@@ -6,13 +6,11 @@ use App\Http\Requests\SucursalRequest;
 use App\Http\Resources\SucursalResource;
 use App\Models\Sucursal;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Psy\Sudo;
 use Src\Shared\Utils;
 
 class SucursalController extends Controller
 {
-    private $entidad = 'Sucursal';
+    private string $entidad = 'Sucursal';
     public function __construct()
     {
         $this->middleware('can:puede.ver.sucursales')->only('index', 'show');
@@ -29,7 +27,6 @@ class SucursalController extends Controller
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
         $search = $request['search'];
-        $results = [];
         if($request['campos']){
             $results = Sucursal::ignoreRequest(['campos'])->filter()->orderBy('created_at', 'desc')->get($campos);
             return response()->json(compact('results'));
@@ -43,7 +40,7 @@ class SucursalController extends Controller
         }
         if($search){
             $sucursal = Sucursal::select('id')->where('lugar', 'LIKE', '%'.$search.'%')->first();
- 
+
             if($sucursal) $results = SucursalResource::collection(Sucursal::where('id', $sucursal->id)->get());
         }
         $results = SucursalResource::collection($results);
@@ -55,7 +52,7 @@ class SucursalController extends Controller
      * Guardar
      */
     public function store(SucursalRequest $request)
-    {   
+    {
         //Adaptación de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
@@ -82,14 +79,14 @@ class SucursalController extends Controller
     public function update(SucursalRequest $request, Sucursal  $sucursal)
     {
         // Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
-        
+
         //Adaptación de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-        
+
         // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
         // $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
-        
+
         //Respuesta
         $sucursal->update($datos);
         $modelo = new SucursalResource($sucursal->refresh());

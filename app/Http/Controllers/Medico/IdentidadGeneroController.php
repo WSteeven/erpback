@@ -7,18 +7,18 @@ use App\Http\Requests\Medico\IdentidadGeneroRequest;
 use App\Http\Resources\Medico\IdentidadGeneroResource;
 use App\Models\Medico\IdentidadGenero;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class IdentidadGeneroController extends Controller
 {
-    private $entidad = 'Identidad de Genero';
+    private string $entidad = 'Identidad de Genero';
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.identidades_generos')->only('index', 'show');
+        // $this->middleware('can:puede.ver.identidades_generos')->only('index', 'show');
         $this->middleware('can:puede.crear.identidades_generos')->only('store');
         $this->middleware('can:puede.editar.identidades_generos')->only('update');
         $this->middleware('can:puede.eliminar.identidades_generos')->only('destroy');
@@ -30,6 +30,10 @@ class IdentidadGeneroController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(IdentidadGeneroRequest $request)
     {
         try {
@@ -45,17 +49,20 @@ class IdentidadGeneroController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de identidad de genero' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function show(IdentidadGeneroRequest $request, IdentidadGenero $identidad_genero)
+    public function show(IdentidadGenero $identidad_genero)
     {
         $modelo = new IdentidadGeneroResource($identidad_genero);
         return response()->json(compact('modelo'));
     }
 
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function update(IdentidadGeneroRequest $request, IdentidadGenero $identidad_genero)
     {
         try {
@@ -71,11 +78,14 @@ class IdentidadGeneroController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de identidad de genero' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function destroy(IdentidadGeneroRequest $request, IdentidadGenero $identidad_genero)
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function destroy(IdentidadGenero $identidad_genero)
     {
         try {
             DB::beginTransaction();
@@ -88,6 +98,6 @@ class IdentidadGeneroController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de identidad de genero' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-    }}
+    }
+}

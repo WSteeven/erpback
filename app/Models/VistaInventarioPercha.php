@@ -5,6 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\VistaInventarioPercha
+ *
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \App\Models\Condicion|null $condicion
+ * @property-read \App\Models\DetalleProducto|null $detalle
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductoEnPercha> $productoPercha
+ * @property-read int|null $producto_percha_count
+ * @property-read \App\Models\Sucursal|null $sucursal
+ * @method static \Illuminate\Database\Eloquent\Builder|VistaInventarioPercha newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VistaInventarioPercha newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VistaInventarioPercha query()
+ * @mixin \Eloquent
+ */
 class VistaInventarioPercha extends Model
 {
     use HasFactory;

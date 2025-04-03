@@ -169,4 +169,17 @@ class SubtareaService
             }
         }
     }
+
+    /**
+     * @throws ValidationException
+     */
+    public function puedeIniciarHora(Subtarea $subtarea)
+    {
+        $horaInicio = Carbon::parse($subtarea->hora_inicio_trabajo)->format('H:i:s');
+
+        if (Carbon::now()->format('H:i:s') < $horaInicio) // Si puede ejecutar en la fecha ya se valida en el resource
+            throw ValidationException::withMessages([
+                'hora_inicio_trabajo' => ['Debe esperar a que sean las ' . $subtarea->hora_inicio_trabajo . ' para ejecutar la subtarea'],
+            ]);
+    }
 }

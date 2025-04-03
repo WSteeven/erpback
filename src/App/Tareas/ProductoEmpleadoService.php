@@ -2,6 +2,8 @@
 
 namespace Src\App\Tareas;
 
+use App\Exports\ActivosFijos\ReporteActivosFijosExport;
+use App\Http\Resources\ActivosFijos\ReporteActivosFijosResource;
 use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
@@ -10,14 +12,18 @@ use App\Models\Empleado;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
 use App\Models\MaterialEmpleado;
+use App\Models\Motivo;
 use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\SeguimientoMaterialStock;
+use App\Models\Tareas\DetalleTransferenciaProductoEmpleado;
+use App\Models\Tareas\TransferenciaProductoEmpleado;
+use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\EstadosTransacciones;
 
@@ -47,7 +53,26 @@ class ProductoEmpleadoService
         } else {
             // Mi bodega
             if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
-            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal'])->filter()->tieneStock()->get();
+            else {
+                if (request('search')) {
+                    $searchResults = MaterialEmpleado::whereHas('detalle', function ($q) {
+                        $q->where('descripcion', 'like', '%' . request('search') . '%')
+                        ->orWhere('serial', 'like', '%' . request('search') . '%');
+                    });
+
+                    $results = $searchResults
+                        ->when(request()->filled('empleado_id'), function ($query) {
+                            return $query->where('empleado_id', request('empleado_id'));
+                        })
+                        ->when(request()->filled('cliente_id'), function ($query) {
+                            return $query->where('cliente_id', request('cliente_id'));
+                        })
+                        ->where('cantidad_stock', '>', 0)
+                        ->get();
+                } else {
+                    $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal', 'categoria_id', 'search', 'destino'])->filter()->tieneStock()->filterByCategoria(request('categoria_id'))->get();
+                }
+            }
         }
 
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->where('cliente_id', request('cliente_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
@@ -70,13 +95,15 @@ class ProductoEmpleadoService
                 'id' => $item->detalle_producto_id,
                 'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
+                'descripcion' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
                 'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
-                'transacciones' => count($ids_egresos) > 0 ? 'Egresos:' . $ids_egresos . '; ' . (count($ids_items_preingresos) > 0 ? 'Preingresos:' . $ids_items_preingresos : '') : '',
+                // 'transacciones' => count($ids_egresos) > 0 ? 'Egresos:' . $ids_egresos . '; ' . (count($ids_items_preingresos) > 0 ? 'Preingresos:' . $ids_items_preingresos : '') : '',
+                'transacciones' => $this->mensajeTransacciones($ids_egresos, $ids_items_preingresos, $this->obtenerIdsTransferencias($item->detalle_producto_id, $item->cliente_id)),
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
@@ -106,6 +133,21 @@ class ProductoEmpleadoService
 
         $results = $materiales->toArray();
         return array_values($results);
+    }
+
+    private function mensajeTransacciones($ids_egresos, $ids_items_preingresos, $ids_transferencias)
+    {
+        $mensaje = '';
+        if (count($ids_egresos)) $mensaje .= 'Egresos:' . $ids_egresos . '; ';
+        if (count($ids_items_preingresos)) $mensaje .= 'Preingresos:' . $ids_items_preingresos . '; ';
+        if (count($ids_transferencias)) $mensaje .= 'Tranferencias:' . $ids_transferencias . '; ';
+        return $mensaje;
+    }
+
+    private function obtenerIdsTransferencias(int $detalle_producto_id, int|null $cliente_id)
+    {
+        $ids_transferencias = TransferenciaProductoEmpleado::where('empleado_destino_id', request()->empleado_id)->where('cliente_id', $cliente_id)->where('autorizacion_id', EstadosTransacciones::COMPLETA::COMPLETA)->pluck('id');
+        return DetalleTransferenciaProductoEmpleado::where('detalle_producto_id', $detalle_producto_id)->whereIn('transf_produc_emplea_id', $ids_transferencias)->pluck('transf_produc_emplea_id');
     }
 
     /**
@@ -221,7 +263,6 @@ class ProductoEmpleadoService
         // $subtarea = Subtarea::find($idSubtarea);
         // $fecha_inicio = Carbon::parse($subtarea->fecha_hora_agendado)->format('Y-m-d');
         // $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->addDay()->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
-
         return DB::table('af_seguimientos_consumo_activos_fijos as sms')
             ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', 'sms.cliente_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'), 'sms.empleado_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
@@ -230,14 +271,4 @@ class ProductoEmpleadoService
             ->groupBy('empleado_id')
             ->get();
     }
-
-    /*private function obtenerSumaConsumoActivoFijoPorEmpleado(int $empleado_id)
-    {
-        return DB::table('af_seguimientos_consumo_activos_fijos as sms')
-            ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', 'sms.cliente_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))
-            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
-            ->where('empleado_id', $empleado_id)
-            ->groupBy('detalle_producto_id', 'cliente_id')
-            ->get();
-    } */
 }

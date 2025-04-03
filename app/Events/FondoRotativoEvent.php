@@ -11,9 +11,11 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class FondoRotativoEvent implements ShouldBroadcast
 {
@@ -22,10 +24,12 @@ class FondoRotativoEvent implements ShouldBroadcast
     public Gasto $gasto;
     public Notificacion $notificacion;
     private String $nombre_canal;
+
     /**
      * Create a new event instance.
      *
      * @return void
+     * @throws Throwable
      */
     public function __construct(Gasto $gasto)
     {
@@ -46,7 +50,7 @@ class FondoRotativoEvent implements ShouldBroadcast
     /**
      * La función `obtenerRuta` determina la ruta y el mensaje en función del estado de un objeto Gasto.
      *
-     * @return Un array que contiene información sobre la ruta según el estado del gasto (Gasto). El
+     * @return array array que contiene información sobre la ruta según el estado del gasto (Gasto). El
      * conjunto incluye la ruta de la ruta, ya sea informativa o no, un mensaje relacionado con el estado
      * del gasto, el originador y el destinatario del mensaje.
      */
@@ -76,7 +80,7 @@ class FondoRotativoEvent implements ShouldBroadcast
                 $ruta = [
                     'ruta' => '/autorizar-gasto',
                     'informativa' => false,
-                    'mensaje' => $this->mostrarMensaje($this->gasto),
+                    'mensaje' => $this->mostrarMensaje(),
                     'originador' => $this->gasto->id_usuario,
                     'destinatario' => $this->gasto->aut_especial,
                 ];
@@ -97,11 +101,7 @@ class FondoRotativoEvent implements ShouldBroadcast
      * La función "mostrarMensaje" genera un mensaje sobre un gasto específico solicitado por un
      * empleado, incluyendo detalles como el nombre del empleado, el monto del gasto y la descripción.
      *
-     * @param Gasto gasto La función `mostrarMensaje` toma como parámetro un objeto `Gasto`. Recupera
-     * información relacionada con el objeto `Gasto`, como el empleado que presentó el gasto
-     * (`), los detalles del gasto (`) y subdetalles adicionales (`
-     *
-     * @return La función `mostrarMensaje` devuelve un mensaje que incluye el nombre del empleado, el
+     * @return string función `mostrarMensaje` devuelve un mensaje que incluye el nombre del empleado, el
      * monto total del gasto, una descripción del detalle del gasto e información adicional de
      * subdetalle. El mensaje se construye concatenando estas piezas de información.
      */
@@ -111,21 +111,20 @@ class FondoRotativoEvent implements ShouldBroadcast
         $modelo = new GastoResource($this->gasto);
         $detalle = $modelo->detalle_info->descripcion;
         $sub_detalle_info = $this->subdetalleInfo($modelo->subDetalle);
-        $mensaje = $empleado->nombres . ' ' . $empleado->apellidos . ' ha solicitado un gasto por un monto de $' . $this->gasto->total . ' con respecto a ' . $detalle . ' ' . $sub_detalle_info;
-        return $mensaje;
+        return $empleado->nombres . ' ' . $empleado->apellidos . ' ha solicitado un gasto por un monto de $' . $this->gasto->total . ' con respecto a ' . $detalle . ' ' . $sub_detalle_info;
     }
     /**
      * La función `subdetalleInfo` concatena los valores `descripcion` de objetos en un array con comas
      * entremedio.
      *
-     * @param array subdetalle_info Parece que la función `subdetalleInfo` tiene como objetivo
+     * @param array|Collection $subdetalle_info Parece que la función `subdetalleInfo` tiene como objetivo
      * concatenar la propiedad `descripcion` de cada objeto en la matriz ``, separada
      * por comas.
      *
-     * @return La función `subdetalleInfo` devuelve una cadena concatenada de descripciones de la matriz
+     * @return string función `subdetalleInfo` devuelve una cadena concatenada de descripciones de la matriz
      * `subdetalle_info`, separadas por comas.
      */
-    private function subdetalleInfo($subdetalle_info)
+    private function subdetalleInfo(array|Collection $subdetalle_info)
     {
         $descripcion = '';
         $i = 0;
@@ -143,17 +142,13 @@ class FondoRotativoEvent implements ShouldBroadcast
     {
         $nombre_canal = null;
         switch ($this->gasto->estado) {
-            case Gasto::APROBADO:
-                $nombre_canal = 'fondo-rotativo-' . $this->gasto->id_usuario;
-                break;
             case Gasto::RECHAZADO:
+            case Gasto::ANULADO:
+            case Gasto::APROBADO:
                 $nombre_canal = 'fondo-rotativo-' . $this->gasto->id_usuario;
                 break;
             case Gasto::PENDIENTE:
                 $nombre_canal = 'fondo-rotativo-' . $this->gasto->aut_especial;
-                break;
-        case Gasto::ANULADO:
-                $nombre_canal = 'fondo-rotativo-' . $this->gasto->id_usuario;
                 break;
         }
         return $nombre_canal;
@@ -161,7 +156,7 @@ class FondoRotativoEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel
      */
     public function broadcastOn()
     {

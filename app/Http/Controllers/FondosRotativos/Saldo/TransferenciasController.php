@@ -5,13 +5,12 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 use App\Events\TransferenciaSaldoContabilidadEvent;
 use App\Events\TransferenciaSaldoEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TransferenciaRequest;
 use App\Http\Requests\TransferenciaSaldoRequest;
 use App\Http\Resources\FondosRotativos\Saldo\TransferenciaResource;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,28 +19,31 @@ use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class TransferenciasController extends Controller
 {
-    private $entidad = 'transferencia';
+    private string $entidad = 'transferencia';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.transferencia')->only('index', 'show');
         $this->middleware('can:puede.crear.transferencia')->only('store');
         $this->middleware('can:puede.editar.transferencia')->only('update');
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function index()
     {
         try {
-            $results = [];
             $usuario = Auth::user();
             $usuario_ac = User::where('id', $usuario->id)->first();
-            if ($usuario_ac->hasRole('CONTABILIDAD'))
+            if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR]))
                 $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
             else
                 $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
@@ -57,8 +59,9 @@ class TransferenciasController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param TransferenciaSaldoRequest $request
+     * @return JsonResponse
+     * @throws ValidationException|Throwable
      */
     public function store(TransferenciaSaldoRequest $request)
     {
@@ -82,12 +85,14 @@ class TransferenciasController extends Controller
             ]);
         }
     }
-    public function autorizacionesTransferencia(Request $request)
+
+    /**
+     * @throws ValidationException
+     */
+    public function autorizacionesTransferencia()
     {
         try {
             $user = Auth::user()->empleado;
-            $usuario = User::where('id', $user->id)->first();
-            $results = [];
             $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('empleadoEnvia', 'empleadoRecibe')->filter()->orderBy('id', 'desc')->get();
             $results = TransferenciaResource::collection($results);
             return response()->json(compact('results'));
@@ -97,41 +102,49 @@ class TransferenciasController extends Controller
             ]);
         }
     }
+
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Transferencias $transferencia
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(Transferencias $transferencia)
     {
-        $Transferencia = Transferencias::where('id', $id)->first();
-        $modelo = new TransferenciaResource($Transferencia);
-        return response()->json(compact('modelo'), 200);
+        $modelo = new TransferenciaResource($transferencia);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  Transferencias  $transferencia
-     * @return \Illuminate\Http\Response
+     * @param TransferenciaSaldoRequest $request
+     * @param Transferencias $transferencia
+     * @return JsonResponse
+     * @throws ValidationException
      */
-    public function update(Request $request, TransferenciaSaldoRequest $transferencia)
+    public function update(TransferenciaSaldoRequest $request, Transferencias $transferencia)
     {
-        $datos = $request->all();
-        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
-        $modelo = $transferencia->update($datos);
-        $modelo = new TransferenciaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje', 'modelo'));
+        try {
+            $datos = $request->validated();
+            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante']))
+                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::TRANSFERENCIASALDO, $transferencia->comprobante))->execute();
+            else unset($datos['comprobante']);
+
+            $transferencia->update($datos);
+            $modelo = new TransferenciaResource($transferencia->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Throwable $e) {
+            throw  Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Transferencia  $transferencia
-     * @return \Illuminate\Http\Response
+     * @param Transferencias $transferencia
+     * @return JsonResponse
      */
     public function destroy(Transferencias $transferencia)
     {
@@ -140,12 +153,14 @@ class TransferenciasController extends Controller
 
         return response()->json(compact('mensaje'));
     }
+
     /**
      * It updates the status of the expense to 1, which means it is approved.
      *
-     * @param Request request The request object.
+     * @param Request $request The request object.
      *
-     * @return A JSON object with the success message.
+     * @return JsonResponse JSON object with the success message.
+     * @throws Throwable|ValidationException
      */
     public function aprobarTransferencia(Request $request)
     {
@@ -161,7 +176,6 @@ class TransferenciasController extends Controller
             if ($transferencia) {
                 $transferencia->estado = Transferencias::APROBADO;
                 $transferencia->save();
-                $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
                 event(new TransferenciaSaldoContabilidadEvent($transferencia));
                 DB::commit();
@@ -178,12 +192,14 @@ class TransferenciasController extends Controller
             ]);
         }
     }
+
     /**
      * It updates the status of the expense to 1, which means it is rejected.
      *
-     * @param Request request The request object.
+     * @param Request $request The request object.
      *
-     * @return A JSON object with the success message.
+     * @return JsonResponse JSON object with the success message.
+     * @throws Throwable|ValidationException
      */
     public function rechazarTransferencia(Request $request)
     {
@@ -193,15 +209,11 @@ class TransferenciasController extends Controller
             if ($transferencia) {
                 $transferencia->estado = Transferencias::RECHAZADO;
                 $transferencia->save();
-                $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
                 event(new TransferenciaSaldoContabilidadEvent($transferencia));
                 DB::commit();
-            } else {
-                throw ValidationException::withMessages([
-                    '404' => ['Transferencia no encontrada'],
-                ]);
-            }
+            } else throw new Exception('Transferencia no encontrada');
+
             return response()->json(['mensaje' => 'Transferencia rechazada']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -210,21 +222,23 @@ class TransferenciasController extends Controller
             ]);
         }
     }
+
     /**
      * La función `anularTransferencia` cancela una transferencia y dispara un evento para notificar sobre
      * la cancelación.
      *
-     * @param Request request La función `anularTransferencia` se utiliza para cancelar una transferencia
+     * @param Request $request La función `anularTransferencia` se utiliza para cancelar una transferencia
      * en la base de datos. Aquí hay un desglose del código:
      *
-     * @return La función `anularTransferencia` está devolviendo una respuesta JSON con un mensaje de éxito
+     * @return JsonResponse función `anularTransferencia` está devolviendo una respuesta JSON con un mensaje de éxito
      * 'Transferencia anulada'.
+     * @throws ValidationException|Throwable
      */
     public function anularTransferencia(Request $request)
     {
         DB::beginTransaction();
         try {
-            $transferencia_repetida = Transferencias::where('estado',  Transferencias::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
+            $transferencia_repetida = Transferencias::where('estado', Transferencias::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
             if ($transferencia_repetida->count() > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Transferencia  ya fue anulada'],
@@ -234,7 +248,6 @@ class TransferenciasController extends Controller
             if ($transferencia) {
                 $transferencia->estado = Transferencias::ANULADO;
                 $transferencia->save();
-                $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
                 event(new TransferenciaSaldoContabilidadEvent($transferencia));
                 DB::commit();

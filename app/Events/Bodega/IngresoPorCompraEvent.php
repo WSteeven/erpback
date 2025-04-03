@@ -19,7 +19,7 @@ class IngresoPorCompraEvent implements ShouldBroadcast
 
     public TransaccionBodega $transaccion;
     public Notificacion $notificacion;
-    public $url = '/transacciones-ingresos';
+    public string $url = '/transacciones-ingresos';
     public $canalId;
 
     /**
