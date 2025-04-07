@@ -45,12 +45,13 @@ class AcreditacionesController extends Controller
     {
         $search = $request->search;
         $paginate = $request->paginate;
-        if ($search) $query = Acreditaciones::whereHas('usuario', function ($query) use ($search) {
-            $query->where('nombres', 'like', '%' . $search . '%')
-                ->orWhere('apellidos', 'like', '%' . $search . '%');
-        })->orWhere('descripcion_acreditacion', 'like', '%' . $search . '%')
-            ->orWhere('motivo', 'like', '%' . $search . '%')
-            ->orWhere('monto', 'like', '%' . $search . '%');
+        if ($search) $query = Acreditaciones::search($search); // con algolia funcionando
+//            Acreditaciones::whereHas('usuario', function ($query) use ($search) {
+//            $query->where('nombres', 'like', '%' . $search . '%')
+//                ->orWhere('apellidos', 'like', '%' . $search . '%');
+//        })->orWhere('descripcion_acreditacion', 'like', '%' . $search . '%')
+//            ->orWhere('motivo', 'like', '%' . $search . '%')
+//            ->orWhere('monto', 'like', '%' . $search . '%');
         else $query = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos', 'paginate'])->filter()->orderBy('id', 'desc');
 
         if ($paginate) $results = $this->paginationService->paginate($query, 100, $request->page);

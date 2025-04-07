@@ -23,11 +23,10 @@ use Illuminate\Support\Facades\Log;
 use Src\App\Sistema\PaginationService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
-use Src\Config\Constantes;
 use Src\Config\EstadosTransacciones;
 use Throwable;
 
-class TransaccionBodegaEgresoService
+class TransaccionBodegaEgresoServiceCopy
 {
     public static \Illuminate\Support\Collection|array|Collection $motivos;
 
@@ -42,7 +41,6 @@ class TransaccionBodegaEgresoService
     {
         $pagination_service = new PaginationService();
         $estado = $request->estado;
-        $search = $request->search;
 
 //        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         $results = [];
@@ -50,37 +48,60 @@ class TransaccionBodegaEgresoService
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
-                        $query = TransaccionBodega::whereIn('motivo_id', self::$motivos)
-                            ->whereHas('comprobante', function ($q) {
-                                $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
-                            })
-                            ->with('comprobante')
-                            ->orderBy('id', 'desc');
+                        $query = TransaccionBodega::search(request('search'))
+                            ->query(function ($query) {
+                                $query->whereIn('motivo_id', self::$motivos)
+                                    ->whereHas('comprobante', function ($q) {
+                                        $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
+                                    })
+                                    ->with('comprobante')
+                                    ->orderBy('id', 'desc');
+                            });
 
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 100, request('page'));
+                        } else
+                            return $query->get();
                     case EstadoTransaccion::PARCIAL:
-                        $query = TransaccionBodega::with('comprobante')
-                            ->whereIn('motivo_id', self::$motivos)
-                            ->whereHas('comprobante', function ($q) {
-                                $q->where('estado', EstadoTransaccion::PARCIAL);
-                            })
-                            ->orderBy('id', 'desc');
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                        $query = TransaccionBodega::search(request('search'))
+                            ->query(function ($query) {
+                                $query->with('comprobante')
+                                    ->whereIn('motivo_id', self::$motivos)
+                                    ->whereHas('comprobante', function ($q) {
+                                        $q->where('estado', EstadoTransaccion::PARCIAL);
+                                    })
+                                    ->orderBy('id', 'desc');
+                            });
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 100, request('page'));
+                        } else
+                            return $query->get();
                     case EstadoTransaccion::COMPLETA:
-                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)
-                            ->where(function ($query) {
-                                $query->whereHas('comprobante', function ($q) {
-                                    $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
-                                })->orWhereDoesntHave('comprobante');
-                            })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc');
-
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                        $query = TransaccionBodega::search(request('search'))
+                            ->query(function ($query) {
+                                $query->with('comprobante')->whereIn('motivo_id', self::$motivos)
+                                    ->where(function ($query) {
+                                        $query->whereHas('comprobante', function ($q) {
+                                            $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
+                                        })->orWhereDoesntHave('comprobante');
+                                    })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc');
+                            });
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 1000, request('page'));
+                        } else
+                            return $query->get();
                     case 'ANULADA':
-                        $query = TransaccionBodega::whereIn('motivo_id', self::$motivos)
-                            ->where('estado_id', EstadosTransacciones::ANULADA)
-                            ->orderBy('id', 'desc');
-
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                        $query = TransaccionBodega::search(request('search'))
+                            ->query(function ($query) {
+                                $query
+                                    ->whereIn('motivo_id', self::$motivos)
+                                    ->where('estado_id', EstadosTransacciones::ANULADA)
+                                    ->orderBy('id', 'desc');
+                            });
+                        if ($paginate) {
+                            return $pagination_service->paginate($query, 100, request('page'));
+                        } else
+                            return $query->get();
                     default:
                 }
             } else {
@@ -98,27 +119,26 @@ class TransaccionBodegaEgresoService
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
-                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
                             $q->where('firmada', false);
-                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
-
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        break;
                     case EstadoTransaccion::PARCIAL:
-                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
                             $q->where('estado', EstadoTransaccion::PARCIAL);
-                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        break;
                     case EstadoTransaccion::COMPLETA:
-                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)
                             ->where(function ($query) {
                                 $query->whereHas('comprobante', function ($q) {
                                     $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
                                 })->orWhereDoesntHave('comprobante');
-                            })->where('autorizacion_id', Autorizaciones::APROBADO)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                            })->where('autorizacion_id', Autorizaciones::APROBADO)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        break;
                     case 'ANULADA':
-                        $query = TransaccionBodega::whereIn('motivo_id', self::$motivos)->where('estado_id', EstadosTransacciones::ANULADA)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
-                        return buscarConAlgoliaFiltrado($query, 'id', $search, null, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate);
+                        $results = TransaccionBodega::whereIn('motivo_id', self::$motivos)->where('estado_id', EstadosTransacciones::ANULADA)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        break;
                     default:
                 }
             } else
@@ -234,7 +254,7 @@ class TransaccionBodegaEgresoService
             )
             ->whereHas('comprobante', function ($q) {
                 $q->where('firmada', true);
-            })->orderBy('id')->get();
+            })->orderBy('id',)->get();
     }
 
     public static function filtrarEgresoPorTipoFiltro($request)

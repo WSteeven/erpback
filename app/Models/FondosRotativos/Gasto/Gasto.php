@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
@@ -111,6 +112,7 @@ use Src\Shared\Utils;
  */
 class Gasto extends Model implements Auditable
 {
+    use Searchable;
     use HasFactory;
     use AuditableModel;
     use Filterable;
@@ -153,6 +155,25 @@ class Gasto extends Model implements Auditable
     ];
     private static array $whiteListFilter = ['*'];
 
+    public function toSearchableArray()
+    {
+        return [
+          'id'=>$this->id,
+          'fecha'=>$this->fecha_viat,
+          'tarea_id'=>$this->tarea_id,
+          'tarea'=>$this->tarea?->codigo_tarea,
+          'ruc'=>$this->ruc,
+          'factura'=>$this->factura,
+          'num_comprobante'=>$this->num_comprobante,
+          'autorizador'=>$this->authEspecialUser?->nombres.' '.$this->authEspecialUser?->apellidos,
+          'detalle'=>$this->detalle_info?->descripcion,
+          'total'=>$this->total,
+          'observacion'=>$this->observacion,
+          'estado'=>$this->estadoViatico->descripcion,
+          'detalle_estado'=>$this->detalle_estado,
+          'usuario'=>$this->empleado?->nombres.' '.$this->empleado?->apellidos,
+        ];
+    }
     public function detalle_info()
     {
         return $this->hasOne(DetalleViatico::class, 'id', 'detalle');

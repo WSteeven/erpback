@@ -5,7 +5,9 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
+use App\Http\Resources\ProductoResource;
 use App\Mail\Notificar;
+use App\Models\Producto;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
@@ -21,6 +23,15 @@ use Maatwebsite\Excel\Facades\Excel;
 |
 */
 
+Route::get('/search-producto', function ()  {
+//    Log::channel('testing')->info('Log', ['search-product', request()->all()]);
+
+    $results = Producto::search(request()->search)
+        ->get();
+
+    $results = ProductoResource::collection($results);
+    return response()->json(compact('results'));
+});
 
 Route::get('/qrcode', [PedidoController::class, 'qrview']);
 Route::get('/encabezado', [PedidoController::class, 'encabezado']);

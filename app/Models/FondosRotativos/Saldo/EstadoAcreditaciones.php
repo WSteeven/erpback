@@ -2,35 +2,40 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\FondosRotativos\Saldo\EstadoAcreditaciones
  *
  * @property int $id
  * @property string $estado
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones query()
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EstadoAcreditaciones whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|EstadoAcreditaciones acceptRequest(?array $request = null)
+ * @method static Builder|EstadoAcreditaciones filter(?array $request = null)
+ * @method static Builder|EstadoAcreditaciones ignoreRequest(?array $request = null)
+ * @method static Builder|EstadoAcreditaciones newModelQuery()
+ * @method static Builder|EstadoAcreditaciones newQuery()
+ * @method static Builder|EstadoAcreditaciones query()
+ * @method static Builder|EstadoAcreditaciones setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|EstadoAcreditaciones setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|EstadoAcreditaciones setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|EstadoAcreditaciones whereCreatedAt($value)
+ * @method static Builder|EstadoAcreditaciones whereEstado($value)
+ * @method static Builder|EstadoAcreditaciones whereId($value)
+ * @method static Builder|EstadoAcreditaciones whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class EstadoAcreditaciones extends Model implements Auditable
 {
@@ -46,7 +51,7 @@ class EstadoAcreditaciones extends Model implements Auditable
     protected $fillable = [
         'estado',
     ];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'estado',
     ];
 }

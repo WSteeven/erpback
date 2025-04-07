@@ -18,6 +18,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,8 @@ use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\FondosRotativos\SaldoService;
+use Src\App\Sistema\PaginationService;
+use Src\Config\Constantes;
 use Src\Shared\Utils;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
@@ -37,9 +40,12 @@ class GastoController extends Controller
 {
     private string $entidad = 'gasto';
     private ReportePdfExcelService $reporteService;
+    private PaginationService $paginationService;
+
 
     public function __construct()
     {
+        $this->paginationService = new PaginationService();
         $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.gasto')->only('index', 'show');
         $this->middleware('can:puede.crear.gasto')->only('store');
@@ -51,22 +57,46 @@ class GastoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
+     * @throws ValidationException
      */
-    public function index()
+    public function index(Request $request)
     {
-        $fechaActual = Carbon::now();
-        $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d'); //Se consultara los gastos cuya fecha sea posterior a los ultimos 6 meses
-        $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->where('fecha_viat', '>=', $fechaViatico)->filter()->orderBy('id', 'desc')->get();
-        } else {
-            $usuario = Auth::user()->empleado;
-            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc')->get();
+        try {
+            $paginate = $request->paginate;
+            $search = $request->search;
+            $ids_algolia = collect();
+
+            $user = Auth::user();
+
+            if (!is_null($search)) {
+                $ids_algolia = Gasto::search($search)->get()->pluck('id');
+            }
+
+            if ($user->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
+                $query = Gasto::ignoreRequest(['campos', 'paginate', 'search'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')
+                    ->when($ids_algolia->isNotEmpty(), function ($query) use ($ids_algolia) {
+                        $query->whereIn('id', $ids_algolia);
+                    })->filter()->orderBy('id', 'desc');
+            } else {
+                $query = Gasto::ignoreRequest(['campos', 'paginate', 'search'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')
+                    ->where(function ($query) use ($user) {
+                        $query->where('id_usuario', $user->empleado->id)
+                            ->orwhere('aut_especial', $user->empleado->id);
+                    })
+                    ->when($ids_algolia->isNotEmpty(), function ($query) use ($ids_algolia) {
+                        $query->whereIn('id', $ids_algolia);
+                    })->filter()->orderBy('id', 'desc');
+            }
+
+//            Log::channel('testing')->info('Log', ['la query es?', $query->count(), $query->toSql(), $query->getBindings()]);
+//            Log::channel('testing')->info('Log', ['el search es?', Gasto::search($search)->count(), get_class($query->getModel())]);
+            $results = $paginate ? $this->paginationService->paginate($query, Constantes::PAGINATION_ITEMS_PER_PAGE, $request->page) : $query->get();
+            return GastoResource::collection($results);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['exception?', $e->getLine(), $e->getMessage()]);
+            throw  Utils::obtenerMensajeErrorLanzable($e);
         }
-        $results = GastoResource::collection($results);
-        return response()->json(compact('results'));
     }
 
     /**
@@ -76,7 +106,7 @@ class GastoController extends Controller
     {
         try {
             $usuario_autenticado = Auth::user();
-            if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
+            if (!$usuario_autenticado->hasRole(User::ROL_ADMINISTRADOR)) {
                 $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc')->get();
             } else {
                 $fechaActual = Carbon::now();
@@ -464,7 +494,7 @@ class GastoController extends Controller
         try {
             DB::beginTransaction();
             if (!($gasto->estado == 2 && $gasto->detalle_estado == 'RECHAZADO POR EL SISTEMA')) throw new Exception('El gasto no puede ser activado porque no está Rechazado por el Sistema');
-            $request->validate(['motivo'=>['required', 'string']]);
+            $request->validate(['motivo' => ['required', 'string']]);
             $gasto->estado = EstadoViatico::POR_APROBAR_ID;
             $gasto->detalle_estado = null;
             $gasto->motivo = $request->motivo;

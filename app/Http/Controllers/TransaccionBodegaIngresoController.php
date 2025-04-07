@@ -50,7 +50,8 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function index(Request $request)
     {
-        $results = $this->servicio->listar(null, null, $request->paginate);
+        $results = $this->servicio->listar(null, null, $request->paginate,
+            $request->search);
         return TransaccionBodegaResource::collection($results);
         // return response()->json(compact('results'));
     }
