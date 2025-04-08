@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         /************************
          * COMPRAS Y PROVEEDORES
          ***********************/
+//        $schedule->job(new CrearDetalleDepartamentoProveedorJob())->everyMinute();
         $schedule->job(new CrearDetalleDepartamentoProveedorJob())->daily();
 
         /*****************
