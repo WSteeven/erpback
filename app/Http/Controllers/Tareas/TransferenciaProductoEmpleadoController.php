@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tareas;
 use App\Events\Tareas\NotificarTransferenciaProductosAprobadaEvent;
 use App\Events\Tareas\NotificarTransferenciaProductosRealizadaEvent;
 use App\Events\Tareas\NotificarTransferenciaProductosSolicitadaEvent;
+use App\Events\Tareas\NotificarTransferenciaProductosSSAEvent;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Http\Requests\Tareas\TransferenciaProductoEmpleadoRequest;
 use Src\App\Tareas\TransferenciaProductoEmpleadoService;
@@ -29,12 +30,14 @@ class TransferenciaProductoEmpleadoController extends Controller
     private $transferenciaService;
     private $productosTareaEmpleadoService;
     private $archivoService;
+    private EmpleadoService $empleadoService;
 
     public function __construct()
     {
         $this->transferenciaService = new TransferenciaProductoEmpleadoService();
         $this->productosTareaEmpleadoService = new ProductoTareaEmpleadoService();
         $this->archivoService = new ArchivoService();
+        $this->empleadoService = new EmpleadoService();
     }
 
     public function index(Request $request)
@@ -48,6 +51,7 @@ class TransferenciaProductoEmpleadoController extends Controller
 
         $results = $this->transferenciaService->filtrarTransferencias($request);
         $results = TransferenciaProductoEmpleadoResource::collection($results);
+
         return response()->json(compact('results'));
     }
 
@@ -56,20 +60,8 @@ class TransferenciaProductoEmpleadoController extends Controller
         try {
             DB::beginTransaction();
 
-            // Adaptacion de foreign keys
             $datos = $request->validated();
-            /* $datos['solicitante_id'] = $request['solicitante'];
-            $datos['empleado_origen_id'] = $request['empleado_origen'];
-            $datos['empleado_destino_id'] = $request['empleado_destino'];
-            $datos['proyecto_origen_id'] = $request['proyecto_origen'];
-            $datos['proyecto_destino_id'] = $request['proyecto_destino'];
-            $datos['etapa_origen_id'] = $request['etapa_origen'];
-            $datos['etapa_destino_id'] = $request['etapa_destino'];
-            $datos['tarea_origen_id'] = $request['tarea_origen'];
-            $datos['tarea_destino_id'] = $request['tarea_destino'];
-            $datos['autorizador_id'] = $request['autorizador'];
-            $datos['cliente_id'] = $request['cliente']; */
-            // $cliente_id = $request['cliente'];
+
             $datos['autorizacion_id'] = Autorizacion::PENDIENTE_ID;
 
             $transferencia = TransferenciaProductoEmpleado::create($datos);
@@ -117,10 +109,18 @@ class TransferenciaProductoEmpleadoController extends Controller
                 $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'recibido' => $listado['recibido']]);
             }
 
+            // Proceso de verificar los datos de la transferencia
             if (in_array($datos['autorizacion_id'], [Autorizacion::VALIDADO_ID, Autorizacion::PENDIENTE_ID])) {
                 event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
+
+                $idsDestinatarios = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_SSO);
+
+                foreach ($idsDestinatarios as $destinatario_id) {
+                    event(new NotificarTransferenciaProductosSSAEvent($transferencia_producto_empleado, $destinatario_id));
+                }
             }
 
+            // Proceso para finalizar la transferencia y recien le llegue al empleado destinataio
             if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
                 $esTransferenciaDeStock = !$transferencia_producto_empleado['proyecto_origen_id'] && !$transferencia_producto_empleado['etapa_origen_id'] && !$transferencia_producto_empleado['tarea_origen_id'];
 
@@ -128,14 +128,19 @@ class TransferenciaProductoEmpleadoController extends Controller
                 $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
 
                 // Notificar a encargado de bodega y jefe inmediato de origen y destino
-                $empleadoService = new EmpleadoService();
-                $destinatarios_id = $empleadoService->getUsersWithRoles([User::ROL_COORDINADOR_BODEGA], 'id')->pluck('id');
+                $destinatarios_id = $this->empleadoService->getUsersWithRoles([User::ROL_COORDINADOR_BODEGA], 'id')->pluck('id');
                 $destinatarios_id->push($transferencia_producto_empleado->empleadoDestino->jefe_id);
                 $destinatarios_id->push($transferencia_producto_empleado->empleadoOrigen->jefe_id);
                 $destinatarios_id->push($transferencia_producto_empleado->empleado_origen_id);
 
                 foreach ($destinatarios_id as $destinatario_id) {
                     event(new NotificarTransferenciaProductosAprobadaEvent($transferencia_producto_empleado, $destinatario_id));
+                }
+
+                $idsDestinatariosSSO = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_SSO);
+
+                foreach ($idsDestinatariosSSO as $destinatario_id) {
+                    event(new NotificarTransferenciaProductosSSAEvent($transferencia_producto_empleado, $destinatario_id));
                 }
             }
 

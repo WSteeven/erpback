@@ -200,7 +200,7 @@ class ProductoTareaEmpleadoService
     public function filtrarHerramientasAccesoriosEquiposPropios($productos) // Destino Stock
     {
         return $productos->filter(function ($producto) {
-            return in_array($producto['categoria'], ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA']);
+            return in_array($producto['categoria'], ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP']);
         });
     }
 }
