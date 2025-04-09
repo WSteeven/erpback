@@ -76,6 +76,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::post('reporte-valores-fondos', [GastoController::class, 'reporteValoresFondos']);
+    Route::put('activar-gasto-rechazado/{gasto}', [GastoController::class, 'activarGastoRechazado']);
+
     Route::get('estados-viaticos', function () {
         $results = EstadoViatico::all(['id', 'descripcion']);
         return response()->json(compact('results'));

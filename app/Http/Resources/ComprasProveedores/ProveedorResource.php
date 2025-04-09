@@ -67,7 +67,7 @@ class ProveedorResource extends JsonResource
             $modelo['parroquia'] = $this->parroquia_id;
             $modelo['tipos_ofrece'] = $this->servicios_ofertados->map(fn ($item) => $item->id);
             $modelo['categorias_ofrece'] = $this->categorias_ofertadas->map(fn ($item) => $item->id);
-            $modelo['departamentos'] = $this->departamentos_califican->map(fn ($item) => $item->id);
+            $modelo['departamentos'] = $this->departamentos_califican->map(fn ($item) => $item->id)->unique();
             $modelo['contactos'] = ContactoProveedorResource::collection($this->empresa->contactos);
         }
         return $modelo;

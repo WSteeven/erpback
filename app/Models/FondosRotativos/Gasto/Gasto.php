@@ -142,7 +142,9 @@ class Gasto extends Model implements Auditable
         'id_usuario',
         'estado',
         'detalle_estado',
-        'observacion_anulacion'
+        'observacion_anulacion',
+        'motivo',
+        'activador_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

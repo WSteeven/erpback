@@ -52,7 +52,7 @@ class PedidoController extends Controller
 
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
             $results = $this->servicio->filtrarPedidosAdministrador($estado);
-        } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
+        } else if (auth()->user()->hasRole([User::ROL_BODEGA,User::ROL_AUXILIAR_BODEGA]) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
             $results = $this->servicio->filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
             $results = $this->servicio->filtrarPedidosActivosFijos($estado);
