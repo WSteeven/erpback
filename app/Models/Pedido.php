@@ -11,8 +11,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Contracts\Auditable;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 
 /**
@@ -96,6 +97,7 @@ class Pedido extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use Searchable;
     use UppercaseValuesTrait;
 
     public $table = 'pedidos';
@@ -128,6 +130,20 @@ class Pedido extends Model implements Auditable
 
     private static array $whiteListFilter = ['*'];
 
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'justificacion' => $this->justificacion,
+            'observacion_aut' => $this->observacion_aut,
+            'observacion_est' => $this->observacion_est,
+            'observacion_bodega' => $this->observacion_bodega,
+            'autorizacion' => $this->autorizacion->nombre,
+            'estado' => $this->estado->nombre,
+            'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
+            'responsable' => Empleado::extraerNombresApellidos($this->responsable),
+        ];
+    }
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
@@ -280,6 +296,7 @@ class Pedido extends Model implements Auditable
 
         return $results;
     }
+
     public static function estadoOC($id)
     {
         $orden = OrdenCompra::where('pedido_id', $id)->orderBy('created_at', 'desc')->first();

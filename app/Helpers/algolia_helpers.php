@@ -3,8 +3,10 @@
 
 use Algolia\AlgoliaSearch\SearchClient;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Src\App\Sistema\PaginationService;
 use Src\Config\Constantes;
 
@@ -22,48 +24,44 @@ if (!function_exists('buscarConAlgoliaFiltrado')) {
  * @return Builder|LengthAwarePaginator|Collection
      */
     function buscarConAlgoliaFiltrado(
+        string $modelClass,
         Builder $query,
         string  $idColumn = 'id',
         ?string $search = null,
-        ?string $indexName = null,
         int     $perPage = Constantes::PAGINATION_ITEMS_PER_PAGE,
         ?int    $page = null,
-        bool $paginate = false
+        bool $paginate = false,
+        ?string $filters = null
     )
     {
         $paginacion_service = new PaginationService();
         if (is_null($search)) {
             return $paginate? $paginacion_service->paginate($query, $perPage, $page): $query->get();
         }
-        $ids = $query->pluck($idColumn);
-
-        if ($ids->isEmpty()) {
-            return collect();
-        }
-
-        $filters = implode(' OR ', $ids->map(fn($id) => "$idColumn:$id")->toArray());
 
         $client = SearchClient::create(
             config('scout.algolia.id'),
             config('scout.algolia.secret')
         );
 
-        // Inferimos el índice desde el modelo si no se pasa explícitamente
-        if (!$indexName) {
-            $modelClass = get_class($query->getModel());
-            $indexName = (new $modelClass)->searchableAs();
-        }
-
+        $model = new $modelClass;
+        $indexName =  $model->searchableAs();
         $index = $client->initIndex($indexName);
 
+
         $results = $index->search($search, [
-            'filters' => "($filters)",
-            'hitsPerPage' => $perPage,
-            'page' => $page ?? request('page', 0),
+            'filters' => $filters,
+            'hitsPerPage' => 500,
+            // 'page' => $page ?? request('page', 0),
         ]);
 
+        Log::channel('testing')->info('Log', ['algolia -> $results', $results ]);
         $resultIds = collect($results['hits'])->pluck($idColumn);
+        Log::channel('testing')->info('Log', ['algolia -> $search', $index->search($search) ]);
 
-        return $query->getModel()->whereIn($idColumn, $resultIds)->get();
+        $query = $modelClass::whereIn($idColumn, $resultIds)->orderBy($idColumn, 'desc');
+
+        return $paginate? $paginacion_service->paginate($query, $perPage, $page): $query->get();
+        // return $query->getModel()->whereIn($idColumn, $allResults)->get();
     }
 }

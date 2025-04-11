@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
+use Algolia\AlgoliaSearch\SearchClient;
 use App\Events\FondoRotativoEvent;
 use App\Exports\AutorizacionesExport;
 use App\Exports\GastoExport;
@@ -62,36 +63,41 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
+        Log::channel('testing')->info('Log', ['request?', $request->all()]);
         try {
             $paginate = $request->paginate;
             $search = $request->search;
             $ids_algolia = collect();
+            $filtros = [];
 
-            $user = Auth::user();
-
-            if (!is_null($search)) {
-                $ids_algolia = Gasto::search($search)->get()->pluck('id');
+            if ($request->estado) {
+                $estado = match ($request->estado) {
+                    1, '1' => EstadoViatico::APROBADO,
+                    2, '2' => EstadoViatico::RECHAZADO,
+                    3, '3' => EstadoViatico::POR_APROBAR,
+                    4, '4' => EstadoViatico::ANULADO,
+                    default => null
+                };
+                $filtros['estado'] = $estado;
             }
 
+            $filtrosAlgolia = collect($filtros)
+                ->map(fn($val, $key) => "$key:$val")
+                ->implode(' AND ');
+            $filtrosEjemplo = "estado:APROBADO" AND "otro_campo:valor" OR "otro_campo:$request->valorDelFront";
+
+            $user = Auth::user();
             if ($user->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
-                $query = Gasto::ignoreRequest(['campos', 'paginate', 'search'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')
-                    ->when($ids_algolia->isNotEmpty(), function ($query) use ($ids_algolia) {
-                        $query->whereIn('id', $ids_algolia);
-                    })->filter()->orderBy('id', 'desc');
+                $query = Gasto::ignoreRequest(['campos', 'paginate', 'search', 'page'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc');
             } else {
                 $query = Gasto::ignoreRequest(['campos', 'paginate', 'search'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')
                     ->where(function ($query) use ($user) {
                         $query->where('id_usuario', $user->empleado->id)
                             ->orwhere('aut_especial', $user->empleado->id);
-                    })
-                    ->when($ids_algolia->isNotEmpty(), function ($query) use ($ids_algolia) {
-                        $query->whereIn('id', $ids_algolia);
                     })->filter()->orderBy('id', 'desc');
             }
 
-//            Log::channel('testing')->info('Log', ['la query es?', $query->count(), $query->toSql(), $query->getBindings()]);
-//            Log::channel('testing')->info('Log', ['el search es?', Gasto::search($search)->count(), get_class($query->getModel())]);
-            $results = $paginate ? $this->paginationService->paginate($query, Constantes::PAGINATION_ITEMS_PER_PAGE, $request->page) : $query->get();
+            $results = buscarConAlgoliaFiltrado(Gasto::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, $request->page, !!$paginate, $filtrosAlgolia);
             return GastoResource::collection($results);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['exception?', $e->getLine(), $e->getMessage()]);
