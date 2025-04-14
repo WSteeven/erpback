@@ -195,6 +195,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Listar
+     * @throws Exception
      */
     public function index(Request $request)
     {

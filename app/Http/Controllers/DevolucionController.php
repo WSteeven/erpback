@@ -53,9 +53,9 @@ class DevolucionController extends Controller
 
             $results = $this->servicio->listar($request);
 
-            $results = DevolucionResource::collection($results);
+            return  DevolucionResource::collection($results);
 
-            return response()->json(compact('results'));
+//            return response()->json(compact('results'));
         } catch (Exception $e) {
             throw ValidationException::withMessages(['error' => [$e->getMessage() . '. ' . $e->getLine()]]);
         }

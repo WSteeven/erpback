@@ -181,6 +181,8 @@ class TransaccionBodega extends Model implements Auditable
             'pedido_id' => $this->pedido_id,
             'solicitante'=> $this->solicitante->nombres.' '.$this->solicitante->apellidos,
             'autoriza'=> $this->autoriza?->nombres.' '.$this->autoriza?->apellidos,
+            'autorizacion'=> $this->autorizacion?->nombre,
+            'motivo'=> $this->motivo?->nombre,
             'responsable'=> $this->responsable?->nombres.' '.$this->responsable?->apellidos,
             'sucursal'=>$this->sucursal->lugar,
             'cliente'=>$this->cliente?->empresa->razon_social,
@@ -188,9 +190,10 @@ class TransaccionBodega extends Model implements Auditable
             'fecha_compra' => $this->fecha_compra,
             'transferencia_id' => $this->transferencia_id,
             'num_comprobante' => $this->num_comprobante,
-            'comprobante' => $this->comprobante,
+            'comprobante' => $this->comprobante?$this->comprobante:'na',
             'firmada' => $this->comprobante ? $this->comprobante->firmada : null,
-            'estado' => $this->comprobante ? $this->comprobante->estado : null,
+            'estado' => $this->estado?->nombre,
+            'estado_comprobante' => $this->comprobante ? $this->comprobante->estado : null,
             'observacion' => $this->comprobante ? $this->comprobante->observacion : null,
         ];
     }

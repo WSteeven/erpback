@@ -14,14 +14,15 @@ if (!function_exists('buscarConAlgoliaFiltrado')) {
     /**
      * Filtra con Eloquent y luego busca en Algolia, devolviendo los modelos.
      *
-     * @param Builder $query Query base con filtros previos
+     * @param string $modelClass
+     * @param Builder| $query Query base con filtros previos
      * @param string $idColumn Columna de ID a usar en filtros (default: 'id')
      * @param string|null $search Texto de búsqueda (si null, retorna resultado de $query)
-     * @param string|null $indexName Nombre del índice de Algolia (si null, se usa el modelo de la query)
      * @param int $perPage Cuántos hits por página
      * @param int|null $page Página actual (default: request('page', 0))
      * @param bool $paginate Si paginar con Laravel o devolver una colección simple
- * @return Builder|LengthAwarePaginator|Collection
+     * @param string|null $filters
+     * @return Builder|LengthAwarePaginator|Collection
      */
     function buscarConAlgoliaFiltrado(
         string $modelClass,
@@ -55,12 +56,13 @@ if (!function_exists('buscarConAlgoliaFiltrado')) {
             // 'page' => $page ?? request('page', 0),
         ]);
 
-        Log::channel('testing')->info('Log', ['algolia -> $results', $results ]);
+//        Log::channel('testing')->info('Log', ['algolia -> $results', $results ]);
         $resultIds = collect($results['hits'])->pluck($idColumn);
-        Log::channel('testing')->info('Log', ['algolia -> $search', $index->search($search) ]);
+//        Log::channel('testing')->info('Log', ['algolia -> $search', $index->search($search) ]);
 
         $query = $modelClass::whereIn($idColumn, $resultIds)->orderBy($idColumn, 'desc');
 
+//        Log::channel('testing')->info('Log', ['algolia -> $query a devolver', $query->get() ]);
         return $paginate? $paginacion_service->paginate($query, $perPage, $page): $query->get();
         // return $query->getModel()->whereIn($idColumn, $allResults)->get();
     }

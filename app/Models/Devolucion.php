@@ -3,12 +3,18 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Devolucion
@@ -28,57 +34,58 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $causa_anulacion
  * @property string $estado
  * @property string $estado_bodega
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Archivo> $archivos
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Archivo> $archivos
  * @property-read int|null $archivos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Empleado|null $autoriza
- * @property-read \App\Models\Autorizacion|null $autorizacion
- * @property-read \App\Models\Canton|null $canton
- * @property-read \App\Models\Cliente|null $cliente
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read Empleado|null $autoriza
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Canton|null $canton
+ * @property-read Cliente|null $cliente
+ * @property-read Collection<int, DetalleProducto> $detalles
  * @property-read int|null $detalles_count
- * @property-read \App\Models\Notificacion|null $latestNotificacion
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \App\Models\Empleado|null $solicitante
- * @property-read \App\Models\Sucursal|null $sucursal
- * @property-read \App\Models\Tarea|null $tarea
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion query()
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereAutorizacionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereCantonId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereCausaAnulacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereEstadoBodega($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereJustificacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereObservacionAut($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion wherePedidoAutomatico($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion wherePerAutorizaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereStockPersonal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereSucursalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereTareaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Devolucion whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Empleado|null $solicitante
+ * @property-read Sucursal|null $sucursal
+ * @property-read Tarea|null $tarea
+ * @method static Builder|Devolucion acceptRequest(?array $request = null)
+ * @method static Builder|Devolucion filter(?array $request = null)
+ * @method static Builder|Devolucion ignoreRequest(?array $request = null)
+ * @method static Builder|Devolucion newModelQuery()
+ * @method static Builder|Devolucion newQuery()
+ * @method static Builder|Devolucion query()
+ * @method static Builder|Devolucion setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Devolucion setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Devolucion setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Devolucion whereAutorizacionId($value)
+ * @method static Builder|Devolucion whereCantonId($value)
+ * @method static Builder|Devolucion whereCausaAnulacion($value)
+ * @method static Builder|Devolucion whereClienteId($value)
+ * @method static Builder|Devolucion whereCreatedAt($value)
+ * @method static Builder|Devolucion whereEstado($value)
+ * @method static Builder|Devolucion whereEstadoBodega($value)
+ * @method static Builder|Devolucion whereId($value)
+ * @method static Builder|Devolucion whereJustificacion($value)
+ * @method static Builder|Devolucion whereObservacionAut($value)
+ * @method static Builder|Devolucion wherePedidoAutomatico($value)
+ * @method static Builder|Devolucion wherePerAutorizaId($value)
+ * @method static Builder|Devolucion whereSolicitanteId($value)
+ * @method static Builder|Devolucion whereStockPersonal($value)
+ * @method static Builder|Devolucion whereSucursalId($value)
+ * @method static Builder|Devolucion whereTareaId($value)
+ * @method static Builder|Devolucion whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Devolucion extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use Searchable;
     use UppercaseValuesTrait;
 
     public $table = 'devoluciones';
@@ -110,8 +117,29 @@ class Devolucion extends Model implements Auditable
     const CREADA = 'CREADA';
     const ANULADA = 'ANULADA';
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
+    public function toSearchableArray()
+    {
+        return [
+            'id'=>$this->id,
+            'justificacion'=>$this->recortarTexto($this->justificacion),
+            'solicitante'=>Empleado::extraerNombresApellidos($this->solicitante),
+            'autorizador'=>Empleado::extraerNombresApellidos($this->autoriza),
+            'tarea'=>$this->tarea?->codigo_tarea,
+            'autorizacion'=>$this->autorizacion->nombre,
+            'sucursal'=>$this->sucursal?->lugar,
+            'estado'=>$this->estado,
+            'estado_bodega'=>$this->estado_bodega,
+        ];
+    }
+
+    private function recortarTexto(?string $texto, int $limite = 500):?string
+    {
+        if(is_null($texto)) return null;
+
+        return mb_substr($texto, 0, $limite);
+    }
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS

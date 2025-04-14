@@ -58,7 +58,6 @@ class PedidoController extends Controller
         $estado = $request->estado;
         $search = $request->search;
         $filtro = ['clave' => 'autorizacion', 'valor' => 'PENDIENTE'];
-        FiltroSearchHelper::formatearFiltrosPorMotor($filtro);
         try {
 
             if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
@@ -76,10 +75,8 @@ class PedidoController extends Controller
 
             Log::channel('testing')->info('Log', ['request', $request->all()]);
             Log::channel('testing')->info('Log', ['query',  $query->count()]);
-//            $results = $request->paginate ? $this->paginationService->paginate($query, Constantes::PAGINATION_ITEMS_PER_PAGE, $request->page) : $query->get();
+
             $results =  buscarConAlgoliaFiltrado(Pedido::class, $query, 'id', $search,  Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$request->paginate, $filtrosAlgolia);
-//            $results =  buscarConMeilisearchFiltrado(Pedido::class, $query, 'id', $search,  Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$request->paginate, $filtrosAlgolia);
-//            $results =  buscarConTypenseFiltrado(Pedido::class, $query, 'id', $search,  Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$request->paginate, $filtrosAlgolia);
 
             return PedidoResource::collection($results);
         } catch (Exception $e) {
