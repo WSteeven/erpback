@@ -79,9 +79,10 @@ class TareaController extends Controller
     {
         if (!$this->tareaService->puedeCrearMasTareas()) throw ValidationException::withMessages(['422' => ['No puede crear más tareas!']]);
 
-        DB::beginTransaction();
+        //DB::beginTransaction();
 
-        try {
+        //try {
+        return DB::transaction(function () use ($request) {
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
@@ -109,10 +110,11 @@ class TareaController extends Controller
             $modelo = new TareaResource($modelo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Exception $e) {
+            /*} catch (\Exception $e) {
             Log::channel('testing')->info('Log', ['Excepcion', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
-        }
+        }*/
+        });
     }
 
     /**
@@ -159,7 +161,6 @@ class TareaController extends Controller
             DB::rollBack();
             throw $e;
         }
-
     } // 103 a 112 // pregunta 93
 
     /**
