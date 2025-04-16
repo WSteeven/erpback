@@ -15,6 +15,10 @@ class ArchivoTicketController extends Controller
     public function index()
     {
         $results = ArchivoTicket::filter()->get();
+        $results = $results->map(function ($item) {
+            $item->ruta = $item->ruta?url($item->ruta):null;
+             return $item;
+        });
         return response()->json(compact('results'));
     }
 
