@@ -46,6 +46,7 @@ class TareaController extends Controller
     /*********
      * Listar
      *********/
+<<<<<<< Updated upstream
     /**
      * @OA\Get(
      *     path="/api/tareas/tareas",
@@ -54,6 +55,8 @@ class TareaController extends Controller
      *     @OA\Response(response=200, description="Description of response")
      * )
      */
+=======
+>>>>>>> Stashed changes
     public function index(Request $request)
     {
         // $paginated = $this->listar();
