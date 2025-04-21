@@ -57,7 +57,8 @@ class PedidoController extends Controller
     {
         $estado = $request->estado;
         $search = $request->search;
-        $filtro = ['clave' => 'autorizacion', 'valor' => 'PENDIENTE'];
+        //$filtro = ['clave' => 'autorizacion', 'valor' => 'PENDIENTE'];
+        //FiltroSearchHelper::formatearFiltrosPorMotor($filtro);
         try {
 
             if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {

@@ -32,7 +32,7 @@ if (!function_exists('buscarConAlgoliaFiltrado')) {
         int     $perPage = Constantes::PAGINATION_ITEMS_PER_PAGE,
         ?int    $page = null,
         bool $paginate = false,
-        ?string $filters = null
+        ?string $filters = ''
     )
     {
         $paginacion_service = new PaginationService();
@@ -56,13 +56,14 @@ if (!function_exists('buscarConAlgoliaFiltrado')) {
             // 'page' => $page ?? request('page', 0),
         ]);
 
-//        Log::channel('testing')->info('Log', ['algolia -> $results', $results ]);
+       Log::channel('testing')->info('Log', ['algolia -> $results', $results ]);
         $resultIds = collect($results['hits'])->pluck($idColumn);
 //        Log::channel('testing')->info('Log', ['algolia -> $search', $index->search($search) ]);
 
         $query = $modelClass::whereIn($idColumn, $resultIds)->orderBy($idColumn, 'desc');
 
-//        Log::channel('testing')->info('Log', ['algolia -> $query a devolver', $query->get() ]);
+       Log::channel('testing')->info('Log', ['algolia -> resultsId', $resultIds ]);
+       Log::channel('testing')->info('Log', ['algolia -> $query a devolver', $query->get() ]);
         return $paginate? $paginacion_service->paginate($query, $perPage, $page): $query->get();
         // return $query->getModel()->whereIn($idColumn, $allResults)->get();
     }

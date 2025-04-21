@@ -7,8 +7,10 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Str;
 
 /**
  * App\Models\Ticket
@@ -99,7 +101,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  */
 class Ticket extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait, Searchable;
 
     // Estados de un ticket
     const RECHAZADO = 'RECHAZADO';
@@ -112,7 +114,7 @@ class Ticket extends Model implements Auditable
     const FINALIZADO_SOLUCIONADO = 'FINALIZADO SOLUCIONADO';
     const CALIFICADO = 'CALIFICADO';
     const ETIQUETADOS_A_MI = 'ETIQUETADOS_A_MI';
-    const RECURRENTE = 'RECURRENTE'; 
+    const RECURRENTE = 'RECURRENTE';
 
     // Prioridad
     const ALTA = 'ALTA';
@@ -129,7 +131,7 @@ class Ticket extends Model implements Auditable
 
     protected $table = 'tickets';
     protected $fillable = [
-        'codigo',
+        // 'codigo',
         'asunto',
         'descripcion',
         'prioridad',
@@ -167,6 +169,25 @@ class Ticket extends Model implements Auditable
     private $aliasListFilter = [
         'responsable.departamento.id' => 'departamento_id',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'codigo_ticket' => 'TCKT-' . $this->id,
+            'asunto' => $this->asunto,
+            // 'descripcion' => Str::limit($this->descripcion, 800, ''),
+            // 'observaciones_solicitante' => $this->observaciones_solicitante,
+            'fecha_hora_asignacion' => (string) $this->fecha_hora_asignacion,
+            // 'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
+            'solicitante' => Empleado::extraerApellidosNombres($this->solicitante),
+            'responsable' => Empleado::extraerApellidosNombres($this->responsable),
+            'departamento_responsable' => $this->departamentoResponsable?->nombre,
+            'tipo_ticket' => $this->tipoTicket->nombre,
+            // 'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
+            'estado' => $this->estado,
+        ];
+    }
 
     /*************
      * Relaciones

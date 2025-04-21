@@ -47,8 +47,8 @@ class TransferenciaProductoEmpleadoController extends Controller
         }
 
         $results = $this->transferenciaService->filtrarTransferencias($request);
-        $results = TransferenciaProductoEmpleadoResource::collection($results);
-        return response()->json(compact('results'));
+        return TransferenciaProductoEmpleadoResource::collection($results);
+        // return response()->json(compact('results'));
     }
 
     public function store(TransferenciaProductoEmpleadoRequest $request)

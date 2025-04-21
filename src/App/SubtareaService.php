@@ -2,6 +2,7 @@
 
 namespace Src\App;
 
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Empleado;
@@ -19,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use Src\App\Sistema\PaginationService;
 use Src\Config\ClientesCorporativos;
+use Src\Config\Constantes;
 
 class SubtareaService
 {
@@ -106,7 +108,7 @@ class SubtareaService
     }
 
     // ----> Aqui me quedé para hacer la paginacion <------
-    public function obtenerTodos()
+    public function obtenerTodosOldAntesAlgolia()
     {
         $usuario = Auth::user();
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
@@ -132,6 +134,47 @@ class SubtareaService
         Log::channel('testing')->info('Log', ['paginate', $paginate]);
         if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
         else return $query->get();
+    }
+
+    public function obtenerTodos()
+    {
+        $usuario = Auth::user();
+        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
+
+        $search = request('search');
+        $paginate = request('paginate');
+
+        // Monitor
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) {
+            if ($search) $query = $usuario->empleado->subtareasCoordinador();
+            else $query = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos', 'paginate'])->filter();
+
+            // if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+            //else return $query->get();
+            $filtros = [
+                ['clave' => 'estado', 'valor' => request('estado')],
+            ];
+            $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+            Log::channel('testing')->info('Log', ['DENTRO', $filtros]);
+            return buscarConAlgoliaFiltrado(Subtarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
+            // return TareaResource::collection($results);
+        }
+
+        // Control de tareas
+        if ($search) $query = Subtarea::where('estado', request('estado'));
+        else $query = Subtarea::ignoreRequest(['campos', 'paginate'])->filter()->latest();
+
+        /*if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();*/
+        $filtros = [
+            ['clave' => 'estado', 'valor' => request('estado')],
+        ];
+        
+        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+        Log::channel('testing')->info('Log', ['FUERA', $filtros]);
+        return buscarConAlgoliaFiltrado(Subtarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
     }
 
     public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea, Request $request)

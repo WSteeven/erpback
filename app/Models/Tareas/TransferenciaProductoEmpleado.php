@@ -17,6 +17,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
 
 /**
  * App\Models\Tareas\TransferenciaProductoEmpleado
@@ -91,7 +92,7 @@ use Illuminate\Support\Facades\Log;
  */
 class TransferenciaProductoEmpleado extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait, Searchable;
 
     const PENDIENTE = 'PENDIENTE'; // 1
     const COMPLETA = 'COMPLETA'; // 2
@@ -122,6 +123,23 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'justificacion' => $this->justificacion,
+            'novedades_transferencia_recibida' => $this->novedades_transferencia_recibida,
+            'causa_anulacion' => $this->causa_anulacion,
+            'autorizacion' => $this->autorizacion_id,
+            'created_at' => $this->created_at,
+            'empleado_origen' => Empleado::extraerNombresApellidos($this->empleadoOrigen),
+            'empleado_destino' => Empleado::extraerNombresApellidos($this->empleadoDestino),
+            'autorizador' => Empleado::extraerNombresApellidos($this->autorizador),
+            'tarea_origen' => $this->tareaOrigen?->codigo_tarea,
+            'tarea_destino' => $this->tareaDestino?->codigo_tarea,
+        ];
+    }
 
     public function solicitante()
     {
