@@ -47,7 +47,7 @@ class TicketController extends Controller
         else $query = Ticket::ignoreRequest(['campos', 'paginate'])->filter()->latest();
 
         $filtros = [
-            ['clave' => 'estado', 'valor' => request('estado')],
+            ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
         ];
 
         $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
