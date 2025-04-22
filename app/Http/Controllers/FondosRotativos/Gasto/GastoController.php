@@ -50,6 +50,7 @@ class GastoController extends Controller
         $this->middleware('can:puede.editar.gasto')->only('update');
         $this->middleware('can:puede.eliminar.gasto')->only('destroy');
         $this->middleware('can:puede.ver.reporte_autorizaciones')->only('reporte_autorizaciones');
+        $this->middleware('can:puede.acceder.gastos_rechazados_sistema')->only('activarGastoRechazado');
     }
 
     /**
