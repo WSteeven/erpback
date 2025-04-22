@@ -182,6 +182,8 @@ class Ticket extends Model implements Auditable
             // 'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
             'solicitante' => Empleado::extraerApellidosNombres($this->solicitante),
             'responsable' => Empleado::extraerApellidosNombres($this->responsable),
+            'solicitante_id' => $this->solicitante_id,
+            'responsable_id' => $this->responsable_id,
             'departamento_responsable' => $this->departamentoResponsable?->nombre,
             'tipo_ticket' => $this->tipoTicket->nombre,
             // 'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,

@@ -44,13 +44,20 @@ class TicketController extends Controller
 
         if (request('estado') === Ticket::ETIQUETADOS_A_MI) $query = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest();
         else if (request('estado') === Ticket::RECURRENTE) $query = Ticket::ignoreRequest(['estado', 'paginate'])->filter()->where('is_recurring', true)->latest();
-        else $query = Ticket::ignoreRequest(['campos', 'paginate'])->filter()->latest();
+        else $query = Ticket::ignoreRequest(['campos', 'paginate', 'para_mi'])->filter()->latest();
 
-        $filtros = [
+        $filtrosCreadosPorMi = [
             ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
+            ['clave' => 'solicitante_id', 'valor' => request('solicitante_id'), 'operador' => 'AND'],
+        ];
+        
+        $filtrosTicketsParaMi = [
+            ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
+            ['clave' => 'responsable_id', 'valor' => request('responsable_id'), 'operador' => 'AND'],
         ];
 
-        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor(request()->boolean('para_mi') ? $filtrosTicketsParaMi : $filtrosCreadosPorMi);
+        Log::channel('testing')->info('Log', ['Filtros: ', $filtros]);
 
         $results = buscarConAlgoliaFiltrado(Ticket::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
         return $results = TicketResource::collection($results);
