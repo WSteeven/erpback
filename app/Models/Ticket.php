@@ -174,6 +174,7 @@ class Ticket extends Model implements Auditable
     {
         return [
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             'id' => $this->id,
             'codigo_ticket' => 'TCKT-' . $this->id,
             'asunto' => $this->asunto,
@@ -187,6 +188,8 @@ class Ticket extends Model implements Auditable
             'tipo_ticket' => $this->tipoTicket->nombre,
             // 'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
 =======
+=======
+>>>>>>> Stashed changes
             'id' => 'TCKT-' . $this->id,
             'asunto' => $this->asunto,
             'descripcion' => Str::limit($this->descripcion, 800, ''),
@@ -198,6 +201,9 @@ class Ticket extends Model implements Auditable
             'departamento_responsable_id' => $this->departamentoResponsable?->nombre,
             'tipo_ticket_id' => $this->tipoTicket->nombre,
             'motivo_cancelado_ticket_id' => $this->motivoCanceladoTicket?->motivo,
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
             'estado' => $this->estado,
         ];
