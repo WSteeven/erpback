@@ -139,6 +139,7 @@ class Gasto extends Model implements Auditable
         'total',
         'comprobante',
         'comprobante2',
+        'comprobante3',
         'observacion',
         'id_usuario',
         'estado',

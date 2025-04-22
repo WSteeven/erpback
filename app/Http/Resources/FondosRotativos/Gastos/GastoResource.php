@@ -13,37 +13,37 @@ class GastoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
-            'id'=> $this->id,
+            'id' => $this->id,
             'fecha_viat' => $this->cambiarFecha($this->fecha_viat),
             'lugar' => $this->id_lugar,
             'lugar_info' => $this->canton->canton,
             'num_tarea' => $this->id_tarea == null ? 0 : $this->id_tarea,
             'subTarea' => $this->id_subtarea == null ? 0 : $this->id_subtarea,
             'subTarea_info' => $this->subTarea != null ? $this->subTarea->codigo_subtarea . ' - ' . $this->subTarea->titulo : 'Sin Subtarea',
-            'tarea_info' =>  $this->tarea != null ? $this->tarea->codigo_tarea . ' - ' . $this->tarea->detalle : 'Sin Tarea',
-            'tarea_cliente' =>  $this->tarea?->codigo_tarea_cliente != null || strlen($this->tarea?->codigo_tarea_cliente ) >0  ? $this->tarea->codigo_tarea_cliente : 'Sin Tarea',
+            'tarea_info' => $this->tarea != null ? $this->tarea->codigo_tarea . ' - ' . $this->tarea->detalle : 'Sin Tarea',
+            'tarea_cliente' => $this->tarea?->codigo_tarea_cliente != null || strlen($this->tarea?->codigo_tarea_cliente) > 0 ? $this->tarea->codigo_tarea_cliente : 'Sin Tarea',
             'proyecto' => $this->id_proyecto != null ? $this->id_proyecto : 0,
             'proyecto_info' => $this->Proyecto != null ? $this->Proyecto->codigo_proyecto . ' - ' . $this->Proyecto->nombre : 'Sin Proyecto',
             'ruc' => $this->ruc,
-            'factura' => strlen($this->factura)>1?$this->factura:null,
+            'factura' => strlen($this->factura) > 1 ? $this->factura : null,
             'aut_especial_user' => $this->authEspecialUser->nombres . ' ' . $this->authEspecialUser->apellidos,
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,
-            'sub_detalle_info' => $this->subdetalleInfo($this->subDetalle) ,
+            'sub_detalle_info' => $this->subdetalleInfo($this->subDetalle),
             'beneficiarios' => $this->beneficiarioGasto != null ? $this->beneficiarioGasto->pluck('empleado_id') : null,
             'beneficiarios_info' => $this->beneficiarioEmpleadoInfo($this->beneficiarioGasto),
             'sub_detalle' => $this->subDetalle != null ? $this->subDetalle->pluck('id') : null,
             'vehiculo' => $this->gastoVehiculo != null ? $this->gastoVehiculo->id_vehiculo : '',
-            'placa' =>  $this->gastoVehiculo != null ? $this->gastoVehiculo->placa : '',
-            'es_vehiculo_alquilado' =>   !!$this->gastoVehiculo?->es_vehiculo_alquilado,
+            'placa' => $this->gastoVehiculo != null ? $this->gastoVehiculo->placa : '',
+            'es_vehiculo_alquilado' => !!$this->gastoVehiculo?->es_vehiculo_alquilado,
             'kilometraje' => $this->gastoVehiculo != null ? $this->gastoVehiculo->kilometraje : '',
             'detalle' => $this->detalle,
             'cantidad' => $this->cantidad,
@@ -61,15 +61,16 @@ class GastoResource extends JsonResource
             'id_lugar' => $this->id_lugar,
             'tiene_factura_info' => $this->subDetalle != null ? $this->subDetalle : true,
             'tiene_factura' => !($this->subDetalle != null) || $this->tieneFactura($this->subDetalle),
-            'created_at'  => Carbon::parse($this->created_at)
+            'created_at' => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
-            'updated_at'=> Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
-            'centro_costo' => $this->tarea !== null ? $this->tarea->centroCosto?->nombre:'',
-            'subcentro_costo' => $this->empleado?->grupo==null ?'':$this->empleado?->grupo?->subCentroCosto?->nombre,
+            'updated_at' => Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
+            'centro_costo' => $this->tarea !== null ? $this->tarea->centroCosto?->nombre : '',
+            'subcentro_costo' => $this->empleado?->grupo == null ? '' : $this->empleado?->grupo?->subCentroCosto?->nombre,
         ];
 
-        if($controller_method =='show'){
+        if ($controller_method == 'show') {
             $modelo['nodo'] = $this->nodo_id;
+            $modelo['comprobante3'] = $this->comprobante3 ? url($this->comprobante3) : null;
         }
         return $modelo;
     }
@@ -112,14 +113,14 @@ class GastoResource extends JsonResource
     private function subdetalleInfo(Collection $subdetalle_info)
     {
         $descripcion = '';
-            $i = 0;
-            foreach ($subdetalle_info as $sub_detalle) {
-                $descripcion .= $sub_detalle->descripcion;
-                $i++;
-                if ($i !== count($subdetalle_info)) {
-                    $descripcion .= ', ';
-                }
+        $i = 0;
+        foreach ($subdetalle_info as $sub_detalle) {
+            $descripcion .= $sub_detalle->descripcion;
+            $i++;
+            if ($i !== count($subdetalle_info)) {
+                $descripcion .= ', ';
             }
+        }
         return $descripcion;
     }
 
@@ -150,18 +151,19 @@ class GastoResource extends JsonResource
         }
         return $descripcion;
     }
-/**
- * La función "cambiarFecha" toma una cadena de fecha como entrada, la analiza usando Carbon y devuelve
- * la fecha formateada como 'Y-m-d'.
- *
- * @param string $fecha La función `cambiarFecha` toma un parámetro de cadena llamado ``, que
- * representa una fecha en un formato específico. La función utiliza la biblioteca Carbon para analizar
- * la cadena de fecha de entrada y luego formatearla como 'Y-m-d', que representa la fecha en el
- * formato año-mes-día. Finalmente,
- *
- * @return string La función `cambiarFecha` toma una cadena `` como entrada, la analiza usando Carbon y
- * luego la formatea en formato 'Y-m-d' (Año-Mes-Día). Luego se devuelve la fecha formateada.
- */
+
+    /**
+     * La función "cambiarFecha" toma una cadena de fecha como entrada, la analiza usando Carbon y devuelve
+     * la fecha formateada como 'Y-m-d'.
+     *
+     * @param string $fecha La función `cambiarFecha` toma un parámetro de cadena llamado ``, que
+     * representa una fecha en un formato específico. La función utiliza la biblioteca Carbon para analizar
+     * la cadena de fecha de entrada y luego formatearla como 'Y-m-d', que representa la fecha en el
+     * formato año-mes-día. Finalmente,
+     *
+     * @return string La función `cambiarFecha` toma una cadena `` como entrada, la analiza usando Carbon y
+     * luego la formatea en formato 'Y-m-d' (Año-Mes-Día). Luego se devuelve la fecha formateada.
+     */
     private function cambiarFecha(string $fecha)
     {
         return Carbon::parse($fecha)->format('Y-m-d');
