@@ -254,7 +254,7 @@ class SaldoController extends Controller
                     return $this->gasto($request, $tipo_reporte);
                 case self::CONSOLIDADO : //3
                     return $this->reporteConsolidado($request, $tipo_reporte);
-                case self::ESTADO_CUENTA :
+                case self::ESTADO_CUENTA : //4
                     return $this->reporteEstadoCuenta($request, $tipo_reporte);
                 case self::TRANSFERENCIA :
                     return $this->reporteTransferencia($request, $tipo_reporte);
@@ -937,7 +937,11 @@ class SaldoController extends Controller
             $registros_fuera_mes_suman = $this->saldoService->obtenerRegistrosFueraMes($request->empleado, $fecha_inicio, $fecha_fin);
 //            Log::channel('testing')->info('Log', ['gastos que suman', ]);
             $sumatoria_fuera_mes_suman = $registros_fuera_mes_suman->sum('saldo_depositado');
+            /* se procede a cambiar para que la sumatoria sea fuera_mes_suman - fuera_mes_restan
+            este cambio se produce porque en un reporte sumaba el ultimo saldo-$sumatoria_aprobados_fuera_mes (125 - (-75))
+            lo cual daba un valor positivo de 200, cuando lo correcto era (125-75=50) */
             $sumatoria_aprobados_fuera_mes = $sumatoria_fuera_mes_restan - $sumatoria_fuera_mes_suman;
+//            $sumatoria_aprobados_fuera_mes = $sumatoria_fuera_mes_suman - $sumatoria_fuera_mes_restan;
             $gastos_reporte = Gasto::empaquetar($gastos_reporte);
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->empleado)
                 ->with('empleadoRecibe', 'empleadoEnvia')
@@ -1000,11 +1004,16 @@ class SaldoController extends Controller
                 'sub_total' => $sub_total,
                 'total_suma' => $total
             ];
+//            Log::channel('testing')->info('Log', ['saldos',
+//                $saldo_anterior,
+//                $sumatoria_fuera_mes_restan,
+//                $sumatoria_fuera_mes_suman,
+//                $sumatoria_aprobados_fuera_mes]);
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
             $export_excel = new ConsolidadoExport($reportes);
             return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error consolidado', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->error('Log', ['error consolidado', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e, 'encontrado en reporteConsolidado');
         }
     }

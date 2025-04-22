@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 @php
+use Src\Shared\Utils;
     $fecha = new Datetime();
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'DEVOLUCION: ' . $devolucion['id'] . PHP_EOL . 'SOLICITADO POR: ' . $devolucion['solicitante'] . PHP_EOL . 'SUCURSAL: ' . $devolucion['sucursal'] . PHP_EOL . 'PERSONA QUE AUTORIZA: ' . $devolucion['per_autoriza']. PHP_EOL . 'AUTORIZACION: ' . $devolucion['autorizacion']. PHP_EOL . 'ULTIMA MODIFICACION: ' . $devolucion['updated_at'];
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     if ($persona_solicitante->firma_url) {
-        $solicitante_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_solicitante->firma_url, 1)));
+        $solicitante_firma = Utils::urlToBase64(url($persona_solicitante->firma_url));
     }
     if ($persona_autoriza->firma_url) {
-        $autoriza_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_autoriza->firma_url, 1)));
+        $autoriza_firma = Utils::urlToBase64(url($persona_autoriza->firma_url));
     }
 @endphp
 
@@ -25,7 +24,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -103,7 +102,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64( url($configuracion->logo_claro)) }}" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     <div class="col-md-7" align="center"><b>COMPROBANTE DE DEVOLUCION</b></div>

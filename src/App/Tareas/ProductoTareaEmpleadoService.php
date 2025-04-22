@@ -15,6 +15,8 @@ use App\Models\DetalleProducto;
 use App\Models\Producto;
 use App\Models\Cliente;
 use App\Models\Tarea;
+use App\Models\User;
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Src\Config\EstadosTransacciones;
@@ -199,8 +201,13 @@ class ProductoTareaEmpleadoService
     }
     public function filtrarHerramientasAccesoriosEquiposPropios($productos) // Destino Stock
     {
-        return $productos->filter(function ($producto) {
-            return in_array($producto['categoria'], ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA']);
+        $esCoordinadorBodega = Auth::user()->hasRole(User::ROL_COORDINADOR_BODEGA);
+
+        $categoriasCoordinadorBodega = ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP'];
+        $categoriasCualquierRol = ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA'];
+
+        return $productos->filter(function ($producto) use ($esCoordinadorBodega, $categoriasCoordinadorBodega, $categoriasCualquierRol) {
+            return in_array($producto['categoria'], $esCoordinadorBodega ? $categoriasCoordinadorBodega : $categoriasCualquierRol);
         });
     }
 }

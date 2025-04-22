@@ -59,6 +59,7 @@ class EmpleadoController extends Controller
         $search = request('search');
         $campos = request('campos') ? explode(',', request('campos')) : '*';
 
+        if ($search) return $this->servicio->search($search);
 
         // Devuelve en un array al  empleado resposanble del departamento que se pase como parametro
         // Requiere de campos: es_responsable_departamento=true&departamento_id=
@@ -84,7 +85,6 @@ class EmpleadoController extends Controller
         // Procesar respuesta
         if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
-        if ($search) return $this->servicio->search($search);
 
         return $this->servicio->obtenerTodos();
     }

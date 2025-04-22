@@ -47,18 +47,6 @@ class TicketController extends Controller
         else $query = Ticket::ignoreRequest(['campos', 'paginate'])->filter()->latest();
 
         $filtros = [
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
-        ];
-
-        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
-        Log::channel('testing')->info('Log', ['Filtros: ', $filtros]);
-        
-        $results = buscarConAlgoliaFiltrado(Ticket::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
-        Log::channel('testing')->info('Log', ['Results: ', $results]);
-        return TicketResource::collection($results);
-=======
             ['clave' => 'estado', 'valor' => request('estado')],
         ];
 
@@ -66,16 +54,6 @@ class TicketController extends Controller
 
         $results = buscarConAlgoliaFiltrado(Ticket::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
         return $results = TicketResource::collection($results);
->>>>>>> Stashed changes
-=======
-            ['clave' => 'estado', 'valor' => request('estado')],
-        ];
-
-        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
-
-        $results = buscarConAlgoliaFiltrado(Ticket::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
-        return $results = TicketResource::collection($results);
->>>>>>> Stashed changes
     }
 
     public function store(TicketRequest $request)

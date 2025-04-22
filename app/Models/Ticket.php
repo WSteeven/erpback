@@ -172,9 +172,7 @@ class Ticket extends Model implements Auditable
 
     public function toSearchableArray()
     {
-        return [
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+        return [ // 
             'id' => $this->id,
             'codigo_ticket' => 'TCKT-' . $this->id,
             'asunto' => $this->asunto,
@@ -187,24 +185,6 @@ class Ticket extends Model implements Auditable
             'departamento_responsable' => $this->departamentoResponsable?->nombre,
             'tipo_ticket' => $this->tipoTicket->nombre,
             // 'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
-=======
-=======
->>>>>>> Stashed changes
-            'id' => 'TCKT-' . $this->id,
-            'asunto' => $this->asunto,
-            'descripcion' => Str::limit($this->descripcion, 800, ''),
-            'observaciones_solicitante' => $this->observaciones_solicitante,
-            'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
-            'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
-            'solicitante_id' => Empleado::extraerApellidosNombres($this->solicitante),
-            'responsable_id' => Empleado::extraerApellidosNombres($this->responsable),
-            'departamento_responsable_id' => $this->departamentoResponsable?->nombre,
-            'tipo_ticket_id' => $this->tipoTicket->nombre,
-            'motivo_cancelado_ticket_id' => $this->motivoCanceladoTicket?->motivo,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             'estado' => $this->estado,
         ];
     }

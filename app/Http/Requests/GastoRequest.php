@@ -84,6 +84,7 @@ class GastoRequest extends FormRequest
                 'observacion' => 'required|string',
                 'comprobante' => 'required|string',
                 'comprobante2' => 'required|string',
+                'comprobante3' => 'nullable|sometimes|string',
                 'detalle_estado' => 'nullable|string',
                 'es_vehiculo_alquilado' => 'boolean',
                 'vehiculo' => $this->es_vehiculo_alquilado ? 'nullable' : 'required|integer',
@@ -307,14 +308,14 @@ class GastoRequest extends FormRequest
         ]);
 
         // Colocar el autorizador al delegado
-        if($controller_method == 'store'){
+        if ($controller_method == 'store') {
             $this->merge([
-               'aut_especial' => EmpleadoDelegado::obtenerDelegado($this->aut_especial)
+                'aut_especial' => EmpleadoDelegado::obtenerDelegado($this->aut_especial)
             ]);
         }
 
         $this->merge([
-            'nodo_id'=>$this->nodo ?:null
+            'nodo_id' => $this->nodo ?: null
         ]);
     }
 }

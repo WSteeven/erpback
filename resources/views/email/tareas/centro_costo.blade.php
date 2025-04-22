@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 @php
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    use Src\Shared\Utils;
+    // $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_principal = Utils::urlToBase64(url($configuracion['logo_claro']));
 @endphp
 
 <head>

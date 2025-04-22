@@ -26,12 +26,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\ArchivoService;
 use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\FondosRotativos\SaldoService;
-use Src\App\Sistema\PaginationService;
-use Src\Config\Constantes;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
@@ -41,18 +41,18 @@ class GastoController extends Controller
 {
     private string $entidad = 'gasto';
     private ReportePdfExcelService $reporteService;
-    private PaginationService $paginationService;
-
+    private ArchivoService $archivoService;
 
     public function __construct()
     {
-        $this->paginationService = new PaginationService();
+        $this->archivoService = new ArchivoService();
         $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.gasto')->only('index', 'show');
         $this->middleware('can:puede.crear.gasto')->only('store');
         $this->middleware('can:puede.editar.gasto')->only('update');
         $this->middleware('can:puede.eliminar.gasto')->only('destroy');
         $this->middleware('can:puede.ver.reporte_autorizaciones')->only('reporte_autorizaciones');
+        $this->middleware('can:puede.acceder.gastos_rechazados_sistema')->only('activarGastoRechazado');
     }
 
     /**
@@ -514,5 +514,36 @@ class GastoController extends Controller
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Gasto $gasto)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($gasto);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Gasto $gasto)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($gasto, $request->file, RutasStorage::COMPROBANTES_GASTOS->value);
+            $mensaje = 'Archivo subido correctamente';
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->error('Log', ['Error en el storeFiles de GastoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
     }
 }

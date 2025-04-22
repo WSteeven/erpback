@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Gasto;
 
+use App\Models\Archivo;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Saldo;
@@ -140,6 +141,7 @@ class Gasto extends Model implements Auditable
         'total',
         'comprobante',
         'comprobante2',
+        'comprobante3',
         'observacion',
         'id_usuario',
         'estado',
@@ -242,6 +244,15 @@ class Gasto extends Model implements Auditable
     public function saldoFondoRotativo()
     {
         return $this->morphOne(Saldo::class, 'saldoable');
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 
     /**

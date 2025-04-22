@@ -381,11 +381,13 @@ class Empleado extends Model implements Auditable
     public function toSearchableArray()
     {
         return [
+            'id' => $this->id,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'identificacion' => $this->identificacion,
             'apellidos_nombres' => $this->apellidos . ' ' . $this->nombres, // Concatenación
             'nombres_apellidos' => $this->nombres . ' ' . $this->apellidos, // Concatenación
+            'estado' => $this->estado,
         ];
     }
 
