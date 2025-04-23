@@ -57,7 +57,6 @@ class TicketController extends Controller
         ];
 
         $filtros = FiltroSearchHelper::formatearFiltrosPorMotor(request()->boolean('para_mi') ? $filtrosTicketsParaMi : $filtrosCreadosPorMi);
-        Log::channel('testing')->info('Log', ['Filtros: ', $filtros]);
 
         $results = buscarConAlgoliaFiltrado(Ticket::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
         return $results = TicketResource::collection($results);
