@@ -48,7 +48,7 @@ class Examen extends Model implements Auditable
     protected $fillable = [
         'nombre',
     ];
-    private static $whiteListFilter = ['*'];
+    private static $whiteListFilter = ['*', 'empleado_id', 'registro_empleado_examen_id'];
 
     /*************
      * Relaciones
