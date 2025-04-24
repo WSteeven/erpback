@@ -85,6 +85,7 @@ class GastoRequest extends FormRequest
                 'comprobante' => 'required|string',
                 'comprobante2' => 'required|string',
                 'comprobante3' => 'nullable|sometimes|string',
+                'comprobante4' => 'nullable|sometimes|string',
                 'detalle_estado' => 'nullable|string',
                 'es_vehiculo_alquilado' => 'boolean',
                 'vehiculo' => $this->es_vehiculo_alquilado ? 'nullable' : 'required|integer',
