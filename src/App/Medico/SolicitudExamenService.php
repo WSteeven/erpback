@@ -74,14 +74,12 @@ class SolicitudExamenService
                 'estado_id' => EstadoTransaccion::PENDIENTE_ID, // 'nullable|numeric|exists:estados_transacciones_bodega,id',
                 'categorias' => 'SERVICIO', // 'sometimes|nullable',
                 'iva' => 12, // 'required|numeric',
-                // 'listadoProductos.*.cantidad' => 'required',
             ];
 
             $listadoProductos = [
                 [
                     'id' => 507, //4229,
                     'nombre' => 'SERVICIO',
-                    // 'producto' => 'SERVICIO',
                     'cantidad' => 1,
                     'descripcion' => SolicitudExamen::obtenerDescripcionDetalleOrdenCompra($solicitud),
                     'precio_unitario' => 0,
@@ -93,7 +91,7 @@ class SolicitudExamenService
                 ],
             ];
 
-            $orden  = $this->ordenCompraService->crearOrdenCompra($ordenCompraData, $listadoProductos);
+            if (request()->boolean('generar_orden_compra')) $this->ordenCompraService->crearOrdenCompra($ordenCompraData, $listadoProductos);
 
             DB::commit();
 

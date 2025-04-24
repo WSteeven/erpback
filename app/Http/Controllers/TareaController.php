@@ -78,6 +78,7 @@ class TareaController extends Controller
 
         $results = buscarConAlgoliaFiltrado(Tarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, $request->page, !!$paginate, $filtros);
         return TareaResource::collection($results);
+        // return !!$paginate ? TareaResource::collection($results) : response()->json(compact('results'));
     }
 
     /**********
