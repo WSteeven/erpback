@@ -3,10 +3,8 @@
 
 use Algolia\AlgoliaSearch\SearchClient;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Src\App\Sistema\PaginationService;
 use Src\Config\Constantes;
 
@@ -56,14 +54,14 @@ if (!function_exists('buscarConAlgoliaFiltrado')) {
             // 'page' => $page ?? request('page', 0),
         ]);
 
-       Log::channel('testing')->info('Log', ['algolia -> $results', $results ]);
+//       Log::channel('testing')->info('Log', ['algolia -> $results', $results ]);
         $resultIds = collect($results['hits'])->pluck($idColumn);
 //        Log::channel('testing')->info('Log', ['algolia -> $search', $index->search($search) ]);
 
         $query = $modelClass::whereIn($idColumn, $resultIds)->orderBy($idColumn, 'desc');
 
-       Log::channel('testing')->info('Log', ['algolia -> resultsId', $resultIds ]);
-       Log::channel('testing')->info('Log', ['algolia -> $query a devolver', $query->get() ]);
+//       Log::channel('testing')->info('Log', ['algolia -> resultsId', $resultIds ]);
+//       Log::channel('testing')->info('Log', ['algolia -> $query a devolver', $query->get() ]);
         return $paginate? $paginacion_service->paginate($query, $perPage, $page): $query->get();
         // return $query->getModel()->whereIn($idColumn, $allResults)->get();
     }

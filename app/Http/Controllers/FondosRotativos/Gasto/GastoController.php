@@ -64,7 +64,6 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['request?', $request->all()]);
         try {
             $paginate = $request->paginate;
             $search = $request->search;
@@ -85,7 +84,6 @@ class GastoController extends Controller
             $filtrosAlgolia = collect($filtros)
                 ->map(fn($val, $key) => "$key:$val")
                 ->implode(' AND ');
-            $filtrosEjemplo = "estado:APROBADO" AND "otro_campo:valor" OR "otro_campo:$request->valorDelFront";
 
             $user = Auth::user();
             if ($user->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {

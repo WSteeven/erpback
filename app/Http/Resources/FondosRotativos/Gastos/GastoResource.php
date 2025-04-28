@@ -52,6 +52,8 @@ class GastoResource extends JsonResource
             'num_comprobante' => $this->num_comprobante,
             'comprobante1' => $this->comprobante ? url($this->comprobante) : null,
             'comprobante2' => $this->comprobante2 ? url($this->comprobante2) : null,
+            'comprobante3' => $this->comprobante3 ? url($this->comprobante3) : null,
+            'comprobante4' => $this->comprobante4 ? url($this->comprobante4) : null,
             'observacion' => $this->observacion,
             'observacion_anulacion' => $this->observacion_anulacion,
             'id_usuario' => $this->id_usuario,
@@ -70,7 +72,6 @@ class GastoResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['nodo'] = $this->nodo_id;
-            $modelo['comprobante3'] = $this->comprobante3 ? url($this->comprobante3) : null;
         }
         return $modelo;
     }

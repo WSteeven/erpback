@@ -93,6 +93,8 @@ class GastoService
                 }
                 if (isset($datos['comprobante3']))
                     $datos['comprobante3'] = (new GuardarImagenIndividual($datos['comprobante3'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                if (isset($datos['comprobante4']))
+                    $datos['comprobante4'] = (new GuardarImagenIndividual($datos['comprobante4'], RutasStorage::COMPROBANTES_GASTOS))->execute();
                 break;
             case 'update':
                 if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
@@ -108,6 +110,10 @@ class GastoService
                 if (isset($datos['comprobante3']) && Utils::esBase64($datos['comprobante3']))
                     $datos['comprobante3'] = (new GuardarImagenIndividual($datos['comprobante3'], RutasStorage::COMPROBANTES_GASTOS, $gasto?->comprobante3))->execute();
                 else unset($datos['comprobante3']);
+
+                if (isset($datos['comprobante4']) && Utils::esBase64($datos['comprobante4']))
+                    $datos['comprobante4'] = (new GuardarImagenIndividual($datos['comprobante4'], RutasStorage::COMPROBANTES_GASTOS, $gasto?->comprobante4))->execute();
+                else unset($datos['comprobante4']);
                 break;
         }
         return $datos;
