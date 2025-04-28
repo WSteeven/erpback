@@ -44,7 +44,7 @@ class TicketController extends Controller
 
         if (request('estado') === Ticket::ETIQUETADOS_A_MI) $query = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest();
         else if (request('estado') === Ticket::RECURRENTE) $query = Ticket::ignoreRequest(['estado', 'paginate'])->filter()->where('is_recurring', true)->latest();
-        else $query = Ticket::ignoreRequest(['campos', 'paginate', 'para_mi'])->filter()->latest();
+        else $query = Ticket::ignoreRequest(['campos', 'paginate', 'para_mi', 'search'])->filter()->latest();
 
         $filtrosCreadosPorMi = [
             ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
