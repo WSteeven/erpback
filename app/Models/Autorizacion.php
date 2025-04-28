@@ -57,6 +57,7 @@ class Autorizacion extends Model implements Auditable
     const APROBADO = 'APROBADO';
     const CANCELADO = 'CANCELADO';
     const VALIDADO = 'VALIDADO';
+    const ANULADO = 'ANULADO';
 
     const PENDIENTE_ID = 1;
     const APROBADO_ID = 2;

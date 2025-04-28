@@ -198,19 +198,48 @@ class SolicitudVacacionController extends Controller
                 $periodo = Periodo::where('nombre', 'LIKE', $fechaIngreso->year . '%')->first();
                 $row['periodo'] = $periodo->nombre;
                 $row['dias_disponibles'] = VacacionService::calcularDiasDeVacacionEmpleadoNuevo($empleado);
-            }else{
+            } else {
                 //Significa que si hay vacaciones para el empleado pero que seguramente ya estan completadas
                 $vacacion = Vacacion::where('empleado_id', $id)->orderBy('created_at', 'desc')->first();
 //                Log::channel('testing')->info('Log', ['Ultima vacacion', $vacacion]);
 //                Log::channel('testing')->info('Log', ['Ultima periodo', $vacacion->periodo->nombre]);
                 $ultimo_anio = explode('-', $vacacion->periodo->nombre)[1];
-                $periodo = Periodo::where('nombre', 'LIKE', $ultimo_anio.'%')->first();
+                $periodo = Periodo::where('nombre', 'LIKE', $ultimo_anio . '%')->first();
                 $row['periodo'] = $periodo->nombre;
                 $row['dias_disponibles'] = VacacionService::calcularDiasDeVacacionEmpleadoAntiguo($vacacion->empleado, $ultimo_anio);
             }
             $results[] = $row;
         }
         return response()->json(compact('results', 'dias'));
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function anular(Request $request, SolicitudVacacion $solicitud)
+    {
+        Log::channel('testing')->info('Log', ['Request', $request->all()]);
+        Log::channel('testing')->info('Log', ['solicitud', $solicitud]);
+
+        $request->validate(['motivo' => ['required', 'string']]);
+        try {
+            // Buscamos el registro de autorizacion correspondiente al valor de ANULADO
+            // Aqui se anula con autorizacion_id=5 o según como este en la bd
+            $autorizacion = Autorizacion::where('nombre', Autorizacion::ANULADO)->first();
+            if(!$autorizacion) throw new Exception('No se encuentra un registro de autorizacion con nombre ANULADO para continuar con la operación, consulte con el administrador del sistema.');
+            // Actualizamos la solicitud de vacación
+            $solicitud->autorizacion_id = $autorizacion->id;
+            $solicitud->motivo_anulacion = $request->motivo;
+            $solicitud->save();
+            // Se verifica en el registro de vacaciones y se quita los dias y se vuelve su estado a no completado segun corresponda
+            $this->vacacionService->anularDiasVacaciones($solicitud->empleado_id, $solicitud->periodo_id, $solicitud);
+
+            $modelo = new SolicitudVacacionResource($solicitud);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        } catch (Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 }
