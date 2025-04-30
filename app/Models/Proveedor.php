@@ -124,6 +124,9 @@ class Proveedor extends Model implements Auditable
     const SIN_CALIFICAR = 'SIN CALIFICAR';  // cuando aún no califica ningun departamento
     const SIN_CONFIGURAR = 'SIN CONFIGURAR'; //cuando no se ha enlazado departamentos calificadores
 
+    const CALIFICACION = 'CALIFICACION';
+    const RECALIFICACION = 'RECALIFICACION';
+
 
     private static array $whiteListFilter = [
         '*',
@@ -346,5 +349,10 @@ class Proveedor extends Model implements Auditable
                     return true;
                 return false;
         }
+    }
+
+    public static function consultarProveedorNecesitaCalificacionORecalificacion(int $departamento_id, int $proveedor_id){
+        $detalles = DetalleDepartamentoProveedor::where('proveedor_id', $proveedor_id)->where('departamento_id', $departamento_id)->get();
+        return $detalles->count()>1? Proveedor::RECALIFICACION: Proveedor::CALIFICACION;
     }
 }
