@@ -20,7 +20,7 @@ class ActividadBitacoraResource extends JsonResource
             'id' => $this['id'],
             'fecha_hora_inicio' => $this['fecha_hora_inicio'],
             'fecha_hora_fin' => $this['fecha_hora_fin'],
-            'notificacion_inmediata' => $this['notificacion_inmediata'],
+            'notificacion_inmediata' => $this['notificacion_inmediata'] ? 'Sí' : 'No',
             'actividad' => $this['actividad'],
             'ubicacion' => $this['ubicacion'],
             'fotografia_evidencia_1' => $this['fotografia_evidencia_1'] ? url($this['fotografia_evidencia_1']) : null,

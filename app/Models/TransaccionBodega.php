@@ -179,18 +179,19 @@ class TransaccionBodega extends Model implements Auditable
             'justificacion' => $this->justificacion,
             'devolucion_id' => $this->devolucion_id,
             'pedido_id' => $this->pedido_id,
-            'solicitante'=> $this->solicitante->nombres.' '.$this->solicitante->apellidos,
-            'autoriza'=> $this->autoriza?->nombres.' '.$this->autoriza?->apellidos,
-            'autorizacion'=> $this->autorizacion?->nombre,
-            'motivo'=> $this->motivo?->nombre,
-            'responsable'=> $this->responsable?->nombres.' '.$this->responsable?->apellidos,
-            'sucursal'=>$this->sucursal->lugar,
-            'cliente'=>$this->cliente?->empresa->razon_social,
+            'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
+            'autoriza' => $this->autoriza?->nombres . ' ' . $this->autoriza?->apellidos,
+            'autorizacion' => $this->autorizacion?->nombre,
+            'motivo' => $this->motivo?->nombre,
+            'responsable' => $this->responsable?->nombres . ' ' . $this->responsable?->apellidos,
+            'sucursal' => $this->sucursal->lugar,
+            'cliente' => $this->cliente?->empresa->razon_social,
             'proveedor' => $this->proveedor,
             'fecha_compra' => $this->fecha_compra,
             'transferencia_id' => $this->transferencia_id,
             'num_comprobante' => $this->num_comprobante,
-            'comprobante' => $this->comprobante?$this->comprobante:'na',
+            'comprobante' => $this->comprobante ? $this->comprobante : 'na',
+            'comprobante_sin_ceros' => ltrim($this->num_comprobante, '0'),
             'firmada' => $this->comprobante ? $this->comprobante->firmada : null,
             'estado' => $this->estado?->nombre,
             'estado_comprobante' => $this->comprobante ? $this->comprobante->estado : null,
@@ -518,7 +519,7 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function actualizarPedido($transaccion)
     {
-//        Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
+        //        Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
         $url_pedido = '/pedidos';
         $estado_completa = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $estado_parcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
@@ -528,14 +529,14 @@ class TransaccionBodega extends Model implements Auditable
             // Log::channel('testing')->info('Log', ['Detalles despachados en el egreso son: ', $detalles]);
             foreach ($detalles as $detalle) { //filtra los detalles que se despacharon en el egreso
                 $item_inventario = Inventario::find($detalle['inventario_id']);
-//                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $item_inventario]);
+                //                Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $item_inventario]);
                 $detalle_pedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $item_inventario->detalle_id)->first();
-//                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detalle_pedido]);
+                //                Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detalle_pedido]);
                 if ($detalle_pedido) {
                     $detalle_pedido->despachado = $detalle_pedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                     $detalle_pedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
                 } else {
-//                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detalle_pedido]);
+                    //                    Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detalle_pedido]);
 
                     // Log::channel('testing')->info('Log', ['DetalleProducto: ', $d]);
                     // $ids_detalles = DetalleProducto::where('producto_id', $d->producto_id)->get('id'); //ids relacionados que pertenecen al mismo producto_id
@@ -550,7 +551,7 @@ class TransaccionBodega extends Model implements Auditable
                     ]);
 
                     // $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
-//                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detalle_pedido]);
+                    //                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detalle_pedido]);
                     // $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
                     // $detallePedido->save();
                 }
@@ -565,8 +566,8 @@ class TransaccionBodega extends Model implements Auditable
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
                 event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
-//            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido->estado_id]);
-        } catch (Throwable|Exception $e) {
+            //            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido->estado_id]);
+        } catch (Throwable | Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
             throw $e;
         }
@@ -708,8 +709,8 @@ class TransaccionBodega extends Model implements Auditable
                     //datos para la tabla
                     $row['producto'] = $item->inventario->detalle->producto->nombre;
                     $row['descripcion'] = $item->inventario->detalle->descripcion;
-//                $row['serial'] = $item->inventario->detalle->serial; //normalmente uniformes y epps no tienen serial
-//                Log::channel('testing')->info('Log', ['variable', $d->comprobante()->first()->updated_at]);
+                    //                $row['serial'] = $item->inventario->detalle->serial; //normalmente uniformes y epps no tienen serial
+                    //                Log::channel('testing')->info('Log', ['variable', $d->comprobante()->first()->updated_at]);
                     $row['fecha'] = $d->comprobante()->first()->updated_at;
                     $row['categoria'] = $item->inventario->detalle->producto->categoria->nombre;
                     $row['condicion'] = $item->inventario->condicion->nombre;

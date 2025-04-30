@@ -24,7 +24,7 @@ class BitacoraRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'fecha_hora_inicio_turno' => 'required|string',
+            'fecha_hora_inicio_turno' => 'nullable', //required|string',
             'fecha_hora_fin_turno' => 'nullable|string',
             'jornada' => 'required|string',
             'observaciones' => 'nullable|string',

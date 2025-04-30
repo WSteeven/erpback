@@ -186,6 +186,7 @@ class DetalleProducto extends Model implements Auditable
     {
         return [
             'descripcion' => $this->descripcion,
+            'producto' => $this->producto->nombre,
             'serial' => $this->serial,
             'color' => $this->color,
             'talla' => $this->talla,

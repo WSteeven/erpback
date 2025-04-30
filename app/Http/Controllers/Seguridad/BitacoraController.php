@@ -8,6 +8,7 @@ use App\Http\Resources\Seguridad\BitacoraResource;
 use App\Models\Seguridad\Bitacora;
 use App\Models\User;
 use Auth;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Src\App\Sistema\PaginationService;
@@ -64,7 +65,7 @@ class BitacoraController extends Controller
     {
         return DB::transaction(function () use ($request) {
             $datos = $request->validated();
-
+            $datos['fecha_hora_inicio_turno'] = Carbon::now();
             $modelo = Bitacora::create($datos);
 
             $modelo = new BitacoraResource($modelo->refresh());
