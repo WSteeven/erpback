@@ -53,7 +53,7 @@ class TransaccionBodegaResource extends JsonResource
             'tiene_pedido' => (bool)$this->pedido_id,
             'transferencia' => $this->transferencia_id,
             // 'aviso_liquidacion_cliente'=>TransaccionBodega::verificarEgresoLiquidacionMateriales($this->motivo_id, $this->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales),
-            'comprobante' => $this->comprobante,
+            'num_comprobante' => $this->num_comprobante,
             // 'comprobante'=>$comprobante,
             'devolucion' => $this->devolucion_id,
             // 'fecha_limite' => $this->fecha_lximite,
@@ -64,6 +64,8 @@ class TransaccionBodegaResource extends JsonResource
             // 'tipo' => $this->motivo?->tipo?->nombre,
             //variables auxiliares
             'codigo_permiso_traslado' => $this->codigo_permiso_traslado,
+            'proveedor_id' => $this->proveedor_id,
+            'fecha_compra' => $this->fecha_compra,
         ];
 
         if ($controller_method == 'show') {
@@ -76,6 +78,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['transferencia'] = $this->transferencia_id;
             $modelo['tipo'] = $this->tipo_id;
             $modelo['motivo'] = $this->motivo_id;
+            $modelo['nombre_motivo'] = $this->motivo->nombre;
             $modelo['tarea'] = $this->tarea_id;
             $modelo['cliente'] = $this->cliente_id;
             $modelo['cliente_id'] = $this->cliente_id;

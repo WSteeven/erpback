@@ -2,6 +2,7 @@
 
 namespace Src\App\Tareas;
 
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
@@ -17,6 +18,7 @@ use Exception;
 use Log;
 use Src\Shared\Utils;
 use Illuminate\Support\Facades\DB;
+use Src\Config\Constantes;
 
 class TransferenciaProductoEmpleadoService
 {
@@ -25,6 +27,35 @@ class TransferenciaProductoEmpleadoService
      **********************************************************************************/
     public static function filtrarTransferencias($request)
     {
+        $search = request('search');
+        $paginate = request('paginate');
+
+        $user = auth()->user();
+        $rolesAutorizados = [User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA, User::ROL_AUXILIAR_BODEGA, User::ROL_CONSULTA, User::ROL_GERENTE_PROCESOS];
+
+        if ($user->hasRole($rolesAutorizados) || $request['filtrar']) { // Acceder a todo
+            $query = TransferenciaProductoEmpleado::ignoreRequest(['todos', 'filtrar', 'paginate', 'search'])->filter()->latest();
+        } else {
+            $query = TransferenciaProductoEmpleado::where('autorizacion_id', $request['autorizacion_id'])->where(function ($q) use ($user) {
+                $q->where('autorizador_id', $user->empleado->id)->orWhere('solicitante_id', $user->empleado->id)->orWhere('empleado_destino_id', $user->empleado->id);
+            })->latest();
+        }
+
+        
+        $filtros = [
+            ['clave' => 'autorizacion', 'valor' => request('autorizacion_id')],
+        ];
+
+        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+
+        return buscarConAlgoliaFiltrado(TransferenciaProductoEmpleado::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, $request->page, !!$paginate, $filtros);
+    }
+
+    /*public static function filtrarTransferencias($request)
+    {
+        $search = request('search');
+        $paginate = request('paginate');
+        
         $user = auth()->user();
         $rolesAutorizados = [User::ROL_ADMINISTRADOR, User::ROL_COORDINADOR_BODEGA, User::ROL_AUXILIAR_BODEGA, User::ROL_CONSULTA, User::ROL_GERENTE_PROCESOS];
 
@@ -35,7 +66,7 @@ class TransferenciaProductoEmpleadoService
                 $q->where('autorizador_id', $user->empleado->id)->orWhere('solicitante_id', $user->empleado->id)->orWhere('empleado_destino_id', $user->empleado->id);
             })->latest()->get();
         }
-    }
+    }*/
 
     /************************
      * Busqueda de productos

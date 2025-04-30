@@ -6,18 +6,18 @@ use App\Events\Bodega\PedidoCreadoEvent;
 use App\Models\ActivosFijos\ActivoFijo;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Laravel\Scout\Searchable;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableModel;
-use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 use Src\Config\MotivosTransaccionesBodega;
 use Throwable;
@@ -127,6 +127,8 @@ class TransaccionBodega extends Model implements Auditable
     const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
 
+    const COMPRA_PROVEEDOR = 'COMPRA A PROVEEDOR';
+
     /***********************
      * Constantes archivos
      ***********************/
@@ -136,7 +138,7 @@ class TransaccionBodega extends Model implements Auditable
     public $table = 'transacciones_bodega';
     public $fillable = [
         'justificacion',
-        'comprobante',
+        'num_comprobante',
         'fecha_limite',
         'observacion_aut',
         'observacion_est',
@@ -158,6 +160,8 @@ class TransaccionBodega extends Model implements Auditable
         'autorizacion_id',
         'proveedor',
         'estado_id',
+        'proveedor_id',
+        'fecha_compra',
         'codigo_permiso_traslado',
     ];
     protected $casts = [
@@ -168,13 +172,29 @@ class TransaccionBodega extends Model implements Auditable
 
     public function toSearchableArray()
     {
+        $this->loadMissing('comprobante');
+
         return [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
             'devolucion_id' => $this->devolucion_id,
             'pedido_id' => $this->pedido_id,
+            'solicitante'=> $this->solicitante->nombres.' '.$this->solicitante->apellidos,
+            'autoriza'=> $this->autoriza?->nombres.' '.$this->autoriza?->apellidos,
+            'autorizacion'=> $this->autorizacion?->nombre,
+            'motivo'=> $this->motivo?->nombre,
+            'responsable'=> $this->responsable?->nombres.' '.$this->responsable?->apellidos,
+            'sucursal'=>$this->sucursal->lugar,
+            'cliente'=>$this->cliente?->empresa->razon_social,
+            'proveedor' => $this->proveedor,
+            'fecha_compra' => $this->fecha_compra,
             'transferencia_id' => $this->transferencia_id,
-            'comprobante' => $this->comprobante,
+            'num_comprobante' => $this->num_comprobante,
+            'comprobante' => $this->comprobante?$this->comprobante:'na',
+            'firmada' => $this->comprobante ? $this->comprobante->firmada : null,
+            'estado' => $this->estado?->nombre,
+            'estado_comprobante' => $this->comprobante ? $this->comprobante->estado : EstadoTransaccion::PENDIENTE,
+            'observacion' => $this->comprobante ? $this->comprobante->observacion : null,
         ];
     }
 
@@ -438,7 +458,15 @@ class TransaccionBodega extends Model implements Auditable
         return collect($armamentos)->filter(fn($producto) => $producto['categoria'] === 'ARMAS DE FUEGO');
     }
 
-
+    public static function obtenerFechaCompraDetalle(int $detalle_id)
+    {
+        $ids_inventarios = Inventario::where('detalle_id', $detalle_id)->pluck('detalle_id');
+        $ids_detalles_transaccion = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
+        $transaccion = TransaccionBodega::whereIn('id', $ids_detalles_transaccion)
+            ->where('motivo_id', Motivo::where('nombre', TransaccionBodega::COMPRA_PROVEEDOR)->first()->id)
+            ->whereNotNull('fecha_compra')->orderBy('id', 'desc')->first();
+        return $transaccion ? $transaccion->fecha_compra : 'No configurado';
+    }
 
 
     // Registro de materiales despachados en materiales_empleado_tarea
@@ -666,7 +694,7 @@ class TransaccionBodega extends Model implements Auditable
         foreach ($data as $d) {
             $items = DetalleProductoTransaccion::where('transaccion_id', $d->id)->get();
             foreach ($items as $item) {
-                if(in_array($item->inventario->detalle->producto->categoria_id, $categorias)) {
+                if (in_array($item->inventario->detalle->producto->categoria_id, $categorias)) {
                     //datos para los encabezados
                     $row['fecha_despacho'] = $d->created_at;
                     $row['justificacion'] = $d->justificacion;
@@ -685,8 +713,8 @@ class TransaccionBodega extends Model implements Auditable
                     $row['fecha'] = $d->comprobante()->first()->updated_at;
                     $row['categoria'] = $item->inventario->detalle->producto->categoria->nombre;
                     $row['condicion'] = $item->inventario->condicion->nombre;
-                    $row['despachado'] = $item->recibido ==0? $item->cantidad_inicial : $item->recibido;
-                    $row['transaccion_id']= $item->transaccion_id;  
+                    $row['despachado'] = $item->recibido == 0 ? $item->cantidad_inicial : $item->recibido;
+                    $row['transaccion_id'] = $item->transaccion_id;
 
 
                     $results[$cont] = $row;

@@ -26,12 +26,11 @@ use OwenIt\Auditing\Models\Audit;
  * @method static Builder|TipoTransaccion newModelQuery()
  * @method static Builder|TipoTransaccion newQuery()
  * @method static Builder|TipoTransaccion query()
- * @method static Builder|TipoTransaccion where()
  * @method static Builder|TipoTransaccion whereCreatedAt($value)
  * @method static Builder|TipoTransaccion whereId($value)
  * @method static Builder|TipoTransaccion whereNombre($value)
  * @method static Builder|TipoTransaccion whereUpdatedAt($value)
- * @property-read Collection<int, \App\Models\Motivo> $motivos
+ * @property-read Collection<int, Motivo> $motivos
  * @property-read int|null $motivos_count
  * @mixin Eloquent
  */

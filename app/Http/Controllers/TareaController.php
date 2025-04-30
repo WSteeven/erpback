@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\TareaEvent;
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
 use App\Models\Empleado;
@@ -26,6 +27,7 @@ use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Sistema\PaginationService;
 use Src\App\TareaService;
 use Src\Config\ClientesCorporativos;
+use Src\Config\Constantes;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 
@@ -41,8 +43,20 @@ class TareaController extends Controller
         $this->paginationService = new PaginationService();
     }
 
-    public function listar()
+    /*********
+     * Listar
+     *********/
+    /**
+     * @OA\Get(
+     *     path="/api/tareas/tareas",
+     *     summary="Devuelve un listado de tareas",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(response=200, description="Description of response")
+     * )
+     */
+    public function index(Request $request)
     {
+        // $paginated = $this->listar();
         $search = request('search');
         $paginate = request('paginate');
         $todas = request('todas');
@@ -50,26 +64,21 @@ class TareaController extends Controller
         if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
 
-        if ($search) {
-            $query = Tarea::search($search)->query(function ($q) {
-                $q->where('finalizado', request('finalizado'))->porRol()->orderBy('id', 'desc');
-            });
-        } else {
+        if ($search) $query = Tarea::where('finalizado', request('finalizado'))->porRol()->orderBy('id', 'desc');
+        else {
             if ($todas) $query = Tarea::ignoreRequest(['campos', 'page', 'paginate', 'todas'])->filter()->orderBy('id', 'desc');
             else $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol()->orderBy('id', 'desc');
         }
 
-        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
-        else return $query->get();
-    }
+        $filtros = [
+            ['clave' => 'finalizado', 'valor' => request('finalizado') ? 'true' : 'false'],
+        ];
 
-    /*********
-     * Listar
-     *********/
-    public function index()
-    {
-        $paginated = $this->listar();
-        return TareaResource::collection($paginated);
+        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+
+        $results = buscarConAlgoliaFiltrado(Tarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, $request->page, !!$paginate, $filtros);
+        return TareaResource::collection($results);
+        // return !!$paginate ? TareaResource::collection($results) : response()->json(compact('results'));
     }
 
     /**********
@@ -79,9 +88,10 @@ class TareaController extends Controller
     {
         if (!$this->tareaService->puedeCrearMasTareas()) throw ValidationException::withMessages(['422' => ['No puede crear más tareas!']]);
 
-        DB::beginTransaction();
+        //DB::beginTransaction();
 
-        try {
+        //try {
+        return DB::transaction(function () use ($request) {
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
@@ -109,10 +119,11 @@ class TareaController extends Controller
             $modelo = new TareaResource($modelo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Exception $e) {
+            /*} catch (\Exception $e) {
             Log::channel('testing')->info('Log', ['Excepcion', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
-        }
+        }*/
+        });
     }
 
     /**
@@ -159,7 +170,6 @@ class TareaController extends Controller
             DB::rollBack();
             throw $e;
         }
-
     } // 103 a 112 // pregunta 93
 
     /**

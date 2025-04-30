@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\ConfiguracionGeneral
  *
- * @method static first()
  * @property int $id
  * @property string $nombre_empresa
  * @property string $logo_claro
@@ -34,38 +38,38 @@ use App\Traits\UppercaseValuesTrait;
  * @property string|null $sitio_web
  * @property string|null $direccion_secundaria1
  * @property string|null $direccion_secundaria2
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral query()
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereCelular1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereCelular2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereCiiu($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereCorreoPrincipal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereCorreoSecundario($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereDireccionPrincipal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereDireccionSecundaria1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereDireccionSecundaria2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereLogoClaro($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereLogoMarcaAgua($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereLogoOscuro($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereMoneda($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereNombreComercial($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereNombreEmpresa($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereRazonSocial($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereRepresentante($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereRuc($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereSitioWeb($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereTelefono($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereTipoContribuyente($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionGeneral first($value)
- * @mixin \Eloquent
+ * @method static Builder|ConfiguracionGeneral newModelQuery()
+ * @method static Builder|ConfiguracionGeneral newQuery()
+ * @method static Builder|ConfiguracionGeneral query()
+ * @method static Builder|ConfiguracionGeneral whereCelular1($value)
+ * @method static Builder|ConfiguracionGeneral whereCelular2($value)
+ * @method static Builder|ConfiguracionGeneral whereCiiu($value)
+ * @method static Builder|ConfiguracionGeneral whereCorreoPrincipal($value)
+ * @method static Builder|ConfiguracionGeneral whereCorreoSecundario($value)
+ * @method static Builder|ConfiguracionGeneral whereCreatedAt($value)
+ * @method static Builder|ConfiguracionGeneral whereDireccionPrincipal($value)
+ * @method static Builder|ConfiguracionGeneral whereDireccionSecundaria1($value)
+ * @method static Builder|ConfiguracionGeneral whereDireccionSecundaria2($value)
+ * @method static Builder|ConfiguracionGeneral whereId($value)
+ * @method static Builder|ConfiguracionGeneral whereLogoClaro($value)
+ * @method static Builder|ConfiguracionGeneral whereLogoMarcaAgua($value)
+ * @method static Builder|ConfiguracionGeneral whereLogoOscuro($value)
+ * @method static Builder|ConfiguracionGeneral whereMoneda($value)
+ * @method static Builder|ConfiguracionGeneral whereNombreComercial($value)
+ * @method static Builder|ConfiguracionGeneral whereNombreEmpresa($value)
+ * @method static Builder|ConfiguracionGeneral whereRazonSocial($value)
+ * @method static Builder|ConfiguracionGeneral whereRepresentante($value)
+ * @method static Builder|ConfiguracionGeneral whereRuc($value)
+ * @method static Builder|ConfiguracionGeneral whereSitioWeb($value)
+ * @method static Builder|ConfiguracionGeneral whereTelefono($value)
+ * @method static Builder|ConfiguracionGeneral whereTipoContribuyente($value)
+ * @method static Builder|ConfiguracionGeneral whereUpdatedAt($value)
+ * @method static Builder|ConfiguracionGeneral first()
+ * @mixin Eloquent
  */
 class ConfiguracionGeneral extends Model implements Auditable
 {

@@ -43,7 +43,7 @@ class TransferenciasController extends Controller
         try {
             $usuario = Auth::user();
             $usuario_ac = User::where('id', $usuario->id)->first();
-            if ($usuario_ac->hasRole('CONTABILIDAD'))
+            if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR]))
                 $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
             else
                 $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();

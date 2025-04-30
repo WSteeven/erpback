@@ -362,5 +362,6 @@ Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtener
 
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
 
+Route::put('transacciones-ingresos-editar-fecha-compra/{transaccion}', [TransaccionBodegaIngresoController::class, 'editarFechaCompra']);
 
 

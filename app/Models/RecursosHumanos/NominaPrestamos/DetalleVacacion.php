@@ -17,13 +17,19 @@ class DetalleVacacion extends Model implements Auditable
 
     protected $table = 'rrhh_nomina_detalles_vacaciones';
     protected $fillable = [
-      'vacacion_id',
-      'fecha_inicio',
-      'fecha_fin',
-      'dias_utilizados',
-      'vacacionable_id',
-      'vacacionable_type',
-      'observacion',
+        'vacacion_id',
+        'fecha_inicio',
+        'fecha_fin',
+        'dias_utilizados',
+        'vacacionable_id',
+        'vacacionable_type',
+        'observacion',
+        'anulado',
+        'motivo_anulacion',
+    ];
+
+    protected $casts = [
+        'anulado' => 'boolean',
     ];
 
     public function vacacion()
@@ -31,7 +37,8 @@ class DetalleVacacion extends Model implements Auditable
         return $this->belongsTo(Vacacion::class);
     }
 
-    public function vacacionable(){
+    public function vacacionable()
+    {
         return $this->morphTo();
     }
 

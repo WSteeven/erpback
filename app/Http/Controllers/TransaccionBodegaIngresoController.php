@@ -50,7 +50,8 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function index(Request $request)
     {
-        $results = $this->servicio->listar(null, null, $request->paginate);
+        $results = $this->servicio->listar(null, null, $request->paginate,
+            $request->search);
         return TransaccionBodegaResource::collection($results);
         // return response()->json(compact('results'));
     }
@@ -269,7 +270,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $transaccion->save();
                 DB::commit();
                 // verificar anular la transferencia
-                if($transaccion->transferencia_id>0) $transaccion->transferencia()->update(['recibida' => false, 'estado'=>Transferencia::TRANSITO]);
+                if ($transaccion->transferencia_id > 0) $transaccion->transferencia()->update(['recibida' => false, 'estado' => Transferencia::TRANSITO]);
 
                 $mensaje = 'Transacción anulada correctamente';
                 $modelo = new TransaccionBodegaResource($transaccion->refresh());
@@ -368,5 +369,17 @@ class TransaccionBodegaIngresoController extends Controller
 
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
+    }
+
+    public function editarFechaCompra(Request $request, TransaccionBodega $transaccion)
+    {
+        $request->validate(['fecha_compra' => 'required|date_format:Y-m-d']);
+
+        return DB::transaction(function () use ($request, $transaccion) {
+            $transaccion->fecha_compra = $request->fecha_compra;
+            $transaccion->save();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            return response()->json(compact('mensaje'));
+        });
     }
 }

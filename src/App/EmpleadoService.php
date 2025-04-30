@@ -26,18 +26,6 @@ class EmpleadoService
     {
     }
 
-    public function getUsersWithRoles($roles, $campos)
-    {
-        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
-            $query->whereIn('name', $roles);
-        })->pluck('id');
-
-        // return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
-        return Empleado::whereIn('usuario_id', $idUsers)->where('estado', true)->get($campos);
-
-        // return $users;
-    }
-
     /* BORRAR public function obtenerEmpleadosPorRol(string $rol)
     {
         $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
@@ -151,15 +139,19 @@ class EmpleadoService
         return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
+    public function getUsersWithRoles($roles, $campos)
+    {
+        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
+            $query->whereIn('name', $roles);
+        })->pluck('id');
+
+        return Empleado::whereIn('usuario_id', $idUsers)->where('estado', true)->get($campos);
+    }
+
     public function obtenerIdsEmpleadosPorRol(string $rol)
     {
-        // $usuario_ac->hasRole('RECURSOS HUMANOS')
-        $idsUsuariosRRHH = User::role($rol)->pluck('id');
-        Log::channel('testing')->info('Log', ['idsUsuariosRRHH', $idsUsuariosRRHH]);
-        $ids = Empleado::whereIn('usuario_id', $idsUsuariosRRHH)->pluck('id');
-        Log::channel('testing')->info('Log', ['ids', $ids]);
-        return $ids;
-        // return Departamento::where('nombre', 'RECURSOS HUMANOS')->pluck('responsable_id')->toArray();
+        $idsUsuarios = User::role($rol)->pluck('id');
+        return Empleado::whereIn('usuario_id', $idsUsuarios)->pluck('id');
     }
 
     public function obtenerTodosSinEstado()

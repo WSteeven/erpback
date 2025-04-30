@@ -81,8 +81,11 @@ class Producto extends Model implements Auditable
 
     public function toSearchableArray()
     {
+//        $this->loadMissing('categoria'); // Carga la relación si no está cargada
+
         return [
             'nombre' => $this->nombre,
+            'categoria' => $this->categoria ? $this->categoria->nombre : null, // Evita error si no hay categoría
         ];
     }
 

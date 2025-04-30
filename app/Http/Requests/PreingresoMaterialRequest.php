@@ -61,7 +61,7 @@ class PreingresoMaterialRequest extends FormRequest
 
                     if (!$detalle) $validator->errors()->add('listadoProductosTransaccion.*.producto', 'El ítem ' . $item['descripcion'] . ' no es correcto');
                     else {
-                        $esFibra = !!Fibra::find($detalle->id) || $detalle->es_fibra;
+                        $esFibra = !!Fibra::find($detalle->id);
                         if ($esFibra && is_null($item['punta_inicial'])) $validator->errors()->add('listadoProductos.*.punta_inicial', 'La punta inicial para el ítem ' . $item['descripcion'] . ' es requerida');
                         if ($esFibra && is_null($item['punta_final'])) $validator->errors()->add('listadoProductos.*.punta_final', 'La punta final para el ítem ' . $item['descripcion'] . ' es requerida');
                         // verificamos si el detalle necesita obligatoriamente un numero de serie o no

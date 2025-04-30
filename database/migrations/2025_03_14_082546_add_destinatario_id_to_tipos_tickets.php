@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tipos_tickets', function (Blueprint $table) {
-            $table->foreignId('destinatario_id')->constrained('empleados')->onDelete('cascade')->after('categoria_tipo_ticket_id')->nullable();
+            // $table->foreignId('destinatario_id')->constrained('empleados')->onDelete('cascade')->after('categoria_tipo_ticket_id')->nullable();
+            $table->unsignedBigInteger('destinatario_id')->nullable()->after('categoria_tipo_ticket_id'); // Definir la columna primero
+            $table->foreign('destinatario_id')->references('id')->on('empleados')->onDelete('cascade');
         });
     }
 

@@ -33,7 +33,9 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
+        $controller_method = $request->route()->getActionMethod();
+        Log::channel('testing')->info('Log', ['ruta:', $controller_method]);
+        Log::channel('testing')->info('Log', ['Metodo recibido:', $request->route()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];
@@ -264,7 +266,7 @@ class DetalleProductoController extends Controller
         })->where(function ($query) use ($request) {
             $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
             $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');
-        })->get();
+        })->groupBy('descripcion')->get();
 
         $results = DetalleProductoResource::collection($detalles);
         return response()->json(compact('results'));

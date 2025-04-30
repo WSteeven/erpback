@@ -74,7 +74,7 @@ class RolPagoMesController extends Controller
             if (!$request->es_quincena && count($existe_mes) == 0) {
                 throw new Exception('Por favor primero realice el Rol de Pagos de Quincena');
             }
-            if (RolPagoMes::where('finalizado', false)->count() > 0) throw new Exception('Por favor asegurate de haber finalizado todos los roles de pagos anteriores para poder crear uno nuevo.');
+//            if (RolPagoMes::where('finalizado', false)->count() > 0) throw new Exception('Por favor asegurate de haber finalizado todos los roles de pagos anteriores para poder crear uno nuevo.');
             DB::beginTransaction();
             $rol = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rol);
@@ -717,7 +717,7 @@ class RolPagoMesController extends Controller
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
-                'Error al generar rol pago por empleado' => [$ex->getMessage()], 
+                'Error al generar rol pago por empleado' => [$ex->getMessage()],
             ]);
         }
     }
@@ -818,6 +818,15 @@ class RolPagoMesController extends Controller
         return response()->json(compact('mensaje'));
     }
 
+    public function activarRolPago(RolPagoMes $rol)
+    {
+        $rol->finalizado = false;
+        $rol->save();
+        $modelo = new RolPagoMesResource($rol);
+        $mensaje ='Rol activado exitosamente';
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
     public function finalizarRolPago(Request $request)
     {
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);

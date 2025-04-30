@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Gasto;
 
+use App\Models\Archivo;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Saldo;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
@@ -111,6 +113,7 @@ use Src\Shared\Utils;
  */
 class Gasto extends Model implements Auditable
 {
+    use Searchable;
     use HasFactory;
     use AuditableModel;
     use Filterable;
@@ -138,11 +141,15 @@ class Gasto extends Model implements Auditable
         'total',
         'comprobante',
         'comprobante2',
+        'comprobante3',
+        'comprobante4',
         'observacion',
         'id_usuario',
         'estado',
         'detalle_estado',
-        'observacion_anulacion'
+        'observacion_anulacion',
+        'motivo',
+        'activador_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -151,6 +158,26 @@ class Gasto extends Model implements Auditable
     ];
     private static array $whiteListFilter = ['*'];
 
+    public function toSearchableArray()
+    {
+        return [
+          'id'=>$this->id,
+          'fecha'=>$this->fecha_viat,
+          'tarea_id'=>$this->tarea_id,
+          'tarea_cliente' => $this->tarea?->codigo_tarea_cliente,
+          'tarea'=>$this->tarea?->codigo_tarea,
+          'ruc'=>$this->ruc,
+          'factura'=>$this->factura,
+          'num_comprobante'=>$this->num_comprobante,
+          'autorizador'=>$this->authEspecialUser?->nombres.' '.$this->authEspecialUser?->apellidos,
+          'detalle'=>$this->detalle_info?->descripcion,
+          'total'=>$this->total,
+          'observacion'=>$this->observacion,
+          'estado'=>$this->estadoViatico->descripcion,
+          'detalle_estado'=>$this->detalle_estado,
+          'usuario'=>$this->empleado?->nombres.' '.$this->empleado?->apellidos,
+        ];
+    }
     public function detalle_info()
     {
         return $this->hasOne(DetalleViatico::class, 'id', 'detalle');
@@ -219,6 +246,15 @@ class Gasto extends Model implements Auditable
     public function saldoFondoRotativo()
     {
         return $this->morphOne(Saldo::class, 'saldoable');
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 
     /**

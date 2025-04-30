@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use App\Models\Tareas\CentroCosto;
 use App\Models\Tareas\SubcentroCosto;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 
 /**

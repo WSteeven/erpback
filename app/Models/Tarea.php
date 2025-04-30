@@ -153,10 +153,14 @@ class Tarea extends Model implements Auditable
     public function toSearchableArray()
     {
         return [
+            'id' => $this->id,
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'titulo' => $this->titulo,
             'proyecto' => $this->proyecto?->codigo_proyecto . ' ' . $this->proyecto?->nombre,
+            'coordinador' => Empleado::extraerApellidosNombres($this->coordinador),
+            'finalizado' => $this->finalizado,
+            'fecha_solicitud' => $this->fecha_solicitud,
         ];
     }
 

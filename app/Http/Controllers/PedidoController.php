@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\Bodega\PedidoAutorizadoEvent;
 use App\Events\Bodega\PedidoCreadoEvent;
 use App\Exports\Bodega\PedidoExport;
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
@@ -25,6 +26,8 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\Bodega\PedidoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\Sistema\PaginationService;
+use Src\Config\Constantes;
 use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -34,9 +37,12 @@ class PedidoController extends Controller
 {
     private string $entidad = 'Pedido';
     private PedidoService $servicio;
+    private PaginationService $paginationService;
+
     public function __construct()
     {
         $this->servicio = new PedidoService();
+        $this->paginationService = new PaginationService();
         $this->middleware('can:puede.ver.pedidos')->only('index', 'show');
         $this->middleware('can:puede.crear.pedidos')->only('store');
         $this->middleware('can:puede.editar.pedidos')->only('update');
@@ -45,30 +51,41 @@ class PedidoController extends Controller
 
     /**
      * Listar
+     * @throws ValidationException
      */
     public function index(Request $request)
     {
-        $estado = $request['estado'];
+        $estado = $request->estado;
+        $search = $request->search;
+        //$filtro = ['clave' => 'autorizacion', 'valor' => 'PENDIENTE'];
+        //FiltroSearchHelper::formatearFiltrosPorMotor($filtro);
+        try {
 
-        if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
-            $results = $this->servicio->filtrarPedidosAdministrador($estado);
-        } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
-            $results = $this->servicio->filtrarPedidosBodeguero($estado);
-        } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
-            $results = $this->servicio->filtrarPedidosActivosFijos($estado);
-        } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
-            $results = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
-        } else {
-            $results = $this->servicio->filtrarPedidosEmpleado($estado);
+            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
+                $query = $this->servicio->filtrarPedidosAdministrador($estado);
+            } else if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_AUXILIAR_BODEGA]) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
+                $query = $this->servicio->filtrarPedidosBodeguero($estado);
+            } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
+                $query = $this->servicio->filtrarPedidosActivosFijos($estado);
+            } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
+                $query = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
+            } else {
+                $query = $this->servicio->filtrarPedidosEmpleado($estado);
+            }
+            $filtrosAlgolia = $this->servicio->obtenerFiltrosIndice($estado);
+
+            Log::channel('testing')->info('Log', ['request', $request->all()]);
+            Log::channel('testing')->info('Log', ['query',  $query->count()]);
+
+            $results =  buscarConAlgoliaFiltrado(Pedido::class, $query, 'id', $search,  Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$request->paginate, $filtrosAlgolia);
+
+            return PedidoResource::collection($results);
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
 
 
-        if (!empty($results)) {
-            $results = PedidoResource::collection($results);
-        } else {
-            $results = [];
-        }
-        return response()->json(compact('results'));
+//        return response()->json(compact('results'));
     }
 
     /**
@@ -117,7 +134,7 @@ class PedidoController extends Controller
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
-                event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id, false));
+                event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id, false));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -261,6 +278,7 @@ class PedidoController extends Controller
         $mensaje = 'El item ha sido eliminado con éxito';
         return response()->json(compact('mensaje'));
     }
+
     /**
      * Imprimir
      */
@@ -301,6 +319,7 @@ class PedidoController extends Controller
         $modelo = new PedidoResource($pedido->refresh());
         return response()->json(compact('modelo'));
     }
+
     public function marcarCompletado(Request $request, Pedido $pedido)
     {
         $request->validate(['motivo' => ['required', 'string']]);
@@ -364,7 +383,7 @@ class PedidoController extends Controller
     public function encabezado()
     {
         $pdf = Pdf::loadView('pedidos.encabezado_pie_numeracion');
-        $pdf->setPaper('A4' );
+        $pdf->setPaper('A4');
         $pdf->render();
         // $pdf->output();
         // $pdf->stream();

@@ -124,6 +124,9 @@ class Proveedor extends Model implements Auditable
     const SIN_CALIFICAR = 'SIN CALIFICAR';  // cuando aún no califica ningun departamento
     const SIN_CONFIGURAR = 'SIN CONFIGURAR'; //cuando no se ha enlazado departamentos calificadores
 
+    const CALIFICACION = 'CALIFICACION';
+    const RECALIFICACION = 'RECALIFICACION';
+
 
     private static array $whiteListFilter = [
         '*',
@@ -207,11 +210,14 @@ class Proveedor extends Model implements Auditable
 
     private static function obtenerRegistrosCalificacionElegidos(Collection $datos)
     {
+        Log::channel('testing')->info('Log', [' start', $datos]);
         $results = [];
         foreach ($datos as $anio) {
-            foreach ($anio as $calificacion){
-                if(is_null($calificacion->empleado_id)||is_null($calificacion->calificacion)||is_null($calificacion->fecha_calificacion)){
-                return $anio;
+            Log::channel('testing')->info('Log', [' 1 foreach', $anio]);
+            foreach ($anio as $calificacion) {
+                Log::channel('testing')->info('Log', ['2 foreacha', $calificacion]);
+                if (!is_null($calificacion->empleado_id) || !is_null($calificacion->calificacion) || !is_null($calificacion->fecha_calificacion)) {
+                    return $anio;
                 }
             }
         }
@@ -224,10 +230,12 @@ class Proveedor extends Model implements Auditable
     public static function guardarCalificacion(int $proveedor_id)
     {
         $proveedor = Proveedor::find($proveedor_id);
-        $calificaciones_agrupadas_por_anio = $proveedor->calificacionesDepartamentos->groupBy(function ($item){
+        $calificaciones_agrupadas_por_anio = $proveedor->calificacionesDepartamentos->groupBy(function ($item) {
             return Carbon::parse($item->created_at)->year;
         });
+        Log::channel('testing')->info('Log', ['calificaciones agrupadas por año', $calificaciones_agrupadas_por_anio]);
         $calificaciones_elegidas = self::obtenerRegistrosCalificacionElegidos($calificaciones_agrupadas_por_anio);
+        Log::channel('testing')->info('Log', ['calificaciones elegidas', $calificaciones_elegidas]);
         $calificaciones = [];
         foreach ($calificaciones_elegidas as $index => $calificacion) {
             if ($calificacion->calificacion != null) {
@@ -236,6 +244,7 @@ class Proveedor extends Model implements Auditable
                 $calificaciones[$index] = $row;
             }
         }
+        Log::channel('testing')->info('Log', ['calificaciones', $calificaciones_elegidas]);
         $suma = self::calcularPesos($calificaciones);
         if (count($calificaciones) == count($calificaciones_elegidas))
             $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::CALIFICADO]);
@@ -253,7 +262,7 @@ class Proveedor extends Model implements Auditable
      * guardar la calificación.
      * @throws Exception
      */
-    public static function guardarCalificacionOld(int $proveedor_id, $recalificacion=false)
+    public static function guardarCalificacionOld(int $proveedor_id, $recalificacion = false)
     {
         $proveedor = Proveedor::find($proveedor_id);
 
@@ -296,6 +305,7 @@ class Proveedor extends Model implements Auditable
     private static function calcularPesos(Collection|array $data)
     {
         $departamento_financiero = Departamento::where('nombre', Departamento::DEPARTAMENTO_FINANCIERO)->first();
+        Log::channel('testing')->info('Log', ['calcularPeso', count($data), $data, $departamento_financiero]);
 
         $suma = 0;
         switch (count($data)) {
@@ -339,5 +349,10 @@ class Proveedor extends Model implements Auditable
                     return true;
                 return false;
         }
+    }
+
+    public static function consultarProveedorNecesitaCalificacionORecalificacion(int $departamento_id, int $proveedor_id){
+        $detalles = DetalleDepartamentoProveedor::where('proveedor_id', $proveedor_id)->where('departamento_id', $departamento_id)->get();
+        return $detalles->count()>1? Proveedor::RECALIFICACION: Proveedor::CALIFICACION;
     }
 }

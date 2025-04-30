@@ -149,6 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
 //    Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);
     Route::get('solicitudes-vacaciones/imprimir/{vacacion}', [SolicitudVacacionController::class, 'imprimir']);
     Route::get('solicitudes-vacaciones/derecho-vacaciones/{id}', [SolicitudVacacionController::class, 'derechoVacaciones']);
+    Route::patch('solicitudes-vacaciones/anular/{solicitud}', [SolicitudVacacionController::class, 'anular']);
     Route::get('planificadores/imprimir/{plan}', [PlanificadorController::class, 'imprimir']);
     Route::post('vacaciones/reporte', [VacacionController::class, 'reporteVacaciones']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisosSinRecuperar']);
@@ -158,6 +159,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('imprimir_rol_pago_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirRolPagoGeneral']);
     Route::get('imprimir_reporte_general_empleado', [EmpleadoController::class, 'imprimir_reporte_general_empleado']);
     Route::get('verificar-todos-roles-finalizadas', [RolPagoMesController::class, 'verificarTodasRolesFinalizadas']);
+    Route::post('activar-rol-pago/{rol}', [RolPagoMesController::class, 'activarRolPago']);
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'finalizarRolPago']);
     Route::get('habilitar-empleado', [EmpleadoController::class, 'HabilitaEmpleado']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirReporteGeneral']);

@@ -34,6 +34,7 @@ use Src\App\Tareas\ProductoEmpleadoService;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\Autorizaciones;
+use Src\Config\Constantes;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -117,6 +118,7 @@ class TransaccionBodegaEgresoController extends Controller
             return response()->json(compact('mensaje'));
         }
     }
+
     public function obtenerMaterialesEmpleadoConsolidado(Request $request)
     {
         try {
@@ -131,16 +133,16 @@ class TransaccionBodegaEgresoController extends Controller
                 $resultado2 = $this->productosTareaEmpleadoService->listarProductosConStock($request['proyecto_id'], $request['etapa_id'], $request['tarea_id']);
                 $results = $this->mapear($resultado2);
 
-                if($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
-                if($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
+                if ($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
+                if ($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
 
                 return response()->json(compact('results'));
             } else if ($request['stock_personal']) { // Si el origen es de stock personal
                 $results = $this->productosEmpleadoService->obtenerProductos();
                 $results = $this->mapearProductosEmpleado(collect($results));
 
-                if($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
-                if($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
+                if ($request['destino'] === 'STOCK') $results = $this->productosTareaEmpleadoService->filtrarHerramientasAccesoriosEquiposPropios($results);
+                if ($request['destino'] === 'TAREA') $results = $this->productosTareaEmpleadoService->filtrarMaterialesEquipos($results);
 
                 $results = $results->values();
 
@@ -195,6 +197,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     /**
      * Listar
+     * @throws Exception
      */
     public function index(Request $request)
     {
@@ -256,7 +259,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage(), $e->getLine()]);
-            throw Utils::obtenerMensajeErrorLanzable($e,  'Ha ocurrido un error al insertar el registro');
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Ha ocurrido un error al insertar el registro');
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -506,7 +509,7 @@ class TransaccionBodegaEgresoController extends Controller
                 default:
                     throw ValidationException::withMessages(['error' => 'Método no implementado']);
             }
-        } catch (Throwable | Exception $th) {
+        } catch (Throwable|Exception $th) {
             throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
         }
     }
@@ -544,16 +547,28 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function filtrarEgresos()
+    public function filtrarEgresos(Request $request)
     {
-        $datos = [];
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO])) {
-            $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
-                $q->where('estado', request('estado'));
-            })->get();
+        $search = $request->search;
+        $paginate = $request->paginate;
+        $estado = $request->estado;
+        try {
+            if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO])) {
+                $filtrosAlgolia = "estado_comprobante:$estado";
+                $query = TransaccionBodega::whereHas('comprobante', function ($q) {
+                    $q->where('estado', request('estado'));
+                })->latest();
+
+                $datos = buscarConAlgoliaFiltrado(TransaccionBodega::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtrosAlgolia);
+
+                return TransaccionBodegaResource::collection($datos);
+//                return response()->json(compact('results'));
+            } else {
+                throw new Exception('No tienes los permisos/roles suficientes para obtener datos de este endpoint');
+            }
+        } catch (Exception $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
         }
-        $results = TransaccionBodegaResource::collection($datos);
-        return response()->json(compact('results'));
     }
 
     /**

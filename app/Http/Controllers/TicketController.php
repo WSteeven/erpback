@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ActualizarNotificacionesEvent;
 use App\Events\Tickets\TicketEvent;
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Mail\Tickets\EnviarMailTicket;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 use Src\App\TicketService;
 use Src\Shared\Utils;
 use Illuminate\Support\Facades\Mail;
+use Src\Config\Constantes;
 
 class TicketController extends Controller
 {
@@ -36,18 +38,28 @@ class TicketController extends Controller
 
     public function index()
     {
-        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        // $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $search = request('search');
+        $paginate = request('paginate');
 
-        if (request('estado') === Ticket::ETIQUETADOS_A_MI) $results = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest()->get($campos);
-        else if (request('estado') === Ticket::RECURRENTE) $results = Ticket::ignoreRequest(['estado'])->filter()->where('is_recurring', true)->latest()->get();
-        else $results = Ticket::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+        if (request('estado') === Ticket::ETIQUETADOS_A_MI) $query = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest();
+        else if (request('estado') === Ticket::RECURRENTE) $query = Ticket::ignoreRequest(['estado', 'paginate'])->filter()->where('is_recurring', true)->latest();
+        else $query = Ticket::ignoreRequest(['campos', 'paginate', 'para_mi', 'search'])->filter()->latest();
 
-        /* $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
-            $q->orWhereJsonContains('cc', intval(request('responsable_id')))->where('estado', Ticket::EJECUTANDO);
-        })->latest()->get($campos); */
+        $filtrosCreadosPorMi = [
+            ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
+            ['clave' => 'solicitante_id', 'valor' => request('solicitante_id'), 'operador' => 'AND'],
+        ];
+        
+        $filtrosTicketsParaMi = [
+            ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
+            ['clave' => 'responsable_id', 'valor' => request('responsable_id'), 'operador' => 'AND'],
+        ];
 
-        $results = TicketResource::collection($results);
-        return response()->json(compact('results'));
+        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor(request()->boolean('para_mi') ? $filtrosTicketsParaMi : $filtrosCreadosPorMi);
+
+        $results = buscarConAlgoliaFiltrado(Ticket::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
+        return $results = TicketResource::collection($results);
     }
 
     public function store(TicketRequest $request)

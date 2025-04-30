@@ -13,10 +13,26 @@ class LoginController extends Controller
     /**
      * @throws ValidationException
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/usuarios/login",
+     *     summary="Autenticación de usuarios internos del sistema",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "password"},
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="password", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Usuario autenticado correctamente.")
+     * )
+     */
     public function login(Request $request)
     {
         $request->validate([
-//            'name' => 'email:rfc,dns',
+            //            'name' => 'email:rfc,dns',
             'name' => 'required|string',
             'password' => 'required',
         ]);
@@ -44,7 +60,7 @@ class LoginController extends Controller
         if ($user->empleado->estado) {
             $token = $user->createToken('auth_token')->plainTextToken;
             $modelo = new UserInfoResource($user);
-            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer','user_type'=>'empleado', 'modelo' => $modelo]);
+            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer', 'user_type' => 'empleado', 'modelo' => $modelo]);
         }
 
         return response()->json(["mensaje" => "El usuario no esta activo"], 401);

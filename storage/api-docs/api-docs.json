@@ -1,0 +1,85 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de JP Construcred",
+        "description": "Documentación generada automáticamente con Swagger en Laravel 9",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/usuarios/login": {
+            "post": {
+                "summary": "Autenticación de usuarios internos del sistema",
+                "operationId": "d6e65f8dabdba4efdd311a1d5b3dcfc2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario autenticado correctamente."
+                    }
+                }
+            }
+        },
+        "/api/tareas/tareas": {
+            "get": {
+                "summary": "Devuelve un listado de tareas",
+                "operationId": "a08fb3c41670d8e2098f220d4da780f7",
+                "responses": {
+                    "200": {
+                        "description": "Description of response"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tickets/tipos-tickets": {
+            "get": {
+                "summary": "Summary of the endpoint",
+                "operationId": "dbe3853a920d1a1824019c61d499d8db",
+                "responses": {
+                    "200": {
+                        "description": "Description of response"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Use your Bearer token to authenticate.",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

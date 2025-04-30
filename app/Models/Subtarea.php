@@ -265,10 +265,14 @@ class Subtarea extends Model implements Auditable
         $coordinador = $this->tarea?->coordinador;
 
         return [
+            'id' => $this->id,
             'codigo_subtarea' => $this->codigo_subtarea,
             'titulo' => $this->titulo,
             'grupo' => $this->grupoResponsable?->nombre,
             'coordinador' => $coordinador ? $coordinador->nombres . ' ' . $coordinador->apellidos : null,
+            'estado' => $this->estado,
+            'tipo_trabajo' => $this->tipo_trabajo->descripcion,
+            'empleado_responsable' => Empleado::extraerApellidosNombres($this->empleado),
         ];
     }
 

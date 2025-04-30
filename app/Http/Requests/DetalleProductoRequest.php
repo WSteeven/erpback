@@ -43,6 +43,9 @@ class DetalleProductoRequest extends FormRequest
             'punta_final' => 'nullable|integer',
             'custodia' => 'nullable|integer',
 
+            'es_generico' => 'boolean',
+            'nombre_alternativo' => 'nullable|string',
+
             'procesador' => 'nullable|sometimes|exists:procesadores,id|required_with_all:ram,disco',
             'ram' => 'nullable|sometimes|exists:rams,id|required_with_all:procesador,disco',
             'disco' => 'nullable|sometimes|exists:discos,id|required_with_all:ram,procesador',
@@ -95,6 +98,10 @@ class DetalleProductoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
+        $this->merge([
+            'descripcion' => strtoupper($this->descripcion)
+        ]);
+
         if (is_null($this->precio_compra)) {
             $this->merge([
                 'precio_compra' => 0
