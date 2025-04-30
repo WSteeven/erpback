@@ -12,9 +12,11 @@ use App\Models\Archivo;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Departamento;
+use App\Models\Empleado;
 use App\Models\Proveedor;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +33,7 @@ class ProveedorController extends Controller
     private string $entidad = 'Proveedor';
     private ArchivoService $archivoService;
     private ProveedorService $proveedorService;
+
 //    private  $reporteService;
     public function __construct()
     {
@@ -42,6 +45,7 @@ class ProveedorController extends Controller
         $this->middleware('can:puede.editar.proveedores')->only('update');
         $this->middleware('can:puede.eliminar.proveedores')->only('destroy');
     }
+
     /**
      * Listar
      */
@@ -110,7 +114,7 @@ class ProveedorController extends Controller
             }
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Throwable|Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($e);
             //throw $th;
@@ -141,7 +145,7 @@ class ProveedorController extends Controller
      * Actualizar
      * @throws ValidationException|Throwable
      */
-    public function update(ProveedorRequest $request, Proveedor  $proveedor)
+    public function update(ProveedorRequest $request, Proveedor $proveedor)
     {
         $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         try {
@@ -175,7 +179,7 @@ class ProveedorController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Throwable|Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al generar reporte' => [$e->getMessage()],
@@ -286,8 +290,6 @@ class ProveedorController extends Controller
     }
 
 
-
-
     /**
      * Listar archivos enlazados a los detalle_departamento_proveedor de un proveedor dado
      */
@@ -353,5 +355,69 @@ class ProveedorController extends Controller
                 'garantia' => $request->garantia,
             ]);
         }
+    }
+
+    private function obtenerReporteCalificaciones($tipo)
+    {
+        $results = [];
+        $detalles = DetalleDepartamentoProveedor::whereNull('calificacion')->orderBy('departamento_id')->get();
+        switch ($tipo) {
+            case 'DEPARTAMENTOS PENDIENTES DE CALIFICAR':
+                // aqui necesitamos recuperar los departamentos pendientes, el responsable, el proveedor,
+                // indicar si es calificacion o recalificacion
+                foreach ($detalles as $detalle) {
+                    $results = $this->getRowReporteCalificaciones($detalle, $results);
+                }
+                return $results;
+            case 'PROVEEDORES PENDIENTES DE CALIFICAR':
+                foreach ($detalles as $detalle) {
+                    if (Proveedor::consultarProveedorNecesitaCalificacionORecalificacion($detalle->departamento_id, $detalle->proveedor_id) == Proveedor::CALIFICACION) {
+                        $results = $this->getRowReporteCalificaciones($detalle, $results);
+                    }
+                }
+                return $results;
+            case 'PROVEEDORES PENDIENTES DE RECALIFICAR':
+                foreach ($detalles as $detalle) {
+                    if (Proveedor::consultarProveedorNecesitaCalificacionORecalificacion($detalle->departamento_id, $detalle->proveedor_id) == Proveedor::RECALIFICACION) {
+                        $results = $this->getRowReporteCalificaciones($detalle, $results, true);
+                    }
+                }
+                return $results;
+            default:
+                return $results;
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function reportesCalificaciones(Request $request)
+    {
+        try {
+            $results = $this->obtenerReporteCalificaciones($request->tipo);
+        } catch (Exception $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Mapping the structure of the `results` for use in reports
+     * @param mixed $detalle
+     * @param array $results
+     * @param bool $recalificacion
+     * @return array
+     */
+    private function getRowReporteCalificaciones(mixed $detalle, array $results, bool $recalificacion=false): array
+    {
+        $row['departamento'] = $detalle->departamento->nombre;
+        $row['responsable'] = Empleado::extraerApellidosNombres($detalle->departamento->responsable);
+        $row['proveedor'] = $detalle->proveedor->empresa->razon_social . ' - ' . $detalle->proveedor->sucursal;
+        $row['proveedor_id'] = $detalle->proveedor_id;
+        $row['debe_calificar'] = Proveedor::consultarProveedorNecesitaCalificacionORecalificacion($detalle->departamento_id, $detalle->proveedor_id);
+        $row['fecha_creacion'] = Carbon::parse($detalle->created_at)->format(Utils::MASKFECHA);
+        if($recalificacion) $row['ultima_calificacion'] = Carbon::parse(DetalleDepartamentoProveedor::where('proveedor_id', $detalle->proveedor_id)->where('departamento_id', $detalle->departamento_id)->first()->created_at)->format(Utils::MASKFECHA);
+        $results[] = $row;
+        return $results;
     }
 }

@@ -57,7 +57,7 @@ class TransaccionBodegaEgresoService
                 ['clave' => 'comprobante', 'valor' => 'na', 'operador' => 'OR'],
             ],
             'ANULADA' => [
-                ['clave' => 'estado', 'valor' => "NO REALIZADA"],
+                ['clave' => 'estado', 'valor' => '"'.EstadoTransaccion::ANULADA.'"'],
             ],
             default => throw new Exception("El estado '$estado' no es válido para filtros."),
         };
@@ -72,7 +72,7 @@ class TransaccionBodegaEgresoService
     {
         $estado = $request->estado;
         $search = $request->search;
-        $filtrosAlgolia = $estado == 'ANULADA' ? "estado:\"NO REALIZADA\"" : self::obtenerFiltrosIndice($estado);
+        $filtrosAlgolia = self::obtenerFiltrosIndice($estado);
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD, User::ROL_CONSULTA])) { //si es bodeguero
             if ($estado) {

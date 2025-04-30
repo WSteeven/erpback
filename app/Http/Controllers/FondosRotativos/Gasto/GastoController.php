@@ -74,7 +74,7 @@ class GastoController extends Controller
                 $estado = match ($request->estado) {
                     1, '1' => EstadoViatico::APROBADO,
                     2, '2' => EstadoViatico::RECHAZADO,
-                    3, '3' => EstadoViatico::POR_APROBAR,
+                    3, '3' => '"' . EstadoViatico::POR_APROBAR . '"',
                     4, '4' => EstadoViatico::ANULADO,
                     default => null
                 };

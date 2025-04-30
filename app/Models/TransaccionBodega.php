@@ -194,7 +194,7 @@ class TransaccionBodega extends Model implements Auditable
             'comprobante_sin_ceros' => ltrim($this->num_comprobante, '0'),
             'firmada' => $this->comprobante ? $this->comprobante->firmada : null,
             'estado' => $this->estado?->nombre,
-            'estado_comprobante' => $this->comprobante ? $this->comprobante->estado : null,
+            'estado_comprobante' => $this->comprobante ? $this->comprobante->estado : EstadoTransaccion::PENDIENTE,
             'observacion' => $this->comprobante ? $this->comprobante->observacion : null,
         ];
     }

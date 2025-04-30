@@ -94,6 +94,7 @@ class SolicitudVacacion extends Model implements Auditable
         'autorizacion_id',
         'reemplazo_id',
         'funciones',
+        'motivo_anulacion',
         'observacion',
     ];
 
@@ -123,6 +124,9 @@ class SolicitudVacacion extends Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
+    public function detalleVacacion(){
+        return $this->morphOne(DetalleVacacion::class, 'vacacionable', 'vacacionable_type', 'vacacionable_id');
+    }
     public function detallesVacaciones()
     {
         return $this->morphMany(DetalleVacacion::class, 'vacacionable', 'vacacionable_type', 'vacacionable_id');

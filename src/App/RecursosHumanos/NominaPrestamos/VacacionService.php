@@ -11,6 +11,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\PlanVacacion;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Carbon\Carbon;
 use DB;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -81,13 +82,11 @@ class VacacionService
         $anio_inicio_periodo_vacacion = explode('-', $vacacion->periodo->nombre)[0];
         if ($hoy->year == $anio_inicio_periodo_vacacion) {
             $resto = $dias_transcurridos % self::DIAS_ANIO;
-//            Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->valores', ($vacacion->dias / self::DIAS_ANIO * $resto), $vacacion->detalles()->sum('dias_utilizados')]);
-//            Log::channel('testing')->info('Log', ['calcularDiasDeVacacionesPeriodoSeleccionado->calculo', ($vacacion->dias / self::DIAS_ANIO * $resto) - $vacacion->detalles()->sum('dias_utilizados')]);
 
-            return (int)floor($vacacion->dias / self::DIAS_ANIO * $resto) - $vacacion->detalles()->sum('dias_utilizados');
+            return (int)floor($vacacion->dias / self::DIAS_ANIO * $resto) - $vacacion->detalles()->where('anulado', false)->sum('dias_utilizados');
 
         } else
-            return (int)($vacacion->dias - $vacacion->detalles()->sum('dias_utilizados'));
+            return (int)($vacacion->dias - $vacacion->detalles()->where('anulado', false)->sum('dias_utilizados'));
     }
 
     public static function reporte(Request $request)
@@ -192,6 +191,41 @@ class VacacionService
         }
     }
 
+    /**
+     * This funcion cancels the vacation days record, through a `SolicitudVacation` record,
+     * and updates the available vacation days according to the related period
+     * @param int $empleado_id
+     * @param int $periodo_id
+     * @param Model $entidad
+     * @return void
+     * @throws Throwable
+     */
+    public function anularDiasVacaciones(int $empleado_id, int $periodo_id, Model $entidad)
+    {
+//        Log::channel('testing')->info('Log', ['registrarDiasVacaciones args?', $empleado_id, $periodo_id, $entidad, $fecha_inicio, $fecha_fin]);
+        try {
+            $vacacion = Vacacion::where('empleado_id', $empleado_id)->where('periodo_id', $periodo_id)->first();
+            if (!$vacacion)
+                throw new Exception("No se encuentra la vacación para el periodo y empleado seleccionado");
+
+            DB::beginTransaction();
+
+            $entidad->detalleVacacion()->update([
+                'anulado' => true,
+                'motivo_anulacion' => $entidad->motivo_anulacion,
+            ]);
+            DB::commit();
+
+            self::actualizarVacacion($vacacion);
+
+
+        } catch (Throwable $th) {
+            DB::rollBack();
+            Log::channel('testing')->error('Log', ['Error en anularDiasVacaciones:', $th->getLine(), $th->getMessage()]);
+            throw $th;
+        }
+    }
+
 
     /**
      * Función para crear un registro de vacación y retorna el registro creado.
@@ -219,6 +253,15 @@ class VacacionService
         return $vacacion;
     }
 
+    /**
+     * Validates the availability of days for vacations, if return true it means `The vacation period still has vacation days available `,
+     * else `The vacation period doesn't have available days`
+     * @param int $empleado_id
+     * @param int $periodo_id
+     * @param string|Carbon $fecha_inicio
+     * @param string|Carbon $fecha_fin
+     * @return bool
+     */
     public static function validarDiasDisponibles(int $empleado_id, int $periodo_id, string|Carbon $fecha_inicio, string|Carbon $fecha_fin)
     {
         $dias = 0;
@@ -240,10 +283,10 @@ class VacacionService
      */
     public static function actualizarVacacion(Vacacion $vacacion)
     {
-        if ($vacacion->detalles()->sum('dias_utilizados') == $vacacion->dias) {
+        if ($vacacion->detalles()->where('anulado', false)->sum('dias_utilizados') == $vacacion->dias) {
             $vacacion->completadas = true;
-            $vacacion->save();
-        }
+        } else $vacacion->completadas = false;
+        $vacacion->save();
     }
 
     public static function calcularMontoPagarVacaciones(Vacacion $vacacion)

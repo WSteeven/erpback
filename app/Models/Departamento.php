@@ -98,4 +98,7 @@ class Departamento extends Model implements Auditable
         return $this->belongsToMany(CategoriaOfertaProveedor::class, 'cmp_detalle_categoria_departamento_proveedor', 'departamento_id', 'categoria_id')
             ->withTimestamps();
     }
+    public function empleados(){
+        return $this->hasMany(Empleado::class);
+    }
 }
