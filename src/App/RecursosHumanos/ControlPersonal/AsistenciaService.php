@@ -100,7 +100,7 @@ class AsistenciaService
     {
         try {
             $datos = $this->obtenerRegistrosDiarios();
-
+            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos obtenidos', $datos]);
             //De los eventos recibidos filtramos para obtener solo los eventos con 'minor' igual a 75 o 38
             $eventos = array_filter($datos, function ($evento) {
                 return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
@@ -112,6 +112,7 @@ class AsistenciaService
             // Ordenar eventos por hora para procesarlos en orden cronológico desdel el mas reciente al mas antiguo
             usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
 
+            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos ordenados', $eventos]);
             // Agrupar eventos por empleado y fecha
             $eventosAgrupados = [];
             foreach ($eventos as $evento) {
