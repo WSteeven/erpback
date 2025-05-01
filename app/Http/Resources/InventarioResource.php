@@ -20,9 +20,9 @@ class InventarioResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
 
 
-        $modelo =[
+        $modelo =$this->detalle?[
             'id'=>$this->id,
-            'producto'=>$this->detalle->producto->nombre,
+            'producto'=>$this->detalle?->producto->nombre,
             'detalle'=>$this->detalle_id,
             'detalle_id'=>$this->detalle->descripcion.' | '.$this->detalle->modelo->marca->nombre.' | '.$this->detalle->modelo->nombre.' | '.$this->detalle->serial,
             'descripcion'=>$this->detalle->descripcion,
@@ -38,7 +38,7 @@ class InventarioResource extends JsonResource
             'por_entregar'=> $this->por_entregar,
             // 'prestados'=>$this->prestados,
             'estado'=>$this->estado,
-        ];
+        ]:[];
         if($controller_method=='show'){
             $modelo['producto']=$this->detalle->producto_id;
             $modelo['detalle_id']=$this->detalle_id;
