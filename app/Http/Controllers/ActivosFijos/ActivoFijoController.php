@@ -44,7 +44,8 @@ class ActivoFijoController extends Controller
 
         if (request('export')) return $this->controlActivoFijoService->descargarReporte();
 
-        $query = ActivoFijo::search($search);
+        if(request('search')) $query = ActivoFijo::search($search);
+        else $query = ActivoFijo::query();
 
         if ($paginate) $paginated = $this->paginationService->paginate($query, 100, request('page'));
         else $paginated = $query->get();

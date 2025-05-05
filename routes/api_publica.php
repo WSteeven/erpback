@@ -33,6 +33,33 @@ Route::post('/validar-cedula', function (Request $request) {
     return response()->json($validado);
 });
 
+Route::get('/send-firebase', function () {
+    function sendFirebaseNotification($fcmToken, $title, $body)
+    {
+        // $SERVER_API_KEY = 'BIAM3GntAC5X5An6PyBuIW4rbDzQtPcT9NE7le9mxyOiSFNgYvqI55z45Mex2F43llwM3Tas-2G8OCwPY52GYYg';
+        $SERVER_API_KEY = 'RCZkEKOKEpedrxtWybAVTNWwfRZp_S3QIhaBpsid23s';
+
+        $response = Http::withHeaders([
+            'Authorization' => 'key=' . $SERVER_API_KEY,
+            'Content-Type' => 'application/json',
+        ])->post('https://fcm.googleapis.com/fcm/send', [
+            'to' => $fcmToken,
+            'notification' => [
+                'title' => $title,
+                'body' => $body,
+                'sound' => 'default',
+            ],
+            'data' => [
+                'extra_data' => 'valor', // opcional
+            ]
+        ]);
+
+        return $response->json();
+    }
+
+    sendFirebaseNotification('fqCOykV-RNWPKHXLceiY0w:APA91bFhXqgtg54tk8oiVXE_oAM3Yyv-FmcmJDe-DrIiq4Zn53nNs42N5qs26JOtqBCzQnD300STcqquEXyntWkpNOhGg-XqTcbu2ymSowPVeo4JVKhV__Q', '¡Tienes una nueva tarea!', 'Haz clic para verla.');
+});
+
 /****************
  * Localizacion
  ****************/
@@ -88,4 +115,3 @@ Route::prefix('seleccion-contratacion')->group(function () {
 });
 
 Route::view('reporte-accidente', 'sso.pdf.informe_accidente');
-

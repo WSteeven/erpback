@@ -61,7 +61,8 @@ class TareaService
         /* if (request('sin_etapa')) {
             Tarea::whereIn('id', $tareas_ids)->estaActiva()->sinEtapa()->ignoreRequest([...$ignoreRequest, 'etapa_id'])->filter()->get();
         } */
-        return Tarea::whereIn('id', $tareas_ids)->estaActiva()->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
+        $results = Tarea::whereIn('id', $tareas_ids)->estaActiva()->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
+        return response()->json(compact('results'));
     }
 
     public function obtenerTareasAsignadasEmpleadoLuegoFinalizar(int $empleado_id)
