@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -236,13 +237,13 @@ class DetalleProductoController extends Controller
     }
 
     /**
-     * Eliminar
+     * Actualmente no se permite eliminar un detalle de producto para evitar caer en el error de asignarlo a alguien
+     * y luego eliminarlo, ocasionando inconsistencias con la información.
+     * @throws ValidationException
      */
-    public function destroy(DetalleProducto $detalle)
+    public function destroy()
     {
-        $detalle->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
+        throw ValidationException::withMessages(['error' => 'Por razones de seguridad, no se puede eliminar un detalle ya creado. Por favor, desactívalo o comunícate con el departamento de Informática para más información.']);
     }
 
     /**
