@@ -5,6 +5,7 @@ namespace App\Exports\Tickets;
 use App\Http\Resources\TicketResource;
 use Maatwebsite\Excel\Concerns\FromView;
 use Illuminate\Contracts\View\View;
+use Log;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -21,7 +22,7 @@ class DashboardTicketExport implements FromView, WithColumnWidths, WithBackgroun
     function __construct($listado, $title)
     {
         // $this->reporte = $reporte;
-        $this->listado = $listado->map(fn ($ticket) => (new TicketResource($ticket))->resolve());
+        $this->listado = $listado->map(fn($ticket) => (new TicketResource($ticket))->resolve());
         $this->title = $title;
     }
 
@@ -95,6 +96,34 @@ class DashboardTicketExport implements FromView, WithColumnWidths, WithBackgroun
 
     public function view(): View
     {
-        return view('tickets.excel.dashboard_ticket', ['reporte' => $this->listado]);
+        return view('tickets.excel.dashboard_ticket', ['reporte' => $this->listado, 'sumaTiempoOcupado' => $this->getSumaTiempoOcupado()]);
+    }
+
+    private function getSumaTiempoOcupado()
+    {
+        $totalSegundos = $this->listado->reduce(function ($carry, $ticket) {
+            $tiempo = trim($ticket['tiempo_hasta_finalizar_h_m_s'] ?? '');
+    
+            if ($tiempo === '') {
+                return $carry;
+            }
+    
+            $partes = explode(':', $tiempo);
+            if (count($partes) !== 3) {
+                return $carry; // ignora si no es HH:MM:SS
+            }
+    
+            [$horas, $minutos, $segundos] = array_map('intval', $partes);
+    
+            return $carry + ($horas * 3600) + ($minutos * 60) + $segundos;
+        }, 0);
+    
+        $horas = floor($totalSegundos / 3600);
+        $minutos = floor(($totalSegundos % 3600) / 60);
+        $segundos = $totalSegundos % 60;
+    
+        $suma = sprintf('%02d:%02d:%02d', $horas, $minutos, $segundos);
+        // Log::channel('testing')->info('Log', ['suma tickets', $suma]);
+        return $suma;
     }
 }

@@ -61,7 +61,7 @@ class ControlActivoFijoService
 
     private function obtenerInformacionTransaccionEgreso(int $detalle_producto_id, int $cliente_id, int $responsable_id)
     {
-        return TransaccionBodega::select('id', 'comprobante', 'created_at')
+        return TransaccionBodega::select('id', 'num_comprobante', 'created_at')
             ->whereIn('id', DetalleProductoTransaccion::whereIn('inventario_id', Inventario::where('detalle_id', $detalle_producto_id)->where('cliente_id', $cliente_id)->pluck('id'))->pluck('transaccion_id'))
             ->whereIn('motivo_id', Motivo::where('tipo_transaccion_id', TipoTransaccion::where('nombre', 'EGRESO')->pluck('id'))->pluck('id'))
             ->where('estado_id', EstadosTransacciones::COMPLETA)
@@ -72,7 +72,7 @@ class ControlActivoFijoService
 
     private function obtenerInformacionTransaccionIngreso(int $detalle_producto_id, int $cliente_id)
     {
-        return TransaccionBodega::select('id', 'comprobante', 'created_at')
+        return TransaccionBodega::select('id', 'num_comprobante', 'created_at')
             ->whereIn('id', DetalleProductoTransaccion::whereIn('inventario_id', Inventario::where('detalle_id', $detalle_producto_id)->where('cliente_id', $cliente_id)->pluck('id'))->pluck('transaccion_id'))
             ->whereIn('motivo_id', Motivo::where('tipo_transaccion_id', TipoTransaccion::where('nombre', 'INGRESO')->pluck('id'))->pluck('id'))
             ->orderBy('created_at', 'DESC')
