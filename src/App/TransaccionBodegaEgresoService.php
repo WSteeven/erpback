@@ -41,26 +41,29 @@ class TransaccionBodegaEgresoService
     /**
      * @throws Exception
      */
-    public static function obtenerFiltrosIndice(string $estado)
+    public static function obtenerFiltrosIndice(?string $estado)
     {
-        $filtros = match (strtoupper($estado)) {
-            EstadoTransaccion::PENDIENTE => [
-                ['clave' => 'firmada', 'valor' => 0],
-                ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PENDIENTE, 'operador' => 'AND'],
-            ],
-            EstadoTransaccion::PARCIAL => [
-                ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PARCIAL],
-            ],
-            EstadoTransaccion::COMPLETA => [
-                ['clave' => 'firmada', 'valor' => 1],
-                ['clave' => 'estado_comprobante', 'valor' => TransaccionBodega::ACEPTADA, 'operador' => 'AND'],
-                ['clave' => 'comprobante', 'valor' => 'na', 'operador' => 'OR'],
-            ],
-            'ANULADA' => [
-                ['clave' => 'estado', 'valor' => '"'.EstadoTransaccion::ANULADA.'"'],
-            ],
-            default => throw new Exception("El estado '$estado' no es válido para filtros."),
-        };
+        if (is_null($estado))
+            return '';
+        else
+            $filtros = match (strtoupper($estado)) {
+                EstadoTransaccion::PENDIENTE => [
+                    ['clave' => 'firmada', 'valor' => 0],
+                    ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PENDIENTE, 'operador' => 'AND'],
+                ],
+                EstadoTransaccion::PARCIAL => [
+                    ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PARCIAL],
+                ],
+                EstadoTransaccion::COMPLETA => [
+                    ['clave' => 'firmada', 'valor' => 1],
+                    ['clave' => 'estado_comprobante', 'valor' => TransaccionBodega::ACEPTADA, 'operador' => 'AND'],
+                    ['clave' => 'comprobante', 'valor' => 'na', 'operador' => 'OR'],
+                ],
+                'ANULADA' => [
+                    ['clave' => 'estado', 'valor' => '"' . EstadoTransaccion::ANULADA . '"'],
+                ],
+                default => throw new Exception("El estado '$estado' no es válido para filtros."),
+            };
 
         return FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
     }
