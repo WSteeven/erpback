@@ -15,7 +15,7 @@ use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
-
+// hola
 /**
  * App\Models\Devolucion
  *
