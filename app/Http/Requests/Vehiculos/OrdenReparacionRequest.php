@@ -37,6 +37,7 @@ class OrdenReparacionRequest extends FormRequest
             'fecha' => 'required|string',
             'valor_reparacion' => 'nullable|numeric',
             'motivo' => 'nullable|string',
+            'num_factura' => 'nullable|string',
         ];
     }
 

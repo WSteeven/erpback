@@ -33,6 +33,7 @@ class OrdenReparacionResource extends JsonResource
             }) : null,
             'valor_reparacion' => $this->valor_reparacion,
             'motivo' => $this->motivo,
+            'num_factura' => $this->num_factura,
         ];
 
         if ($controller_method == 'show') {
