@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Helpers\Filtros\FiltroSearchHelper;
+use App\Models\Autorizacion;
 use App\Models\Comprobante;
 use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
@@ -50,17 +51,22 @@ class TransaccionBodegaEgresoService
                 EstadoTransaccion::PENDIENTE => [
                     ['clave' => 'firmada', 'valor' => 0],
                     ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PENDIENTE, 'operador' => 'AND'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                    ['clave' => 'autorizacion', 'valor' => Autorizacion::APROBADO, 'operador' => 'AND'],
                 ],
                 EstadoTransaccion::PARCIAL => [
                     ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PARCIAL],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
                 ],
                 EstadoTransaccion::COMPLETA => [
                     ['clave' => 'firmada', 'valor' => 1],
                     ['clave' => 'estado_comprobante', 'valor' => TransaccionBodega::ACEPTADA, 'operador' => 'AND'],
                     ['clave' => 'comprobante', 'valor' => 'na', 'operador' => 'OR'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
                 ],
                 'ANULADA' => [
                     ['clave' => 'estado', 'valor' => '"' . EstadoTransaccion::ANULADA . '"'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
                 ],
                 default => throw new Exception("El estado '$estado' no es válido para filtros."),
             };

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Src\App\Bodega\DevolucionService;
 use Src\App\Sistema\PaginationService;
 use Src\Config\ClientesCorporativos;
+use Src\Config\Constantes;
 use Throwable;
 
 class TransaccionBodegaIngresoService
@@ -194,49 +195,42 @@ class TransaccionBodegaIngresoService
     public static function listar(Carbon|string $fecha_inicio = null, Carbon|string $fecha_fin = null, $paginate = false, $search = null)
     {
 //        Log::channel('testing')->info('Log', ['TransaccionIngresoService::listar:', $fecha_inicio, $fecha_fin, $search]);
+        $tipo_transaccion_str = TipoTransaccion::INGRESO;
         $pagination_service = new PaginationService();
-        $tipo_transaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
+        $tipo_transaccion = TipoTransaccion::where('nombre', $tipo_transaccion_str)->first();
         $ids_motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
         $results = [];
-
+        $filtrosAlgolia = "tipo_transaccion:$tipo_transaccion_str";
 
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
-            if (!is_null($search)) {
-                $query = TransaccionBodega::search($search);
-            } else
-                $query = TransaccionBodega:://search(request('search'))
-                whereIn('motivo_id', $ids_motivos->toArray())
-                    ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
-                        $q->where('created_at', '>=', $fecha_inicio);
-                    })
-                    ->when($fecha_fin, function ($q) use ($fecha_fin) {
-                        $q->where('created_at', '<=', $fecha_fin);
-                    })
-                    ->orderBy('id', 'desc');
-            if ($paginate) {
-                return $pagination_service->paginate($query, 100, request('page'));
-            } else {
-//                Log::channel('testing')->info('Log', ['la queri es ', $query]);
-                return $query->get();
-            }
+            $query = TransaccionBodega::whereIn('motivo_id', $ids_motivos->toArray())
+                ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
+                    $q->where('created_at', '>=', $fecha_inicio);
+                })
+                ->when($fecha_fin, function ($q) use ($fecha_fin) {
+                    $q->where('created_at', '<=', $fecha_fin);
+                })
+                ->orderBy('id', 'desc');
+            return buscarConAlgoliaFiltrado(TransaccionBodega::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtrosAlgolia);
+//            if ($paginate) {
+//                return $pagination_service->paginate($query, 100, request('page'));
+//            } else {
+////                Log::channel('testing')->info('Log', ['la queri es ', $query]);
+//                return $query->get();
+//            }
         }
         if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
-            if (!is_null($search))
-                $query_telconet = TransaccionBodega::search($search);
-            else
-                $query_telconet = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
-                    ->where('cliente_id', ClientesCorporativos::TELCONET)
-                    ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
-                        $q->where('created_at', '>=', $fecha_inicio);
-                    })
-                    ->when($fecha_fin, function ($q) use ($fecha_fin) {
-                        $q->where('created_at', '<=', $fecha_fin);
-                    })
-                    ->orderBy('id', 'desc');
-            if ($paginate) {
-                return $pagination_service->paginate($query_telconet, 100, request('page'));
-            } else
-                return $query_telconet->get();
+            $query_telconet = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
+                ->where('cliente_id', ClientesCorporativos::TELCONET)
+                ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
+                    $q->where('created_at', '>=', $fecha_inicio);
+                })
+                ->when($fecha_fin, function ($q) use ($fecha_fin) {
+                    $q->where('created_at', '<=', $fecha_fin);
+                })
+                ->orderBy('id', 'desc');
+            return buscarConAlgoliaFiltrado(TransaccionBodega::class, $query_telconet, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtrosAlgolia);
+
         }
         return $results;
     }

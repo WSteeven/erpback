@@ -26,7 +26,7 @@ use Src\Config\RutasStorage;
 
 class TransferenciaProductoEmpleadoController extends Controller
 {
-    private $entidad = 'Transferencia';
+    private string $entidad = 'Transferencia';
     private $transferenciaService;
     private $productosTareaEmpleadoService;
     private $archivoService;
