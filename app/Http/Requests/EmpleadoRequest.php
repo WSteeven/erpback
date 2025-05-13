@@ -104,7 +104,7 @@ class EmpleadoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $validador = new ValidarIdentificacion();
-            Log::channel('testing')->info('Log', ['reuqest del empleado',request()->all(), $this->method(), $this->all()]);
+//            Log::channel('testing')->info('Log', ['reuqest del empleado',request()->all(), $this->method(), $this->all()]);
             if (!$validador->validarCedula($this->identificacion?:"")) {
                 Log::channel('testing')->info('Log', ['Dentro del if']);
                 $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');

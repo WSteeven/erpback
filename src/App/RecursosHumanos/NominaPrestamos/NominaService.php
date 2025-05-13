@@ -21,6 +21,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Src\App\ExceptionNotificationService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Throwable;
 
@@ -440,7 +441,9 @@ class NominaService
             Mail::to($user->email)
                 ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
         } catch (Exception $ex) {
-            Log::channel('testing')->error('Log', ["error en enviar_rol_pago con estos args", $rol_pago, $destinatario]);
+//            Log::channel('testing')->error('Log', ["error en enviar_rol_pago", $ex->getMessage(), $ex->getLine()]);
+            ExceptionNotificationService::sendExceptionErrorToSystemAdminMail($ex->getMessage().'. '.$user->email);
+//            Log::channel('testing')->error('Log', ["error en enviar_rol_pago con estos args", $destinatario]);
             throw $ex;
         }
     }

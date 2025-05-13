@@ -131,13 +131,18 @@ class RolPagosController extends Controller
      */
     public function enviarRolPagoEmpleado(RolPago $rol_pago)
     {
-        $empleado = Empleado::find($rol_pago->empleado_id);
-        if ($empleado) {
-            $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
-            $mensaje = 'Rol de pago enviado correctamente';
-        } else
-            $mensaje = 'No se encontró el empleado asociado al rol ' . $rol_pago->id;
-        return response()->json(compact('mensaje'));
+        try {
+            $empleado = Empleado::find($rol_pago->empleado_id);
+            if ($empleado) {
+                $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
+                $mensaje = 'Rol de pago enviado correctamente';
+            } else
+                $mensaje = 'No se encontró el empleado asociado al rol ' . $rol_pago->id;
+            return response()->json(compact('mensaje'));
+
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     /**
