@@ -4,13 +4,17 @@ namespace Src\App\Bodega;
 
 use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Models\Autorizacion;
+use App\Models\DetallePedidoProducto;
+use App\Models\DetalleProducto;
 use App\Models\Pedido;
 use App\Models\Sucursal;
+use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
+use Throwable;
 
 class PedidoService
 {
@@ -270,7 +274,7 @@ class PedidoService
             ],
             'APROBADO' => [
                 ['clave' => 'autorizacion', 'valor' => 'APROBADO'],
-                ['clave' => 'estado', 'valor' => 'PENDIENTE', 'operador'=> 'AND'],
+                ['clave' => 'estado', 'valor' => 'PENDIENTE', 'operador' => 'AND'],
             ],
             'PARCIAL' => [
                 ['clave' => 'estado', 'valor' => 'PARCIAL'],
@@ -334,4 +338,26 @@ class PedidoService
         }
     }
 
+
+    /**
+     * @throws Exception
+     * @throws Throwable
+     */
+    public static function modificarCantidadDespachadoEnDetallePedidoProducto(int $detalle_id, int $pedido_id, int $cantidad)
+    {
+        try {
+            DB::beginTransaction();
+
+            $detalle_pedido_producto = DetallePedidoProducto::where('pedido_id', $pedido_id)->where('detalle_id', $detalle_id)->first();
+            if (!$detalle_pedido_producto) throw new Exception("No se encontro el detalle " . (DetalleProducto::find($detalle_id)->descripcion) . "para el pedido $pedido_id");
+
+            $detalle_pedido_producto->despachado = $cantidad;
+            $detalle_pedido_producto->save();
+
+            DB::commit();
+        } catch (Exception $ex) {
+            DB::rollBack();
+            throw $ex;
+        }
+    }
 }

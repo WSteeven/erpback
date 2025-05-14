@@ -507,6 +507,13 @@ class TransaccionBodega extends Model implements Auditable
         }
     }
 
+    /**
+     * Restar la cantidad despachada del pedido
+     * @param $pedido_id
+     * @param $detalle_id
+     * @param $cantidad
+     * @return void
+     */
     public static function restarDespachoPedido($pedido_id, $detalle_id, $cantidad)
     {
         $detalle_pedido = DetallePedidoProducto::where('pedido_id', $pedido_id)->where('detalle_id', $detalle_id)->first();

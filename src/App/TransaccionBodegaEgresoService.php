@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\Bodega\PedidoService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
 use Src\Config\Constantes;
@@ -579,6 +580,8 @@ class TransaccionBodegaEgresoService
                     $item_inventario->cantidad += $detalle_producto_transaccion->cantidad_inicial;
                     $item_inventario->save();
                     $detalle_producto_transaccion->delete();
+                    // Aqui se verifica si tiene pedido y se borra la cantidad de despachado
+                    if ($transaccion->pedido_id) PedidoService::modificarCantidadDespachadoEnDetallePedidoProducto($item_inventario->detalle_id, $transaccion->pedido_id, $request->item['cantidad']);
                     DB::commit();
                     return;
                 }
