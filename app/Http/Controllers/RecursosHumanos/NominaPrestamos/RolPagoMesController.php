@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\SystemNotificationService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
@@ -208,13 +209,34 @@ class RolPagoMesController extends Controller
      */
     public function enviarRoles(int $rolPagoId)
     {
+        try {
+
+        $correos=[];
+        $error = false;
+        $mensaje = '';
         $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
         foreach ($roles as $rol_pago) {
-            $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-            $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
+            try {
+                $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
+                $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
+            }catch (Exception $e) {
+                $error = true;
+                $mensaje = $e->getMessage();
+                $correos[] = $empleado->user->email;
+                SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error general: " .$rol_pago.' <-> '. $e->getMessage());
+            }
+        }
+        if ($error) {
+            if(strlen($mensaje)>5)
+            $mensaje = "Roles de pago enviados correctamente pero con algunos errores: $mensaje";
+            return response()->json(compact('mensaje', 'correos'));
         }
         $mensaje = 'Rol de pago enviado correctamente';
         return response()->json(compact('mensaje'));
+        }catch (Exception $e) {
+            SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error con el método RolPagoMesController::enviarRoles: " . $e->getMessage());
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     /**

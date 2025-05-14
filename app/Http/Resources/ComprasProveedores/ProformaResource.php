@@ -35,7 +35,6 @@ class ProformaResource extends JsonResource
             'causa_anulacion' => $this->causa_anulacion,
             'estado' => $this->estado->nombre,
             'estado_id' => $this->estado_id,
-            'estado' => $this->estado->nombre,
             'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),
             'forma' => $this->forma,
             'tiempo' => $this->tiempo,

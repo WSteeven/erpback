@@ -11,21 +11,26 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendExceptionMail extends Mailable
+class SendInformationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public string $mensaje;
+    private string $tipo;
+    public array $datos;
     public ConfiguracionGeneral $configuracion;
+
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(string $mensaje = "")
+    public function __construct(string $mensaje, string $tipo, array $datos=[])
     {
         $this->mensaje = $mensaje;
+        $this->tipo = $tipo;
+        $this->datos = $datos;
         $this->configuracion = ConfiguracionGeneral::first();
     }
 
@@ -38,7 +43,10 @@ class SendExceptionMail extends Mailable
     {
         return new Envelope(
             from: new Address(env('MAIL_USERNAME'), Empleado::extraerNombresApellidos(auth()->user()->empleado)),
-            subject: 'Error de Exception',
+            subject: match ($this->tipo){
+                'NUEVO_EMPLEADO_CREADO'=>'Nuevo empleado registrado en el sistema',
+                default => 'Información'
+            },
         );
     }
 
@@ -50,7 +58,12 @@ class SendExceptionMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'admin.email.exception',
+            view: 'admin.email.information',
+            with: [
+                'mensaje' => $this->mensaje,
+                'datos' => $this->datos,
+                'configuracion' => $this->configuracion,
+            ]
         );
     }
 

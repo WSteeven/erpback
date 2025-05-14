@@ -21,7 +21,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Src\App\ExceptionNotificationService;
+use Src\App\SystemNotificationService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Throwable;
 
@@ -59,7 +59,8 @@ class NominaService
     public function setRolPago(RolPagoMes $rol_pago_mes)
     {
         $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
-        $this->rolPago = $rolPago;
+        if ($rolPago)
+            $this->rolPago = $rolPago;
     }
 
 //    public function setVendedorMedioTiempo($es_vendedor_medio_tiempo)
@@ -172,7 +173,7 @@ class NominaService
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
 //                $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
-                throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual. Revisa la fecha de ingreso del empleado '.Empleado::extraerNombresApellidos($this->empleado).' cuya fecha de ingreso es: '. $fechaIngresada);
+                throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual. Revisa la fecha de ingreso del empleado ' . Empleado::extraerNombresApellidos($this->empleado) . ' cuya fecha de ingreso es: ' . $fechaIngresada);
             }
         } else {
             // La fecha ingresada no pertenece al mes actual
@@ -428,22 +429,23 @@ class NominaService
     public function enviar_rol_pago(RolPago $rol_pago, Empleado $destinatario)
     {
         try {
-//            Log::channel('testing')->info('Log', ["Se enviara el rol " . $rol_pago->id . " al destinatario: ", Empleado::extraerNombresApellidos($destinatario)]);
-//            Log::channel('testing')->info('Log', ["rol individual", $rol_pago]);
             $results = RolPago::empaquetarListado($rol_pago);
-//            Log::channel('testing')->info('Log', ["rol empaquetado", $results]);
             $responsable = Departamento::where('id', 7)->first()->responsable;
             $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
             $user = User::where('id', $destinatario->usuario_id)->first();
-//            Log::channel('testing')->info('Log', ["Paso con exito", $user->email, "ruta_archivo", $results[0]['rol_firmado']]);
             Mail::to($user->email)
                 ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
+//        } catch (TransportExceptionInterface $mailEx) {
+//            // Error específico de envío de correo
+//            ExceptionNotificationService::sendExceptionErrorToSystemAdminMail(
+//                "Error al enviar correo: " . $mailEx->getMessage() . ". Destinatario: " . ($user->email ?? 'no disponible')
+//            );
         } catch (Exception $ex) {
-//            Log::channel('testing')->error('Log', ["error en enviar_rol_pago", $ex->getMessage(), $ex->getLine()]);
-            ExceptionNotificationService::sendExceptionErrorToSystemAdminMail($ex->getMessage().'. '.$user->email);
-//            Log::channel('testing')->error('Log', ["error en enviar_rol_pago con estos args", $destinatario]);
+            SystemNotificationService::sendExceptionErrorMailToSystemAdmin(
+                "Error general: " . $ex->getMessage() . ". Destinatario: " . ($user->email ?? 'no disponible')
+            );
             throw $ex;
         }
     }
