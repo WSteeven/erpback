@@ -10,31 +10,29 @@ use App\Http\Resources\DevolucionResource;
 use App\Models\Autorizacion;
 use App\Models\Condicion;
 use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleDevolucionProducto;
 use App\Models\Devolucion;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
-use App\Models\Producto;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use PhpParser\Node\Stmt\Break_;
-use PhpParser\Node\Stmt\TryCatch;
 use Src\App\ArchivoService;
 use Src\App\Bodega\DevolucionService;
 use Src\Config\Autorizaciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class DevolucionController extends Controller
 {
-    private $entidad = 'Devolución';
-    private $archivoService;
-    private $servicio;
+    private string $entidad = 'Devolución';
+    private ArchivoService $archivoService;
+    private DevolucionService $servicio;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
@@ -47,24 +45,25 @@ class DevolucionController extends Controller
 
     /**
      * Listar
+     * @throws ValidationException
      */
     public function index(Request $request)
     {
-        $page = $request['page'];
-        $offset = $request['offset'];
-        $estado = $request['estado'];
-        $campos = explode(',', $request['page']);
-        $results = [];
+        try {
 
-        $results = $this->servicio->filtrarDevoluciones($request);
+            $results = $this->servicio->listar($request);
 
-        $results = DevolucionResource::collection($results);
+            return  DevolucionResource::collection($results);
 
-        return response()->json(compact('results'));
+//            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            throw ValidationException::withMessages(['error' => [$e->getMessage() . '. ' . $e->getLine()]]);
+        }
     }
 
     /**
      * Guardar
+     * @throws Throwable|ValidationException
      */
     public function store(DevolucionRequest $request)
     {
@@ -130,6 +129,7 @@ class DevolucionController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable
      */
     public function update(DevolucionRequest $request, Devolucion $devolucion)
     {
@@ -190,7 +190,7 @@ class DevolucionController extends Controller
     {
         $modelo = new DevolucionResource($devolucion);
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
@@ -209,6 +209,28 @@ class DevolucionController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    public function corregirDevolucion(Request $request, Devolucion $devolucion)
+    {
+        if (count($request->listadoProductos) > 0) {
+            foreach ($request->listadoProductos as $listado) {
+                // $devolucion->detalles()->updateExistingPivot($listado['id'], ['cantidad'=>$listado['cantidad']]);
+                $detalle = DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->where('detalle_id', $listado['id'])->first();
+                $detalle->cantidad = $listado['cantidad'];
+                $detalle->save();
+                //Actualizar el estado de la devolucion, segun la correccion del item
+                $this->servicio->verificarItemsDevolucion($detalle);
+            }
+        }
+    }
+
+    public function eliminarDetalleDevolucion(Request $request)
+    {
+        $detalle = DetalleDevolucionProducto::where('devolucion_id', $request->devolucion_id)->where('detalle_id', $request->detalle_id)->first();
+        $detalle->delete();
+        $mensaje = 'El item ha sido eliminado con éxito';
+        return response()->json(compact('mensaje'));
+    }
+
     public function imprimir(Devolucion $devolucion)
     {
         $configuracion  = ConfiguracionGeneral::first();
@@ -220,9 +242,7 @@ class DevolucionController extends Controller
             $pdf = Pdf::loadView('devoluciones.devolucion', compact(['devolucion', 'configuracion', 'persona_solicitante', 'persona_autoriza']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
-            $file = $pdf->output();
-
-            return $file;
+            return $pdf->output();
 
             //usar esto en caso de querer guardar los pdfs generados en el servidor backend
 
@@ -239,7 +259,7 @@ class DevolucionController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, Devolucion $devolucion)
+    public function indexFiles( Devolucion $devolucion)
     {
         try {
             $results = $this->archivoService->listarArchivos($devolucion);
@@ -252,6 +272,7 @@ class DevolucionController extends Controller
 
     /**
      * Guardar archivos
+     * @throws Throwable
      */
     public function storeFiles(Request $request, Devolucion $devolucion)
     {
@@ -262,6 +283,6 @@ class DevolucionController extends Controller
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('mensaje', 'modelo'), 200);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

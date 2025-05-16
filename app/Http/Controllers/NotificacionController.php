@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\NotificacionRequest;
 use App\Http\Resources\NotificacionResource;
+use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\NotificacionService;
 use Src\Shared\Utils;
+use Throwable;
 
 class NotificacionController extends Controller
 {
-    private $entidad = 'Notificacion';
+    private string $entidad = 'Notificacion';
     private NotificacionService $servicio;
     public function __construct()
     {
@@ -29,10 +30,9 @@ class NotificacionController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        $results = [];
         if (auth()->user()->hasRole(User::ROL_COORDINADOR_BODEGA)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_COORDINADOR_BODEGA, $campos);
         } else if (auth()->user()->hasRole(User::ROL_BODEGA)) {
@@ -41,6 +41,8 @@ class NotificacionController extends Controller
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_BODEGA_TELCONET, $campos);
         } else if (auth()->user()->hasRole(User::ROL_CONTABILIDAD)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_CONTABILIDAD, $campos);
+        } else if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS)) {
+            $results = $this->servicio->obtenerNotificacionesRol(User::ROL_ADMINISTRADOR_VEHICULOS, $campos);
         } else if (auth()->user()->hasRole(User::ROL_COMPRAS)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_COMPRAS, $campos);
         } else {
@@ -49,8 +51,10 @@ class NotificacionController extends Controller
 
         return response()->json(compact('results'));
     }
+
     /**
      * Guardar
+     * @throws Throwable
      */
     public function store(NotificacionRequest $request)
     {
@@ -84,9 +88,9 @@ class NotificacionController extends Controller
     /**
      * Actualizar
      */
-    public function update(NotificacionRequest $request, Notificacion $notificacion)
+    public function update(Notificacion $notificacion)
     {
-        //En esta parte se hace la actualización de la notificacion de leída=false a leída=true
+        //En esta parte se hace la actualización de la notificacion de leída=falso a leída=verdadero
         $notificacion->leida = true; //se marca como leída
         $notificacion->save(); //se guarda la notificacion actualizada
 
@@ -100,7 +104,7 @@ class NotificacionController extends Controller
      */
     public function destroy(Notificacion $notificacion)
     {
-        //Segun la logica de negocio no se deberían eliminar las notificaciones.
+        //Según la logica de negocio no se deberían eliminar las notificaciones.
         $notificacion->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
@@ -115,6 +119,11 @@ class NotificacionController extends Controller
         $notificacion->save();
         $modelo = $notificacion;
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
+    }
+    public function marcarLeidasTodas(Empleado $empleado){
+        Notificacion::where('per_destinatario_id', $empleado->id)->where('leida', false)->update(['leida' => true]);
+        $mensaje = 'Notificaciones actualizadas correctamente';
+        return response()->json(compact('mensaje'));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Cliente;
 use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
@@ -30,7 +31,7 @@ class DevolucionRequest extends FormRequest
      */
     public function rules()
     {
-        $rules =  [
+        return [
             'justificacion' => 'required|string',
             'solicitante' => 'required|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
@@ -45,9 +46,8 @@ class DevolucionRequest extends FormRequest
             'sucursal' => 'required|numeric|exists:sucursales,id',
             'pedido_automatico' => 'boolean',
             'cliente' => 'nullable|sometimes|exists:clientes,id',
+            'incidente_id' => 'nullable|numeric|integer|exists:sso_incidentes,id',
         ];
-
-        return $rules;
     }
     public function attributes()
     {
@@ -69,6 +69,7 @@ class DevolucionRequest extends FormRequest
                 foreach ($this->listadoProductos as $listado) {
                     $material = MaterialEmpleadoTarea::where('tarea_id', $this->tarea)
                         ->where('empleado_id', auth()->user()->empleado->id)
+                        ->where('cantidad_stock','>',0)
                         ->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {
@@ -78,11 +79,15 @@ class DevolucionRequest extends FormRequest
                 }
             } else {
                 foreach ($this->listadoProductos as $listado) {
+                    // $cliente = Cliente::whereHas('empresa', function($query) use($listado){
+                    //     $query->where('razon_social', $listado['cliente']);
+                    // })->first();
                     $material = MaterialEmpleado::where('empleado_id', $this->solicitante)
                         ->where(function ($query) {
                             $query->where('cliente_id', $this->cliente)
                                 ->orWhere('cliente_id', null);
-                        })->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
+                        })->where('cantidad_stock','>',0)
+                        ->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {
                             $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock. En stock ' . $material->cantidad_stock);
@@ -95,7 +100,8 @@ class DevolucionRequest extends FormRequest
     protected function prepareForValidation() //esto se ejecuta antes de validar las rules
     {
         $this->merge([
-            'estado_bodega' => EstadoTransaccion::PENDIENTE
+            'estado_bodega' => EstadoTransaccion::PENDIENTE,
+            'incidente_id' => $this->incidente,
         ]);
 
         if (is_null($this->per_autoriza) || $this->per_autoriza === '') {

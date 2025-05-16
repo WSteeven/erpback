@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
+use App\Http\Requests\DetalleProductoRequest;
+use App\Models\Bodega\PermisoArma;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -14,7 +20,113 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
+use OwenIt\Auditing\Models\Audit;
+use Request;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
+use Throwable;
 
+/**
+ * App\Models\DetalleProducto
+ *
+ * @property int $id
+ * @property int $producto_id
+ * @property string $descripcion
+ * @property int|null $marca_id
+ * @property int|null $modelo_id
+ * @property string|null $serial
+ * @property float $precio_compra
+ * @property string|null $color
+ * @property string|null $talla
+ * @property string|null $tipo
+ * @property string|null $url_imagen
+ * @property bool $activo
+ * @property bool $es_fibra
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $fecha_caducidad
+ * @property string|null $fotografia
+ * @property string|null $fotografia_detallada
+ * @property string|null $lote
+ * @property string|null $calibre
+ * @property string|null $peso
+ * @property string|null $dimensiones
+ * @property string|null $permiso
+ * @property string|null $caducidad
+ * @property int|null $permiso_id
+ * @property bool $esActivo
+ * @property-read ActivoFijo|null $activo_fijo
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Collection<int, Cliente> $clientes
+ * @property-read int|null $clientes_count
+ * @property-read CodigoCliente|null $codigo
+ * @property-read ComputadoraTelefono|null $computadora
+ * @property-read Collection<int, ControlStock> $control_stocks
+ * @property-read int|null $control_stocks_count
+ * @property-read Collection<int, Devolucion> $detalleProductoDevolucion
+ * @property-read int|null $detalle_producto_devolucion_count
+ * @property-read Collection<int, OrdenCompra> $detalleProductoOrdenCompra
+ * @property-read int|null $detalle_producto_orden_compra_count
+ * @property-read Collection<int, Pedido> $detalleProductoPedido
+ * @property-read int|null $detalle_producto_pedido_count
+ * @property-read Collection<int, PreordenCompra> $detalleProductoPreordenCompra
+ * @property-read int|null $detalle_producto_preorden_compra_count
+ * @property-read Collection<int, TransaccionBodega> $detalleProductoTransaccion
+ * @property-read int|null $detalle_producto_transaccion_count
+ * @property-read Collection<int, DetalleProductoTransaccion> $detallesTransaccion
+ * @property-read int|null $detalles_transaccion_count
+ * @property-read Fibra|null $fibra
+ * @property-read Collection<int, ImagenProducto> $imagenes
+ * @property-read int|null $imagenes_count
+ * @property-read Collection<int, Inventario> $inventarios
+ * @property-read int|null $inventarios_count
+ * @property-read Collection<int, ItemDetallePreingresoMaterial> $itemsPreingresos
+ * @property-read int|null $items_preingresos_count
+ * @property-read Marca|null $marca
+ * @property-read Modelo|null $modelo
+ * @property-read PermisoArma|null $permisoArma
+ * @property-read Producto $producto
+ * @method static Builder|DetalleProducto acceptRequest(?array $request = null)
+ * @method static Builder|DetalleProducto filter(?array $request = null)
+ * @method static Builder|DetalleProducto ignoreRequest(?array $request = null)
+ * @method static Builder|DetalleProducto newModelQuery()
+ * @method static Builder|DetalleProducto newQuery()
+ * @method static Builder|DetalleProducto query()
+ * @method static Builder|DetalleProducto setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|DetalleProducto setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|DetalleProducto setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|DetalleProducto whereActivo($value)
+ * @method static Builder|DetalleProducto whereCaducidad($value)
+ * @method static Builder|DetalleProducto whereCalibre($value)
+ * @method static Builder|DetalleProducto whereColor($value)
+ * @method static Builder|DetalleProducto whereCreatedAt($value)
+ * @method static Builder|DetalleProducto whereDescripcion($value)
+ * @method static Builder|DetalleProducto whereDimensiones($value)
+ * @method static Builder|DetalleProducto whereEsActivo($value)
+ * @method static Builder|DetalleProducto whereEsFibra($value)
+ * @method static Builder|DetalleProducto whereFechaCaducidad($value)
+ * @method static Builder|DetalleProducto whereFotografia($value)
+ * @method static Builder|DetalleProducto whereFotografiaDetallada($value)
+ * @method static Builder|DetalleProducto whereId($value)
+ * @method static Builder|DetalleProducto whereLote($value)
+ * @method static Builder|DetalleProducto whereMarcaId($value)
+ * @method static Builder|DetalleProducto whereModeloId($value)
+ * @method static Builder|DetalleProducto wherePermiso($value)
+ * @method static Builder|DetalleProducto wherePermisoId($value)
+ * @method static Builder|DetalleProducto wherePeso($value)
+ * @method static Builder|DetalleProducto wherePrecioCompra($value)
+ * @method static Builder|DetalleProducto whereProductoId($value)
+ * @method static Builder|DetalleProducto whereSerial($value)
+ * @method static Builder|DetalleProducto whereTalla($value)
+ * @method static Builder|DetalleProducto whereTipo($value)
+ * @method static Builder|DetalleProducto whereIn($value)
+ * @method static Builder|DetalleProducto whereUpdatedAt($value)
+ * @method static Builder|DetalleProducto whereUrlImagen($value)
+ * @property string|null $codigo_activo_fijo
+ * @method static Builder|DetalleProducto whereCodigoActivoFijo($value)
+ * @mixin Eloquent
+ */
 class DetalleProducto extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, Searchable;
@@ -29,7 +141,6 @@ class DetalleProducto extends Model implements Auditable
     const HOMBRE = 'HOMBRE';
     const MUJER = 'MUJER';
 
-
     /**
      * The attributes that are mass assignable.
      *
@@ -41,16 +152,31 @@ class DetalleProducto extends Model implements Auditable
         'marca_id',
         'modelo_id',
         'serial',
+        'lote',
         'precio_compra',
         'color',
         'talla',
+        'calibre',
+        'peso',
+        'dimensiones',
+        'permiso',
+        'permiso_id',
+        'caducidad',
         'tipo',
         'url_imagen',
-
+        'es_fibra',
+        'esActivo',
+        'fecha_caducidad',
+        'fotografia',
+        'fotografia_detallada',
+        'codigo_activo_fijo',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'es_fibra' => 'boolean',
+        'esActivo' => 'boolean',
+        'activo' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -60,6 +186,7 @@ class DetalleProducto extends Model implements Auditable
     {
         return [
             'descripcion' => $this->descripcion,
+            'producto' => $this->producto->nombre,
             'serial' => $this->serial,
             'color' => $this->color,
             'talla' => $this->talla,
@@ -87,7 +214,17 @@ class DetalleProducto extends Model implements Auditable
      */
     public function inventarios()
     {
-        return $this->hasMany(Inventario::class);
+        return $this->hasMany(Inventario::class, 'detalle_id');
+    }
+
+    public function permisoArma()
+    {
+        return $this->hasOne(PermisoArma::class, 'id', 'permiso_id');
+    }
+
+    public function itemsPreingresos()
+    {
+        return $this->hasMany(ItemDetallePreingresoMaterial::class, 'detalle_id');
     }
 
     /**
@@ -253,19 +390,23 @@ class DetalleProducto extends Model implements Auditable
      * asocia con un registro `Computadora` o `Fibra` según el valor del campo `categoría` en la
      * solicitud.
      *
-     * @param request El parámetro  es un objeto que contiene los datos de la solicitud HTTP,
+     * @param Request|DetalleProductoRequest $request El parámetro  es un objeto que contiene los datos de la solicitud HTTP,
      * como el método de solicitud, los encabezados y el cuerpo.
-     * @param datos El parámetro "datos" es un arreglo que contiene los datos necesarios para crear un
+     * @param array|Collection $datos El parámetro "datos" es un arreglo que contiene los datos necesarios para crear un
      * nuevo registro "DetalleProducto". Las claves específicas y sus valores correspondientes en el
      * arreglo dependen de los requerimientos del modelo "DetalleProducto".
      *
-     * @return la variable .
+     * @return DetalleProducto detalle recien creado .
+     * @throws Exception|Throwable
      */
-    public static function crearDetalle($request, $datos)
+    public static function crearDetalle($request, array|Collection $datos) // Se quitó Request|DetalleProductoRequest porque no dejaba guardar desde la llamada en PreingresoMaterialService linea 131
     {
         Log::channel('testing')->info('Log', ['Lo que se recibe para crear:', $request, $datos]);
         try {
             DB::beginTransaction();
+
+            if (isset($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            if (isset($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
 
             $detalle = DetalleProducto::create($datos);
             if ($request->categoria === 'INFORMATICA') {
@@ -292,7 +433,7 @@ class DetalleProducto extends Model implements Auditable
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            throw new Exception($e->getMessage());
+            throw $e;
         }
         return $detalle;
     }
@@ -300,18 +441,18 @@ class DetalleProducto extends Model implements Auditable
     /**
      * La función `obtenerDetalle` en PHP recupera detalles del producto en función de los parámetros
      * proporcionados, como el producto_id, la descripción y el número de serie.
-     * 
-     * @param producto_id El ID del producto que desea buscar. Si se proporciona, la búsqueda se
+     *
+     * @param ?int $producto_id El ID del producto que desea buscar. Si se proporciona, la búsqueda se
      * limitará a este producto específico.
-     * @param descripcion El parámetro "descripcion" es una cadena que representa la descripción del
+     * @param string $descripcion El parámetro "descripcion" es una cadena que representa la descripción del
      * detalle de producto. Se utiliza para buscar un producto con una descripción coincidente o similar.
-     * @param serial El parámetro "serie" se utiliza para buscar un producto específico por su número
+     * @param string|null $serial El parámetro "serie" se utiliza para buscar un producto específico por su número
      * de serie. Si se proporciona un número de serie, la función buscará un producto con un número de
      * serie y una descripción coincidentes.
-     * 
+     *
      * @return DetalleProducto el resultado de la consulta a la base de datos.
      */
-    public static function obtenerDetalle($producto_id = null, $descripcion, $serial = null)
+    public static function obtenerDetalle(string $descripcion, string|null $serial = null, int|null $producto_id = null)
     {
         if (!is_null($producto_id)) { // si hay producto_id realiza busqueda teniendo en cuenta la varible producto_id
             if (is_null($serial)) { // si no hay serial

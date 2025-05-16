@@ -12,6 +12,43 @@ use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * App\Models\Ventas\Vendedor
+ *
+ * @property int $empleado_id
+ * @property int $modalidad_id
+ * @property string|null $tipo_vendedor
+ * @property int|null $jefe_inmediato_id
+ * @property bool $activo
+ * @property string|null $causa_desactivacion
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $empleado
+ * @property-read Empleado|null $jefe_inmediato
+ * @property-read \App\Models\Ventas\Modalidad|null $modalidad
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ventas\Venta> $ventas
+ * @property-read int|null $ventas_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereActivo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereCausaDesactivacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereJefeInmediatoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereModalidadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereTipoVendedor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Vendedor extends Model implements Auditable
 {
     use HasFactory;
@@ -76,11 +113,11 @@ class Vendedor extends Model implements Auditable
     /**
      * La función "verificarVentasMensuales" verifica si un vendedor ha alcanzado el umbral mínimo de
      * ventas para un mes hasta una fecha determinada.
-     * 
+     *
      * @param Vendedor $vendedor Una instancia de la clase Vendedor, que representa a un vendedor.
      * @param string $fecha El parámetro "fecha" es una fecha que representa la fecha maxima del mes del cual queremos verificar
      * las ventas mensuales.
-     * 
+     *
      * @return bool Devuelve verdadero si el recuento de ventas en el mes determinado es
      * mayor que el umbral mínimo definido en la modalidad del vendedor, y falso en caso contrario.
      */
@@ -105,13 +142,13 @@ class Vendedor extends Model implements Auditable
     /**
      * La función calcula el número de ventas mensuales de un vendedor específico en función de una
      * fecha determinada.
-     * 
+     *
      * @param Carbon $fecha El parámetro "fecha" es una instancia de la clase Carbon, que representa una
      * fecha y hora. Se utiliza para especificar el mes y año para el cual se deben calcular las
      * ventas.
      * @param int $vendedor_id El parámetro `vendedor_id` representa el ID del vendedor o proveedor para
      * quien desea calcular la cantidad de ventas mensuales.
-     * 
+     *
      * @return La función `calcularCantidadVentasMensuales` devuelve una colección de ventas
      * (`) que cumplen con los criterios especificados. Las ventas se filtran según el año y
      * mes de la fecha de activación, el vendedor_id (id del vendedor) y el estado_activacion (estado

@@ -21,10 +21,10 @@
                 <th rowspan="3" colspan="1" style="vertical-align: middle; text-align: center; width: 200px;">
                     <img src="img/logo_nedetel.png" height="70px" style="margin: 0 auto;" />
                 </th>
-                <th rowspan="3" colspan="2"
-                    style="vertical-align: middle; text-align: center; font-size: 14pt; font-weight: bold; color: #2f5597;">
+                <th rowspan="3" colspan="2" style="vertical-align: middle; text-align: center; font-size: 14pt; font-weight: bold; color: #2f5597;">
                     {{'REPORTE DE ASISTENCIA TÉCNICA OPERATIVA'}} <br>
-                    {{'NEDETEL/UFINET - OUTSOURCING'}}</th>
+                    {{'NEDETEL/UFINET - OUTSOURCING'}}
+                </th>
                 <th></th>
                 <th></th>
             </tr>
@@ -33,8 +33,6 @@
         <tbody style="border: 2px solid #000; background: #fff;">
             <tr></tr>
             <tr></tr>
-            {{-- <tr></tr> --}}
-            {{-- <tr></tr> --}}
 
             <tr>
                 <td style="width: 80px;"></td>
@@ -187,7 +185,7 @@
                 <td style="font-weight: bold;">HORA DE REPORTE DEL PROBLEMA:</td>
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    \Carbon\Carbon::parse($subtarea->tarea->fecha_solicitud)->format('d/m/Y');
+                    \Carbon\Carbon::parse($subtarea->tarea->fecha_solicitud)->format('d/m/Y')
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;"></td>
                 <td></td>
@@ -199,11 +197,11 @@
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
                     $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('d/m/Y') :
-                    '';
+                    ''
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;">{{
                     $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('H:i') :
-                    '';
+                    ''
                     }}</td>
                 <td></td>
             </tr>
@@ -213,10 +211,10 @@
                 <td style="font-weight: bold;">HORA DE FIN DE REPARACIÓN:</td>
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('d/m/Y');
+                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('d/m/Y')
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('H:i');
+                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('H:i')
                     }}</td>
                 <td></td>
             </tr>
@@ -227,11 +225,11 @@
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
                     $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('d/m/Y') :
-                    '';
+                    ''
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;">{{
                     $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('H:i') :
-                    '';
+                    ''
                     }}</td>
                 <td></td>
             </tr>
@@ -291,7 +289,7 @@
                         @foreach ($subtarea->trabajosRealizados as $trabajo)
                         <tr>
                             <td style="border: 1px solid #000; text-align: center;">{{
-                                \Carbon\Carbon::parse($trabajo->fecha_hora)->format('H:i'); }}</td>
+                                \Carbon\Carbon::parse($trabajo->fecha_hora)->format('H:i') }}</td>
                             <td colspan="3" style="border: 1px solid #000;">{{ $trabajo->trabajo_realizado }}</td>
                         </tr>
                         @endforeach
@@ -326,54 +324,7 @@
 
             <tr></tr>
 
-            {{-- <tr>
-                <td></td>
-                <td colspan="2"
-                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #fff2cc;">{{
-                    'RESUMEN
-                    ACCIONES REALIZADAS REDES
-                    BACK BONE' }}</td>
-                <td colspan="2"
-                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #d0cece;">{{
-                    'RESUMEN
-                    ACCIONES REALIZADAS FTTH' }}
-                </td>
-                <td></td>
-            </tr>
 
-            <tr>
-                <td></td>
-                <td
-                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
-                    {{ 'Cantidad' }}</td>
-                <td
-                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
-                    {{ 'Descripcion' }}</td>
-                <td
-                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
-                    {{ 'Detalle' }}</td>
-                <td
-                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
-                    {{ 'Cantidad' }}</td>
-                <td></td>
-            </tr>
-
-            @foreach($resumenAccionesRedesBackBone as $fila)
-            <tr>
-                <td></td>
-                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;"></td>
-                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;">{{
-                    $fila['descripcion'] }}</td>
-                <td
-                    style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: pre-wrap; word-wrap: break-word; background: {{ $fila['background'] }};">
-                    {{
-                    $fila['detalle'] }}</td>
-                <td
-                    style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: normal; background: {{ $fila['background'] }};">
-                </td>
-                <td></td>
-            </tr>
-            @endforeach --}}
 
             <tr>
                 <td></td>

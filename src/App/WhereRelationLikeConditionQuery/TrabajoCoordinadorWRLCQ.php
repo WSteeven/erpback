@@ -20,14 +20,9 @@ class TrabajoCoordinadorWRLCQ extends BaseClause
     public function apply($query): Builder
     {
         $valor = $this->values['like'];
-        $ids = Empleado::where('nombres', 'like', $valor)->orWhere('apellidos', 'like', $valor)->pluck('id');
-        //Log::channel('testing')->info('Log', ['Valor', $valor]);
-        //Log::channel('testing')->info('Log', ['IDs', $ids]);
+        $ids = Empleado::where('nombres', 'like', '%' . $valor . '%')->orWhere('apellidos', 'like', '%' . $valor . '%')->pluck('id');
+        
 
         return $query->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')->select('subtareas.*')->whereIn('tareas.coordinador_id', $ids);
-
-        /* return $query->tarea()->whereHas('coordinador', function ($q) {
-            $q->where('nombres', 'like', "%" . $this->values['like'] . "%")->orWhere('apellidos', 'like', "%" . $this->values['like'] . "%");
-        }); */
     }
 }

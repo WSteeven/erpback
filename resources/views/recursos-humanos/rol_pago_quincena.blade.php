@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
     @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    // $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    // $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $logo_principal = Utils::urlToBase64(url($configuracion['logo_claro']));
+    $logo_watermark = Utils::urlToBase64(url($configuracion['logo_marca_agua']));
 @endphp
 <head>
     <meta charset="UTF-8">
@@ -170,7 +173,7 @@
                 <th align="center"></th>
                 <th align="center">
                     __________________________________________<br />
-                    <b>ING. JEAN PATRICIO PAZMIÑO BARROS</b>
+                    <b>{{ $aprueba_rol_pago->nombres . ' ' . $aprueba_rol_pago->apellidos }}</b>
                     <br>
                     <b>APROBADO </b>
                 </th>

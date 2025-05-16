@@ -12,7 +12,6 @@ use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Gasto\EstadoGasto;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +24,7 @@ use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Canton;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
@@ -83,21 +83,7 @@ class SaldoGrupoController extends Controller
         $modelo = new SaldoGrupoResource($SaldoGrupo);
         return response()->json(compact('modelo'), 200);
     }
-    /**
-     * It takes the date of the current day, and then it calculates the start and end date of the week.
-     * </code>
-     *
-     * @param Request request ->fecha
-     *
-     * @return <code>{
-     *     "mensaje": "Registro creado correctamente",
-     *     "modelo": {
-     *         "id": 1,
-     *         "id_usuario": 1,
-     *         "saldo_anterior": 0,
-     *         "saldo_actual": 0,
-     *         "fecha": "2019-
-     */
+
     public function store(Request $request)
     {
         $array_dias['Sunday'] = 0;
@@ -167,13 +153,13 @@ class SaldoGrupoController extends Controller
      *
      * @return a file, but the file is not being downloaded.
      */
-    public function saldo_actual(Request $request, $tipo)
+    public function saldoActual(Request $request, $tipo)
     {
         try {
             $usuario = Auth::user();
             $usuario_ac = User::where('id', $usuario->id)->first();
             $id = $request->usuario != null ?  $request->usuario : 0;
-            if ($usuario_ac->hasRole('CONTABILIDAD')) {
+            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
                 $saldos_actual_user = $request->usuario == null ?
                     SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
                         $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
@@ -194,7 +180,7 @@ class SaldoGrupoController extends Controller
             $reportes =  ['saldos' => $results];
             $vista = 'exports.reportes.reporte_saldo_actual';
             $export_excel = new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -216,13 +202,13 @@ class SaldoGrupoController extends Controller
                     return $this->gasto($request, $tipo);
                     break;
                 case '3':
-                    return $this->reporte_consolidado($request, $tipo);
+                    return $this->reporteConsolidado($request, $tipo);
                     break;
                 case '4':
-                    return $this->reporte_estado_cuenta($request, $tipo);
+                    return $this->reporteEstadoCuenta($request, $tipo);
                     break;
                 case '5':
-                    return $this->reporte_transferencia($request, $tipo);
+                    return $this->reporteTransferencia($request, $tipo);
                     break;
                 case '6':
                     return $this->gasto($request, $tipo, true);
@@ -246,13 +232,13 @@ class SaldoGrupoController extends Controller
                     return $this->acreditacion($request, $tipo);
                     break;
                 case '2':
-                    return $this->gasto_filtrado($request, $tipo);
+                    return $this->gastoFiltrado($request, $tipo);
                     break;
                 case '3':
-                    return $this->reporte_consolidado($request, $tipo);
+                    return $this->reporteConsolidado($request, $tipo);
                     break;
                 case '4':
-                    return $this->reporte_estado_cuenta($request, $tipo);
+                    return $this->reporteEstadoCuenta($request, $tipo);
                     break;
             }
         } catch (Exception $e) {
@@ -265,7 +251,7 @@ class SaldoGrupoController extends Controller
      * @param Request request The request object.
      * @param tipo The type of report you want to generate, in this case it is pdf.
      */
-    private function gasto_filtrado(Request $request, $tipo)
+    private function gastoFiltrado(Request $request, $tipo)
     {
         try {
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
@@ -381,7 +367,7 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -424,7 +410,7 @@ class SaldoGrupoController extends Controller
             $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario, 'total' => $sumaMontos];
             $vista = 'exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario';
             $export_excel = new AcreditacionesExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error acreditacion', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -524,12 +510,12 @@ class SaldoGrupoController extends Controller
             $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
             $export_excel = new GastoConsolidadoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
-            return $this->reporteService->imprimir_reporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-    private function reporte_estado_cuenta(Request $request, $tipo)
+    private function reporteEstadoCuenta(Request $request, $tipo)
     {
         try {
             $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
@@ -586,6 +572,7 @@ class SaldoGrupoController extends Controller
                         ->orWhere('estado', '=', 4);
                 })
                 ->get();
+                $gastos_reporte = SaldoGrupo::verificarGastosRepetidosEnSaldoGrupo($gastos_reporte);
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
@@ -603,12 +590,12 @@ class SaldoGrupoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $encuadres_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
-                ->where('tipo_saldo', 'Encuadre')
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                $ajuste_saldo = AjusteSaldoFondoRotativo::where('destinatario_id', $request->usuario)
+                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
                 ->get();
+
             //Unir todos los reportes
-            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
+            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $ajuste_saldo->toArray());
             $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
@@ -659,7 +646,7 @@ class SaldoGrupoController extends Controller
 
             $vista = 'exports.reportes.reporte_consolidado.reporte_movimiento_saldo';
             $export_excel = new EstadoCuentaExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -680,7 +667,7 @@ class SaldoGrupoController extends Controller
      * @return the result of the method call `->reporteService->imprimir_reporte(, 'A4',
      * 'portail', , , , )`.
      */
-    private  function reporte_consolidado($request, $tipo)
+    private  function reporteConsolidado($request, $tipo)
     {
         try {
             $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
@@ -731,6 +718,23 @@ class SaldoGrupoController extends Controller
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
+                $ajuste_saldo_ingreso = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::INGRESO)->sum('monto');
+            $ajuste_saldo_egreso = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::EGRESO)
+                ->sum('monto');
+                $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::INGRESO)
+                ->get();
+            $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_ingreso_reporte);
+            $ajuste_saldo_egreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::EGRESO)
+                ->get();
+            $ajuste_saldo_egreso_reporte =AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_egreso_reporte);
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
@@ -738,9 +742,8 @@ class SaldoGrupoController extends Controller
             $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
-            $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos;
+            $total = ($saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos)+$ajuste_saldo_ingreso- $ajuste_saldo_egreso;
             $empleado = Empleado::where('id', $request->usuario)->first();
-            $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
             // Log::channel('testing')->info('log',[['gasto',$gastos_reporte]]);
             $reportes =  [
@@ -748,7 +751,6 @@ class SaldoGrupoController extends Controller
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
                 'empleado' => $empleado,
-                'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
                 'acreditaciones' => $acreditaciones,
                 'gastos' => $gastos,
@@ -757,18 +759,22 @@ class SaldoGrupoController extends Controller
                 'transferencia_recibida' => $transferencia_recibida,
                 'transferencias_enviadas' => $transferencias_enviadas,
                 'transferencias_recibidas' => $transferencias_recibidas,
+                'ajuste_saldo_ingreso' => $ajuste_saldo_ingreso,
+                'ajuste_saldo_ingreso_reporte' => $ajuste_saldo_ingreso_reporte,
+                'ajuste_saldo_egreso' =>  $ajuste_saldo_egreso,
+                'ajuste_saldo_egreso_reporte' => $ajuste_saldo_egreso_reporte,
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
                 'total_suma' => $total
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
             $export_excel = new ConsolidadoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-    private  function reporte_transferencia($request, $tipo)
+    private  function reporteTransferencia($request, $tipo)
     {
         try {
             $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
@@ -834,7 +840,7 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_transferencia_saldo';
             $export_excel = new TranferenciaSaldoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

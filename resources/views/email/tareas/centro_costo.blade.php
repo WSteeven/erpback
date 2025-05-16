@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 @php
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    use Src\Shared\Utils;
+    // $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_principal = Utils::urlToBase64(url($configuracion['logo_claro']));
 @endphp
 
 <head>
@@ -11,7 +13,6 @@
 </head>
 
 <body>
-    <h1>Por favor no prestar atención a este correo</h1>
     <h2>JPCONSTRUCTRED C. Ltda.</h2>
     <img src="{{ $logo_principal }}" alt="logo" width="100" height="100" />
     <h2> Estimado contador, {{ Auth::user()->empleado->nombres }} {{ Auth::user()->empleado->apellidos }} ha creado una

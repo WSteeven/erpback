@@ -5,6 +5,9 @@ namespace App\Http\Requests\ComprasProveedores;
 use App\Models\Proveedor;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @method files()
+ */
 class ProveedorRequest extends FormRequest
 {
     /**
@@ -25,9 +28,9 @@ class ProveedorRequest extends FormRequest
     public function rules()
     {
         return [
-            'empresa' => 'required|exists:empresas,id',
+            'empresa_id' => 'required|exists:empresas,id',
             'sucursal' => 'required|string',
-            'parroquia' => 'required|exists:parroquias,id',
+            'parroquia_id' => 'required|exists:parroquias,id',
             'direccion' => 'required|string',
             'celular' => 'nullable|string',
             'telefono' => 'nullable|string',
@@ -61,6 +64,11 @@ class ProveedorRequest extends FormRequest
     }
     public function prepareForValidation()
     {
+        $this->merge([
+           'empresa_id'=> $this->empresa,
+           'parroquia_id'=> $this->parroquia,
+
+        ]);
         if (is_null($this->celular)) {
             $this->merge(['celular' => '0999999999']);
         }

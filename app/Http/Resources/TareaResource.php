@@ -42,6 +42,7 @@ class TareaResource extends JsonResource
             'etapa' => $this->etapa?->nombre,
             'proyecto' => $this->proyecto?->nombre,
             'centro_costo' => $this->centroCosto?->nombre,
+            'fecha_hora_finalizacion' => $this['fecha_hora_finalizacion'],
         ];
 
         if ($controller_method == 'show') {

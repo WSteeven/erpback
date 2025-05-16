@@ -7,10 +7,65 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\MaterialEmpleadoTarea
+ *
+ * @property int $id
+ * @property int $cantidad_stock
+ * @property int $es_fibra
+ * @property int $tarea_id
+ * @property int $empleado_id
+ * @property int $detalle_producto_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $despachado
+ * @property int $devuelto
+ * @property int|null $cliente_id
+ * @property int|null $proyecto_id
+ * @property int|null $etapa_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\DetalleProducto|null $detalle
+ * @property-read \App\Models\Tarea|null $tarea
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea deEtapa($proyecto_id, $etapa_id)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea deProyecto($proyecto_id)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea deTarea($tarea_id)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea devolverFiltroTareaEtapaProyecto()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea materiales()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea query()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea responsable()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea soloEtapas()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea soloProyectos()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea soloTareas()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea tieneStock()
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereCantidadStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereDespachado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereDetalleProductoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereDevuelto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereEsFibra($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereEtapaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereProyectoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class MaterialEmpleadoTarea extends Model implements Auditable
 {
     use HasFactory, Filterable, AuditableModel;
@@ -32,6 +87,10 @@ class MaterialEmpleadoTarea extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
+    public function detalle()
+    {
+        return $this->belongsTo(DetalleProducto::class,  'detalle_producto_id', 'id');
+    }
     public function scopeResponsable($query)
     {
         return $query->where('empleado_id', Auth::user()->empleado->id);
@@ -103,7 +162,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
     }
 
     // Suma los productos del stock
-    public static function cargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id, int|null $proyecto_id, int|null $etapa_id)
+    public static function cargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int|null $cliente_id, int|null $proyecto_id, int|null $etapa_id)
     {
         try {
             $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
@@ -180,7 +239,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
      * el material para el empleado.
      * @param int cantidad El parámetro cantidad representa la cantidad de material que se necesita
      * cargar para el empleado y tarea debido a una baja o devolución.
-     * @param int cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
+     * @param int|null cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
      * cargando el material.
      * @param int proyecto_id El parámetro "proyecto_id" es un número entero opcional que representa el
      * ID de un proyecto. Se utiliza para filtrar el material por proyecto si se proporciona. Si no se
@@ -189,7 +248,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
      * Se utiliza en la función para filtrar el material asignado a un empleado según la etapa
      * específica del proyecto.
      */
-    public static function cargarMaterialEmpleadoTareaPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id, int|null $proyecto_id, int|null $etapa_id)
+    public static function cargarMaterialEmpleadoTareaPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int|null $cliente_id, int|null $proyecto_id, int|null $etapa_id)
     {
         try {
             $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
@@ -210,6 +269,21 @@ class MaterialEmpleadoTarea extends Model implements Auditable
                 $material->save();
             } else throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado para descontar lo devuelto');
         } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public static function actualizarMaterialesEmpleadoTarea($registroAntiguo, $registro, $empleado)
+    {
+        try {
+            DB::beginTransaction();
+            //descontamos al registro antiguo
+            self::descargarMaterialEmpleadoTarea($registro['detalle_producto_id'], $empleado, $registroAntiguo['tarea_id'], $registro['stock_actual'], $registroAntiguo['cliente_id']);
+            //asignamos al nuevo registro
+            self::cargarMaterialEmpleadoTarea($registro['detalle_producto_id'], $empleado, $registroAntiguo['tarea_id'], $registro['stock_actual'], $registro['cliente'], null, null);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }

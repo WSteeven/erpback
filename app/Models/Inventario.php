@@ -12,6 +12,59 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\Inventario
+ *
+ * @method static whereIn(string $string, $ids_detalles)
+ * @property int $id
+ * @property int $detalle_id
+ * @property int $sucursal_id
+ * @property int $cliente_id
+ * @property int $por_recibir
+ * @property int $cantidad
+ * @property int $por_entregar
+ * @property int $condicion_id
+ * @property string $estado
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \App\Models\Condicion|null $condicion
+ * @property-read \App\Models\DetalleProducto|null $detalle
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Transferencia> $detalleInventarioTransferencia
+ * @property-read int|null $detalle_inventario_transferencia_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Traspaso> $detalleInventarioTraspaso
+ * @property-read int|null $detalle_inventario_traspaso_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $detalleProductoTransaccion
+ * @property-read int|null $detalle_producto_transaccion_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MovimientoProducto> $movimientos
+ * @property-read int|null $movimientos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductoEnPercha> $productoPercha
+ * @property-read int|null $producto_percha_count
+ * @property-read \App\Models\Sucursal|null $sucursal
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereCantidad($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereCondicionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereDetalleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario wherePorEntregar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario wherePorRecibir($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereSucursalId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Inventario extends Model implements Auditable
 {
     use HasFactory;
@@ -43,7 +96,7 @@ class Inventario extends Model implements Auditable
     /**
      * Eloquent Filtering
      */
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     // private $aliasListFilter = [
     //     'cliente.empresa.razon_social'=>'cliente',
@@ -101,6 +154,7 @@ class Inventario extends Model implements Auditable
     {
         return $this->hasMany(MovimientoProducto::class);
     }
+
     /**
      * Relacion uno a muchos (inversa)
      * Muchos inventarios tienen un mismo detalle
@@ -147,13 +201,13 @@ class Inventario extends Model implements Auditable
      * Relación muchos a muchos.
      * Uno o varios items del inventario estan en un prestamo temporal
      */
-    public function detallesPrestamoInventario()
-    {
-        return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
-            ->withPivot('cantidad')
-            ->withTimestamps()
-            ->using(InventarioPrestamoTemporal::class);
-    }
+    // public function detallesPrestamoInventario()
+    // {
+    //     return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
+    //         ->withPivot('cantidad')
+    //         ->withTimestamps()
+    //         ->using(InventarioPrestamoTemporal::class);
+    // }
 
     /**
      * ______________________________________________________________________________________

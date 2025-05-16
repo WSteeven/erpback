@@ -25,6 +25,14 @@ class TipoTicketController extends Controller
     /*********
      * Listar
      *********/
+    /**
+     * @OA\Get(
+     *     path="/api/tickets/tipos-tickets",
+     *     summary="Devuelve un listado de tipos de tickets",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(response=200, description="Listado devuelto exitosamente.")
+     * )
+     */
     public function index()
     {
         $results = $this->listar();

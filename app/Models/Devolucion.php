@@ -3,18 +3,89 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
-
+use OwenIt\Auditing\Models\Audit;
+// hola
+/**
+ * App\Models\Devolucion
+ *
+ * @property int $id
+ * @property string $justificacion
+ * @property int $solicitante_id
+ * @property int|null $per_autoriza_id
+ * @property int|null $autorizacion_id
+ * @property string|null $observacion_aut
+ * @property int|null $tarea_id
+ * @property int|null $canton_id
+ * @property int|null $sucursal_id
+ * @property int|null $cliente_id
+ * @property bool $pedido_automatico
+ * @property bool $stock_personal
+ * @property string|null $causa_anulacion
+ * @property string $estado
+ * @property string $estado_bodega
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Empleado|null $autoriza
+ * @property-read Autorizacion|null $autorizacion
+ * @property-read Canton|null $canton
+ * @property-read Cliente|null $cliente
+ * @property-read Collection<int, DetalleProducto> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read Notificacion|null $latestNotificacion
+ * @property-read Collection<int, Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read Empleado|null $solicitante
+ * @property-read Sucursal|null $sucursal
+ * @property-read Tarea|null $tarea
+ * @method static Builder|Devolucion acceptRequest(?array $request = null)
+ * @method static Builder|Devolucion filter(?array $request = null)
+ * @method static Builder|Devolucion ignoreRequest(?array $request = null)
+ * @method static Builder|Devolucion newModelQuery()
+ * @method static Builder|Devolucion newQuery()
+ * @method static Builder|Devolucion query()
+ * @method static Builder|Devolucion setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Devolucion setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Devolucion setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Devolucion whereAutorizacionId($value)
+ * @method static Builder|Devolucion whereCantonId($value)
+ * @method static Builder|Devolucion whereCausaAnulacion($value)
+ * @method static Builder|Devolucion whereClienteId($value)
+ * @method static Builder|Devolucion whereCreatedAt($value)
+ * @method static Builder|Devolucion whereEstado($value)
+ * @method static Builder|Devolucion whereEstadoBodega($value)
+ * @method static Builder|Devolucion whereId($value)
+ * @method static Builder|Devolucion whereJustificacion($value)
+ * @method static Builder|Devolucion whereObservacionAut($value)
+ * @method static Builder|Devolucion wherePedidoAutomatico($value)
+ * @method static Builder|Devolucion wherePerAutorizaId($value)
+ * @method static Builder|Devolucion whereSolicitanteId($value)
+ * @method static Builder|Devolucion whereStockPersonal($value)
+ * @method static Builder|Devolucion whereSucursalId($value)
+ * @method static Builder|Devolucion whereTareaId($value)
+ * @method static Builder|Devolucion whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Devolucion extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use Searchable;
     use UppercaseValuesTrait;
 
     public $table = 'devoluciones';
@@ -33,6 +104,7 @@ class Devolucion extends Model implements Auditable
         'estado_bodega',
         'pedido_automatico',
         'cliente_id',
+        'incidente_id',
     ];
 
     protected $casts = [
@@ -45,8 +117,29 @@ class Devolucion extends Model implements Auditable
     const CREADA = 'CREADA';
     const ANULADA = 'ANULADA';
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
+    public function toSearchableArray()
+    {
+        return [
+            'id'=>$this->id,
+            'justificacion'=>$this->recortarTexto($this->justificacion),
+            'solicitante'=>Empleado::extraerNombresApellidos($this->solicitante),
+            'autorizador'=>Empleado::extraerNombresApellidos($this->autoriza),
+            'tarea'=>$this->tarea?->codigo_tarea,
+            'autorizacion'=>$this->autorizacion->nombre,
+            'sucursal'=>$this->sucursal?->lugar,
+            'estado'=>$this->estado,
+            'estado_bodega'=>$this->estado_bodega,
+        ];
+    }
+
+    private function recortarTexto(?string $texto, int $limite = 500):?string
+    {
+        if(is_null($texto)) return null;
+
+        return mb_substr($texto, 0, $limite);
+    }
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
@@ -71,6 +164,14 @@ class Devolucion extends Model implements Auditable
     public function tarea()
     {
         return $this->belongsTo(Tarea::class);
+    }
+    /**
+     * Relación uno a muchos(inversa).
+     * Una devolución pertenece a uno o ningun cliente
+     */
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 
     /**
@@ -218,6 +319,11 @@ class Devolucion extends Model implements Auditable
         // $cuentaAntes = $detalles->count();
         $cuentaDespues = $detalles->unique('condicion_id')->count();
 
-        return $cuentaDespues === 1; //true si son de la misma condicion
+        // Log::channel('testing')->info('Log', ['listado', $cuentaDespues]);
+        if ($cuentaDespues === 1) {
+            //Si son de la misma condicion devuelve true y la condicion
+            return [$cuentaDespues === 1, $detalles->first()->condicion_id];
+        } else
+            return [false, null]; //caso contrario devuelve false y null
     }
 }

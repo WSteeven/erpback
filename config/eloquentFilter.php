@@ -31,6 +31,10 @@ return [
     |
     */
 
-    'namespace' => 'App\\ModelFilters\\',
+    // 'namespace' => 'App\\ModelFilters\\',
+    'namespace' => [
+        'App\\ModelFilters\\' => base_path('app/ModelFilters/'),
+    ],
 
+    'max_limit' => 1000,
 ];

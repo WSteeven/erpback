@@ -1,16 +1,15 @@
 <html>
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $num_registro = 1;
+    use Src\Shared\Utils;
+        $fecha = new Datetime();
+        $num_registro = 1;
 @endphp
 
 <head>
     <style>
         body {
             font-family: sans-serif;
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -84,7 +83,9 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3">
+                        <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo">
+                    </div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE AUTORIZACIONES CON ESTADO
@@ -100,7 +101,8 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
+                    </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -129,6 +131,12 @@
             </td>
             <td width="8%" bgcolor="#a9d08e">
                 <div align="center"><strong>GRUPO</strong></div>
+            </td>
+            <td width="8%" bgcolor="#a9d08e">
+                <div align="center"><strong>FACTURA</strong></div>
+            </td>
+            <td width="8%" bgcolor="#a9d08e">
+                <div align="center"><strong>COMPROBANTE</strong></div>
             </td>
             <td width="8%" bgcolor="#a9d08e">
                 <div align="center"><strong>TAREA</strong></div>
@@ -164,6 +172,8 @@
                     {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
                 </td>
                 <td width="8%">{{ $dato['grupo'] }}</td>
+                <td width="8%">{{ $dato['factura'] }}</td>
+                <td width="8%">{{ $dato['num_comprobante'] }}</td>
                 <td width="8%">{{ $dato['tarea'] == null ? 'SIN TAREA' : $dato['tarea']->codigo_tarea }}</td>
                 <td width="8%">{{ $dato['detalle'] }}</td>
                 <td width="8%">

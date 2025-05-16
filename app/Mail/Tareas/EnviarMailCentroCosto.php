@@ -37,8 +37,8 @@ class EnviarMailCentroCosto extends Mailable
     public function envelope()
     {
         return new Envelope(
-            from: new Address(auth()->user()->email, auth()->user()->empleado->nombres.' ' .auth()->user()->empleado->apellidos),
-            subject: '[PRUEBA] Nuevo Centro de Costo creado',
+            from: new Address(auth()->user()->email, auth()->user()->empleado->nombres . ' ' . auth()->user()->empleado->apellidos),
+            subject: 'Nuevo Centro de Costo creado',
         );
     }
 

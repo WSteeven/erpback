@@ -12,11 +12,111 @@ use Illuminate\Support\Facades\Log;
 use Src\App\WhereRelationLikeCondition\TrabajoCantonWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoClienteWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
-use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraCreacionWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraEjecucionWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoProyectoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTareaWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
+/**
+ * App\Models\Trabajo
+ *
+ * @property int $id
+ * @property string $codigo_subtarea
+ * @property string $titulo
+ * @property string|null $descripcion_completa
+ * @property string|null $observacion
+ * @property string $estado
+ * @property string $modo_asignacion_trabajo
+ * @property string|null $fecha_hora_creacion
+ * @property string|null $fecha_hora_asignacion
+ * @property string|null $fecha_hora_agendado
+ * @property string|null $fecha_hora_ejecucion
+ * @property string|null $fecha_hora_realizado
+ * @property string|null $fecha_hora_finalizacion
+ * @property string|null $fecha_hora_suspendido
+ * @property string|null $fecha_hora_cancelado
+ * @property bool $es_dependiente
+ * @property bool $es_ventana
+ * @property string|null $fecha_inicio_trabajo
+ * @property string|null $hora_inicio_trabajo
+ * @property string|null $hora_fin_trabajo
+ * @property mixed|null $empleados_designados
+ * @property int|null $motivo_cancelado_id
+ * @property int|null $subtarea_dependiente_id
+ * @property int $tipo_trabajo_id
+ * @property int $tarea_id
+ * @property int|null $grupo_id
+ * @property int|null $empleado_id
+ * @property int|null $seguimiento_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $tiempo_estimado
+ * @property int|null $causa_intervencion_id
+ * @property int|null $metraje_tendido
+ * @property float $valor_alimentacion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ArchivoSubtarea> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \App\Models\ClienteFinal|null $clienteFinal
+ * @property-read \App\Models\Empleado|null $coordinador
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Empleado> $empleados
+ * @property-read int|null $empleados_count
+ * @property-read \App\Models\Empleado|null $fiscalizador
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Grupo> $grupos
+ * @property-read int|null $grupos_count
+ * @property-read \App\Models\Proyecto|null $proyecto
+ * @property-read \App\Models\Tarea|null $tarea
+ * @property-read \App\Models\TipoTrabajo|null $tipo_trabajo
+ * @property-read Trabajo|null $trabajoDependiente
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
+ * @property-read int|null $transacciones_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereCausaIntervencionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereCodigoSubtarea($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereDescripcionCompleta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereEmpleadoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereEmpleadosDesignados($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereEsDependiente($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereEsVentana($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereEstado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraAgendado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraAsignacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraCancelado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraCreacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraEjecucion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraFinalizacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraRealizado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaHoraSuspendido($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereFechaInicioTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereGrupoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereHoraFinTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereHoraInicioTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereMetrajeTendido($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereModoAsignacionTrabajo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereMotivoCanceladoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereSeguimientoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereSubtareaDependienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereTiempoEstimado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereTipoTrabajoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereTitulo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Trabajo whereValorAlimentacion($value)
+ * @mixin \Eloquent
+ */
 class Trabajo extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
@@ -77,7 +177,7 @@ class Trabajo extends Model implements Auditable
     /*******************
      * Eloquent Filter
      *******************/
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
         'cliente.empresa.razon_social',
         'proyecto.codigo_proyecto',
@@ -109,7 +209,7 @@ class Trabajo extends Model implements Auditable
             TrabajoClienteWRLC::class,
             TrabajoProyectoWRLC::class,
             TrabajoTipoTrabajoWRLC::class,
-            TrabajoFechaHoraCreacionWRLC::class,
+            TrabajoFechaHoraEjecucionWRLC::class,
             TrabajoCantonWRLC::class,
             TrabajoCoordinadorWRLC::class,
             TrabajoTareaWRLC::class,
@@ -171,10 +271,10 @@ class Trabajo extends Model implements Auditable
         return $this->hasMany(ArchivoSubtarea::class);
     }
 
-    public function pausasTrabajo()
-    {
-        return $this->hasMany(PausaTrabajo::class);
-    }
+//    public function pausasTrabajo()
+//    {
+//        return $this->hasMany(PausaTrabajo::class);
+//    }
 
     public function proyecto()
     {

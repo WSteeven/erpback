@@ -8,13 +8,10 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\DefaultValueBinder;
-use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Worksheet\ColumnDimension;
-use Throwable;
+use PhpOffice\PhpSpreadsheet\Exception;
 
 class CalificacionProveedorExcel extends DefaultValueBinder implements FromView, WithCustomValueBinder, ShouldAutoSize, WithColumnWidths
 {
@@ -27,6 +24,9 @@ class CalificacionProveedorExcel extends DefaultValueBinder implements FromView,
         $this->configuracion = ConfiguracionGeneral::first();
     }
 
+    /**
+     * @throws Exception
+     */
     public function bindValue(Cell $cell, $value)
     {
         if (is_numeric($value)) {
@@ -48,10 +48,6 @@ class CalificacionProveedorExcel extends DefaultValueBinder implements FromView,
 
     public function view(): View
     {
-        try {
-            return view('compras_proveedores.proveedores.excel.calificacion_individual', ['reporte' => $this->datos, 'configuracion'=>$this->configuracion]);
-        } catch (Throwable $th) {
-            throw $th;
-        }
+        return view('compras_proveedores.proveedores.excel.calificacion_individual', ['reporte' => $this->datos, 'configuracion'=>$this->configuracion]);
     }
 }

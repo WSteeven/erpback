@@ -6,12 +6,86 @@ use App\Models\ComprasProveedores\ContactoProveedor;
 use App\Models\ComprasProveedores\DatoBancarioProveedor;
 use App\Models\ComprasProveedores\LogisticaProveedor;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
+/**
+ * App\Models\Empresa
+ *
+ * @property int $id
+ * @property string $identificacion
+ * @property string|null $tipo_contribuyente
+ * @property string $razon_social
+ * @property string|null $nombre_comercial
+ * @property string|null $sitio_web
+ * @property string|null $correo
+ * @property int|null $canton_id
+ * @property string|null $direccion
+ * @property string|null $antiguedad_proveedor
+ * @property string|null $identificacion_representante
+ * @property string|null $representante_legal
+ * @property bool $agente_retencion
+ * @property bool $lleva_contabilidad
+ * @property bool $contribuyente_especial
+ * @property string|null $actividad_economica
+ * @property string|null $regimen_tributario
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $es_proveedor
+ * @property bool $es_cliente
+ * @property-read Collection<int, Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read Canton|null $canton
+ * @property-read Cliente|null $cliente
+ * @property-read Collection<int, ContactoProveedor> $contactos
+ * @property-read int|null $contactos_count
+ * @property-read Collection<int, DatoBancarioProveedor> $datos_bancarios
+ * @property-read int|null $datos_bancarios_count
+ * @property-read LogisticaProveedor|null $logistica
+ * @property-read Collection<int, Proveedor> $proveedores
+ * @property-read int|null $proveedores_count
+ * @method static Builder|Empresa acceptRequest(?array $request = null)
+ * @method static Builder|Empresa filter(?array $request = null)
+ * @method static Builder|Empresa ignoreRequest(?array $request = null)
+ * @method static Builder|Empresa newModelQuery()
+ * @method static Builder|Empresa newQuery()
+ * @method static Builder|Empresa query()
+ * @method static Builder|Empresa setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Empresa setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Empresa setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Empresa whereActividadEconomica($value)
+ * @method static Builder|Empresa whereAgenteRetencion($value)
+ * @method static Builder|Empresa whereAntiguedadProveedor($value)
+ * @method static Builder|Empresa whereCantonId($value)
+ * @method static Builder|Empresa whereContribuyenteEspecial($value)
+ * @method static Builder|Empresa whereCorreo($value)
+ * @method static Builder|Empresa whereCreatedAt($value)
+ * @method static Builder|Empresa whereDireccion($value)
+ * @method static Builder|Empresa whereEsCliente($value)
+ * @method static Builder|Empresa whereEsProveedor($value)
+ * @method static Builder|Empresa whereId($value)
+ * @method static Builder|Empresa whereIdentificacion($value)
+ * @method static Builder|Empresa whereIdentificacionRepresentante($value)
+ * @method static Builder|Empresa whereLlevaContabilidad($value)
+ * @method static Builder|Empresa whereNombreComercial($value)
+ * @method static Builder|Empresa whereRazonSocial($value)
+ * @method static Builder|Empresa whereRegimenTributario($value)
+ * @method static Builder|Empresa whereRepresentanteLegal($value)
+ * @method static Builder|Empresa whereSitioWeb($value)
+ * @method static Builder|Empresa whereTipoContribuyente($value)
+ * @method static Builder|Empresa whereUpdatedAt($value)
+ * @mixin Eloquent
+ */
 class Empresa extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
@@ -87,16 +161,7 @@ class Empresa extends Model implements Auditable
     {
         return $this->hasOne(LogisticaProveedor::class);
     }
-    /*
-    public function telefonos(){
-        return $this->hasMany(Telefono::class);
-    } */
 
-    //Relacion uno a muchos polimorfica
-    public function telefonos()
-    {
-        return $this->morphMany('App\Models\Telefono', 'telefonable');
-    }
     /**
      * Relación uno a muchos(inversa).
      */
@@ -107,7 +172,7 @@ class Empresa extends Model implements Auditable
 
      /**
      * Relacion polimorfica con Archivos uno a muchos.
-     * 
+     *
      */
     public function archivos(){
         return $this->morphMany(Archivo::class, 'archivable');

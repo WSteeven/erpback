@@ -15,13 +15,13 @@ class GraficoChartJS
      * @return array
      */
     // La lista debe tener la estructura ['clave' => 'CLAVE', 'valor' => valor]
-    public static function mapear(array $listado, string $titulo, string $tituloLabel)
+    public static function mapear(array $listado, string $titulo, string $tituloLabel, $metadata = null)
     {
-        $labels = array_map(fn ($item) => $item['clave'], $listado);
-        $valores = array_map(fn ($item) => $item['valor'], $listado);
-        $colores = array_map(fn ($item) => self::generarColorAzulPastelClaro(), $listado);
+        $labels = array_map(fn($item) => is_array($item) ? $item['clave'] : $item->clave, $listado);
+        $valores = array_map(fn($item) => is_array($item) ? $item['valor'] : $item->valor, $listado);
+        $colores = array_map(fn() => self::generarColorAzulPastelClaro(), $listado);
 
-        return self::mapearDatos($titulo, $labels, $valores, $tituloLabel, $colores);
+        return self::mapearDatos($titulo, $labels, $valores, $tituloLabel, $metadata, $colores);
     }
 
     /**
@@ -33,7 +33,7 @@ class GraficoChartJS
      * @param string|null $colores
      * @return array
      */
-    public static function mapearDatos(string $titulo, array $labels, array $valores, string $tituloLabel, $colores = null): array
+    public static function mapearDatos(string $titulo, array $labels, array $valores, string $tituloLabel, $metadata, $colores = null): array
     {
         return [
             'titulo' => $titulo,
@@ -45,6 +45,7 @@ class GraficoChartJS
                     'data' => $valores,
                 ],
             ],
+            'metadata' => $metadata,
         ];
     }
 

@@ -22,7 +22,7 @@ class NotificarPedidoParcial implements ShouldBroadcast
     public int $cantidad;
     public Pedido $pedido;
     public Notificacion $notificacion;
-    
+
     /**
      * Create a new event instance.
      *

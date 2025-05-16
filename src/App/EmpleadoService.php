@@ -5,14 +5,20 @@ namespace Src\App;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
+use App\Models\FondosRotativos\Gasto\AutorizadorDirecto;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
+use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\User;
 use App\Models\Ventas\Vendedor;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class EmpleadoService
 {
@@ -20,17 +26,6 @@ class EmpleadoService
     {
     }
 
-    public function getUsersWithRoles($roles, $campos)
-    {
-        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
-            $query->whereIn('name', $roles);
-        })->pluck('id');
-
-        // return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
-        return Empleado::whereIn('usuario_id', $idUsers)->get($campos);
-
-        // return $users;
-    }
     /* BORRAR public function obtenerEmpleadosPorRol(string $rol)
     {
         $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
@@ -39,6 +34,19 @@ class EmpleadoService
         EmpleadoResource::collection($results);
         return $results;
     } */
+
+    public static function obtenerIdsEmpleadosOtroAutorizador()
+    {
+//        $id_wellington = 117;
+//        $id_veronica_valencia = 155;
+//        if (Auth::user()->empleado->id == $id_veronica_valencia)
+//            $ids_empleados = Empleado::where('jefe_id', $id_wellington)
+//                ->orWhere('jefe_id', $id_veronica_valencia)
+//                ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
+//        else
+        return Empleado::where('jefe_id', Auth::user()->empleado->id)
+            ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
+    }
 
     public function obtenerPaginacion($offset)
     {
@@ -56,8 +64,8 @@ class EmpleadoService
 
     public function obtenerTodos()
     {
-        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get(
-            [
+        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
+        /*    [
                 'id',
                 'identificacion',
                 'nombres',
@@ -66,6 +74,7 @@ class EmpleadoService
                 'jefe_id',
                 'canton_id',
                 'direccion',
+                'fecha_nacimiento',
                 'estado',
                 'grupo_id',
                 'cargo_id',
@@ -92,8 +101,7 @@ class EmpleadoService
                 'num_cuenta_bancaria',
                 'salario',
                 'supa'
-            ]
-        );
+            ]  */
         // Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
     }
@@ -122,9 +130,24 @@ class EmpleadoService
         return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
+    public function getUsersWithRoles($roles, $campos)
+    {
+        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
+            $query->whereIn('name', $roles);
+        })->pluck('id');
+
+        return Empleado::whereIn('usuario_id', $idUsers)->where('estado', true)->get($campos);
+    }
+
+    public function obtenerIdsEmpleadosPorRol(string $rol)
+    {
+        $idsUsuarios = User::role($rol)->pluck('id');
+        return Empleado::whereIn('usuario_id', $idsUsuarios)->pluck('id');
+    }
+
     public function obtenerTodosSinEstado()
     {
-        $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual', 'empleados_autorizadores_gasto'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 
@@ -144,10 +167,10 @@ class EmpleadoService
     /**
      * La función obtiene varios valores financieros relacionados con un empleado específico para un
      * sistema de fondos rotativos.
-     * 
-     * @param Empleado $empleado Toma un objeto `Empleado` y recupera (saldo_inicial, acreditaciones, 
-     * gastos, saldo_actual, transferencias enviadas y recibidas) relacionados con ese empleado. 
-     * 
+     *
+     * @param Empleado $empleado Toma un objeto `Empleado` y recupera (saldo_inicial, acreditaciones,
+     * gastos, saldo_actual, transferencias enviadas y recibidas) relacionados con ese empleado.
+     *
      * @return array Se devuelve una serie de valores relacionados con las transacciones de fondos de un
      * empleado específico. La matriz incluye el estado activo del empleado, el nombre, el id, el
      * saldo inicial, el total de acreditaciones, los gastos totales, el total de transferencias
@@ -165,7 +188,11 @@ class EmpleadoService
         $row['gastos'] = Gasto::where('id_usuario', $empleado->id)->where('estado', 1)->sum('total');
         $row['transferencias_enviadas'] = Transferencias::where('usuario_envia_id', $empleado->id)->where('estado', 1)->sum('monto');
         $row['transferencias_recibidas'] = Transferencias::where('usuario_recibe_id', $empleado->id)->where('estado', 1)->sum('monto');
-        $row['saldo_actual'] = SaldoGrupo::where('id_usuario', $empleado->id)->orderBy('id', 'desc')->first()->saldo_actual;
+        $row['ajustes_saldos_positivo'] = AjusteSaldoFondoRotativo::where('destinatario_id', $empleado->id)->where('tipo', AjusteSaldoFondoRotativo::INGRESO)->sum('monto');
+        $row['ajustes_saldos_negativo'] = AjusteSaldoFondoRotativo::where('destinatario_id', $empleado->id)->where('tipo', AjusteSaldoFondoRotativo::EGRESO)->sum('monto');
+        $row['ajustes_saldos'] = $row['ajustes_saldos_positivo'] - $row['ajustes_saldos_negativo'];
+        $saldo_actual = Saldo::where('empleado_id', $empleado->id)->orderBy('id', 'desc')->first();
+        $row['saldo_actual'] = $saldo_actual ? $saldo_actual->saldo_actual : 0;
         $row['diferencia'] = round(($row['saldo_inicial'] + $row['acreditaciones'] + $row['transferencias_recibidas'] - $row['gastos'] - $row['transferencias_enviadas']), 2); //la suma de ingresos menos egresos, al final este valor debe coincidir con saldo_actual
         $row['inconsistencia'] = $row['diferencia'] == $row['saldo_actual'] ? 'NO' : 'SI'; //false : true;
         return $row;
@@ -174,27 +201,24 @@ class EmpleadoService
     /**
      * La función "obtenerValoresFondosRotativos" recupera valores de fondos rotativos de los empleados
      * que tienen saldo.
-     * 
-     * @return mixed Se están devolviendo una serie de valores por los fondos rotativos de los empleados.
+     *
+     * @return array Se están devolviendo una serie de valores por los fondos rotativos de los empleados.
+     * @throws Exception
      */
     public function obtenerValoresFondosRotativos()
     {
-        try {
-            $empleados = Empleado::has('saldo')->get();
-            $results = [];
-            foreach ($empleados as $index => $empleado) {
-                $row = $this->obtenerValoresFondosRotativosEmpleado($empleado);
-                $results[$index] = $row;
-            }
-            return $results;
-        } catch (Exception $e) {
-            throw $e;
+        $empleados = Empleado::has('saldo')->get();
+        $results = [];
+        foreach ($empleados as $index => $empleado) {
+            $row = $this->obtenerValoresFondosRotativosEmpleado($empleado);
+            $results[$index] = $row;
         }
+        return $results;
     }
 
     /**
      * La función obtiene empleados con el último saldo de fondos rotatorios.
-     * 
+     *
      * @return mixed La función `obtenerEmpleadosConSaldoFondosRotativos()` está devolviendo una colección de
      * empleados que tienen el último saldo en su cuenta de rotación de fondos. La consulta filtra los
      * empleados según el `id` máximo en la tabla `saldo_grupo` para cada empleado y luego recupera
@@ -202,12 +226,96 @@ class EmpleadoService
      */
     public function obtenerEmpleadosConSaldoFondosRotativos()
     {
-        $empleados = Empleado::whereHas('saldo', function ($query) {
+        return Empleado::whereHas('saldo', function ($query) {
             $query->whereRaw('id = (SELECT MAX(id) FROM saldo_grupo WHERE id_usuario = empleados.id)')
                 ->where('saldo_actual', '<>', 0);
         })->ignoreRequest(['campos'])->filter()->get();
+    }
 
-        return $empleados;
+    public static function eliminarUmbralFondosRotativos(Empleado $empleado)
+    {
+        $umbral = UmbralFondosRotativos::where('empleado_id', $empleado->id)->first();
+        if ($umbral && !$empleado->estado) {
+            $umbral->delete();
+        }
+    }
+
+    public static function obtenerEmpleadosAutorizadoresGasto()
+    {
+        $ids_autorizadores = Gasto::pluck('aut_especial');
+        $results = Empleado::whereIn('id', $ids_autorizadores)->ignoreRequest(['campos', 'empleados_autorizadores_gasto'])->filter()->get();
+        return EmpleadoResource::collection($results);
+    }
+
+    /**
+     * Esta función PHP recupera un empleado con un rol específico y un estado opcional.
+     *
+     * @param string $rol El parámetro `rol` es una cadena que representa el rol de un empleado.
+     * @param bool $estado Parámetro booleano que especifica si el empleado debe estar en estado
+     * activo (`true`) o no (`falso`). De forma predeterminada, si no se proporciona ningún valor
+     *  para este parámetro al llamar a la función, se establece en `true`
+     *
+     * @return Empleado Una instancia del modelo `Empleado` que tiene un modelo `Usuario` relacionado
+     * con un rol específico.
+     * @throws Throwable
+     */
+    public static function obtenerEmpleadoRolEspecifico(string $rol, bool $estado = true)
+    {
+        try {
+            return Empleado::whereHas('user', function ($query) use ($rol) {
+                $query->role($rol);
+            })->where('estado', $estado)->first();
+        } catch (Throwable $th) {
+            Log::channel('testing')->info('Log', ['Error en EmpleadoService::obtenerEmpleadoRolEspecifico', $th->getLine(), $th->getMessage()]);
+            throw $th;
+        }
+    }
+
+    /**
+     * Aqui se agregan las discapacidades de un Empleado
+     * Cambiaremos esto para que se agreguen al usuario, y será un metodo generico.
+     * @param Empleado $empleado
+     * @param array $discapacidades
+     * @return void
+     */
+    public function agregarDiscapacidades(Empleado $empleado, array $discapacidades)
+    {
+        $discapacidades_collection = collect($discapacidades);
+        $mappedCollection = $discapacidades_collection->map(function ($object) {
+            $object['tipo_discapacidad_id'] = $object['tipo_discapacidad'];
+            unset($object['tipo_discapacidad']);
+            return $object;
+        });
+        $empleado->tiposDiscapacidades()->sync($mappedCollection);
+    }
+
+    public function agregarFamiliares(Empleado $empleado, array $familiares)
+    {
+        $familiares_collection = collect($familiares);
+        // Filtramos los familiares existentes y los eliminamos del array
+        $familiaresExistentes = $empleado->familiares->pluck('id')->toArray();
+        $mappedCollection = $familiares_collection->filter(function ($object) use ($familiaresExistentes) {
+            $object['parentezco_id'] = $object['parentezco'];
+            unset($object['parentezco']);
+            return !in_array($object['id'], $familiaresExistentes);
+        });
+        // Agregamos los nuevos familiares
+        $empleado->familiares()->createMany($mappedCollection->toArray());
+    }
+
+    /**
+     * Método que busca un autorizador directo para un determinado empleado y retorna el ID del autorizador directo encontrado, caso contrario, el proporcionado.
+     * @param int $empleado_id ID del empleado que realiza el gasto.
+     * @param int $aut_especial ID del empleado autorizador.
+     * @return int el ID del autorizador.
+     */
+    public static function obtenerAutorizadorDirecto(int $empleado_id, int $aut_especial)
+    {
+        $empleado = Empleado::find($empleado_id); // El empleado que realiza el gasto
+        $autorizacion_directa  = AutorizadorDirecto::where('empleado_id', $empleado->id)->where('activo', true)->first();
+        if($autorizacion_directa) return $autorizacion_directa->autorizador_id;
+
+        return $aut_especial;
     }
 
     public function obtenerEmpleadosConVentasClaro()

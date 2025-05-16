@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardTicketController;
 use App\Http\Controllers\MotivoCanceladoTicketController;
 use App\Http\Controllers\MotivoPausaTicketController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\Tickets\ComentarioTicketController;
 use App\Http\Controllers\TipoTicketController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,7 @@ Route::apiResources(
         'motivos-pausas-tickets' => MotivoPausaTicketController::class,
         'motivos-cancelados-tickets' => MotivoCanceladoTicketController::class,
         'actividades-realizadas-seguimientos-tickets' => ActividadRealizadaSeguimientoTicketController::class,
+        'comentarios-tickets' => ComentarioTicketController::class,
     ],
     [
         'parameters' => [
@@ -32,6 +34,7 @@ Route::apiResources(
             'motivos-cancelados-tickets' => 'motivo_cancelado_ticket',
             'actividades-realizadas-seguimientos-tickets' => 'actividad_realizada',
             'categorias-tipos-tickets' => 'categoria_tipo_ticket',
+            'comentarios-tickets' => 'comentario_ticket',
         ],
     ]
 );
@@ -50,6 +53,8 @@ Route::prefix('tickets')->group(function () {
     Route::get('obtener-pausas/{ticket}', [TicketController::class, 'obtenerPausas']);
     Route::get('obtener-rechazados/{ticket}', [TicketController::class, 'obtenerRechazados']);
 });
+
+Route::put('/tickets/{id}/toggle-recurrence', [TicketController::class, 'toggleRecurrence']);
 
 /***********
  * Dashboard

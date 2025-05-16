@@ -2,15 +2,18 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use JsonSerializable;
 
 class ConfiguracionGeneralResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -19,12 +22,14 @@ class ConfiguracionGeneralResource extends JsonResource
             'logo_oscuro' => $this->logo_oscuro ? url($this->logo_oscuro) : null,
             'logo_marca_agua' => $this->logo_marca_agua ? url($this->logo_marca_agua) : null,
             'ruc' => $this->ruc,
+            'ciiu' => $this->ciiu,
             'representante' => $this->representante,
             'razon_social' => $this->razon_social,
             'nombre_comercial' => $this->nombre_comercial,
             'direccion_principal' => $this->direccion_principal,
             'telefono' => $this->telefono,
             'moneda' => $this->moneda,
+            'iva' => $this->iva,
             'tipo_contribuyente' => $this->tipo_contribuyente,
             'celular1' => $this->celular1,
             'celular2' => $this->celular2,

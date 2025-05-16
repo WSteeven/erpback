@@ -22,7 +22,7 @@ class DetalleProductoResource extends JsonResource
             'id' => $this->id,
             'detalle_id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
-            'codigo'=>$this->codigo?$this->codigo->codigo:'',
+            'codigo' => $this->codigo ? $this->codigo->codigo : '',
             'producto' => $this->producto->nombre,
             'unidad_medida' => $this->producto->unidadMedida->nombre,
             'producto_id' => $this->producto_id,
@@ -30,20 +30,22 @@ class DetalleProductoResource extends JsonResource
             'marca' => $this->marca?->nombre,
             'modelo' => $this->modelo?->nombre,
             'serial' => $this->serial,
+            'lote' => $this->lote,
             'precio_compra' => $this->precio_compra,
-            'stock' => $request->stock? $this->detalle_stock($this->id,$request->sucursal_id)?->cantidad:0,
+            'stock' => $request->stock ? $this->detalle_stock($this->id, $request->sucursal_id)?->cantidad : 0,
 
-            'activo'=>$this->activo,
+            'activo' => $this->activo,
+            'esActivo'=>$this->esActivo ?? false,
 
             'ram' => $this->computadora ? $this->computadora->memoria->nombre : null,
             'disco' => $this->computadora ? $this->computadora->disco->nombre : null,
             'procesador' => $this->computadora ? $this->computadora->procesador->nombre : null,
-            'imei' => $this->computadora ? $this->computadora->imei: null,
+            'imei' => $this->computadora ? $this->computadora->imei : null,
 
-            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei?', IMEI: ' .$this->computadora->imei:null) : null,
+            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei ? ', IMEI: ' . $this->computadora->imei : null) : null,
             'fibra' => $this->fibra ? 'Span ' . $this->fibra->span?->nombre . ', ' . $this->fibra->hilo?->nombre . 'H, ' . $this->fibra->tipo_fibra?->nombre : null,
 
-            'span' => $this->fibra ? $this->fibra->span->nombre : 'N/A',
+            'span' => $this->fibra ? $this->fibra?->span?->nombre : 'N/A',
             'tipo_fibra' => $this->fibra ? $this->fibra->tipo_fibra?->nombre : null,
             'hilos' => $this->fibra ?  $this->fibra->hilo?->nombre : null,
             'punta_inicial' => $this->fibra ? $this->fibra->punta_inicial : null,
@@ -51,17 +53,25 @@ class DetalleProductoResource extends JsonResource
             'custodia' => $this->fibra ? $this->fibra->custodia : null,
             'puntas' => $this->fibra ? 'P. Inicial: ' . $this->fibra->punta_inicial . ', P. Final: ' . $this->fibra->punta_final . ', Custodia: ' . $this->fibra->custodia : null,
 
-
             'adicionales' => $this->color || $this->talla || $this->capacidad ? $this->color . ', ' . $this->talla . ',  ' . $this->tipo : null,
 
-            'color'=>$this->color,
-            'talla'=>$this->talla,
-            'tipo'=>$this->tipo,
+            'color' => $this->color,
+            'talla' => $this->talla,
+            'tipo' => $this->tipo,
+            'calibre' => $this->calibre,
+            'peso' => $this->peso,
+            'dimensiones' => $this->dimensiones,
+            'permiso' => $this->permisoArma?->nombre,
+
+            'caducidad' => $this->caducidad,
+            'codigo_activo_fijo' => $this->codigo_activo_fijo,
+
 
             //variables auxiliares
             'tiene_serial' => is_null($this->serial) ? false : true,
+            'tiene_lote' => is_null($this->lote) ? false : true,
             'es_computadora' => $this->producto->categoria->nombre == 'INFORMATICA' ? true : false,
-            'es_fibra' => $this->fibra ? true : false,
+            'es_fibra' => $this->fibra || $this->es_fibra ? true : false,
             'tiene_precio_compra' => $this->precio_compra > 0 ? true : false,
             'tiene_adicionales' => $this->color || $this->talla || $this->capacidad ? true : false,
         ];
@@ -69,14 +79,20 @@ class DetalleProductoResource extends JsonResource
             Log::channel('testing')->info('Log', ['Entró aquí']);
             $modelo['producto'] = $this->producto_id;
             $modelo['marca'] = $this->modelo->marca_id;
+            $modelo['nombre_marca'] = $this->modelo->marca->nombre;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['modelo_id'] = $this->modelo->nombre;
+            $modelo['nombre_modelo'] = $this->modelo->nombre;
             $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
             $modelo['tipo_fibra'] =  $this->fibra ? $this->fibra->tipo_fibra_id : null;
             $modelo['hilos'] = $this->fibra ? $this->fibra->hilo_id : null;
             $modelo['ram'] = $this->computadora ? $this->computadora->memoria->id : null;
             $modelo['disco'] = $this->computadora ? $this->computadora->disco->id : null;
             $modelo['procesador'] = $this->computadora ? $this->computadora->procesador->id : null;
+            $modelo['permiso_id'] = $this->permiso_id;
+            $modelo['fecha_caducidad'] = $this->fecha_caducidad;
+            $modelo['fotografia'] = $this->fotografia ? url($this->fotografia) : null;
+            $modelo['fotografia_detallada'] = $this->fotografia_detallada ? url($this->fotografia_detallada) : null;
         }
         return $modelo;
     }

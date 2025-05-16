@@ -26,7 +26,7 @@ class CategoriaTipoTicketRequest extends FormRequest
     {
 
         $rules = [
-            'nombre' => 'required|string|unique:tipos_tickets',
+            'nombre' => 'required|string',//|unique:tipos_tickets',
             'departamento' => 'required|numeric|integer',
         ];
 
@@ -38,5 +38,5 @@ class CategoriaTipoTicketRequest extends FormRequest
         }
 
         return $rules;
-        }
+    }
 }

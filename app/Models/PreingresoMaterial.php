@@ -20,6 +20,75 @@ use Src\Config\Autorizaciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
+/**
+ * App\Models\PreingresoMaterial
+ *
+ * @method static create(mixed $datos)
+ * @property int $id
+ * @property string|null $observacion
+ * @property string $cuadrilla
+ * @property string $num_guia
+ * @property string $courier
+ * @property string $fecha
+ * @property int|null $proyecto_id
+ * @property int|null $etapa_id
+ * @property int|null $tarea_id
+ * @property int|null $cliente_id
+ * @property int|null $autorizador_id
+ * @property int|null $solicitante_id
+ * @property int|null $responsable_id
+ * @property int|null $coordinador_id
+ * @property int|null $autorizacion_id
+ * @property string|null $observacion_aut
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Collection<int, \App\Models\Archivo> $archivos
+ * @property-read int|null $archivos_count
+ * @property-read Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Autorizacion|null $autorizacion
+ * @property-read \App\Models\Empleado|null $autorizador
+ * @property-read \App\Models\Cliente|null $cliente
+ * @property-read \App\Models\Empleado|null $coordinador
+ * @property-read Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read int|null $detalles_count
+ * @property-read Etapa|null $etapa
+ * @property-read \App\Models\Notificacion|null $latestNotificacion
+ * @property-read Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read int|null $notificaciones_count
+ * @property-read \App\Models\Proyecto|null $proyecto
+ * @property-read \App\Models\Empleado|null $responsable
+ * @property-read \App\Models\Empleado|null $solicitante
+ * @property-read \App\Models\Tarea|null $tarea
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial acceptRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial filter(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial ignoreRequest(?array $request = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial setBlackListDetection(?array $black_list_detections = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial setCustomDetection(?array $object_custom_detect = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial setLoadInjectedDetection($load_default_detection)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereAutorizacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereAutorizadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereClienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereCoordinadorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereCourier($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereCuadrilla($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereEtapaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereFecha($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereNumGuia($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereObservacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereObservacionAut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereProyectoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereResponsableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereSolicitanteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereTareaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PreingresoMaterial whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class PreingresoMaterial extends Model implements Auditable
 {
     use HasFactory;
@@ -137,7 +206,7 @@ class PreingresoMaterial extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'item_detalle_preingreso_material', 'preingreso_id', 'detalle_id')
-            ->withPivot('id', 'descripcion', 'cantidad', 'serial', 'punta_inicial', 'punta_final', 'unidad_medida_id', 'fotografia')->withTimestamps();
+            ->withPivot('id', 'descripcion', 'cantidad', 'serial', 'punta_inicial', 'punta_final', 'unidad_medida_id', 'condicion_id', 'fotografia')->withTimestamps();
     }
 
     /**
@@ -160,7 +229,8 @@ class PreingresoMaterial extends Model implements Auditable
      * Relacion polimorfica con Archivos uno a muchos.
      *
      */
-    public function archivos(){
+    public function archivos()
+    {
         return $this->morphMany(Archivo::class, 'archivable');
     }
 
@@ -183,6 +253,7 @@ class PreingresoMaterial extends Model implements Auditable
             $row['descripcion'] = $item->pivot->descripcion;
             $row['categoria'] = $item->producto->categoria->nombre;
             $row['unidad_medida'] = $item->producto->unidadMedida->nombre;
+            $row['condicion'] = Condicion::find($item->pivot->condicion_id)?->nombre;
             $row['serial'] = $item->pivot->serial;
             $row['cantidad'] = $item->pivot->cantidad;
             $row['punta_inicial'] = $item->pivot->punta_inicial;

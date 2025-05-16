@@ -2,39 +2,35 @@
 
 namespace App\Http\Resources\FondosRotativos\Saldo;
 
-use App\Models\FondosRotativos\Gasto\Gasto;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\DB;
 
+/**
+ * @property mixed $id
+ */
 class AcreditacionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
-        $controller_method = $request->route()->getActionMethod();
-        $modelo = [
+        return [
             'id' => $this->id,
-            'fecha' =>$this->cambiar_fecha($this->fecha),
+            'fecha' => Carbon::parse($this->fecha)->format('Y-m-d'),
             'tipo_saldo' => $this->id_tipo_saldo,
             'tipo_fondo' => $this->id_tipo_fondo,
             'id_saldo' => $this->id_saldo,
             'usuario' => $this->id_usuario,
-            'empleado_info' => $this->usuario->nombres.' '.$this->usuario->apellidos,
-            'estado' => $this->estado!=null? $this->estado->estado:' ',
+            'empleado_info' => $this->usuario->nombres . ' ' . $this->usuario->apellidos,
+            'estado' => $this->estado != null ? $this->estado->estado : ' ',
             'descripcion_acreditacion' => $this->descripcion_acreditacion,
             'motivo' => $this->motivo,
             'monto' => $this->monto,
         ];
-        return $modelo;
     }
-    private function cambiar_fecha($fecha){
-        $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
-            return $fecha_formateada;
-        }
 }

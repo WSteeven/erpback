@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\Tareas\EtapaResource;
+use Carbon\Carbon;
+use Carbon\CarbonInterval;
 
 class ProyectoResource extends BaseResource
 {
@@ -14,6 +16,7 @@ class ProyectoResource extends BaseResource
             'nombre' => $this->nombre,
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
+            'fecha_hora_finalizado' => $this->fecha_hora_finalizado,
             'coordinador_id' => $this->coordinador_id,
             'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
@@ -21,9 +24,10 @@ class ProyectoResource extends BaseResource
             'cliente_id' => $this->cliente_id,
             'canton' => $this->canton?->canton,
             'costo' => $this->costo,
-            'demora' => '0 días',
+            'tiempo_ocupado' => $this->calcularTiempoOcupado(),
             'finalizado' => $this->finalizado,
             'etapas' => EtapaResource::collection($this->etapas),
+            'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
         ];
 
         // Lógica específica del método 'show'
@@ -36,5 +40,10 @@ class ProyectoResource extends BaseResource
         }
 
         return $modelo;
+    }
+
+    private function calcularTiempoOcupado()
+    {
+        return $this->fecha_hora_finalizado ? CarbonInterval::seconds(Carbon::parse($this->fecha_hora_finalizado)->diffInSeconds(Carbon::parse($this->created_at)))->cascade()->forHumans() : null;
     }
 }

@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+@php
+
+
+
+ @endphp
 
 <head>
     <meta charset="UTF-8">
@@ -14,8 +19,8 @@
         .header {
             position: fixed;
             top: -55px;
-            left: 0px;
-            right: 0px;
+            left: 0;
+            right: 0;
             height: 80px;
             text-align: center;
             line-height: 35px;
@@ -24,8 +29,8 @@
         .footer {
             position: fixed;
             bottom: -50px;
-            left: 0px;
-            right: 0px;
+            left: 0;
+            right: 0;
             height: 50px;
             color: #333333;
             text-align: center;
@@ -90,6 +95,9 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                                             <div align="center"><strong>#COMPROBANTE</strong></div>
                                         </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                                            <div align="center"><strong>RUC</strong></div>
+                                        </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
@@ -116,6 +124,12 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
                                             <div align="center"><strong>MONTO</strong></div>
                                         </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
+                                            <div align="center"><strong># Tarea</strong></div>
+                                        </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
+                                            <div align="center"><strong>Tarea</strong></div>
+                                        </td>
                                     </tr>
 
                                     @foreach ($gastos as $gasto)
@@ -137,8 +151,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px">
-                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}
-                                                </div>
+                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                                             </td>
                                             @if ($subtitulo == '' || $tipo_filtro != 3)
                                                 <td style="font-size:10px">
@@ -155,15 +168,16 @@
                                                 @endif
                                             </td>
                                             <td style="font-size:10px">
+                                                <div align="left">{{ $gasto['ruc'] }}</div>
+                                            </td>
+                                            <td style="font-size:10px">
                                                 <div align="left">{{ $gasto['observacion'] }}</div>
                                             </td>
                                             <td style="font-size:10px">
                                                 <div align="left">{{ $gasto['detalle_estado'] }}</div>
                                             </td>
-                                            <td style="font-size:10px; word-wrap: break-word;">
-                                                {{ $gasto['centro_costo'] }}</td>
-                                            <td style="font-size:10px; word-wrap: break-word;">
-                                                {{ $gasto['sub_centro_costo'] }}</td>
+                                            <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['centro_costo'] }}</td>
+                                            <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['sub_centro_costo'] }}</td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">
                                                     {{ $gasto['autorizador'] }}
@@ -181,6 +195,8 @@
                                                 <div align="right">
                                                     {{ number_format($gasto['total'], 2, ',', '.') }}</div>
                                             </td>
+                                            <td style="font-size:10px"><div align="right">{{ $gasto['tarea']?->codigo_tarea }}</div></td>
+                                            <td style="font-size:10px"><div align="right">{{ $gasto['tarea']?->titulo }}</div></td>
                                         </tr>
                                     @endforeach
                                     <tr>

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\PedidoAutorizadoEvent;
-use App\Events\PedidoCreadoEvent;
+use App\Events\Bodega\PedidoAutorizadoEvent;
+use App\Events\Bodega\PedidoCreadoEvent;
 use App\Exports\Bodega\PedidoExport;
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetallePedidoProducto;
-use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -18,7 +18,7 @@ use App\Models\Sucursal;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -26,17 +26,23 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\Bodega\PedidoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\Sistema\PaginationService;
+use Src\Config\Constantes;
 use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class PedidoController extends Controller
 {
-    private $entidad = 'Pedido';
-    private $servicio;
+    private string $entidad = 'Pedido';
+    private PedidoService $servicio;
+    private PaginationService $paginationService;
+
     public function __construct()
     {
         $this->servicio = new PedidoService();
+        $this->paginationService = new PaginationService();
         $this->middleware('can:puede.ver.pedidos')->only('index', 'show');
         $this->middleware('can:puede.crear.pedidos')->only('store');
         $this->middleware('can:puede.editar.pedidos')->only('update');
@@ -45,59 +51,52 @@ class PedidoController extends Controller
 
     /**
      * Listar
+     * @throws ValidationException
      */
     public function index(Request $request)
     {
-        $estado = $request['estado'];
-        $results = [];
+        $estado = $request->estado;
+        $search = $request->search;
+        //$filtro = ['clave' => 'autorizacion', 'valor' => 'PENDIENTE'];
+        //FiltroSearchHelper::formatearFiltrosPorMotor($filtro);
+        try {
 
-        if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
-            $results = $this->servicio->filtrarPedidosAdministrador($estado);
-        } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
-            // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
-            $results = $this->servicio->filtrarPedidosBodeguero($estado);
-        } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
-            $results = $this->servicio->filtrarPedidosActivosFijos($estado);
-        } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
-            $results = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
-        } else {
-            // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
-            $results = $this->servicio->filtrarPedidosEmpleado($estado);
+            if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
+                $query = $this->servicio->filtrarPedidosAdministrador($estado);
+            } else if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_AUXILIAR_BODEGA]) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
+                $query = $this->servicio->filtrarPedidosBodeguero($estado);
+            } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
+                $query = $this->servicio->filtrarPedidosActivosFijos($estado);
+            } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
+                $query = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
+            } else {
+                $query = $this->servicio->filtrarPedidosEmpleado($estado);
+            }
+            $filtrosAlgolia = $this->servicio->obtenerFiltrosIndice($estado);
+
+            $results =  buscarConAlgoliaFiltrado(Pedido::class, $query, 'id', $search,  Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$request->paginate, $filtrosAlgolia);
+
+            return PedidoResource::collection($results);
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
 
 
-        // Log::channel('testing')->info('Log', ['Resultados:', $estado, $results]);
-        if (!empty($results)) {
-            $results = PedidoResource::collection($results);
-        } else {
-            $results = [];
-        }
-        return response()->json(compact('results'));
+//        return response()->json(compact('results'));
     }
 
     /**
      * Guardar
+     * @throws Throwable|ValidationException
      */
     public function store(PedidoRequest $request)
     {
-        $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
+        $ids_sucursales_telconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
-        // Log::channel('testing')->info('Log', ['Request recibida en pedido:', $request->all()]);
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
-            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             if ($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             if ($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
@@ -125,21 +124,22 @@ class PedidoController extends Controller
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
                 event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id, false));
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
+                $es_pedido_telconet = collect($ids_sucursales_telconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($es_pedido_telconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
-                event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id, false));
+                event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id, false));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+            Log::channel('testing')->error('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Problema al guardar el Pedido');
+
         }
     }
 
@@ -154,32 +154,21 @@ class PedidoController extends Controller
 
     /**
      * Actualizar
+     * @throws Throwable|ValidationException
      */
     public function update(PedidoRequest $request, Pedido $pedido)
     {
-        $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
+        $ids_sucursales_telconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
-        // Log::channel('testing')->info('Log', ['entro en el update del pedido',$idsSucursalesTelconet]);
         try {
-            DB::beginTransaction();
             // Adaptacion de foreign keys
+            DB::beginTransaction();
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
-            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS, $pedido->evidencia1))->execute();
             else unset($datos['evidencia1']);
 
-            if ($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS, $pedido->evidencia2))->execute();
             else unset($datos['evidencia2']);
 
             // Respuesta
@@ -201,22 +190,20 @@ class PedidoController extends Controller
             }
 
 
-            // Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
-            // Log::channel('testing')->info('Log', ['Verificar las notificaciones', $pedido->latestNotificacion()]);
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
+                $es_pedido_telconet = collect($ids_sucursales_telconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($es_pedido_telconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro. ' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Problema al actualizar el Pedido');
         }
     }
 
@@ -236,23 +223,22 @@ class PedidoController extends Controller
      */
     public function showPreview(Pedido $pedido)
     {
-        // Log::channel('testing')->info('Log', ['El pedido consultado es: ', $pedido]);
         $modelo = new PedidoResource($pedido);
 
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * La función "corregirPedido" toma una solicitud y un pedido, actualiza la cantidad de productos
      * del pedido, guarda los cambios y devuelve el pedido modificado como respuesta JSON.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que
+     * @param Request $request El parámetro `request` es una instancia de la clase Request, que
      * representa una solicitud HTTP. Contiene información sobre la solicitud, como el método de
      * solicitud, los encabezados y los datos de entrada.
-     * @param Pedido pedido El parámetro "" es una instancia del modelo "Pedido". Representa un
+     * @param Pedido $pedido El parámetro "pedido" es una instancia del modelo "Pedido". Representa un
      * pedido específico en el sistema.
      *
-     * @return una respuesta JSON con el pedido modificado como objeto PedidoResource.
+     * @return JsonResponse respuesta JSON con el pedido modificado como objeto PedidoResource.
      */
     public function corregirPedido(Request $request, Pedido $pedido)
     {
@@ -268,20 +254,19 @@ class PedidoController extends Controller
         }
 
         $modelo = new PedidoResource($pedido);
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * La función `eliminarDetallePedido` elimina un artículo específico de un pedido y devuelve un
      * mensaje de éxito.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que se
+     * @param Request $request El parámetro `request` es una instancia de la clase Request, que se
      * utiliza para recuperar los datos enviados en la solicitud HTTP. Contiene información como el
      * método de solicitud, los encabezados y cualquier dato enviado en el cuerpo de la solicitud. En
-     * este caso, se utiliza para recuperar los valores del 'pedido
+     * este caso, se utiliza para recuperar los valores del 'pedido'
      *
-     * @return una respuesta JSON que contiene el mensaje "El elemento ha sido eliminado con éxito" (El
-     * elemento se ha eliminado con éxito).
+     * @return JsonResponse respuesta JSON que contiene el mensaje "El elemento ha sido eliminado con éxito".
      */
     public function eliminarDetallePedido(Request $request)
     {
@@ -290,6 +275,7 @@ class PedidoController extends Controller
         $mensaje = 'El item ha sido eliminado con éxito';
         return response()->json(compact('mensaje'));
     }
+
     /**
      * Imprimir
      */
@@ -302,17 +288,10 @@ class PedidoController extends Controller
             $pdf->setPaper('A5', 'landscape');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
-            $file = $pdf->output(); //SE GENERA EL PDF
-            $filename = "pedido_" . $resource->id . "_" . time() . ".pdf";
-
-            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'pedidos' . DIRECTORY_SEPARATOR . $filename;
-
-            // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-            // Log::channel('testing')->info('Log', ['El pedido es', $resource, $configuracion]);
-            // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
-            return $file;
+            //SE GENERA Y RETORNA EL PDF
+            return $pdf->output();
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'));
         }
@@ -337,6 +316,7 @@ class PedidoController extends Controller
         $modelo = new PedidoResource($pedido->refresh());
         return response()->json(compact('modelo'));
     }
+
     public function marcarCompletado(Request $request, Pedido $pedido)
     {
         $request->validate(['motivo' => ['required', 'string']]);
@@ -348,6 +328,9 @@ class PedidoController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function reportes(Request $request)
     {
         try {
@@ -358,7 +341,6 @@ class PedidoController extends Controller
             switch ($request->accion) {
                 case 'excel':
                     return Excel::download(new PedidoExport(collect($registros), $configuracion), 'reporte_pedidos.xlsx');
-                    break;
                 case 'pdf':
                     try {
                         $vista = 'pedidos.pedidos';
@@ -368,12 +350,11 @@ class PedidoController extends Controller
                         $pdf->render();
                         return $pdf->stream();
                     } catch (Exception $ex) {
-                        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                        Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
                         throw ValidationException::withMessages([
                             'Error al generar reporte' => [$ex->getMessage()],
                         ]);
                     }
-                    break;
                 default:
                     break;
             }
@@ -393,10 +374,13 @@ class PedidoController extends Controller
         return view('qrcode');
     }
 
+    /**
+     * @throws Exception
+     */
     public function encabezado()
     {
         $pdf = Pdf::loadView('pedidos.encabezado_pie_numeracion');
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('A4');
         $pdf->render();
         // $pdf->output();
         // $pdf->stream();
@@ -404,6 +388,10 @@ class PedidoController extends Controller
         return $pdf->stream();
         // return view('pedidos.encabezado_pie_numeracion');
     }
+
+    /**
+     * @throws Exception
+     */
     public function example()
     {
         $pdf = new Pdf();
@@ -416,8 +404,7 @@ class PedidoController extends Controller
     {
         $producto = Producto::find(1);
         // $results = $producto->audits; //obtiene todos los eventos de un registro
-        // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo la evento
-        $results = $producto->audits()->latest()->first()->getMetadata(); //obtiene los metadatos de un evento
+        // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo el evento
         $results = $producto->audits()->latest()->first()->getModified(); //obtiene las propiedades modificadas del registro afectado
         return response()->json(compact('results'));
     }

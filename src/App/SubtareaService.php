@@ -2,6 +2,7 @@
 
 namespace Src\App;
 
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Empleado;
@@ -17,12 +18,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+use Src\App\Sistema\PaginationService;
 use Src\Config\ClientesCorporativos;
+use Src\Config\Constantes;
 
 class SubtareaService
 {
+    protected PaginationService $paginationService;
+
     public function __construct()
     {
+        $this->paginationService = new PaginationService();
     }
 
     public function guardarSubtarea(SubtareaRequest $request)
@@ -81,22 +87,94 @@ class SubtareaService
         return SubtareaResource::collection($results);
     }*/
 
-    public function obtenerTodos()
+    public function obtenerTodosOld()
     {
         $usuario = Auth::user();
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
 
         // Monitor
-        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup) {
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && $esJefeTecnico) {
             // $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
-            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->get();//->orderBy('fecha_hora_agendado', 'desc')->get();
+            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->get(); //->orderBy('fecha_hora_agendado', 'desc')->get();
             return SubtareaResource::collection($results);
         }
 
         // Control de tareas
         $results = Subtarea::ignoreRequest(['campos'])->filter()->latest()->get();
         return SubtareaResource::collection($results);
+        // Log::channel('testing')->info('Log', ['if', 'Dentro de if']);
+    }
+
+    // ----> Aqui me quedé para hacer la paginacion <------
+    public function obtenerTodosOldAntesAlgolia()
+    {
+        $usuario = Auth::user();
+        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
+
+        $search = request('search');
+        $paginate = request('paginate');
+
+        // Monitor
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) {
+            if ($search) $query = $usuario->empleado->subtareasCoordinador()->search($search);
+            else $query = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos', 'paginate'])->filter();
+
+            if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+            else return $query->get();
+        }
+
+        // Control de tareas
+        if ($search) $query = Subtarea::search($search)->where('estado', request('estado'));
+        else $query = Subtarea::ignoreRequest(['campos', 'paginate'])->filter()->latest();
+
+        Log::channel('testing')->info('Log', ['paginate', $paginate]);
+        if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();
+    }
+
+    public function obtenerTodos()
+    {
+        $usuario = Auth::user();
+        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
+
+        $search = request('search');
+        $paginate = request('paginate');
+
+        // Monitor
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) {
+            if ($search) $query = $usuario->empleado->subtareasCoordinador();
+            else $query = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos', 'paginate'])->filter();
+
+            // if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+            //else return $query->get();
+            $filtros = [
+                ['clave' => 'estado', 'valor' => request('estado')],
+            ];
+            $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+            Log::channel('testing')->info('Log', ['DENTRO', $filtros]);
+            return buscarConAlgoliaFiltrado(Subtarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
+            // return TareaResource::collection($results);
+        }
+
+        // Control de tareas
+        if ($search) $query = Subtarea::where('estado', request('estado'));
+        else $query = Subtarea::ignoreRequest(['campos', 'paginate'])->filter()->latest();
+
+        /*if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
+        else return $query->get();*/
+        $filtros = [
+            ['clave' => 'estado', 'valor' => request('estado')],
+        ];
+        
+        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+        Log::channel('testing')->info('Log', ['FUERA', $filtros]);
+        return buscarConAlgoliaFiltrado(Subtarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
     }
 
     public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea, Request $request)
@@ -118,18 +196,13 @@ class SubtareaService
 
     public function puedeRealizar(Subtarea $subtarea)
     {
-        // $seguimiento = SeguimientoSubtarea::find($subtarea->seguimiento_id);
         $ids = TipoTrabajo::where('descripcion', 'STANDBY')->pluck('id')->toArray();
 
-        if (!in_array($subtarea->tipo_trabajo_id, $ids)) {/*  && !$seguimiento) throw ValidationException::withMessages([
-            'falta_seguimiento' => ['Debe registrar actividades en el seguimiento!'],
-        ]); */
-
-
-            if ($subtarea->trabajosRealizados->count() < 3)
+        if (!in_array($subtarea->tipo_trabajo_id, $ids)) {
+            /*if ($subtarea->trabajosRealizados->count() < 1)
                 throw ValidationException::withMessages([
-                    'pocas_actividades' => ['Ingrese al menos tres actividades en el formulario de seguimiento!'],
-                ]);
+                    'pocas_actividades' => ['Ingrese al menos  actividades en el formulario de seguimiento!'],
+                ]);*/
 
             if ($subtarea->tarea->cliente_id == ClientesCorporativos::NEDETEL) {
                 if ($subtarea->archivosSeguimiento->count() === 0)
@@ -138,5 +211,18 @@ class SubtareaService
                     ]);
             }
         }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function puedeIniciarHora(Subtarea $subtarea)
+    {
+        $horaInicio = Carbon::parse($subtarea->hora_inicio_trabajo)->format('H:i:s');
+
+        if (Carbon::now()->format('H:i:s') < $horaInicio) // Si puede ejecutar en la fecha ya se valida en el resource
+            throw ValidationException::withMessages([
+                'hora_inicio_trabajo' => ['Debe esperar a que sean las ' . $subtarea->hora_inicio_trabajo . ' para ejecutar la subtarea'],
+            ]);
     }
 }

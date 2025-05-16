@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    use Src\Shared\Utils;
+      $fecha = new Datetime();
 @endphp
 
 <head>
@@ -17,8 +16,7 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -85,7 +83,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo"></div>
                 </td>
                 <td style="width: 68%">
                     <div class="col-md-7" align="center"><b>REPORTE SALDO ACTUAL</b></div>
@@ -115,22 +113,19 @@
     <div class="contenido">
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>#</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>APELLIDOS Y NOMBRES</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>CARGO</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>LUGAR</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
-                    <div align="center"><strong>USUARIO</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>MONTO</strong></div>
                 </td>
             </tr>
@@ -142,30 +137,25 @@
                     $item++;
                 @endphp
                 <tr>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;"> {{ $item }}</div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;">
                             {{ $saldo['empleado']->apellidos . ' ' . $saldo['empleado']->nombres }}
                         </div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;">
                             {{ $saldo['cargo'] }}
                         </div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;">
                             {{ $saldo['localidad'] }}
                         </div>
                     </td>
-                    <td style="font-size:10px">
-                        <div align="left" style="margin-left:20px;">
-                            {{ $saldo['empleado_info']->name }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="right" style="margin-right:20px;">
                             {{ number_format($saldo['saldo_actual'], 2, ',', '.') }}
                         </div>

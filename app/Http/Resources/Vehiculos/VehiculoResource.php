@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class VehiculoResource extends JsonResource
@@ -9,8 +10,8 @@ class VehiculoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -23,18 +24,31 @@ class VehiculoResource extends JsonResource
             'anio_fabricacion' => $this->anio_fabricacion,
             'cilindraje' => $this->cilindraje,
             'rendimiento' => $this->rendimiento,
-            'marca' => $this->modelo->marca->nombre,
-            'modelo' => $this->modelo->nombre,
-            'combustible' => $this->combustible->nombre,
+            'marca' => $this->modelo?->marca?->nombre,
+            'modelo' => $this->modelo?->nombre,
+            'combustible' => $this->combustible?->nombre,
             'traccion' => $this->traccion,
+            'tipo_vehiculo' => $this->tipoVehiculo?->nombre,
             'aire_acondicionado' => $this->aire_acondicionado,
             'capacidad_tanque' => $this->capacidad_tanque,
+            'color' => $this->color,
+            'custodio_id' => $this->custodio_id,
+            'custodio' => $this->custodio?->nombres . ' ' . $this->custodio?->apellidos,
         ];
 
         if ($controller_method == 'show') {
             $modelo['marca'] = $this->modelo->marca->id;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['combustible'] = $this->combustible_id;
+            $modelo['tipo_vehiculo'] = $this->tipo_vehiculo_id;
+            $modelo['tiene_gravamen'] = $this->tiene_gravamen;
+            $modelo['prendador'] = $this->prendador;
+            $modelo['tipo'] = $this->tipo;
+            $modelo['tiene_rastreo'] = $this->tiene_rastreo;
+            $modelo['propietario'] = $this->propietario;
+            $modelo['conductor_externo'] = $this->conductor_externo;
+            $modelo['identificacion_conductor_externo'] = $this->identificacion_conductor_externo;
+            $modelo['seguro'] = $this->seguro_id;
         }
 
         return $modelo;

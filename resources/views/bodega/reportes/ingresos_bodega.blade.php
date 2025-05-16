@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
 @endphp
 
 <head>
@@ -17,8 +16,7 @@
         }
 
         body {
-            /* background-image: url('img/logoBN10.png'); */
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -91,86 +89,87 @@
 </head>
 
 <body>
-    <header>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
-            <tr class="row" style="width:auto">
-                <td style="width: 10%">
-                    <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
-                </td>
-                <td style="width: 68%">
-                    <div class="col-md-7" align="center"><b>REPORTE DE INGRESOS - [{{ $peticion['fecha_inicio'] }}
-                            @if (is_null($peticion['fecha_fin']))
-                                ]
-                            @else
-                                al {{ $peticion['fecha_fin'] }}]
-                        </b>
-                        @endif
-                    </div>
-                </td>
-                <td style="width: 22%">
-                    <div class="col-md-2" align="right">Sistema de Bodega</div>
-                </td>
-            </tr>
-        </table>
-        <hr>
-    </header>
-    <footer>
-        <table style="width: 100%;">
+<header>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
+        <tr class="row" style="width:auto">
+            <td style="width: 10%">
+                <div class="col-md-3"><img src="{{  Utils::urlToBase64(url($configuracion->logo_claro))  }}" width="90"
+                                           alt="logo"></div>
+            </td>
+            <td style="width: 68%">
+                <div class="col-md-7" align="center"><b>REPORTE DE INGRESOS - [{{ $peticion['fecha_inicio'] }}
+                        @if (is_null($peticion['fecha_fin']))
+                            ]
+                        @else
+                            al {{ $peticion['fecha_fin'] }}]
+                    </b>
+                    @endif
+                </div>
+            </td>
+            <td style="width: 22%">
+                <div class="col-md-2" align="right">Sistema de Bodega</div>
+            </td>
+        </tr>
+    </table>
+    <hr>
+</header>
+<footer>
+    <table style="width: 100%;">
+        <tr>
+            <td class="page">Página</td>
+            <td style="line-height: normal;">
+                <div style="margin: 0%; margin-bottom: 6px; margin-top: 0px;" align="center">Esta información es
+                    propiedad de {{$configuracion['razon_social']}} <br>Prohibida su divulgación
+                </div>
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
+                    {{ auth('sanctum')->user()->empleado->nombres }}
+                    {{ auth('sanctum')->user()->empleado->apellidos }} el
+                    {{ $fecha->format('d-m-Y H:i') }}
+                </div>
+            </td>
+            <td></td>
+        </tr>
+    </table>
+</footer>
+<!-- aqui va el contenido del document<br><br>o -->
+<main>
+    <table border="1" style="border-collapse:collapse; margin-bottom: 4px; width: 100%" align="center">
+        <thead style="margin-bottom:4px;">
+        <th>Id Inventario</th>
+        <th>Fecha</th>
+        <th>Descripción</th>
+        <th>Serial</th>
+        <th>Estado</th>
+        <th>Propietario</th>
+        <th>Bodega</th>
+        <th>Solicitante</th>
+        <th>Persona que atiende</th>
+        <th>Id Transacción</th>
+        <th>Justificación</th>
+        <th>Cantidad</th>
+        </thead>
+        <tbody style="font-size: 10px">
+        @foreach ($reporte as $rpt)
             <tr>
-                <td class="page">Página </td>
-                <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 6px; margin-top: 0px;" align="center">Esta información es
-                        propiedad de {{$configuracion['razon_social']}} <br>Prohibida su divulgación
-                    </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
-                        {{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d-m-Y H:i') }}
-                    </div>
-                </td>
-                <td></td>
+                <td>{{ $rpt['inventario_id'] }}</td>
+                <td>{{ $rpt['fecha'] }}</td>
+                <td>{{ $rpt['descripcion'] }}</td>
+                <td>{{ $rpt['serial'] }}</td>
+                <td>{{ $rpt['estado'] }}</td>
+                <td>{{ $rpt['propietario'] }}</td>
+                <td>{{ $rpt['bodega'] }}</td>
+                <td>{{ $rpt['solicitante'] }}</td>
+                <td>{{ $rpt['per_atiende'] }}</td>
+                <td>{{ $rpt['transaccion_id'] }}</td>
+                <td>{{ $rpt['justificacion'] }}</td>
+                <td>{{ $rpt['cantidad'] }}</td>
             </tr>
-        </table>
-    </footer>
-    <!-- aqui va el contenido del document<br><br>o -->
-    <main>
-        <table border="1" style="border-collapse:collapse; margin-bottom: 4px; width: 100%" align="center">
-            <thead style="margin-bottom:4px;">
-                <th>Id Inventario</th>
-                <th>Fecha</th>
-                <th>Descripción</th>
-                <th>Serial</th>
-                <th>Estado</th>
-                <th>Propietario</th>
-                <th>Bodega</th>
-                <th>Solicitante</th>
-                <th>Persona que atiende</th>
-                <th>Id Transacción</th>
-                <th>Justificación</th>
-                <th>Cantidad</th>
-            </thead>
-            <tbody style="font-size: 10px">
-                @foreach ($reporte as $rpt)
-                    <tr>
-                        <td>{{ $rpt['inventario_id'] }}</td>
-                        <td>{{ $rpt['fecha'] }}</td>
-                        <td>{{ $rpt['descripcion'] }}</td>
-                        <td>{{ $rpt['serial'] }}</td>
-                        <td>{{ $rpt['estado'] }}</td>
-                        <td>{{ $rpt['propietario'] }}</td>
-                        <td>{{ $rpt['bodega'] }}</td>
-                        <td>{{ $rpt['solicitante'] }}</td>
-                        <td>{{ $rpt['per_atiende'] }}</td>
-                        <td>{{ $rpt['transaccion_id'] }}</td>
-                        <td>{{ $rpt['justificacion'] }}</td>
-                        <td>{{ $rpt['cantidad'] }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        @endforeach
+        </tbody>
+    </table>
 
-    </main>
+</main>
 
 
 </body>

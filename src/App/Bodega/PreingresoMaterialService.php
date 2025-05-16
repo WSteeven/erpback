@@ -2,7 +2,9 @@
 
 namespace Src\App\Bodega;
 
+use App\Models\Condicion;
 use App\Models\DetalleProducto;
+use App\Models\Empleado;
 use App\Models\Fibra;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
@@ -12,6 +14,7 @@ use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\UnidadMedida;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -23,22 +26,20 @@ use Src\Shared\Utils;
 
 class PreingresoMaterialService
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function filtrarPreingresos(Request $request)
     {
         if ($request->autorizacion_id) {
             // switch ($request->autorizacion_id) {
             //     case 1: //PENDIENTE
-                    if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRADOR])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where(function ($query) {
-                            $query->where('responsable_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->orderBy('id', 'desc')->get();
+            if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_COORDINADOR_BODEGA, User::ROL_ADMINISTRADOR])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
+            $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+                ->where(function ($query) {
+                    $query->where('responsable_id', auth()->user()->empleado->id)
+                        ->orWhere('autorizador_id', auth()->user()->empleado->id)
+                        ->orWhere('coordinador_id', auth()->user()->empleado->id);
+                })->orderBy('id', 'desc')->get();
             //         break;
             //     case 2: //APROBADO
             //         if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
@@ -70,8 +71,9 @@ class PreingresoMaterialService
     {
         $fotografia = null;
         // se guarda la imagen en caso de haber
-        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia']) ) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
+        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia'])) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS,null, $preingreso_id . '_' . $item['producto'] .'_'. time()))->execute();
         $unidad = UnidadMedida::where('nombre', $item['unidad_medida'])->first();
+        $condicion = Condicion::where('nombre', $item['condicion'])->first();
 
         $datos = [
             'preingreso_id' => $preingreso_id,
@@ -82,6 +84,7 @@ class PreingresoMaterialService
             'punta_inicial' => $item['punta_inicial'],
             'punta_final' => $item['punta_final'],
             'unidad_medida_id' => $unidad->id,
+            'condicion_id' => $condicion->id,
             'fotografia' => $fotografia,
         ];
         return $datos;
@@ -93,7 +96,7 @@ class PreingresoMaterialService
                 //buscamos el producto padre del detalle
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
                 //buscamos si el detalle ingresado coincide con uno ya almacenado
-                $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], $item['serial'], $producto->id);
 
                 if ($detalle) {
                     //Si hay detalle con numero de serie y todo tal cual los argumentos dados se hace lo siguiente:
@@ -106,10 +109,10 @@ class PreingresoMaterialService
                     }
                 } else {
                     // no se encontró detalles coincidentes con numero de serie, buscamos sin numero de serie
-                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], null, $producto->id);
 
                     if ($detalle) { //se encontró detalle, pero se sabe que no tiene el mismo número de serie, entonces se debe crear uno nuevo
-                        if ($item['serial'] && !is_null($detalle->serial)) {
+                        if ($item['serial']) {
                             $datos = $detalle->toArray();
                             $datos['serial'] = $item['serial'];
                             $fibra = Fibra::where('detalle_id', $detalle->id)->first();
@@ -128,7 +131,22 @@ class PreingresoMaterialService
                             $detalleNuevo = DetalleProducto::crearDetalle($categoria, $datos);
                             ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalleNuevo->id, $item));
                         }
-                    } else  throw new Exception('No se encontró un detalle de producto con las similitudes dadas');
+                    } else {
+                        if ($item['es_generico']) {
+                            // se creará nuevo detalle
+                            $detalleGenerico  = DetalleProducto::obtenerDetalle(null, $item['descripcion_original']);
+                            $fibra = Fibra::where('detalle_id', $detalleGenerico->id)->first();
+                            if ($detalleGenerico) {
+                                $detalleGenerico->descripcion = $item['descripcion'];
+                                $detalleGenerico->serial = $item['serial'];
+                                $categoria = new \stdClass();
+                                $categoria->categoria = strtoupper($producto->categoria->nombre);
+                                $categoria->es_fibra = !!$fibra;
+                                $detalleCreado = DetalleProducto::crearDetalle($categoria, $detalleGenerico->toArray());
+                                Log::channel('testing')->info('Log', ['detalle creado es :', $detalleCreado]);
+                            }
+                        } else throw new Exception('No se encontró un detalle de producto con las similitudes dadas'); //aquí se debe controlar crear el nuevo ítem           
+                    }
                 }
             }
         } catch (\Throwable $th) {
@@ -151,11 +169,11 @@ class PreingresoMaterialService
         try {
             foreach ($listado as $item) {
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
-                $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], $item['serial'], $producto->id);
                 if ($detalle) {
 
                     if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id,$preingreso->proyecto_id, $preingreso->etapa_id);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id, $preingreso->proyecto_id, $preingreso->etapa_id);
                     else  // se carga el material al stock personal del tecnico responsable
                         MaterialEmpleado::cargarMaterialEmpleado($detalle->id, $preingreso->responsable_id, $item['cantidad'], $preingreso->cliente_id);
                 } else {
@@ -181,7 +199,7 @@ class PreingresoMaterialService
     {
         foreach ($listado as $elemento) {
             $producto = Producto::obtenerProductoPorNombre($elemento['producto']);
-            $detalle = DetalleProducto::obtenerDetalle($producto->id, $elemento['descripcion'], $elemento['serial']);
+            $detalle = DetalleProducto::obtenerDetalle($elemento['descripcion'], $elemento['serial'], $producto->id);
             // Si el id del itemPreingreso es encontrado en el listado recibido entonces retorna true
             if ($id == $detalle->id) return true;
         }
@@ -220,7 +238,7 @@ class PreingresoMaterialService
             //Si la fotografia recibida es la actualización de algun item ya guardado, se borra la imagen del servidor y se guarda la nueva imagen
             Utils::eliminarArchivoServidor($itemPreingreso->fotografia);
 
-            $fotografia = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $itemPreingreso->preingreso_id . '_' . $datos['producto'] . time()))->execute();
+            $fotografia = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, null, $itemPreingreso->preingreso_id . '_' . $datos['producto'] .'_'. time()))->execute();
             $itemPreingreso->fotografia = $fotografia;
             $itemPreingreso->save();
         }
@@ -244,7 +262,7 @@ class PreingresoMaterialService
             foreach ($listado as $item) {
                 //primero buscamos si hay un detalle coincidente con los datos recibidos desde el front
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
-                $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], $item['serial'], $producto->id);
 
                 if ($detalle) {
                     //Si hay el detalle, comprobamos si hay algún ítem de Preingreso registrado previamente con el detalle encontrado
@@ -252,7 +270,7 @@ class PreingresoMaterialService
                     if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
                     else self::guardarDetalles($preingreso, [$item]);
                 } else {
-                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    $detalle = DetalleProducto::obtenerDetalle($item['descripcion'], null, $producto->id);
                     if ($detalle) {
                         $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
                         Log::channel('testing')->info('Log', ['item 255:', $itemPreingreso]);
@@ -281,4 +299,81 @@ class PreingresoMaterialService
             throw $th;
         }
     }
+
+    /************************************************
+     * Reporte Excel - Formulario producto Empleados
+     ************************************************/
+    public function filtrarPreingresosReporteExcel($request)
+    {
+        $query = PreingresoMaterial::where('autorizacion_id', 2)->where('responsable_id', $request['responsable']);
+
+        // Manejo de las fechas usando Carbon
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fechaFin = $request->fecha_fin
+            ? Carbon::parse($request->fecha_fin)->endOfDay()
+            : now();
+
+        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+        return $query->orderByDesc('id')->get();
+    }
+
+    public function obtenerProductosPreingresos($preingresos)
+    {
+        $results = []; // Inicializa $results fuera del bucle principal
+
+        foreach ($preingresos as $preingreso) {
+            $detalles = $preingreso->detalles()->get();
+
+            foreach ($detalles as $detalle) {
+                $results[] = [
+                    'id' => $preingreso->id,
+                    'fecha_solicitud' => $preingreso->created_at,
+                    'producto' => $detalle->producto->nombre,
+                    'descripcion' => $detalle->pivot->descripcion,
+                    'serial' => $detalle->pivot->serial,
+                    'categoria' => $detalle->producto->categoria->nombre,
+                    'cantidad' => $detalle->pivot->cantidad,
+                    'cliente' => $preingreso->cliente?->empresa->razon_social,
+                    'justificacion' => $preingreso->observacion,
+                    'cliente_id' => $preingreso->cliente_id,
+                    'detalle_producto_id' => $detalle->id,
+                    'solicitante' => Empleado::extraerNombresApellidos($preingreso->solicitante),
+                    'unidad_medida' => $detalle->producto->unidadMedida->nombre,
+                    'condicion' => Condicion::find($detalle->pivot->condicion_id)?->nombre,
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+    /* public static function obtenerSumaCantidadesProductos($productos_transferencias)
+    {
+        $results = [];
+        foreach ($productos_transferencias as $item) {
+            $detalleProductoId = $item['detalle_producto_id'];
+            $propietario = $item['cliente_id'];
+
+            // Llave única para identificar elementos
+            $key = $detalleProductoId . '|' . $propietario;
+
+            if (!isset($results[$key])) {
+                // Si el elemento no existe en el array, agregarlo
+                $results[$key] = [
+                    'producto' => $item['producto'],
+                    'descripcion' => $item['descripcion'],
+                    'serial' => $item['serial'],
+                    'propietario' => $item['cliente'],
+                    'cantidad' => $item['cantidad'],
+                ];
+            } else {
+                // Si el elemento ya existe, sumar la cantidad
+                $results[$key]['cantidad'] += $item['cantidad'];
+            }
+        }
+
+        // Convertir resultados a un array indexado
+        return array_values($results);
+    } */
 }

@@ -2,68 +2,87 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
+use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class EmpleadoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
         $campos = $request->query('campos') ? explode(',', $request->query('campos')) : [];
         $controller_method = $request->route()->getActionMethod();
-        $modelo = [
+        $modelo = array(
             'id' => $this->id,
             'identificacion' => $this->identificacion,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
+            'nombres_apellidos' => $this->nombres . ' ' . $this->apellidos,
+            'fecha_nacimiento' => date('Y-m-d', strtotime($this->fecha_nacimiento)),
             'telefono' => $this->telefono,
             'email' => $this->user ? $this->user->email : '',
             'usuario' => $this->user?->name,
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
+            'jefe_id' => $this->jefe_id,
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
+            'edad' => Empleado::obtenerEdad($this),
+            // 'nombre_canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
             'cargo' => $this->cargo?->nombre,
+            'nombre_cargo' => $this->cargo?->nombre,
             'departamento' => $this->departamento?->nombre,
             'grupo' => $this->grupo?->nombre,
-            'grupo_id' => $this->grupo?->nombre,
-            'cargo' => $this->cargo?->nombre,
+            'grupo_id' => $this->grupo_id,
             'firma_url' => $this->firma_url ? url($this->firma_url) : null,
-            'foto_url' => $this->foto_url ? url($this->foto_url) : null,
-            'convencional' => $this->convencional ? $this->convencional : null,
-            'telefono_empresa' => $this->telefono_empresa ? $this->telefono_empresa : null,
-            'extension' => $this->extension ? $this->extension : null,
-            'coordenadas' => $this->coordenadas ? $this->coordenadas : null,
+            'fecha_ingreso' => $this->fecha_ingreso,
+            'foto_url' => $this->foto_url ? url($this->foto_url) : url('/storage/sinfoto.png'),
+            'convencional' => $this->convencional ?: null,
+            'telefono_empresa' => $this->telefono_empresa ?: null,
+            'extension' => $this->extension ?: null,
+            'coordenadas' => $this->coordenadas ?: null,
             'casa_propia' => $this->casa_propia,
             'vive_con_discapacitados' => $this->vive_con_discapacitados,
             'responsable_discapacitados' => $this->responsable_discapacitados,
             'tiene_discapacidad' => $this->tiene_discapacidad,
             'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
             'fecha_vinculacion' => $this->fecha_vinculacion,
-            'area' =>  $this->area_id,
-            'area_info' =>  $this->area ? $this->area->nombre : null,
+            'area' => $this->area_id,
+            'area_info' => $this->area ? $this->area->nombre : null,
             'observacion' => $this->observacion,
             'esta_en_rol_pago' => $this->esta_en_rol_pago,
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
-            'familiares' => $this->familiares_info,
+            'familiares' => $this->familiares,
             'num_cuenta' => $this->num_cuenta_bancaria,
             'salario' => $this->salario,
             'supa' => $this->supa,
-            'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
+            'roles' => $this->user ? implode(', ', $this->user->getRoleNames()->filter(fn($rol) => $rol !== 'EMPLEADO')->toArray()) : array(),
             'direccion' => $this->direccion,
-        ];
-
-
+            'nivel_academico' => $this->nivel_academico,
+            'autoidentificacion_etnica' => $this->autoidentificacion_etnica,
+            'trabajador_sustituto' => $this->trabajador_sustituto,
+            'orientacion_sexual_info' => $this->orientacionSexual,
+            'orientacion_sexual' => $this->orientacion_sexual_id,
+            'identidad_genero' => $this->identidad_genero_id,
+            'identidad_genero_info' => $this->identidadGenero,
+            'religion' => $this->religion_id,
+            'religion_info' => $this->religion,
+            'archivos' => $this->archivos->count(),
+            'estado_civil' => $this->estadoCivil?->nombre,
+        );
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
+            $modelo['jefe_inmediato'] = Empleado::extraerNombresApellidos($this->jefe);
             $modelo['usuario'] = $this->user->name;
             $modelo['canton'] = $this->canton_id;
+            $modelo['nombre_canton'] = $this->canton?->canton;
             $modelo['roles'] = $this->user->getRoleNames();
             $modelo['grupo'] = $this->grupo_id;
             $modelo['cargo'] = $this->cargo_id;
@@ -77,7 +96,7 @@ class EmpleadoResource extends JsonResource
             $modelo['salario'] = $this->salario;
             $modelo['num_cuenta'] = $this->num_cuenta_bancaria;
             $modelo['banco'] = $this->banco;
-            $modelo['banco_info'] = $this->banco_info ? $this->banco_info->nombre : null;
+            $modelo['banco_info'] = $this->bancoInfo ? $this->bancoInfo->nombre : null;
             $modelo['fecha_ingreso'] = $this->fecha_ingreso;
             $modelo['antiguedad'] = $this->antiguedad($this->fecha_ingreso);
             $modelo['fecha_salida'] = $this->fecha_salida;
@@ -85,14 +104,16 @@ class EmpleadoResource extends JsonResource
             $modelo['talla_camisa'] = $this->talla_camisa;
             $modelo['talla_guantes'] = $this->talla_guantes;
             $modelo['talla_pantalon'] = $this->talla_pantalon;
-            $modelo['nivel_academico'] = $this->nivel_academico;
+            $modelo['titulo'] = $this->titulo;
             $modelo['estado_civil'] = $this->estado_civil_id;
-            $modelo['estado_civil_info'] = $this->estadoCivil  ? $this->estadoCivil->nombre : null;
-            $modelo['area_info'] =  $this->area ? $this->area->nombre : null;
+            $modelo['estado_civil_info'] = $this->estadoCivil ? $this->estadoCivil->nombre : null;
+            $modelo['area_info'] = $this->area ? $this->area->nombre : null;
             $modelo['tipo_contrato'] = $this->tipo_contrato_id;
             $modelo['tipo_contrato_info'] = $this->tipoContrato ? $this->tipoContrato->nombre : null;
             $modelo['genero'] = $this->genero;
             $modelo['realiza_factura'] = $this->realiza_factura;
+            $modelo['conductor'] = $this->conductor;
+            $modelo['discapacidades'] = DiscapacidadUsuario::mapearDiscapacidades($this->user->discapacidades()->get());
         }
 
         // Filtra los campos personalizados y añádelos a la respuesta si existen
@@ -100,11 +121,13 @@ class EmpleadoResource extends JsonResource
         foreach ($campos as $campo) {
             if (isset($modelo[$campo])) {
                 // $modelo[$campo] = $this->{$campo};
-                $data[$campo] = $this->{$campo};
+                $data[$campo] = $modelo[$campo];
             }
         }
+//        Log::channel('testing')->info('Log', ['EmpleadoResource', $modelo]);
         return count($campos) ? $data : $modelo;
     }
+
     public function antiguedad($fecha_ingreso)
     {
         // Obtén la fecha actual con Carbon
@@ -129,4 +152,5 @@ class EmpleadoResource extends JsonResource
         // Retorna la diferencia en el formato deseado
         return $diffYears . ' Años ' . $diffMonths . ' Meses ' . $diffDays . ' Días';
     }
+
 }

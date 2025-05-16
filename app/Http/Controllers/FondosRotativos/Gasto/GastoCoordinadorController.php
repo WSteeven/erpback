@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Events\SolicitudFondosEvent;
-use App\Exports\GastoExport;
 use App\Exports\SolicitudFondosExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GastoCoordinadorRequest;
@@ -13,16 +12,22 @@ use App\Models\FondosRotativos\Gasto\GastoCoordinador;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class GastoCoordinadorController extends Controller
 {
-    private $entidad = 'gasto_coordinador';
-    private $reporteService;
+    private string $entidad = 'gasto_coordinador';
+    private ReportePdfExcelService $reporteService;
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
@@ -31,17 +36,15 @@ class GastoCoordinadorController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return array
      */
     public function index()
     {
-        $results = [];
         $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->orderBy('fecha_gasto','desc')->get();
+        if ($usuario->hasRole(User::ROL_CONTABILIDAD)) {
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->filter()->orderBy('fecha_gasto', 'desc')->get();
         } else {
-            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->empleado->id)->orderBy('fecha_gasto','desc')->get();
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->where('id_usuario', $usuario->empleado->id)->filter()->orderBy('fecha_gasto', 'desc')->get();
         }
         $results = GastoCoordinadorResource::collection($results);
         return compact('results');
@@ -50,91 +53,127 @@ class GastoCoordinadorController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param GastoCoordinadorRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function store(GastoCoordinadorRequest $request)
     {
+        DB::beginTransaction();
         try {
             $datos = $request->validated();
-           // $datos['id_motivo'] = $request->safe()->only(['motivo'])['motivo'];
-            $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
-            $datos['id_grupo'] =  $request->safe()->only(['grupo'])['grupo'];
-            $modelo = GastoCoordinador::create($datos);
-            $modelo->detalle_motivo_info()->sync($request->motivo);
-            event(new SolicitudFondosEvent($modelo));
+            $gasto_cordinador = GastoCoordinador::create($datos);
+            $modelo = new GastoCoordinadorResource($gasto_cordinador);
+            $gasto_cordinador->detalleMotivoGasto()->sync($request->motivo);
+            event(new SolicitudFondosEvent($gasto_cordinador));
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al actualizar gasto' => [$e->getMessage()],
+            ]);
         }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param GastoCoordinador $gasto_coordinador
+     * @return JsonResponse
      */
     public function show(GastoCoordinador $gasto_coordinador)
     {
+        // Se actualiza el revisado
+        if (auth()->user()->hasRole(User::ROL_CONTABILIDAD) && !$gasto_coordinador->revisado) {
+            $gasto_coordinador->update(['revisado' => true]);
+        }
+
         $modelo = new GastoCoordinadorResource($gasto_coordinador);
-        return response()->json(compact('modelo'), 200);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param GastoCoordinadorRequest $request
+     * @param GastoCoordinador $gasto_coordinador
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
-    public function update(Request $request, $id)
+    public function update(GastoCoordinadorRequest $request, GastoCoordinador $gasto_coordinador)
     {
-        $datos = $request->all();
-        $modelo = GastoCoordinador::find($id);
-        $modelo->update($datos);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje', 'modelo'));
+        DB::beginTransaction();
+        try {
+            $datos = $request->validated();
+            $gasto_coordinador->update($datos);
+            $modelo = new GastoCoordinadorResource($gasto_coordinador->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al actualizar gasto' => [$e->getMessage()],
+            ]);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $modelo = GastoCoordinador::find($id);
         $modelo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function reporte(Request $request, $tipo)
+
+    /**
+     * La función `reporte` genera un informe basado en la entrada del usuario y maneja excepciones.
+     *
+     * @param Request $request La función "reporte" que proporcionó parece estar manejando la generación de
+     * un informe basado en los datos de la solicitud. Aquí hay un desglose de la función:
+     * @param string $tipo El parámetro `tipo` en la función `reporte` parece indicar el tipo de informe que
+     * se generará. Es un parámetro de cadena que probablemente especifica el formato o tipo de informe,
+     * como PDF, Excel.
+     *
+     * @return Response|BinaryFileResponse función `reporte` devuelve el resultado de llamar al método `imprimir_reporte` en el
+     * objeto `reporteService`. El método está siendo llamado con los parámetros ``, `'A4'`,
+     * `'landscape'`, ``, ``, `` y ``.
+     * @throws ValidationException|Throwable
+     */
+    public function reporte(Request $request, string $tipo)
     {
         try {
-            $datos = $request->all();
+//            $datos = $request->all();
             $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $usuario = null;
-            if($request->usuario !== null){
+            if ($request->usuario !== null) {
                 $results = GastoCoordinador::where('id_usuario', $request->usuario)->whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
                 $usuario = Empleado::where('id', $request->usuario)->first();
-            }else{
+            } else {
                 $results = GastoCoordinador::whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
             }
             $solicitudes = GastoCoordinador::empaquetar($results);
             $nombre_reporte = 'reporte_solicitud_fondos_del' . $fecha_inicio . '-' . $fecha_fin . 'de' .  Auth::user()->empleado->nombres . ' ' . Auth::user()->apellidos;
             $vista = 'exports.reportes.solicitud_fondos';
-            $reportes = compact('solicitudes','usuario', 'fecha_inicio', 'fecha_fin');
+            $reportes = compact('solicitudes', 'usuario', 'fecha_inicio', 'fecha_fin');
             $export_excel = new SolicitudFondosExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 }

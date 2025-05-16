@@ -2,16 +2,21 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
 use App\Models\Pedido;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property mixed $id
+ */
 class PedidoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -27,12 +32,12 @@ class PedidoResource extends JsonResource
             'fecha_limite' => is_null($this->fecha_limite)?'':date('d-m-Y', strtotime($this->fecha_limite)),
             'observacion_aut' => $this->observacion_aut,
             'observacion_est' => $this->observacion_est,
-            'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
+            'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
             'solicitante_id' => $this->solicitante_id,
             'responsable' => is_null($this->responsable)?'':$this->responsable->nombres.' '.$this->responsable->apellidos,
             'responsable_id' => $this->responsable_id,
             'autorizacion' => $this->autorizacion->nombre,
-            'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
+            'per_autoriza' => Empleado::extraerNombresApellidos($this->autoriza),
             'per_autoriza_id' => $this->per_autoriza_id,
             'per_retira' => is_null($this->per_retira_id)?'':$this->retira->nombres.' '.$this->retira->apellidos,
             'per_retira_id' => $this->per_retira_id,
@@ -51,13 +56,13 @@ class PedidoResource extends JsonResource
             'proyecto' => $this->proyecto_id,
             'etapa' => $this->etapa_id,
 
-            'tiene_fecha_limite'=>$this->fecha_limite?true:false,
-            'es_tarea' => $this->tarea ? true : false,
-            'tiene_observacion_aut' => $this->observacion_aut ? true : false,
-            'tiene_observacion_est' => $this->observacion_est ? true : false,
-            'retira_tercero' => $this->per_retira_id ? true : false,
-            'tiene_evidencia' => $this->evidencia1 ||$this->evidencia2 ? true : false,
-            'para_cliente' => $this->cliente ? true : false,
+            'tiene_fecha_limite'=> (bool)$this->fecha_limite,
+            'es_tarea' => (bool)$this->tarea,
+            'tiene_observacion_aut' => (bool)$this->observacion_aut,
+            'tiene_observacion_est' => (bool)$this->observacion_est,
+            'retira_tercero' => (bool)$this->per_retira_id,
+            'tiene_evidencia' => $this->evidencia1 ||$this->evidencia2,
+            'para_cliente' => (bool)$this->cliente,
             'estado_orden_compra'=> $this->estadoOC($this->id)
         ];
 

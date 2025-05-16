@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Http\Resources\Intranet;
+
+use App\Models\Empleado;
+use App\Models\Intranet\Etiqueta;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Shared\Utils;
+
+class NoticiaResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function toArray($request)
+    {
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'titulo' => $this->titulo,
+            'descripcion' => $this->descripcion,
+            'autor_id' => $this->autor_id,
+            'autor' => Empleado::extraerNombresApellidos($this->autor),
+            'categoria_id' => $this->categoria_id,
+            'categoria' => $this->categoria->nombre,
+            'etiquetas' => $this->etiquetas ? Etiqueta::whereIn('id', Utils::convertirStringComasArray($this->etiquetas))->pluck('nombre') : [],
+            'imagen_noticia' => url($this->imagen_noticia) ?? null,
+            'fecha_vencimiento' => $this->fecha_vencimiento,
+            'created_at' => date('d/m/Y H:i:s', strtotime($this->created_at)),
+            'departamentos_destinatarios'=> $this->departamentos_destinatarios,
+        ];
+
+        if ($controller_method == 'show' || $controller_method == 'ultima') {
+            $modelo['categoria'] = $this->categoria_id;
+            $modelo['etiquetas'] = $this->etiquetas ? array_map('intval', Utils::convertirStringComasArray($this->etiquetas)) : [];
+            $modelo['departamentos_destinatarios'] = $this->departamentos_destinatarios ? array_map('intval', Utils::convertirStringComasArray($this->departamentos_destinatarios)) : [];
+        }
+
+        return $modelo;
+    }
+}

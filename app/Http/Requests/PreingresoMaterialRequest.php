@@ -90,7 +90,7 @@ class PreingresoMaterialRequest extends FormRequest
             'fecha' => date('Y-m-d', strtotime($this->fecha))
         ]);
 
-        if(is_null($this->solicitante) || $this->solicitante==''){
+        if (is_null($this->solicitante) || $this->solicitante == '') {
             $this->merge([
                 'solicitante' => auth()->user()->empleado->id
             ]);

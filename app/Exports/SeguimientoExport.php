@@ -250,8 +250,11 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
     {
         $empleados_designados = [];
 
-        foreach ($this->subtarea->empleados_designados as $empleado_id) {
-            array_push($empleados_designados, Empleado::extraerNombresApellidos(Empleado::find($empleado_id)));
+        if ($this->subtarea->empleados_designados) {
+
+            foreach ($this->subtarea->empleados_designados as $empleado_id) {
+                array_push($empleados_designados, Empleado::extraerNombresApellidos(Empleado::find($empleado_id)));
+            }
         }
 
         return $empleados_designados;
@@ -289,8 +292,10 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
         $materialStockUsado = SeguimientoMaterialStock::selectRaw('detalles_productos.descripcion, SUM(cantidad_utilizada) as cantidad_utilizada')
             ->where('empleado_id', $empleado_id)
             ->where('subtarea_id', $this->subtarea->id)
+            // ->whereNotNull('cliente_id')
             ->groupBy('detalle_producto_id')
             ->join('detalles_productos', 'seguimientos_materiales_stock.detalle_producto_id', '=', 'detalles_productos.id')
+            ->join('clientes', 'seguimientos_materiales_stock.cliente_id', '=', 'clientes.id')
             ->get();
         return $materialStockUsado;
     }

@@ -2,16 +2,25 @@
 
 namespace Src\Shared;
 
+use App\Models\ComprasProveedores\DatoBancarioProveedor;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Ramsey\Uuid\Type\Integer;
+use Illuminate\Validation\ValidationException;
+use Intervention\Image\ImageManagerStatic as Image;
+use Throwable;
 
 class Utils
 {
-    public static $meses = array(
+
+    const MASKFECHA = 'Y-m-d';
+    const MASKFECHAHORA = 'Y-m-d H:i:s';
+    public static array $meses = array(
         "January" => "Enero",
         "February" => "Febrero",
         "March" => "Marzo",
@@ -25,9 +34,67 @@ class Utils
         "November" => "Noviembre",
         "December" => "Diciembre"
     );
+
     public static function esBase64(string $imagen): bool
     {
         return str_contains($imagen, ';base64');
+    }
+
+    /**
+     * @param  $url //ruta de donde tomará la imagen, empieza con http:// o https://
+     * @return string Base64 imagen
+     */
+    public static function urlToBase64($url)
+    {
+        $options = stream_context_create([
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ]
+        ]);
+        return 'data:image/png;base64,' . base64_encode(file_get_contents($url, false, $options));
+    }
+
+    /**
+     * Función para obtener las imagenes necesarias para imprimir en una vista de un reporte de Excel.
+     * Busca en local si existe la imagen, caso contrario busca en la carpeta temporal y si no existe,
+     * la descarga dentro de la carpeta temporal y sirve la ruta de la imagen.
+     *
+     * @param string|null $relativePath ruta de imagen de la base de datos.
+     * @return string|null
+     */
+    public static function getImagePath(?string $relativePath)
+    {
+
+        $localPath = public_path($relativePath);
+
+        // Si la imagen ya existe en el servidor, usarla directamente
+        if (file_exists($localPath)) return $localPath;
+
+        $relativePath = str_replace('storage/', '', ltrim($relativePath, '/'));
+
+        // Ruta en el servidor remoto
+        $remoteUrl = env('FAST_API_URL_FOR_DOWNLOAD') . $relativePath;
+
+
+        // Directorio donde guardaremos las imagenes descargadas
+        $tempDirectory = storage_path('app/public/temp_images/');
+        if (!file_exists($tempDirectory)) mkdir($tempDirectory, 0777, true);
+
+        $tempPath = $tempDirectory . basename($relativePath);
+
+        // Si la imagen no ha sido descargada previamente
+        if (!file_exists($tempPath)) {
+            try {
+                $response = Http::withOptions(['verify' => false])->get($remoteUrl);
+                if ($response->successful())
+                    file_put_contents($tempPath, $response->body());
+                else return null;
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+        return public_path('storage/temp_images/' . basename($relativePath)); // Retorna la nueva ruta local
     }
 
     public static function decodificarImagen(string $imagen_base64): string
@@ -36,15 +103,26 @@ class Utils
         return base64_decode($partes[1]);
     }
 
-    public static function obtenerMimeType(string $imagen_base64): string
-    {
-        return explode("/", mime_content_type($imagen_base64))[1];
+    public static function obtenerMimeType(string $imagen_base64):string{
+        // Eliminar el prefijo "data:image/jpeg;base64," si existe
+        $base64_image = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
+
+        // Decodificar la cadena Base64 a datos binarios
+        $image_data = base64_decode($base64_image);
+
+        // Crear una instancia de Image a partir de los datos binarios
+        $image = Image::make($image_data);
+
+        // Obtener el mime type de la imagen
+        $mime_type = $image->mime();
+
+        return $mime_type;
     }
 
     public static function obtenerExtension(string $imagen_base64): string
     {
         $mime_type = self::obtenerMimeType($imagen_base64);
-        return explode("+", $mime_type)[0];
+        return explode("/", $mime_type)[1];
     }
 
     public static function arrayToCsv(string $campos, array $listado): string
@@ -88,7 +166,7 @@ class Utils
      * "public" antes de eliminar el archivo del servidor
      * @return void
      */
-    public static function eliminarArchivoServidor($url, $reemplazar = true)
+    public static function eliminarArchivoServidor(string $url, bool $reemplazar = true)
     {
         if ($reemplazar) {
             $ruta = str_replace('storage', 'public', $url);
@@ -114,6 +192,66 @@ class Utils
     }
 
     /**
+     * La función `obtenerMensajeErrorLanzable` devuelve una ValidationException con un mensaje de
+     * error personalizado basado en la excepción o Throwable proporcionado.
+     *
+     * @param Exception|Throwable $e El parámetro `e` es objeto de una instancia de la clase `Exception` o interfaz `Throwable`.
+     * @param string $textoPersonalizado El parámetro `textoPersonalizado` es una cadena que le permite
+     * proporcionar un mensaje personalizado o información adicional que se puede agregar al mensaje de
+     * error. Es opcional y se puede utilizar para personalizar aún más el mensaje de error según
+     * requisitos o contexto específicos.
+     *
+     * @return ValidationException Se devuelve una `ValidationException` con un mensaje que contiene un error obtenido del
+     * método `obtenerMensajeError`, que toma un objeto `Exception` o `Throwable` y un texto
+     * personalizado como parámetros.
+     */
+    public static function obtenerMensajeErrorLanzable(Exception|Throwable $e, string $textoPersonalizado = '')
+    {
+        return ValidationException::withMessages(['error' => self::obtenerMensajeError($e, $textoPersonalizado)]);
+    }
+
+    /**
+     * La función "obtenerMensajeError" en PHP devuelve un mensaje de error formateado que incluye el
+     * número de línea, el texto personalizado y el mensaje de excepción.
+     *
+     * @param Exception|Throwable $e El parámetro `e` es un objeto de tipo `Exception`. La función recupera
+     * información de este objeto de excepción, como el mensaje y número de línea donde ocurrió la excepción.
+     * @param string $textoPersonalizado Le permite
+     * proporcionar un mensaje personalizado o información adicional para incluir en el mensaje de
+     * error.
+     *
+     * @return string mensaje de error formateado que incluye el número de línea donde ocurrió la
+     * excepción, cualquier texto personalizado proporcionado y el mensaje de excepción en sí.
+     */
+    public static function obtenerMensajeError(Exception|Throwable $e, string $textoPersonalizado = '')
+    {
+        return '[ERROR][' . $e->getLine() . ']: ' . $textoPersonalizado . ' .' . $e->getMessage();
+    }
+
+    public static function metodoNoDesarrollado()
+    {
+        return 'Método no desarrollado, por favor contacta al departamento de Informática para más información.';
+    }
+
+    /**
+     * Calcula la diferencia entre dos fechas incluyendo ambas fechas por defecto para contar los días transcurridos
+     * @param string|null $fecha_inicio
+     * @param string|null $fecha_fin
+     * @param bool $inclusive
+     * @return int
+     */
+    public static function calcularDiasTranscurridos(string|null $fecha_inicio, string|null $fecha_fin, bool $inclusive = true)
+    {
+        $fechaInicio = Carbon::parse($fecha_inicio);
+        $fechaFin = Carbon::parse($fecha_fin);
+        // Calcular la diferencia en días
+        if ($inclusive)
+            return $fechaInicio->diffInDays($fechaFin) + 1;
+        else
+            return $fechaInicio->diffInDays($fechaFin);
+    }
+
+    /**
      * Metodo para generar codigos de N dígitos basandose en el id recibido
      * @param int $id
      * @param int $longitud
@@ -125,7 +263,7 @@ class Utils
         while (strlen($codigo) < ($longitud - strlen($id))) {
             $codigo .= "0";
         }
-        $codigo .= strval($id);
+        $codigo .= $id;
         return $codigo;
     }
 
@@ -135,7 +273,7 @@ class Utils
      * Para una validación más completa se debe usar expresiones regulares.
      *
      */
-    public static function validarEmail(String $email)
+    public static function validarEmail(string $email)
     { //Aún no está probada
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return true;
@@ -143,21 +281,20 @@ class Utils
         return false;
     }
 
-    public static function validarNumeroCuenta($numeroCuenta)
+    public static function validarNumeroCuenta($numero_cuenta)
     {
-        if (strlen($numeroCuenta) != 11) {
+        if (strlen($numero_cuenta) != 11) {
             return false;
         }
 
-        $codigoBanco = substr($numeroCuenta, 0, 4);
-        $numeroCuenta = substr($numeroCuenta, 4, 6);
-        $digitoControl = intval(substr($numeroCuenta, -1));
+        $numero_cuenta = substr($numero_cuenta, 4, 6);
+        $digito_control = intval(substr($numero_cuenta, -1));
 
         // Validar la lógica del dígito de control (por ejemplo, suma de ciertos dígitos)
-        $sumaDigitos = array_sum(str_split($numeroCuenta));
-        Log::channel('testing')->info('Log', ['key', $numeroCuenta, $digitoControl, $sumaDigitos]);
+        $suma_digitos = array_sum(str_split($numero_cuenta));
+        Log::channel('testing')->info('Log', ['key', $numero_cuenta, $digito_control, $suma_digitos]);
 
-        if ($sumaDigitos % 10 == $digitoControl) {
+        if ($suma_digitos % 10 == $digito_control) {
             return true;
         } else {
             return false;
@@ -188,12 +325,11 @@ class Utils
         //minuto es la division entre el sobrante y 60 segundos que representa un minuto;
         $minutos = floor($mod_minuto / 60);
         if ($minutos <= 0) {
-            $text =  $min . " segundoxxx(s)";
+            $text = $min . " segundoxxx(s)";
         } elseif ($horas <= 0) {
             $text = $minutos . ' minuto(s)';
         } elseif ($dias <= 0) {
-            if ($type == 'round')
-            //nos apoyamos de la variable type para especificar si se muestra solo las horas
+            if ($type == 'round') //nos apoyamos de la variable type para especificar si se muestra solo las horas
             {
                 $text = $horas . ' hora(s)';
             } else {
@@ -224,12 +360,11 @@ class Utils
         //minuto es la division entre el sobrante y 60 segundos que representa un minuto;
         $minutos = floor($mod_minuto / 60);
         if ($minutos <= 0) {
-            $text =  $sec . " segundoxxx(s)";
+            $text = $sec . " segundoxxx(s)";
         } elseif ($horas <= 0) {
             $text = $minutos . ' minuto(s)';
         } elseif ($dias <= 0) {
-            if ($type == 'round')
-            //nos apoyamos de la variable type para especificar si se muestra solo las horas
+            if ($type == 'round') //nos apoyamos de la variable type para especificar si se muestra solo las horas
             {
                 $text = $horas . ' hora(s)';
             } else {
@@ -247,13 +382,30 @@ class Utils
     }
 
     /**
+     * La función `obtenerTipoCta` devuelve la abreviatura del tipo de cuenta según el tipo de entrada.
+     * Esto se realiza para obtener datos para el cash de pagos.
+     *
+     * @param string $tipo El tipo de cuenta (CORRIENTE o AHORROS)
+     *
+     * @return string Si el valor es igual a `CORRIENTE`, la
+     * función devuelve 'CTE'. De lo contrario, devuelve 'AHO'.
+     */
+    public static function obtenerTipoCta(string $tipo)
+    {
+        return match ($tipo) {
+            DatoBancarioProveedor::CORRIENTE => 'CTE',
+            default => 'AHO',
+        };
+    }
+
+    /**
      * La función "mayusc" en PHP convierte una cadena a mayúsculas.
      *
      * @param string $value El parámetro de valor es una cadena que desea convertir a mayúsculas.
      *
      * @return String el valor de entrada convertido a mayúsculas.
      */
-    public static function mayusc($value)
+    public static function mayusc(string $value)
     {
         return strtoupper($value);
     }
@@ -274,6 +426,55 @@ class Utils
         return -1;
     }
 
+    /**
+     * La función `configurarGrafico` crea un objeto de configuración pie de gráfico estadistico con parámetros
+     * específicos.
+     *
+     * @param int $id El parámetro `id` es un número entero que representa el identificador único del
+     * gráfico. Esto se usa para enviar varios graficos en la respuesta y puedan graficarse en un for|foreach.
+     * @param string $identificador El parámetro `identificador` es una cadena que representa el identificador del gráfico.
+     * Se utiliza para identificar de forma única el gráfico dentro del sistema o aplicación donde se utiliza la función.
+     * @param string $encabezado El parámetro `encabezado`  es una
+     * cadena que representa el encabezado o título del cuadro/gráfico. Es el texto que se mostrará en
+     * la parte superior del gráfico para proporcionar una breve descripción o resumen de los datos que
+     * se presentan.
+     * @param array $labelsArray El parámetro `labelsArray` es una
+     * matriz que contiene las etiquetas para los puntos de datos en el gráfico. Estas etiquetas
+     * normalmente se muestran a lo largo del eje x del gráfico para proporcionar contexto para los
+     * puntos de datos correspondientes. Cada elemento en `labelsArray`
+     * @param array $colorsArray El parámetro `colorsArray` es una
+     * matriz que contiene los colores de fondo de los conjuntos de datos del gráfico. Cada elemento en
+     * `colorsArray` corresponde a un conjunto de datos diferente en el gráfico. El color de fondo se
+     * aplicará a los puntos o barras de datos.
+     * @param string $label El parámetro `label` representa la
+     * etiqueta del conjunto de datos en el gráfico. Es una cadena que describe los datos que se
+     * representan en el gráfico. Por ejemplo, si muestra datos de ventas, la etiqueta podría ser
+     * "Datos de ventas" o "Ingresos".
+     * @param array $dataArray El parámetro `dataArray` es una matriz
+     * que contiene los puntos de datos para el gráfico. Cada elemento de la matriz representa un punto
+     * de datos que se mostrará en el gráfico.
+     *
+     * @return Collection Una instancia de un objeto Colección con las propiedades especificadas como 'id',
+     * 'identificador', 'encabezado', 'labels' y 'datasets'. La propiedad 'conjuntos de datos' contiene
+     * una matriz con propiedades de color de fondo, etiqueta y datos.
+     */
+    public static function configurarGrafico(int $id, string $identificador, string $encabezado, array $labelsArray, array $colorsArray, string $label, array $dataArray)
+    {
+        return new Collection([
+            'id' => $id,
+            'identificador' => $identificador,
+            'encabezado' => $encabezado,
+            'labels' => $labelsArray,
+            'datasets' => [
+                [
+                    'backgroundColor' => $colorsArray,
+                    'label' => $label,
+                    'data' => $dataArray,
+                ]
+            ],
+        ]);
+    }
+
 
     /**
      * La función "obtenerDiasRestantes" calcula el número de días que faltan entre una fecha
@@ -281,20 +482,19 @@ class Utils
      *
      * @param DateTime $fecha El parámetro  es un objeto DateTime que representa la fecha de
      * inicio.
-     * @param int diasAsumar El parámetro "diasAsumar" es un número entero que representa el número de
+     * @param int $diasAsumar El parámetro "diasAsumar" es un número entero que representa el número de
      * días a sumar a la fecha dada.
      *
      * @return int el número de días que quedan entre la fecha actual y la suma de las fechas dadas
      */
     public static function obtenerDiasRestantes(DateTime $fecha, int $diasAsumar)
     {
-        $nuevaFecha = $fecha->addDays($diasAsumar);
+        $nueva_fecha = $fecha->addDays($diasAsumar);
 
-        $diferencia = Carbon::now()->diffInDays($nuevaFecha, false);
-        return $diferencia;
+        return Carbon::now()->diffInDays($nueva_fecha, false);
     }
 
-    public static function convertArrayToString($array, $separator)
+    public static function convertArrayToString($array, $separator = ',')
     {
         // Log::channel('testing')->info('Log', ['Array recibido', $array, 'separator', $separator]);
         if (is_array($array) && count($array) > 0) {
@@ -311,7 +511,7 @@ class Utils
     public static function colorDefault()
     {
         return [
-            '#dce83a',
+
             '#13d664',
             '#d61324',
             '#4854d4',
@@ -320,6 +520,7 @@ class Utils
             '#e6e6e6'
         ];
     }
+
     public static function coloresBlueTeal()
     {
         return [
@@ -334,6 +535,7 @@ class Utils
             "gray",
         ];
     }
+
     public static function coloresAzulPrincipal()
     {
         return [
@@ -348,6 +550,7 @@ class Utils
             "#ee82ee",
         ];
     }
+
     public static function coloresAmarilloPrincipal()
     {
         return [
@@ -362,6 +565,7 @@ class Utils
             "#f0e68c",
         ];
     }
+
     public static function coloresVintagePrincipal()
     {
         return [
@@ -376,6 +580,7 @@ class Utils
             "#696969",
         ];
     }
+
     public static function coloresAqua()
     {
         return [
@@ -435,6 +640,7 @@ class Utils
             "#1a4795",
         ];
     }
+
     public function coloresTemaMapaCalor()
     {
         return [
@@ -449,6 +655,7 @@ class Utils
             "#7eff00",
         ];
     }
+
     public function coloresTemaMapaFrio()
     {
         return [
@@ -463,6 +670,28 @@ class Utils
             "#ffff87",
         ];
     }
+
+    public static function coloresEstadosEgresos()
+    {
+        return [
+            "#dce83a", //pendiente
+            "#f39c12", // parcial
+            "#2ecc71", // completa
+            "#e74c3c", // anulada
+        ];
+    }
+
+    public static function coloresEstadosDevoluciones()
+    {
+        return [
+            "#dce83a", //pendiente
+            "#0000ff", // aprobado
+            "#f39c12", // parcial
+            "#e74c3c", // anulada
+            "#2ecc71", // completa
+        ];
+    }
+
     public static function coloresAleatorios()
     {
         return [
@@ -478,6 +707,7 @@ class Utils
             "#27ae60"  // Esmeralda
         ];
     }
+
     public static function coloresAleatorios2()
     {
         return [
@@ -491,6 +721,62 @@ class Utils
             "#00ffff",
             "#ffffff",
         ];
+    }
+
+    /**
+     * La función "obtenerMesMatricula" devuelve el mes correspondiente (como un número) según el
+     * dígito dado.
+     *
+     * @param string $digito
+     * @return int el mes correspondiente a un dígito determinado.
+     */
+    public static function obtenerMesMatricula(string $digito)
+    {
+        switch ($digito) {
+            case '1':
+                return 2; //febrero
+            case '2':
+                return 3; //marzo
+            case '3':
+                return 4; //abril
+            case '4':
+                return 5; //mayo
+            case '5':
+                return 6; //junio
+            case '6':
+                return 7; //julio
+            case '7':
+                return 8; //agosto
+            case '8':
+                return 9; //septiembre
+            case '9':
+                return 10; //octubre
+            case '0':
+                return 11; //noviembre
+            // case '11': return null //diciembre, se retorna null por los rezagados
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * La función "obtenerUltimoDigito" en PHP devuelve el último dígito encontrado en una cadena
+     * de texto.
+     *
+     * @param string $texto $texto El parámetro "texto" es una cadena que representa el texto de entrada del que
+     * queremos extraer el último dígito.
+     *
+     * @return string|null último dígito encontrado en el texto dado. Si no se encuentra ningún dígito, devuelve
+     * nulo.
+     */
+    public static function obtenerUltimoDigito(string $texto)
+    {
+        preg_match('/\d(?!.*\d)/', $texto, $matches);
+        if (!empty($matches)) {
+            return $matches[0]; // Devuelve el último dígito encontrado
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -520,14 +806,14 @@ class Utils
                 return "DOS";
             case 1:
                 return "UNO";
-            case 0:
+            default:
                 return "";
         }
     }
 
     private static function decena($numero)
     {
-
+        $numd = "";
         if ($numero >= 90 && $numero <= 99) {
             $numd = "NOVENTA ";
             if ($numero > 90)
@@ -566,23 +852,23 @@ class Utils
                 case 10:
                     return "DIEZ ";
                 case 11:
-                    return  "ONCE ";
+                    return "ONCE ";
                 case 12:
-                    return  "DOCE ";
+                    return "DOCE ";
                 case 13:
                     return "TRECE ";
                 case 14:
-                    return  "CATORCE ";
+                    return "CATORCE ";
                 case 15:
                     return "QUINCE ";
                 case 16:
-                    return  "DIECISEIS ";
+                    return "DIECISEIS ";
                 case 17:
-                    return  "DIECISIETE ";
+                    return "DIECISIETE ";
                 case 18:
                     return "DIECIOCHO ";
                 case 19:
-                    return  "DIECINUEVE ";
+                    return "DIECINUEVE ";
             }
         } else
             $numd = self::unidad($numero);
@@ -591,6 +877,7 @@ class Utils
 
     private static function centena($numc)
     {
+        $numce = "";
         if ($numc >= 100) {
             if ($numc >= 900 && $numc <= 999) {
                 $numce = "NOVECIENTOS ";
@@ -624,7 +911,7 @@ class Utils
                 $numce = "DOSCIENTOS ";
                 if ($numc > 200)
                     $numce = $numce . (self::decena($numc - 200));
-            } else if ($numc >= 100 && $numc <= 199) {
+            } else if ($numc <= 199) {
                 if ($numc == 100)
                     $numce = "CIEN ";
                 else
@@ -737,18 +1024,24 @@ class Utils
 
     /**
      * Esta función recibe un valor entero, double o decimal y retorna su expresión en texto.
-     * @param string $numero El numero entero o decimal del cual se obtendrá su valor en texto
+     * @param string $numero El número entero o decimal del cual se obtendrá su valor en texto
      * @return string El valor expresado en texto, tal como se muestra en los cheques.
      */
-    public static function  obtenerValorMonetarioTexto($numero)
+    public static function obtenerValorMonetarioTexto($numero)
     {
+        $pais = config('app.pais');
+
         $num = str_replace(",", "", $numero);
         $num = number_format($num, 2, '.', '');
         $cents = substr($num, strlen($num) - 2, strlen($num) - 1);
         $num = (int)$num;
 
         $numf = self::milmillon($num);
-
+//        switch ($pais) {
+//            case PaisesOperaciones::PERU:
+//                return " SON:  " . $numf . " CON " . $cents . "/100 SOLES";
+//            default:
         return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+//        }
     }
 }

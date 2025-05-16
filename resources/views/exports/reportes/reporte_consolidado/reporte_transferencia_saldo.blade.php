@@ -1,8 +1,7 @@
 <html>
 @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 @endphp
 <head>
     <meta charset="UTF-8">
@@ -15,7 +14,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -93,7 +92,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{$logo_principal }}"
+                            src="{{Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -162,12 +161,12 @@
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $transferencia_data->usuario_envia->nombres . ' ' . $transferencia_data->usuario_envia->apellidos }}
+                                    {{ $transferencia_data->empleadoEnvia->nombres . ' ' . $transferencia_data->empleadoEnvia->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $transferencia_data->usuario_recibe->nombres . ' ' . $transferencia_data->usuario_recibe->apellidos }}
+                                    {{ $transferencia_data->empleadoRecibe->nombres . ' ' . $transferencia_data->empleadoRecibe->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">
@@ -249,12 +248,12 @@
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $transferencia_enviada_data->usuario_envia->nombres . ' ' . $transferencia_enviada_data->usuario_envia->apellidos }}
+                                    {{ $transferencia_enviada_data->empleadoEnvia->nombres . ' ' . $transferencia_enviada_data->empleadoEnvia->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $transferencia_enviada_data->usuario_recibe->nombres . ' ' . $transferencia_enviada_data->usuario_recibe->apellidos }}
+                                    {{ $transferencia_enviada_data->empleadoRecibe->nombres . ' ' . $transferencia_enviada_data->empleadoRecibe->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">
@@ -335,12 +334,12 @@
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $transferencia_recibida_data->usuario_envia->nombres . ' ' . $transferencia_recibida_data->usuario_envia->apellidos }}
+                                    {{ $transferencia_recibida_data->empleadoEnvia->nombres . ' ' . $transferencia_recibida_data->empleadoEnvia->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $transferencia_recibida_data->usuario_recibe->nombres . ' ' . $transferencia_recibida_data->usuario_recibe->apellidos }}
+                                    {{ $transferencia_recibida_data->empleadoRecibe->nombres . ' ' . $transferencia_recibida_data->empleadoRecibe->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">

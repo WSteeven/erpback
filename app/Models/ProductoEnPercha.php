@@ -8,6 +8,30 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
+/**
+ * App\Models\ProductoEnPercha
+ *
+ * @property int $id
+ * @property int $stock
+ * @property int $ubicacion_id
+ * @property int $inventario_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read int|null $audits_count
+ * @property-read \App\Models\Inventario|null $inventario
+ * @property-read \App\Models\Ubicacion|null $ubicacion
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha whereInventarioId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha whereStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha whereUbicacionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductoEnPercha whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class ProductoEnPercha extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;

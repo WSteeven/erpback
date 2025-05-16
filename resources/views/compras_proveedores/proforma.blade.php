@@ -1,11 +1,10 @@
 <html>
 @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    if ($empleado_solicita->firma_url) {
-        $firma_solicitante = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
-    }
+    use Src\Shared\Utils;
+        $fecha = new Datetime();
+        if ($empleado_solicita->firma_url) {
+            $firma_solicitante = Utils::urlToBase64(url($empleado_solicita->firma_url));
+        }
 @endphp
 
 <head>
@@ -19,8 +18,7 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -110,7 +108,7 @@
                     <table width="95%" border="0" style="font-family:Arial; font-size:10px;">
                         <tr>
                             <td align="center">
-                                <div align="center"><img src="{{ $logo_principal }}" alt="" width="218"
+                                <div align="center"><img src="{{  Utils::urlToBase64(url($configuracion->logo_claro))  }}" alt="" width="218"
                                         height="85" /></div>
                             </td>
                         </tr>
@@ -119,9 +117,9 @@
                                 {{ $configuracion['direccion_principal'] }}
                             </td>
                         </tr>
-                        <tr>
-                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>
-                        </tr>
+{{--                        <tr>--}}
+{{--                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>--}}
+{{--                        </tr>--}}
                         <tr>
                             <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>
@@ -266,7 +264,7 @@
             <th>Medida</th>
             <th>Precio U.</th>
             <th>Desc.</th>
-            <th>IVA</th>
+            <th>{{$texto_iva}}</th>
             <th>Subtotal</th>
             <th>Total</th>
         </thead>
@@ -305,19 +303,27 @@
                 <table align="right" border="1" style="max-width: 100%;width:70%">
                     <tr>
                         <td align="right">SUBTOTAL</td>
-                        <td align="center">{{ $proforma['sum_subtotal'] }}</td>
+                        <td align="right">{{ $proforma['sum_subtotal'] }}</td>
+                    </tr>
+                    <tr>
+                        <td align="right">SUBTOTAL 0%</td>
+                        <td align="right">{{ $proforma['sum_subtotal_sin_impuestos'] }}</td>
+                    </tr>
+                    <tr>
+                        <td align="right">SUBTOTAL {{ $proforma['iva'] }}%</td>
+                        <td align="right">{{ $proforma['sum_subtotal_con_impuestos'] }}</td>
                     </tr>
                     <tr>
                         <td align="right">DESCUENTO</td>
-                        <td align="center">{{ $proforma['sum_descuento'] }}</td>
+                        <td align="right">{{ $proforma['sum_descuento']+$proforma['descuento_general'] }}</td>
                     </tr>
                     <tr>
-                        <td align="right">IVA ({{ $proforma['iva'] }}%)</td>
-                        <td align="center">{{ $proforma['sum_iva'] }}</td>
+                        <td align="right">{{$texto_iva}} {{ $proforma['iva'] }}%</td>
+                        <td align="right">{{ $proforma['sum_iva'] }}</td>
                     </tr>
                     <tr>
                         <td align="right">TOTAL</td>
-                        <td align="center">{{ $proforma['sum_total'] }}</td>
+                        <td align="right">{{ $proforma['sum_total'] }}</td>
                     </tr>
                 </table>
             </td>

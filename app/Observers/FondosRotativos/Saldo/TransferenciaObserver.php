@@ -4,7 +4,9 @@ namespace App\Observers\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Src\App\FondosRotativos\SaldoService;
 
 class TransferenciaObserver
 {
@@ -26,37 +28,16 @@ class TransferenciaObserver
      */
     public function updated(Transferencias $transferencia)
     {
-        if ($transferencia->estado == 1) {
+        if ($transferencia->estado == Transferencias::APROBADO) {
             $this->guardara_transferencia($transferencia);
         }
-        if($transferencia->estado == 4){
-            //cancelar transferencia
-            $saldo_anterior_envia = SaldoGrupo::where('id_usuario', $transferencia->usuario_envia_id)->orderBy('id', 'desc')->first();
-            $total_saldo_actual_usuario_envia = $saldo_anterior_envia !== null ? $saldo_anterior_envia->saldo_actual : 0;
-            //Actualizacion de saldo Usuario que envia
-            $saldo_envia = new SaldoGrupo();
-            $saldo_envia->fecha = $transferencia->created_at;
-            $saldo_envia->saldo_anterior = $total_saldo_actual_usuario_envia;
-            $saldo_envia->saldo_depositado = $transferencia->monto;
-            $saldo_envia->saldo_actual =  $total_saldo_actual_usuario_envia + $transferencia->monto;
-            $saldo_envia->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0];
-            $saldo_envia->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1];;
-            $saldo_envia->id_usuario = $transferencia->usuario_envia_id;
-            $saldo_envia->tipo_saldo = "Anulacion";
-            $saldo_envia->save();
-            //actualizacion de saldo usuario que recibe
-            $saldo_anterior_recibe = SaldoGrupo::where('id_usuario', $transferencia->usuario_recibe_id)->orderBy('id', 'desc')->first();
-            $total_saldo_actual_usuario_recibe = $saldo_anterior_recibe !== null ? $saldo_anterior_recibe->saldo_actual : 0;
-            $saldo_recibe = new SaldoGrupo();
-            $saldo_recibe->fecha = $transferencia->created_at;
-            $saldo_recibe->saldo_anterior = $total_saldo_actual_usuario_recibe;
-            $saldo_recibe->saldo_depositado = $transferencia->monto;
-            $saldo_recibe->saldo_actual =  $total_saldo_actual_usuario_recibe - $transferencia->monto;
-            $saldo_recibe->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0];
-            $saldo_recibe->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1];;
-            $saldo_recibe->id_usuario = $transferencia->usuario_recibe_id;
-            $saldo_recibe->tipo_saldo = "Anulacion";
-            $saldo_recibe->save();
+        if ($transferencia->estado == Transferencias::ANULADO) {
+            if($transferencia->es_devolucion){
+                $this->anularTransferenciaEmpleadoEnvia($transferencia);
+            }else{
+                $this->anularTransferenciaEmpleadoEnvia($transferencia);
+                $this->anularTransferenciaEmpleadoRecibe($transferencia);
+            }
         }
     }
 
@@ -92,57 +73,54 @@ class TransferenciaObserver
     {
         //
     }
-    private function calcular_fechas($fecha)
+
+    private function guardara_transferencia(Transferencias $transferencia)
     {
-        $array_dias['Sunday'] = 0;
-        $array_dias['Monday'] = 1;
-        $array_dias['Tuesday'] = 2;
-        $array_dias['Wednesday'] = 3;
-        $array_dias['Thursday'] = 4;
-        $array_dias['Friday'] = 5;
-        $array_dias['Saturday'] = 6;
-
-        $dia_actual = $array_dias[date('l', strtotime($fecha))];
-
-        $rest = $dia_actual + 1;
-        $sum = 5 - $dia_actual;
-        $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
-        $fechaFin = date("Y-m-d", strtotime($fecha . "+$sum days"));
-        return array($fechaIni, $fechaFin);
-    }
-    private function guardara_transferencia($transferencia){
-        $saldo_anterior_envia = SaldoGrupo::where('id_usuario', $transferencia->usuario_envia_id)->orderBy('id', 'desc')->first();
-        $total_saldo_actual_usuario_envia = $saldo_anterior_envia !== null ? $saldo_anterior_envia->saldo_actual : 0;
-        $saldo_anterior_recibe = SaldoGrupo::where('id_usuario', $transferencia->usuario_recibe_id)->orderBy('id', 'desc')->first();
-        $total_saldo_actual_usuario_recibe = $saldo_anterior_recibe !== null ? $saldo_anterior_recibe->saldo_actual : 0;
-        //Actualizacion de saldo Usuario que envia
-        $saldo_envia = new SaldoGrupo();
-        $saldo_envia->fecha = $transferencia->created_at;
-        $saldo_envia->saldo_anterior = $total_saldo_actual_usuario_envia;
-        $saldo_envia->saldo_depositado = $transferencia->monto;
-        $saldo_envia->saldo_actual =  $total_saldo_actual_usuario_envia - $transferencia->monto;
-        $saldo_envia->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0];
-        $saldo_envia->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1];;
-        $saldo_envia->id_usuario = $transferencia->usuario_envia_id;
-        $saldo_envia->tipo_saldo = "Egreso";
-        $saldo_envia->save();
-       // $saldo_actual = $total_saldo_actual_usuario_envia - $transferencia->monto;
-       // SaldoGrupo::crearSaldoGrupo($transferencia->created_at,$total_saldo_actual_usuario_envia,$transferencia->monto,$saldo_actual,$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0],$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1],$transferencia->usuario_envia_id,"Egreso",$transferencia);
-        //Actualizacion de saldo Usuario que recibe
-        if ($transferencia->usuario_recibe_id != null && $transferencia->usuario_recibe_id != 10) {
-            $saldo_recibe = new SaldoGrupo();
-            $saldo_recibe->fecha = $transferencia->created_at;
-            $saldo_recibe->saldo_anterior = $total_saldo_actual_usuario_recibe;
-            $saldo_recibe->saldo_depositado = $transferencia->monto;
-            $saldo_recibe->saldo_actual =  $total_saldo_actual_usuario_recibe + $transferencia->monto;
-            $saldo_recibe->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0];
-            $saldo_recibe->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1];;
-            $saldo_recibe->id_usuario = $transferencia->usuario_recibe_id;
-            $saldo_recibe->tipo_saldo = "Ingreso";
-            $saldo_recibe->save();
-           // $saldo_actual = $total_saldo_actual_usuario_recibe + $transferencia->monto;
-           // SaldoGrupo::crearSaldoGrupo($transferencia->created_at,$total_saldo_actual_usuario_recibe,$transferencia->monto,$saldo_actual,$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0],$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1],$transferencia->usuario_envia_id,"Egreso",$transferencia);
-
+        $this->actualizacionEmpleadoEnvia($transferencia);
+        if (!$transferencia->es_devolucion) {
+            $this->actualizacionEmpleadoRecibe($transferencia);
         }
     }
+    private function actualizacionEmpleadoEnvia(Transferencias $transferencia)
+    {
+        $data = array(
+            'fecha' =>  $transferencia->created_at,
+            'monto' =>  $transferencia->monto,
+            'empleado_id' => $transferencia->usuario_envia_id,
+            'tipo' => SaldoService::EGRESO
+        );
+        SaldoService::guardarSaldo($transferencia, $data);
+    }
+    private function actualizacionEmpleadoRecibe(Transferencias $transferencia)
+    {
+        $data = array(
+            'fecha' =>  $transferencia->created_at,
+            'monto' =>  $transferencia->monto,
+            'empleado_id' => $transferencia->usuario_recibe_id,
+            'tipo' => SaldoService::INGRESO
+        );
+        SaldoService::guardarSaldo($transferencia, $data);
+    }
+
+    private function anularTransferenciaEmpleadoEnvia(Transferencias $transferencia)
+    {
+        $data = array(
+            'fecha' =>  $transferencia->created_at,
+            'monto' =>  $transferencia->monto,
+            'empleado_id' => $transferencia->usuario_envia_id,
+            'tipo' => SaldoService::INGRESO
+        );
+        SaldoService::anularSaldo($transferencia, $data);
+    }
+    private function anularTransferenciaEmpleadoRecibe(Transferencias $transferencia)
+    {
+        $data = array(
+            'fecha' =>  $transferencia->created_at,
+            'monto' =>  $transferencia->monto,
+            'empleado_id' => $transferencia->usuario_recibe_id,
+            'tipo' => SaldoService::EGRESO
+        );
+        SaldoService::anularSaldo($transferencia, $data);
+    }
+
 }

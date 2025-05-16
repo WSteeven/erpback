@@ -5,124 +5,146 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 use App\Events\TransferenciaSaldoContabilidadEvent;
 use App\Events\TransferenciaSaldoEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TransferenciaRequest;
 use App\Http\Requests\TransferenciaSaldoRequest;
 use App\Http\Resources\FondosRotativos\Saldo\TransferenciaResource;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class TransferenciasController extends Controller
 {
-    private $entidad = 'transferencia';
+    private string $entidad = 'transferencia';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.transferencia')->only('index', 'show');
         $this->middleware('can:puede.crear.transferencia')->only('store');
         $this->middleware('can:puede.editar.transferencia')->only('update');
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function index()
     {
-        $results = [];
-        $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if($usuario_ac->hasRole('CONTABILIDAD'))
-            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->ignoreRequest(['campos'])->filter()->get();
-        else
-            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id',Auth::user()->empleado->id) ->ignoreRequest(['campos'])->filter()->get();
+        try {
+            $usuario = Auth::user();
+            $usuario_ac = User::where('id', $usuario->id)->first();
+            if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR]))
+                $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+            else
+                $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
             $results = TransferenciaResource::collection($results);
-        return response()->json(compact('results'));
+            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'Error al consultar registro' => [$e->getMessage()],
+            ]);
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param TransferenciaSaldoRequest $request
+     * @return JsonResponse
+     * @throws ValidationException|Throwable
      */
     public function store(TransferenciaSaldoRequest $request)
     {
+        DB::beginTransaction();
         try {
-        $datos = $request->validated();
-        $contabilidad = User::where('name','mvalarezo')->first();
-        $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? 10 : $request->usuario_recibe;
-        $datos['id_tarea'] = $request->tarea==0?null:$request->tarea;
-        $datos['estado'] = 3;
-        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
-        $modelo = Transferencias::create($datos);
-        event(new TransferenciaSaldoEvent($modelo));
-        event(new TransferenciaSaldoContabilidadEvent($modelo));
-        $modelo = new TransferenciaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        return response()->json(compact('mensaje', 'modelo'));
-    } catch (Exception $e) {
-        Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
-        throw ValidationException::withMessages([
-            'Error al insertar registro' => [$e->getMessage()],
-        ]);
+            $datos = $request->validated();
+            $datos['estado'] = Transferencias::PENDIENTE;
+            if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
+            $modelo = Transferencias::create($datos);
+            event(new TransferenciaSaldoEvent($modelo));
+            event(new TransferenciaSaldoContabilidadEvent($modelo));
+            $modelo = new TransferenciaResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+        }
     }
-    }
-    public function autorizaciones_transferencia(Request $request)
+
+    /**
+     * @throws ValidationException
+     */
+    public function autorizacionesTransferencia()
     {
-        $user = Auth::user()->empleado;
-        $usuario = User::where('id', $user->id)->first();
-        $results = [];
-
-        $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('usuario_envia', 'usuario_recibe')->filter()->get();
-        $results = TransferenciaResource::collection($results);
-
-        return response()->json(compact('results'));
+        try {
+            $user = Auth::user()->empleado;
+            $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('empleadoEnvia', 'empleadoRecibe')->filter()->orderBy('id', 'desc')->get();
+            $results = TransferenciaResource::collection($results);
+            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'Error al consultar registro' => [$e->getMessage()],
+            ]);
+        }
     }
+
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Transferencias $transferencia
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(Transferencias $transferencia)
     {
-        $Transferencia = Transferencias::where('id', $id)->first();
-        $modelo = new TransferenciaResource($Transferencia);
-        return response()->json(compact('modelo'), 200);
+        $modelo = new TransferenciaResource($transferencia);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  Transferencias  $transferencia
-     * @return \Illuminate\Http\Response
+     * @param TransferenciaSaldoRequest $request
+     * @param Transferencias $transferencia
+     * @return JsonResponse
+     * @throws ValidationException
      */
-    public function update(Request $request, Transferencias $transferencia)
+    public function update(TransferenciaSaldoRequest $request, Transferencias $transferencia)
     {
-        $datos = $request->all();
-        $datos['usuario_envia_id'] = auth()->user()->id;
-        $datos['usuario_recibe_id'] = $request->usuario_recibe_id;
-        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
-        $modelo = $transferencia->update($datos);
-        $modelo = new TransferenciaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje', 'modelo'));
+        try {
+            $datos = $request->validated();
+            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante']))
+                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::TRANSFERENCIASALDO, $transferencia->comprobante))->execute();
+            else unset($datos['comprobante']);
+
+            $transferencia->update($datos);
+            $modelo = new TransferenciaResource($transferencia->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Throwable $e) {
+            throw  Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Transferencia  $transferencia
-     * @return \Illuminate\Http\Response
+     * @param Transferencias $transferencia
+     * @return JsonResponse
      */
     public function destroy(Transferencias $transferencia)
     {
@@ -131,42 +153,115 @@ class TransferenciasController extends Controller
 
         return response()->json(compact('mensaje'));
     }
+
     /**
      * It updates the status of the expense to 1, which means it is approved.
      *
-     * @param Request request The request object.
+     * @param Request $request The request object.
      *
-     * @return A JSON object with the success message.
+     * @return JsonResponse JSON object with the success message.
+     * @throws Throwable|ValidationException
      */
-    public function aprobar_transferencia(Request $request)
+    public function aprobarTransferencia(Request $request)
     {
-        $transferencia = Transferencias::where('id', $request->id)->first();
-        $transferencia->estado = 1;
-        $transferencia->save();
-        event(new TransferenciaSaldoEvent($transferencia));
-        return response()->json(['success' => 'Transferencia realizada correctamente']);
+        DB::beginTransaction();
+        try {
+            $transferencia_repetida = Transferencias::where('estado', Transferencias::APROBADO)->where('id', $request->id)->lockForUpdate()->get();
+            if ($transferencia_repetida->count() > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['Transferencia  ya fue aprobada'],
+                ]);
+            }
+            $transferencia = Transferencias::find($request->id);
+            if ($transferencia) {
+                $transferencia->estado = Transferencias::APROBADO;
+                $transferencia->save();
+                event(new TransferenciaSaldoEvent($transferencia));
+                event(new TransferenciaSaldoContabilidadEvent($transferencia));
+                DB::commit();
+            } else {
+                throw ValidationException::withMessages([
+                    '404' => ['Transferencia no encontrada'],
+                ]);
+            }
+            return response()->json(['success' => 'Transferencia realizada correctamente']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al aprobar gasto' => [$e->getMessage()],
+            ]);
+        }
     }
+
     /**
      * It updates the status of the expense to 1, which means it is rejected.
      *
-     * @param Request request The request object.
+     * @param Request $request The request object.
      *
-     * @return A JSON object with the success message.
+     * @return JsonResponse JSON object with the success message.
+     * @throws Throwable|ValidationException
      */
-    public function rechazar_transferencia(Request $request)
+    public function rechazarTransferencia(Request $request)
     {
-        $transferencia = Transferencias::where('id', $request->id)->first();
-        $transferencia->estado = 2;
-        $transferencia->save();
-        event(new TransferenciaSaldoEvent($transferencia));
-        return response()->json(['success' => 'Transferencia rechazada']);
+        DB::beginTransaction();
+        try {
+            $transferencia = Transferencias::where('id', $request->id)->first();
+            if ($transferencia) {
+                $transferencia->estado = Transferencias::RECHAZADO;
+                $transferencia->save();
+                event(new TransferenciaSaldoEvent($transferencia));
+                event(new TransferenciaSaldoContabilidadEvent($transferencia));
+                DB::commit();
+            } else throw new Exception('Transferencia no encontrada');
+
+            return response()->json(['mensaje' => 'Transferencia rechazada']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al aprobar gasto' => [$e->getMessage()],
+            ]);
+        }
     }
-    public function anular_transferencia(Request $request)
+
+    /**
+     * La función `anularTransferencia` cancela una transferencia y dispara un evento para notificar sobre
+     * la cancelación.
+     *
+     * @param Request $request La función `anularTransferencia` se utiliza para cancelar una transferencia
+     * en la base de datos. Aquí hay un desglose del código:
+     *
+     * @return JsonResponse función `anularTransferencia` está devolviendo una respuesta JSON con un mensaje de éxito
+     * 'Transferencia anulada'.
+     * @throws ValidationException|Throwable
+     */
+    public function anularTransferencia(Request $request)
     {
-        $transferencia = Transferencias::where('id', $request->id)->first();
-        $transferencia->estado = 4;
-        $transferencia->save();
-        event(new TransferenciaSaldoEvent($transferencia));
-        return response()->json(['success' => 'Transferencia anulada']);
+        DB::beginTransaction();
+        try {
+            $transferencia_repetida = Transferencias::where('estado', Transferencias::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
+            if ($transferencia_repetida->count() > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['Transferencia  ya fue anulada'],
+                ]);
+            }
+            $transferencia = Transferencias::where('id', $request->id)->first();
+            if ($transferencia) {
+                $transferencia->estado = Transferencias::ANULADO;
+                $transferencia->save();
+                event(new TransferenciaSaldoEvent($transferencia));
+                event(new TransferenciaSaldoContabilidadEvent($transferencia));
+                DB::commit();
+            } else {
+                throw ValidationException::withMessages([
+                    '404' => ['Transferencia no encontrada'],
+                ]);
+            }
+            return response()->json(['success' => 'Transferencia anulada']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al aprobar gasto' => [$e->getMessage()],
+            ]);
+        }
     }
 }

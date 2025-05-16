@@ -4,18 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
+use App\Http\Resources\SucursalResource;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Inventario;
+use App\Models\Sucursal;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class DetalleProductoController extends Controller
 {
-    private $entidad = 'Detalle de producto';
+    private string $entidad = 'Detalle de producto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.detalles')->only('index', 'show');
@@ -29,7 +34,9 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
+        $controller_method = $request->route()->getActionMethod();
+        Log::channel('testing')->info('Log', ['ruta:', $controller_method]);
+        Log::channel('testing')->info('Log', ['Metodo recibido:', $request->route()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];
@@ -37,6 +44,13 @@ class DetalleProductoController extends Controller
         $results = [];
         if ($request->tipo_busqueda) {
             switch ($request->tipo_busqueda) {
+                case 'only_inventario':
+                    $results = DetalleProducto::whereHas('inventarios')->get()->take(10000);
+                    $results2 = DetalleProducto::whereHas('itemsPreingresos')->get()->take(5000);
+                    $results = $results->merge($results2);
+                    $results = DetalleProductoResource::collection($results);
+                    return response()->json(compact('results'));
+                    break;
                 case 'only_sucursal':
                     //aqui se lista solo los detalles que estan en la bodega seleccionada
                     $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
@@ -51,7 +65,6 @@ class DetalleProductoController extends Controller
                     Log::channel('testing')->info('Log', ['eSTOY EN EL CASE DE CLIENTE TAREA:', $request->all()]);
                     //aqui se lista solo los detalles que tienen stock en inventario con el cliente de la tarea
                     // $ids_detalles = Inventario::where('cliente_id', $request->cliente_id)->limit(990)->get('detalle_id');
-                    // Log::channel('testing')->info('Log', ['los detalles CLIENTE TAREA:', $ids_detalles->count()]);
                     // Log::channel('testing')->info('Log', ['los detalles como tal:', DetalleProducto::whereIn('id', $ids_detalles)->get()]);
                     $results = Cliente::find($request->cliente_id)->detalles->unique()->where('activo', true);
                     $results = DetalleProductoResource::collection($results);
@@ -104,16 +117,16 @@ class DetalleProductoController extends Controller
      */
     public function store(DetalleProductoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         try {
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
             $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
             if (count($request->seriales) > 0) {
-                Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
+                // Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
                 foreach ($request->seriales as $item) {
                     Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
                     //aqui se pondria la siguiente linea
@@ -130,7 +143,7 @@ class DetalleProductoController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage() . $e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -164,7 +177,13 @@ class DetalleProductoController extends Controller
             // $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
             // Log::channel('testing')->info('Log', ['datos validados:', $datos]);
 
-            //Respuesta
+            // Respuesta
+            if ($datos['fotografia'] && Utils::esBase64($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO, $detalle->fotografia))->execute();
+            else unset($datos['fotografia']);
+
+            if ($datos['fotografia_detallada'] && Utils::esBase64($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO, $detalle->fotografia_detallada))->execute();
+            else unset($datos['fotografia_detallada']);
+
             $detalle->update($datos);
             if ($request->categoria === 'INFORMATICA') {
                 if ($detalle->computadora()->first()) {
@@ -218,19 +237,20 @@ class DetalleProductoController extends Controller
     }
 
     /**
-     * Eliminar
+     * Actualmente no se permite eliminar un detalle de producto para evitar caer en el error de asignarlo a alguien
+     * y luego eliminarlo, ocasionando inconsistencias con la información.
+     * @throws ValidationException
      */
-    public function destroy(DetalleProducto $detalle)
+    public function destroy()
     {
-        $detalle->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
+        throw ValidationException::withMessages(['error' => 'Por razones de seguridad, no se puede eliminar un detalle ya creado. Por favor, desactívalo o comunícate con el departamento de Informática para más información.']);
     }
 
     /**
      * Desactivar un detalle especifico
      */
-    public function desactivar(DetalleProducto $detalle){
+    public function desactivar(DetalleProducto $detalle)
+    {
         // Log::channel('testing')->info('Log', ['Inicio del metodo desactivar:', $detalle]);
         $detalle->activo = !$detalle->activo;
         $detalle->save();
@@ -240,15 +260,26 @@ class DetalleProductoController extends Controller
     }
 
 
-    public function obtenerMateriales(Request $request){
+    public function obtenerMateriales(Request $request)
+    {
         $detalles = DetalleProducto::whereHas('producto', function ($query) {
-            $query->where('categoria_id', 7);
-        })->where(function ($query) use ($request){
+            $query->whereIn('categoria_id', [7, 4, 1]);
+        })->where(function ($query) use ($request) {
             $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
             $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');
-        })->get();
+        })->groupBy('descripcion')->get();
 
         $results = DetalleProductoResource::collection($detalles);
+        return response()->json(compact('results'));
+    }
+
+    public function sucursalesDetalle(Request $request)
+    {
+        $ids_sucursales = Inventario::where('detalle_id', $request->detalle_id)->get('sucursal_id');
+        // $ids_sucursales = DetalleProducto::whereHas('inventarios', function ($query) use ($request) {
+        //     $query->where('detalle_id', $request->detalle_id);
+        // })->get();
+        $results = SucursalResource::collection(Sucursal::whereIn('id', $ids_sucursales)->get());
         return response()->json(compact('results'));
     }
 }

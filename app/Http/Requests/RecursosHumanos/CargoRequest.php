@@ -26,13 +26,14 @@ class CargoRequest extends FormRequest
     {
         $rules = [
             'nombre' => 'required|unique:cargos',
-            'estado'=>'boolean'
+            'estado' => 'boolean',
+            'aprobado_rrhh' => 'boolean'
         ];
 
-        if(in_array($this->method(), ['PUT', 'PATCH'])){
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $cargo = $this->route()->parameter('cargo');
 
-            $rules['nombre'] = ['required','string', Rule::unique('cargos')->ignore($cargo)];
+            $rules['nombre'] = ['required', 'string', Rule::unique('cargos')->ignore($cargo)];
         }
 
         return $rules;

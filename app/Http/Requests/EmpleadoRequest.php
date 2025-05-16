@@ -2,12 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-use Src\Shared\Utils;
 use Src\Shared\ValidarIdentificacion;
 
 class EmpleadoRequest extends FormRequest
@@ -69,6 +67,7 @@ class EmpleadoRequest extends FormRequest
             'tiene_grupo' => 'required',
             'tiene_discapacidad' => 'required',
             'nivel_academico' => 'required',
+            'titulo' => 'required|string',
             'supa' => 'nullable',
             'talla_zapato' => 'nullable',
             'talla_camisa' => 'required',
@@ -80,6 +79,14 @@ class EmpleadoRequest extends FormRequest
             'acumula_fondos_reserva' => 'nullable',
             'realiza_factura' => 'required',
             'observacion' => 'nullable',
+            'discapacidades.*.tipo_discapacidad' => 'required_if:tiene_discapacidad,true|exists:rrhh_tipos_discapacidades,id',
+            'discapacidades.*.porcentaje' => 'required_if:tiene_discapacidad,true|numeric',
+            'familiares' => 'nullable',
+            // 'autoidentificacion_etnica' => 'required',
+            'trabajador_sustituto' => 'required',
+            'orientacion_sexual_id' => 'nullable|exists:med_orientaciones_sexuales,id',
+            'identidad_genero_id' => 'nullable|exists:med_identidades_generos,id',
+            'religion_id' => 'nullable|exists:med_religiones,id',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -97,10 +104,9 @@ class EmpleadoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $validador = new ValidarIdentificacion();
-            /* if(Utils::validarNumeroCuenta($this->num_cuenta_bancaria)==false){
-                $validator->errors()->add('num_cuenta_bancaria', 'El número de cuenta no pudo ser validado, verifica que sea un numero de cuenta válido');
-            }*/
-            if (!$validador->validarCedula($this->identificacion)) {
+//            Log::channel('testing')->info('Log', ['reuqest del empleado',request()->all(), $this->method(), $this->all()]);
+            if (!$validador->validarCedula($this->identificacion?:"")) {
+                Log::channel('testing')->info('Log', ['Dentro del if']);
                 $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
             }
             // if(substr_count($this->identificacion, '9')<9){
@@ -127,7 +133,10 @@ class EmpleadoRequest extends FormRequest
             'estado_civil_id' => $this->estado_civil,
             'area_id' => $this->area,
             'tipo_contrato_id' => $this->tipo_contrato,
-            'num_cuenta_bancaria' => $this->num_cuenta
+            'num_cuenta_bancaria' => $this->num_cuenta,
+            'orientacion_sexual_id' => $this->orientacion_sexual,
+            'identidad_genero_id' => $this->identidad_genero,
+            'religion_id' => $this->religion,
         ]);
     }
 }

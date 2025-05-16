@@ -35,12 +35,16 @@ class DetalleProductoRequest extends FormRequest
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
+            'lote' => 'nullable|string|sometimes|unique:detalles_productos',
             'span' => 'nullable|integer|exists:spans,id',
             'tipo_fibra' => 'nullable|integer|exists:tipo_fibras,id',
             'hilos' => 'nullable|integer|exists:hilos,id',
             'punta_inicial' => 'nullable|integer',
             'punta_final' => 'nullable|integer',
             'custodia' => 'nullable|integer',
+
+            'es_generico' => 'boolean',
+            'nombre_alternativo' => 'nullable|string',
 
             'procesador' => 'nullable|sometimes|exists:procesadores,id|required_with_all:ram,disco',
             'ram' => 'nullable|sometimes|exists:rams,id|required_with_all:procesador,disco',
@@ -49,7 +53,21 @@ class DetalleProductoRequest extends FormRequest
 
             'color' => 'sometimes|nullable|string',
             'talla' => 'sometimes|nullable|string',
+            'calibre' => 'sometimes|nullable|string',
+            'peso' => 'sometimes|nullable|string',
+            'dimensiones' => 'sometimes|nullable|string',
+            'permiso' => 'sometimes|nullable|string',
+            'permiso_id' => 'sometimes|nullable|exists:bod_permisos_armas,id',
+            'caducidad' => 'sometimes|nullable|string',
+
+            'es_fibra' => 'boolean',
+            'esActivo' => 'boolean',
             'tipo' => ['sometimes', 'nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
+
+            'fecha_caducidad' => 'nullable|date_format:Y-m-d',
+            'fotografia' => 'nullable|string',
+            'fotografia_detallada' => 'nullable|string',
+            'codigo_activo_fijo' => 'nullable|string',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -74,12 +92,16 @@ class DetalleProductoRequest extends FormRequest
             Log::channel('testing')->info('Log', ['El detalle encontrado es: ', $detalle]);
             if (!is_null($detalle)) {
                 Log::channel('testing')->info('Log', ['Hay un detalle: ', $detalle]);
-                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial)!==$detalle->serial && count($this->seriales)<1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
+                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial) !== $detalle->serial && count($this->seriales) < 1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
             }
         });
     }
     protected function prepareForValidation()
     {
+        $this->merge([
+            'descripcion' => strtoupper($this->descripcion)
+        ]);
+
         if (is_null($this->precio_compra)) {
             $this->merge([
                 'precio_compra' => 0

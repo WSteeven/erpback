@@ -34,11 +34,9 @@ class EgresoRolPagoRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $empleado_id = $this->empleado;
-        $descuento_id = $this->id_descuento;
         $this->merge([
-            'empleado_id' => $empleado_id,
-            'descuento_id' => $descuento_id,
+            'empleado_id' => $this->empleado,
+            'descuento_id' => $this->id_descuento,
         ]);
     }
 

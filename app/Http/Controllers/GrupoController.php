@@ -10,7 +10,7 @@ use Src\Shared\Utils;
 
 class GrupoController extends Controller
 {
-    private $entidad = 'Grupo';
+    private string $entidad = 'Grupo';
 
     public function listar()
     {
