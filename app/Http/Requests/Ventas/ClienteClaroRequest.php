@@ -34,6 +34,13 @@ class ClienteClaroRequest extends FormRequest
             'direccion' => 'required',
             'telefono1' => 'required',
             'telefono2' => 'nullable',
+            'canton' => 'required',
+            'parroquia' => 'required',
+            'tipo_cliente' => 'required',
+            'correo_electronico' => 'nullable|email',
+            'foto_cedula_frontal' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'foto_cedula_posterior' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'fecha_expedicion_cedula' => 'required|date_format:Y-m-d',
             'activo' => 'boolean',
         ];
     }

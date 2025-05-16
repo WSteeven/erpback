@@ -41,6 +41,8 @@ class ClienteClaroController extends Controller
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
+            $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
+            $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
             DB::beginTransaction();
             $cliente = ClienteClaro::create($datos);

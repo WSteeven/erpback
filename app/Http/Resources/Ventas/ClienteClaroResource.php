@@ -25,6 +25,13 @@ class ClienteClaroResource extends JsonResource
             'direccion' => $this->direccion,
             'telefono1' => $this->telefono1,
             'telefono2' => $this->telefono2,
+            'canton' => $this->canton?->nombre,
+            'parroquia' => $this->parroquia?->parroquia,
+            'tipo_cliente' => $this->tipo_cliente,
+            'correo_electronico' => $this->correo_electronico,
+            'foto_cedula_frontal' => $this->foto_cedula_frontal,
+            'foto_cedula_posterior' => $this->foto_cedula_posterior,
+            'fecha_expedicion_cedula' => $this->fecha_expedicion_cedula,
             'activo' => $this->activo,
         ];
 
