@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ventas;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\ClienteClaroRequest;
+use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Http\Resources\Ventas\ClienteClaroResource;
 use App\Models\User;
 use App\Models\Ventas\ClienteClaro;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Src\Config\RutasStorage;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
 
 class ClienteClaroController extends Controller
 {
@@ -44,6 +47,13 @@ class ClienteClaroController extends Controller
             $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
+            if ($datos['foto_cedula_frontal'] && Utils::esBase64($datos['foto_cedula_frontal'])) {
+                $datos['foto_cedula_frontal'] = (new GuardarImagenIndividual($datos['foto_cedula_frontal'], RutasStorage::FOTOGRAFIAS_CEDULAS_CLIENTES_CLARO_FRONTAL))->execute();
+            }
+            if ($datos['foto_cedula_posterior'] && Utils::esBase64($datos['foto_cedula_posterior'])) {
+                $datos['foto_cedula_posterior'] = (new GuardarImagenIndividual($datos['foto_cedula_posterior'], RutasStorage::FOTOGRAFIAS_CEDULAS_CLIENTES_CLARO_POSTERIOR))->execute();
+            }
+
             DB::beginTransaction();
             $cliente = ClienteClaro::create($datos);
             $modelo = new ClienteClaroResource($cliente);
@@ -61,6 +71,7 @@ class ClienteClaroController extends Controller
     public function show(Request $request, ClienteClaro $cliente)
     {
         $modelo = new ClienteClaroResource($cliente);
+        if($modelo->conductor) $modelo['conductor'] = new ConductorResource($modelo->conductor);
         return response()->json(compact('modelo'));
     }
 
@@ -71,11 +82,20 @@ class ClienteClaroController extends Controller
             $datos = $request->validated();
             $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
 
+
+            if ($datos['foto_cedula_frontal'] && Utils::esBase64($datos['foto_cedula_frontal'])) {
+                $datos['foto_cedula_frontal'] = (new GuardarImagenIndividual($datos['foto_cedula_frontal'], RutasStorage::FOTOGRAFIAS_CEDULAS_CLIENTES_CLARO_FRONTAL))->execute();
+            }
+            if ($datos['foto_cedula_posterior'] && Utils::esBase64($datos['foto_cedula_posterior'])) {
+                $datos['foto_cedula_posterior'] = (new GuardarImagenIndividual($datos['foto_cedula_posterior'], RutasStorage::FOTOGRAFIAS_CEDULAS_CLIENTES_CLARO_POSTERIOR))->execute();
+            }
+
             DB::beginTransaction();
             $cliente->update($datos);
             $modelo = new ClienteClaroResource($cliente->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
+
         } catch (Exception $e) {
             DB::rollback();
             throw ValidationException::withMessages([

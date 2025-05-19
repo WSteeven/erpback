@@ -25,8 +25,10 @@ class ClienteClaroResource extends JsonResource
             'direccion' => $this->direccion,
             'telefono1' => $this->telefono1,
             'telefono2' => $this->telefono2,
+            'canton_id' => $this->canton_id,
             'canton' => $this->canton?->nombre,
-            'parroquia' => $this->parroquia?->parroquia,
+            'paarroquia' => $this->parroquia?->nombre,
+            'parroquia_id' => $this->parroquia_id,
             'tipo_cliente' => $this->tipo_cliente,
             'correo_electronico' => $this->correo_electronico,
             'foto_cedula_frontal' => $this->foto_cedula_frontal,
@@ -37,6 +39,8 @@ class ClienteClaroResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['supervisor'] = $this->supervisor_id;
+            $modelo['canton'] = $this->canton_id;
+            $modelo['parroquia'] = $this->parroquia_id;
         }
         return $modelo;
     }

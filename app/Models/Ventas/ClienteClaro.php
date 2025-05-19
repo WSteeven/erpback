@@ -2,6 +2,8 @@
 
 namespace App\Models\Ventas;
 
+use App\Models\Canton;
+use App\Models\Parroquia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -20,6 +22,13 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property string $direccion
  * @property string $telefono1
  * @property string|null $telefono2
+ * @property string $canton_id
+ * @property string $parroquia_id
+ * @property string $tipo_cliente
+ * @property string $correo_electronico
+ * @property string $foto_cedula_frontal
+ * @property string $foto_cedula_posterior
+ * @property string $fecha_expedicion_cedula
  * @property bool $activo
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -60,8 +69,8 @@ class ClienteClaro extends Model implements Auditable
         'direccion',
         'telefono1',
         'telefono2',
-        'canton',
-        'parroquia',
+        'canton_id',
+        'parroquia_id',
         'tipo_cliente',
         'correo_electronico',
         'foto_cedula_frontal',
@@ -69,6 +78,24 @@ class ClienteClaro extends Model implements Auditable
         'fecha_expedicion_cedula',
         'activo'
     ];
+
+    /**
+     * --------------------------------------------------------------------------
+     * RELACIONES CON OTRAS TABLAS
+     * --------------------------------------------------------------------------
+     */
+    public function supervisor()
+    {
+        return $this->belongsTo(Vendedor::class, 'supervisor_id');
+    }
+    public function canton()
+    {
+        return $this->belongsTo(Canton::class, 'canton_id');
+    }
+    public function parroquia()
+    {
+        return $this->belongsTo(Parroquia::class, 'parroquia_id');
+    }
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

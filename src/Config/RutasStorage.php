@@ -43,9 +43,18 @@ enum RutasStorage: string
     case PROVEEDORES = 'public/proveedores/empresas/';
     case CONFIGURACION_GENERAL = 'public/configuracion_general';
     case FOTOGRAFIAS_NOVEDADES_ORDENES_COMPRAS  = 'public/fotografias_novedades_ordenes_compras';
+
+
+    /***********************
+     * MODULO DE VENTAS CLARO
+     ***********************/
+    case VENTAS_CLARO = 'public/ventasClaro/';
     case FOTOGRAFIAS_NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/fotografias_novedades_ventas_claro';
     case NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/novedades_ventas_claro';
     case NOVEDADES_ORDENES_COMPRAS  = 'public/novedades_ordenes_compras';
+
+    case FOTOGRAFIAS_CEDULAS_CLIENTES_CLARO_FRONTAL = 'public/VentasClaro/cedulas_clientes/frontal';
+    case FOTOGRAFIAS_CEDULAS_CLIENTES_CLARO_POSTERIOR = 'public/VentasClaro/cedulas_clientes/posterior';
 
     /***********************
      * MODULO DE VEHICULOS
@@ -108,7 +117,7 @@ enum RutasStorage: string
     case SOLICITUDES_DESCUENTOS  = 'public/sso/solicitudes_descuentos';
     case CONSULTAS_MEDICAS  = 'public/sso/consultas_medicas';
     case INSPECCIONES  = 'public/sso/inspecciones';
-    
+
     /*************
      * Seguridad
      *************/
