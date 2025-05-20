@@ -53,6 +53,10 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api/compras')
                 ->group(base_path('routes/api_compras_proveedores.php'));
 
+            Route::middleware('api')
+                ->prefix('api/appenate')
+                ->group(base_path('routes/api_appenate.php'));
+
             Route::middleware('api', 'auth:sanctum')
                 ->prefix('api/tickets')
                 ->group(base_path('routes/api_tickets.php'));
