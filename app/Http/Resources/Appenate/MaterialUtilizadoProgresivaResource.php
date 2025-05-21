@@ -17,7 +17,7 @@ class MaterialUtilizadoProgresivaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'registro_id' => $this->registro_id,
+//            'registro_id' => $this->registro_id,
             'material' => $this->material,
             'cantidad' => $this->cantidad,
         ];

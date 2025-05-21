@@ -34,7 +34,10 @@ class RegistroProgresivaResource extends JsonResource
         ];
 
         if ($controller_method == 'show') {
-            $modelo['materiales'] = MaterialUtilizadoProgresivaResource::collection($this->materiales);
+            $modelo['materiales_object'] = MaterialUtilizadoProgresivaResource::collection($this->materiales);
+            $modelo['materiales'] = $this->materiales->map(function ($item) {
+                return $item->material.': '.$item->cantidad;
+            });
         }
 
         return $modelo;

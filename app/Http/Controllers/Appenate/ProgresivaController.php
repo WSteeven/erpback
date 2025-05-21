@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Appenate;
 
+use App\Exports\Appenate\Telconet\Progresivas\OrdenTrabajoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Appenate\ProgresivaRequest;
 use App\Http\Resources\Appenate\ProgresivaResource;
 use App\Http\Resources\CategoriaResource;
 use App\Models\Appenate\Progresiva;
 use DB;
+use Excel;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
@@ -131,6 +133,31 @@ class ProgresivaController extends Controller
             return response()->json(compact('mensaje', 'result'));
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error:', $ex->getMessage(), $ex->getLine()]);
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+    }
+
+
+    /**
+     * @throws ValidationException
+     */
+    public function imprimirOrdenTrabajo(Progresiva $progresiva)
+    {
+        try {
+            return Excel::download(new OrdenTrabajoExport($progresiva), $progresiva->filename . '.xlsx');
+        } catch (Exception $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function imprimirKml(Progresiva $progresiva)
+    {
+        try {
+            throw new Exception('Todavia no esta configurada');
+        } catch (Exception $ex) {
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
