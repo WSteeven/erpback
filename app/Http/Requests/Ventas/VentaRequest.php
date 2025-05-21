@@ -44,7 +44,8 @@ class VentaRequest extends FormRequest
             'comision_vendedor' => 'nullable',
             'cliente_id' => 'nullable',
             'primer_mes' => 'nullable|boolean',
-
+            'adicionales' => 'nullable|string',
+            'estado_id' => 'required|exists:ventas_estados_claro,id',
         ];
     }
     protected function prepareForValidation()
@@ -66,6 +67,7 @@ class VentaRequest extends FormRequest
             'comision_id' => $comision->id,
             'comisiona' => Venta::obtenerVentaComisiona($this->vendedor),
             'comision_vendedor' => $comision_total,
+            'estado_id' => $this->estado,
             'chargeback' => $chargeback
         ]);
     }
