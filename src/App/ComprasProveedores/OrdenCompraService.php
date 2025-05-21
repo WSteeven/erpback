@@ -55,6 +55,9 @@ class OrdenCompraService
             if (in_array('PAGADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
                 return $orden->pagada === true;
             }));
+            if(in_array('AUTORIZADAS', $request->estado)) $results = $results->merge($ordenes->filter(function ($orden) {
+                return $orden->autorizacion_id === 2 && $orden->estado_id === 1;
+            }));
         } else {
             $results = $ordenes;
         }
