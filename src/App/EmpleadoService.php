@@ -232,7 +232,28 @@ class EmpleadoService
         })->ignoreRequest(['campos'])->filter()->get();
     }
 
-    public static function eliminarUmbralFondosRotativos(Empleado $empleado)
+    /**
+     * Desactiva todos los vendedores, cuyos registros de empleado esten desactivados
+     * @return void
+     */
+    public  function desactivarMasivoVendedoresClaro()
+    {
+        $vendedores = Vendedor::where('activo', true)->get();
+        foreach ($vendedores as $vendedor) {
+            $this->desactivarVendedorClaro($vendedor->empleado);
+        }
+    }
+    public  function desactivarVendedorClaro(Empleado $empleado)
+    {
+        $vendedor = Vendedor::where('empleado_id', $empleado->id)->where('activo', true)->first();
+        if($vendedor)
+        if($vendedor->activo && !$empleado->estado){
+            $vendedor->activo = false;
+            $vendedor->causa_desactivacion = 'DESACTIVACION DE EMPLEADO POR PARTE DE '.Empleado::extraerNombresApellidos(auth()->user()->empleado);
+            $vendedor->save();
+        }
+    }
+    public function eliminarUmbralFondosRotativos(Empleado $empleado)
     {
         $umbral = UmbralFondosRotativos::where('empleado_id', $empleado->id)->first();
         if ($umbral && !$empleado->estado) {

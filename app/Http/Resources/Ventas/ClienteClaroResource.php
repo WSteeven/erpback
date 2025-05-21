@@ -34,6 +34,7 @@ class ClienteClaroResource extends JsonResource
             'foto_cedula_frontal' => $this->foto_cedula_frontal,
             'foto_cedula_posterior' => $this->foto_cedula_posterior,
             'fecha_expedicion_cedula' => $this->fecha_expedicion_cedula,
+            'estado' => $this->estado?->nombre,
             'activo' => $this->activo,
         ];
 
@@ -41,6 +42,7 @@ class ClienteClaroResource extends JsonResource
             $modelo['supervisor'] = $this->supervisor_id;
             $modelo['canton'] = $this->canton_id;
             $modelo['parroquia'] = $this->parroquia_id;
+            $modelo['estado'] = $this->estado_id;
         }
         return $modelo;
     }

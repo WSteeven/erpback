@@ -22,6 +22,7 @@ class PermisosModuloVentasClaroSeeder extends Seeder
         // Entidades principales
         $entidadesSimples = [
             'dashboard_ventas',
+            'estados_claro',
             'productos_ventas',
             'vendedores',
             'clientes_claro',

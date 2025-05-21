@@ -3,6 +3,9 @@
 namespace App\Models\Ventas;
 
 use App\Models\Empleado;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -11,6 +14,8 @@ use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Support\Facades\Log;
+use OwenIt\Auditing\Models\Audit;
+use Throwable;
 
 /**
  * App\Models\Ventas\Vendedor
@@ -23,31 +28,31 @@ use Illuminate\Support\Facades\Log;
  * @property string|null $causa_desactivacion
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empleado|null $empleado
  * @property-read Empleado|null $jefe_inmediato
- * @property-read \App\Models\Ventas\Modalidad|null $modalidad
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ventas\Venta> $ventas
+ * @property-read Modalidad|null $modalidad
+ * @property-read Collection<int, Venta> $ventas
  * @property-read int|null $ventas_count
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor query()
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereActivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereCausaDesactivacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereJefeInmediatoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereModalidadId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereTipoVendedor($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Vendedor whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Vendedor acceptRequest(?array $request = null)
+ * @method static Builder|Vendedor filter(?array $request = null)
+ * @method static Builder|Vendedor ignoreRequest(?array $request = null)
+ * @method static Builder|Vendedor newModelQuery()
+ * @method static Builder|Vendedor newQuery()
+ * @method static Builder|Vendedor query()
+ * @method static Builder|Vendedor setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Vendedor setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Vendedor setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Vendedor whereActivo($value)
+ * @method static Builder|Vendedor whereCausaDesactivacion($value)
+ * @method static Builder|Vendedor whereCreatedAt($value)
+ * @method static Builder|Vendedor whereEmpleadoId($value)
+ * @method static Builder|Vendedor whereJefeInmediatoId($value)
+ * @method static Builder|Vendedor whereModalidadId($value)
+ * @method static Builder|Vendedor whereTipoVendedor($value)
+ * @method static Builder|Vendedor whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Vendedor extends Model implements Auditable
 {
@@ -82,7 +87,7 @@ class Vendedor extends Model implements Auditable
         'activo' => 'boolean',
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
     public function empleado()
@@ -133,7 +138,7 @@ class Vendedor extends Model implements Auditable
 
             // Log::channel('testing')->info('Log', ['metodo alcanza umbral', $ventas, $vendedor->modalidad->umbral_minimo]);
             return $ventas->count() > $vendedor->modalidad->umbral_minimo;
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->info('Log', ['erorr en verificar ventas mensuales', $th->getLine(), $th->getMessage()]);
             throw $th;
         }
@@ -162,7 +167,7 @@ class Vendedor extends Model implements Auditable
                 ->where('estado_activacion', Venta::ACTIVADO)
                 ->get();
             return $ventas;
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw $th;
         }
     }

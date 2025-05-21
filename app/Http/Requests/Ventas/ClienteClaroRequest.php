@@ -41,6 +41,7 @@ class ClienteClaroRequest extends FormRequest
             'foto_cedula_frontal' => 'nullable|string',
             'foto_cedula_posterior' => 'nullable|string',
             'fecha_expedicion_cedula' => 'required|date_format:Y-m-d',
+            'estado_id' => 'required|exists:ventas_estados_claro,id',
             'activo' => 'boolean',
         ];
     }
@@ -49,7 +50,8 @@ class ClienteClaroRequest extends FormRequest
     {
         $this->merge([
             'canton_id' => $this->canton,
-            'parroquia_id' => $this->parroquia
+            'parroquia_id' => $this->parroquia,
+            'estado_id' => $this->estado
         ]);
     }
 

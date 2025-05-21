@@ -12,6 +12,7 @@ use App\Http\Controllers\Ventas\ComisionController;
 use App\Http\Controllers\Ventas\CortePagoComisionController;
 use App\Http\Controllers\Ventas\EscenarioVentaJPController;
 use App\Http\Controllers\Ventas\EsquemaComisionController;
+use App\Http\Controllers\Ventas\EstadoClaroController;
 use App\Http\Controllers\Ventas\ModalidadController;
 use App\Http\Controllers\Ventas\NovedadVentaController;
 use App\Http\Controllers\Ventas\PagoComisionController;
@@ -30,6 +31,7 @@ Route::apiResources(
         'bonos' => BonoController::class,
         'bono-porcentual' => BonoPorcentualController::class,
         'comisiones' => ComisionController::class,
+        'estados' => EstadoClaroController::class,
         'modalidad' => ModalidadController::class,
         'planes' => PlanController::class,
         'productos-ventas' => ProductoVentaController::class,
@@ -74,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('productos-ventas/desactivar/{producto}', [ProductoVentaController::class, 'desactivar']);
 Route::post('vendedores/desactivar/{vendedor}', [VendedorController::class, 'desactivar']);
+Route::post('vendedores/desactivar-masivo', [VendedorController::class, 'desactivarMasivo']);
 Route::post('clientes-claro/desactivar/{cliente}', [ClienteClaroController::class, 'desactivar']);
 Route::post('ventas/suspender/{venta}', [VentaController::class, 'desactivar']);
 Route::post('ventas/marcar-pagado/{venta}', [VentaController::class, 'marcarPagado']);
