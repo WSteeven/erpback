@@ -101,3 +101,7 @@ Route::post('cortes-pagos-comisiones/anular/{corte}', [CortePagoComisionControll
  * Rutas para imprimir archivos (PDF y EXCEL)
  */
 Route::get('cortes-pagos-comisiones/imprimir-excel/{corte}', [CortePagoComisionController::class, 'imprimirExcel']);
+
+
+//Generar Orden Id
+Route::get('ventas/generar-orden-id', [VentaController::class, 'generarOrdenId']);

@@ -31,14 +31,19 @@ class VentaRequest extends FormRequest
     {
         return [
 
-            'orden_id' => 'required',
-            'orden_interna' => 'sometimes|string|nullable',
+            'orden_id' => 'sometimes|string|nullable',
+            //'orden_interna' => 'sometimes|string|nullable',
+            'fecha_ingreso' => 'nullable',
+            'fecha_agendamiento' => 'nullable',
             'supervisor_id' => 'required',
             'vendedor_id' => 'required',
             'producto_id' => 'required',
             'fecha_activacion' => 'nullable',
             'estado_activacion' => 'required',
             'forma_pago' => 'required',
+            'banco' => 'nullable',
+            'numero_tarjeta' => 'nullable',
+            'tipo_cuenta' => 'nullable',
             'comision_id' => 'required',
             'chargeback' => 'nullable',
             'comision_vendedor' => 'nullable',
