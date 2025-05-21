@@ -23,7 +23,9 @@ use OwenIt\Auditing\Models\Audit;
  *
  * @property int $id
  * @property string $orden_id
- * @property string|null $orden_interna
+ * @property string $fecha_ingreso
+ //* @property string|null $orden_interna
+ * @property string|null $fecha_agendamiento
  * @property int|null $supervisor_id
  * @property int|null $vendedor_id
  * @property int $producto_id
@@ -31,6 +33,9 @@ use OwenIt\Auditing\Models\Audit;
  * @property string|null $fecha_activacion
  * @property string $estado_activacion
  * @property string $forma_pago
+ * @property string|null $banco
+ * @property string|null $numero_tarjeta
+ * @property string|null $tipo_cuenta
  * @property int $comision_id
  * @property string $chargeback
  * @property string $comision_vendedor
@@ -92,13 +97,18 @@ class Venta  extends Model implements Auditable
     protected $table = 'ventas_ventas';
     protected $fillable = [
         'orden_id',
-        'orden_interna',
+        //'orden_interna',
+        'fecha_ingreso',
+        'fecha_agendamiento',
         'supervisor_id',
         'vendedor_id',
         'producto_id',
         'fecha_activacion',
         'estado_activacion',
         'forma_pago',
+        'banco',
+        'numero_tarjeta',
+        'tipo_cuenta',
         'comision_id',
         'chargeback',
         'comisiona',
@@ -132,10 +142,10 @@ class Venta  extends Model implements Auditable
         '*',
     ];
 
-//    public function novedadesVenta()
-//    {
-//        return $this->hasMany(NovedadVenta::class);
-//    }
+    //    public function novedadesVenta()
+    //    {
+    //        return $this->hasMany(NovedadVenta::class);
+    //    }
     public function supervisor()
     {
         return $this->belongsTo(Vendedor::class, 'supervisor_id');
@@ -181,10 +191,14 @@ class Venta  extends Model implements Auditable
             $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
             $row['venta'] = 1;
             $row['fecha_ingreso'] = $venta->created_at;
+            $row['fecha_agendamiento'] = $venta->fecha_agendamiento;
             $row['fecha_activacion'] =  $venta->fecha_activacion;
             $row['plan'] = $venta->producto->plan->nombre;
             $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
             $row['forma_pago'] = $venta->forma_pago;
+            $row['banco'] = $venta->banco->id;
+            $row['numero_tarjeta'] = $venta->numero_tarjeta;
+            $row['tipo_cuenta'] = $venta->tipo_cuenta;
             $row['orden_interna'] = $venta->orden_interna;
             $results[$id] = $row;
             $id++;
