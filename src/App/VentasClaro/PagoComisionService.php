@@ -19,9 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class PagoComisionService
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     private static function tabla_comisiones($fecha_inicio, $fecha_fin)
     {
@@ -59,7 +57,8 @@ class PagoComisionService
             $vendedor = Vendedor::find($empleado_id);
             $comisiones = null;
             $ventas = null;
-            $pago_comision = self::calcularVentasConComision($empleado_id, $fecha_inicio, $fecha_fin, $vendedor);
+            $service = new self();
+            $pago_comision = $service->calcularVentasConComision($empleado_id, $fecha_inicio, $fecha_fin, $vendedor);
             $modalidad = Modalidad::where('id', $vendedor->modalidad_id)->first();
             $limite_venta =  $modalidad != null ? $modalidad->umbral_minimo : 0;
 
@@ -153,7 +152,7 @@ class PagoComisionService
     /**
      * La función "fechasDisponiblesCorte" devuelve un conjunto de fechas disponibles para un corte de
      * pago basado en las fechas de activaciones de ventas y cortes de pago existentes.
-     * 
+     *
      * @return array una variedad de fechas disponibles para un corte de pago.
      */
     public static function fechasDisponiblesCorte()
@@ -193,13 +192,13 @@ class PagoComisionService
 
     /**
      * La función `fechaEnRango` verifica si una fecha determinada está dentro de un rango específico.
-     * 
+     *
      * @param string $fecha El parámetro fecha es una fecha que debe verificarse si se encuentra dentro de un
      * rango específico.
      * @param array $rango Se espera que el parámetro `rango` sea un arreglo asociativo con dos claves:
      * `fecha_inicio` y `fecha_fin`. Estas claves representan las fechas de inicio y finalización de un
      * rango.
-     * 
+     *
      * @return Boolean un valor booleano que indica si la fecha dada se encuentra dentro del rango
      * especificado.
      */
@@ -246,7 +245,7 @@ class PagoComisionService
             })->where('estado_activacion', Venta::ACTIVADO)->get();
             // Log::channel('testing')->info('Log', ['ventas', $ventas]);
             foreach ($ventas as $index => $venta) {
-                [$valor_comision, $comision]= Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
+                [$valor_comision, $comision] = Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
                 $row['venta_id'] =  $venta->id;
                 $row['vendedor'] =  $venta->vendedor->empleado->apellidos . ' ' . $venta->vendedor->empleado->nombres;
                 $row['tipo_vendedor'] =  $venta->vendedor->modalidad->nombre;
@@ -263,10 +262,10 @@ class PagoComisionService
                 $row['forma_pago'] = $venta->forma_pago;
                 $row['orden_interna'] = $venta->orden_interna;
                 $row['comisiona'] = $venta->comisiona;
-                $row['porcentaje_comision'] = $venta->comisiona?$comision->comision:null;
-                $row['valor_comision'] = $venta->comisiona?$valor_comision:null;
-                $row['primer_pago'] = $venta->comisiona?$valor_comision*.45:null;
-                $row['retencion_chargeback'] = $venta->comisiona?$valor_comision*.1:null;
+                $row['porcentaje_comision'] = $venta->comisiona ? $comision->comision : null;
+                $row['valor_comision'] = $venta->comisiona ? $valor_comision : null;
+                $row['primer_pago'] = $venta->comisiona ? $valor_comision * .45 : null;
+                $row['retencion_chargeback'] = $venta->comisiona ? $valor_comision * .1 : null;
                 $results[$count] = $row;
                 $count++;
             }

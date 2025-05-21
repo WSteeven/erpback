@@ -30,7 +30,6 @@ class VentaRequest extends FormRequest
     public function rules()
     {
         return [
-
             'orden_id' => 'sometimes|string|nullable',
             //'orden_interna' => 'sometimes|string|nullable',
             'fecha_ingreso' => 'nullable',
@@ -49,7 +48,6 @@ class VentaRequest extends FormRequest
             'comision_vendedor' => 'nullable',
             'cliente_id' => 'nullable',
             'primer_mes' => 'nullable|boolean',
-
         ];
     }
     protected function prepareForValidation()
@@ -66,6 +64,7 @@ class VentaRequest extends FormRequest
         $this->merge([
             'supervisor_id' => auth()->user()->empleado->id,
             'cliente_id' => $this->cliente,
+            'fecha_ingreso' => Carbon::now()->format('Y-m-d'),
             'vendedor_id' => $this->vendedor,
             'producto_id' => $this->producto,
             'comision_id' => $comision->id,
