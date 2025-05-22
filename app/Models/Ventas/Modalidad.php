@@ -2,12 +2,17 @@
 
 namespace App\Models\Ventas;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Ventas\Modalidad
@@ -15,33 +20,35 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property int $id
  * @property string $nombre
  * @property int $umbral_minimo
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad query()
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad whereUmbralMinimo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Modalidad whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Modalidad acceptRequest(?array $request = null)
+ * @method static Builder|Modalidad filter(?array $request = null)
+ * @method static Builder|Modalidad ignoreRequest(?array $request = null)
+ * @method static Builder|Modalidad newModelQuery()
+ * @method static Builder|Modalidad newQuery()
+ * @method static Builder|Modalidad query()
+ * @method static Builder|Modalidad setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Modalidad setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Modalidad setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Modalidad whereCreatedAt($value)
+ * @method static Builder|Modalidad whereId($value)
+ * @method static Builder|Modalidad whereNombre($value)
+ * @method static Builder|Modalidad whereUmbralMinimo($value)
+ * @method static Builder|Modalidad whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Modalidad extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_modalidades';
-    protected $fillable =['nombre','umbral_minimo'];
-    private static $whiteListFilter = [
+    protected $fillable =['nombre','umbral_minimo','activo'];
+
+    protected $casts=['activo'=>'boolean'];
+    private static array $whiteListFilter = [
         '*',
     ];
 }

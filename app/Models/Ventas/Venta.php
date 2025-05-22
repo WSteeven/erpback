@@ -119,6 +119,8 @@ class Venta  extends Model implements Auditable
         'primer_mes',
         'fecha_pago_primer_mes',
         'comision_pagada',
+        'estado_id',
+        'adicionales',
     ];
 
     const ACTIVADO = 'ACTIVADO';

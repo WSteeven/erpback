@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Ventas;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\ValidarIdentificacion;
+use Throwable;
 
 class ClienteClaroRequest extends FormRequest
 {
@@ -57,7 +57,9 @@ class ClienteClaroRequest extends FormRequest
 
     public function withValidator($validator)
     {
-        $validator->after(function ($validator) {
+        $validator->after(/**
+         * @throws ValidationException
+         */ function ($validator) {
             try {
                 $validador = new ValidarIdentificacion();
                 if (strlen($this->identificacion) === 13) {
@@ -70,7 +72,7 @@ class ClienteClaroRequest extends FormRequest
                     // aqui se valida la cedula recibida
                     if (!$validador->validarCedula($this->identificacion)) $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
                 }
-            } catch (\Throwable $th) {
+            } catch (Throwable $th) {
                 throw ValidationException::withMessages(['Error al validar la identificación' => $th->getMessage()]);
             }
         });
