@@ -59,4 +59,16 @@ class ProgresivaService
             throw $exception;
         }
     }
+
+    public static function castearNombrePosteEnProgresivas(RegistroProgresiva $registro)
+    {
+        return match ($registro->elemento){
+            'AMERICANO'=>'P-'.$registro->propietario.'-0'.$registro->num_elemento.'-A',
+            'POZO'=>'PZ-'.$registro->propietario.'-0'.$registro->num_elemento,
+            'POSTE/RESERVA'=>'P-'.$registro->propietario.'-0'.$registro->num_elemento.' / RES',
+            'POSTE/MANGA'=>'P-'.$registro->propietario.'-0'.$registro->num_elemento.' / MAN',
+            'POSTE/CAJA'=>'P-'.$registro->propietario.'-0'.$registro->num_elemento.' / CAJA',
+          default=>'P-'.$registro->propietario.'-0'.$registro->num_elemento
+        };
+    }
 }

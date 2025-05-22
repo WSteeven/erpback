@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Appenate;
 
 use App\Exports\Appenate\Telconet\Progresivas\OrdenTrabajoExport;
+use App\Exports\Appenate\Telconet\Progresivas\ProgresivaExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Appenate\ProgresivaRequest;
 use App\Http\Resources\Appenate\ProgresivaResource;
@@ -145,6 +146,17 @@ class ProgresivaController extends Controller
     {
         try {
             return Excel::download(new OrdenTrabajoExport($progresiva), $progresiva->filename . '.xlsx');
+        } catch (Exception $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function imprimirMaterialesUtilizados(Progresiva $progresiva){
+        try {
+            return Excel::download(new ProgresivaExport($progresiva), $progresiva->filename . '_progresiva.xlsx');
         } catch (Exception $ex) {
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }

@@ -43,4 +43,16 @@ class Progresiva extends Model implements Auditable
         return $this->hasMany(RegistroProgresiva::class);
     }
 
+    public function materiales()
+    {
+        return $this->hasManyThrough(
+            MaterialUtilizadoProgresiva::class,
+            RegistroProgresiva::class,
+            'progresiva_id',     // Clave foránea en Registro
+            'registro_id',       // Clave foránea en Material
+            'id',                // Clave local en Progresiva
+            'id'                 // Clave local en Registro (referenciada por Material)
+        );
+    }
+
 }
