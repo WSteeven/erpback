@@ -37,6 +37,7 @@ use OwenIt\Auditing\Models\Audit;
  * @property string|null $numero_tarjeta
  * @property string|null $tipo_cuenta
  * @property int $comision_id
+ * @property string $estado_id
  * @property string $chargeback
  * @property string $comision_vendedor
  * @property int $comisiona
@@ -162,6 +163,12 @@ class Venta  extends Model implements Auditable
     {
         return $this->hasOne(ProductoVenta::class, 'id', 'producto_id')->with('plan');
     }
+
+    public function estado()
+    {
+        return $this->hasOne(EstadoClaro::class, 'id', 'estado_id');
+    }
+
     public function comision()
     {
         return $this->hasOne(Comision::class, 'id', 'comision_id');
@@ -200,6 +207,7 @@ class Venta  extends Model implements Auditable
             $row['numero_tarjeta'] = $venta->numero_tarjeta;
             $row['tipo_cuenta'] = $venta->tipo_cuenta;
             $row['orden_interna'] = $venta->orden_interna;
+            $row['estado_id'] = $venta->estado_id;
             $results[$id] = $row;
             $id++;
         }
