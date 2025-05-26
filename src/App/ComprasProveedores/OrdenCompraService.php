@@ -15,6 +15,7 @@ use App\Models\EstadoTransaccion;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -33,8 +34,8 @@ class OrdenCompraService
     public function filtrarOrdenes(Request $request)
     {
         $results = collect();
-        $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
-        $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+        $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
         $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
             ->when($request->proveedor, function ($query) use ($request) {
                 $query->where('proveedor_id', $request->proveedor);
