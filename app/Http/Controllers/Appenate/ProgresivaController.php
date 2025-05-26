@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Appenate\ProgresivaRequest;
 use App\Http\Resources\Appenate\ProgresivaResource;
 use App\Http\Resources\CategoriaResource;
+use App\Models\Appenate\ExtendedSimpleXMLElement;
 use App\Models\Appenate\Progresiva;
 use DB;
 use Excel;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\Appenate\Telconet\ProgresivaService;
 use Src\Shared\Utils;
+use Storage;
+use Str;
 use Throwable;
 
 class ProgresivaController extends Controller
@@ -169,13 +172,10 @@ class ProgresivaController extends Controller
     {
         try {
             // Ejemplo de datos obtenidos desde la base de datos
-            $points = [
-                ['name' => '# 3', 'description' => 'Adentor', 'style' => 'cFFFFFF00', 'lon' => -79.948975, 'lat' => -3.258955],
-                ['name' => 'P1', 'description' => 'Cnel', 'style' => 'cFF00FFFF', 'lon' => -79.948963, 'lat' => -3.258880],
-                ['name' => 'P2', 'description' => 'Cnel', 'style' => 'cFF00FFFF', 'lon' => -79.948953, 'lat' => -3.258913],
-            ];
+            $points = $this->service->obtenerPuntosCoordenadas($progresiva);
 
-            $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><kml></kml>');
+/*            $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><kml></kml>');*/
+            $xml = new ExtendedSimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><kml></kml>');
             $xml->addAttribute('xmlns', 'http://www.opengis.net/kml/2.2');
 
             $document = $xml->addChild('Document');
@@ -190,7 +190,7 @@ class ProgresivaController extends Controller
                 $style = $document->addChild('Style');
                 $style->addAttribute('id', $color);
                 $iconStyle = $style->addChild('IconStyle');
-                $iconStyle->addChild('color', $color);
+                $iconStyle->addChild('color', substr($color, 1)); // Esto es clave
             }
 
             $folder = $document->addChild('Folder');
@@ -211,7 +211,7 @@ class ProgresivaController extends Controller
 
             Storage::disk('local')->put($path, $xml->asXML());
 
-            return response()->download(storage_path('app/' . $path))->deleteFileAfterSend(true);
+            return response()->download(storage_path('app/' . $path))->deleteFileAfterSend();
         } catch (Exception $ex) {
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
