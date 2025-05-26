@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Appenate;
 
+use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 
@@ -62,15 +63,13 @@ class ProgresivaRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        Log::channel('testing')->info('Log', ['prepareForValidation::all:', $this->all()]);
-        Log::channel('testing')->info('Log', ['prepareForValidation::3:', $this->only('ProviderId', 'Entry')]);
+//        Log::channel('testing')->info('Log', ['prepareForValidation::all:', $this->all()]);
 
-        $entry = $this->Entry;
-        unset($entry['AnswersJson']);
+//        $entry = $this->Entry;
+//        unset($entry['AnswersJson']);
 
-        Log::channel('testing')->info('Log', ['lo que se guarda en metadatos:', ['ProviderId' => $this->ProviderId, 'Entry' => $entry]]);
         $this->merge([
-            'metadatos' =>$this->all(),// ['ProviderId' => $this->ProviderId, 'Entry' => $entry],
+            'metadatos' => $this->all(),// ['ProviderId' => $this->ProviderId, 'Entry' => $entry],
             'filename' => $this->header('filename'),
             'proyecto' => $this->Entry['AnswersJson']['telconet']['proyecto'],
             'ciudad' => $this->Entry['AnswersJson']['telconet']['ciudad'],
@@ -84,28 +83,43 @@ class ProgresivaRequest extends FormRequest
             'hilos' => $this->Entry['AnswersJson']['telconet']['hilos'],
             'responsable' => $this->Entry['AnswersJson']['telconet']['responsable'],
             'registros_progresivas' => $this->procesarRegistrosProgresivas($this->Entry['AnswersJson']['telconet']['registros_progresivas']),
-
         ]);
     }
 
-    private function procesarRegistrosProgresivas(array $registrosProgresivas)
+    private function procesarRegistrosProgresivas(mixed $registrosProgresivas)
     {
-        return array_map(function ($registro) {
-            return array_merge($registro, [
-                'num_elemento' => $registro['num_elemento'],
-                'propietario' => $registro['propietario'],
-                'elemento' => $registro['elemento'],
-                'tipo_poste' => $registro['tipo_poste'],
-                'material_poste' => $registro['material_poste'],
-                'ubicacion_gps' => $registro['ubicacion_gps'],
-                'foto' => $registro['foto'],
-                'observaciones' => $registro['observaciones'],
-                'tiene_control_cambio' => $registro['tiene_control_cambio'] == 'SI',
-                'observacion_cambio' => array_key_exists('observacion_cambio', $registro) ? $registro['observacion_cambio'] : null,
-                'foto_cambio' => array_key_exists('foto_cambio', $registro) ? $registro['foto_cambio'] : null,
-                'hora_cambio' => array_key_exists('hora_cambio', $registro) ? $registro['hora_cambio'] : null,
-                'materiales' => $registro['materiales'],
-            ]);
-        }, $registrosProgresivas);
+        //Si solo se recibe un objeto, lo convertimos a aray
+        if(!is_array($registrosProgresivas)|| !array_is_list($registrosProgresivas)){
+            $registrosProgresivas = [$registrosProgresivas];
+        }
+
+//        Log::channel('testing')->info('Log', ['procesarRegistrosProgresivas::inicio', $registrosProgresivas]);
+        try {
+            return array_map(function ($registro) {
+                $materiales = $registro['materiales']??[];
+                if(!is_array($materiales)||!array_is_list($materiales)){
+                    $materiales = [$materiales];
+                }
+//                Log::channel('testing')->info('Log', ['RegistroProgresiva', $registro]);
+                return array_merge($registro, [
+                    'num_elemento' => $registro['num_elemento'],
+                    'propietario' => $registro['propietario'],
+                    'elemento' => $registro['elemento'],
+                    'tipo_poste' => $registro['tipo_poste'],
+                    'material_poste' => $registro['material_poste'],
+                    'ubicacion_gps' => $registro['ubicacion_gps'],
+                    'foto' => $registro['foto'],
+                    'observaciones' => $registro['observaciones'],
+                    'tiene_control_cambio' => $registro['tiene_control_cambio'] == 'SI',
+                    'observacion_cambio' => array_key_exists('observacion_cambio', $registro) ? $registro['observacion_cambio'] : null,
+                    'foto_cambio' => array_key_exists('foto_cambio', $registro) ? $registro['foto_cambio'] : null,
+                    'hora_cambio' => array_key_exists('hora_cambio', $registro) ? $registro['hora_cambio'] : null,
+                    'materiales' => $materiales,
+                ]);
+            }, $registrosProgresivas);
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['error en procesarRegistrosProgresivas:', $ex->getLine(), $ex->getMessage()]);
+            return [];
+        }
     }
 }
