@@ -1,6 +1,7 @@
 <?php
 
 use App\Exports\RegistroTendidoExport;
+use App\Http\Controllers\Appenate\ProgresivaController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\PedidoController;
@@ -76,3 +77,6 @@ Route::get('get-file/{file_path}', [FileController::class, 'getFile'])->where('f
 //    $full_path =
 
 //});
+
+
+Route::get('obtener-registros-progresivas', [ProgresivaController::class, 'leerRegistros']);

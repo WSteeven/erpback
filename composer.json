@@ -28,7 +28,9 @@
         "pusher/pusher-php-server": "^7.2",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "^5.5",
-        "twbs/bootstrap": "^5.2"
+        "twbs/bootstrap": "^5.2",
+        "ext-simplexml": "*",
+        "ext-dom": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "2.*",
