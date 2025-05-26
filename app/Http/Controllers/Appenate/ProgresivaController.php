@@ -56,25 +56,25 @@ class ProgresivaController extends Controller
      */
     public function store(ProgresivaRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Progresivas::header:', $request->header('filename')]);
-        Log::channel('testing')->info('Log', ['Progresivas::request:', $request->all()]);
+//        Log::channel('testing')->info('Log', ['Progresivas::header:', $request->header('filename')]);
+//        Log::channel('testing')->info('Log', ['Progresivas::request:', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['Progresivas::datos validados:', $datos]);
+//            Log::channel('testing')->info('Log', ['Progresivas::datos validados:', $datos]);
             $progresiva = Progresiva::create($datos);
 
-            Log::channel('testing')->info('Log', ['Progresiva creada']);
+//            Log::channel('testing')->info('Log', ['Progresiva creada']);
             $this->service->actualizarRegistrosProgresivas($progresiva, $datos['registros_progresivas']);
-            Log::channel('testing')->info('Log', ['Datos relacionados Progresiva actualizados']);
+//            Log::channel('testing')->info('Log', ['Datos relacionados Progresiva actualizados']);
 
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            $modelo = $request->all();
+            $modelo = new ProgresivaResource($progresiva);
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->error('Log', ['Error en el insert', $e->getMessage(), $e->getLine()]);
+//            Log::channel('testing')->error('Log', ['Error en el insert', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
 

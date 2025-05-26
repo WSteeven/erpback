@@ -35,8 +35,8 @@ class DetalleProductoController extends Controller
     public function index(Request $request)
     {
         $controller_method = $request->route()->getActionMethod();
-        Log::channel('testing')->info('Log', ['ruta:', $controller_method]);
-        Log::channel('testing')->info('Log', ['Metodo recibido:', $request->route()]);
+//        Log::channel('testing')->info('Log', ['ruta:', $controller_method]);
+//        Log::channel('testing')->info('Log', ['Metodo recibido:', $request->route()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];
@@ -86,10 +86,10 @@ class DetalleProductoController extends Controller
         } else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);
         } else if ($search) { //en este caso busca en todos los detalles
-            Log::channel('testing')->info('Log', ['Pasó por el if de search:', $request->all()]);
+//            Log::channel('testing')->info('Log', ['Pasó por el if de search:', $request->all()]);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
-            Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
+//            Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
             // Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
@@ -103,7 +103,7 @@ class DetalleProductoController extends Controller
             $r2 = DetalleProducto::whereNotIn('id', $ids_detalles_en_inventario)->get();
             // Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
             $results = $results->concat($r2);
-            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
+//            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
         } else {
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
         }
@@ -128,7 +128,7 @@ class DetalleProductoController extends Controller
             if (count($request->seriales) > 0) {
                 // Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
                 foreach ($request->seriales as $item) {
-                    Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
+//                    Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
                     //aqui se pondria la siguiente linea
                     $datos['serial'] = $item['serial'];
                     $detalle = DetalleProducto::crearDetalle($request, $datos);
@@ -164,7 +164,7 @@ class DetalleProductoController extends Controller
      */
     public function update(DetalleProductoRequest $request, DetalleProducto $detalle)
     {
-        Log::channel('testing')->info('Log', ['request recibida:', $request->all()]);
+//        Log::channel('testing')->info('Log', ['request recibida:', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
