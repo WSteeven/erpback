@@ -168,7 +168,50 @@ class ProgresivaController extends Controller
     public function imprimirKml(Progresiva $progresiva)
     {
         try {
-            throw new Exception('Todavia no esta configurada');
+            // Ejemplo de datos obtenidos desde la base de datos
+            $points = [
+                ['name' => '# 3', 'description' => 'Adentor', 'style' => 'cFFFFFF00', 'lon' => -79.948975, 'lat' => -3.258955],
+                ['name' => 'P1', 'description' => 'Cnel', 'style' => 'cFF00FFFF', 'lon' => -79.948963, 'lat' => -3.258880],
+                ['name' => 'P2', 'description' => 'Cnel', 'style' => 'cFF00FFFF', 'lon' => -79.948953, 'lat' => -3.258913],
+            ];
+
+            $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><kml></kml>');
+            $xml->addAttribute('xmlns', 'http://www.opengis.net/kml/2.2');
+
+            $document = $xml->addChild('Document');
+
+            // Estilos predeterminados
+            $colors = [
+                'cFF0000FF', 'cFF0080FF', 'cFF00FFFF', 'cFF00FF00', 'cFFFFFF00',
+                'cFFFF0000', 'cFFFF0080', 'cFF8000FF', 'cFF888888', 'cFFFFFFFF'
+            ];
+
+            foreach ($colors as $color) {
+                $style = $document->addChild('Style');
+                $style->addAttribute('id', $color);
+                $iconStyle = $style->addChild('IconStyle');
+                $iconStyle->addChild('color', $color);
+            }
+
+            $folder = $document->addChild('Folder');
+            $folder->addChild('name', 'Export KML');
+
+            foreach ($points as $point) {
+                $placemark = $folder->addChild('Placemark');
+                $placemark->addChild('name')->addCData($point['name']);
+                $placemark->addChild('description')->addCData($point['description']);
+                $placemark->addChild('styleUrl', '#' . $point['style']);
+
+                $pointElement = $placemark->addChild('Point');
+                $pointElement->addChild('coordinates', "{$point['lon']},{$point['lat']}");
+            }
+
+            $filename = 'export_' . Str::uuid() . '.kml';
+            $path = 'exports/' . $filename;
+
+            Storage::disk('local')->put($path, $xml->asXML());
+
+            return response()->download(storage_path('app/' . $path))->deleteFileAfterSend(true);
         } catch (Exception $ex) {
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
