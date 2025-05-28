@@ -407,6 +407,7 @@
 <body class="antialiased">
     <div class="text-center py-4">
         Bienvenido a JP CONSTRUCRED API
+        
         <div><b>anno:</b> {{ date('y') }}</div>
         <div><b>anno_b:</b> {{ date('Y') }}</div>
         <div><b>mes_b:</b> {{ date('n') }}</div>
