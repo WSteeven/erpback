@@ -11,7 +11,7 @@ class PermisosModuloVentasClaroSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * php artisan db:seed --class=Database\Seeders\VentasClaro\PermisosModuloVentasClaroSeeder
+     * php artisan db:seed --class="Database\Seeders\VentasClaro\PermisosModuloVentasClaroSeeder"
      * @return void
      */
     public function run()
@@ -43,15 +43,16 @@ class PermisosModuloVentasClaroSeeder extends Seeder
             'bonos_porcentuales',
             'reportes_cobrosjp_claro',
             'reportes_pagos_claro',
-            'reportes_ventas_claro'
+            'reportes_ventas_claro',
+            'bases_comisiones',
+            'seguimiento_ventas'
         ];
 
         $acciones = [
             Permisos::ACCEDER,
             Permisos::VER,
             Permisos::CREAR,
-            Permisos::EDITAR,
-            Permisos::ELIMINAR
+            Permisos::EDITAR
         ];
 
         foreach ($entidadesSimples as $entidad) {

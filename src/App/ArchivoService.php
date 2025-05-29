@@ -89,7 +89,7 @@ class ArchivoService
      * @param string $ruta El parámetro "ruta" es una cadena que representa la ruta del directorio que
      * se debe crear.
      */
-    private static function crearDirectorioConPermisos(string $ruta)
+    public static function crearDirectorioConPermisos(string $ruta)
     {
         try {
             if (!Storage::exists($ruta)) {

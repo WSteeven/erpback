@@ -52,9 +52,7 @@ class Categoria extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static array $whiteListFilter = [
-        '*',
-    ];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * Relacion uno a muchos.

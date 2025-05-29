@@ -42,6 +42,7 @@ enum RutasStorage: string
     case PROVEEDORES_INTERNACIONALES = 'public/ComprasProveedores/proveedores_internacionales/';
     case PROVEEDORES = 'public/proveedores/empresas/';
     case CONFIGURACION_GENERAL = 'public/configuracion_general';
+    case PLANTILLAS_BASE= 'public/plantillas';
     case FOTOGRAFIAS_NOVEDADES_ORDENES_COMPRAS  = 'public/fotografias_novedades_ordenes_compras';
 
 

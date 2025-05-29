@@ -46,6 +46,7 @@ use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Controllers\Sistema\PlantillaBaseController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TableroController;
@@ -123,6 +124,7 @@ Route::middleware('auth:sanctum')->get('/user-postulante', fn (Request $request)
 Route::get('configuracion', [ConfiguracionGeneralController::class, 'index']);
 Route::middleware('auth:sanctum')->post('configuracion', [ConfiguracionGeneralController::class, 'store']);
 
+
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
 Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
 
@@ -155,6 +157,7 @@ Route::apiResources(
         'motivos' => MotivoController::class,
         'notificaciones' => NotificacionController::class,
         'pedidos' => PedidoController::class,
+        'plantillas-base' => PlantillaBaseController::class,
         'procesadores' => ProcesadorController::class,
         'productos' => ProductoController::class,
         'productos-perchas' => ProductoEnPerchaController::class,
@@ -194,6 +197,7 @@ Route::apiResources(
             'movimientos-productos' => 'movimiento',
             'notificaciones' => 'notificacion',
             'permisos-armas' => 'permiso',
+            'plantillas-base' => 'plantilla',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',
@@ -347,6 +351,8 @@ Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles']
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaController::class, 'storeFiles']);
+
+Route::post('plantillas-base-file', [PlantillaBaseController::class, 'storeFile']);
 
 /**
  * Actualizar materiales de empleados

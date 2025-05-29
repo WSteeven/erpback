@@ -101,7 +101,7 @@ class OrdenCompraController extends Controller
             }
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Throwable|Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);
@@ -250,7 +250,7 @@ class OrdenCompraController extends Controller
                 $status = 422;
             }
             return response()->json(compact('mensaje'), $status);
-        } catch (Throwable|Exception $e) {
+        } catch (Throwable $e) {
             Log::channel('testing')->info('Log', ['Error OrdenCompraProveedorController sendMail', $e->getMessage(), $e->getLine()]);
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
             return response()->json(compact('mensaje'), 500);
