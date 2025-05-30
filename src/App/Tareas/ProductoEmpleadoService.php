@@ -37,7 +37,8 @@ class ProductoEmpleadoService
     }
 
     /**
-     * Lista los productos de stock del empleado seleccionado
+     * Lista los productos de stock del empleado seleccionado.
+     * Esto se usa en productos de empleado.
      * @param int $empleado_id es el id del empleado resposanble
      * @param boolean $seguimiento *(pendiente verificar si se quita)
      * @param int $subtarea_id si tiene subtarea entonces se listan solo los *materiales en el seguimento
@@ -86,7 +87,7 @@ class ProductoEmpleadoService
 
             // Buscamos los egresos donde el producto conste para el empleado y el cliente dado
             $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
-            $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->where('estado_id', EstadosTransacciones::COMPLETA)->pluck('id');
+            $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->whereIn('estado_id', [EstadosTransacciones::COMPLETA, EstadosTransacciones::PARCIAL])->pluck('id');
             $ids_egresos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->whereIn('transaccion_id', $ids_transacciones)->pluck('transaccion_id');
             $ids_preingresos = PreingresoMaterial::where('responsable_id', request()->empleado_id)->where('autorizacion_id', Autorizacion::APROBADO_ID)->pluck('id');
             $ids_items_preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $detalle->id)->whereIn('preingreso_id', $ids_preingresos)->pluck('preingreso_id');

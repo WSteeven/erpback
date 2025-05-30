@@ -16,7 +16,7 @@
             $numcol_ingreso = $cantidad_columna_ingresos + 4;
         }
         if ($tiene_bonificacion) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 4;
+            $numcol_ingreso = $cantidad_columna_ingresos + 5;
         }
         if ($tiene_bonificacion && $tiene_bono_recurente) {
             $numcol_ingreso = $cantidad_columna_ingresos + 5;

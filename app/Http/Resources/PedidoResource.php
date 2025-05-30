@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -31,12 +32,12 @@ class PedidoResource extends JsonResource
             'fecha_limite' => is_null($this->fecha_limite)?'':date('d-m-Y', strtotime($this->fecha_limite)),
             'observacion_aut' => $this->observacion_aut,
             'observacion_est' => $this->observacion_est,
-            'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
+            'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
             'solicitante_id' => $this->solicitante_id,
             'responsable' => is_null($this->responsable)?'':$this->responsable->nombres.' '.$this->responsable->apellidos,
             'responsable_id' => $this->responsable_id,
             'autorizacion' => $this->autorizacion->nombre,
-            'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
+            'per_autoriza' => Empleado::extraerNombresApellidos($this->autoriza),
             'per_autoriza_id' => $this->per_autoriza_id,
             'per_retira' => is_null($this->per_retira_id)?'':$this->retira->nombres.' '.$this->retira->apellidos,
             'per_retira_id' => $this->per_retira_id,

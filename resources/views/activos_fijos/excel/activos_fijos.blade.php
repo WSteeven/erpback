@@ -12,10 +12,12 @@
         style="color:#000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
         <thead>
             <tr>
+                <th rowspan="2" valign="center" bgcolor="#c5d9f1">{{ 'CATEGORIA' }}</th>
                 <th rowspan="2" valign="center" bgcolor="#c5d9f1">{{ 'PRODUCTO' }}</th>
                 <th rowspan="2" valign="center" bgcolor="#c5d9f1">{{ 'DESCRIPCIÓN' }}</th>
                 <th rowspan="2" valign="center" bgcolor="#c5d9f1">{{ 'CLIENTE' }}</th>
                 <th rowspan="2" valign="center" bgcolor="#c5d9f1">{{ 'SERIAL' }}</th>
+                <th rowspan="2" valign="center" bgcolor="#c5d9f1">{{ 'CONDICION' }}</th>
                 <th rowspan="2" valign="center" bgcolor="#c5d9f1">{{ 'CÓDIGO ACTIVO FIJO' }}</th>
                 <th rowspan="1" colspan="5" valign="center" bgcolor="#c5d9f1">{{ 'EGRESOS' }}</th>
                 <th rowspan="1" colspan="3" valign="center" bgcolor="#c5d9f1">{{ 'INGRESOS' }}</th>|
@@ -36,10 +38,12 @@
         <tbody>
             @foreach ($reporte as $producto)
                 <tr>
+                    <td valign="center">{{ $producto['categoria'] }}</td>
                     <td valign="center">{{ $producto['producto'] }}</td>
                     <td valign="center">{{ $producto['descripcion'] }}</td>
                     <td valign="center">{{ $producto['cliente'] }}</td>
                     <td valign="center">{{ $producto['serial'] }}</td>
+                    <td valign="center">{{ $producto['condicion'] }}</td>
                     <td valign="center">{{ $producto['codigo_activo_fijo'] }}</td>
                     <td valign="center">{{ $producto['nombres'] . ' ' . $producto['apellidos'] }}
                     </td>

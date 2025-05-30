@@ -340,8 +340,8 @@ class Proveedor extends Model implements Auditable
         switch ($proveedor->estado_calificado) { // en todos los casos que el proveedor no esté calificado se devolverá false ya que primero debe completarse la primera calificación para poder recalificar
             case Proveedor::SIN_CALIFICAR:
             case Proveedor::SIN_CONFIGURAR:
-            case Proveedor::PARCIAL:
-                return false;
+//            case Proveedor::PARCIAL:
+//                return false;
             default: // Significa que el proveedor ha sido calificado
 //                $ultimos_registros_calificacion = $proveedor->calificacionesDepartamentos()->groupBy('departamento_id')->orderBy('id', 'desc')->get();
                 $registro_calificacion_no_calificado = $proveedor->calificacionesDepartamentos()->whereNull('fecha_calificacion')->count();

@@ -54,6 +54,7 @@ class OrdenReparacionController extends Controller
 
     /**
      * @throws ValidationException
+     * @throws Throwable
      */
     public function store(OrdenReparacionRequest $request)
     {

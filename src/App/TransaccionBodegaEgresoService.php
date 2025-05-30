@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Helpers\Filtros\FiltroSearchHelper;
+use App\Models\Autorizacion;
 use App\Models\Comprobante;
 use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\Bodega\PedidoService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
 use Src\Config\Constantes;
@@ -41,26 +43,34 @@ class TransaccionBodegaEgresoService
     /**
      * @throws Exception
      */
-    public static function obtenerFiltrosIndice(string $estado)
+    public static function obtenerFiltrosIndice(?string $estado)
     {
-        $filtros = match (strtoupper($estado)) {
-            EstadoTransaccion::PENDIENTE => [
-                ['clave' => 'firmada', 'valor' => 0],
-                ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PENDIENTE, 'operador' => 'AND'],
-            ],
-            EstadoTransaccion::PARCIAL => [
-                ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PARCIAL],
-            ],
-            EstadoTransaccion::COMPLETA => [
-                ['clave' => 'firmada', 'valor' => 1],
-                ['clave' => 'estado_comprobante', 'valor' => TransaccionBodega::ACEPTADA, 'operador' => 'AND'],
-                ['clave' => 'comprobante', 'valor' => 'na', 'operador' => 'OR'],
-            ],
-            'ANULADA' => [
-                ['clave' => 'estado', 'valor' => '"'.EstadoTransaccion::ANULADA.'"'],
-            ],
-            default => throw new Exception("El estado '$estado' no es válido para filtros."),
-        };
+        if (is_null($estado))
+            return '';
+        else
+            $filtros = match (strtoupper($estado)) {
+                EstadoTransaccion::PENDIENTE => [
+                    ['clave' => 'firmada', 'valor' => 0],
+                    ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PENDIENTE, 'operador' => 'AND'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                    ['clave' => 'autorizacion', 'valor' => Autorizacion::APROBADO, 'operador' => 'AND'],
+                ],
+                EstadoTransaccion::PARCIAL => [
+                    ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PARCIAL],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                ],
+                EstadoTransaccion::COMPLETA => [
+                    ['clave' => 'firmada', 'valor' => 1],
+                    ['clave' => 'estado_comprobante', 'valor' => TransaccionBodega::ACEPTADA, 'operador' => 'AND'],
+                    ['clave' => 'comprobante', 'valor' => 'na', 'operador' => 'OR'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                ],
+                'ANULADA' => [
+                    ['clave' => 'estado', 'valor' => '"' . EstadoTransaccion::ANULADA . '"'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                ],
+                default => throw new Exception("El estado '$estado' no es válido para filtros."),
+            };
 
         return FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
     }
@@ -570,6 +580,8 @@ class TransaccionBodegaEgresoService
                     $item_inventario->cantidad += $detalle_producto_transaccion->cantidad_inicial;
                     $item_inventario->save();
                     $detalle_producto_transaccion->delete();
+                    // Aqui se verifica si tiene pedido y se borra la cantidad de despachado
+                    if ($transaccion->pedido_id) PedidoService::modificarCantidadDespachadoEnDetallePedidoProducto($item_inventario->detalle_id, $transaccion->pedido_id, $request->item['cantidad']);
                     DB::commit();
                     return;
                 }

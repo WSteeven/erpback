@@ -74,9 +74,6 @@ class PedidoController extends Controller
             }
             $filtrosAlgolia = $this->servicio->obtenerFiltrosIndice($estado);
 
-            Log::channel('testing')->info('Log', ['request', $request->all()]);
-            Log::channel('testing')->info('Log', ['query',  $query->count()]);
-
             $results =  buscarConAlgoliaFiltrado(Pedido::class, $query, 'id', $search,  Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$request->paginate, $filtrosAlgolia);
 
             return PedidoResource::collection($results);

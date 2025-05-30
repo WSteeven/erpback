@@ -109,7 +109,7 @@ class ProductoTareaEmpleadoService
 
     public function listarProductosConStock($proyecto_id, $etapa_id, $tarea_id)
     {
-        $ignoreRequest = ['proyecto_id', 'etapa_id'];
+        $ignoreRequest = ['proyecto_id', 'etapa_id', 'destino'];
         $consulta = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock();
         if ($proyecto_id && !$etapa_id) $consulta = $consulta->deProyecto($proyecto_id);
         else if ($proyecto_id && $etapa_id) $consulta = $consulta->deEtapa($proyecto_id, $etapa_id);

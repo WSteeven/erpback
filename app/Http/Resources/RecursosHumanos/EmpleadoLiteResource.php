@@ -13,12 +13,12 @@ class EmpleadoLiteResource extends JsonResource{
             'identificacion' => $this->identificacion,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
+            'email' => $this->user ? $this->user->email : '',
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
-            'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
-            'cargo' => $this->cargo?->nombre,
             'grupo' => $this->grupo?->nombre,
             'cargo' => $this->cargo?->nombre,
+            'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
         ];
     }
 }

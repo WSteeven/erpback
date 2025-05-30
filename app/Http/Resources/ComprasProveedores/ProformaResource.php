@@ -35,7 +35,6 @@ class ProformaResource extends JsonResource
             'causa_anulacion' => $this->causa_anulacion,
             'estado' => $this->estado->nombre,
             'estado_id' => $this->estado_id,
-            'estado' => $this->estado->nombre,
             'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),
             'forma' => $this->forma,
             'tiempo' => $this->tiempo,
@@ -47,7 +46,6 @@ class ProformaResource extends JsonResource
             'sum_descuento' => number_format($descuento, 2),
             'sum_iva' => number_format($iva, 2),
             'sum_total' => number_format($total - $this->descuento_general, 2),
-
         ];
 
         if ($controller_method == 'show') {

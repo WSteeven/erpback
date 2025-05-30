@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\EmpleadoRolePermisoResource;
+use App\Http\Resources\RecursosHumanos\EmpleadoLiteResource;
 use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
@@ -25,6 +26,7 @@ use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\PolymorphicGenericService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\SystemNotificationService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
@@ -161,6 +163,7 @@ class EmpleadoController extends Controller
         }
 
         $modelo = new EmpleadoResource($user->empleado);
+        SystemNotificationService::sendInformationMailToSystemAdmin('Se ha creado un nuevo empleado con los siguientes datos:', 'NUEVO_EMPLEADO_CREADO', (new EmpleadoLiteResource($empleado->refresh()))->resolve());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));

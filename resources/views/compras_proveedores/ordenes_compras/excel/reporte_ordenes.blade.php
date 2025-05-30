@@ -115,7 +115,7 @@
                                             <td>{{ $rpt['descripcion'] }}</td>
                                             <td>{{ $rpt['estado']['nombre'] ?? '' }}</td>
                                             <td>{{ $rpt['fecha'] }}</td>
-                                            <td>{{ round($rpt->detalles()->sum('total'), 2) }}</td>
+                                            <td>{{ round($rpt->obtenerSumaListado($rpt->id)[5], 2) }}</td>
                                         </tr>
                                     @endforeach
                                 </table>

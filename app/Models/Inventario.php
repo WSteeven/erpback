@@ -96,7 +96,7 @@ class Inventario extends Model implements Auditable
     /**
      * Eloquent Filtering
      */
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     // private $aliasListFilter = [
     //     'cliente.empresa.razon_social'=>'cliente',

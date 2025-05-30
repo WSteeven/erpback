@@ -10,14 +10,19 @@ use App\Models\ActivosFijos\ActivoFijo;
 use App\Models\ConfiguracionGeneral;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ActivosFijos\ControlActivoFijoService;
 use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
 use Src\App\Tareas\ProductoEmpleadoService;
 use Src\Shared\Utils;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class ActivoFijoController extends Controller
 {
@@ -35,7 +40,7 @@ class ActivoFijoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection|BinaryFileResponse
      */
     public function index()
     {
@@ -44,7 +49,8 @@ class ActivoFijoController extends Controller
 
         if (request('export')) return $this->controlActivoFijoService->descargarReporte();
 
-        $query = ActivoFijo::search($search);
+        if(request('search')) $query = ActivoFijo::search($search);
+        else $query = ActivoFijo::query();
 
         if ($paginate) $paginated = $this->paginationService->paginate($query, 100, request('page'));
         else $paginated = $query->get();
@@ -52,22 +58,12 @@ class ActivoFijoController extends Controller
         return ActivoFijoResource::collection($paginated);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ActivoFijo $activo_fijo
+     * @return JsonResponse
      */
     public function show(ActivoFijo $activo_fijo)
     {
@@ -78,9 +74,10 @@ class ActivoFijoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ActivoFijoRequest $request
+     * @param ActivoFijo $activo_fijo
+     * @return Response
+     * @throws Throwable
      */
     public function update(ActivoFijoRequest $request, ActivoFijo $activo_fijo)
     {
@@ -94,21 +91,14 @@ class ActivoFijoController extends Controller
         });
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 
+    /**
+     * @throws ValidationException
+     */
     public function entregas(Request $request)
     {
         $inventarioService = new InventarioService();
-        $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now()->addDay(1));
+        $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now()->addDay());
         $results = collect($transacciones['results'])->filter(fn($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && in_array($transaccion['estado_comprobante'], [TransaccionBodega::PARCIAL, TransaccionBodega::ACEPTADA]))->values(); // && !!$transaccion['comprobante_firmado'])->values();
         $results = EntregaActivoFijoResource::collection($results);
         return response()->json(compact('results'));

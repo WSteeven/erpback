@@ -245,7 +245,7 @@ class TransaccionBodegaRequest extends FormRequest
             $this->merge([
                 'autorizacion' => 2
             ]);
-        }
+        }else $this->merge(['autorizacion' => 1]);
         // Casteo de llaves foraneas
         if ($this->transferencia)  $this->merge(['transferencia_id' => $this->transferencia]);
         if ($this->per_atiende)  $this->merge(['per_atiende_id' => $this->per_atiende]);

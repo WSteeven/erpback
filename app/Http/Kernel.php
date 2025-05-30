@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.user.logged.in' => \App\Http\Middleware\CheckUserLoggedIn::class,
+        'verificar.apikey'=>\App\Http\Middleware\VerificarApiKey::class,
     ];
 }

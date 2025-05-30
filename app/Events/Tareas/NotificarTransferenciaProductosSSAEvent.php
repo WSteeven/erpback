@@ -8,12 +8,9 @@ use App\Models\Notificacion;
 use App\Models\Tareas\TransferenciaProductoEmpleado;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Log;
 use Src\Config\TiposNotificaciones;
 
 class NotificarTransferenciaProductosSSAEvent implements ShouldBroadcast
@@ -37,8 +34,8 @@ class NotificarTransferenciaProductosSSAEvent implements ShouldBroadcast
         $emisor_id = $transferencia->empleado_origen_id;
         $this->destinatario_id = $destinatario_id;
 
-        Log::channel('testing')->info('Log', ['Transf: ', $transferencia]);
-        Log::channel('testing')->info('Log', ['Auth: ', $transferencia['autorizacion_id']]);
+//        Log::channel('testing')->info('Log', ['Transf: ', $transferencia]);
+//        Log::channel('testing')->info('Log', ['Auth: ', $transferencia['autorizacion_id']]);
 
         if ($this->transferencia['autorizacion_id'] === Autorizacion::VALIDADO_ID) {
             $this->notificacion = Notificacion::crearNotificacion($this->getMessageValidado(), $ruta, TiposNotificaciones::TRANSFERENCIA_PRODUCTOS, $emisor_id, $destinatario_id, $transferencia, true);
@@ -46,6 +43,8 @@ class NotificarTransferenciaProductosSSAEvent implements ShouldBroadcast
         if ($this->transferencia['autorizacion_id'] === Autorizacion::APROBADO_ID) {
             $this->notificacion = Notificacion::crearNotificacion($this->getMessageAprobado(), $ruta, TiposNotificaciones::TRANSFERENCIA_PRODUCTOS, $emisor_id, $destinatario_id, $transferencia, true);
         }
+        if($this->transferencia['autorizacion_id'] === Autorizacion::PENDIENTE_ID)
+            $this->notificacion = Notificacion::crearNotificacion($this->getMessagePendiente(), $ruta, TiposNotificaciones::TRANSFERENCIA_PRODUCTOS, $emisor_id, $destinatario_id, $transferencia, true);
     }
 
     /**
@@ -80,5 +79,9 @@ class NotificarTransferenciaProductosSSAEvent implements ShouldBroadcast
         $justificacion = $this->transferencia->justificacion;
         $codigo = 'TRANSF-' . $this->transferencia->id;
         return 'El empleado ' . $nombres_emisor . ' acaba de transferir EPPS. Cód.transferencia: ' . $codigo . '. Justificación: ' . $justificacion . ' y fue autorizado por ' . $nombres_autorizador . '. **Esta notificación es sólo informativa.';
+    }
+
+    private function getMessagePendiente(){
+        return 'La transferencia ha sido actualizada, revisala nuevamente por favor.';
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Exports\RegistroTendidoExport;
+use App\Http\Controllers\Appenate\ProgresivaController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\PedidoController;
@@ -11,6 +12,8 @@ use App\Models\Producto;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\FCMService;
+use Src\Shared\Utils;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +25,34 @@ use Maatwebsite\Excel\Facades\Excel;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/notificar-android', function(){
+    try {
+        //code...
+        $device_token = 'dZBr8Z-WTGSEWjm_n2cFu_:APA91bHPIod8UlDmtxGwYLELqsT8fQFlHvRprLCxpcnLtVdKvSyotjCrR_IWOz7arMIzeREIbaFMcP8NXnJh-lgSN18mI0Jfq1LcjGmwvHii9JlDPB11aYE';
+        $title = '¡Nuevo like!';
+        $body = 'Juan le dio like a tu publicación. Notificacion desde laravel jpconstrucred';
+        $fmc_service = new FCMService();
+        $fmc_service->sendTo($device_token, $title, $body);
+        $message = 'Enviado exitoso';
+        return response()->json(compact('message'));
+    } catch (\Throwable $th) {
+        throw Utils::obtenerMensajeErrorLanzable($th);
+    }
+});
+Route::get('/notificar-data-android', function(){
+    try {
+        //code...
+        $device_token = 'dZBr8Z-WTGSEWjm_n2cFu_:APA91bHPIod8UlDmtxGwYLELqsT8fQFlHvRprLCxpcnLtVdKvSyotjCrR_IWOz7arMIzeREIbaFMcP8NXnJh-lgSN18mI0Jfq1LcjGmwvHii9JlDPB11aYE';
+        $title = 'Nuevo like';
+        $body = 'Juan le dio like a tu publicacion. Notificacion desde laravel jpconstrucred';
+        $fmc_service = new FCMService();
+        $fmc_service->sendDataTo($device_token, $title, $body);
+        $message = 'Enviado exitoso';
+        return response()->json(compact('message'));
+    } catch (\Throwable $th) {
+        throw Utils::obtenerMensajeErrorLanzable($th);
+    }
+});
 
 Route::get('/search-producto', function ()  {
 //    Log::channel('testing')->info('Log', ['search-product', request()->all()]);
@@ -76,3 +107,6 @@ Route::get('get-file/{file_path}', [FileController::class, 'getFile'])->where('f
 //    $full_path =
 
 //});
+
+
+Route::get('obtener-registros-progresivas', [ProgresivaController::class, 'leerRegistros']);
