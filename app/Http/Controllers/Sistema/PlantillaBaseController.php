@@ -36,57 +36,24 @@ class PlantillaBaseController extends Controller
      *
      * @param PlantillaBaseRequest $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function store(PlantillaBaseRequest $request)
     {
-        Log::channel('testing')->info('Log', ['search-product',$request->hasFile('file'), request()->all()]);
-        Log::channel('testing')->info('Log', ['request-file', request()->file('url'), request()->hasFile('url')]);
+        $datos = $request->validated();
+
+        if (!$request->hasFile('url')) throw new Exception('Debe seleccionar al menos un archivo.');
+        $ruta_relativa = ArchivoService::guardarArchivoSingle($request->file('url'), RutasStorage::PLANTILLAS_BASE->value);
+
+        $datos['url'] = $ruta_relativa;
 
         //Respuesta
-        $modelo = PlantillaBase::create($request->validated());
+        $modelo = PlantillaBase::create($datos);
         $modelo = new PlantillaBaseResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         // event(new PruebaEvent("Se ha creado una categoria nueva"));
         return response()->json(compact('mensaje', 'modelo'));
-    }
-
-    /**
-     * @throws ValidationException
-     * @throws Exception
-     */
-    public function storeFile(Request $request)
-    {
-        try {
-            $this->validate($request, [
-                'id' => 'required|numeric',
-                'file' => 'required|mimes:xls,xlsx'
-            ]);
-            if (!$request->hasFile('file')) {
-                throw ValidationException::withMessages([
-                    'file' => ['Debe seleccionar al menos un archivo.'],
-                ]);
-            }
-            $plantilla = PlantillaBase::find($request->id);
-            if (!$plantilla) throw new Exception('No se encontró una plantilla con ese ID para asociar el archivo.');
-
-            $archivo = $request->file; // $request->file('file');
-            $ruta = RutasStorage::PLANTILLAS_BASE->value;
-            ArchivoService::crearDirectorioConPermisos($ruta);
-            $path = $archivo->store($ruta);
-            $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
-
-            $plantilla->url = $ruta_relativa;
-            $plantilla->save();
-
-
-            return response()->json(['mensaje' => 'Subido exitosamente!']);
-        } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['ERROR al guardar el archivo de la plantilla base', $ex->getMessage(), $ex->getLine()]);
-            throw ValidationException::withMessages([
-                'file' => [$ex->getMessage(), $ex->getLine()],
-            ]);
-        }
     }
 
     /**
@@ -107,11 +74,19 @@ class PlantillaBaseController extends Controller
      * @param PlantillaBaseRequest $request
      * @param PlantillaBase $plantilla
      * @return JsonResponse
+     * @throws Exception
      */
     public function update(PlantillaBaseRequest $request, PlantillaBase $plantilla)
     {
+        $datos = $request->validated();
+
+        if (!$request->hasFile('url')) throw new Exception('Debe seleccionar al menos un archivo.');
+        $ruta_relativa = ArchivoService::guardarArchivoSingle($request->file('url'), RutasStorage::PLANTILLAS_BASE->value, $request->nombre, $plantilla->url);
+
+        $datos['url'] = $ruta_relativa;
+
         //Respuesta
-        $plantilla->update($request->validated());
+        $plantilla->update($datos);
         $modelo = new PlantillaBaseResource($plantilla->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
@@ -130,5 +105,23 @@ class PlantillaBaseController extends Controller
         // no olvides de borrar el archivo del servidor
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+
+    /**
+     * @throws ValidationException
+     */
+    public function devolverArchivo(Request $request)
+    {
+        try {
+            $request->validate(['nombre' => ['required', 'string']]);
+            $plantilla = PlantillaBase::where('nombre', $request['nombre'])->first();
+            if (!$plantilla) throw new Exception('El archivo con el nombre proporcionado no existe');
+
+            $modelo = new PlantillaBaseResource($plantilla);
+            return response()->json(compact('modelo'));
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 }

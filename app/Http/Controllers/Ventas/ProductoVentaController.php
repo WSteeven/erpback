@@ -14,10 +14,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class ProductoVentaController extends Controller
 {
-    private $entidad = 'Producto';
+    private string $entidad = 'Producto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.productos_ventas')->only('index', 'show');
@@ -27,16 +28,18 @@ class ProductoVentaController extends Controller
     }
 
 
-    public function index(Request $request)
+    public function index()
     {
-        $results = [];
         $results = ProductoVenta::ignoreRequest(['campos'])->filter()->orderBy('plan_id', 'asc')->get();
         $results = ProductoVentaResource::collection($results);
         return response()->json(compact('results'));
     }
 
 
-
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(ProductoVentaRequest $request)
     {
         try {
@@ -56,7 +59,7 @@ class ProductoVentaController extends Controller
 
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      * @throws ValidationException
      */
     public function storeLotes(Request $request)

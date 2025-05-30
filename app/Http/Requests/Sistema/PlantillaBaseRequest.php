@@ -23,16 +23,16 @@ class PlantillaBaseRequest extends FormRequest
      */
     public function rules()
     {
-        $rules =  [
+        $rules = [
             'nombre' => 'required|string|unique:conf_plantillas,nombre',
-            'url' => 'sometimes|nullable',
+            'url' => 'required',
         ];
 
-        if(in_array($this->method(), ['PUT', 'PATCH'])){
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $plantilla = $this->route()->parameter('plantilla');
-            $rules['nombre'] = 'required|string|unique:conf_plantillas,nombre,'.$plantilla->id;
+            $rules['nombre'] = 'required|string|unique:conf_plantillas,nombre,' . $plantilla->id;
         }
 
-        return  $rules;
+        return $rules;
     }
 }

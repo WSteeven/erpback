@@ -352,7 +352,7 @@ Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::cla
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaController::class, 'storeFiles']);
 
-Route::post('plantillas-base-file', [PlantillaBaseController::class, 'storeFile']);
+//Route::post('plantillas-base-file', [PlantillaBaseController::class, 'storeFile']);
 
 /**
  * Actualizar materiales de empleados
@@ -369,3 +369,6 @@ Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtener
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
 
 Route::put('transacciones-ingresos-editar-fecha-compra/{transaccion}', [TransaccionBodegaIngresoController::class, 'editarFechaCompra']);
+
+
+Route::post('obtener-plantilla-base-por-nombre',[PlantillaBaseController::class, 'devolverArchivo'])->middleware('auth:sanctum');
