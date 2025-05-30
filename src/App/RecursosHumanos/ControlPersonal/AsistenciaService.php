@@ -100,7 +100,8 @@ class AsistenciaService
     {
         try {
             $datos = $this->obtenerRegistrosDiarios();
-            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos obtenidos', $datos]);
+//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos obtenidos', $datos]);
+//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> cantidad eventos obtenidos', count($datos)]);
             //De los eventos recibidos filtramos para obtener solo los eventos con 'minor' igual a 75 o 38
             $eventos = array_filter($datos, function ($evento) {
                 return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
@@ -109,20 +110,21 @@ class AsistenciaService
             $eventos = array_filter($eventos, function ($evento) {
                 return isset($evento['cardNo']);
             });
+//            Log::channel('testing')->info('Log', ['eventos obtenidos validos', count($eventos), $eventos]);
             // Ordenar eventos por hora para procesarlos en orden cronológico desdel el mas reciente al mas antiguo
             usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
 
-            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos ordenados', $eventos]);
+//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos ordenados',count($eventos), $eventos]);
             // Agrupar eventos por empleado y fecha
             $eventosAgrupados = [];
             foreach ($eventos as $evento) {
                 $fechaEvento = Carbon::parse($evento['time'])->format('Y-m-d');
                 $eventosAgrupados[$evento['name']][$fechaEvento][] = $evento;
             }
-//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos agrupados', $eventosAgrupados]);
+//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos agrupados', count($eventosAgrupados), $eventosAgrupados]);
 
             foreach ($eventosAgrupados as $nombreEmpleado => $fechas) {
-//                Log::channel('testing')->info('Log', ['Eventos agrupados ', $nombreEmpleado, $fechas]);
+//                Log::channel('testing')->info('Log', ['Nombre: ', $nombreEmpleado, count($fechas), $fechas]);
                 $this->guardarEventosEmpleado($fechas);
             }
         } catch (Exception $e) {
@@ -133,7 +135,6 @@ class AsistenciaService
 
     public function guardarEventosEmpleado($eventosDelDia)
     {
-        $marcacion = new Marcacion();
         foreach ($eventosDelDia as $dia => $eventos) {
 //            Log::channel('testing')->info('Log', ['recorrerEventosEmpleado ', $dia, $eventos]);
             // se tiene el dia y los eventos, falta obtener la cedula del empleado, pero primero filtramos los eventos para eliminar los duplicados en segundos
@@ -142,18 +143,27 @@ class AsistenciaService
             $marcaciones = array_map(function ($evento) {
                 return Carbon::parse($evento['time'])->format('H:i:s');
             }, $eventosFiltrados);
+
+//            Log::channel('testing')->info('Log', ['eventos-filtrados', $eventosFiltrados]);
+
             //obtenemos el empleado
             $empleado = Empleado::where('identificacion', $eventosFiltrados[0]['cardNo'])->first();
-            if (!$empleado) continue; // se salta ese registro si no hay el cardNo, pero no debería entrar aquí
+            if (!$empleado) {
+//                Log::channel('testing')->info('Log', ['no se encontro el empleado', $eventosFiltrados[0]['cardNo'], $dia, $marcaciones]);
+                continue;
+            } // se salta ese registro si no hay el cardNo, pero no debería entrar aquí
 
-            $marcacion->empleado_id = $empleado->id;
-            $marcacion->fecha = $dia;
             $marcacionExistente = Marcacion::where('empleado_id', $empleado->id)->where('fecha', $dia)->first();
-            if ($marcacionExistente)
+            if ($marcacionExistente) {
+//                Log::channel('testing')->info('Log', ['$marcacionExistente', $marcacion, $dia, $marcacionExistente, $marcaciones]);
                 $marcacionExistente->update(['marcaciones' => $marcaciones]);
-            else {
+            } else {
+                $marcacion = new Marcacion();
+                $marcacion->empleado_id = $empleado->id;
+                $marcacion->fecha = $dia;
                 $marcacion->marcaciones = $marcaciones;
                 $marcacion->save();
+//                Log::channel('testing')->info('Log', ['nueva marcacion', $marcacion, $dia]);
             }
         }
     }

@@ -6,14 +6,11 @@
 use App\Http\Controllers\ControlPersonal\AtrasoController;
 use App\Http\Controllers\ControlPersonal\MarcacionController;
 use App\Http\Controllers\RecursosHumanos\ControlPersonal\HorarioLaboralController;
-use App\Http\Controllers\RecursosHumanos\ControlPersonal\AsistenciaController;
-
 use Illuminate\Support\Facades\Route;
 
 
 Route::apiResources(
     [
-        'asistencias' => AsistenciaController::class,
         'atrasos' => AtrasoController::class,
         'horarios-laborales' => HorarioLaboralController::class,
         'marcaciones' => MarcacionController::class,
@@ -35,7 +32,6 @@ Route::apiResources(
  */
 
 Route::get('sincronizar-marcaciones', [MarcacionController::class, 'sincronizarAsistencias']);
-Route::get('sincronizar-asistencias', [AsistenciaController::class, 'sincronizarAsistencias']);
 Route::get('sincronizar-atrasos', [AtrasoController::class, 'sincronizarAtrasos']);
 /**Otras Rutas */
 

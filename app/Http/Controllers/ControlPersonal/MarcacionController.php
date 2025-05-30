@@ -40,7 +40,7 @@ class MarcacionController extends Controller
         if($search) $query = Marcacion::whereHas('empleado', function ($query) use ($search) {
             $query->where('nombres', 'like', '%' . $search . '%')
                 ->orWhere('apellidos', 'like', '%' . $search . '%');
-        })->orWhere('fecha', 'like', '%' . $search . '%');
+        })->orWhere('fecha', 'like', '%' . $search . '%')->orderBy('fecha', 'desc');
         else $query = Marcacion::ignoreRequest(['campos', 'paginate'])->filter()->orderBy('fecha', 'desc');
 
         if ($paginate) $results = $this->paginationService->paginate($query, null, $request->page);

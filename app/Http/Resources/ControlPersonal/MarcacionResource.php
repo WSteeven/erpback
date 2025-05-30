@@ -20,7 +20,9 @@ class MarcacionResource extends JsonResource
             'id' => $this->id,
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
             'fecha' => $this->fecha,
-            'marcaciones' => $this->marcaciones,
+            'marcaciones' => is_array($this->marcaciones)
+                ? implode(' - ', $this->marcaciones)
+                : $this->marcaciones,
         ];
     }
 }

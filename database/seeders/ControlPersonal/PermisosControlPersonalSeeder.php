@@ -40,7 +40,7 @@ class PermisosControlPersonalSeeder extends Seeder
 
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'atrasos'])->syncRoles([$rrhh, $empleado, $administrador, $coordinador]);
         Permission::firstOrCreate(['name' => Permisos::VER . 'atrasos'])->syncRoles([$rrhh, $empleado, $administrador, $coordinador]);
-//        Permission::firstOrCreate(['name' => Permisos::CREAR . 'atrasos'])->syncRoles([$empleado, $control_personal, $administrador, $coordinador]);
+//        Permission::firstOrCreate(['name' => Permisos::CREAR . 'atrasos'])->syncRoles([$empleado, $control_personal, $administrador, $coordinador]); // no se puede crear atrasos, porque esos se registran automaticamente.
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'atrasos'])->syncRoles([$rrhh, $administrador, $coordinador, $sso]);
 
         // Horarios de Entrada

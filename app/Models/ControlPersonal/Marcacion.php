@@ -30,10 +30,12 @@ class Marcacion extends Model implements Auditable
 
     private static array $whiteListFilter = [
         '*',
+        'empleado',
         'empleado.nombres',
         'empleado.apellidos',
     ];
     private array $aliasListFilter = [
+        'empleado' => 'empleado.nombres'.'empleado.apellidos',
         'empleado.nombres' => 'empleado',
         'empleado.apellidos' => 'empleado',
     ];
