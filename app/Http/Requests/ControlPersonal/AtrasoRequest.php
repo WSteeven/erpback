@@ -32,6 +32,7 @@ class AtrasoRequest extends FormRequest
             'segundos_atraso' => 'required|numeric',
             'justificado' => 'boolean',
             'justificacion' => 'nullable|string',
+            'justificacion_atrasado' => 'nullable|string',
             'imagen_evidencia' => 'nullable|string',
             'revisado' => 'boolean',
         ];
@@ -41,8 +42,15 @@ class AtrasoRequest extends FormRequest
     {
         $this->merge([
             'empleado_id' => $this->empleado,
-            'justificador_id' => $this->justificador ?: auth()->user()->empleado->id,
             'marcacion_id' => $this->marcacion,
         ]);
+        if ($this->empleado === auth()->user()->empleado->id && is_null($this->justificador)) {
+            $this->merge(['justificador_id' => null]);
+        } else {
+            $this->merge([
+                'justificador_id' => $this->justificador ?: auth()->user()->empleado->id,
+            ]);
+
+        }
     }
 }

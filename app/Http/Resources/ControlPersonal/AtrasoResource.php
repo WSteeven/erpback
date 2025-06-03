@@ -31,6 +31,8 @@ class AtrasoResource extends JsonResource
             'segundos_atraso' => $this->segundos_atraso,
             'justificado' => $this->justificado,
             'justificacion' => $this->justificacion ?: '',
+            'justificacion_atrasado' => $this->justificacion_atrasado,
+            'justificado_por_atrasado'=>!!$this->justificacion_atrasado,
             'imagen_evidencia' => $this->imagen_evidencia ? url($this->imagen_evidencia) : null,
             'revisado' => $this->revisado,
         ];
@@ -38,6 +40,7 @@ class AtrasoResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['empleado'] = $this->empleado_id;
+            $modelo['jefe'] = $this->empleado->jefe_id;
             $modelo['justificador'] = $this->justificador_id;
             $modelo['marcacion'] = $this->marcacion_id;
         }

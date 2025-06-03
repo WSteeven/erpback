@@ -22,6 +22,7 @@ return new class extends Migration {
             $table->bigInteger('segundos_atraso');
             $table->boolean('justificado')->default(false);
             $table->text('justificacion')->nullable();
+            $table->text('justificacion_atrasado')->nullable();
             $table->text('imagen_evidencia')->nullable();
             $table->boolean('revisado')->default(false);
             $table->timestamps();

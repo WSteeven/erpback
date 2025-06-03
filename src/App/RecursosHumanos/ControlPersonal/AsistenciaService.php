@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Http;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -93,15 +94,32 @@ class AsistenciaService
     }
 
     /**
-     * @throws GuzzleException
+     * @throws Exception
+     */
+    public function obtenerRegistrosMesFASTAPI()
+    {
+        try {
+            $fastapi = env('FAST_API_URL_DEFAULT');
+            $fastapi_apikey = env('API_KEY_FOR_FASTAPI');
+            $url = $fastapi . 'biometrico-napoleon';
+
+            $response = Http::withHeaders(['x-api-key'=>$fastapi_apikey])->withOptions(['verify'=>false])->get($url);
+
+            return $response['eventos'];
+        } catch (Exception $e) {
+//            Log::channel('testing')->error('Log', ['error en obtenerRegistrosMesFASTAPI', $e->getLine(), $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    /**
      * @throws Exception
      */
     public function sincronizarAsistencias()
     {
         try {
-            $datos = $this->obtenerRegistrosDiarios();
-//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos obtenidos', $datos]);
-//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> cantidad eventos obtenidos', count($datos)]);
+//            $datos = $this->obtenerRegistrosDiarios();
+            $datos = $this->obtenerRegistrosMesFASTAPI();
             //De los eventos recibidos filtramos para obtener solo los eventos con 'minor' igual a 75 o 38
             $eventos = array_filter($datos, function ($evento) {
                 return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);

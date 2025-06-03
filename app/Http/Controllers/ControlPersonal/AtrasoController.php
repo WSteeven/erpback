@@ -40,7 +40,7 @@ class AtrasoController extends Controller
             $results = Atraso::filter()->orderBy('fecha_atraso', 'desc')->get();
         } else {
             $ids_empleados = EmpleadoService::obtenerIdsEmpleadosSubordinadosJefe();
-            $results = Atraso::whereIn('empleado_id', $ids_empleados)->filter()->orderBy('fecha_atraso', 'desc')->get();
+            $results = Atraso::whereIn('empleado_id', $ids_empleados)->orWhere('empleado_id', auth()->user()->empleado->id)->filter()->orderBy('fecha_atraso', 'desc')->get();
         }
 
         $results = AtrasoResource::collection($results);

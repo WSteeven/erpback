@@ -2,6 +2,7 @@
 
 namespace Src\App\RecursosHumanos\ControlPersonal;
 
+use App\Events\ControlPersonal\NotificarAtrasoEmpleado;
 use App\Events\ControlPersonal\NotificarAtrasoJefeInmediato;
 use App\Models\ControlPersonal\Atraso;
 use App\Models\ControlPersonal\Marcacion;
@@ -104,18 +105,19 @@ class AtrasosService
         try {
             DB::beginTransaction();
             //buscamos si ya existe un atraso para los argumentos proporcionados, en caso de existir, omitimos
-            $atraso  = Atraso::firstOrCreate([
+            $atraso = Atraso::firstOrCreate([
                 'empleado_id' => $marcacion->empleado_id,
                 'marcacion_id' => $marcacion->id,
                 'ocurrencia' => $ocurrencia,
                 'fecha_atraso' => $marcacion->fecha,
                 'segundos_atraso' => $segundos
-            ],[]);
+            ], []);
 
-            if($atraso->wasRecentlyCreated){
+            if ($atraso->wasRecentlyCreated) {
                 // Se envia el evento de notificacion al jefe inmediato del empleado cuyo atraso se registra
-                $empleado  =Empleado::find($marcacion->empleado_id);
-                if($empleado){
+                $empleado = Empleado::find($marcacion->empleado_id);
+                if ($empleado) {
+                    event(new NotificarAtrasoEmpleado($atraso));
                     event(new NotificarAtrasoJefeInmediato($atraso));
                 }
             }

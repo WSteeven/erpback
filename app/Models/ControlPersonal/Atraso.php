@@ -28,6 +28,7 @@ class Atraso extends Model implements Auditable
         'segundos_atraso',
         'justificado', //boolean
         'justificacion',
+        'justificacion_atrasado',
         'imagen_evidencia',
         'revisado', //pendiente, revisado //boolean
     ];
