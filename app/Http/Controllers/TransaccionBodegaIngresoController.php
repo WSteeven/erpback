@@ -63,7 +63,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function store(TransaccionBodegaRequest $request)
     {
         try {
-            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_BODEGA_TELCONET,  User::ROL_CONTABILIDAD])) {
+            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_BODEGA_TELCONET, User::ROL_CONTABILIDAD])) {
                 $datos = $request->validated();
                 DB::beginTransaction();
                 //                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
@@ -381,5 +381,16 @@ class TransaccionBodegaIngresoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             return response()->json(compact('mensaje'));
         });
+    }
+
+    /**
+     * @throws Exception
+     * @throws Throwable
+     */
+    public function modificarItemIngreso(Request $request, TransaccionBodega $transaccion)
+    {
+        $this->servicio->modificarItemIngreso($request, $transaccion);
+        $mensaje = 'Elemento eliminado del inventario correctamente';
+        return response()->json(compact('mensaje'));
     }
 }

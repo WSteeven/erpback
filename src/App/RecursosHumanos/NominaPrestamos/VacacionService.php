@@ -138,6 +138,11 @@ class VacacionService
             $vacacion = Vacacion::where('empleado_id', $permiso->empleado_id)
                 ->where('completadas', false)
                 ->first();
+
+            // TODO: NOTA: aquí suele dar problemas cuando resulta que hay un registro de vacaciones sin dias disponibles,
+            // ese codigo ya se corrigio (03-06-2025), por lo tanto no deberian haber problemas
+            // en caso de seguir teniendo problemas, por favor corregir eso y esta parte para que no caiga en un bucle infino (el while aqui abajo) y no se bloquee la transaccion del permiso
+
             //recorremos las vacaciones, hasta encontrar una que si tenga dias disponibles
             while ($vacacion && !self::validarDiasDisponibles($vacacion->empleado_id, $vacacion->periodo_id, $permiso->fecha_hora_inicio, $permiso->fecha_hora_fin)) {
                 $vacacion = Vacacion::where('empleado_id', $permiso->empleado_id)

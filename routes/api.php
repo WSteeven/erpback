@@ -279,6 +279,8 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 
 //Modificar egreso
 Route::patch('modificar-item-egreso/{transaccion}',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
+// Modificar ingreso
+Route::patch('quitar-item-ingreso/{transaccion}',[TransaccionBodegaIngresoController::class, 'modificarItemIngreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);

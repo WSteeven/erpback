@@ -482,7 +482,6 @@ class TransaccionBodegaEgresoController extends Controller
                     Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
                     throw Utils::obtenerMensajeErrorLanzable($ex);
                 }
-                break;
             default:
                 $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
                 break;
