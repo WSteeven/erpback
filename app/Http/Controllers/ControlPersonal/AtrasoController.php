@@ -14,6 +14,8 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Src\App\EmpleadoService;
 use Src\App\RecursosHumanos\ControlPersonal\AtrasosService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -84,6 +86,12 @@ class AtrasoController extends Controller
     public function update(AtrasoRequest $request, Atraso $atraso)
     {
         $datos = $request->validated();
+
+        if ($datos['imagen_evidencia'] && Utils::esBase64($datos['imagen_evidencia'])) {
+            $datos['imagen_evidencia'] = (new GuardarImagenIndividual($datos['imagen_evidencia'], RutasStorage::ATRASOS, $atraso->imagen_evidencia))->execute();
+        } else {
+            unset($datos['imagen_evidencia']);
+        }
 
         $atraso->update($datos);
         $modelo = new AtrasoResource($atraso->refresh());

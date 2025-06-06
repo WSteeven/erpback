@@ -30,6 +30,7 @@ enum RutasStorage: string
     case PEDIDOS = 'public/pedidos/evidencias';
     case CLIENTES = 'public/clientes/logos';
     case TICKETS = 'public/tickets';
+    case ATRASOS = 'public/evidencias_atrasos_empleados';
     case FOTOGRAFIAS_ACTIVIDADES_REALIZADAS = 'public/fotografias_actividades_realizadas';
     case FOTOGRAFIAS_SEGUIMIENTOS_TICKETS = 'public/fotografias_seguimiento_tickets';
     case ARCHIVOS_SEGUIMIENTO_TICKETS = 'public/archivos_seguimiento_tickets';
@@ -108,7 +109,7 @@ enum RutasStorage: string
     case SOLICITUDES_DESCUENTOS  = 'public/sso/solicitudes_descuentos';
     case CONSULTAS_MEDICAS  = 'public/sso/consultas_medicas';
     case INSPECCIONES  = 'public/sso/inspecciones';
-    
+
     /*************
      * Seguridad
      *************/

@@ -91,14 +91,15 @@ class Kernel extends ConsoleKernel
          * Tickets
          ***********/
         // Programación para días de semana lunes a viernes
-        $schedule->job(new PausarTicketsFinJornadaJob)
+        $schedule->job(new PausarTicketsFinJornadaJob())->weekdays()->at('17:05');
+        $schedule->job(new PausarTicketsFinJornadaJob())
             ->timezone('America/Guayaquil')
             ->days([Schedule::MONDAY, Schedule::TUESDAY, Schedule::WEDNESDAY, Schedule::THURSDAY, Schedule::FRIDAY])
             ->between('17:00', '8:00')
             ->everyFourHours();
 
         // Programación para fines de semana
-        $schedule->job(new PausarTicketsFinJornadaJob)
+        $schedule->job(new PausarTicketsFinJornadaJob())
             ->everyFourHours()
             ->when(function () {
                 return in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);

@@ -18,6 +18,7 @@ class MarcacionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'empleado_id' => $this->empleado_id,
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
             'fecha' => $this->fecha,
             'marcaciones' => is_array($this->marcaciones)
