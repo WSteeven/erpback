@@ -2,10 +2,8 @@
 
 namespace App\Exports\ComprasProveedores;
 
-use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
 use App\Models\ConfiguracionGeneral;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -32,8 +30,9 @@ class OrdenCompraExport extends DefaultValueBinder implements FromView, ShouldAu
     public function columnWidths(): array
     {
         return [
-            'A' => 10,
-            'G' => 100,
+            'A' => 6,
+            'B' => 10,
+            'H' => 100,
         ];
     }
 

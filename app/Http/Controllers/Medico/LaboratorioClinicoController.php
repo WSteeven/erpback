@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\LaboratorioClinicoRequest;
 use App\Http\Resources\Medico\LaboratorioClinicoResource;
 use App\Models\Medico\LaboratorioClinico;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class LaboratorioClinicoController extends Controller
@@ -45,9 +45,7 @@ class LaboratorioClinicoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
-            ]);
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 

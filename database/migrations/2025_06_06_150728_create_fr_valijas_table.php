@@ -15,7 +15,18 @@ return new class extends Migration
     {
         Schema::create('fr_valijas', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('gasto_id')->nullable();
+            $table->unsignedBigInteger('empleado_id');
+            $table->unsignedBigInteger('departamento_id')->nullable();
+            $table->text('descripcion');
+            $table->unsignedBigInteger('destinatario_id')->nullable();
+            $table->text('imagen_evidencia');
             $table->timestamps();
+
+            $table->foreign('gasto_id')->references('id')->on('gastos');
+            $table->foreign('empleado_id')->references('id')->on('empleados');
+            $table->foreign('departamento_id')->references('id')->on('departamentos');
+            $table->foreign('destinatario_id')->references('id')->on('empleados');
         });
     }
 

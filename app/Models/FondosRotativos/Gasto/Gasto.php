@@ -6,6 +6,7 @@ use App\Models\Archivo;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Saldo;
+use App\Models\FondosRotativos\Valija;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
@@ -187,6 +188,10 @@ class Gasto extends Model implements Auditable
         return $this->belongsTo(Nodo::class);
     }
 
+    public function valijas()
+    {
+        return $this->hasMany(Valija::class);
+    }
     /**
      * Relación one to many.
      * Un gasto tiene varios subdetalles asociados

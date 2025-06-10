@@ -2,6 +2,9 @@
 
 namespace App\Models\FondosRotativos;
 
+use App\Models\Departamento;
+use App\Models\Empleado;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,4 +30,19 @@ class Valija extends Model implements Auditable
         'imagen_evidencia',
     ];
 
+    private static array $whiteListFilter = ['*'];
+
+
+    public function empleado(){
+        return $this->belongsTo(Empleado::class);
+    }
+    public function departamento(){
+        return $this->belongsTo(Departamento::class);
+    }
+    public function destinatario(){
+        return $this->belongsTo(Empleado::class, 'destinatario_id');
+    }
+    public function gasto(){
+        return $this->belongsTo(Gasto::class);
+    }
 }

@@ -9,6 +9,7 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\GastoVehiculo;
 use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
+use App\Models\FondosRotativos\Valija;
 use App\Models\Notificacion;
 use App\Models\Vehiculos\Vehiculo;
 use Exception;
@@ -75,6 +76,31 @@ class GastoService
             if (array_key_exists(97, $sub_detalle)) {
                 is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $this->gasto) : $this->modificarGastovehiculo($request, $this->gasto);
             }
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function guardarRegistrosValijas(array $datos)
+    {
+        try {
+            DB::beginTransaction();
+
+            foreach ($datos as $dato) {
+                $dato['gasto_id'] = $this->gasto->id;
+                if ($dato['imagen_evidencia']) {
+                    $dato['imagen_evidencia'] = (new GuardarImagenIndividual($dato['imagen_evidencia'], RutasStorage::IMAGENES_VALIJAS))->execute();
+                }
+                $valija = Valija::create($dato);
+                Log::channel('testing')->info('Log', ['guardarRegistrosValijas -> Valija creada', $valija]);
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['error', $e->getMessage()]);
+            throw $e;
         }
     }
 

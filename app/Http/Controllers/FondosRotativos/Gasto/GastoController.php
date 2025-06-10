@@ -143,11 +143,13 @@ class GastoController extends Controller
             $datos = $request->validated();
             $datos = GastoService::convertirComprobantesBase64Url($datos);
             $gasto = Gasto::create($datos);
+            // si hay registros de valija, guardarlos
             $modelo = new GastoResource($gasto);
             $gasto_service = new GastoService($gasto);
             $gasto_service->crearSubDetalle($request->sub_detalle);
             $gasto_service->crearBeneficiarios($request->beneficiarios);
             $gasto_service->validarGastoVehiculo($request);
+            if($request->has('registros_valijas')) $gasto_service->guardarRegistrosValijas($datos['registros_valijas']);
             event(new FondoRotativoEvent($gasto));
             $modelo = new GastoResource($modelo);
             DB::commit();

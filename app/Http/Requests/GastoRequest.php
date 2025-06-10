@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Src\App\EmpleadoService;
@@ -64,7 +65,13 @@ class GastoRequest extends FormRequest
             'id_proyecto' => 'nullable',
             'id_usuario' => 'required|exists:empleados,id',
             'observacion_anulacion' => 'nullable',
-            'estado' => 'required'
+            'estado' => 'required',
+            'registros_valijas' => 'sometimes|array',
+            'registros_valijas.*.empleado_id' => 'required|exists:empleados,id',
+            'registros_valijas.*.departamento_id' => 'sometimes|nullable|exists:departamentos,id',
+            'registros_valijas.*.descripcion' => 'required|string',
+            'registros_valijas.*.destinatario_id' => 'sometimes|nullable|exists:empleados,id',
+            'registros_valijas.*.imagen_evidencia' => 'required|string',
         ];
         if (!is_null($this->vehiculo) || $this->es_vehiculo_alquilado) {
             $rules = [
@@ -318,5 +325,23 @@ class GastoRequest extends FormRequest
         $this->merge([
             'nodo_id' => $this->nodo ?: null
         ]);
+
+        // aqui va la parte de valija
+//        Log::channel('testing')->error('Log', ['registros_valijas en request',$this->registros_valijas]);
+        if (is_array($this->registros_valijas)) {
+            $valijas = array_map(function ($item) {
+                return [
+                    'empleado_id' => $item['empleado_id'] ?? null,
+                    'departamento_id' => $item['departamento'] ?? null,
+                    'descripcion' => $item['descripcion'] ?? null,
+                    'destinatario_id' => $item['destinatario'] ?? null,
+                    'imagen_evidencia' => $item['imagen_evidencia'] ?? null,
+                ];
+            }, $this->registros_valijas);
+
+            $this->merge([
+                'registros_valijas' => $valijas
+            ]);
+        }
     }
 }

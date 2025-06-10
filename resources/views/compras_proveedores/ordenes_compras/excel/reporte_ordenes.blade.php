@@ -78,6 +78,10 @@
                                         <td
                                             style="text-align: center !important;
                                 background-color: #DBDBDB;">
+                                            N°</td>
+                                        <td
+                                            style="text-align: center !important;
+                                background-color: #DBDBDB;">
                                             CODIGO</td>
                                         <td
                                             style="text-align: center !important;
@@ -106,6 +110,7 @@
 
                                     @foreach ($reporte as $rpt)
                                         <tr>
+                                            <td>{{ $rpt['id'] }}</td>
                                             <td>{{ $rpt['codigo'] }}</td>
                                             <td>{{ $rpt['solicitante']['nombres'] }}
                                                 {{ $rpt['solicitante']['apellidos'] }}</td>
