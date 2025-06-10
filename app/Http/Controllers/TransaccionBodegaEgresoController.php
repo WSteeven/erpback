@@ -575,7 +575,6 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function modificarItemEgreso(Request $request, TransaccionBodega $transaccion)
     {
-        //         Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
         try {
             switch ($request->tipo) {
                 case 'PENDIENTE':

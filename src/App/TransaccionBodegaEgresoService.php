@@ -563,6 +563,7 @@ class TransaccionBodegaEgresoService
         $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $request->item['id'])->first();
         try {
             DB::beginTransaction();
+            if (is_null($request->item['cantidad']) || $request->item['cantidad'] < 0) throw new Exception('La cantidad debe ser un numero mayor o igual a 0');
             //primero verificamos si se va a restar o no
             if ($request->item['cantidad'] > $request->item['pendiente']) {
                 // Esto significa que se va a despachar más cantidad
