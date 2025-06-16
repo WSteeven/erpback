@@ -86,6 +86,7 @@ class EmpleadoResource extends JsonResource
             $modelo['nombre_canton'] = $this->canton?->canton;
             $modelo['roles'] = $this->user->getRoleNames();
             $modelo['grupo'] = $this->grupo_id;
+            $modelo['tiene_grupo'] = !!$this->grupo_id;
             $modelo['cargo'] = $this->cargo_id;
             $modelo['departamento'] = $this->departamento_id;
             $modelo['fecha_nacimiento'] = $this->fecha_nacimiento;

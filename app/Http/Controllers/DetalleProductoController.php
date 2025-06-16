@@ -62,7 +62,7 @@ class DetalleProductoController extends Controller
                     return response()->json(compact('results'));
                     break;
                 case 'only_cliente_tarea':
-                    Log::channel('testing')->info('Log', ['eSTOY EN EL CASE DE CLIENTE TAREA:', $request->all()]);
+//                    Log::channel('testing')->info('Log', ['eSTOY EN EL CASE DE CLIENTE TAREA:', $request->all()]);
                     //aqui se lista solo los detalles que tienen stock en inventario con el cliente de la tarea
                     // $ids_detalles = Inventario::where('cliente_id', $request->cliente_id)->limit(990)->get('detalle_id');
                     // Log::channel('testing')->info('Log', ['los detalles como tal:', DetalleProducto::whereIn('id', $ids_detalles)->get()]);

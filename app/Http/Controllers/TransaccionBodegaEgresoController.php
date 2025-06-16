@@ -24,12 +24,14 @@ use App\Models\Pedido;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\InventarioService;
 use Src\App\Tareas\ProductoEmpleadoService;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
 use Src\App\TransaccionBodegaEgresoService;
@@ -511,6 +513,33 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Throwable|Exception $th) {
             throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
         }
+    }
+
+    public function reporteVidaUtilEpps(Request $request)
+    {
+        $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
+
+        try {
+            switch ($request->accion) {
+                case 'excel':
+                    $results = InventarioService::reporteVidaUtilEppsAsignadosResponsables($fecha_inicio, $fecha_fin);
+
+                    $registros = TransaccionBodega::obtenerDatosReporteResponsable($results, $request->categorias);
+
+//                    return Excel::download(new MaterialesDespachadosResponsableExport(collect($registros), $persona_entrega, $persona_responsable), 'reporte_epps.xlsx');
+
+                    // Aqui va el calculo de tal cosa como la vida util de los epps
+
+
+                    return ;
+                default:
+                    throw ValidationException::withMessages(['error' => 'Método no implementado']);
+            }
+        } catch (Throwable|Exception $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
+        }
+
     }
 
 

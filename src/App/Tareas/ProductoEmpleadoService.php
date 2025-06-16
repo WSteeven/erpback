@@ -87,7 +87,11 @@ class ProductoEmpleadoService
 
             // Buscamos los egresos donde el producto conste para el empleado y el cliente dado
             $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
-            $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->whereIn('estado_id', [EstadosTransacciones::COMPLETA, EstadosTransacciones::PARCIAL])->pluck('id');
+            $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->whereIn('estado_id', [EstadosTransacciones::COMPLETA, EstadosTransacciones::PARCIAL])
+                ->whereHas('comprobante', function ($q) {
+                    $q->where('firmada', true);
+                })
+                ->pluck('id');
             $ids_egresos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->whereIn('transaccion_id', $ids_transacciones)->pluck('transaccion_id');
             $ids_preingresos = PreingresoMaterial::where('responsable_id', request()->empleado_id)->where('autorizacion_id', Autorizacion::APROBADO_ID)->pluck('id');
             $ids_items_preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $detalle->id)->whereIn('preingreso_id', $ids_preingresos)->pluck('preingreso_id');

@@ -11,6 +11,7 @@ use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
 use App\Models\Comprobante;
 use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
@@ -42,16 +43,16 @@ class InventarioService
      * La función toma un término de búsqueda de una solicitud y devuelve artículos de inventario con
      * una descripción coincidente, filtrando opcionalmente artículos con cantidad cero.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que
+     * @param Request $request El parámetro  es una instancia de la clase Request, que
      * representa una solicitud HTTP realizada al servidor. Contiene información sobre la solicitud,
      * como el método de solicitud, la URL, los encabezados y cualquier dato enviado con la solicitud.
      *
-     * @return results los resultados de búsqueda basados en la solicitud dada.
+     * @return mixed los resultados de búsqueda basados en la solicitud dada.
      */
     public static function search(Request $request)
     {
         $search = $request->search;
-        $results = $request->boolean('zeros') ? Inventario::with('detalle')
+        return $request->boolean('zeros') ? Inventario::with('detalle')
             ->whereHas('detalle', function ($query) use ($search) {
                 $query->where('descripcion', 'LIKE', '%' . $search . '%');
                 $query->orWhere('serial', 'LIKE', '%' . $search . '%');
@@ -78,14 +79,13 @@ class InventarioService
             ->when($request->condicion_id, function ($query) use ($request) {
                 $query->where('condicion_id', $request->condicion_id);
             })->where('cantidad', '<>', 0)->get();
-        return $results;
     }
 
     /**
      * La función recupera artículos de inventario en función de ciertas condiciones, con una opción
      * para incluir artículos con cantidad cero.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que se
+     * @param Request $request El parámetro  es una instancia de la clase Request, que se
      * utiliza para recuperar datos de la solicitud HTTP. Contiene información como el método de
      * solicitud, los encabezados y los datos de entrada. En este caso, se utiliza para recuperar
      * parámetros de consulta como 'ceros', 'cliente_id', 'sucursal_id', y 'condicion_id'.
@@ -97,7 +97,7 @@ class InventarioService
      */
     public static function todos(Request $request)
     {
-        $results = $request->boolean('zeros') ?
+        return $request->boolean('zeros') ?
             Inventario::when($request->cliente_id, function ($query) use ($request) {
                 $query->where('cliente_id', $request->cliente_id);
             })
@@ -117,9 +117,11 @@ class InventarioService
             ->when($request->condicion_id, function ($query) use ($request) {
                 $query->where('condicion_id', $request->condicion_id);
             })->where('cantidad', '<>', 0)->get();
-        return $results;
     }
 
+    /**
+     * @throws Exception
+     */
     public static function obtenerDashboard(Request $request)
     {
         $fecha_inicio = $request->fecha_inicio ? Carbon::parse($request->fecha_inicio)->startOfDay() : Carbon::now();
@@ -163,31 +165,7 @@ class InventarioService
             $data[Motivo::find($motivo_id)->nombre] = $r->count();
         }
         $tituloGrafico = 'Ingresos a bodega';
-        $graficos = [];
-
-        // Ordenamos los datos en orden descendente
-        arsort($data);
-
-        // Definimos un límite superior para la cantidad de elementos a mostrar directamente
-        $limit = 4;
-        // Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
-        $displayedData  = [];
-        $othersData  = [];
-
-        // Iteramos sobre los datos y los distribuimos entre los mostrados y los agrupados en "otros"
-        foreach ($data as $key => $value) {
-            if (count($displayedData) < $limit) {
-                $displayedData[$key] = $value;
-            } else {
-                $othersData[$key] = $value;
-            }
-        }
-
-        // Si hay elementos agrupados en "otros", sumamos sus valores
-        if (!empty($othersData)) {
-            $othersValue = array_sum($othersData);
-            $displayedData['OTROS'] = $othersValue;
-        }
+        list($graficos,  $displayedData, $othersData) = self::getConfGraficos($data);
 
         // Log::channel('testing')->info('Log', ['Displayed data:', $displayedData]);
         // Log::channel('testing')->info('Log', ['labels:', array_keys($displayedData)]);
@@ -195,17 +173,21 @@ class InventarioService
 
         //Configuramos el primer grafico
         $graficoIngresos = Utils::configurarGrafico(1, 'TODOS', 'Ingresos a bodega por motivos frecuentes', array_keys($displayedData), Utils::coloresAleatorios(), $tituloGrafico, array_values($displayedData));
-        array_push($graficos, $graficoIngresos);
+        $graficos[] = $graficoIngresos;
 
         //Configuramos el segundo grafico
         $graficoOtros = Utils::configurarGrafico(2, 'TODOS', 'Ingresos a bodega por motivos poco frecuentes', array_keys($othersData), Utils::colorDefault(), $tituloGrafico, array_values($othersData));
-        array_push($graficos, $graficoOtros);
+        $graficos[] = $graficoOtros;
 
         return compact(
             'graficos',
             'todas'
         );
     }
+
+    /**
+     * @throws Exception
+     */
     public static function obtenerEgresos($fecha_inicio, $fecha_fin)
     {
         $request = new Request();
@@ -219,45 +201,22 @@ class InventarioService
             $data[Motivo::find($motivo_id)->nombre] = $r->count();
         }
         $tituloGrafico = 'Egresos de bodega';
-        $graficos = [];
-
-        //Ordenamos los datos en orden descendente
-        arsort($data);
-        // Log::channel('testing')->info('Log', ['Data a mostrar:', $data]);
-
-        // Definimos un límite superior para la cantidad de elementos a mostrar directamente
-        $limit = 4;
-        //Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
-        $displayedData  = [];
-        $othersData  = [];
-
-        // Iteramos sobre los datos y los distribuimos entre los mostrados y los agrupados en "otros"
-        foreach ($data as $key => $value) {
-            if (count($displayedData) < $limit) {
-                $displayedData[$key] = $value;
-            } else
-                $othersData[$key] = $value;
-        }
-
-        // Si hay elementos agrupados en "otros", sumamos sus valores
-        if (!empty($othersData)) {
-            $othersValue = array_sum($othersData);
-            $displayedData['OTROS'] = $othersValue;
-        }
+        list($graficos,  $displayedData, $othersData) = self::getConfGraficos($data);
 
         //Configuramos el primer grafico
         $graficoEgresos = Utils::configurarGrafico(1, 'TODOS', 'Egresos de bodega por motivos frecuentes', array_keys($displayedData), Utils::coloresAleatorios(), $tituloGrafico, array_values($displayedData));
-        array_push($graficos, $graficoEgresos);
+        $graficos[] = $graficoEgresos;
 
         //Configuramos el segundo grafico
         if (count($othersData) > 0) {
             $graficoOtros = Utils::configurarGrafico(2, 'OTROS', 'Egresos de bodega por motivos poco frecuentes', array_keys($othersData), Utils::colorDefault(), $tituloGrafico, array_values($othersData));
-            array_push($graficos, $graficoOtros);
+            $graficos[] = $graficoOtros;
         }
 
         $pendientes = $todas->filter(function ($egreso) {
             if (!is_null($egreso->comprobante()->first()))
                 return !$egreso->comprobante()->first()->firmada && $egreso->comprobante()->first()->estado === EstadoTransaccion::PENDIENTE;
+            return [];
         })->count();
         $parciales = $todas->filter(function ($egreso) {
             return  $egreso->comprobante()->first()?->estado == EstadoTransaccion::PARCIAL;
@@ -278,7 +237,7 @@ class InventarioService
         $labels = [EstadoTransaccion::PENDIENTE, EstadoTransaccion::PARCIAL, EstadoTransaccion::COMPLETA, EstadoTransaccion::ANULADA];
         $data = [$pendientes, $parciales, $completas, $anuladas];
         $graficoEstados = Utils::configurarGrafico(3, 'ESTADOS', 'Egresos de bodega por estados', $labels, Utils::coloresEstadosEgresos(), $tituloGrafico, $data);
-        array_push($graficos, $graficoEstados);
+        $graficos[] = $graficoEstados;
 
         return compact(
             'graficos',
@@ -290,6 +249,10 @@ class InventarioService
             'completasSinComprobante',
         );
     }
+
+    /**
+     * @throws Exception
+     */
     public static function obtenerDevoluciones($fecha_inicio, $fecha_fin)
     {
         $request = new Request();
@@ -317,7 +280,7 @@ class InventarioService
         $labels = [EstadoTransaccion::PENDIENTE, Autorizacion::APROBADO, EstadoTransaccion::PARCIAL, Autorizacion::CANCELADO, EstadoTransaccion::COMPLETA];
         $data = [$pendientes, $aprobadas, $parciales, $canceladas, $completas];
         $grafico = Utils::configurarGrafico(1, 'ESTADOS', 'Estados de devoluciones de bodega', $labels, Utils::coloresEstadosDevoluciones(), $tituloGrafico, $data);
-        array_push($graficos, $grafico);
+        $graficos[] = $grafico;
 
         return compact(
             'graficos',
@@ -353,7 +316,7 @@ class InventarioService
         $labels = [EstadoTransaccion::PENDIENTE, Autorizacion::APROBADO, EstadoTransaccion::PARCIAL, Autorizacion::CANCELADO, EstadoTransaccion::COMPLETA];
         $data = [$pendientes, $aprobadas, $parciales, $canceladas, $completas];
         $grafico = Utils::configurarGrafico(1, 'ESTADOS', 'Pedidos realizados a bodega', $labels, Utils::coloresEstadosDevoluciones(), $tituloGrafico, $data);
-        array_push($graficos, $grafico);
+        $graficos[] = $grafico;
 
         return compact(
             'graficos',
@@ -365,7 +328,40 @@ class InventarioService
             'completas',
         );
     }
-    public static function obtenerInventarios($fecha_inicio, $fecha_fin) {}
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    private static function getConfGraficos(array $data): array
+    {
+        $graficos = [];
+
+        // Ordenamos los datos en orden descendente
+        arsort($data);
+
+        // Definimos un límite superior para la cantidad de elementos a mostrar directamente
+        $limit = 4;
+        // Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
+        $displayedData = [];
+        $othersData = [];
+
+        // Iteramos sobre los datos y los distribuimos entre los mostrados y los agrupados en "otros"
+        foreach ($data as $key => $value) {
+            if (count($displayedData) < $limit) {
+                $displayedData[$key] = $value;
+            } else {
+                $othersData[$key] = $value;
+            }
+        }
+
+        // Si hay elementos agrupados en "otros", sumamos sus valores
+        if (!empty($othersData)) {
+            $othersValue = array_sum($othersData);
+            $displayedData['OTROS'] = $othersValue;
+        }
+        return array($graficos, $displayedData, $othersData);
+    }
 
     /**
      * @throws ValidationException
@@ -377,8 +373,8 @@ class InventarioService
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
-        $preingresos = [];
-        $transferencias = [];
+//        $preingresos = [];
+//        $transferencias = [];
         $cont = 0;
         $cantAudit = 0;
         $row = [];
@@ -409,14 +405,14 @@ class InventarioService
                 ->where('estado_id', EstadosTransacciones::ANULADA);
         })
             ->whereIn('inventario_id', $ids_itemsInventario)
-            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+            ->orderBy('detalle_producto_transaccion.created_at')->get();
         $movimientosEgresosAnulados = DetalleProductoTransaccion::withWhereHas('transaccion', function ($query) use ($ids_motivos_ingresos, $movimientos) {
             $query->where('estado_id', EstadosTransacciones::ANULADA)
                 ->whereIn('id', $movimientos->pluck('transaccion_id'))
                 ->whereNotIn('motivo_id', $ids_motivos_ingresos);
         })
             ->whereIn('inventario_id', $ids_itemsInventario)
-            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+            ->orderBy('detalle_producto_transaccion.created_at')->get();
 
         foreach ($movimientos as $movimiento) {
             // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
@@ -425,14 +421,14 @@ class InventarioService
                 $audit = Audit::where('auditable_id', $movimiento->inventario_id)
                     ->where('auditable_type', Inventario::class)
                     ->whereBetween('updated_at', [
-                        Carbon::parse($movimiento->created_at)->subSecond(2),
-                        Carbon::parse($movimiento->created_at)->addSecond(2),
+                        Carbon::parse($movimiento->created_at)->subSeconds(2),
+                        Carbon::parse($movimiento->created_at)->addSeconds(2),
                     ])
                     ->first();
                 // Log::channel('testing')->info('Log', ['audit', $audit]);
                 if ($audit) $cantAudit = count($audit->old_values) > 0 ? $audit->old_values['cantidad'] : 0;
             }
-            $row['id'] = $movimiento->inventario->detalle->id;
+//            $row['id'] = $movimiento->inventario->detalle->id;
             $row['id'] = $cont + 1;
             $row['detalle'] = $movimiento->inventario->detalle->descripcion;
             $row['detalle_producto_id'] = $movimiento->inventario->detalle_id;
@@ -521,24 +517,55 @@ class InventarioService
                         'error' => [$ex->getMessage()],
                     ]);
                 }
-                break;
             case 'pdf':
                 try {
                     $pdf = Pdf::loadView('bodega.reportes.kardex', compact('results', 'configuracion'));
                     $pdf->setPaper('A4', 'landscape');
                     $pdf->render();
-                    $file = $pdf->output();
-                    return $file;
+                    return $pdf->output();
                 } catch (Exception $ex) {
                     Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
                     throw ValidationException::withMessages([
                         'error' => [$ex->getMessage()],
                     ]);
                 }
-                break;
             default:
                 return compact('results', 'preingresos', 'transferencias');
                 // return response()->json(compact('results', 'preingresos', 'transferencias'));
         }
+    }
+
+
+    /**
+     * Reporte de vida útil de EPPs asignados a responsables para devolver si esta caducado o no.
+     * @return array
+     * @throws Exception
+     */
+    public static function reporteVidaUtilEppsAsignadosResponsables(?string $fecha_inicio, ?string $fecha_fin){
+        $detalles_vida_util = DetalleProducto::whereNotNull('vida_util')->get();
+        foreach ($detalles_vida_util as $detalle) {
+         $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
+         $ingresos_compras = TransaccionBodega::where('motivo_id', $motivo_compra->id)->
+        $datos =  [
+            'fecha_ingreso'=> $this,
+        ];
+        }
+
+        return $datos;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function obtenerFechaIngresoEpp(?int $detalle_id)
+    {
+        if(is_null($detalle_id)) return null;
+        $ids_inventarios = Inventario::where('detalle_id', $detalle_id)->pluck('id');
+        $motivo_compra = Motivo::where('nombre',  Motivo::COMPRA_PROVEEDOR)->first();
+        if(!$motivo_compra) throw new Exception('No se encontró el motivo de compra a proveedor registrado.');
+        $ids_transacciones = DetalleProductoTransaccion::where('inventario_id', $ids_inventarios)->pluck('transaccion_id');
+        $transaccion = TransaccionBodega::whereIn('id', $ids_transacciones)->where('motivo_id', $motivo_compra->id)->get();
+
+
     }
 }

@@ -6,7 +6,10 @@ use App\Models\Archivo;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\Notificacion;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -14,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\SolicitudExamen
@@ -28,38 +32,38 @@ use Illuminate\Support\Facades\Log;
  * @property int $autorizador_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Archivo> $archivos
+ * @property-read Collection<int, Archivo> $archivos
  * @property-read int|null $archivos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empleado|null $autorizador
  * @property-read Canton|null $canton
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\EstadoSolicitudExamen> $examenesSolicitados
+ * @property-read Collection<int, EstadoSolicitudExamen> $examenesSolicitados
  * @property-read int|null $examenes_solicitados_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \App\Models\Medico\RegistroEmpleadoExamen|null $registroEmpleadoExamen
+ * @property-read RegistroEmpleadoExamen|null $registroEmpleadoExamen
  * @property-read Empleado|null $solicitante
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen query()
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereAutorizadorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereCantonId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereEstadoSolicitudExamen($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereObservacionAutorizador($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereRegistroEmpleadoExamenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudExamen whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|SolicitudExamen acceptRequest(?array $request = null)
+ * @method static Builder|SolicitudExamen filter(?array $request = null)
+ * @method static Builder|SolicitudExamen ignoreRequest(?array $request = null)
+ * @method static Builder|SolicitudExamen newModelQuery()
+ * @method static Builder|SolicitudExamen newQuery()
+ * @method static Builder|SolicitudExamen query()
+ * @method static Builder|SolicitudExamen setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|SolicitudExamen setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|SolicitudExamen setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|SolicitudExamen whereAutorizadorId($value)
+ * @method static Builder|SolicitudExamen whereCantonId($value)
+ * @method static Builder|SolicitudExamen whereCreatedAt($value)
+ * @method static Builder|SolicitudExamen whereEstadoSolicitudExamen($value)
+ * @method static Builder|SolicitudExamen whereId($value)
+ * @method static Builder|SolicitudExamen whereObservacion($value)
+ * @method static Builder|SolicitudExamen whereObservacionAutorizador($value)
+ * @method static Builder|SolicitudExamen whereRegistroEmpleadoExamenId($value)
+ * @method static Builder|SolicitudExamen whereSolicitanteId($value)
+ * @method static Builder|SolicitudExamen whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class SolicitudExamen extends Model implements Auditable
 {
@@ -83,7 +87,7 @@ class SolicitudExamen extends Model implements Auditable
     const RESULTADOS = 'RESULTADOS';
     const DIAGNOSTICO_REALIZADO = 'DIAGNOSTICO_REALIZADO';
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function registroEmpleadoExamen()
     {

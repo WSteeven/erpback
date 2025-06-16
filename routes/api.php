@@ -256,6 +256,7 @@ Route::get('sucursales-detalle', [DetalleProductoController::class, 'sucursalesD
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes-epps', [TransaccionBodegaEgresoController::class, 'reporteUniformesEpps']); // reporte para imprimir en excel y con la firma del tecnico responsable
+Route::post('transacciones/reporte-vida-util-epps', [TransaccionBodegaEgresoController::class, 'reporteVidaUtilEpps']); // reporte de epps despachados cuya vida util ya ha pasado
 //Reportes inventario
 Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
 Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);

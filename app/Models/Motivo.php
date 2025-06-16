@@ -53,6 +53,8 @@ class Motivo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    const COMPRA_PROVEEDOR = 'COMPRA A PROVEEDOR';
+
     private static array $whiteListFilter = ['*'];
 
     /**

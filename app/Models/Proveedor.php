@@ -246,6 +246,10 @@ class Proveedor extends Model implements Auditable
         }
         Log::channel('testing')->info('Log', ['calificaciones', $calificaciones_elegidas]);
         $suma = self::calcularPesos($calificaciones);
+        if (count($calificaciones) == 0) {
+            $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::SIN_CALIFICAR]);
+            return;
+        }
         if (count($calificaciones) == count($calificaciones_elegidas))
             $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::CALIFICADO]);
         elseif (empty($calificaciones)) $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::SIN_CALIFICAR]);
@@ -351,8 +355,9 @@ class Proveedor extends Model implements Auditable
         }
     }
 
-    public static function consultarProveedorNecesitaCalificacionORecalificacion(int $departamento_id, int $proveedor_id){
+    public static function consultarProveedorNecesitaCalificacionORecalificacion(int $departamento_id, int $proveedor_id)
+    {
         $detalles = DetalleDepartamentoProveedor::where('proveedor_id', $proveedor_id)->where('departamento_id', $departamento_id)->get();
-        return $detalles->count()>1? Proveedor::RECALIFICACION: Proveedor::CALIFICACION;
+        return $detalles->count() > 1 ? Proveedor::RECALIFICACION : Proveedor::CALIFICACION;
     }
 }

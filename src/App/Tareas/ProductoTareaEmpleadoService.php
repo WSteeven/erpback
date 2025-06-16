@@ -102,7 +102,7 @@ class ProductoTareaEmpleadoService
         }
 
         $sql = $consulta->toSql();
-        Log::channel('testing')->info('Log', compact('sql'));
+
         $results = $consulta->get();
         return $results;
     }
