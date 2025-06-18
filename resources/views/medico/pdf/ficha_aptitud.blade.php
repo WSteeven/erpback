@@ -1,13 +1,5 @@
 <html>
-@php
-    $fecha = new Datetime();
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $num_registro = 1;
 
-    // $firma_profesional_salud = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->firma_url, 1)));
-
-@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -334,8 +326,12 @@
     </div>
 
     <div class="mb-16">
+        <b>NOTA:</b>
         La presente certificación se expide con base en la historia ocupacional del usuario (a), la cual tiene carácter
         de confidencialidad.
+        <q-separator class="q-my-md" color="black" />
+        <br>
+        <br>
     </div>
 
     <br>

@@ -143,10 +143,18 @@ class FichaAptitudController extends Controller
         ];
 
         $opcionesRespuestasTipoEvaluacionMedicaRetiro = TipoEvaluacionMedicaRetiro::all()->map(function ($tipo, $index) use ($respuestasTiposEvaluacionesMedicasRetiros, $ficha_aptitud) {
+            if (!isset($respuestasTiposEvaluacionesMedicasRetiros[$index])) {
+                Log::channel('testing')->warning('No hay respuestas definidas para índice de evaluación médica', [
+                    'index' => $index,
+                    'tipo_id' => $tipo->id,
+                    'tipo_nombre' => $tipo->nombre
+                ]);
+            }
+
             return [
                 'id' => $tipo->id,
                 'nombre' => $tipo->nombre,
-                'posibles_respuestas' => $respuestasTiposEvaluacionesMedicasRetiros[$index] ?? [],
+                'posibles_respuestas' => $respuestasTiposEvaluacionesMedicasRetiros[$index] ?? ['NO DEFINIDO'],
                 'respuesta' => optional(
                     $ficha_aptitud->opcionesRespuestasTipoEvaluacionMedicaRetiro->first(
                         fn($opcion) => $opcion->tipo_evaluacion_medica_retiro_id === $tipo->id
@@ -154,7 +162,6 @@ class FichaAptitudController extends Controller
                 )->respuesta,
             ];
         });
-
 
         $tipos_aptitudes_medicas_laborales = TipoAptitudMedicaLaboral::all()->map(function ($tipo) use ($ficha_aptitud) {
             if ($tipo->id === $ficha_aptitud->tipo_aptitud_medica_laboral_id) $tipo->seleccionado = true;
