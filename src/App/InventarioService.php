@@ -2,6 +2,8 @@
 
 namespace Src\App;
 
+use App\Exports\Bodega\MaterialesVidaUtilInventarioExport;
+use App\Exports\Bodega\MaterialesVidaUtilResponsableExport;
 use App\Exports\KardexExport;
 use App\Http\Resources\DevolucionResource;
 use App\Http\Resources\ItemDetallePreingresoMaterialResource;
@@ -9,31 +11,39 @@ use App\Http\Resources\PedidoResource;
 use App\Http\Resources\Tareas\DetalleTransferenciaProductoEmpleadoResource;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
+use App\Models\Bodega\DetalleProductoTransaccionLote;
+use App\Models\Bodega\Lote;
 use App\Models\Comprobante;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Devolucion;
+use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
+use App\Models\MaterialEmpleado;
 use App\Models\Motivo;
 use App\Models\Pedido;
 use App\Models\Tareas\DetalleTransferenciaProductoEmpleado;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use OwenIt\Auditing\Models\Audit;
 use Src\App\Bodega\DevolucionService;
 use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
-use Maatwebsite\Excel\Facades\Excel;
-use OwenIt\Auditing\Models\Audit;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Tests\Models\Car;
+use Throwable;
 
 class InventarioService
 {
@@ -73,12 +83,12 @@ class InventarioService
             })->when($request->cliente_id, function ($query) use ($request) {
                 $query->where('cliente_id', $request->cliente_id);
             })
-            ->when($request->sucursal_id, function ($query) use ($request) {
-                $query->where('sucursal_id', $request->sucursal_id);
-            })
-            ->when($request->condicion_id, function ($query) use ($request) {
-                $query->where('condicion_id', $request->condicion_id);
-            })->where('cantidad', '<>', 0)->get();
+                ->when($request->sucursal_id, function ($query) use ($request) {
+                    $query->where('sucursal_id', $request->sucursal_id);
+                })
+                ->when($request->condicion_id, function ($query) use ($request) {
+                    $query->where('condicion_id', $request->condicion_id);
+                })->where('cantidad', '<>', 0)->get();
     }
 
     /**
@@ -101,22 +111,22 @@ class InventarioService
             Inventario::when($request->cliente_id, function ($query) use ($request) {
                 $query->where('cliente_id', $request->cliente_id);
             })
-            ->when($request->sucursal_id, function ($query) use ($request) {
-                $query->where('sucursal_id', $request->sucursal_id);
-            })
-            ->when($request->condicion_id, function ($query) use ($request) {
-                $query->where('condicion_id', $request->condicion_id);
-            })
-            ->get() :
+                ->when($request->sucursal_id, function ($query) use ($request) {
+                    $query->where('sucursal_id', $request->sucursal_id);
+                })
+                ->when($request->condicion_id, function ($query) use ($request) {
+                    $query->where('condicion_id', $request->condicion_id);
+                })
+                ->get() :
             Inventario::when($request->cliente_id, function ($query) use ($request) {
                 $query->where('cliente_id', $request->cliente_id);
             })
-            ->when($request->sucursal_id, function ($query) use ($request) {
-                $query->where('sucursal_id', $request->sucursal_id);
-            })
-            ->when($request->condicion_id, function ($query) use ($request) {
-                $query->where('condicion_id', $request->condicion_id);
-            })->where('cantidad', '<>', 0)->get();
+                ->when($request->sucursal_id, function ($query) use ($request) {
+                    $query->where('sucursal_id', $request->sucursal_id);
+                })
+                ->when($request->condicion_id, function ($query) use ($request) {
+                    $query->where('condicion_id', $request->condicion_id);
+                })->where('cantidad', '<>', 0)->get();
     }
 
     /**
@@ -165,7 +175,7 @@ class InventarioService
             $data[Motivo::find($motivo_id)->nombre] = $r->count();
         }
         $tituloGrafico = 'Ingresos a bodega';
-        list($graficos,  $displayedData, $othersData) = self::getConfGraficos($data);
+        list($graficos, $displayedData, $othersData) = self::getConfGraficos($data);
 
         // Log::channel('testing')->info('Log', ['Displayed data:', $displayedData]);
         // Log::channel('testing')->info('Log', ['labels:', array_keys($displayedData)]);
@@ -201,7 +211,7 @@ class InventarioService
             $data[Motivo::find($motivo_id)->nombre] = $r->count();
         }
         $tituloGrafico = 'Egresos de bodega';
-        list($graficos,  $displayedData, $othersData) = self::getConfGraficos($data);
+        list($graficos, $displayedData, $othersData) = self::getConfGraficos($data);
 
         //Configuramos el primer grafico
         $graficoEgresos = Utils::configurarGrafico(1, 'TODOS', 'Egresos de bodega por motivos frecuentes', array_keys($displayedData), Utils::coloresAleatorios(), $tituloGrafico, array_values($displayedData));
@@ -219,11 +229,11 @@ class InventarioService
             return [];
         })->count();
         $parciales = $todas->filter(function ($egreso) {
-            return  $egreso->comprobante()->first()?->estado == EstadoTransaccion::PARCIAL;
+            return $egreso->comprobante()->first()?->estado == EstadoTransaccion::PARCIAL;
         })->count();
         $completas = $todas->filter(function ($egreso) {
             $comprobante = $egreso->comprobante()->first();
-            return  $comprobante?->firmada && $comprobante?->estado == TransaccionBodega::ACEPTADA;
+            return $comprobante?->firmada && $comprobante?->estado == TransaccionBodega::ACEPTADA;
         })->count();
         $completasSinComprobante = $todas->filter(function ($transaccion) {
             return !$transaccion->comprobante()->exists() && $transaccion->estado_id == 2;
@@ -292,6 +302,7 @@ class InventarioService
             'completas',
         );
     }
+
     public static function obtenerPedidos($fecha_inicio, $fecha_fin)
     {
         $todas = Pedido::where('created_at', '>=', $fecha_inicio)->where('created_at', '<=', $fecha_fin)->orderBy('updated_at', 'desc')->get();
@@ -531,41 +542,233 @@ class InventarioService
                 }
             default:
                 return compact('results', 'preingresos', 'transferencias');
-                // return response()->json(compact('results', 'preingresos', 'transferencias'));
+            // return response()->json(compact('results', 'preingresos', 'transferencias'));
         }
     }
 
-
-    /**
-     * Reporte de vida útil de EPPs asignados a responsables para devolver si esta caducado o no.
-     * @return array
-     * @throws Exception
-     */
-    public static function reporteVidaUtilEppsAsignadosResponsables(?string $fecha_inicio, ?string $fecha_fin){
-        $detalles_vida_util = DetalleProducto::whereNotNull('vida_util')->get();
-        foreach ($detalles_vida_util as $detalle) {
-         $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
-         $ingresos_compras = TransaccionBodega::where('motivo_id', $motivo_compra->id)->
-        $datos =  [
-            'fecha_ingreso'=> $this,
-        ];
-        }
-
-        return $datos;
-    }
 
     /**
      * @throws Exception
      */
     public static function obtenerFechaIngresoEpp(?int $detalle_id)
     {
-        if(is_null($detalle_id)) return null;
+        if (is_null($detalle_id)) return null;
         $ids_inventarios = Inventario::where('detalle_id', $detalle_id)->pluck('id');
-        $motivo_compra = Motivo::where('nombre',  Motivo::COMPRA_PROVEEDOR)->first();
-        if(!$motivo_compra) throw new Exception('No se encontró el motivo de compra a proveedor registrado.');
+        $motivo_compra = Motivo::where('nombre', Motivo::COMPRA_PROVEEDOR)->first();
+        if (!$motivo_compra) throw new Exception('No se encontró el motivo de compra a proveedor registrado.');
         $ids_transacciones = DetalleProductoTransaccion::where('inventario_id', $ids_inventarios)->pluck('transaccion_id');
         $transaccion = TransaccionBodega::whereIn('id', $ids_transacciones)->where('motivo_id', $motivo_compra->id)->get();
 
 
     }
+
+
+    /**
+     * @throws Exception
+     * @throws Throwable
+     */
+    public static function guardarLoteIngreso(Inventario $item, TransaccionBodega $transaccion, int $cantidad)
+    {
+        try {
+            DB::beginTransaction();
+            Lote::create([
+                'inventario_id' => $item->id,
+                'transaccion_id' => $transaccion->id,
+                'cant_ingresada' => $cantidad,
+                'cant_disponible' => $cantidad,
+                'fecha_vencimiento' => self::obtenerFechaVencimientoVidaUtil($item->detalle, $transaccion->fecha_compra ?? Carbon::now()),
+            ]);
+            DB::commit();
+        } catch (Exception $ex) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR en guardarLoteIngreso', $ex->getMessage(), $ex->getLine()]);
+            throw $ex;
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public static function guardarLoteEgreso(Inventario $item, TransaccionBodega $transaccion, int $cantidad)
+    {
+        try {
+            DB::beginTransaction();
+            $detalle_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $item->id)->first();
+            $lotes = $item->lotes()->where('cant_disponible', '>', 0)->orderBy('fecha_vencimiento')->lockForUpdate()->get();
+            $restante = $cantidad;
+
+            foreach ($lotes as $lote) {
+                if ($restante <= 0) break;
+
+                $a_despachar = min($restante, $lote->cant_disponible);
+
+                //Descontar del lote
+                $lote->cant_disponible -= $a_despachar;
+                $lote->save();
+
+                // Se guarda el lote despachado asociado al detalle de la transaccion
+                DetalleProductoTransaccionLote::create([
+                    'detalle_producto_id' => $detalle_transaccion->id,
+                    'lote_id' => $lote->id,
+                    'cantidad' => $a_despachar,
+                ]);
+
+                $restante -= $a_despachar;
+            }
+
+            if ($restante > 0) throw new Exception('Stock insuficiente para despachar la cantidad solicitada.');
+
+            DB::commit();
+        } catch (Exception $ex) {
+            DB::rollBack();
+            throw $ex;
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public static function anularLoteEgreso(TransaccionBodega $transaccion)
+    {
+        try {
+            DB::beginTransaction();
+
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+
+            foreach ($detalles as $detalle) {
+                // Traer los lotes usados en ese detalle
+                $lotesUsados = DetalleProductoTransaccionLote::where('detalle_producto_id', $detalle->id)->get();
+
+                foreach ($lotesUsados as $uso) {
+                    // Sumar nuevamente la cantidad al lote correspondiente
+                    $lote = Lote::find($uso->lote_id);
+                    if ($lote) {
+                        $lote->cant_disponible += $uso->cantidad;
+                        $lote->save();
+                    }
+                }
+
+                // eliminamos los lotes
+                DetalleProductoTransaccionLote::where('detalle_producto_id', $detalle->id)->delete();
+            }
+
+            DB::commit();
+        } catch (Exception $ex) {
+            DB::rollBack();
+            throw $ex;
+        }
+    }
+
+    /**
+     * Coloca en cero el registro del lote para mantener el registro si en algun momento ha sido despachado algo de allí
+     * @param Inventario $item
+     * @param TransaccionBodega $transaccion
+     * @return void
+     * @throws Exception
+     */
+    public static function eliminarLotePorAnulacionIngreso(Inventario $item, TransaccionBodega $transaccion)
+    {
+        $lote = Lote::where('inventario_id', $item->id)->where('transaccion_id', $transaccion->id)->first();
+        if ($lote) {
+            if ($lote->cant_disponible < $lote->cant_ingresada)
+                throw new Exception("No se puede anular la transacción porque el lote ID {$lote->id} ya fue parcialmente usado.");
+            $lote->delete();
+        }
+    }
+
+    public static function obtenerFechaVencimientoVidaUtil(DetalleProducto $detalle, Carbon|string|null $fecha_ingreso)
+    {
+        if (empty($fecha_ingreso)) $fecha_ingreso = Carbon::now();
+        $fecha_compra = Carbon::parse($fecha_ingreso);
+
+        return $fecha_compra->addMonths($detalle->vida_util);
+    }
+
+    private static function calcularFechaCompraEnBaseAFechaVencimiento(string $fecha_vencimiento, int $meses)
+    {
+        $f_vencimiento = Carbon::parse($fecha_vencimiento);
+        return $f_vencimiento->subMonths($meses)->format('Y-m-d');
+    }
+
+    /**
+     * Reporte de vida útil de EPPs asignados a responsables para devolver si esta caducado o no.
+     * @return array|BinaryFileResponse
+     * @throws Exception
+     */
+    public static function reporteVidaUtilAsignadosResponsables(bool $excel = false)
+    {
+        $detalles_lotes = DetalleProductoTransaccionLote::all();
+        $results = [];
+        foreach ($detalles_lotes as $detalle_lote) {
+            $lote = Lote::find($detalle_lote->lote_id);
+            $responsable = $detalle_lote->detalleProductoTransaccion->transaccion->responsable;
+            $material = MaterialEmpleado::where('detalle_producto_id', $lote->inventario->detalle_id)
+                ->where('cantidad_stock', '>', 0)
+                ->where('empleado_id', $responsable->id)
+                ->first();
+            if($material){
+                $row['responsable']= Empleado::extraerNombresApellidos($responsable);
+                $row['detalle']= $lote->inventario->detalle->descripcion;
+                $row['vida_util']= $lote->inventario->detalle->vida_util;//meses
+                $row['cantidad']= $detalle_lote->cantidad;
+                $row['fecha_despacho']= Carbon::parse($detalle_lote->created_at)->format('Y-m-d');
+                $row['fecha_vencimiento']= Carbon::parse($lote->fecha_vencimiento)->format('Y-m-d');
+                $row['esta_vigente']= Carbon::now()->lte(Carbon::parse($lote->fecha_vencimiento))?'Vigente':'Expirado';
+
+                $results[] = $row;
+            }
+
+        }
+
+        Log::channel('testing')->info('Log', ['results', $results]);
+
+        if ($excel) return Excel::download(new MaterialesVidaUtilResponsableExport($results), 'materiales_vida_util_responsable.xlsx');
+
+        return $results;
+    }
+
+
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public static function reporteVidaUtilEnInventario(bool $excel = false)
+    {
+        $results = Inventario::whereHas('lotes', function ($query) {
+            $query->where('cant_disponible', '>', 0);
+        })->get();
+//        Log::channel('testing')->info('Log', ['results en reporteVidaUtilEnInventario:', $results]);
+        $results = self::mapearMaterialesVidaUtil($results);
+//        Log::channel('testing')->info('Log', ['results mapeados:', $results]);
+        if ($excel) return Excel::download(new MaterialesVidaUtilInventarioExport($results), 'materiales_vida_util_en_inventario.xlsx');
+
+        return $results;
+    }
+
+    private static function mapearMaterialesVidaUtil($datos)
+    {
+        $results = [];
+        foreach ($datos as $dato) {
+            foreach ($dato->lotes as $lote) {
+                $row['detalle'] = $dato->detalle->descripcion;
+                $row['vida_util'] = $dato->detalle->vida_util;
+                // lote
+                $row['fecha_compra'] = $lote->transaccion->fecha_compra ?: self::calcularFechaCompraEnBaseAFechaVencimiento($lote->fecha_vencimiento, $dato->detalle->vida_util);
+                $row['transaccion'] = $lote->transaccion_id;
+                $row['num_lote'] = $lote->id;
+                $row['cant_ingresada'] = $lote->cant_ingresada;
+                $row['cant_disponible'] = $lote->cant_disponible;
+                $row['fecha_vencimiento'] = $lote->fecha_vencimiento;
+
+                //cant en inventario
+                $row['cantidad_inventario'] = $dato->cantidad;
+
+                $results[] = $row;
+            }
+
+        }
+        return $results;
+    }
+
+
 }

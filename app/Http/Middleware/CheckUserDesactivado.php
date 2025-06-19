@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\User;
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CheckUserDesactivado
@@ -19,7 +20,7 @@ class CheckUserDesactivado
     {
         if (auth()->check()) {
             $user = auth()->user();
- 
+
             if ($user instanceof User && !$this->tieneEmpleadoActivo($user)) {
                 $this->invalidarSesion($request);
             }
@@ -49,14 +50,13 @@ class CheckUserDesactivado
      * de la clase `Illuminate\Http\Request`. Se utiliza para acceder a la solicitud HTTP entrante,
      * incluidos los datos o parámetros enviados con la solicitud.
      *
-     * @return json  La función `invalidarSesion` devuelve una respuesta JSON con un mensaje que indica que
+     * @return JsonResponse  La función `invalidarSesion` devuelve una respuesta JSON con un mensaje que indica que
      * la cuenta del usuario ha sido desactivada. El código de estado HTTP para esta respuesta es 401,
      * lo que significa acceso no autorizado.
      */
     private function invalidarSesion(Request $request)
     {
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->user()->currentAccessToken()->delete(); // Revoca el token activo
         $error = 'Tu cuenta ha sido desactivada';
         return response()->json(['mensaje' => $error], 401);
     }

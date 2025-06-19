@@ -15,6 +15,7 @@ use App\Models\DetalleProductoTransaccion;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
+use App\Models\Motivo;
 use App\Models\Producto;
 use App\Models\TransaccionBodega;
 use App\Models\Transferencia;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\InventarioService;
 use Src\App\TransaccionBodegaIngresoService;
 use Src\Shared\Utils;
 use Throwable;
@@ -66,17 +68,6 @@ class TransaccionBodegaIngresoController extends Controller
             if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_BODEGA_TELCONET, User::ROL_CONTABILIDAD])) {
                 $datos = $request->validated();
                 DB::beginTransaction();
-                //                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-                //                $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-                //                $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
-                //                $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-                //                $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-                //                $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-                //                $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-                //                $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-                //                if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-                //                $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-                //                $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
                 // Crear la transaccion
                 $transaccion = TransaccionBodega::create($datos);
@@ -97,6 +88,9 @@ class TransaccionBodegaIngresoController extends Controller
                             $item_inventario->update(['cantidad' => $item_inventario->cantidad + $listado['cantidad']]);
                         }
                         $transaccion->items()->attach($item_inventario->id, ['cantidad_inicial' => $listado['cantidad'],]);
+                        // luego de guardarse el item al inventario y registrarse el item de la transaccion se guarda el lote del ingreso
+                        $motivo_compra = Motivo::obtenerMotivoPorNombre(Motivo::COMPRA_PROVEEDOR, 1);
+                        if ($transaccion->motivo_id === $motivo_compra->id) InventarioService::guardarLoteIngreso($item_inventario, $transaccion, $listado['cantidad']);
 
                         //cuando se produce una devolucion de tarea se resta el material del stock de tarea del empleado
                         if ($transaccion->devolucion_id) {
@@ -123,6 +117,10 @@ class TransaccionBodegaIngresoController extends Controller
                             $item_inventario = Inventario::create($fila);
                         }
                         $transaccion->items()->attach($item_inventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+                        // luego de guardarse el item al inventario y registrarse el item de la transaccion se guarda el lote del ingreso
+                        $motivo_compra = Motivo::obtenerMotivoPorNombre(Motivo::COMPRA_PROVEEDOR, 1);
+                        if ($transaccion->motivo_id === $motivo_compra->id)
+                            InventarioService::guardarLoteIngreso($item_inventario, $transaccion, $listado['cantidad']);
 
                         if ($transaccion->devolucion_id) {
                             $this->servicio->actualizarDevolucion($transaccion, $detalle, $listado['cantidad']);
@@ -177,63 +175,43 @@ class TransaccionBodegaIngresoController extends Controller
      * Actualizar
      * @throws Throwable
      */
-    public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
+    public function update()
     {
         throw new Exception(Utils::metodoNoDesarrollado());
-        $datos = $request->validated();
-        // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-        //        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
-        //        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-        //        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-        //        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-        //        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        //        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-        //datos de las relaciones muchos a muchos
-        //        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-        //        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-
-        //Comprobar si hay tarea
-        //        if ($request->tarea) {
-        //            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-        //        }
-        //Comprobar si hay subtarea
-        //        if ($request->subtarea) {
-        //            $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-        //        }
-
-        if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
-            try {
-                DB::beginTransaction();
-                //Actualización de la transacción
-                $transaccion->update($datos);
-
-
-                //borrar los registros de la tabla intermedia para guardar los modificados
-                $transaccion->detalles()->detach();
-
-                //Guardar los productos seleccionados
-                foreach ($request->listadoProductosTransaccion as $listado) {
-                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
-                }
-
-
-                DB::commit();
-                $modelo = new TransaccionBodegaResource($transaccion->refresh());
-                $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-            } catch (Exception $e) {
-                DB::rollBack();
-                Log::channel('testing')->error('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
-                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
-            }
-
-            return response()->json(compact('mensaje', 'modelo'));
-        } else {
-            //Aqui pregunta si es coordinador o jefe inmediato o bodeguero... solo ellos pueden modificar los datos de las transacciones de los demas
-        }
-
-        $message = 'No tienes autorización para modificar esta solicitud';
-        $errors = ['message' => $message];
-        return response()->json(['errors' => $errors], 422);
+//        $datos = $request->validated();
+//        if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
+//            try {
+//                DB::beginTransaction();
+//                //Actualización de la transacción
+//                $transaccion->update($datos);
+//
+//
+//                //borrar los registros de la tabla intermedia para guardar los modificados
+//                $transaccion->detalles()->detach();
+//
+//                //Guardar los productos seleccionados
+//                foreach ($request->listadoProductosTransaccion as $listado) {
+//                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
+//                }
+//
+//
+//                DB::commit();
+//                $modelo = new TransaccionBodegaResource($transaccion->refresh());
+//                $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+//            } catch (Exception $e) {
+//                DB::rollBack();
+//                Log::channel('testing')->error('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+//                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+//            }
+//
+//            return response()->json(compact('mensaje', 'modelo'));
+//        } else {
+//            //Aqui pregunta si es coordinador o jefe inmediato o bodeguero... solo ellos pueden modificar los datos de las transacciones de los demas
+//        }
+//
+//        $message = 'No tienes autorización para modificar esta solicitud';
+//        $errors = ['message' => $message];
+//        return response()->json(['errors' => $errors], 422);
     }
 
     /**
@@ -253,7 +231,6 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function anular(TransaccionBodega $transaccion)
     {
-        // Log::channel('testing')->info('Log', ['Estamos en el metodo de anular el ingreso']);
         $estado_anulado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
         if ($transaccion->estado_id !== $estado_anulado->id) {
             try {
@@ -261,9 +238,17 @@ class TransaccionBodegaIngresoController extends Controller
                 $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
                 foreach ($detalles as $detalle) {
                     $item_inventario = Inventario::find($detalle['inventario_id']);
+                    if ($item_inventario->cantidad < $detalle['cantidad_inicial'])
+                        throw new Exception("No se puede anular: el inventario del ítem {$item_inventario->detalle->descripcion} quedaría en negativo.");
+
                     $item_inventario->cantidad -= $detalle['cantidad_inicial'];
                     $item_inventario->save();
                     if ($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $item_inventario->detalle_id, $detalle['cantidad_inicial']);
+
+                    // elimina el item del lote del inventario asociado al ingreso
+                    $motivo_compra = Motivo::obtenerMotivoPorNombre(Motivo::COMPRA_PROVEEDOR, 1);
+                    if ($transaccion->motivo_id === $motivo_compra->id)
+                        InventarioService::eliminarLotePorAnulacionIngreso($item_inventario, $transaccion);
                 }
 
                 $transaccion->estado_id = $estado_anulado->id;
@@ -360,7 +345,6 @@ class TransaccionBodegaIngresoController extends Controller
                     Log::channel('testing')->error('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
                     throw Utils::obtenerMensajeErrorLanzable($ex);
                 }
-                break;
             default:
                 //cuando llega el consultar
                 $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
@@ -371,6 +355,9 @@ class TransaccionBodegaIngresoController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable
+     */
     public function editarFechaCompra(Request $request, TransaccionBodega $transaccion)
     {
         $request->validate(['fecha_compra' => 'required|date_format:Y-m-d']);

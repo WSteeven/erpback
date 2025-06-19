@@ -14,6 +14,7 @@ use App\Models\Tareas\CentroCosto;
 use App\Models\UbicacionTarea;
 use App\Models\User;
 use Carbon\Carbon;
+
 //use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,7 +63,7 @@ class TareaController extends Controller
         $todas = request('todas');
 
         if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
-        if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
+        if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id') ?? auth()->user()->empleado->id);
 
         if ($search) $query = Tarea::where('finalizado', request('finalizado'))->porRol()->orderBy('id', 'desc');
         else {
