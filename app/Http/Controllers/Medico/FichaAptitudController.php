@@ -176,8 +176,10 @@ class FichaAptitudController extends Controller
             'opcionesRespuestasTipoEvaluacionMedicaRetiro' => $opcionesRespuestasTipoEvaluacionMedicaRetiro,
             'tipos_aptitudes_medicas_laborales' => $tipos_aptitudes_medicas_laborales,
             'profesionalSalud' => $profesionalSalud,
-            'firmaProfesionalMedico' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->empleado->firma_url, 1))),
-            'firmaPaciente' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($ficha_aptitud->registroEmpleadoExamen->empleado->firma_url, 1))),
+            //'firmaProfesionalMedico' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->empleado->firma_url, 1))),
+            'firmaProfesionalMedico' => Utils::urlToBase64(url($profesionalSalud->empleado->firma_url)) ,
+            //'firmaPaciente' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($ficha_aptitud->registroEmpleadoExamen->empleado->firma_url, 1))),
+            'firmaPaciente' => Utils::urlToBase64(url($ficha_aptitud->registroEmpleadoExamen->empleado->firma_url)) ,
             'tipo_proceso_examen' => $ficha_aptitud->registroEmpleadoExamen->tipo_proceso_examen,
         ];
 
