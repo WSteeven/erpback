@@ -2,6 +2,7 @@
 
 namespace App\Models\Medico;
 
+use App\Models\Archivo;
 use App\Models\Cargo;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
@@ -227,5 +228,10 @@ class FichaPreocupacional extends Model implements Auditable
     public function registroEmpleadoExamen()
     {
         return $this->belongsTo(RegistroEmpleadoExamen::class);
+    }
+
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }
