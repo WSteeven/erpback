@@ -10,6 +10,7 @@ use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\ActivosFijos\ActivoFijo;
 use App\Models\Cliente;
 use App\Models\Comprobante;
 use App\Models\ConfiguracionGeneral;
@@ -37,6 +38,7 @@ use Src\App\Tareas\ProductoTareaEmpleadoService;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\Autorizaciones;
 use Src\Config\Constantes;
+use Src\Config\MotivosTransaccionesBodega;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -223,6 +225,12 @@ class TransaccionBodegaEgresoController extends Controller
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
 
+            // Verificamos que el egreso se asigna a un responsable
+            $es_egreso_liquidacion_materiales = TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales);
+            $no_genera_comprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
+            $se_asigna_responsable = (!$es_egreso_liquidacion_materiales && !$no_genera_comprobante);
+
+
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
                 // $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
@@ -236,6 +244,13 @@ class TransaccionBodegaEgresoController extends Controller
 
                 // supongamos que despacho 5
                 InventarioService::guardarLoteEgreso($item_inventario, $transaccion, $listado['cantidad']);
+
+                if($se_asigna_responsable && is_null($transaccion->tarea_id)) {
+                    Log::channel('testing')->info('Log', ['entró a guardar activo fijo', $transaccion]);
+                    ActivoFijo::cargarComoActivo($item_inventario->detalle, $transaccion->cliente_id);
+                    ActivoFijo::notificarEntregaActivos($item_inventario->detalle, $transaccion);
+                    Log::channel('testing')->info('Log', ['pasó guardar activo fijo']);
+                }
             }
 
             //Si hay pedido, actualizamos su estado.

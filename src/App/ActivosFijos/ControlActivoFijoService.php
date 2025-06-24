@@ -59,7 +59,7 @@ class ControlActivoFijoService
             ->whereIn('detalle_producto_id', $detallesProductosActivos)
             ->where('cantidad_stock', '>', '0')
             ->get();
-        Log::channel('testing')->info('');
+//        Log::channel('testing')->info('');
 
         $listado = $listado->map(function ($material) {
             $material['transaccion_egreso'] = $this->obtenerInformacionTransaccionEgreso($material->detalle_producto_id, $material->cliente_id, $material->empleado_id);

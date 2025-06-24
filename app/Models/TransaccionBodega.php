@@ -495,8 +495,8 @@ class TransaccionBodega extends Model implements Auditable
                     } else {
                         // Stock personal
                         MaterialEmpleado::cargarMaterialEmpleado($item_inventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
-                        ActivoFijo::cargarComoActivo($item_inventario->detalle, $transaccion->cliente_id);
-                        ActivoFijo::notificarEntregaActivos($item_inventario->detalle, $transaccion);
+//                        ActivoFijo::cargarComoActivo($item_inventario->detalle, $transaccion->cliente_id);
+//                        ActivoFijo::notificarEntregaActivos($item_inventario->detalle, $transaccion);
                     }
                 } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }

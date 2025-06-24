@@ -168,8 +168,8 @@ class ProductoEmpleadoService
 
     /**
      * Recibe $detalle y $cliente entonces lista todos los responsables que tiene asignado ese materiales con sus cantidades correspondientes
-     * @param int $detalle_producto_id id del detalle de producto
-     * @param int $cliente_id id del cliente propietario del producto
+     * @param int|null $detalle_producto_id id del detalle de producto
+     * @param int|null $cliente_id id del cliente propietario del producto
      * @return array listado de asignaciones actuales del producto
      */
     public function obtenerProductosPorDetalleCliente(int $detalle_producto_id = null, int $cliente_id = null)

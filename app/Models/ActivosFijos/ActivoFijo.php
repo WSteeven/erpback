@@ -88,7 +88,9 @@ class ActivoFijo extends Model implements Auditable
 
     /*************
      * Funciones
-     *************/
+     ************
+     * @throws Exception
+     */
     public static function cargarComoActivo(DetalleProducto $detalle_producto, int|null $cliente_id)
     {
         try {

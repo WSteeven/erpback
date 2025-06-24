@@ -597,26 +597,28 @@ class InventarioService
             $lotes = $item->lotes()->where('cant_disponible', '>', 0)->orderBy('fecha_vencimiento')->lockForUpdate()->get();
             $restante = $cantidad;
 
-            foreach ($lotes as $lote) {
-                if ($restante <= 0) break;
+            if ($lotes->count() > 0) {
+                foreach ($lotes as $lote) {
+                    if ($restante <= 0) break;
 
-                $a_despachar = min($restante, $lote->cant_disponible);
+                    $a_despachar = min($restante, $lote->cant_disponible);
 
-                //Descontar del lote
-                $lote->cant_disponible -= $a_despachar;
-                $lote->save();
+                    //Descontar del lote
+                    $lote->cant_disponible -= $a_despachar;
+                    $lote->save();
 
-                // Se guarda el lote despachado asociado al detalle de la transaccion
-                DetalleProductoTransaccionLote::create([
-                    'detalle_producto_id' => $detalle_transaccion->id,
-                    'lote_id' => $lote->id,
-                    'cantidad' => $a_despachar,
-                ]);
+                    // Se guarda el lote despachado asociado al detalle de la transaccion
+                    DetalleProductoTransaccionLote::create([
+                        'detalle_producto_id' => $detalle_transaccion->id,
+                        'lote_id' => $lote->id,
+                        'cantidad' => $a_despachar,
+                    ]);
 
-                $restante -= $a_despachar;
+                    $restante -= $a_despachar;
+                }
+
+                if ($restante > 0) throw new Exception('Stock insuficiente para despachar la cantidad solicitada.');
             }
-
-            if ($restante > 0) throw new Exception('Stock insuficiente para despachar la cantidad solicitada.');
 
             DB::commit();
         } catch (Exception $ex) {
@@ -706,14 +708,14 @@ class InventarioService
                 ->where('cantidad_stock', '>', 0)
                 ->where('empleado_id', $responsable->id)
                 ->first();
-            if($material){
-                $row['responsable']= Empleado::extraerNombresApellidos($responsable);
-                $row['detalle']= $lote->inventario->detalle->descripcion;
-                $row['vida_util']= $lote->inventario->detalle->vida_util;//meses
-                $row['cantidad']= $detalle_lote->cantidad;
-                $row['fecha_despacho']= Carbon::parse($detalle_lote->created_at)->format('Y-m-d');
-                $row['fecha_vencimiento']= Carbon::parse($lote->fecha_vencimiento)->format('Y-m-d');
-                $row['esta_vigente']= Carbon::now()->lte(Carbon::parse($lote->fecha_vencimiento))?'Vigente':'Expirado';
+            if ($material) {
+                $row['responsable'] = Empleado::extraerNombresApellidos($responsable);
+                $row['detalle'] = $lote->inventario->detalle->descripcion;
+                $row['vida_util'] = $lote->inventario->detalle->vida_util;//meses
+                $row['cantidad'] = $detalle_lote->cantidad;
+                $row['fecha_despacho'] = Carbon::parse($detalle_lote->created_at)->format('Y-m-d');
+                $row['fecha_vencimiento'] = Carbon::parse($lote->fecha_vencimiento)->format('Y-m-d');
+                $row['esta_vigente'] = Carbon::now()->lte(Carbon::parse($lote->fecha_vencimiento)) ? 'Vigente' : 'Expirado';
 
                 $results[] = $row;
             }
