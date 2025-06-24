@@ -96,6 +96,7 @@ class ConfiguracionGeneral extends Model implements Auditable
         'correo_principal',
         'correo_secundario',
         'sitio_web',
+        'sitio_web_erp',
         'direccion_secundaria1',
         'direccion_secundaria2',
         'nombre_empresa',
