@@ -2,6 +2,8 @@
 
 namespace App\Models\Medico;
 
+use App\Models\Archivo;
+
 use App\ModelFilters\Medico\FichaAptitudFilter;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -80,12 +82,17 @@ class FichaAptitud extends Model implements Auditable
 
     public function profesionalSalud()
     {
-        return $this->belongsTo(ProfesionalSalud::class, 'id', '');//, 'id', 'ficha_aptitud_id');
+        return $this->belongsTo(ProfesionalSalud::class, 'id', ''); //, 'id', 'ficha_aptitud_id');
         // return $this->hasOne(ProfesionalSalud::class, 'id', 'ficha_aptitud_id');
     }
 
     public function opcionesRespuestasTipoEvaluacionMedicaRetiro()
     {
         return $this->hasMany(OpcionRespuestaTipoEvaluacionMedicaRetiro::class);
+    }
+
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }

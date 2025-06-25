@@ -6,7 +6,7 @@ namespace Src\Config;
 
 enum RutasStorage: string
 {
-        // Private
+    // Private
     case GESTOR_ARCHIVOS = 'private/GestorArchivos';
     case COMPROBANTES = 'private/comprobantes';
 
@@ -49,7 +49,7 @@ enum RutasStorage: string
     case NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/novedades_ventas_claro';
     case NOVEDADES_ORDENES_COMPRAS  = 'public/novedades_ordenes_compras';
 
-    /***********************
+/***********************
      * MODULO DE VEHICULOS
      ***********************/
     case VEHICULOS = 'public/vehiculos/';
@@ -64,7 +64,7 @@ enum RutasStorage: string
     case EVIDENCIAS_VEHICULOS_ASIGNADOS = 'public/vehiculos/evidencias_vehiculos_asignados/';
     case EVIDENCIAS_VEHICULOS_TRANSFERIDOS = 'public/vehiculos/evidencias_vehiculos_transferidos/';
 
-    /**********
+/**********
      * Medico
      **********/
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
@@ -72,7 +72,9 @@ enum RutasStorage: string
     case SOLICITUD_EXAMEN  = 'public/solicitudes_examenes/archivos';
     case FICHAS_PREOCUPACIONALES  = 'public/fichas_preocupacionales/archivos';
 
-    /**
+    case FICHAS_APTITUD = 'public/fichas_aptitud/archivos';
+
+/**
      * MODULO DE SELECCION Y CONTRATACION
      */
     case SOLICITUD_NUEVO_EMPLEADO = 'public/SeleccionContratacionPersonal/solicitudes_personal';
@@ -80,28 +82,28 @@ enum RutasStorage: string
     case CURRICULUM = 'public/SeleccionContratacionPersonal/curriculums/';
     case VACANTES_TRABAJO = 'public/SeleccionContratacionPersonal/vacantes';
 
-    /**
+/**
      * MODULO DE TRABAJO SOCIAL
      */
-    case RUTAGRAMAS='public/TrabajoSocial/rutagramas';
-    case CROQUIS='public/TrabajoSocial/croquis_empleados';
-    case VISITAS_DOMICILIARIAS='public/TrabajoSocial/Visitas-Domiciliarias';
-    case GENOGRAMAS='public/TrabajoSocial/genogramas';
+    case RUTAGRAMAS = 'public/TrabajoSocial/rutagramas';
+    case CROQUIS = 'public/TrabajoSocial/croquis_empleados';
+    case VISITAS_DOMICILIARIAS = 'public/TrabajoSocial/Visitas-Domiciliarias';
+    case GENOGRAMAS = 'public/TrabajoSocial/genogramas';
 
-    /**********
+/**********
      * Bodega
      **********/
     case FOTOGRAFIAS_DETALLE_PRODUCTO  = 'public/bodega/fotografiasDetalleProducto';
     case IMAGENES_NOTICIAS  = 'public/intranet/imagenesNoticias';
 
-    /****************
+/****************
      * Activos Fijos
      ****************/
     case SEGUIMIENTO_CONSUMO_ACTIVOS_FIJOS  = 'public/activos_fijos/seguimientoConsumoActivosFijos';
     case ACTIVOS_FIJOS_ACTA_ENTREGA_RECEPCION  = 'public/activos_fijos/actaEntregaRecepcion';
     case ACTIVOS_FIJOS_JUSTIFICATIVO_USO  = 'public/activos_fijos/justificativoUso';
 
-    /*******
+/*******
      * SSO
      *******/
     case INCIDENTES  = 'public/sso/incidentes';
@@ -112,7 +114,7 @@ enum RutasStorage: string
     case CONSULTAS_MEDICAS  = 'public/sso/consultas_medicas';
     case INSPECCIONES  = 'public/sso/inspecciones';
 
-    /*************
+/*************
      * Seguridad
      *************/
     case ACTIVIDADES_BITACORAS  = 'public/seguridad/actividadesBitacoras';

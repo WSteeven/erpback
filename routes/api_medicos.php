@@ -212,6 +212,10 @@ Route::post('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenCon
 Route::get('fichas-preocupacionales/files/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'indexFiles']);
 Route::post('fichas-preocupacionales/files/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'storeFiles']);
 
+
+Route::get('fichas-aptitudes/files/{ficha_aptitud}', [FichaAptitudController::class, 'indexFiles']);
+Route::post('fichas-aptitudes/files/{ficha_aptitud}', [FichaAptitudController::class, 'storeFiles']);
+
 /*****************
  * Imprimir PDFs
  *****************/
