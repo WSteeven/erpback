@@ -8,14 +8,17 @@ use App\Http\Resources\ActivosFijos\ActivoFijoResource;
 use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Models\ActivosFijos\ActivoFijo;
 use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleProducto;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Log;
 use Src\App\ActivosFijos\ControlActivoFijoService;
 use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
@@ -41,6 +44,7 @@ class ActivoFijoController extends Controller
      * Display a listing of the resource.
      *
      * @return AnonymousResourceCollection|BinaryFileResponse
+     * @throws Exception
      */
     public function index()
     {
@@ -49,7 +53,7 @@ class ActivoFijoController extends Controller
 
         if (request('export')) return $this->controlActivoFijoService->descargarReporte();
 
-        if(request('search')) $query = ActivoFijo::search($search);
+        if (request('search')) $query = ActivoFijo::search($search);
         else $query = ActivoFijo::query();
 
         if ($paginate) $paginated = $this->paginationService->paginate($query, 100, request('page'));
@@ -99,7 +103,7 @@ class ActivoFijoController extends Controller
     {
         $inventarioService = new InventarioService();
         $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now()->addDay());
-        $results = collect($transacciones['results'])->filter(fn($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && in_array($transaccion['estado_comprobante'], [TransaccionBodega::PARCIAL, TransaccionBodega::ACEPTADA]))->values(); // && !!$transaccion['comprobante_firmado'])->values();
+        $results = collect($transacciones['results'])->filter(fn($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && in_array($transaccion['estado_comprobante'], [TransaccionBodega::PENDIENTE, TransaccionBodega::PARCIAL, TransaccionBodega::ACEPTADA]))->values(); // && !!$transaccion['comprobante_firmado'])->values();
         $results = EntregaActivoFijoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -153,6 +157,30 @@ class ActivoFijoController extends Controller
         ];
 
         // Log::channel('testing')->info('Log', ['Replacement ', $replacements]);
+
+        $zpl = str_replace(array_keys($replacements), array_values($replacements), $template);
+        Log::channel('testing')->info('Log', ['ZPL ', $zpl]);
+        return response($zpl, 200)->header('Content-Type', 'text/plain');
+    }
+
+    public function printCustomLabel(Request $request)
+    {
+        $template = file_get_contents(storage_path('app/design2.prn'));
+        $activoFijo = ActivoFijo::where('detalle_producto_id', $request['detalle_producto_id'])->where('cliente_id', $request['cliente_id'])->first();
+        $detalleProducto = DetalleProducto::find($request['detalle_producto_id']);
+       $configuracion = ConfiguracionGeneral::first();
+
+        $codigo = $activoFijo->id.$request['num_transaccion'].$request['detalle_producto_id'];
+        $replacements = [
+            '{CODIGO_QR}' => str_pad($codigo, 12, '0', STR_PAD_LEFT),
+            '{NOMBRE_EMPRESA}' => $configuracion->razon_social,
+            '{TIPO_PRODUCTO}' => $detalleProducto->descripcion,
+            '{MARCA}' => $detalleProducto->modelo->marca?->nombre,
+            '{MODELO}' => $detalleProducto->modelo?->nombre,
+            '{SERIE}' => $detalleProducto->serial,
+            '{FECHA_COMPRA}' => TransaccionBodega::obtenerFechaCompraDetalle($detalleProducto->id),
+            '{CODIGO_BARRAS}' => str_pad($codigo, 12, '0', STR_PAD_LEFT),
+        ];
 
         $zpl = str_replace(array_keys($replacements), array_values($replacements), $template);
 

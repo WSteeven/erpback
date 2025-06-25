@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
 use App\Http\Resources\SucursalResource;
+use App\Models\ActivosFijos\ActivoFijo;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Inventario;
@@ -21,6 +22,7 @@ use Src\Shared\Utils;
 class DetalleProductoController extends Controller
 {
     private string $entidad = 'Detalle de producto';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.detalles')->only('index', 'show');
@@ -138,6 +140,9 @@ class DetalleProductoController extends Controller
                 $detalle = DetalleProducto::crearDetalle($request, $datos);
             }
 
+            if ($detalle) {
+                if ($detalle->esActivo) ActivoFijo::cargarComoActivo($detalle, Cliente::JPCONSTRUCRED);
+            }
             $modelo = new DetalleProductoResource($detalle);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -185,6 +190,7 @@ class DetalleProductoController extends Controller
             else unset($datos['fotografia_detallada']);
 
             $detalle->update($datos);
+            if ($detalle->esActivo) ActivoFijo::cargarComoActivo($detalle, Cliente::JPCONSTRUCRED);
             if ($request->categoria === 'INFORMATICA') {
                 if ($detalle->computadora()->first()) {
                     $detalle->computadora()->update([

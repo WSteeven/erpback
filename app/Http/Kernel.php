@@ -46,6 +46,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             //chequear usuario
             \App\Http\Middleware\CheckUserDesactivado::class,
+            \App\Http\Middleware\CheckTokenExpiration::class,
         ],
     ];
 

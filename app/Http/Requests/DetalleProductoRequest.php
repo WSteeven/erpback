@@ -31,7 +31,7 @@ class DetalleProductoRequest extends FormRequest
             'marca' => 'required|exists:marcas,id',
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
-            'vida_util' => 'sometimes|numeric',
+            'vida_util' => 'sometimes|nullable|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
             'lote' => 'nullable|string|sometimes|unique:detalles_productos',
             'span' => 'nullable|integer|exists:spans,id',

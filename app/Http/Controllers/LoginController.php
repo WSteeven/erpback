@@ -58,7 +58,15 @@ class LoginController extends Controller
         }
 
         if ($user->empleado->estado) {
-            $token = $user->createToken('auth_token')->plainTextToken;
+//            $user->tokens()->delete(); // elimina tokens anteriores para mantener solo sesión única
+            $tokenResult = $user->createToken('auth_token');
+            $token = $tokenResult->plainTextToken;
+
+            //Agregar expiración de 24 horas
+            $tokenResult->accessToken->expires_at = now()->addDay(); // Expira en 1 día
+            $tokenResult->accessToken->save();
+
+
             $modelo = new UserInfoResource($user);
             return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer', 'user_type' => 'empleado', 'modelo' => $modelo]);
         }

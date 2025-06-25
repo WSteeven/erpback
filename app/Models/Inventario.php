@@ -2,15 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Bodega\Lote;
 use App\Models\ComprasProveedores\PreordenCompra;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Inventario
@@ -25,45 +31,45 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int $por_entregar
  * @property int $condicion_id
  * @property string $estado
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Cliente|null $cliente
- * @property-read \App\Models\Condicion|null $condicion
- * @property-read \App\Models\DetalleProducto|null $detalle
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Transferencia> $detalleInventarioTransferencia
+ * @property-read Cliente|null $cliente
+ * @property-read Condicion|null $condicion
+ * @property-read DetalleProducto|null $detalle
+ * @property-read Collection<int, Transferencia> $detalleInventarioTransferencia
  * @property-read int|null $detalle_inventario_transferencia_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Traspaso> $detalleInventarioTraspaso
+ * @property-read Collection<int, Traspaso> $detalleInventarioTraspaso
  * @property-read int|null $detalle_inventario_traspaso_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $detalleProductoTransaccion
+ * @property-read Collection<int, TransaccionBodega> $detalleProductoTransaccion
  * @property-read int|null $detalle_producto_transaccion_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\MovimientoProducto> $movimientos
+ * @property-read Collection<int, MovimientoProducto> $movimientos
  * @property-read int|null $movimientos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductoEnPercha> $productoPercha
+ * @property-read Collection<int, ProductoEnPercha> $productoPercha
  * @property-read int|null $producto_percha_count
- * @property-read \App\Models\Sucursal|null $sucursal
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario query()
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereCantidad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereCondicionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereDetalleId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario wherePorEntregar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario wherePorRecibir($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereSucursalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inventario whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Sucursal|null $sucursal
+ * @method static Builder|Inventario acceptRequest(?array $request = null)
+ * @method static Builder|Inventario filter(?array $request = null)
+ * @method static Builder|Inventario ignoreRequest(?array $request = null)
+ * @method static Builder|Inventario newModelQuery()
+ * @method static Builder|Inventario newQuery()
+ * @method static Builder|Inventario query()
+ * @method static Builder|Inventario setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Inventario setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Inventario setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Inventario whereCantidad($value)
+ * @method static Builder|Inventario whereClienteId($value)
+ * @method static Builder|Inventario whereCondicionId($value)
+ * @method static Builder|Inventario whereCreatedAt($value)
+ * @method static Builder|Inventario whereDetalleId($value)
+ * @method static Builder|Inventario whereEstado($value)
+ * @method static Builder|Inventario whereId($value)
+ * @method static Builder|Inventario wherePorEntregar($value)
+ * @method static Builder|Inventario wherePorRecibir($value)
+ * @method static Builder|Inventario whereSucursalId($value)
+ * @method static Builder|Inventario whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Inventario extends Model implements Auditable
 {
@@ -119,6 +125,13 @@ class Inventario extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+
+    public function lotes(){
+        return $this->hasMany(Lote::class, 'inventario_id');
+    }
+    public function lotesDisponible(){
+        return $this->lotes()->where('cant_disponible', '>', 0)->orderBy('fecha_vencimiento', 'desc');
+    }
     /**
      * Relación muchos a muchos.
      * Uno o varios detalles de producto estan en una transacción.

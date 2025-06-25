@@ -67,5 +67,8 @@ trait UppercaseValuesTrait
         if (preg_match('/fotografia/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/ruta/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/link/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/web/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/mail/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/correo/i', $key)) $this->attributes[$key] = $value;
     }
 }
