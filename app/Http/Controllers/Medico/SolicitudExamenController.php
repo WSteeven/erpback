@@ -20,7 +20,7 @@ class SolicitudExamenController extends Controller
 {
     private $entidad = 'Solicitud de examen';
     private SolicitudExamenService $solicitudExamenService;
-    private $archivoService;
+    private ArchivoService $archivoService;
 
     public function __construct(SolicitudExamenService $solicitudExamenService)
     {

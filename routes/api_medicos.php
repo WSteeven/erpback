@@ -209,6 +209,13 @@ Route::post('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController:
 Route::get('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenController::class, 'indexFiles']);
 Route::post('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenController::class, 'storeFiles']);
 
+Route::get('fichas-preocupacionales/files/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'indexFiles']);
+Route::post('fichas-preocupacionales/files/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'storeFiles']);
+
+
+Route::get('fichas-aptitudes/files/{ficha_aptitud}', [FichaAptitudController::class, 'indexFiles']);
+Route::post('fichas-aptitudes/files/{ficha_aptitud}', [FichaAptitudController::class, 'storeFiles']);
+
 /*****************
  * Imprimir PDFs
  *****************/

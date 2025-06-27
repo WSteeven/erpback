@@ -13,18 +13,24 @@ use App\Models\Medico\TipoAptitudMedicaLaboral;
 use App\Models\Medico\TipoEvaluacionMedicaRetiro;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
 
 class FichaAptitudController extends Controller
 {
     private string $entidad = 'Examen Ficha de aptitud';
+    private ArchivoService $archivoService;
 
     public function __construct()
     {
+        $this-> archivoService = new ArchivoService();
+
         $this->middleware('can:puede.ver.fichas_aptitudes')->only('index', 'show');
         $this->middleware('can:puede.crear.fichas_aptitudes')->only('store');
         $this->middleware('can:puede.editar.fichas_aptitudes')->only('update');
@@ -195,5 +201,33 @@ class FichaAptitudController extends Controller
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'));
         }
+    }
+
+        /**
+     * Listar archivos
+     */
+    public function indexFiles(FichaAptitud $ficha_aptitud)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($ficha_aptitud);
+        } catch (Throwable $th) {
+            return $th;
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     * @throws Throwable
+     */
+    public function storeFiles(Request $request, FichaAptitud $ficha_aptitud)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($ficha_aptitud, $request->file, RutasStorage::FICHAS_APTITUD->value . '_' . $ficha_aptitud->id);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (Exception $ex) {
+            return $ex;
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

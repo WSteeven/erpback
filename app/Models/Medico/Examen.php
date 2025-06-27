@@ -3,42 +3,47 @@
 namespace App\Models\Medico;
 
 use App\ModelFilters\Medico\ExamenFilter;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\Examen
  *
  * @property int $id
  * @property string $nombre
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\CategoriaExamen> $categoria
+ * @property-read Collection<int, CategoriaExamen> $categoria
  * @property-read int|null $categoria_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\EstadoSolicitudExamen> $estadoSolicitudExamen
+ * @property-read Collection<int, EstadoSolicitudExamen> $estadoSolicitudExamen
  * @property-read int|null $estado_solicitud_examen_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\TipoExamen> $tipoExamen
+ * @property-read Collection<int, TipoExamen> $tipoExamen
  * @property-read int|null $tipo_examen_count
- * @method static \Illuminate\Database\Eloquent\Builder|Examen acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Examen newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Examen query()
- * @method static \Illuminate\Database\Eloquent\Builder|Examen setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Examen whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Examen acceptRequest(?array $request = null)
+ * @method static Builder|Examen filter(?array $request = null)
+ * @method static Builder|Examen ignoreRequest(?array $request = null)
+ * @method static Builder|Examen newModelQuery()
+ * @method static Builder|Examen newQuery()
+ * @method static Builder|Examen query()
+ * @method static Builder|Examen setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Examen setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Examen setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Examen whereCreatedAt($value)
+ * @method static Builder|Examen whereId($value)
+ * @method static Builder|Examen whereNombre($value)
+ * @method static Builder|Examen whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Examen extends Model implements Auditable
 {
@@ -48,7 +53,7 @@ class Examen extends Model implements Auditable
     protected $fillable = [
         'nombre',
     ];
-    private static $whiteListFilter = ['*', 'empleado_id', 'registro_empleado_examen_id'];
+    private static array $whiteListFilter = ['*', 'empleado_id', 'registro_empleado_examen_id'];
 
     /*************
      * Relaciones

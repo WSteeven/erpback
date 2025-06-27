@@ -7,7 +7,7 @@ use Log;
 
 class ExamenService
 {
-    private $ignoreRequest = ['campos', 'pendiente_solicitar'];
+    private array $ignoreRequest = ['empleado_id','campos', 'pendiente_solicitar','registro_empleado_examen_id'];
 
     public function listar()
     {
