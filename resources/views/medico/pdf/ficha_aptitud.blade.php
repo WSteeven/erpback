@@ -336,45 +336,45 @@
 
     <br>
     <!-- F & G. DATOS PROFESIONAL Y FIRMA USUARIO -->
-    <div class="titulo-seccion" style="text-align: left;">F. DATOS DEL PROFESIONAL DE SALUD </div>
-    <div class="border mb-8 pt-8 pl-8">
-        <!-- Subsección: Profesional de Salud -->
-        <div class="mb-8">
-            <div class="text-bold mb-4" style="text-align: left;">Profesional de Salud:</div>
-            <table style="width: 100%;" border="1" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td class="bg-green font-text-10" style="padding: 6px;">NOMBRE Y APELLIDO</td>
-                    <td class="font-text-10" style="text-align: left;">
-                        {{ $profesionalSalud->empleado->nombres . ' ' . $profesionalSalud->empleado->apellidos }}
-                    </td>
-                </tr>
-                <tr>
-                    <td class="bg-green font-text-10">CÓDIGO</td>
-                    <td style="text-align: left;">{{ $profesionalSalud->empleado->codigo }}</td>
-                </tr>
-                <tr>
-                    <td class="bg-green font-text-10">FIRMA Y SELLO</td>
-                    <td style="text-align: left;">
-                        @isset($firmaProfesionalMedico)
-                            <img src="{{ $firmaProfesionalMedico }}" alt="" width="100px" height="50px">
-                        @else
-                            &nbsp;<br />
-                        @endisset
-                    </td>
-                </tr>
-            </table>
-        </div>
+    {{-- F. DATOS DEL PROFESIONAL DE SALUD --}}
+    <span style="width: 72%; display: inline-block;" class="border mr-8">
+        <div class="titulo-seccion">F. DATOS DEL PROFESIONAL DE SALUD</div>
+        <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="bg-green font-text-10" style="padding: 6px;">NOMBRE Y APELLIDO</td>
+                <td style="width: 20%" class="font-text-10">
+                    {{ $profesionalSalud->empleado->nombres . ' ' . $profesionalSalud->empleado->apellidos }}</td>
+                <td class="bg-green font-text-10">CÓDIGO</td>
+                <td style="width: 20%">{{ $profesionalSalud->codigo }}</td>
+                <td class="bg-green font-text-10">FIRMA Y SELLO</td>
+                <td style="width: 20%">
+{{--                     @isset($firmaProfesionalMedico)
+                        <img src="{{ $firmaProfesionalMedico }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($firmaProfesionalMedico)
+                        &nbsp;<br />
+                    @endempty --}}
+                </td>
+                {{-- <td style="width: 20%">&nbsp;</td> --}}
+            </tr>
+        </table>
+    </span>
 
-        <!-- Subsección: Firma del Usuario -->
-        <div>
-            <div class="titulo-seccion" style="text-align: left;">G. FIRMA DEL USUARIO</div>
-            <div style="height: 60px; border: 1px solid #000;">
-                 @isset($firmaPaciente)
-                <img src="{{ $firmaPaciente }}" alt="" width="100px" height="50px">
-                @endisset
-            </div>
+    {{-- G. FIRMA DEL USUARIO --}}
+    <span style="width: 25%; display: inline-block;" class="border">
+        <div class="titulo-seccion">G. FIRMA DEL USUARIO</div>
+        <div class="pa-12">
+            &nbsp;
+            <br />
+            <br />
+            {{-- @isset($firmaPaciente)
+                <img src="{{ $firmaPaciente }}" alt="" width="100%" height="40">
+            @endisset
+            @empty($firmaPaciente)
+                &nbsp;<br />
+            @endempty --}}
         </div>
-    </div>
+    </span>
 
 
 
