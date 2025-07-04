@@ -92,7 +92,18 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
-
+        'sqlsrv_external' => [
+            'driver' => 'sqlsrv',
+            'host' => env('SQLSRV_HOST'),
+            'port' => env('SQLSRV_PORT', 1433),
+            'database' => env('SQLSRV_DATABASE'),
+            'username' => env('SQLSRV_USERNAME'),
+            'password' => env('SQLSRV_PASSWORD'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'encrypt' => true,
+            'trust_server_certificate' => true,
+        ],
     ],
 
     /*
