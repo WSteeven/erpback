@@ -305,9 +305,10 @@ class ReporteModuloTareaController extends Controller
 
     private function agruparResultadosObtenidos(mixed $resultados)
     {
-//        $results = $resultados->groupBy('RowId');
+        $resultados = collect($resultados); // <-- IMPORTANTE
+
         $results = $resultados->groupBy(function ($item) {
-            return Carbon::parse($item->FechaInicioTurno)->format('Y-m-d');
+            return Carbon::parse($item['FechaInicioTurno'])->format('Y-m-d');
         });
         $results = collect($results)->map(function ($itemsPorFecha) {
             return $itemsPorFecha->groupBy('NOC');
@@ -357,11 +358,11 @@ class ReporteModuloTareaController extends Controller
                         $row_id = null;
 
                         foreach ($registros as $i => $registro) {
-                            $tipoMantenimiento = $registro->TipoMantenimiento;
-                            $tipoActividad = $registro->TipoActividad;
-                            $inicio = $registro->FHInicioMtto;
-                            $fin = $registro->FHFinMtto;
-                            $row_id = $registro->RowId;
+                            $tipoMantenimiento = $registro['TipoMantenimiento'];
+                            $tipoActividad = $registro['TipoActividad'];
+                            $inicio = $registro['FHInicioMtto'];
+                            $fin = $registro['FHFinMtto'];
+                            $row_id = $registro['RowId'];
 
                             if ($tipoMantenimiento === 'Inicio/Fin de turno' && $tipoActividad === 'Ingreso') {
                                 $hora_entrada = $inicio;
@@ -369,7 +370,7 @@ class ReporteModuloTareaController extends Controller
 
                             if ($tipoMantenimiento === 'Alimentacion' && $tipoActividad === 'Almuerzo') {
                                 $hora_almuerzo_inicio = $inicio;
-                                $hora_almuerzo_fin = isset($registros[$i + 1]) ? $registros[$i + 1]->FHInicioMtto : $fin;
+                                $hora_almuerzo_fin = isset($registros[$i + 1]) ? $registros[$i + 1]['FHInicioMtto'] : $fin;
                             }
 
                             if ($tipoMantenimiento === 'Inicio/Fin de turno' && $tipoActividad === 'Salida') {

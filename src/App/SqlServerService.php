@@ -4,6 +4,8 @@ namespace Src\App;
 
 use Carbon\Carbon;
 use DB;
+use Exception;
+use Http;
 use Illuminate\Support\Facades\Log;
 
 class SqlServerService
@@ -15,7 +17,23 @@ class SqlServerService
     {
     }
 
-    public static function obtenerRegistros(string|Carbon $fechaInicio, string|Carbon $fechaFin)
+
+    /**
+     * @throws Exception
+     */
+    public static function obtenerRegistros(string $fechaInicio, string $fechaFin)
+    {
+        $fastapi = env('FAST_API_URL_DEFAULT');
+        $fastapi_apikey = env('API_KEY_FOR_FASTAPI');
+        $url = $fastapi.'asistencias';
+
+        $response =  Http::withHeaders(['x-api-key'=>$fastapi_apikey])->withOptions(['verify'=>false])
+            ->acceptJson()
+            ->get($url, ['fecha_inicio'=>$fechaInicio, 'fecha_fin'=>$fechaFin]);
+
+        return $response->json();
+    }
+    public static function obtenerRegistrosOld(string|Carbon $fechaInicio, string|Carbon $fechaFin)
     {
         $resultados = DB::connection('sqlsrv_external')
             ->table('BITACORA_EC')
@@ -53,6 +71,7 @@ class SqlServerService
 
         return self::mapToUTF8($resultados);
     }
+
 
     private static function mapToUTF8($registros)
     {
