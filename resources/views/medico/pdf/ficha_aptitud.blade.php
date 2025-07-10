@@ -36,7 +36,7 @@
             /** Estilos extra personales **/
             text-align: center;
             color: #000000;
-            line-height: 1.5cm;
+            line-height: 1.1cm;
         }
 
         footer .page:after {
@@ -48,7 +48,7 @@
             top: 80px;
             left: 0cm;
             right: 0cm;
-            margin-bottom: 7cm;
+            margin-bottom: 2cm;
             font-size: 12px;
         }
 
@@ -114,15 +114,15 @@
         }
 
         .pa-8 {
-            padding: 8px;
+            padding: 4px;
         }
 
         .pa-12 {
-            padding: 12px;
+            padding: 6px;
         }
 
         .pt-8 {
-            padding-top: 8px;
+            padding-top: 4px;
         }
 
         .px-8 {
@@ -131,7 +131,7 @@
         }
 
         .pl-8 {
-            padding-left: 8px;
+            padding-left: 4px;
         }
 
         .mr-8 {
@@ -143,19 +143,19 @@
         }
 
         .mb-8 {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .mb-16 {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .font-text {
-            font-size: 12px;
+            font-size: 9px;
         }
 
         .font-text-10 {
-            font-size: 10px;
+            font-size: 7px;
         }
 
         .border {
@@ -333,8 +333,6 @@
         <br>
         <br>
     </div>
-
-    <br>
     <!-- F & G. DATOS PROFESIONAL Y FIRMA USUARIO -->
     {{-- F. DATOS DEL PROFESIONAL DE SALUD --}}
     <span style="width: 72%; display: inline-block;" class="border mr-8">
@@ -375,9 +373,7 @@
             @endempty --}}
         </div>
     </span>
-
-
-
+    <br>
     <footer style="font-size: 10px;">
         <b >SNS-MSP / Form. CERT. 081 / 2019    |    </b>
         <b >CERTIFICADO DE SALUD EN EL TRABAJO</b>
