@@ -16,9 +16,12 @@ class ResultadoHabitoToxicoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'tipo_habito_toxico' => $this->tipo_habito_toxico_id,
-            'tipo_habito_toxico_info' => $this->tipoHabitoToxico !== null ? $this->tipoHabitoToxico?->nombre:'',
-            'tiempo_consumo' => $this->tiempo_consumo,
+            'tipo_habito_toxico' => $this->tipoHabitoToxico->nombre,
+            'tipo_habito_toxico_id' => $this->tipo_habito_toxico_id,
+            'tiempo_consumo_meses'=>$this->tiempo_consumo_meses,
+            'cantidad'=>$this->cantidad,
+            'ex_consumidor'=>$this->ex_consumidor,
+            'tiempo_abstinencia_meses'=>$this->tiempo_abstinencia_meses,
         ];
     }
 }

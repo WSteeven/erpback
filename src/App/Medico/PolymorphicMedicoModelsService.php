@@ -6,12 +6,14 @@ use App\Models\Medico\DetalleCategFactorRiesgoFrPuestoTrabAct;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class PolymorphicMedicoModelsService
 {
 
     /**
      * Esta función crea antecedentes clínicos, uno a la vez.
+     * @throws Throwable
      */
     public function crearAntecedenteClinico(Model $entidad, string|array|null $data)
     {
@@ -25,13 +27,16 @@ class PolymorphicMedicoModelsService
                 else
                     $entidad->antecedentesClinicos()->create(['descripcion' => $data]);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearAntecedenteClinico']);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function crearHabitosToxicos(Model $entidad, array|null $data)
     {
         try {
@@ -49,7 +54,7 @@ class PolymorphicMedicoModelsService
                     );
                 }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearHabitoToxico']);
             throw $th;
@@ -58,6 +63,7 @@ class PolymorphicMedicoModelsService
 
     /**
      * Está función recibe un objeto o un array para guardar una o varias actividades fisicas
+     * @throws Throwable
      */
     public function crearActividadesFisicas(Model $entidad, array|null $data)
     {
@@ -71,7 +77,7 @@ class PolymorphicMedicoModelsService
                     ]);
                 }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearActividadFisica']);
             throw $th;
@@ -80,6 +86,7 @@ class PolymorphicMedicoModelsService
 
     /**
      * Está función recibe un objeto o un array para guardar una o varias medicaciones
+     * @throws Throwable
      */
     public function crearMedicaciones(Model $entidad, array|null $data)
     {
@@ -93,7 +100,7 @@ class PolymorphicMedicoModelsService
                     ]);
                     DB::commit();
                 }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearMedicacion']);
             throw $th;
@@ -103,6 +110,7 @@ class PolymorphicMedicoModelsService
     /**
      * Está función recibe un objeto o un array para guardar una o varias accidentes o enfermedades profesionales
      * Depende del tipo que reciba en cada objeto de `$data` se guardará como accidente de trabajo o como enfermedad profesional.
+     * @throws Throwable
      */
     public function crearAccidentesEnfermedadesProfesionales(Model $entidad, array|null $data, $tipo)
     {
@@ -116,12 +124,16 @@ class PolymorphicMedicoModelsService
                 'fecha' => $data['fecha'],
             ]);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearAccidentesEnfermedadesProfesionales']);
             throw $th;
         }
     }
+
+    /**
+     * @throws Throwable
+     */
     public function crearAccidentesEnfermedadesProfesionalesOld(Model $entidad, array|null $data, $tipo)
     {
         try {
@@ -137,13 +149,16 @@ class PolymorphicMedicoModelsService
                     ]);
                 }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearAccidentesEnfermedadesProfesionales']);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function crearAntecedentesFamiliares(Model $entidad, array|null $data)
     {
         try {
@@ -157,13 +172,16 @@ class PolymorphicMedicoModelsService
                     ]);
                 }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearAntecedentesFamiliares']);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function crearFactoresRiesgoPuestoTrabajoActual(Model $entidad, array|null $data)
     {
         try {
@@ -184,13 +202,16 @@ class PolymorphicMedicoModelsService
                     }
                 }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearFactoresRiesgoPuestoTrabajoActual']);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function crearRevisionesActualesOrganosSistemas(Model $entidad, array $data)
     {
         try {
@@ -202,12 +223,16 @@ class PolymorphicMedicoModelsService
                 ]);
             }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearFactoresRiesgoPuestoTrabajoActual']);
             throw $th;
         }
     }
+
+    /**
+     * @throws Throwable
+     */
     public function crearConstanteVital(Model $entidad, $data)
     {
         try {
@@ -224,12 +249,16 @@ class PolymorphicMedicoModelsService
                 'perimetro_abdominal' => $data['perimetro_abdominal'],
             ]);
             DB::commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Error insertarConstanteVital', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
+
+    /**
+     * @throws Throwable
+     */
     public function crearExamenesFisicosRegionales(Model $entidad, array|null $data)
     {
         try {
@@ -242,13 +271,16 @@ class PolymorphicMedicoModelsService
                     ]);
                 }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['error en crearFactoresRiesgoPuestoTrabajoActual']);
+            Log::channel('testing')->info('Log', ['error en crearExamenesFisicosRegionales']);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function crearDiagnosticosFicha(Model $entidad, array|null $data)
     {
         try {
@@ -261,13 +293,16 @@ class PolymorphicMedicoModelsService
                     ]);
                 }
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearDiagnosticosFicha']);
             throw $th;
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function crearAptitudMedica(Model $entidad, array $data)
     {
         try {
@@ -278,7 +313,7 @@ class PolymorphicMedicoModelsService
                 'limitacion' => $data['limitacion'],
             ]);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error en crearDiagnosticosFicha']);
             throw $th;

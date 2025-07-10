@@ -217,7 +217,7 @@ class FichaPreocupacionalController extends Controller
         // $ficha['tipos_aptitudes_medicas_laborales'] = $tipos_aptitudes_medicas_laborales;
 
         $ficha['consultas_medicas'] = $consultasMedicasMapeado;
-        $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : '';
+        $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : $ficha_preocupacional->recomendaciones_tratamiento;
         $ficha['resultados_examenes'] = $this->consultarResultadosExamenes($registro_empleado_examen_id);
         $ficha['observaciones_aptitud_medica'] = 'observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica';
 

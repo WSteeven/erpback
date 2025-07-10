@@ -47,8 +47,10 @@ class FichaPreocupacionalService
             $this->servicioPolimorfico->crearActividadesFisicas($this->ficha, $request->actividades_fisicas);
             $this->servicioPolimorfico->crearMedicaciones($this->ficha, $request->medicaciones);
             $this->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
-            $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->accidente_trabajo, AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO);
-            $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->enfermedad_profesional, AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL);
+            if ($request->tiene_accidente_trabajo)
+                $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->accidente_trabajo, AccidenteEnfermedadLaboral::ACCIDENTE_TRABAJO);
+            if ($request->tiene_enfermedad_profesional)
+                $this->servicioPolimorfico->crearAccidentesEnfermedadesProfesionales($this->ficha, $request->enfermedad_profesional, AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL);
             $this->servicioPolimorfico->crearAntecedentesFamiliares($this->ficha, $request->antecedentes_familiares);
             $this->servicioPolimorfico->crearFactoresRiesgoPuestoTrabajoActual($this->ficha, $request->factoresRiesgoPuestoActual);
             $this->servicioPolimorfico->crearRevisionesActualesOrganosSistemas($this->ficha, $request->revisiones_actuales_organos_sistemas);
@@ -62,6 +64,7 @@ class FichaPreocupacionalService
             throw $th;
         }
     }
+
     public function actualizarDatosFichaPreocupacional(FichaPreocupacionalRequest $request)
     {
         try {
@@ -71,6 +74,7 @@ class FichaPreocupacionalService
             throw $th;
         }
     }
+
     public function insertarExamenesRealizados(array|null $examenes)
     {
         try {
@@ -123,7 +127,7 @@ class FichaPreocupacionalService
                         [
                             'empresa' => $antecedente['empresa'],
                             'puesto_trabajo' => $antecedente['puesto_trabajo'],
-                            'actividades'   => $antecedente['actividades'],
+                            'actividades' => $antecedente['actividades'],
                             'tiempo_trabajo' => $antecedente['tiempo_trabajo'],
                             'observacion' => $antecedente['observaciones'],
                             'ficha_preocupacional_id' => $this->ficha->id
@@ -158,7 +162,7 @@ class FichaPreocupacionalService
                 'hijos_muertos' => $request->antecedente_personal['hijos_muertos'],
                 'tiene_metodo_planificacion_familiar' => $request->antecedente_personal['tiene_metodo_planificacion_familiar'],
                 'tipo_metodo_planificacion_familiar' => $request->antecedente_personal['tipo_metodo_planificacion_familiar'],
-                'ficha_preocupacional_id' =>  $this->ficha->id,
+                'ficha_preocupacional_id' => $this->ficha->id,
             ]);
 
             $registro_empleado = RegistroEmpleadoExamen::find($request->registro_empleado_examen_id);
@@ -174,6 +178,7 @@ class FichaPreocupacionalService
             throw $e;
         }
     }
+
     public function insertarAntecedentesGinecoObstetricos($data, $antecedente_id)
     {
         Log::channel('testing')->info('Log', ['gineco', $data]);
@@ -196,6 +201,7 @@ class FichaPreocupacionalService
             throw $e;
         }
     }
+
     public function insertarAccidenteEnfermedadLaboral(array $datos)
     {
         try {

@@ -335,7 +335,7 @@
             <td align="center">{{ $ficha_preocupacional['religion'] == 5 ? 'x' : '' }}</td>
 
             <td align="center">{{ $empleado['tipo_sangre'] }}</td>
-            <td align="center">{{ $empleado['lateralidad'] }}</td>
+            <td align="center">{{ $ficha_preocupacional['lateralidad'] }}</td>
         </tr>
     </table>
 
@@ -683,8 +683,8 @@
                     @foreach ($ficha_preocupacional['habitos_toxicos'] as $habito)
                         <tr>
                             <td>{{ $habito['tipo_habito_toxico'] }}</td>
-                            <td>{{ $habito['aplica'] ? 'x' : '' }}</td>
-                            <td>{{ !$habito['aplica'] ? 'x' : '' }}</td>
+                            <td>{{ $habito['consume'] ? 'x' : '' }}</td>
+                            <td>{{ !$habito['consume'] ? 'x' : '' }}</td>
                             <td>{{ $habito['tiempo_consumo_meses'] }}</td>
                             <td>{{ $habito['cantidad'] }}</td>
                             <td>{{ $habito['ex_consumidor'] ? 'x' : '' }}</td>
