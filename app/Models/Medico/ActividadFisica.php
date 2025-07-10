@@ -4,10 +4,15 @@ namespace App\Models\Medico;
 
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 
 /**
@@ -18,22 +23,22 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $tiempo
  * @property int $actividable_id
  * @property string $actividable_type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Model|\Eloquent $actividable
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Model|Eloquent $actividable
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica query()
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica whereActividableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica whereActividableType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica whereNombreActividad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica whereTiempo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ActividadFisica whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|ActividadFisica newModelQuery()
+ * @method static Builder|ActividadFisica newQuery()
+ * @method static Builder|ActividadFisica query()
+ * @method static Builder|ActividadFisica whereActividableId($value)
+ * @method static Builder|ActividadFisica whereActividableType($value)
+ * @method static Builder|ActividadFisica whereCreatedAt($value)
+ * @method static Builder|ActividadFisica whereId($value)
+ * @method static Builder|ActividadFisica whereNombreActividad($value)
+ * @method static Builder|ActividadFisica whereTiempo($value)
+ * @method static Builder|ActividadFisica whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ActividadFisica extends Model  implements Auditable
 {

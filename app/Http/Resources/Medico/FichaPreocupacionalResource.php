@@ -9,6 +9,7 @@ use App\Models\Medico\SistemaOrganico;
 use App\Models\Medico\TipoHabitoToxico;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use phpDocumentor\Reflection\Types\False_;
 use Src\App\Medico\FichasMedicasService;
 
 class FichaPreocupacionalResource extends JsonResource
@@ -21,7 +22,8 @@ class FichaPreocupacionalResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
             'id' => $this->id,
             'ciu' => $this->ciu,
             'establecimiento_salud' => $this->establecimiento_salud,
@@ -42,7 +44,7 @@ class FichaPreocupacionalResource extends JsonResource
             'medicaciones' => $this->medicaciones,
             'enfermedad_actual' => $this->enfermedad_actual,
             'recomendaciones_tratamiento' => $this->recomendaciones_tratamiento,
-            'grupo_sanguineo' => $this->grupo_sanguineo,
+            'grupo_sanguineo' => $this->grupo_sanguineo==""?null:$this->grupo_sanguineo,
             'descripcion_examen_fisico_regional' => $this->descripcion_examen_fisico_regional,
             'descripcion_revision_organos_sistemas' => $this->descripcion_revision_organos_sistemas,
             /***************************
@@ -198,11 +200,18 @@ class FichaPreocupacionalResource extends JsonResource
             'examenes_realizados' => $this->mapearExamenesRealizados(),
             'antecedentes_gineco_obstetricos' => $this->antecedentePersonal->antecedenteGinecoobstetrico,
         ];
+
+        if ($controller_method == 'show') {
+//            $modelo['habitos_toxicos'] =ResultadoHabitoToxicoResource::collection($this->habitosToxicos);
+            $modelo['habitos_toxicos'] =$this->mapearHabitosToxicos();
+        }
+
+            return  $modelo;
     }
 
     private function mapearRevisionesActualesOrganosSistemas()
     {
-        return $this->revisionesActualesOrganosSistemas()->get()->map(fn($revision) => 
+        return $this->revisionesActualesOrganosSistemas()->get()->map(fn($revision) =>
             [
                 'descripcion' => $revision->descripcion,
                 'organo_id' => $revision->organo_id,
@@ -260,7 +269,8 @@ class FichaPreocupacionalResource extends JsonResource
                 'cantidad' => $habito ? $habito['cantidad'] : '',
                 'ex_consumidor' => $habito ? $habito['ex_consumidor'] : false,
                 'tiempo_abstinencia_meses' => $habito ? $habito['tiempo_abstinencia_meses'] : '',
-                'aplica' => $habito ? !!$habito['tiempo_consumo_meses'] : '',
+                'consume' => $habito && !!$habito['tiempo_consumo_meses'],
+//                'aplica' => $habito ? !!$habito['tiempo_consumo_meses'] : '',
             ];
         });
 

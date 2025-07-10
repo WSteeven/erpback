@@ -3,10 +3,15 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\ExamenFisicoRegional
@@ -16,23 +21,23 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $observacion
  * @property int $examen_fisico_regionalable_id
  * @property string $examen_fisico_regionalable_type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\CategoriaExamenFisico|null $categoriaexamenFisico
- * @property-read Model|\Eloquent $examenFisicoRegionalable
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional query()
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional whereCategoriaExamenFisicoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional whereExamenFisicoRegionalableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional whereExamenFisicoRegionalableType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ExamenFisicoRegional whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read CategoriaExamenFisico|null $categoriaexamenFisico
+ * @property-read Model|Eloquent $examenFisicoRegionalable
+ * @method static Builder|ExamenFisicoRegional newModelQuery()
+ * @method static Builder|ExamenFisicoRegional newQuery()
+ * @method static Builder|ExamenFisicoRegional query()
+ * @method static Builder|ExamenFisicoRegional whereCategoriaExamenFisicoId($value)
+ * @method static Builder|ExamenFisicoRegional whereCreatedAt($value)
+ * @method static Builder|ExamenFisicoRegional whereExamenFisicoRegionalableId($value)
+ * @method static Builder|ExamenFisicoRegional whereExamenFisicoRegionalableType($value)
+ * @method static Builder|ExamenFisicoRegional whereId($value)
+ * @method static Builder|ExamenFisicoRegional whereObservacion($value)
+ * @method static Builder|ExamenFisicoRegional whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ExamenFisicoRegional extends Model implements Auditable
 {
