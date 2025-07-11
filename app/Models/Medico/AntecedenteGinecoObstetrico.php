@@ -4,11 +4,16 @@ namespace App\Models\Medico;
 
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\AntecedenteGinecoObstetrico
@@ -22,26 +27,26 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $cesareas
  * @property int $abortos
  * @property int $antecedente_personal_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Medico\AntecedentePersonal|null $antecedentesPersonales
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read AntecedentePersonal|null $antecedentesPersonales
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico query()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereAbortos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereAntecedentePersonalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereCesareas($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereCiclos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereFechaUltimaMenstruacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereGestas($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereMenarquia($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico wherePartos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteGinecoObstetrico whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|AntecedenteGinecoObstetrico newModelQuery()
+ * @method static Builder|AntecedenteGinecoObstetrico newQuery()
+ * @method static Builder|AntecedenteGinecoObstetrico query()
+ * @method static Builder|AntecedenteGinecoObstetrico whereAbortos($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereAntecedentePersonalId($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereCesareas($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereCiclos($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereCreatedAt($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereFechaUltimaMenstruacion($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereGestas($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereId($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereMenarquia($value)
+ * @method static Builder|AntecedenteGinecoObstetrico wherePartos($value)
+ * @method static Builder|AntecedenteGinecoObstetrico whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class AntecedenteGinecoObstetrico extends Model implements Auditable
 {

@@ -4,11 +4,16 @@ namespace App\Models\Medico;
 
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\AntecedentePersonal
@@ -20,25 +25,25 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $hijos_vivos
  * @property int $hijos_muertos
  * @property int $ficha_preocupacional_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Medico\AntecedenteGinecoObstetrico|null $antecedenteGinecoobstetrico
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read AntecedenteGinecoObstetrico|null $antecedenteGinecoobstetrico
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\FichaPreocupacional|null $fichaPreocupacional
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal query()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereFichaPreocupacionalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereHijosMuertos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereHijosVivos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereTieneMetodoPlanificacionFamiliar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereTipoMetodoPlanificacionFamiliar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedentePersonal whereVidaSexualActiva($value)
- * @mixin \Eloquent
+ * @property-read FichaPreocupacional|null $fichaPreocupacional
+ * @method static Builder|AntecedentePersonal newModelQuery()
+ * @method static Builder|AntecedentePersonal newQuery()
+ * @method static Builder|AntecedentePersonal query()
+ * @method static Builder|AntecedentePersonal whereCreatedAt($value)
+ * @method static Builder|AntecedentePersonal whereFichaPreocupacionalId($value)
+ * @method static Builder|AntecedentePersonal whereHijosMuertos($value)
+ * @method static Builder|AntecedentePersonal whereHijosVivos($value)
+ * @method static Builder|AntecedentePersonal whereId($value)
+ * @method static Builder|AntecedentePersonal whereTieneMetodoPlanificacionFamiliar($value)
+ * @method static Builder|AntecedentePersonal whereTipoMetodoPlanificacionFamiliar($value)
+ * @method static Builder|AntecedentePersonal whereUpdatedAt($value)
+ * @method static Builder|AntecedentePersonal whereVidaSexualActiva($value)
+ * @mixin Eloquent
  */
 class AntecedentePersonal extends Model implements Auditable
 {

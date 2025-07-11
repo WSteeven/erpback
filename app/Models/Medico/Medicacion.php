@@ -3,10 +3,15 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\Medicacion
@@ -16,22 +21,22 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $cantidad
  * @property int $medicable_id
  * @property string $medicable_type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read Model|\Eloquent $medicable
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion query()
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion whereCantidad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion whereMedicableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion whereMedicableType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Medicacion whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Model|Eloquent $medicable
+ * @method static Builder|Medicacion newModelQuery()
+ * @method static Builder|Medicacion newQuery()
+ * @method static Builder|Medicacion query()
+ * @method static Builder|Medicacion whereCantidad($value)
+ * @method static Builder|Medicacion whereCreatedAt($value)
+ * @method static Builder|Medicacion whereId($value)
+ * @method static Builder|Medicacion whereMedicableId($value)
+ * @method static Builder|Medicacion whereMedicableType($value)
+ * @method static Builder|Medicacion whereNombre($value)
+ * @method static Builder|Medicacion whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Medicacion extends Model implements Auditable
 {

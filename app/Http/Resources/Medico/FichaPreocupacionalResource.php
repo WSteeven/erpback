@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Medico;
 
+use App\Models\Empleado;
 use App\Models\Medico\AccidenteEnfermedadLaboral;
 use App\Models\Medico\ExamenOrganoReproductivo;
 use App\Models\Medico\RevisionActualOrganoSistema;
@@ -38,8 +39,7 @@ class FichaPreocupacionalResource extends JsonResource
             'identidad_genero_info' => $this->identidadGenero !== null ? $this->identidadGenero?->nombre : '',
             'actividades_relevantes_puesto_trabajo_ocupar' => $this->actividades_relevantes_puesto_trabajo_ocupar,
             'motivo_consulta' => $this->motivo_consulta,
-            'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado !== null ? $this->empleado?->nombres . '' . $this->empleado?->apellidos : ' ',
+            'empleado' => Empleado::extraerApellidosNombres($this->registroEmpleadoExamen->empleado),
             'actividades_fisicas' => $this->actividadesFisicas,
             'medicaciones' => $this->medicaciones,
             'enfermedad_actual' => $this->enfermedad_actual,
@@ -47,6 +47,7 @@ class FichaPreocupacionalResource extends JsonResource
             'grupo_sanguineo' => $this->grupo_sanguineo==""?null:$this->grupo_sanguineo,
             'descripcion_examen_fisico_regional' => $this->descripcion_examen_fisico_regional,
             'descripcion_revision_organos_sistemas' => $this->descripcion_revision_organos_sistemas,
+            'antecedente_clinico_quirurgico'=>$this->antecedentesClinicos->last()?->descripcion,
             /***************************
              * Antecedentes Personales
              * *************************/

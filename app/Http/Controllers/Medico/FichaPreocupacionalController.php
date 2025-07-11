@@ -63,7 +63,7 @@ class FichaPreocupacionalController extends Controller
             DB::beginTransaction();
             $ficha_preocupacional = FichaPreocupacional::create($datos);
             $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional);
-            $ficha_preocupacional_service->guardarDatosFichaPreocupacional($request);
+            $ficha_preocupacional_service->crearOActualizarDatosFichaPreocupacional($request);
 
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
@@ -95,7 +95,7 @@ class FichaPreocupacionalController extends Controller
             $datos = $request->validated();
             $ficha_preocupacional->update($datos);
             $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional);
-            $ficha_preocupacional_service->actualizarDatosFichaPreocupacional($request);
+            $ficha_preocupacional_service->crearOActualizarDatosFichaPreocupacional($request);
 
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -184,7 +184,7 @@ class FichaPreocupacionalController extends Controller
                         'recomendacion' => $diagnostico->recomendacion,
                         'cie' => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad,
                         'pre' => null,
-                        'def' => null,
+                        'def' => 'x',
                     ];
                 }),
             ];

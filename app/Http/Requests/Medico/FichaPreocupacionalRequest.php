@@ -92,7 +92,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'habitos_toxicos.*.tiempo_abstinencia_meses' => 'nullable|string',
             // actividades_fisicas
             'actividades_fisicas.*.nombre_actividad' => 'required|string',
-            'actividades_fisicas.*.tiempo' => 'required',
+            'actividades_fisicas.*.tiempo' => 'required|string',
             // medicaciones
             'medicaciones.*.nombre' => 'required|string',
             'medicaciones.*.cantidad' => 'required|string',

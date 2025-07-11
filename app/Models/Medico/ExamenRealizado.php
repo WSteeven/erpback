@@ -63,7 +63,7 @@ class ExamenRealizado extends Model  implements Auditable
 
     public function fichaPreocupacional()
     {
-        return $this->belongsTo(fichaPreocupacional::class);
+        return $this->belongsTo(FichaPreocupacional::class);
     }
     public function examen()
     {
