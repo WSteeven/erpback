@@ -32,10 +32,11 @@ class Bitacora extends Model implements Auditable
     /**************
      * Relaciones
      **************/
-    public function zona() {
+    public function zona()
+    {
         return $this->belongsTo(Zona::class);
     }
-    
+
     public function agenteTurno()
     {
         return $this->belongsTo(Empleado::class, 'agente_turno_id', 'id');
@@ -49,5 +50,33 @@ class Bitacora extends Model implements Auditable
     public function conductor()
     {
         return $this->belongsTo(Empleado::class, 'conductor_id', 'id');
+    }
+
+    /************
+     *
+     */
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('jornada', 'like', "%{$term}%")
+                ->orWhere('observaciones', 'like', "%{$term}%")
+                ->orWhere('fecha_hora_inicio_turno', 'like', "%{$term}%")
+                ->orWhere('fecha_hora_fin_turno', 'like', "%{$term}%")
+                ->orWhereHas('zona', function ($subQ) use ($term) {
+                    $subQ->where('nombre', 'like', "%{$term}%");
+                })
+                ->orWhereHas('agenteTurno', function ($subQ) use ($term) {
+                    $subQ->where('nombres', 'like', "%{$term}%")
+                        ->orWhere('apellidos', 'like', "%{$term}%");
+                })
+                ->orWhereHas('protector', function ($subQ) use ($term) {
+                    $subQ->where('nombres', 'like', "%{$term}%")
+                        ->orWhere('apellidos', 'like', "%{$term}%");
+                })
+                ->orWhereHas('conductor', function ($subQ) use ($term) {
+                    $subQ->where('nombres', 'like', "%{$term}%")
+                        ->orWhere('apellidos', 'like', "%{$term}%");
+                });
+        });
     }
 }
