@@ -26,7 +26,6 @@ use Database\Seeders\Medico\ReligionSeeder;
 use Database\Seeders\Medico\RespuestasDiagnosticoConsumoDrogasSeeder;
 use Database\Seeders\Medico\RespuestaSeeder;
 use Database\Seeders\Medico\TipoAntecedenteFamiliarSeeder;
-use Database\Seeders\Medico\TipoAntecedenteSeeder;
 use Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder;
 use Database\Seeders\Medico\TipoAptitudSeeder;
 use Database\Seeders\Medico\TipoCuestionarioSeeder;
@@ -84,7 +83,7 @@ class ModuloMedicoSeeder extends Seeder
             OrientacionSexualSeeder::class,
             ReligionSeeder::class,
             TipoAntecedenteFamiliarSeeder::class,
-            TipoAntecedenteSeeder::class,
+//            TipoAntecedenteSeeder::class,
             TipoAptitudSeeder::class,
             TipoHabitoToxicoSeeder::class,
             TipoDiscapacidadSeeder::class,

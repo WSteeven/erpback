@@ -237,6 +237,7 @@ class FichaPreocupacionalResource extends JsonResource
             'examen_id' => $examen_realizado->examen_id,
             'examen' => ExamenOrganoReproductivo::find($examen_realizado->examen_id)->examen,
             'tipo' => ExamenOrganoReproductivo::find($examen_realizado->examen_id)->tipo,
+            'se_realizo_examen'=> !!($examen_realizado->tiempo ||$examen_realizado->resultado),
             // 'organo' => SistemaOrganico::find($revision->organo_id)->nombre,
         ]);
     }

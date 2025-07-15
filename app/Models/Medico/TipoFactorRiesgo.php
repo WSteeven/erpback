@@ -55,4 +55,9 @@ class TipoFactorRiesgo extends Model implements Auditable
         'nombre',
     ];
     private static array $whiteListFilter = ['*'];
+
+    public function categorias()
+    {
+        return $this->hasMany(CategoriaFactorRiesgo::class);
+    }
 }

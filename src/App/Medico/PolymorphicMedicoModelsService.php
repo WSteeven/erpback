@@ -30,7 +30,7 @@ class PolymorphicMedicoModelsService
         if ($request->tiene_enfermedad_profesional)
             $this->crearAccidentesEnfermedadesProfesionales($entidad, $request->enfermedad_profesional, AccidenteEnfermedadLaboral::ENFERMEDAD_PROFESIONAL);
         $this->crearAntecedentesFamiliares($entidad, $request->antecedentes_familiares);
-        $this->crearFactoresRiesgoPuestoTrabajoActual($entidad, $request->factoresRiesgoPuestoActual);
+        $this->crearFactoresRiesgoPuestoTrabajoActual($entidad, $request->fr_puestos_trabajos_actuales);
         $this->crearRevisionesActualesOrganosSistemas($entidad, $request->revisiones_actuales_organos_sistemas);
         $this->crearConstanteVital($entidad, $request->constante_vital);
         $this->crearExamenesFisicosRegionales($entidad, $request->examenes_fisicos_regionales);

@@ -7,16 +7,17 @@ use App\Http\Requests\Medico\ExamenOrganoReproductivoRequest;
 use App\Http\Resources\Medico\ExamenOrganoReproductivoResource;
 use App\Models\Medico\ExamenOrganoReproductivo;
 use Exception;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class ExamenOrganoReproductivoController extends Controller
 {
-    private $entidad = 'Examen';
+    private string $entidad = 'Examen';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.examenes_organos_reproductivos')->only('index', 'show');
+//        $this->middleware('can:puede.ver.examenes_organos_reproductivos')->only('index', 'show');
         $this->middleware('can:puede.crear.examenes_organos_reproductivos')->only('store');
         $this->middleware('can:puede.editar.examenes_organos_reproductivos')->only('update');
         $this->middleware('can:puede.eliminar.examenes_organos_reproductivos')->only('destroy');
@@ -24,7 +25,7 @@ class ExamenOrganoReproductivoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -36,8 +37,9 @@ class ExamenOrganoReproductivoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param ExamenOrganoReproductivoRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function store(ExamenOrganoReproductivoRequest $request)
     {
@@ -48,7 +50,7 @@ class ExamenOrganoReproductivoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw ValidationException::withMessages(['store' => '' . $th->getLine(), $th->getMessage()]);
         }
     }
@@ -56,8 +58,8 @@ class ExamenOrganoReproductivoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ExamenOrganoReproductivo $examen
+     * @return JsonResponse
      */
     public function show(ExamenOrganoReproductivo $examen)
     {
@@ -68,9 +70,10 @@ class ExamenOrganoReproductivoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ExamenOrganoReproductivoRequest $request
+     * @param ExamenOrganoReproductivo $examen
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function update(ExamenOrganoReproductivoRequest $request, ExamenOrganoReproductivo $examen)
     {
@@ -80,7 +83,7 @@ class ExamenOrganoReproductivoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw ValidationException::withMessages(['store' => '' . $th->getLine(), $th->getMessage()]);
         }
     }
@@ -88,14 +91,14 @@ class ExamenOrganoReproductivoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return void
+     * @throws ValidationException
      */
-    public function destroy($id)
+    public function destroy()
     {
         try {
-            new Exception('No se puede eliminar el examen', 422);
-        } catch (\Throwable $th) {
+            throw new Exception('No se puede eliminar el examen', 422);
+        } catch (Throwable $th) {
             throw ValidationException::withMessages(['store' => '' . $th->getLine(), $th->getMessage()]);
         }
     }

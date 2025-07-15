@@ -80,10 +80,11 @@ class FichaPreocupacionalRequest extends FormRequest
             'constante_vital.indice_masa_corporal' => 'required|numeric',
             'constante_vital.perimetro_abdominal' => 'required|numeric',
             // fr_puestos_trabajos_actuales
-            'factoresRiesgoPuestoActual.*.puesto_trabajo' => 'required|string',
-            'factoresRiesgoPuestoActual.*.actividad' => 'required|string',
-            'factoresRiesgoPuestoActual.*.medidas_preventivas' => 'required|string',
-            'factoresRiesgoPuestoActual.*.categorias' => 'required|array',
+            'fr_puestos_trabajos_actuales' => 'required|array',
+            'fr_puestos_trabajos_actuales.*.puesto_trabajo' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.actividad' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.medidas_preventivas' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.categorias' => 'required|array',
             // habitos_toxicos
             'habitos_toxicos.*.tiempo_consumo_meses' => 'required|string',
             'habitos_toxicos.*.cantidad' => 'required',
@@ -127,7 +128,7 @@ class FichaPreocupacionalRequest extends FormRequest
             'examenes_fisicos_regionales.*.observacion' => 'nullable|string',
             // examenes_realizados
             'examenes_realizados.*.examen_id' => 'required|numeric|integer|exists:med_examenes_organos_reproductivos,id',
-            'examenes_realizados.*.tiempo' => 'required|numeric|integer',
+            'examenes_realizados.*.tiempo' => 'required|string',
             'examenes_realizados.*.resultado' => 'required|string',
             'profesional_salud_id' => 'nullable|numeric|integer',
         ];

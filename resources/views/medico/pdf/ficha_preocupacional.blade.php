@@ -1,12 +1,22 @@
 <html>
 @php
-    $fecha = new Datetime();
-
-    // $firma_profesional_salud = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->firma_url, 1)));
     use App\Models\Medico\CategoriaExamenFisico;
+    use App\Models\Medico\DetalleCategFactorRiesgoFrPuestoTrabAct;
     use App\Models\Medico\TipoAntecedenteFamiliar;
     use App\Models\Medico\SistemaOrganico;
+    use App\Models\Medico\TipoFactorRiesgo;
     use Carbon\Carbon;
+
+    $fecha = new Datetime();
+
+    $tipos = TipoFactorRiesgo::all();
+
+    function obtenerCategoriaFactorRiesgo($id){
+        $detalle = DetalleCategFactorRiesgoFrPuestoTrabAct::find($id);
+        if($detalle) return 'x';
+        return '';
+    }
+    // $firma_profesional_salud = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->firma_url, 1)));
 @endphp
 
 <head>
@@ -22,9 +32,9 @@
         /** Definir las reglas del encabezado **/
         header {
             position: fixed;
-            top: 0cm;
-            left: 0cm;
-            right: 0cm;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 2cm;
 
             /** Estilos extra personales **/
@@ -35,9 +45,9 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 0px;
-            left: 0cm;
-            right: 0cm;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: 2cm;
 
             /** Estilos extra personales **/
@@ -53,8 +63,8 @@
         main {
             position: relative;
             top: 80px;
-            left: 0cm;
-            right: 0cm;
+            left: 0;
+            right: 0;
             margin-bottom: 7cm;
             font-size: 12px;
         }
@@ -804,7 +814,9 @@
                 <span class="cuadrado">&nbsp;&nbsp;</span>
             @endif
             <span class="mr-8 d-inline-block"></span>
-            <span class="fs-9">ESPECIFICAR</span>
+            @if ($ficha_preocupacional['accidente_trabajo'] && $ficha_preocupacional['accidente_trabajo']['calificado_iss'])
+                <span class="fs-9">ESPECIFICAR</span>
+            @endif
             {{ $ficha_preocupacional['accidente_trabajo'] ? $ficha_preocupacional['accidente_trabajo']['instituto_seguridad_social'] : '' }}
             <span class="mr-8 d-inline-block"></span>
             NO @if ($ficha_preocupacional['accidente_trabajo'] ? !$ficha_preocupacional['accidente_trabajo']['calificado_iss'] : '')
@@ -972,6 +984,315 @@
         @endforeach
     </table>
 </div>
+
+{{-- F.  FACTORES DE RIESGOS DEL PUESTO DE TRABAJO ACTUAL  --}}
+<div class="titulo-seccion">F. FACTORES DE RIESGOS DEL PUESTO DE TRABAJO ACTUAL</div>
+<table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif;"
+       border="1" cellpadding="0" cellspacing="0" class="celdas_amplias">
+    <tr>
+        <td class="bg-green" rowspan="2" style="width: 20%; text-align: center">PUESTO DE TRABAJO / ÁREA</td>
+        <td class="bg-green" rowspan="2" style="width: 20%; text-align: center">ACTIVIDADES</td>
+        <td class="bg-green" colspan="10" style="width: 17.65%; text-align: center">FÍSICO</td>
+        <td class="bg-green" colspan="15" style="width: 26.48%; text-align: center">MECÁNICO</td>
+        <td class="bg-green" colspan="9" style="width: 15.87%; text-align: center">QUÍMICO</td>
+    </tr>
+
+    <tr style="background-color: #d0f0d0; font-weight: bold;">
+        <!-- Físico -->
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Temperaturas altas</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Temperaturas bajas</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Radiación ionizante</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Radiación No Ionizante</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Ruido</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Vibración</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Iluminación</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Ventilación</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Fluido eléctrico</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Otros</span>
+        </td>
+
+        <!-- Mecánico -->
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Atrampiento entre máquinas</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Atrapamiento entre superficies</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Atrapamiento entre objetos</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Caída de objetos</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Caídas al mismo nivel</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Caídas a diferente nivel</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Contacto eléctrico</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Contacto con superficies de trabajos</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Proyección de partículas – fragmentos</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Proyección de fluidos</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Pinchazos</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Cortes</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Atropellamientos por vehículos</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Choques /colisión vehicular</span>
+        </td>
+        <td class="bg-green" style="height: 160px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                 style="text-align: left;">Otros</span>
+        </td>
+
+        <!-- Químico -->
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Sólidos</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Polvos</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Humos</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Líquidos</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Vapores</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Aerosoles</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Neblinas</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Gaseosos</span>
+        </td>
+        <td class="bg-green" style="vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                  style="text-align: left; vertical-align: bottom">Otros</span>
+        </td>
+    </tr>
+
+    @foreach($ficha_preocupacional['fr_puestos_trabajos_actuales'] as $fr_puesto_actual)
+        @php
+            $fr_puesto_actual_plano = $fr_puesto_actual->resolve();
+            $categorias = $fr_puesto_actual_plano['categorias']->toArray();
+        @endphp
+        <tr>
+            <td>{{$fr_puesto_actual['puesto_trabajo']}}</td>
+            <td>{{$fr_puesto_actual['actividad']}}</td>
+            <!-- Físico -->
+            <td>{{in_array('Temperaturas altas', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Temperaturas bajas', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Radiación ionizante', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Radiación No Ionizante', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Ruido', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Vibración', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Iluminación', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Ventilación', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Fluido eléctrico', $categorias)? 'x':''}}</td>
+            <td></td> <!-- Otros-->
+            <!-- Mecanico -->
+            <td>{{in_array('Atrampiento entre máquinas', $categorias)?'x':''}}</td>
+            <td>{{in_array('Atrapamiento entre superficies', $categorias)?'x':''}}</td>
+            <td>{{in_array('Atrapamiento entre objetos', $categorias)?'x':''}}</td>
+            <td>{{in_array('Caída de objetos', $categorias)?'x':''}}</td>
+            <td>{{in_array('Caídas al mismo nivel', $categorias)?'x':''}}</td>
+            <td>{{in_array('Caídas a diferente nivel', $categorias)?'x':''}}</td>
+            <td>{{in_array('Contacto eléctrico', $categorias)?'x':''}}</td>
+            <td>{{in_array('Contacto con superficies de trabajos', $categorias)?'x':''}}</td>
+            <td>{{in_array('Proyección de partículas – fragmentos', $categorias)?'x':''}}</td>
+            <td>{{in_array('Proyección de fluidos', $categorias)?'x':''}}</td>
+            <td>{{in_array('Pinchazos', $categorias)?'x' :''}}</td>
+            <td>{{in_array('Cortes', $categorias)?'x' :''}}</td>
+            <td>{{in_array('Atropellamientos por vehículos', $categorias)?'x':''}}</td>
+            <td>{{in_array('Choques /colisión vehicular', $categorias)?'x':''}}</td>
+            <td></td> <!-- Otros-->
+            <!-- Quimico -->
+            <td>{{in_array('Sólidos', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Polvos', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Humos', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Líquidos', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Vapores', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Aerosoles', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Neblinas', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Gaseosos', $categorias)? 'x':''}}</td>
+            <td></td> <!-- Otros-->
+        </tr>
+    @endforeach
+</table>
+<table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif;"
+       border="1" cellpadding="0" cellspacing="0" class="celdas_amplias">
+    <tr>
+        <td class="bg-green" rowspan="2" style="width: 15%; text-align: center">PUESTO DE TRABAJO / ÁREA</td>
+        <td class="bg-green" rowspan="2" style="width: 15%; text-align: center">ACTIVIDADES</td>
+        <td class="bg-green" colspan="7" style="width: 14%; text-align: center">BIOLÓGICO</td>
+        <td class="bg-green" colspan="5" style="width: 10%; text-align: center">ERGONÓMICO</td>
+        <td class="bg-green" colspan="13" style="width: 26%; text-align: center">PSICOSOCIAL</td>
+        <td class="bg-green" rowspan="2" style="width: 20%; text-align: center">MEDIDAS PREVENTIVAS</td>
+    </tr>
+
+    <tr style="background-color: #d0f0d0; font-weight: bold;">
+        <!-- Biologico -->
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Virus</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Hongos</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Bacterias</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Parásitos</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Exposición a vectores</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Exposición a animales selváticos</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Otros</span>
+        </td>
+
+
+        <!-- Ergonomico -->
+        <td class="bg-green" style=" height: 170px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                  style="text-align: left;">Manejo manual de cargas</span>
+        </td>
+        <td class="bg-green" style=" height: 170px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                  style="text-align: left;">Movimiento repetitivos</span>
+        </td>
+        <td class="bg-green" style=" height: 170px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                  style="text-align: left;">Posturas forzadas</span>
+        </td>
+        <td class="bg-green" style=" height: 170px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                  style="text-align: left;">Trabajos con PVD</span>
+        </td>
+        <td class="bg-green" style=" height: 170px; vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                                  style="text-align: left;">Otros</span>
+        </td>
+
+        <!-- Psicosocial -->
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Monotonía del trabajo</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Sobrecarga laboral</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Minuciosidad de la tarea </span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Alta responsabilidad</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Autonomía  en la toma de decisiones</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Supervisión y estilos de dirección deficiente</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Conflicto de rol</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Falta de Claridad en las funciones</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Incorrecta distribución del trabajo</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Turnos rotativos</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Relaciones interpersonales</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Inestabilidad laboral</span>
+        </td>
+        <td class="bg-green" style=" vertical-align: bottom"><span class="texto-vertical fs-8"
+                                                                   style="text-align: left; vertical-align: bottom">Otros</span>
+        </td>
+    </tr>
+
+    @foreach($ficha_preocupacional['fr_puestos_trabajos_actuales'] as $fr_puesto_actual)
+        @php
+            $fr_puesto_actual_plano = $fr_puesto_actual->resolve();
+            $categorias = $fr_puesto_actual_plano['categorias']->toArray();
+        @endphp
+        <tr>
+            <td>{{$fr_puesto_actual['puesto_trabajo']}}</td>
+            <td>{{$fr_puesto_actual['actividad']}}</td>
+            <!-- Biologico -->
+            <td>{{in_array('Virus', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Hongos', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Bacterias', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Parásitos', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Exposición a vectores', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Exposición a animales selváticos', $categorias)? 'x':''}}</td>
+            <td></td> <!-- Otros-->
+
+            <!-- Ergonomico -->
+            <td>{{in_array('Manejo manual de cargas', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Movimiento repetitivo', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Posturas forzadas', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Trabajos con PVD', $categorias)? 'x':''}}</td>
+            <td></td> <!-- Otros-->
+
+            <!-- Psicosocial -->
+            <td>{{in_array('Monotonía del trabajo', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Sobrecarga laboral', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Minuciosidad de la tarea', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Alta responsabilidad', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Autonomía en la toma de decisiones', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Supervisión y estilos de dirección deficiente', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Conflicto de rol', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Falta de Claridad en las funciones', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Incorrecta distribución del trabajo', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Turnos rotativos', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Relaciones interpersonales', $categorias)? 'x':''}}</td>
+            <td>{{in_array('Inestabilidad laboral', $categorias)? 'x':''}}</td>
+            <td></td> <!-- Otros-->
+
+            <td>{{$fr_puesto_actual['medidas_preventivas']}}</td>
+        </tr>
+    @endforeach
+</table>
 
 {{-- G. ACTIVIDADES EXTRA LABORALES --}}
 <div class="titulo-seccion">G. ACTIVIDADES EXTRA LABORALES</div>

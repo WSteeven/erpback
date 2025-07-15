@@ -45,11 +45,11 @@ class DetalleCategFactorRiesgoFrPuestoTrabAct extends Model implements Auditable
         'fr_puesto_trabajo_actual_id',
     ];
 
-    public function CategriaFactorRiesgo(){
-        return $this->hasOne(CategoriaFactorRiesgo::class,'categoria_factor_riesgo_id','id');
+    public function categoriaFactorRiesgo(){
+        return $this->hasOne(CategoriaFactorRiesgo::class,'id','categoria_factor_riesgo_id');
     }
 
-    public function FrPuestoTrabajoActual(){
+    public function frPuestoTrabajoActual(){
         return $this->belongsTo(FrPuestoTrabajoActual::class,'fr_puesto_trabajo_actual_id','id');
     }
 

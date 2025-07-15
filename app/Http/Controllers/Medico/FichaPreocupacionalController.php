@@ -19,6 +19,7 @@ use App\Models\Medico\TipoAptitudMedicaLaboral;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
+use Hamcrest\Util;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -149,6 +150,9 @@ class FichaPreocupacionalController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function imprimirPDF(FichaPreocupacional $ficha_preocupacional)
     {
         $configuracion = ConfiguracionGeneral::first();
@@ -174,7 +178,7 @@ class FichaPreocupacionalController extends Controller
         // Solo de la ficha actual
         $consultasMedicas = ConsultaMedica::where('registro_empleado_examen_id', $registro_empleado_examen_id)->latest()->get();
 
-        Log::channel('testing')->info('Log', ['empleado', $empleado]);
+//        Log::channel('testing')->info('Log', ['empleado', $empleado]);
 
         $consultasMedicasMapeado = $consultasMedicas->map(function ($consulta) {
             return [
@@ -258,8 +262,7 @@ class FichaPreocupacionalController extends Controller
             return $pdf->output();
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
-            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
-            return response()->json(compact('mensaje'));
+            throw  Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
 
@@ -268,7 +271,7 @@ class FichaPreocupacionalController extends Controller
         $examenes_solicitados = collect([]);
         $solicitudesExamenes = SolicitudExamen::where('registro_empleado_examen_id', $registro_empleado_examen_id)->where('estado_solicitud_examen', SolicitudExamen::SOLICITADO)->latest()->get();
         $resultadosExamenesRegistrados = $this->consultarResultadosExamenesRegistrados($registro_empleado_examen_id);
-        Log::channel('testing')->info('Log', ['resultadosExamenesRegistrados', $resultadosExamenesRegistrados]);
+//        Log::channel('testing')->info('Log', ['resultadosExamenesRegistrados', $resultadosExamenesRegistrados]);
 
         foreach ($solicitudesExamenes as $solicitudExamen) {
             foreach ($solicitudExamen->examenesSolicitados as $examenSolicitado) {
@@ -281,7 +284,7 @@ class FichaPreocupacionalController extends Controller
             }
         }
 
-        Log::channel('testing')->info('Log', ['examenes_solicitados', $examenes_solicitados]);
+//        Log::channel('testing')->info('Log', ['examenes_solicitados', $examenes_solicitados]);
         return $examenes_solicitados;
     }
 

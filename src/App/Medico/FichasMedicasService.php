@@ -17,7 +17,7 @@ class FichasMedicasService
         $examenes_solicitados = collect([]);
         $solicitudesExamenes = SolicitudExamen::where('registro_empleado_examen_id', $registro_empleado_examen_id)->where('estado_solicitud_examen', SolicitudExamen::SOLICITADO)->latest()->get();
         $resultadosExamenesRegistrados = $this->consultarResultadosExamenesRegistrados($registro_empleado_examen_id);
-        Log::channel('testing')->info('Log', ['resultadosExamenesRegistrados', $resultadosExamenesRegistrados]);
+//        Log::channel('testing')->info('Log', ['resultadosExamenesRegistrados', $resultadosExamenesRegistrados]);
 
         foreach ($solicitudesExamenes as $solicitudExamen) {
             foreach ($solicitudExamen->examenesSolicitados as $examenSolicitado) {
@@ -30,7 +30,7 @@ class FichasMedicasService
             }
         }
 
-        Log::channel('testing')->info('Log', ['examenes_solicitados', $examenes_solicitados]);
+//        Log::channel('testing')->info('Log', ['examenes_solicitados', $examenes_solicitados]);
         return $examenes_solicitados;
     }
 
