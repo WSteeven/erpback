@@ -3,12 +3,23 @@
 namespace App\Models\Seguridad;
 
 use App\Models\Empleado;
+use App\Models\Seguridad\Zona; // Agregar import de Zona
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+
+// Importar las clases WRLC que necesites crear
+use Src\App\WhereRelationLikeCondition\Bitacora\ZonaWRLC;
+use Src\App\WhereRelationLikeCondition\Bitacora\AgenteTurnoWRLC;
+use Src\App\WhereRelationLikeCondition\Bitacora\ProtectorWRLC;
+use Src\App\WhereRelationLikeCondition\Bitacora\ConductorWRLC;
+use Src\App\WhereRelationLikeCondition\Bitacora\FechaInicioTurnoWRLC;
+use Src\App\WhereRelationLikeCondition\Bitacora\FechaFinTurnoWRLC;
+use Src\App\WhereRelationLikeCondition\Bitacora\ObservacionesWRLC;
+
 
 class Bitacora extends Model implements Auditable
 {
@@ -27,7 +38,62 @@ class Bitacora extends Model implements Auditable
         'conductor_id',
     ];
 
-    private static array $whiteListFilter = ['*'];
+    // Agregar casting para fechas
+    protected $casts = [
+        'fecha_hora_inicio_turno' => 'datetime',
+        'fecha_hora_fin_turno' => 'datetime',
+    ];
+
+    /*******************
+     * Eloquent Filter
+     *******************/
+
+    // Lista blanca de campos que se pueden filtrar
+    private static $whiteListFilter = [
+        '*',
+        'zona.nombre',
+        'agenteTurno.nombres',
+        'agenteTurno.apellidos',
+        'protector.nombres',
+        'protector.apellidos',
+        'conductor.nombres',
+        'conductor.apellidos',
+        'fecha_hora_inicio_turno',
+        'fecha_hora_fin_turno',
+        'jornada',
+        'observaciones',
+    ];
+
+    // Alias para facilitar el filtrado
+    private $aliasListFilter = [
+        'zona.nombre' => 'zona',
+        'agenteTurno.nombres' => 'agente_turno',
+        'agenteTurno.apellidos' => 'agente_turno',
+        'protector.nombres' => 'protector',
+        'protector.apellidos' => 'protector',
+        'conductor.nombres' => 'conductor',
+        'conductor.apellidos' => 'conductor',
+        'fecha_hora_inicio_turno' => 'fecha_inicio',
+        'fecha_hora_fin_turno' => 'fecha_fin',
+    ];
+
+    // Campos que no se deben filtrar
+    static $noFiltrar = ['prendas_recibidas_ids'];
+
+    /**
+     * Configuración de detección personalizada para filtros
+     */
+    public function EloquentFilterCustomDetection(): array
+    {
+        return [
+            ZonaWRLC::class,
+            AgenteTurnoWRLC::class,
+            ProtectorWRLC::class,
+            ConductorWRLC::class,
+            ObservacionesWRLC::class,
+
+        ];
+    }
 
     /**************
      * Relaciones
@@ -53,7 +119,7 @@ class Bitacora extends Model implements Auditable
     }
 
     /************
-     *
+     * Scopes
      */
     public function scopeSearch($query, $term)
     {
@@ -77,6 +143,42 @@ class Bitacora extends Model implements Auditable
                     $subQ->where('nombres', 'like', "%{$term}%")
                         ->orWhere('apellidos', 'like', "%{$term}%");
                 });
+        });
+    }
+
+    /**
+     * Scope para filtrar por jornada
+     */
+    public function scopeJornada($query, $jornada)
+    {
+        return $query->where('jornada', $jornada);
+    }
+
+    /**
+     * Scope para filtrar por rango de fechas
+     */
+    public function scopeEntreFechas($query, $fechaInicio, $fechaFin)
+    {
+        return $query->whereBetween('fecha_hora_inicio_turno', [$fechaInicio, $fechaFin]);
+    }
+
+    /**
+     * Scope para filtrar por zona
+     */
+    public function scopePorZona($query, $zonaId)
+    {
+        return $query->where('zona_id', $zonaId);
+    }
+
+    /**
+     * Scope para filtrar por empleado (cualquier rol)
+     */
+    public function scopePorEmpleado($query, $empleadoId)
+    {
+        return $query->where(function ($q) use ($empleadoId) {
+            $q->where('agente_turno_id', $empleadoId)
+                ->orWhere('protector_id', $empleadoId)
+                ->orWhere('conductor_id', $empleadoId);
         });
     }
 }
