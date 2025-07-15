@@ -74,6 +74,10 @@ class ExtensionCoverturaSaludController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+
+    /**
+     * @throws ValidationException
+     */
     public function archivoExtensionConyugal(Request $request)
     {
         try {

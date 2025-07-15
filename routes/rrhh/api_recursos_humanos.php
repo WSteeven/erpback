@@ -93,7 +93,7 @@ Route::apiResources(
         'detalle-alimentacion' => DetalleAlimentacionController::class,
 
         'tipos_puestos_trabajos' => TipoPuestoController::class,
-         'tipos-discapacidades' => TipoDiscapacidadController::class, 
+         'tipos-discapacidades' => TipoDiscapacidadController::class,
     ],
     [
         'parameters' => [
@@ -143,7 +143,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo_prestamo_hipotecario', [PrestamoHipotecarioController::class, 'archivo_prestamo_hipotecario']);
     Route::post('archivo_prestamo_quirorafario', [PrestamoQuirografarioController::class, 'archivoPrestamoQuirografario']);
     Route::post('archivo_rol_pago', [RolPagosController::class, 'archivo_rol_pago_empleado']);
-    Route::post('archivo_extencion_conyugal', [ExtensionCoverturaSaludController::class, 'archivoExtensionConyugal']);
+    Route::post('archivo_extension_conyugal', [ExtensionCoverturaSaludController::class, 'archivoExtensionConyugal']);
 //    Route::post('archivo-rol-pago-mes', [RolPagoMesController::class, 'importarRolPago']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
 //    Route::get('descuentos_permiso', [SolicitudVacacionController::class, 'descuentos_permiso']);

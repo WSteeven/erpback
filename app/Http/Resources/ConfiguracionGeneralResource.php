@@ -35,6 +35,7 @@ class ConfiguracionGeneralResource extends JsonResource
             'correo_secundario' => $this->correo_secundario,
             'sitio_web' => $this->sitio_web,
             'sitio_web_erp' => $this->sitio_web_erp,
+            'link_app_movil' => $this->link_app_movil,
             'direccion_secundaria1' => $this->direccion_secundaria1,
             'direccion_secundaria2' => $this->direccion_secundaria2,
             'nombre_empresa' => $this->nombre_empresa,
