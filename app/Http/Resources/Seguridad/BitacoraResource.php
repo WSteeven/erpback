@@ -23,6 +23,10 @@ class BitacoraResource extends JsonResource
             'fecha_hora_fin_turno' => $this['fecha_hora_fin_turno'],
             'jornada' => $this['jornada'],
             'observaciones' => $this['observaciones'],
+            // Campos para la revision del supervisor
+            'revisado_por_supervisor' => $this['revisado_por_supervisor'],
+            'retroalimentacion_supervisor' => $this['retroalimentacion_supervisor'],
+
         ];
 
         if (in_array($controller_method, ['index', 'store', 'update'])) {

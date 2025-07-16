@@ -37,6 +37,9 @@ class Bitacora extends Model implements Auditable
         'agente_turno_id',
         'protector_id',
         'conductor_id',
+        // Campos para la revision de la bitacora
+        'revisado_por_supervisor',
+        'retroalimentacion_supervisor',
     ];
 
     // Agregar casting para fechas
