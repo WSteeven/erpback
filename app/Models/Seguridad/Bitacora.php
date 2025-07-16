@@ -18,6 +18,7 @@ use Src\App\WhereRelationLikeCondition\Bitacora\ProtectorWRLC;
 use Src\App\WhereRelationLikeCondition\Bitacora\ConductorWRLC;
 use Src\App\WhereRelationLikeCondition\Bitacora\FechaInicioTurnoWRLC;
 use Src\App\WhereRelationLikeCondition\Bitacora\FechaFinTurnoWRLC;
+use Src\App\WhereRelationLikeCondition\Bitacora\JornadaWRLC;
 use Src\App\WhereRelationLikeCondition\Bitacora\ObservacionesWRLC;
 
 
@@ -87,11 +88,11 @@ class Bitacora extends Model implements Auditable
     {
         return [
             ZonaWRLC::class,
+            JornadaWRLC::class,
             AgenteTurnoWRLC::class,
             ProtectorWRLC::class,
             ConductorWRLC::class,
             ObservacionesWRLC::class,
-
         ];
     }
 
