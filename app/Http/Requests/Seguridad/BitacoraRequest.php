@@ -33,8 +33,8 @@ class BitacoraRequest extends FormRequest
             'agente_turno_id' => 'required|numeric|integer|exists:empleados,id',
             'protector_id' => 'required|numeric|integer|exists:empleados,id',
             'conductor_id' => 'required|numeric|integer|exists:empleados,id',
-            'revisado_por_supervisor' => 'required|boolean',
-            'retroalimentacion_supervisor' => 'required|string|max:1000', // ajusta el max según tu necesidad
+            'revisado_por_supervisor' => 'nullable|boolean',
+            'retroalimentacion_supervisor' => 'nullable|string|max:1000',
 
         ];
 
