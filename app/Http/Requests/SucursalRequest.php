@@ -30,6 +30,7 @@ class SucursalRequest extends FormRequest
             'correo'=>'required|email',
             'extension'=>'sometimes|numeric|nullable',
             'cliente'=>'sometimes|numeric|exists:clientes,id',
+            'activo'=>'boolean',
             // 'administrador'=>'sometimes|nullable|exists:users,id',
         ];
 

@@ -202,7 +202,7 @@ class ProductoTareaEmpleadoService
     {
         $esCoordinadorBodega = Auth::user()->hasRole(User::ROL_COORDINADOR_BODEGA);
 
-        $categoriasCoordinadorBodega = ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP', 'UNIFORME'];
+        $categoriasCoordinadorBodega = ['HERRAMIENTA','MATERIAL', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP', 'UNIFORME'];
         $categoriasCualquierRol = ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA'];
 
         return $productos->filter(function ($producto) use ($esCoordinadorBodega, $categoriasCoordinadorBodega, $categoriasCualquierRol) {
