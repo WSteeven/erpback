@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Seguridad\ReporteAlimentacionController;
 use App\Http\Controllers\Seguridad\ActividadBitacoraController;
 use App\Http\Controllers\Seguridad\BitacoraController;
 use App\Http\Controllers\Seguridad\MiembroZonaController;
 use App\Http\Controllers\Seguridad\PrendaZonaController;
+
 use App\Http\Controllers\Seguridad\RestriccionPrendaZonaController;
 use App\Http\Controllers\Seguridad\TipoEventoBitacoraController;
 use App\Http\Controllers\Seguridad\ZonaController;
@@ -47,6 +49,9 @@ Route::get('actividades-bitacoras/files/{actividad_bitacora}', [ActividadBitacor
 Route::post('actividades-bitacoras/files/{actividad_bitacora}', [ActividadBitacoraController::class, 'storeFiles']);
 
 /***************
- * Imprimir pdf
+ * Imprimir reportes
  ***************/
+Route::post('bitacoras/reportes', [ReporteAlimentacionController::class, 'index']);
+
+
 // Route::get('seguimientos-accidentes/imprimir/{seguimiento_accidente}', [SeguimientoAccidenteController::class, 'informeAccidente']);
