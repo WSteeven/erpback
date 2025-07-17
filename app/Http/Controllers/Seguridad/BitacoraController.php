@@ -109,6 +109,15 @@ class BitacoraController extends Controller
         return DB::transaction(function () use ($request, $bitacora) {
             $datos = $request->validated();
 
+            // Validar que no se finalice si no tiene actividades
+            if (array_key_exists('fecha_hora_fin_turno', $datos) && $datos['fecha_hora_fin_turno']) {
+                if ($bitacora->actividades()->count() === 0) {
+                    return response()->json([
+                        'error' => 'No puede finalizar una bitácora que no tiene actividades registradas.'
+                    ], 422);
+                }
+            }
+
             // Validar revisión por supervisor
             if (
                 array_key_exists('revisado_por_supervisor', $datos) &&
@@ -134,6 +143,7 @@ class BitacoraController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         });
     }
+
 
 
 

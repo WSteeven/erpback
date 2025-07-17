@@ -4,6 +4,7 @@ namespace App\Models\Seguridad;
 
 use App\Models\Empleado;
 use App\Models\Seguridad\Zona; // Agregar import de Zona
+use App\Models\Seguridad\ActividadBitacora;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -121,6 +122,11 @@ class Bitacora extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'conductor_id', 'id');
     }
+
+    public function actividades()
+{
+    return $this->hasMany(ActividadBitacora::class, 'bitacora_id');
+}
 
     /************
      * Scopes
