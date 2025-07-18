@@ -67,7 +67,7 @@ class FichaSocioeconomicaController extends Controller
             DB::beginTransaction();
             $datos = $request->validated();
             $empleado = Empleado::find($datos['empleado_id']);
-            if ($datos['imagen_rutagrama']) $datos['imagen_rutagrama'] = (new GuardarImagenIndividual($datos['imagen_rutagrama'], RutasStorage::RUTAGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+            if ($datos['imagen_rutagrama']) $datos['imagen_rutagrama'] = (new GuardarImagenIndividual($datos['imagen_rutagrama'], RutasStorage::RUTAGRAMAS,null, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
             $ficha = FichaSocioeconomica::create($datos);
             //conyuge
             if ($request->tiene_conyuge) $this->service->actualizarConyuge($ficha, $datos['conyuge']);
@@ -128,7 +128,7 @@ class FichaSocioeconomicaController extends Controller
             $datos = $request->validated();
             $empleado = Empleado::find($datos['empleado_id']);
             if ($datos['imagen_rutagrama'] && Utils::esBase64($datos['imagen_rutagrama'])) {
-                $datos['imagen_rutagrama'] = (new GuardarImagenIndividual($datos['imagen_rutagrama'], RutasStorage::RUTAGRAMAS, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
+                $datos['imagen_rutagrama'] = (new GuardarImagenIndividual($datos['imagen_rutagrama'], RutasStorage::RUTAGRAMAS, $ficha->imagen_rutagrama, $empleado->identificacion . '_' . Carbon::now()->getTimestamp()))->execute();
             } else {
                 unset($datos['imagen_rutagrama']);
             }
@@ -214,7 +214,24 @@ class FichaSocioeconomicaController extends Controller
             ]);
             $pdf->render();
             return $pdf->output();
-        }catch (Exception $e) {
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e, 'No se puede imprimir el pdf: ');
+        }
+    }
+
+    public function imprimirEvaluacionRiesgos(FichaSocioeconomica $ficha)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        try {
+            $pdf = Pdf::loadView('trabajo_social.ficha_evaluacion_riesgos', [
+                'configuracion' => $configuracion,
+                'ficha' => $ficha,
+                'departamento_rrhh' => Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first(),
+                'departamento_trabajo_social' => Departamento::where('nombre', Departamento::DEPARTAMENTO_TRABAJO_SOCIAL)->first(),
+            ]);
+            $pdf->render();
+            return $pdf->output();
+        } catch (Exception $e) {
             throw Utils::obtenerMensajeErrorLanzable($e, 'No se puede imprimir el pdf: ');
         }
     }

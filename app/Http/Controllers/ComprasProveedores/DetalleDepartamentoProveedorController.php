@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ComprasProveedores\DetalleDepartamentoProveedorResource;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\App\ArchivoService;
@@ -13,8 +14,8 @@ use Src\Shared\Utils;
 
 class DetalleDepartamentoProveedorController extends Controller
 {
-    private $entidad = 'Calificación';
-    private $archivoService;
+    private string $entidad = 'Calificación';
+    private ArchivoService $archivoService;
 
     public function __construct()
     {
@@ -24,9 +25,9 @@ class DetalleDepartamentoProveedorController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function index(Request $request)
+    public function index()
     {
         $results = DetalleDepartamentoProveedorResource::collection(DetalleDepartamentoProveedor::filter()->get());
         return response()->json(compact('results'));
@@ -36,8 +37,8 @@ class DetalleDepartamentoProveedorController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return JsonResponse
      */
     public function store(Request $request)
     {
@@ -53,46 +54,11 @@ class DetalleDepartamentoProveedorController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\DetalleDepartamentoProveedor  $detalleDepartamentoProveedor
-     * @return \Illuminate\Http\Response
-     */
-    public function show(DetalleDepartamentoProveedor $detalleDepartamentoProveedor)
-    {
-        //
-    }
-
-
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DetalleDepartamentoProveedor  $detalleDepartamentoProveedor
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, DetalleDepartamentoProveedor $detalleDepartamentoProveedor)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\DetalleDepartamentoProveedor  $detalleDepartamentoProveedor
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(DetalleDepartamentoProveedor $detalleDepartamentoProveedor)
-    {
-        //
-    }
 
     /**
      * Listar todos los archivos de un determinado detalle
      */
-    public function indexFiles(Request $request, $detalle)
+    public function indexFiles($detalle)
     {
         $results = [];
         // Log::channel('testing')->info('Log', ['Recibido del front en indexFiles en detalleDeptProvControler', $request->all(), $detalle]);
@@ -105,6 +71,5 @@ class DetalleDepartamentoProveedorController extends Controller
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'));
         }
-        return response()->json(compact('results'));
     }
 }

@@ -153,10 +153,14 @@ class Tarea extends Model implements Auditable
     public function toSearchableArray()
     {
         return [
+            'id' => $this->id,
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'titulo' => $this->titulo,
             'proyecto' => $this->proyecto?->codigo_proyecto . ' ' . $this->proyecto?->nombre,
+            'coordinador' => Empleado::extraerApellidosNombres($this->coordinador),
+            'finalizado' => $this->finalizado,
+            'fecha_solicitud' => $this->fecha_solicitud,
         ];
     }
 
@@ -276,7 +280,12 @@ class Tarea extends Model implements Auditable
      *********/
     public function scopePorRol($query)
     {
-        if (User::find(Auth::id())->hasRole(User::ROL_COORDINADOR)) return $this->scopePorCoordinador($query);
+        $usuario = Auth::user();
+        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
+
+        if ($esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) return $this->scopePorCoordinador($query);
         else return $query;
     }
 

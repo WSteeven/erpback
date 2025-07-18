@@ -7,11 +7,16 @@ use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\Notificacion;
 use App\Models\Tarea;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\FondosRotativos\Saldo\Transferencias
@@ -29,42 +34,42 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int|null $id_tarea
  * @property string|null $fecha
  * @property bool $es_devolucion
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empleado|null $empleadoEnvia
  * @property-read Empleado|null $empleadoRecibe
  * @property-read EstadoViatico|null $estadoViatico
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FondosRotativos\Saldo\Saldo> $saldoFondoRotativo
+ * @property-read Collection<int, Saldo> $saldoFondoRotativo
  * @property-read int|null $saldo_fondo_rotativo_count
  * @property-read Tarea|null $tarea
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias query()
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereComprobante($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereCuenta($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereEsDevolucion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereFecha($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereIdTarea($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereMonto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereMotivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereUsuarioEnviaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Transferencias whereUsuarioRecibeId($value)
- * @mixin \Eloquent
+ * @method static Builder|Transferencias acceptRequest(?array $request = null)
+ * @method static Builder|Transferencias filter(?array $request = null)
+ * @method static Builder|Transferencias ignoreRequest(?array $request = null)
+ * @method static Builder|Transferencias newModelQuery()
+ * @method static Builder|Transferencias newQuery()
+ * @method static Builder|Transferencias query()
+ * @method static Builder|Transferencias setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Transferencias setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Transferencias setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Transferencias whereComprobante($value)
+ * @method static Builder|Transferencias whereCreatedAt($value)
+ * @method static Builder|Transferencias whereCuenta($value)
+ * @method static Builder|Transferencias whereEsDevolucion($value)
+ * @method static Builder|Transferencias whereEstado($value)
+ * @method static Builder|Transferencias whereFecha($value)
+ * @method static Builder|Transferencias whereId($value)
+ * @method static Builder|Transferencias whereIdTarea($value)
+ * @method static Builder|Transferencias whereMonto($value)
+ * @method static Builder|Transferencias whereMotivo($value)
+ * @method static Builder|Transferencias whereObservacion($value)
+ * @method static Builder|Transferencias whereUpdatedAt($value)
+ * @method static Builder|Transferencias whereUsuarioEnviaId($value)
+ * @method static Builder|Transferencias whereUsuarioRecibeId($value)
+ * @mixin Eloquent
  */
 class Transferencias extends Model implements Auditable
 {
@@ -121,7 +126,7 @@ class Transferencias extends Model implements Auditable
     {
         return $this->morphMany(Saldo::class, 'saldoable');
     }
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'usuario_envia_id',
         'usuario_recibe_id',
         'monto',

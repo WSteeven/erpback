@@ -15,8 +15,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 
 /**
@@ -72,6 +73,8 @@ class Acreditaciones extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     use UppercaseValuesTrait;
+    use Searchable;
+
     protected $table = 'acreditaciones';
     protected $fillable = [
         'id_tipo_fondo',
@@ -87,6 +90,21 @@ class Acreditaciones extends Model implements Auditable
         'fecha',
         'id_estado',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'descripcion_acreditacion'=> $this->descripcion_acreditacion,
+            'motivo'=> $this->motivo,
+            'monto'=> $this->monto,
+            'usuario_nombres'=> $this->usuario? $this->usuario->nombres:null,
+            'usuario_apellidos'=> $this->usuario? $this->usuario->apellidos:null,
+            'tipo_saldo'=> $this->tipoSaldo? $this->tipoSaldo->descripcion:null ,
+            'tipo_fondo'=> $this->tipoFondo ? $this->tipoFondo->descripcion:null,
+            'estado'=> $this->estado ? $this->estado->estado : null,
+            'fecha'=> $this->fecha,
+        ];
+    }
     public function usuario()
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user','canton');

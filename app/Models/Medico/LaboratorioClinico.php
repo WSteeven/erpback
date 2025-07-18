@@ -3,12 +3,17 @@
 namespace App\Models\Medico;
 
 use App\Models\Canton;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\LaboratorioClinico
@@ -21,31 +26,31 @@ use App\Traits\UppercaseValuesTrait;
  * @property string $coordenadas
  * @property bool $activo
  * @property int $canton_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Canton|null $canton
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico query()
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereActivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereCantonId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereCelular($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereCoordenadas($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereCorreo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereDireccion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LaboratorioClinico whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|LaboratorioClinico acceptRequest(?array $request = null)
+ * @method static Builder|LaboratorioClinico filter(?array $request = null)
+ * @method static Builder|LaboratorioClinico ignoreRequest(?array $request = null)
+ * @method static Builder|LaboratorioClinico newModelQuery()
+ * @method static Builder|LaboratorioClinico newQuery()
+ * @method static Builder|LaboratorioClinico query()
+ * @method static Builder|LaboratorioClinico setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|LaboratorioClinico setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|LaboratorioClinico setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|LaboratorioClinico whereActivo($value)
+ * @method static Builder|LaboratorioClinico whereCantonId($value)
+ * @method static Builder|LaboratorioClinico whereCelular($value)
+ * @method static Builder|LaboratorioClinico whereCoordenadas($value)
+ * @method static Builder|LaboratorioClinico whereCorreo($value)
+ * @method static Builder|LaboratorioClinico whereCreatedAt($value)
+ * @method static Builder|LaboratorioClinico whereDireccion($value)
+ * @method static Builder|LaboratorioClinico whereId($value)
+ * @method static Builder|LaboratorioClinico whereNombre($value)
+ * @method static Builder|LaboratorioClinico whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class LaboratorioClinico extends Model implements Auditable
 {
@@ -62,7 +67,7 @@ class LaboratorioClinico extends Model implements Auditable
         'canton_id',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     protected $casts = [
         'activo' => 'boolean'

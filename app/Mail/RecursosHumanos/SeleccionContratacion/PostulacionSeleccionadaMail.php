@@ -57,7 +57,7 @@ class PostulacionSeleccionadaMail extends Mailable
         return new Content(
             view: 'email.recursosHumanos.SeleccionContratacion.postulacion_seleccionada',
             with: [
-                'url' => env('SPA_URL', 'https://sistema.jpconstrucred.com'),
+                'url' => env('SPA_URL', 'https://firstred.jpconstrucred.com'),
             ]
         );
     }

@@ -131,10 +131,18 @@ class RolPagosController extends Controller
      */
     public function enviarRolPagoEmpleado(RolPago $rol_pago)
     {
-        $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-        $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
-        $mensaje = 'Rol de pago enviado correctamente';
-        return response()->json(compact('mensaje'));
+        try {
+            $empleado = Empleado::find($rol_pago->empleado_id);
+            if ($empleado) {
+                $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
+                $mensaje = 'Rol de pago enviado correctamente';
+            } else
+                $mensaje = 'No se encontró el empleado asociado al rol ' . $rol_pago->id;
+            return response()->json(compact('mensaje'));
+
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     /**
@@ -224,18 +232,18 @@ class RolPagosController extends Controller
      */
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
-        Log::channel('testing')->info('Log', ['ID', $rolPagoId]);
-        Log::channel('testing')->info('Log', ['request', $request->all(), $rolPagoId]);
+//        Log::channel('testing')->info('Log', ['ID', $rolPagoId]);
+//        Log::channel('testing')->info('Log', ['request', $request->all(), $rolPagoId]);
         $datos = $request->validated();
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
-        Log::channel('testing')->info('Log', ['rol actualizado', $rolPago->refresh()]);
+//        Log::channel('testing')->info('Log', ['rol actualizado', $rolPago->refresh()]);
 
 //        $this->nominaService->guardarIngresosYEgresos($request, $rolPago);
         // $this->guardarIngresosYEgresos($request, $rolPago);
 
         $modelo = new RolPagoResource($rolPago->refresh());
-        Log::channel('testing')->info('Log', ['rol actualizado pasado por el resource', $rolPago->refresh()]);
+//        Log::channel('testing')->info('Log', ['rol actualizado pasado por el resource', $rolPago->refresh()]);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
     }

@@ -37,8 +37,8 @@ class ProductoEnPerchaRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $inventario = Inventario::where('id', $this->inventario)->first();
-            Log::channel('testing')->info('Log', ['control de inventario', ProductoEnPercha::controlarCantidadInventario($this->inventario)]);
-            Log::channel('testing')->info('Log', ['cantidad en el inventario', $inventario->cantidad]);
+//            Log::channel('testing')->info('Log', ['control de inventario', ProductoEnPercha::controlarCantidadInventario($this->inventario)]);
+//            Log::channel('testing')->info('Log', ['cantidad en el inventario', $inventario->cantidad]);
             if ((ProductoEnPercha::controlarCantidadInventario($this->inventario) + $this->stock) > $inventario->cantidad) {
                 $validator->errors()->add('stock', [
                     'La cantidad que intentas ingresar no debe superar la cantidad existente en el inventario.',

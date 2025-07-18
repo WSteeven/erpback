@@ -124,6 +124,12 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
                                             <div align="center"><strong>MONTO</strong></div>
                                         </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
+                                            <div align="center"><strong># Tarea</strong></div>
+                                        </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
+                                            <div align="center"><strong>Tarea</strong></div>
+                                        </td>
                                     </tr>
 
                                     @foreach ($gastos as $gasto)
@@ -189,6 +195,8 @@
                                                 <div align="right">
                                                     {{ number_format($gasto['total'], 2, ',', '.') }}</div>
                                             </td>
+                                            <td style="font-size:10px"><div align="right">{{ $gasto['tarea']?->codigo_tarea }}</div></td>
+                                            <td style="font-size:10px"><div align="right">{{ $gasto['tarea']?->titulo }}</div></td>
                                         </tr>
                                     @endforeach
                                     <tr>

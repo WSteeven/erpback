@@ -19,6 +19,8 @@ use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\TipoDiscapacidad;
 use App\Models\RecursosHumanos\TrabajoSocial\FichaSocioeconomica;
 use App\Models\RecursosHumanos\TrabajoSocial\VisitaDomiciliaria;
+use App\Models\Seguridad\Zona;
+use App\Models\SSO\CertificacionEmpleado;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;
@@ -244,11 +246,11 @@ class Empleado extends Model implements Auditable
     const MASCULINO = 'M';
     const FEMENINO = 'F';
     //Identificaciones etnicas
-//    const INDIGENA = 'INDIGENA';
-//    const AFRODECENDIENTE = 'AFRODECENDIENTE';
-//    const MESTIZO = 'MESTIZO';
-//    const BLANCO = 'BLANCO';
-//    const MONTUBIO = 'MONTUBIO';
+    //    const INDIGENA = 'INDIGENA';
+    //    const AFRODECENDIENTE = 'AFRODECENDIENTE';
+    //    const MESTIZO = 'MESTIZO';
+    //    const BLANCO = 'BLANCO';
+    //    const MONTUBIO = 'MONTUBIO';
 
     protected $table = "empleados";
     protected $fillable = [
@@ -379,9 +381,13 @@ class Empleado extends Model implements Auditable
     public function toSearchableArray()
     {
         return [
+            'id' => $this->id,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'identificacion' => $this->identificacion,
+            'apellidos_nombres' => $this->apellidos . ' ' . $this->nombres, // Concatenación
+            'nombres_apellidos' => $this->nombres . ' ' . $this->apellidos, // Concatenación
+            'estado' => $this->estado,
         ];
     }
 
@@ -672,6 +678,12 @@ class Empleado extends Model implements Auditable
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 
+    public static function extraerApellidosNombres(Empleado|null $empleado)
+    {
+        if (is_null($empleado)) return null;
+        return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
+
     public static function obtenerNombresApellidosEmpleados(array $empleados_id)
     {
         $empleados = Empleado::whereIn('id', $empleados_id)->get();
@@ -834,6 +846,18 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasOne(Religion::class, 'id', 'religion_id');
     }
+
+    public function certificacionesEmpleado()
+    {
+        return $this->hasMany(CertificacionEmpleado::class, 'empleado_id');
+    }
+
+    public function zonas()
+    {
+        return $this->belongsToMany(Zona::class, 'seg_miembros_zonas', 'empleado_id', 'zona_id')
+            ->withTimestamps();
+    }
+
 
     /*********
      * Scopes

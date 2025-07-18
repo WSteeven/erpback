@@ -3,16 +3,29 @@
 namespace App\Http\Controllers\ActivosFijos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ActivosFijos\ActivoFijoRequest;
 use App\Http\Resources\ActivosFijos\ActivoFijoResource;
 use App\Http\Resources\ActivosFijos\EntregaActivoFijoResource;
 use App\Models\ActivosFijos\ActivoFijo;
+use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleProducto;
 use App\Models\TransaccionBodega;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Log;
 use Src\App\ActivosFijos\ControlActivoFijoService;
 use Src\App\InventarioService;
 use Src\App\Sistema\PaginationService;
 use Src\App\Tareas\ProductoEmpleadoService;
+use Src\Shared\Utils;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class ActivoFijoController extends Controller
 {
@@ -30,7 +43,8 @@ class ActivoFijoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection|BinaryFileResponse
+     * @throws Exception
      */
     public function index()
     {
@@ -39,7 +53,8 @@ class ActivoFijoController extends Controller
 
         if (request('export')) return $this->controlActivoFijoService->descargarReporte();
 
-        $query = ActivoFijo::search($search);
+        if (request('search')) $query = ActivoFijo::search($search);
+        else $query = ActivoFijo::query();
 
         if ($paginate) $paginated = $this->paginationService->paginate($query, 100, request('page'));
         else $paginated = $query->get();
@@ -47,22 +62,12 @@ class ActivoFijoController extends Controller
         return ActivoFijoResource::collection($paginated);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ActivoFijo $activo_fijo
+     * @return JsonResponse
      */
     public function show(ActivoFijo $activo_fijo)
     {
@@ -73,31 +78,32 @@ class ActivoFijoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ActivoFijoRequest $request
+     * @param ActivoFijo $activo_fijo
+     * @return Response
+     * @throws Throwable
      */
-    public function update(Request $request, $id)
+    public function update(ActivoFijoRequest $request, ActivoFijo $activo_fijo)
     {
-        //
+        return DB::transaction(function () use ($request, $activo_fijo) {
+            $datos = $request->validated();
+
+            $activo_fijo->update($datos);
+            $modelo = new ActivoFijoResource($activo_fijo->refresh());
+            $mensaje = Utils::obtenerMensaje('Registro activo fijo', 'update');
+            return response()->json(compact('mensaje', 'modelo'));
+        });
     }
+
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @throws ValidationException
      */
-    public function destroy($id)
-    {
-        //
-    }
-
     public function entregas(Request $request)
     {
         $inventarioService = new InventarioService();
-        $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now()->addDay(1));
-        $results = collect($transacciones['results'])->filter(fn($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && in_array($transaccion['estado_comprobante'], [TransaccionBodega::PARCIAL, TransaccionBodega::ACEPTADA]))->values(); // && !!$transaccion['comprobante_firmado'])->values();
+        $transacciones = $inventarioService->kardex($request['detalle_producto_id'], '2022-04-01 00:00:00', Carbon::now()->addDay());
+        $results = collect($transacciones['results'])->filter(fn($transaccion) => $transaccion['tipo'] == 'EGRESO' && $transaccion['cliente_id'] == $request['cliente_id'] && in_array($transaccion['estado_comprobante'], [TransaccionBodega::PENDIENTE, TransaccionBodega::PARCIAL, TransaccionBodega::ACEPTADA]))->values(); // && !!$transaccion['comprobante_firmado'])->values();
         $results = EntregaActivoFijoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -125,5 +131,59 @@ class ActivoFijoController extends Controller
 
         $results = $this->productoEmpleadoService->obtenerActivosFijosAsignados(request('empleado_id'));
         return response()->json(compact('results'));
+    }
+
+    public function printLabel(Request $request)
+    {
+        $template = file_get_contents(storage_path('app/design2.prn'));
+        // $template = file_get_contents(storage_path('app/label_template.zpl'));
+        // $template = file_get_contents(storage_path('app/100x50-QR.prn'));
+
+        $activoFijo = ActivoFijo::find($request['id']);
+
+        $detalleProducto = $activoFijo->detalleProducto;
+
+        $configuracion = ConfiguracionGeneral::first();
+
+        $replacements = [
+            '{CODIGO_QR}' => str_pad($activoFijo->id, 6, '0', STR_PAD_LEFT),
+            '{NOMBRE_EMPRESA}' => $configuracion->razon_social,
+            '{TIPO_PRODUCTO}' => $detalleProducto->producto->nombre,
+            '{MARCA}' => $detalleProducto->modelo->marca?->nombre,
+            '{MODELO}' => $detalleProducto->modelo?->nombre,
+            '{SERIE}' => $detalleProducto->serial,
+            '{FECHA_COMPRA}' => TransaccionBodega::obtenerFechaCompraDetalle($detalleProducto->id),
+            '{CODIGO_BARRAS}' => str_pad($activoFijo->id, 6, '0', STR_PAD_LEFT),
+        ];
+
+        // Log::channel('testing')->info('Log', ['Replacement ', $replacements]);
+
+        $zpl = str_replace(array_keys($replacements), array_values($replacements), $template);
+        Log::channel('testing')->info('Log', ['ZPL ', $zpl]);
+        return response($zpl, 200)->header('Content-Type', 'text/plain');
+    }
+
+    public function printCustomLabel(Request $request)
+    {
+        $template = file_get_contents(storage_path('app/design2.prn'));
+        $activoFijo = ActivoFijo::where('detalle_producto_id', $request['detalle_producto_id'])->where('cliente_id', $request['cliente_id'])->first();
+        $detalleProducto = DetalleProducto::find($request['detalle_producto_id']);
+       $configuracion = ConfiguracionGeneral::first();
+
+        $codigo = $activoFijo->id.$request['num_transaccion'].$request['detalle_producto_id'];
+        $replacements = [
+            '{CODIGO_QR}' => str_pad($codigo, 12, '0', STR_PAD_LEFT),
+            '{NOMBRE_EMPRESA}' => $configuracion->razon_social,
+            '{TIPO_PRODUCTO}' => $detalleProducto->descripcion,
+            '{MARCA}' => $detalleProducto->modelo->marca?->nombre,
+            '{MODELO}' => $detalleProducto->modelo?->nombre,
+            '{SERIE}' => $detalleProducto->serial,
+            '{FECHA_COMPRA}' => TransaccionBodega::obtenerFechaCompraDetalle($detalleProducto->id),
+            '{CODIGO_BARRAS}' => str_pad($codigo, 12, '0', STR_PAD_LEFT),
+        ];
+
+        $zpl = str_replace(array_keys($replacements), array_values($replacements), $template);
+
+        return response($zpl, 200)->header('Content-Type', 'text/plain');
     }
 }

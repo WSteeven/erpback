@@ -62,7 +62,7 @@ class TransferenciaSaldoRequest extends FormRequest
         } else {
             $this->merge(['usuario_recibe_id' => $this->usuario_recibe]);
         }
-        $this->merge(['fecha' => $date->format('Y-m-d'),]);
+        if(is_null($this->fecha)) $this->merge(['fecha' => $date->format('Y-m-d'),]);
         $this->tarea == 0 ? $this->merge(['id_tarea' => null]) : $this->merge(['id_tarea' => $this->tarea]);
         if ($this->route()->getActionMethod() === 'store') {
             $this->merge([

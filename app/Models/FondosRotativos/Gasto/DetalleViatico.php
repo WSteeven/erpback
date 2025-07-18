@@ -4,11 +4,16 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\FondosRotativos\Usuario\Estatus;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\FondosRotativos\Gasto\DetalleViatico
@@ -18,29 +23,29 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $descripcion
  * @property string $autorizacion
  * @property int $id_estatus
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Estatus|null $estatus
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FondosRotativos\Gasto\Gasto> $gastos
+ * @property-read Collection<int, Gasto> $gastos
  * @property-read int|null $gastos_count
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico query()
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico whereAutorizacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico whereDescripcion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico whereIdEstatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DetalleViatico whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|DetalleViatico acceptRequest(?array $request = null)
+ * @method static Builder|DetalleViatico filter(?array $request = null)
+ * @method static Builder|DetalleViatico ignoreRequest(?array $request = null)
+ * @method static Builder|DetalleViatico newModelQuery()
+ * @method static Builder|DetalleViatico newQuery()
+ * @method static Builder|DetalleViatico query()
+ * @method static Builder|DetalleViatico setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|DetalleViatico setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|DetalleViatico setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|DetalleViatico whereAutorizacion($value)
+ * @method static Builder|DetalleViatico whereCreatedAt($value)
+ * @method static Builder|DetalleViatico whereDescripcion($value)
+ * @method static Builder|DetalleViatico whereId($value)
+ * @method static Builder|DetalleViatico whereIdEstatus($value)
+ * @method static Builder|DetalleViatico whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class DetalleViatico extends Model implements Auditable
 {
@@ -58,7 +63,7 @@ class DetalleViatico extends Model implements Auditable
         'autorizacion',
         'id_estatus',
     ];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'descripcion',
     ];
     public function estatus()

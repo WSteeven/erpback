@@ -294,7 +294,7 @@ class OrdenCompraController extends Controller
      */
     public function reportes(Request $request)
     {
-        Log::channel('testing')->info('Log', ['request', $request->all()]);
+//        Log::channel('testing')->info('Log', ['request', $request->all()]);
 //        $configuracion = ConfiguracionGeneral::first();
 //        $results = [];
         try {
@@ -335,7 +335,7 @@ class OrdenCompraController extends Controller
      */
     public function dashboard(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
+//        Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
 
         $results = $this->servicio->obtenerDashboard($request);
 

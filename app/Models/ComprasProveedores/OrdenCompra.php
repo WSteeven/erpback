@@ -324,11 +324,11 @@ class OrdenCompra extends Model implements Auditable
             $row['producto_id'] = $producto->id;
             $row['descripcion'] = Utils::mayusc($producto->pivot->descripcion);
             $row['categoria'] = $producto->categoria->nombre;
-            $row['unidad_medida'] = $producto->pivot->unidad_medida_id ? $producto->pivot->unidad_medida_id : $producto->unidadMedida->nombre;
+            $row['unidad_medida'] = $producto->pivot->unidad_medida_id ?: $producto->unidadMedida->nombre;
             $row['cantidad'] = $producto->pivot->cantidad;
             $row['precio_unitario'] = $producto->pivot->precio_unitario;
             $row['porcentaje_descuento'] = $producto->pivot->porcentaje_descuento;
-            $row['descuento'] = $producto->pivot->subtotal * $producto->pivot->porcentaje_descuento / 100;
+            $row['descuento'] = round(($producto->pivot->subtotal * $producto->pivot->porcentaje_descuento / 100),4);
             $row['iva'] = $producto->pivot->iva;
             $row['subtotal'] = $producto->pivot->subtotal;
             $row['total'] = $producto->pivot->total;

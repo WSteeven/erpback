@@ -150,7 +150,7 @@ class PermisoEmpleadoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Throwable|Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
             Log::channel('testing')->error('Log', ['ERROR en el update de permiso de empleado', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);

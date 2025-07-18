@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+@php
+    use Src\Shared\Utils;
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -23,7 +26,7 @@
             <tr>
 
                 @foreach ($fotos as $index => $foto)
-                @if ($index % 4 == 0 && $index > 0)
+                    @if ($index % 4 == 0 && $index > 0)
             </tr>
             <tr></tr>
             <tr></tr>
@@ -32,9 +35,9 @@
                 @endif
 
                 <td style="width: 400px; height: 400px; overflow: hidden;">
-                    @if(file_exists(public_path($foto)))
-                    <img src="{{ public_path($foto) }}" height="400" width="400"
-                        style="object-fit: cover; width: 100%; height: 100%;" />
+                    @if ($foto)
+                        {{-- <img src="{{ public_path($foto) }}" height="400" width="400" style="object-fit: cover; width: 100%; height: 100%;" /> --}}
+                        <img src="{{ Utils::getImagePath($foto) }}" height="400" width="400"  />
                     @endif
                 </td>
 
@@ -51,9 +54,7 @@
 
             <tr>
                 <td>
-                    {{
-                    'La información contenida en este documento es confidencial y de uso exclusivo de JPCONSTRUCRED'
-                    }}
+                    {{ 'La información contenida en este documento es confidencial y de uso exclusivo de JPCONSTRUCRED' }}
                 </td>
             </tr>
         </tbody>

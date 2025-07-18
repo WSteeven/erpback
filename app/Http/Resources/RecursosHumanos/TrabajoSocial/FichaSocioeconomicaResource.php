@@ -37,6 +37,10 @@ class FichaSocioeconomicaResource extends JsonResource
         if ($controller_method == 'show' || $controller_method == 'ultimaFichaEmpleado') {
             $modelo['empleado'] = $this->empleado_id;
             $modelo['canton'] = $this->canton_id;
+            $modelo['contacto_emergencia_externo'] = $this->contacto_emergencia_externo;
+            $modelo['parentesco_contacto_emergencia_externo'] = $this->parentesco_contacto_emergencia_externo;
+            $modelo['telefono_contacto_emergencia_externo'] = $this->telefono_contacto_emergencia_externo;
+            $modelo['ciudad_contacto_emergencia_externo'] = $this->ciudad_contacto_emergencia_externo_id;
             $modelo['imagen_rutagrama'] = is_null($this->imagen_rutagrama) ? null : url($this->imagen_rutagrama);
             $modelo['tiene_conyuge'] = !!$this->conyuge;
             $modelo['conyuge'] = $this->conyuge ? new ConyugeResource($this->conyuge) : null;

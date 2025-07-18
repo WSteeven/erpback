@@ -32,7 +32,7 @@ class PolymorphicGenericService
      */
     public function crearActividadPolimorfica(Model $entidad, array $data)
     {
-
+        $data['tarea_id'] = $data['tarea']; // se castea la propiedad tarea
         try {
             DB::beginTransaction();
             $actividad = $entidad->actividades()->create($data);
@@ -61,6 +61,7 @@ class PolymorphicGenericService
      */
     public function actualizarActividadPolimorfica(Model $entidad, array $data)
     {
+        $data['tarea_id'] = $data['tarea']; // se castea la propiedad tarea
         try {
             foreach ($entidad->actividades as $actividad) {
                 if ($actividad->id == $data['id']) {

@@ -4,11 +4,17 @@ namespace App\Models;
 
 use App\Models\Tareas\SolicitudAts;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Support\Carbon;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Ticket
@@ -34,72 +40,72 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int|null $departamento_responsable_id
  * @property int $tipo_ticket_id
  * @property int|null $motivo_cancelado_ticket_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property bool $ticket_para_mi
  * @property mixed|null $cc
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActividadRealizadaSeguimientoTicket> $actividadesRealizadasSeguimientoTicket
+ * @property-read Collection<int, ActividadRealizadaSeguimientoTicket> $actividadesRealizadasSeguimientoTicket
  * @property-read int|null $actividades_realizadas_seguimiento_ticket_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ArchivoTicket> $archivos
+ * @property-read Collection<int, ArchivoTicket> $archivos
  * @property-read int|null $archivos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ArchivoSeguimientoTicket> $archivosSeguimientos
+ * @property-read Collection<int, ArchivoSeguimientoTicket> $archivosSeguimientos
  * @property-read int|null $archivos_seguimientos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CalificacionTicket> $calificacionesTickets
+ * @property-read Collection<int, CalificacionTicket> $calificacionesTickets
  * @property-read int|null $calificaciones_tickets_count
- * @property-read \App\Models\Departamento|null $departamentoResponsable
- * @property-read \App\Models\MotivoCanceladoTicket|null $motivoCanceladoTicket
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notificacion> $notificaciones
+ * @property-read Departamento|null $departamentoResponsable
+ * @property-read MotivoCanceladoTicket|null $motivoCanceladoTicket
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PausaTicket> $pausasTicket
+ * @property-read Collection<int, PausaTicket> $pausasTicket
  * @property-read int|null $pausas_ticket_count
- * @property-read \App\Models\Empleado|null $responsable
- * @property-read \App\Models\Empleado|null $solicitante
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SolicitudAts> $solicitud_ats
+ * @property-read Empleado|null $responsable
+ * @property-read Empleado|null $solicitante
+ * @property-read Collection<int, SolicitudAts> $solicitud_ats
  * @property-read int|null $solicitud_ats_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TicketRechazado> $ticketsRechazados
+ * @property-read Collection<int, TicketRechazado> $ticketsRechazados
  * @property-read int|null $tickets_rechazados_count
- * @property-read \App\Models\TipoTicket|null $tipoTicket
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket query()
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereAsunto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereCalificacionSolicitante($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereCc($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereCodigo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereDepartamentoResponsableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereDescripcion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereFechaHoraAsignacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereFechaHoraCalificado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereFechaHoraCancelado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereFechaHoraEjecucion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereFechaHoraFinalizado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereFechaHoraLimite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereMotivoCanceladoTicketId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereMotivoTicketNoSolucionado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereObservacionesSolicitante($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket wherePrioridad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereResponsableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereSolicitanteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereTicketInterno($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereTicketParaMi($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereTipoTicketId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Ticket whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read TipoTicket|null $tipoTicket
+ * @method static Builder|Ticket acceptRequest(?array $request = null)
+ * @method static Builder|Ticket filter(?array $request = null)
+ * @method static Builder|Ticket ignoreRequest(?array $request = null)
+ * @method static Builder|Ticket newModelQuery()
+ * @method static Builder|Ticket newQuery()
+ * @method static Builder|Ticket query()
+ * @method static Builder|Ticket setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Ticket setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Ticket setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Ticket whereAsunto($value)
+ * @method static Builder|Ticket whereCalificacionSolicitante($value)
+ * @method static Builder|Ticket whereCc($value)
+ * @method static Builder|Ticket whereCodigo($value)
+ * @method static Builder|Ticket whereCreatedAt($value)
+ * @method static Builder|Ticket whereDepartamentoResponsableId($value)
+ * @method static Builder|Ticket whereDescripcion($value)
+ * @method static Builder|Ticket whereEstado($value)
+ * @method static Builder|Ticket whereFechaHoraAsignacion($value)
+ * @method static Builder|Ticket whereFechaHoraCalificado($value)
+ * @method static Builder|Ticket whereFechaHoraCancelado($value)
+ * @method static Builder|Ticket whereFechaHoraEjecucion($value)
+ * @method static Builder|Ticket whereFechaHoraFinalizado($value)
+ * @method static Builder|Ticket whereFechaHoraLimite($value)
+ * @method static Builder|Ticket whereId($value)
+ * @method static Builder|Ticket whereMotivoCanceladoTicketId($value)
+ * @method static Builder|Ticket whereMotivoTicketNoSolucionado($value)
+ * @method static Builder|Ticket whereObservacionesSolicitante($value)
+ * @method static Builder|Ticket wherePrioridad($value)
+ * @method static Builder|Ticket whereResponsableId($value)
+ * @method static Builder|Ticket whereSolicitanteId($value)
+ * @method static Builder|Ticket whereTicketInterno($value)
+ * @method static Builder|Ticket whereTicketParaMi($value)
+ * @method static Builder|Ticket whereTipoTicketId($value)
+ * @method static Builder|Ticket whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Ticket extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait, Searchable;
 
     // Estados de un ticket
     const RECHAZADO = 'RECHAZADO';
@@ -112,6 +118,7 @@ class Ticket extends Model implements Auditable
     const FINALIZADO_SOLUCIONADO = 'FINALIZADO SOLUCIONADO';
     const CALIFICADO = 'CALIFICADO';
     const ETIQUETADOS_A_MI = 'ETIQUETADOS_A_MI';
+    const RECURRENTE = 'RECURRENTE';
 
     // Prioridad
     const ALTA = 'ALTA';
@@ -128,7 +135,7 @@ class Ticket extends Model implements Auditable
 
     protected $table = 'tickets';
     protected $fillable = [
-        'codigo',
+        // 'codigo',
         'asunto',
         'descripcion',
         'prioridad',
@@ -150,15 +157,43 @@ class Ticket extends Model implements Auditable
         'departamento_responsable_id',
         'tipo_ticket_id',
         'motivo_cancelado_ticket_id',
+        // recurrente
+        'is_recurring',
+        'recurrence_active',
+        'recurrence_frequency',
+        'recurrence_time',
+        'recurrence_day_of_week',
+        'recurrence_day_of_month',
     ];
 
     protected $casts = ['ticket_interno' => 'boolean', 'ticket_para_mi' => 'boolean'];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
-    private $aliasListFilter = [
+    private array $aliasListFilter = [
         'responsable.departamento.id' => 'departamento_id',
     ];
+
+    public function toSearchableArray()
+    {
+        return [ //
+            'id' => $this->id,
+            'codigo_ticket' => 'TCKT-' . $this->id,
+            'asunto' => $this->asunto,
+            // 'descripcion' => Str::limit($this->descripcion, 800, ''),
+            // 'observaciones_solicitante' => $this->observaciones_solicitante,
+            'fecha_hora_asignacion' => (string) $this->fecha_hora_asignacion,
+            // 'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
+            'solicitante' => Empleado::extraerApellidosNombres($this->solicitante),
+            'responsable' => Empleado::extraerApellidosNombres($this->responsable),
+            'solicitante_id' => $this->solicitante_id,
+            'responsable_id' => $this->responsable_id,
+            'departamento_responsable' => $this->departamentoResponsable?->nombre,
+            'tipo_ticket' => $this->tipoTicket->nombre,
+            // 'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
+            'estado' => $this->estado,
+        ];
+    }
 
     /*************
      * Relaciones

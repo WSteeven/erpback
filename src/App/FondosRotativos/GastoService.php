@@ -9,6 +9,7 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\GastoVehiculo;
 use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
+use App\Models\FondosRotativos\Valija;
 use App\Models\Notificacion;
 use App\Models\Vehiculos\Vehiculo;
 use Exception;
@@ -29,6 +30,7 @@ class GastoService
     {
         $this->gasto = $gasto;
     }
+
     public function marcarNotificacionLeida()
     {
         $notificacion_remitente = Notificacion::where('per_originador_id', $this->gasto->id_usuario)
@@ -47,7 +49,7 @@ class GastoService
      * La función `validarGastoVehiculo` verifica ciertas condiciones en una solicitud y guarda o modifica
      * un objeto GastoVehiculo en consecuencia.
      *
-     * @param GastoRequest $request  es un objeto de tipo GastoRequest que contiene detalles de un
+     * @param GastoRequest $request es un objeto de tipo GastoRequest que contiene detalles de un
      * gasto que necesita ser validado para un gasto de vehículo. Probablemente incluya información como el
      * detalle y sub_detalle del gasto.
      * @throws ValidationException
@@ -80,7 +82,32 @@ class GastoService
     /**
      * @throws Throwable
      */
-    public static function  convertirComprobantesBase64Url(array $datos, $tipo_metodo = 'store')
+    public function guardarRegistrosValijas(array $datos)
+    {
+        try {
+            DB::beginTransaction();
+
+            foreach ($datos as $dato) {
+                $dato['gasto_id'] = $this->gasto->id;
+                if ($dato['imagen_evidencia']) {
+                    $dato['imagen_evidencia'] = (new GuardarImagenIndividual($dato['imagen_evidencia'], RutasStorage::IMAGENES_VALIJAS))->execute();
+                }
+                $valija = Valija::create($dato);
+                Log::channel('testing')->info('Log', ['guardarRegistrosValijas -> Valija creada', $valija]);
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['error', $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public static function convertirComprobantesBase64Url(array $datos, $tipo_metodo = 'store', Gasto $gasto = null)
     {
         switch ($tipo_metodo) {
             case 'store':
@@ -90,22 +117,34 @@ class GastoService
                 if ($datos['comprobante2']) {
                     $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
                 }
+                if (isset($datos['comprobante3']))
+                    $datos['comprobante3'] = (new GuardarImagenIndividual($datos['comprobante3'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                if (isset($datos['comprobante4']))
+                    $datos['comprobante4'] = (new GuardarImagenIndividual($datos['comprobante4'], RutasStorage::COMPROBANTES_GASTOS))->execute();
                 break;
             case 'update':
                 if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
-                    $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                    $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS, $gasto?->comprobante))->execute();
                 } else {
                     unset($datos['comprobante']);
                 }
                 if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
-                    $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                    $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS, $gasto?->comprobante2))->execute();
                 } else {
                     unset($datos['comprobante2']);
                 }
+                if (isset($datos['comprobante3']) && Utils::esBase64($datos['comprobante3']))
+                    $datos['comprobante3'] = (new GuardarImagenIndividual($datos['comprobante3'], RutasStorage::COMPROBANTES_GASTOS, $gasto?->comprobante3))->execute();
+                else unset($datos['comprobante3']);
+
+                if (isset($datos['comprobante4']) && Utils::esBase64($datos['comprobante4']))
+                    $datos['comprobante4'] = (new GuardarImagenIndividual($datos['comprobante4'], RutasStorage::COMPROBANTES_GASTOS, $gasto?->comprobante4))->execute();
+                else unset($datos['comprobante4']);
                 break;
         }
         return $datos;
     }
+
     /**
      * La función `crearBeneficiarios` crea nuevas entradas de beneficiarios para un gasto determinado.
      *
@@ -121,23 +160,25 @@ class GastoService
         if ($beneficiarios != null) {
             foreach ($beneficiarios as $empleado_id) {
                 BeneficiarioGasto::insert([
-                    'gasto_id' =>  $this->gasto->id,
+                    'gasto_id' => $this->gasto->id,
                     'empleado_id' => $empleado_id
                 ]);
             }
         }
     }
+
     public function crearSubDetalle($subdetalles)
     {
         if ($subdetalles != null) {
             foreach ($subdetalles as $subdetalle_gasto_id) {
                 SubdetalleGasto::create([
-                    'gasto_id' =>  $this->gasto->id,
+                    'gasto_id' => $this->gasto->id,
                     'subdetalle_gasto_id' => $subdetalle_gasto_id
                 ]);
             }
         }
     }
+
     public function sincronizarSubDetalle($sub_detalle)
     {
         // Supongamos que $ids es tu arreglo de empleados _id
@@ -161,6 +202,7 @@ class GastoService
         $registrosEliminar = $registrosExistentes->diff($ids);
         SubdetalleGasto::where('gasto_id', $gasto_id)->whereIn('subdetalle_gasto_id', $registrosEliminar)->delete();
     }
+
     public function sincronizarBeneficiarios($beneficiarios)
     {
         // Supongamos que $ids es tu arreglo de empleados _id
@@ -184,6 +226,7 @@ class GastoService
         $registrosEliminar = $registrosExistentes->diff($ids);
         BeneficiarioGasto::where('gasto_id', $gasto_id)->whereIn('empleado_id', $registrosEliminar)->delete();
     }
+
     /**
      * La función `guardarGastoVehiculo` ahorra gasto de vehículo con validación y manejo de errores en PHP
      * usando Laravel.
@@ -207,9 +250,9 @@ class GastoService
             DB::beginTransaction();
             $datos['id_gasto'] = $gasto->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] = $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
-            $gasto_vehiculo =  GastoVehiculo::create($datos);
+            $gasto_vehiculo = GastoVehiculo::create($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
             DB::commit();
@@ -221,6 +264,7 @@ class GastoService
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
+
     /**
      * Esta función PHP modifica un registro de gastos de vehículo en función de los datos de solicitud
      * proporcionados.
@@ -244,7 +288,7 @@ class GastoService
             DB::beginTransaction();
             $datos['id_gasto'] = $request->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] = $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
 
             $gasto_vehiculo = GastoVehiculo::where('id_gasto', $datos['id_gasto'])->first();

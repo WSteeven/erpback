@@ -1,72 +1,70 @@
 <?php
 
-use App\Http\Controllers\DetalleProductoTransaccionController;
-use App\Http\Controllers\TransaccionBodegaIngresoController;
-use App\Http\Controllers\TransaccionBodegaEgresoController;
-use App\Http\Controllers\MovimientoProductoController;
-use App\Http\Controllers\EstadoTransaccionController;
-use App\Http\Controllers\TransaccionBodegaController;
-use App\Http\Controllers\ProductoEnPerchaController;
-use App\Http\Controllers\DetalleProductoController;
-use App\Http\Controllers\TipoTransaccionController;
-use App\Http\Controllers\ImagenProductoController;
-use App\Http\Controllers\CodigoClienteController;
-use App\Http\Controllers\UnidadMedidaController;
-use App\Http\Controllers\ValidarCedulaController;
-use App\Http\Controllers\TransferenciaController;
-use App\Http\Controllers\AutorizacionController;
-use App\Http\Controllers\ControlStockController;
-use App\Http\Controllers\ProcesadorController;
-use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\Bodega\PermisoArmaController;
+use App\Http\Controllers\Bodega\ProductoEmpleadoController;
 use App\Http\Controllers\CargoController;
-use App\Http\Controllers\DevolucionController;
-use App\Http\Controllers\InventarioController;
-use App\Http\Controllers\PermisoRolController;
-use App\Http\Controllers\CondicionController;
-use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CategoriaController;
-use App\Http\Controllers\ProveedorController;
-use App\Http\Controllers\TipoFibraController;
-use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\TraspasoController;
-use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\CodigoClienteController;
 use App\Http\Controllers\ComprobanteController;
+use App\Http\Controllers\CondicionController;
 use App\Http\Controllers\ConfiguracionGeneralController;
-use App\Http\Controllers\EmpresaController;
-use App\Http\Controllers\PermisoController;
-use App\Http\Controllers\TableroController;
-use App\Http\Controllers\ModeloController;
-use App\Http\Controllers\MotivoController;
-use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\PerchaController;
+use App\Http\Controllers\ControlStockController;
+use App\Http\Controllers\DetalleProductoController;
+use App\Http\Controllers\DetalleProductoTransaccionController;
+use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\DiscoController;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EstadoTransaccionController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GrupoController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\MarcaController;
-use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Controllers\ImagenProductoController;
+use App\Http\Controllers\Intranet\OrganigramaController;
+use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LoginSocialNetworkController;
+use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\ModeloController;
+use App\Http\Controllers\MotivoController;
+use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ParroquiaController;
-use App\Http\Resources\UserInfoResource;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\PerchaController;
+use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\PreingresoMaterialController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProcesadorController;
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProductoEnPerchaController;
+use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
-use App\Http\Controllers\Intranet\OrganigramaController;
-
-use App\Http\Resources\CantonResource;
+use App\Http\Controllers\SpanController;
+use App\Http\Controllers\SucursalController;
+use App\Http\Controllers\TableroController;
+use App\Http\Controllers\TipoFibraController;
+use App\Http\Controllers\TipoTransaccionController;
+use App\Http\Controllers\TransaccionBodegaController;
+use App\Http\Controllers\TransaccionBodegaEgresoController;
+use App\Http\Controllers\TransaccionBodegaIngresoController;
+use App\Http\Controllers\TransferenciaController;
+use App\Http\Controllers\TraspasoController;
+use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\UnidadMedidaController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
+use App\Http\Resources\UserInfoResource;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -181,8 +179,7 @@ Route::apiResources(
         'ubicaciones' => UbicacionController::class,
         'unidades-medidas' => UnidadMedidaController::class,
         'parroquias' => ParroquiaController::class,
-
-
+        'productos-empleados' => ProductoEmpleadoController::class,
         'forma_pago' => FormaPagoController::class
     ],
     [
@@ -208,6 +205,7 @@ Route::apiResources(
             'ubicaciones' => 'ubicacion',
             'unidades-medidas' => 'unidad',
             'tipos-fibras' => 'tipo_fibra',
+            'productos-empleados' => 'producto_empleado',
         ],
         'middleware' => ['auth:sanctum']
     ]
@@ -258,6 +256,7 @@ Route::get('sucursales-detalle', [DetalleProductoController::class, 'sucursalesD
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes-epps', [TransaccionBodegaEgresoController::class, 'reporteUniformesEpps']); // reporte para imprimir en excel y con la firma del tecnico responsable
+Route::post('transacciones/reporte-vida-util-epps', [TransaccionBodegaEgresoController::class, 'reporteVidaUtilMateriales']); // reporte de epps despachados cuya vida util ya ha pasado
 //Reportes inventario
 Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
 Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);
@@ -281,6 +280,8 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 
 //Modificar egreso
 Route::patch('modificar-item-egreso/{transaccion}',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
+// Modificar ingreso
+Route::patch('quitar-item-ingreso/{transaccion}',[TransaccionBodegaIngresoController::class, 'modificarItemIngreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
@@ -309,7 +310,7 @@ Route::get('empleados-fondos-rotativos', [EmpleadoController::class, 'obtenerEmp
 
 Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
-    Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
+    Route::get('obtener-fecha', fn () => Carbon::now()->format('Y-m-d H:i:s'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
@@ -363,3 +364,7 @@ Route::post('actualizar-cantidad-material-empleado', [InventarioController::clas
 Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtenerDatosOrganigrama'])->middleware('auth:sanctum');
 
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
+
+Route::put('transacciones-ingresos-editar-fecha-compra/{transaccion}', [TransaccionBodegaIngresoController::class, 'editarFechaCompra']);
+
+

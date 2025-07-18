@@ -2,13 +2,11 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class EmpleadoResource extends JsonResource
 {
@@ -56,6 +54,7 @@ class EmpleadoResource extends JsonResource
             'tiene_discapacidad' => $this->tiene_discapacidad,
             'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
             'fecha_vinculacion' => $this->fecha_vinculacion,
+            'fecha_salida' => $this->fecha_salida,
             'area' => $this->area_id,
             'area_info' => $this->area ? $this->area->nombre : null,
             'observacion' => $this->observacion,
@@ -67,6 +66,7 @@ class EmpleadoResource extends JsonResource
             'supa' => $this->supa,
             'roles' => $this->user ? implode(', ', $this->user->getRoleNames()->filter(fn($rol) => $rol !== 'EMPLEADO')->toArray()) : array(),
             'direccion' => $this->direccion,
+            'nivel_academico' => $this->nivel_academico,
             'autoidentificacion_etnica' => $this->autoidentificacion_etnica,
             'trabajador_sustituto' => $this->trabajador_sustituto,
             'orientacion_sexual_info' => $this->orientacionSexual,
@@ -86,6 +86,7 @@ class EmpleadoResource extends JsonResource
             $modelo['nombre_canton'] = $this->canton?->canton;
             $modelo['roles'] = $this->user->getRoleNames();
             $modelo['grupo'] = $this->grupo_id;
+            $modelo['tiene_grupo'] = !!$this->grupo_id;
             $modelo['cargo'] = $this->cargo_id;
             $modelo['departamento'] = $this->departamento_id;
             $modelo['fecha_nacimiento'] = $this->fecha_nacimiento;
@@ -105,7 +106,6 @@ class EmpleadoResource extends JsonResource
             $modelo['talla_camisa'] = $this->talla_camisa;
             $modelo['talla_guantes'] = $this->talla_guantes;
             $modelo['talla_pantalon'] = $this->talla_pantalon;
-            $modelo['nivel_academico'] = $this->nivel_academico;
             $modelo['titulo'] = $this->titulo;
             $modelo['estado_civil'] = $this->estado_civil_id;
             $modelo['estado_civil_info'] = $this->estadoCivil ? $this->estadoCivil->nombre : null;

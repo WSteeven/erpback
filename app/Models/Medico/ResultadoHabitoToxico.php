@@ -3,10 +3,15 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\ResultadoHabitoToxico
@@ -19,26 +24,26 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $habito_toxicable_id
  * @property string $habito_toxicable_type
  * @property int $tipo_habito_toxico_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read Model|\Eloquent $habitable
- * @property-read \App\Models\Medico\TipoHabitoToxico|null $tipoHabitoToxico
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico query()
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereCantidad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereExConsumidor($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereHabitoToxicableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereHabitoToxicableType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereTiempoAbstinenciaMeses($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereTiempoConsumoMeses($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereTipoHabitoToxicoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ResultadoHabitoToxico whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Model|Eloquent $habitable
+ * @property-read TipoHabitoToxico|null $tipoHabitoToxico
+ * @method static Builder|ResultadoHabitoToxico newModelQuery()
+ * @method static Builder|ResultadoHabitoToxico newQuery()
+ * @method static Builder|ResultadoHabitoToxico query()
+ * @method static Builder|ResultadoHabitoToxico whereCantidad($value)
+ * @method static Builder|ResultadoHabitoToxico whereCreatedAt($value)
+ * @method static Builder|ResultadoHabitoToxico whereExConsumidor($value)
+ * @method static Builder|ResultadoHabitoToxico whereHabitoToxicableId($value)
+ * @method static Builder|ResultadoHabitoToxico whereHabitoToxicableType($value)
+ * @method static Builder|ResultadoHabitoToxico whereId($value)
+ * @method static Builder|ResultadoHabitoToxico whereTiempoAbstinenciaMeses($value)
+ * @method static Builder|ResultadoHabitoToxico whereTiempoConsumoMeses($value)
+ * @method static Builder|ResultadoHabitoToxico whereTipoHabitoToxicoId($value)
+ * @method static Builder|ResultadoHabitoToxico whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ResultadoHabitoToxico extends Model implements Auditable
 {

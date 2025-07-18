@@ -24,6 +24,7 @@ class TanqueoResource extends JsonResource
             'fecha_hora' => date('Y-m-d', strtotime($this->fecha_hora)),
             'km_tanqueo' => $this->km_tanqueo,
             'monto' => $this->monto,
+            'bitacora'=>$this->bitacora_id,
         ];
 
         if ($controller_method == 'show' || $controller_method == 'ultima') {

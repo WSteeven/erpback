@@ -3,11 +3,16 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\RiesgoAntecedenteEmpleoAnterior
@@ -15,27 +20,27 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int $id
  * @property int|null $tipo_riesgo_id
  * @property int $antecedente_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Medico\AntecedenteTrabajoAnterior|null $antecedente
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read AntecedenteTrabajoAnterior|null $antecedente
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\TipoFactorRiesgo|null $tipoRiesgo
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior query()
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior whereAntecedenteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior whereTipoRiesgoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RiesgoAntecedenteEmpleoAnterior whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read TipoFactorRiesgo|null $tipoRiesgo
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior acceptRequest(?array $request = null)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior filter(?array $request = null)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior ignoreRequest(?array $request = null)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior newModelQuery()
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior newQuery()
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior query()
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior whereAntecedenteId($value)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior whereCreatedAt($value)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior whereId($value)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior whereTipoRiesgoId($value)
+ * @method static Builder|RiesgoAntecedenteEmpleoAnterior whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class RiesgoAntecedenteEmpleoAnterior extends Model implements Auditable
 {

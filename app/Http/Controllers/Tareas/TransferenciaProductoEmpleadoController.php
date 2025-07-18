@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Tareas;
 
+use App\Events\Tareas\NotificarTransferenciaProductosAprobadaEvent;
 use App\Events\Tareas\NotificarTransferenciaProductosRealizadaEvent;
 use App\Events\Tareas\NotificarTransferenciaProductosSolicitadaEvent;
+use App\Events\Tareas\NotificarTransferenciaProductosSSAEvent;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
 use App\Http\Requests\Tareas\TransferenciaProductoEmpleadoRequest;
 use Src\App\Tareas\TransferenciaProductoEmpleadoService;
@@ -11,6 +13,7 @@ use App\Models\Tareas\TransferenciaProductoEmpleado;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
 use App\Http\Controllers\Controller;
 use App\Models\Autorizacion;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -18,26 +21,37 @@ use Src\Shared\Utils;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
+use Src\App\EmpleadoService;
 use Src\Config\RutasStorage;
 
 class TransferenciaProductoEmpleadoController extends Controller
 {
-    private $entidad = 'Transferencia';
+    private string $entidad = 'Transferencia';
     private $transferenciaService;
     private $productosTareaEmpleadoService;
     private $archivoService;
+    private EmpleadoService $empleadoService;
 
     public function __construct()
     {
         $this->transferenciaService = new TransferenciaProductoEmpleadoService();
         $this->productosTareaEmpleadoService = new ProductoTareaEmpleadoService();
         $this->archivoService = new ArchivoService();
+        $this->empleadoService = new EmpleadoService();
     }
 
     public function index(Request $request)
     {
+        if (request('export') == 'pdf') {
+            if (request('id')) {
+                $transferencia = TransferenciaProductoEmpleado::find(request('id'));
+                return $this->transferenciaService->imprimirTransferenciaProducto($transferencia);
+            }
+        }
+
         $results = $this->transferenciaService->filtrarTransferencias($request);
         $results = TransferenciaProductoEmpleadoResource::collection($results);
+
         return response()->json(compact('results'));
     }
 
@@ -46,21 +60,9 @@ class TransferenciaProductoEmpleadoController extends Controller
         try {
             DB::beginTransaction();
 
-            // Adaptacion de foreign keys
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request['solicitante'];
-            $datos['empleado_origen_id'] = $request['empleado_origen'];
-            $datos['empleado_destino_id'] = $request['empleado_destino'];
-            $datos['proyecto_origen_id'] = $request['proyecto_origen'];
-            $datos['proyecto_destino_id'] = $request['proyecto_destino'];
-            $datos['etapa_origen_id'] = $request['etapa_origen'];
-            $datos['etapa_destino_id'] = $request['etapa_destino'];
-            $datos['tarea_origen_id'] = $request['tarea_origen'];
-            $datos['tarea_destino_id'] = $request['tarea_destino'];
-            $datos['autorizador_id'] = $request['autorizador'];
-            $datos['cliente_id'] = $request['cliente'];
-            $datos['autorizacion_id'] = Autorizacion::PENDIENTE_ID; // $request['autorizacion'];
-            $cliente_id = $request['cliente'];
+
+            $datos['autorizacion_id'] = Autorizacion::PENDIENTE_ID;
 
             $transferencia = TransferenciaProductoEmpleado::create($datos);
 
@@ -94,41 +96,52 @@ class TransferenciaProductoEmpleadoController extends Controller
         try {
             DB::beginTransaction();
 
-            $url = '/transferencia-producto-empleado';
-
             $datos = $request->validated();
-            $datos['solicitante_id'] = $request['solicitante'];
-            $datos['empleado_origen_id'] = $request['empleado_origen'];
-            $datos['empleado_destino_id'] = $request['empleado_destino'];
-            $datos['proyecto_origen_id'] = $request['proyecto_origen'];
-            $datos['proyecto_destino_id'] = $request['proyecto_destino'];
-            $datos['etapa_origen_id'] = $request['etapa_origen'];
-            $datos['etapa_destino_id'] = $request['etapa_destino'];
-            $datos['tarea_origen_id'] = $request['tarea_origen'];
-            $datos['tarea_destino_id'] = $request['tarea_destino'];
-            $datos['autorizacion_id'] = $request['autorizacion'];
-            $datos['autorizador_id'] = $request['autorizador'];
-            // $cliente_id = $request['cliente_id'];
 
-            $transferencia_producto_empleado->update($datos);
+            // $transferencia_producto_empleado->update($datos);
+            $transferencia_producto_empleado->update($request->except(['id']));
 
             // Borrar los registros de la tabla intermedia para guardar los modificados
             $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->detach();
 
             // Guardar los productos seleccionados
             foreach ($request->listado_productos as $listado) {
-                $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'recibido' => $listado['recibido']]);
             }
 
-            if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
-                $esTransferenciaDeStock = !$datos['proyecto_origen_id'] && !$datos['etapa_origen_id'] && !$datos['tarea_origen_id'];
+            // Proceso de verificar los datos de la transferencia
+            if (in_array($datos['autorizacion_id'], [Autorizacion::VALIDADO_ID, Autorizacion::PENDIENTE_ID])) {
+                event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
 
+                $idsDestinatarios = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_SSO);
+
+                foreach ($idsDestinatarios as $destinatario_id) {
+                    event(new NotificarTransferenciaProductosSSAEvent($transferencia_producto_empleado, $destinatario_id));
+                }
+            }
+
+            // Proceso para finalizar la transferencia y recien le llegue al empleado destinataio
+            if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
+                $esTransferenciaDeStock = !$transferencia_producto_empleado['proyecto_origen_id'] && !$transferencia_producto_empleado['etapa_origen_id'] && !$transferencia_producto_empleado['tarea_origen_id'];
+
+                // Transferir materiales de origen a destino
                 $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
 
-                $emisor_id = $transferencia_producto_empleado->empleado_origen_id;
-                $destinatario_id = $transferencia_producto_empleado->empleado_destino_id;
+                // Notificar a encargado de bodega y jefe inmediato de origen y destino
+                $destinatarios_id = $this->empleadoService->getUsersWithRoles([User::ROL_COORDINADOR_BODEGA], 'id')->pluck('id');
+                $destinatarios_id->push($transferencia_producto_empleado->empleadoDestino->jefe_id);
+                $destinatarios_id->push($transferencia_producto_empleado->empleadoOrigen->jefe_id);
+                $destinatarios_id->push($transferencia_producto_empleado->empleado_origen_id);
 
-                event(new NotificarTransferenciaProductosRealizadaEvent($transferencia_producto_empleado));
+                foreach ($destinatarios_id as $destinatario_id) {
+                    event(new NotificarTransferenciaProductosAprobadaEvent($transferencia_producto_empleado, $destinatario_id));
+                }
+
+                $idsDestinatariosSSO = $this->empleadoService->obtenerIdsEmpleadosPorRol(User::ROL_SSO);
+
+                foreach ($idsDestinatariosSSO as $destinatario_id) {
+                    event(new NotificarTransferenciaProductosSSAEvent($transferencia_producto_empleado, $destinatario_id));
+                }
             }
 
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
@@ -137,24 +150,9 @@ class TransferenciaProductoEmpleadoController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages(['error' => $e->getMessage()]);
+            throw ValidationException::withMessages(['error' => $e->getMessage() . ' | ' . $e->getLine()]);
         }
 
-        /* $proyecto_id = request('proyecto_id');
-        $etapa_id = request('etapa_id');
-        $tarea_id = request('tarea_id'); */
-
-        // $results = $this->productosTareaEmpleadoService->listarProductosConStock($empleado_origen_id, $proyecto_id, $etapa_id, $tarea_id);
-
-
-        // $msg = $transferencia_producto_empleado->autoriza->nombres . ' ' . $transferencia_producto_empleado->autoriza->apellidos . ' ha actualizado tu devolución, el estado de Autorización es: ' . $transferencia_producto_empleado->autorizacion->nombre;
-        // event(new DevolucionActualizadaSolicitanteEvent($msg, $url, $devolucion, $devolucion->per_autoriza_id, $devolucion->solicitante_id, true)); //Se usa para notificar al tecnico que se actualizó la devolucion
-
-        /* if ($transferencia_producto_empleado->autorizacion->nombre === Autorizacion::APROBADO) {
-            $transferencia_producto_empleado->latestNotificacion()->update(['leida' => true]);
-            $msg = 'Hay una devolución recién autorizada en la sucursal ' . $devolucion->sucursal->lugar . ' pendiente de despacho';
-            // event(new DevolucionAutorizadaEvent($msg, User::ROL_BODEGA, $url, $devolucion, true));
-        } */
         return response()->json(compact('mensaje', 'modelo'));
     }
 

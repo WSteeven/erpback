@@ -2,11 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Categoria;
 use App\Models\DetalleProducto;
-use App\Models\Producto;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class DetalleProductoRequest extends FormRequest
@@ -34,6 +31,7 @@ class DetalleProductoRequest extends FormRequest
             'marca' => 'required|exists:marcas,id',
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
+            'vida_util' => 'sometimes|nullable|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
             'lote' => 'nullable|string|sometimes|unique:detalles_productos',
             'span' => 'nullable|integer|exists:spans,id',
@@ -42,6 +40,9 @@ class DetalleProductoRequest extends FormRequest
             'punta_inicial' => 'nullable|integer',
             'punta_final' => 'nullable|integer',
             'custodia' => 'nullable|integer',
+
+            'es_generico' => 'boolean',
+            'nombre_alternativo' => 'nullable|string',
 
             'procesador' => 'nullable|sometimes|exists:procesadores,id|required_with_all:ram,disco',
             'ram' => 'nullable|sometimes|exists:rams,id|required_with_all:procesador,disco',
@@ -82,19 +83,26 @@ class DetalleProductoRequest extends FormRequest
             'serial.unique' => 'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
         ];
     }
+
     protected function withValidator($validator)
     {
         $validator->after(function ($validator) {
             $detalle = DetalleProducto::where('descripcion', $this->descripcion)->where('serial', $this->serial)->first();
-            Log::channel('testing')->info('Log', ['El detalle encontrado es: ', $detalle]);
+//            Log::channel('testing')->info('Log', ['El detalle encontrado es: ', $detalle]);
             if (!is_null($detalle)) {
-                Log::channel('testing')->info('Log', ['Hay un detalle: ', $detalle]);
-                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial) !== $detalle->serial && count($this->seriales) < 1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
+//                Log::channel('testing')->info('Log', ['Hay un detalle: ', $detalle]);
+                if (in_array($this->method(), ['POST']))
+                    if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial) !== $detalle->serial && count($this->seriales) < 1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
             }
         });
     }
+
     protected function prepareForValidation()
     {
+        $this->merge([
+            'descripcion' => strtoupper($this->descripcion)
+        ]);
+
         if (is_null($this->precio_compra)) {
             $this->merge([
                 'precio_compra' => 0

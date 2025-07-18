@@ -18,7 +18,6 @@ class FichaSocioeconomicaService
      */
     public function actualizarConyuge(FichaSocioeconomica $ficha, mixed $datos)
     {
-        Log::channel('testing')->info('Log', ['Antes de actualizar Conyuge']);
         if (request()->tiene_conyuge) {
             $datos['empleado_id'] = $ficha->empleado_id;
             DB::transaction(function () use ($ficha, $datos) {
@@ -36,11 +35,12 @@ class FichaSocioeconomicaService
      */
     public function actualizarHijos(FichaSocioeconomica $ficha, mixed $datos)
     {
+//        Log::channel('testing')->info('Log', ['funcion actualizarHijos->start', $datos]);
         if (request()->tiene_hijos) {
-            $datos['empleado_id'] = $ficha->empleado_id;
             DB::transaction(function () use ($ficha, $datos) {
                 $ficha->hijos()->delete(); //borramos registros anteriores para crear nuevos
                 foreach ($datos as $dato) {
+//                    Log::channel('testing')->info('Log', ['funcion actualizarHijos', $dato]);
                     $ficha->hijos()->create($dato);
                 }
             });

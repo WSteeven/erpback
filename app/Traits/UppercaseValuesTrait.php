@@ -45,6 +45,8 @@ trait UppercaseValuesTrait
             if (is_string($value))
                 $this->attributes[$key] = $value;
         }
+        if($key === 'comprobante3' && is_string($value)) $this->attributes[$key] = trim($value);
+        if($key === 'comprobante4' && is_string($value)) $this->attributes[$key] = trim($value);
 
         if ($key === 'fotografia' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'fotografia_detallada' && is_string($value)) $this->attributes[$key] = trim($value);
@@ -57,10 +59,16 @@ trait UppercaseValuesTrait
         if ($key === 'logo_marca_agua' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'descripcion' && is_string($value)) $this->attributes[$key] = trim($value);
         if ($key === 'saldoable_type' && is_string($value)) $this->attributes[$key] = $value;
+        if ($key === 'detalles_productos' && is_string($value)) $this->attributes[$key] = $value;
+        if ($key === 'autorizaciones_permisos_foto' && is_string($value)) $this->attributes[$key] = $value;
 
         // Verifica si el nombre de la propiedad contiene la palabra "imagen", para no transformarla en mayuscula
         if (preg_match('/imagen/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/fotografia/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/ruta/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/link/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/web/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/mail/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/correo/i', $key)) $this->attributes[$key] = $value;
     }
 }

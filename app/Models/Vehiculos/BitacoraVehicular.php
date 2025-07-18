@@ -107,6 +107,7 @@ class BitacoraVehicular extends Pivot implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'firmada' => 'boolean',
+        'es_vehiculo_propio' => 'boolean',
     ];
 
     const LLENO = 'LLENO';
@@ -137,6 +138,11 @@ class BitacoraVehicular extends Pivot implements Auditable
     public function vehiculo()
     {
         return $this->belongsTo(Vehiculo::class);
+    }
+
+    public function tanqueos()
+    {
+        return $this->hasMany(Tanqueo::class, 'bitacora_id', 'id');
     }
 
     public function actividades()

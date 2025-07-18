@@ -72,6 +72,7 @@ class DetalleProductoTransaccion extends Model implements Auditable
      */
     protected $fillable = [
         'inventario_id',
+        'lote_id',
         'transaccion_id',
         'cantidad_inicial',
         'recibido',
@@ -81,7 +82,7 @@ class DetalleProductoTransaccion extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________

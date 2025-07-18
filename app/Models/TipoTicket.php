@@ -43,7 +43,7 @@ class TipoTicket extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'tipos_tickets';
-    protected $fillable = ['nombre', 'activo', 'categoria_tipo_ticket_id'];
+    protected $fillable = ['nombre', 'activo', 'categoria_tipo_ticket_id', 'destinatario_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -55,5 +55,9 @@ class TipoTicket extends Model implements Auditable
     public function categoriaTipoTicket()
     {
         return $this->belongsTo(CategoriaTipoTicket::class);
+    }
+
+    public function destinatario() {
+        return $this->belongsTo(Empleado::class, 'destinatario_id', 'id');
     }
 }

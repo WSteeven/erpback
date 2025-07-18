@@ -3,10 +3,15 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\AntecedenteTrabajoAnterior
@@ -18,26 +23,26 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $tiempo_trabajo
  * @property string $observacion
  * @property int $ficha_preocupacional_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\FichaPreocupacional|null $fichaPreocupacional
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\RiesgoAntecedenteEmpleoAnterior> $riesgos
+ * @property-read FichaPreocupacional|null $fichaPreocupacional
+ * @property-read Collection<int, RiesgoAntecedenteEmpleoAnterior> $riesgos
  * @property-read int|null $riesgos_count
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior query()
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereActividades($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereEmpresa($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereFichaPreocupacionalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior wherePuestoTrabajo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereTiempoTrabajo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AntecedenteTrabajoAnterior whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|AntecedenteTrabajoAnterior newModelQuery()
+ * @method static Builder|AntecedenteTrabajoAnterior newQuery()
+ * @method static Builder|AntecedenteTrabajoAnterior query()
+ * @method static Builder|AntecedenteTrabajoAnterior whereActividades($value)
+ * @method static Builder|AntecedenteTrabajoAnterior whereCreatedAt($value)
+ * @method static Builder|AntecedenteTrabajoAnterior whereEmpresa($value)
+ * @method static Builder|AntecedenteTrabajoAnterior whereFichaPreocupacionalId($value)
+ * @method static Builder|AntecedenteTrabajoAnterior whereId($value)
+ * @method static Builder|AntecedenteTrabajoAnterior whereObservacion($value)
+ * @method static Builder|AntecedenteTrabajoAnterior wherePuestoTrabajo($value)
+ * @method static Builder|AntecedenteTrabajoAnterior whereTiempoTrabajo($value)
+ * @method static Builder|AntecedenteTrabajoAnterior whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class AntecedenteTrabajoAnterior extends Model implements Auditable
 {

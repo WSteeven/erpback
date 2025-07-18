@@ -1,13 +1,5 @@
 <html>
-@php
-    $fecha = new Datetime();
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $num_registro = 1;
 
-    // $firma_profesional_salud = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->firma_url, 1)));
-
-@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -44,7 +36,7 @@
             /** Estilos extra personales **/
             text-align: center;
             color: #000000;
-            line-height: 1.5cm;
+            line-height: 1.1cm;
         }
 
         footer .page:after {
@@ -56,7 +48,7 @@
             top: 80px;
             left: 0cm;
             right: 0cm;
-            margin-bottom: 7cm;
+            margin-bottom: 2cm;
             font-size: 12px;
         }
 
@@ -122,15 +114,15 @@
         }
 
         .pa-8 {
-            padding: 8px;
+            padding: 4px;
         }
 
         .pa-12 {
-            padding: 12px;
+            padding: 6px;
         }
 
         .pt-8 {
-            padding-top: 8px;
+            padding-top: 4px;
         }
 
         .px-8 {
@@ -139,7 +131,7 @@
         }
 
         .pl-8 {
-            padding-left: 8px;
+            padding-left: 4px;
         }
 
         .mr-8 {
@@ -151,19 +143,19 @@
         }
 
         .mb-8 {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .mb-16 {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .font-text {
-            font-size: 12px;
+            font-size: 9px;
         }
 
         .font-text-10 {
-            font-size: 10px;
+            font-size: 7px;
         }
 
         .border {
@@ -242,7 +234,8 @@
     <div class="border mb-8">
         <div class="pa-8 font-text-10">
             <span style="margin-right: 24px; display: inline-block;">FECHA DE EMISIÓN:</span>
-            <span><span class="cuadrado">{{ $ficha_aptitud['fecha_emision']->year }}</span><small class="elemento-despues">aaaa</small></span>
+            <span><span class="cuadrado">{{ $ficha_aptitud['fecha_emision']->year }}</span><small
+                    class="elemento-despues">aaaa</small></span>
             <span><span class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('m') }}</span></br>mm</span>
             <span><span class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('d') }}</span></br>dd</span>
         </div>
@@ -309,8 +302,7 @@
                     <span class="bg-green pa-8 font-text-10"
                         style="width: 10%; display: inline-block; text-align: right;">{{ $posible_respuesta }}</span>
                     @if ($posible_respuesta === $tipo['respuesta'])
-                        <span class="pa-4 cuadrado" align="center"
-                            style="display: inline-block;">{{ 'X' }}</span>
+                        <span class="pa-4 cuadrado" align="center" style="display: inline-block;">{{ 'X' }}</span>
                     @else
                         <span class="pa-4 cuadrado" style="display: inline-block;">&nbsp;&nbsp;</span>
                     @endif
@@ -334,12 +326,14 @@
     </div>
 
     <div class="mb-16">
+        <b>NOTA:</b>
         La presente certificación se expide con base en la historia ocupacional del usuario (a), la cual tiene carácter
         de confidencialidad.
+        <q-separator class="q-my-md" color="black" />
+        <br>
+        <br>
     </div>
-
-    <br>
-
+    <!-- F & G. DATOS PROFESIONAL Y FIRMA USUARIO -->
     {{-- F. DATOS DEL PROFESIONAL DE SALUD --}}
     <span style="width: 72%; display: inline-block;" class="border mr-8">
         <div class="titulo-seccion">F. DATOS DEL PROFESIONAL DE SALUD</div>
@@ -352,12 +346,12 @@
                 <td style="width: 20%">{{ $profesionalSalud->codigo }}</td>
                 <td class="bg-green font-text-10">FIRMA Y SELLO</td>
                 <td style="width: 20%">
-                    @isset($firmaProfesionalMedico)
+{{--                     @isset($firmaProfesionalMedico)
                         <img src="{{ $firmaProfesionalMedico }}" alt="" width="100%" height="40">
                     @endisset
                     @empty($firmaProfesionalMedico)
                         &nbsp;<br />
-                    @endempty
+                    @endempty --}}
                 </td>
                 {{-- <td style="width: 20%">&nbsp;</td> --}}
             </tr>
@@ -379,10 +373,10 @@
             @endempty --}}
         </div>
     </span>
-
-    <footer>
-        <b style="float: left;">SNS-MSP / Form. CERT. 081 / 2019</b>
-        <b style="float: right;">CERTIFICADO DE SALUD EN EL TRABAJO</b>
+    <br>
+    <footer style="font-size: 10px;">
+        <b >SNS-MSP / Form. CERT. 081 / 2019    |    </b>
+        <b >CERTIFICADO DE SALUD EN EL TRABAJO</b>
     </footer>
 </body>
 

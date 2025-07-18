@@ -128,10 +128,10 @@ class VacanteController extends Controller
         try {
             $datos = $request->validated();
             if ($datos['imagen_referencia'] && Utils::esBase64($datos['imagen_referencia']))
-                $datos['imagen_referencia'] = (new GuardarImagenIndividual($datos['imagen_referencia'], RutasStorage::VACANTES_TRABAJO))->execute();
+                $datos['imagen_referencia'] = (new GuardarImagenIndividual($datos['imagen_referencia'], RutasStorage::VACANTES_TRABAJO, $vacante->imagen_referencia))->execute();
             else unset($datos['imagen_referencia']);
             if ($datos['imagen_publicidad'] && Utils::esBase64($datos['imagen_publicidad']))
-                $datos['imagen_publicidad'] = (new GuardarImagenIndividual($datos['imagen_publicidad'], RutasStorage::VACANTES_TRABAJO))->execute();
+                $datos['imagen_publicidad'] = (new GuardarImagenIndividual($datos['imagen_publicidad'], RutasStorage::VACANTES_TRABAJO, $vacante->imagen_publicidad))->execute();
             else unset($datos['imagen_publicidad']);
 
             $vacante->update($datos);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\EmpleadoRolePermisoResource;
+use App\Http\Resources\RecursosHumanos\EmpleadoLiteResource;
 use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
@@ -25,6 +26,7 @@ use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\PolymorphicGenericService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\SystemNotificationService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
@@ -59,6 +61,7 @@ class EmpleadoController extends Controller
         $search = request('search');
         $campos = request('campos') ? explode(',', request('campos')) : '*';
 
+        if ($search) return $this->servicio->search($search);
 
         // Devuelve en un array al  empleado resposanble del departamento que se pase como parametro
         // Requiere de campos: es_responsable_departamento=true&departamento_id=
@@ -84,7 +87,6 @@ class EmpleadoController extends Controller
         // Procesar respuesta
         if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
-        if ($search) return $this->servicio->search($search);
 
         return $this->servicio->obtenerTodos();
     }
@@ -161,6 +163,7 @@ class EmpleadoController extends Controller
         }
 
         $modelo = new EmpleadoResource($user->empleado);
+        SystemNotificationService::sendInformationMailToSystemAdmin('Se ha creado un nuevo empleado con los siguientes datos:', 'NUEVO_EMPLEADO_CREADO', (new EmpleadoLiteResource($empleado->refresh()))->resolve());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -227,12 +230,12 @@ class EmpleadoController extends Controller
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
         if ($datos['foto_url'] && Utils::esBase64($datos['foto_url'])) {
-            $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
+            $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES, $empleado->foto_url))->execute();
         } else {
             unset($datos['foto_url']);
         }
         if ($datos['firma_url'] && Utils::esBase64($datos['firma_url'])) {
-            $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
+            $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS, $empleado->firma_url))->execute();
         } else {
             unset($datos['firma_url']);
         }
@@ -484,7 +487,9 @@ class EmpleadoController extends Controller
         if (!is_null($request->permisos)) {
             $permisos = explode(',', $request->permisos);
             $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->whereHas('empleado', function ($query){
+                $query->where('estado', true);
+            })->get());
         }
         return response()->json(compact('results'));
     }
@@ -521,12 +526,12 @@ class EmpleadoController extends Controller
     function generarNombreUsuario(array $request)
     {
         $nombreUsuario = $request['usuario'];
-        $nombres = str_replace('ñ', 'n', $request['nombres']);
-        $apellidos = str_replace('ñ', 'n', $request['apellidos']);
+        $nombres = str_replace(['ñ', 'Ñ'], ['n', 'N'], $request['nombres']);
+        $apellidos = str_replace(['ñ', 'Ñ'], ['n', 'N'], $request['apellidos']);
         // Comprobamos si el nombre de usuario ya existe
         $query = User::where('name', $nombreUsuario)->get();
         $username = $nombreUsuario;
-        if ($query->count() > 0) {
+        if ($query->count() > 0 && (!$request['sobreescribir'])){
             // Separamos el nombre y el apellido en dos cadenas
             $nombre = explode(" ", $nombres);
             // ['primer', 'segundo']
@@ -542,15 +547,16 @@ class EmpleadoController extends Controller
                 }
             }
         }
-        return str_replace('ñ', 'n', $username);
+        return  str_replace(['ñ', 'Ñ'], ['n', 'N'],  $username); // Se usa para reemplazar las eñes en mayusculas y en minusculas
     }
 
     function obtenerNombreUsuario(Request $request)
     {
         $datos = $request->validate([
-            'nombres' => ['required', 'string'],
+            'nombres' => 'required|string',
             'apellidos' => 'required|string',
-            'usuario' => 'required|string']);
+            'usuario' => 'required|string',
+            'sobreescribir'=>'boolean']);
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
     }

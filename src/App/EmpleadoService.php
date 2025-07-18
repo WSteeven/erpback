@@ -15,6 +15,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -23,18 +24,6 @@ class EmpleadoService
 {
     public function __construct()
     {
-    }
-
-    public function getUsersWithRoles($roles, $campos)
-    {
-        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
-            $query->whereIn('name', $roles);
-        })->pluck('id');
-
-        // return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
-        return Empleado::whereIn('usuario_id', $idUsers)->where('estado', true)->get($campos);
-
-        // return $users;
     }
 
     /* BORRAR public function obtenerEmpleadosPorRol(string $rol)
@@ -46,6 +35,15 @@ class EmpleadoService
         return $results;
     } */
 
+    /**
+     * Obtiene todos los ids de los empleados cuyo jefe_id sea igual al id del empleado de la sesión logueada.
+     * @return Collection
+     */
+    public static function obtenerIdsEmpleadosSubordinadosJefe()
+    {
+        return Empleado::where('jefe_id', Auth::user()->empleado->id)
+            ->pluck('id');
+    }
     public static function obtenerIdsEmpleadosOtroAutorizador()
     {
 //        $id_wellington = 117;
@@ -141,15 +139,19 @@ class EmpleadoService
         return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
+    public function getUsersWithRoles($roles, $campos)
+    {
+        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
+            $query->whereIn('name', $roles);
+        })->pluck('id');
+
+        return Empleado::whereIn('usuario_id', $idUsers)->where('estado', true)->get($campos);
+    }
+
     public function obtenerIdsEmpleadosPorRol(string $rol)
     {
-        // $usuario_ac->hasRole('RECURSOS HUMANOS')
-        $idsUsuariosRRHH = User::role($rol)->pluck('id');
-        Log::channel('testing')->info('Log', ['idsUsuariosRRHH', $idsUsuariosRRHH]);
-        $ids = Empleado::whereIn('usuario_id', $idsUsuariosRRHH)->pluck('id');
-        Log::channel('testing')->info('Log', ['ids', $ids]);
-        return $ids;
-        // return Departamento::where('nombre', 'RECURSOS HUMANOS')->pluck('responsable_id')->toArray();
+        $idsUsuarios = User::role($rol)->pluck('id');
+        return Empleado::whereIn('usuario_id', $idsUsuarios)->pluck('id');
     }
 
     public function obtenerTodosSinEstado()
@@ -310,6 +312,12 @@ class EmpleadoService
         $empleado->familiares()->createMany($mappedCollection->toArray());
     }
 
+    /**
+     * Busca un autorizador directo para un determinado empleado y retorna el ID del autorizador directo encontrado, caso contrario, el proporcionado.
+     * @param int $empleado_id ID del empleado que realiza el gasto.
+     * @param int $aut_especial ID del empleado autorizador.
+     * @return int el ID del autorizador.
+     */
     public static function obtenerAutorizadorDirecto(int $empleado_id, int $aut_especial)
     {
         $empleado = Empleado::find($empleado_id); // El empleado que realiza el gasto

@@ -64,8 +64,8 @@ class NotificarEntrevistaMail extends Mailable
         return new Content(
             view: 'email.recursosHumanos.SeleccionContratacion.entrevista_postulacion',
             with: [
-                'url' => env('SPA_URL', 'https://sistema.jpconstrucred.com'),
-                'link' => env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/puestos-aplicados',
+                'url' => env('SPA_URL', 'https://firstred.jpconstrucred.com'),
+                'link' => env('SPA_URL', 'https://firstred.jpconstrucred.com') . '/puestos-aplicados',
 //                'canton'=>
             ]
         );

@@ -113,6 +113,14 @@ class SaldoService
             ->get();
     }
 
+    public function obtenerAjustesSaldos(Carbon $fecha_inicio, Carbon $fecha_fin, $empleado, $tipo = AjusteSaldoFondoRotativo::INGRESO)
+    {
+       return  AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+            ->where('destinatario_id', $empleado)
+            ->where('tipo', $tipo)
+            ->get();
+    }
+
     /**
      * Obtiene los registros que pertenecen al mes anterior, pero que por A o B motivo fueron aprobados en el mes que se esta consultando el reporte.
      * @param int|null $empleado_id

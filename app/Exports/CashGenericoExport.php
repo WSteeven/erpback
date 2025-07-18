@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
@@ -13,10 +14,9 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CashGenericoExport extends DefaultValueBinder implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles, WithStrictNullComparison, WithCustomValueBinder
+class CashGenericoExport extends DefaultValueBinder implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles, WithStrictNullComparison, WithCustomValueBinder, WithColumnWidths
 {
     use Exportable;
 
@@ -56,17 +56,27 @@ class CashGenericoExport extends DefaultValueBinder implements FromCollection, S
 
     public function bindValue(Cell $cell, $value)
     {
-        if ($cell->getColumn() == 'G') {
-            $val = str_replace(',', '', $value);
+        // Verifica si la celda está en la columna G y no es la fila 1
+        if ($cell->getColumn() === 'G' && $cell->getRow() !== 1) {
+            // Asegurar que el valor es numérico
+            $val = str_replace([',', '.'], '', $value);
+
+            // Formatear sin decimales y con 13 caracteres de longitud
             $numeroFormateado = str_pad($val, 13, '0', STR_PAD_LEFT);
+
+            // Asignar el valor formateado como texto explícito
             $cell->setValueExplicit($numeroFormateado, DataType::TYPE_STRING);
-            return true;
-        }
-        if (is_numeric($value)) {
-            $cell->setValueExplicit($value, DataType::TYPE_STRING);
 
             return true;
         }
+
+        // Para otras columnas, manejar valores numéricos como texto
+        if (is_numeric($value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+            return true;
+        }
+
+        // Llamar al método original para otros valores
         return parent::bindValue($cell, $value);
     }
 
@@ -80,15 +90,35 @@ class CashGenericoExport extends DefaultValueBinder implements FromCollection, S
 
     public function styles(Worksheet $sheet)
     {
-        $columns_izquierda = ['A', 'F', 'H', 'J', 'L', 'N', 'S', 'T'];
+        // Aplicar estilos a las cabeceras
+        $textoTitulo = [
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => 'FFFFFF'],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['argb' => '0879DC'], // Azul oscuro
+            ],
+        ];
+
+        // Aplicar estilo a las cabeceras (fila 1)
+        $sheet->getStyle('A1:T1')->applyFromArray($textoTitulo);
+        // Aplicar autoajuste de texto en celdas de datos
+        $sheet->getStyle('A1:T' . count($this->data) + 1)->getAlignment()->setWrapText(true)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);;
+    }
+
+    /* $columns_izquierda = ['A', 'F', 'H', 'J', 'L', 'N', 'S', 'T'];
         $columns_derecha = ['B', 'C', 'E', 'G', 'I', 'K', 'M'];
         foreach ($columns_izquierda as $column_izquierda) {
             $sheet->getStyle($column_izquierda)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
         }
         foreach ($columns_derecha as $column_derecha) {
             $sheet->getStyle($column_derecha)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        }
-    }
+        } */
 
     public function columnWidths(): array
     {
@@ -97,7 +127,7 @@ class CashGenericoExport extends DefaultValueBinder implements FromCollection, S
             'B' => 15.67,
             'C' => 14.56,
             'E' => 14.11,
-            'F' => 16.11,
+            'F' => 20,
             'G' => 15.11,
             'H' => 15.67,
             'I' => 17.78,
@@ -105,9 +135,9 @@ class CashGenericoExport extends DefaultValueBinder implements FromCollection, S
             'K' => 14.11,
             'L' => 15.11,
             'M' => 16.11,
-            'N' => 19.67,
-            'S' => 29.11,
-            'T' => 10.78
+            'N' => 30,
+            'S' => 30,
+            'T' => 30,
         ];
     }
 }

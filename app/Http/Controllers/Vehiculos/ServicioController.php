@@ -29,7 +29,9 @@ class ServicioController extends Controller
         if (request()->search)
             $results = Servicio::search(request()->search)->orderBy('nombre', 'asc')->get();
         else
-            $results = Servicio::ignoreRequest(['search'])->filter()->orderBy('nombre', 'asc')->get();
+            // $results = Servicio::ignoreRequest(['search'])->filter()->orderBy('nombre', 'asc')->get();
+            // Cambio realizado para que a Pedro Aguilar le aparezcan todos los mantenimientos.
+            $results = Servicio::orderBy('nombre', 'asc')->get();
         $results = ServicioResource::collection($results);
         return response()->json(compact('results'));
     }

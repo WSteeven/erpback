@@ -2,7 +2,10 @@
 
 namespace Src\App;
 
+use App\Helpers\Filtros\FiltroSearchHelper;
+use App\Models\Autorizacion;
 use App\Models\Comprobante;
+use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
@@ -19,15 +22,16 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Src\App\Sistema\PaginationService;
+use Src\App\Bodega\PedidoService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
+use Src\Config\Constantes;
 use Src\Config\EstadosTransacciones;
 use Throwable;
 
 class TransaccionBodegaEgresoService
 {
-    private static \Illuminate\Support\Collection|array|Collection $motivos;
+    public static \Illuminate\Support\Collection|array|Collection $motivos;
 
     public function __construct()
     {
@@ -36,73 +40,87 @@ class TransaccionBodegaEgresoService
     }
 
 
+    /**
+     * @throws Exception
+     */
+    public static function obtenerFiltrosIndice(?string $estado)
+    {
+        if (is_null($estado))
+            return '';
+        else
+            $filtros = match (strtoupper($estado)) {
+                EstadoTransaccion::PENDIENTE => [
+                    ['clave' => 'firmada', 'valor' => 0],
+                    ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PENDIENTE, 'operador' => 'AND'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                    ['clave' => 'autorizacion', 'valor' => Autorizacion::APROBADO, 'operador' => 'AND'],
+                ],
+                EstadoTransaccion::PARCIAL => [
+                    ['clave' => 'estado_comprobante', 'valor' => EstadoTransaccion::PARCIAL],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                ],
+                EstadoTransaccion::COMPLETA => [
+                    ['clave' => 'firmada', 'valor' => 1],
+                    ['clave' => 'estado_comprobante', 'valor' => TransaccionBodega::ACEPTADA, 'operador' => 'AND'],
+                    ['clave' => 'comprobante', 'valor' => 'na', 'operador' => 'OR'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                ],
+                'ANULADA' => [
+                    ['clave' => 'estado', 'valor' => '"' . EstadoTransaccion::ANULADA . '"'],
+                    ['clave' => 'tipo_transaccion', 'valor' => TipoTransaccion::EGRESO, 'operador' => 'AND'],
+                ],
+                default => throw new Exception("El estado '$estado' no es válido para filtros."),
+            };
+
+        return FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+    }
+
+    /**
+     * @throws Exception
+     */
     public static function listar($request, $paginate = false)
     {
-        $pagination_service = new PaginationService();
         $estado = $request->estado;
-
-//        $motivos = Motivo::where('tipo_transaccion_id', $tipo_transaccion->id)->get('id');
+        $search = $request->search;
+        $filtrosAlgolia = self::obtenerFiltrosIndice($estado);
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD, User::ROL_CONSULTA])) { //si es bodeguero
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
-                        $query = TransaccionBodega::search(request('search'))
-                            ->query(function ($query) {
-                                $query->whereIn('motivo_id', self::$motivos)
-                                    ->whereHas('comprobante', function ($q) {
-                                        $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
-                                    })
-                                    ->with('comprobante')
-                                    ->orderBy('id', 'desc');
-                            });
-
-                        if ($paginate) {
-                            return $pagination_service->paginate($query, 100, request('page'));
-                        } else
-                            return $query->get();
+                        $query = TransaccionBodega::whereIn('motivo_id', self::$motivos)
+                            ->whereHas('comprobante', function ($q) {
+                                $q->where('firmada', false)->where('estado', EstadoTransaccion::PENDIENTE);
+                            })
+                            ->with('comprobante')
+                            ->orderBy('id', 'desc');
+                        break;
                     case EstadoTransaccion::PARCIAL:
-                        $query = TransaccionBodega::search(request('search'))
-                            ->query(function ($query) {
-                                $query->with('comprobante')
-                                    ->whereIn('motivo_id', self::$motivos)
-                                    ->whereHas('comprobante', function ($q) {
-                                        $q->where('estado', EstadoTransaccion::PARCIAL);
-                                    })
-                                    ->orderBy('id', 'desc');
-                            });
-                        if ($paginate) {
-                            return $pagination_service->paginate($query, 100, request('page'));
-                        } else
-                            return $query->get();
-                    case EstadoTransaccion::COMPLETA:
-                        $query = TransaccionBodega::search(request('search'))
-                            ->query(function ($query) {
-                                $query->with('comprobante')->whereIn('motivo_id', self::$motivos)
-                                    ->where(function ($query) {
-                                        $query->whereHas('comprobante', function ($q) {
-                                            $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
-                                        })->orWhereDoesntHave('comprobante');
-                                    })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc');
-                            });
-                        if ($paginate) {
-                            return $pagination_service->paginate($query, 1000, request('page'));
-                        } else
-                            return $query->get();
-                    case 'ANULADA':
-                        $query = TransaccionBodega::search(request('search'))
-                            ->query(function ($query){
-                              $query
+                        $query = TransaccionBodega::with('comprobante')
                             ->whereIn('motivo_id', self::$motivos)
+                            ->whereHas('comprobante', function ($q) {
+                                $q->where('estado', EstadoTransaccion::PARCIAL);
+                            })
+                            ->orderBy('id', 'desc');
+                        break;
+                    case EstadoTransaccion::COMPLETA:
+                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)
+                            ->where(function ($query) {
+                                $query->whereHas('comprobante', function ($q) {
+                                    $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
+                                })->orWhereDoesntHave('comprobante');
+                            })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc');
+
+                        break;
+                    case 'ANULADA':
+                        $query = TransaccionBodega::whereIn('motivo_id', self::$motivos)
                             ->where('estado_id', EstadosTransacciones::ANULADA)
                             ->orderBy('id', 'desc');
-                            });
-                        if ($paginate) {
-                            return $pagination_service->paginate($query, 100, request('page'));
-                        } else
-                            return $query->get();
+                        break;
                     default:
+                        throw new Exception("El estado '$estado' no es válido.");
                 }
+                return buscarConAlgoliaFiltrado(TransaccionBodega::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtrosAlgolia);
             } else {
                 $results = TransaccionBodega::whereIn('motivo_id', self::$motivos)
                     ->when($request->fecha_inicio, function ($q) use ($request) {
@@ -118,28 +136,31 @@ class TransaccionBodegaEgresoService
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
+                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
                             $q->where('firmada', false);
-                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
+
                         break;
                     case EstadoTransaccion::PARCIAL:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
+                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)->whereHas('comprobante', function ($q) {
                             $q->where('estado', EstadoTransaccion::PARCIAL);
-                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
                         break;
                     case EstadoTransaccion::COMPLETA:
-                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)
+                        $query = TransaccionBodega::with('comprobante')->whereIn('motivo_id', self::$motivos)
                             ->where(function ($query) {
                                 $query->whereHas('comprobante', function ($q) {
                                     $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
                                 })->orWhereDoesntHave('comprobante');
-                            })->where('autorizacion_id', Autorizaciones::APROBADO)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                            })->where('autorizacion_id', Autorizaciones::APROBADO)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
                         break;
                     case 'ANULADA':
-                        $results = TransaccionBodega::whereIn('motivo_id', self::$motivos)->where('estado_id', EstadosTransacciones::ANULADA)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        $query = TransaccionBodega::whereIn('motivo_id', self::$motivos)->where('estado_id', EstadosTransacciones::ANULADA)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc');
                         break;
                     default:
+                        throw new Exception("El estado '$estado' no es válido.");
                 }
+                return buscarConAlgoliaFiltrado(TransaccionBodega::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtrosAlgolia);
             } else
                 $results = TransaccionBodega::whereIn('motivo_id', self::$motivos)
                     ->where('cliente_id', ClientesCorporativos::TELCONET)
@@ -239,7 +260,7 @@ class TransaccionBodegaEgresoService
         $ids_detalles = DetalleProducto::whereIn('producto_id', $ids_productos)->pluck('id');
         $ids_inventarios = Inventario::whereIn('detalle_id', $ids_detalles)->pluck('id');
         $ids_transacciones = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->pluck('transaccion_id');
-        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
+//        Log::channel('testing')->info('Log', ['Request', $ids_transacciones]);
         return TransaccionBodega::with('comprobante')
             ->whereIn('motivo_id', self::$motivos)
             ->whereIn('id', $ids_transacciones)
@@ -253,7 +274,7 @@ class TransaccionBodegaEgresoService
             )
             ->whereHas('comprobante', function ($q) {
                 $q->where('firmada', true);
-            })->orderBy('id', )->get();
+            })->orderBy('id')->get();
     }
 
     public static function filtrarEgresoPorTipoFiltro($request)
@@ -304,7 +325,7 @@ class TransaccionBodegaEgresoService
                     })->orderBy('id', 'desc')->get();
                 break;
             case 3: //persona responsable
-                // Log::channel('testing')->info('Log', ['Entró en persona responsable']);
+                Log::channel('testing')->info('Log', ['Entró en persona responsable', $request]);
                 $results = TransaccionBodega::with('comprobante')
                     ->whereIn('motivo_id', self::$motivos)->where('responsable_id', $request->responsable)
                     ->whereBetween(
@@ -542,6 +563,7 @@ class TransaccionBodegaEgresoService
         $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $request->item['id'])->first();
         try {
             DB::beginTransaction();
+            if (is_null($request->item['cantidad']) || $request->item['cantidad'] < 0) throw new Exception('La cantidad debe ser un numero mayor o igual a 0');
             //primero verificamos si se va a restar o no
             if ($request->item['cantidad'] > $request->item['pendiente']) {
                 // Esto significa que se va a despachar más cantidad
@@ -559,6 +581,8 @@ class TransaccionBodegaEgresoService
                     $item_inventario->cantidad += $detalle_producto_transaccion->cantidad_inicial;
                     $item_inventario->save();
                     $detalle_producto_transaccion->delete();
+                    // Aqui se verifica si tiene pedido y se borra la cantidad de despachado
+                    if ($transaccion->pedido_id) PedidoService::modificarCantidadDespachadoEnDetallePedidoProducto($item_inventario->detalle_id, $transaccion->pedido_id, $request->item['cantidad']);
                     DB::commit();
                     return;
                 }
@@ -581,6 +605,7 @@ class TransaccionBodegaEgresoService
     public function modificarItemEgresoParcial(Request $request, TransaccionBodega $transaccion)
     {
         $item_inventario = Inventario::find($request->item['id']);
+        if (is_null($request->item['cantidad']) || $request->item['cantidad'] < 0) throw new Exception('La cantidad debe ser un numero mayor o igual a 0');
         $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $request->item['id'])->first();
         if ($detalle_producto_transaccion->recibido > 0 && $request->item['cantidad'] > $detalle_producto_transaccion->cantidad_inicial) throw new Exception('No se puede despachar más cantidad a un ítem que ya tiene una cantidad recibida mayor a 0');
         if ($request->item['cantidad'] === 0 && $detalle_producto_transaccion->recibido > 0) throw new Exception('No puede establecer cantidad cero para un item que ya tiene un valor de recibido');
@@ -612,6 +637,12 @@ class TransaccionBodegaEgresoService
                     $item_inventario->save();
                     $detalle_producto_transaccion->delete();
                     $this->actualizarTransaccionEgreso($request->transaccion_id);
+                    if (!is_null($detalle_producto_transaccion->transaccion->pedido_id)) {
+                        // Se actualiza la cantidad en el pedido
+                        $item_pedido = DetallePedidoProducto::where('pedido_id', $detalle_producto_transaccion->transaccion->pedido_id)->where('detalle_id', $item_inventario->detalle_id)->first();
+                        $item_pedido->despachado -= $detalle_producto_transaccion->cantidad_inicial;
+                        $item_pedido->save();
+                    }
                     DB::commit();
                     return;
                 }

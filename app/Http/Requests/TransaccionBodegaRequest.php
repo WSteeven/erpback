@@ -35,8 +35,8 @@ class TransaccionBodegaRequest extends FormRequest
             'autorizacion_id' => 'required|exists:autorizaciones,id',
             'observacion_aut' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
-            'comprobante' => 'sometimes|string|nullable',
-            'proveedor' => 'sometimes|string|nullable|required_with_all:comprobante',
+            'num_comprobante' => 'sometimes|string|nullable',
+            'proveedor' => 'sometimes|string|nullable|required_with_all:num_comprobante',
             'fecha_limite' => 'nullable|string',
             'estado_id' => 'required|exists:estados_transacciones_bodega,id',
             'observacion_est' => 'nullable|string|sometimes',
@@ -56,6 +56,8 @@ class TransaccionBodegaRequest extends FormRequest
             'cliente_id' => 'sometimes|exists:clientes,id',
             'listadoProductosTransaccion.*.cantidad' => 'required',
             'codigo_permiso_traslado' => 'nullable|string',
+            'proveedor_id' => 'nullable|numeric|integer',
+            'fecha_compra' => 'nullable|string',
         ];
         if ($this->route()->uri() === 'api/transacciones-egresos') {
             // $rules['autorizacion'] = 'nullable';
@@ -243,7 +245,7 @@ class TransaccionBodegaRequest extends FormRequest
             $this->merge([
                 'autorizacion' => 2
             ]);
-        }
+        }else $this->merge(['autorizacion' => 1]);
         // Casteo de llaves foraneas
         if ($this->transferencia)  $this->merge(['transferencia_id' => $this->transferencia]);
         if ($this->per_atiende)  $this->merge(['per_atiende_id' => $this->per_atiende]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tareas;
 
+use App\Models\Empleado;
 use App\Models\Tareas\TransferenciaProductoEmpleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,10 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             'id' => $this->id,
             'justificacion' => $this->justificacion,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
+            'empleado_origen' => Empleado::extraerNombresApellidos($this->empleadoOrigen),
+            'nombre_empleado_origen' => Empleado::extraerNombresApellidos($this->empleadoOrigen),
+            'empleado_destino' => Empleado::extraerNombresApellidos($this->empleadoDestino),
+            'nombre_empleado_destino' => Empleado::extraerNombresApellidos($this->empleadoDestino),
             'solicitante_id' => $this->solicitante_id,
             'tarea_origen' => $this->descripcionTarea($this->tareaOrigen), //$this->tareaOrigen?->titulo,
             'tarea_destino' => $this->descripcionTarea($this->tareaDestino), //$this->tareaDestino?->titulo,
@@ -36,12 +41,13 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             'updated_at' => $this->updated_at,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
             'cliente' => $this->cliente_id,
-            // 'cliente' => $this->sucursal?->cliente?->empresa?->razon_social,
-            // 'cliente_id' => $this->sucursal?->cliente_id,
+            'nombre_cliente' => $this->cliente?->empresa->razon_social,
+            'novedades_transferencia_recibida' => $this->novedades_transferencia_recibida,
         ];
-
+        
         if ($controller_method == 'show') {
             $modelo['solicitante'] = $this->solicitante_id;
+            $modelo['nombre_solicitante'] = $this->solicitante->nombres . ' ' . $this->solicitante->apellidos;
             $modelo['empleado_origen'] = $this->empleado_origen_id;
             $modelo['empleado_destino'] = $this->empleado_destino_id;
             $modelo['proyecto_origen'] = $this->proyecto_origen_id;
@@ -58,7 +64,7 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             $modelo['nombre_tarea_destino'] = $this->tareaDestino ? $this->tareaDestino?->codigo_tarea . ' | ' . $this->tareaDestino?->titulo : null;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
-            $modelo['nombre_cliente'] = $this->cliente?->empresa->razon_social;
+            // $modelo['nombre_cliente'] = $this->cliente?->empresa->razon_social;
         }
 
         return $modelo;

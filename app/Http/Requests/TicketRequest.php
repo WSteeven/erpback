@@ -23,7 +23,7 @@ class TicketRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'asunto' => 'required|string',
             'descripcion' => 'required|string',
             'prioridad' => 'required|string',
@@ -46,10 +46,23 @@ class TicketRequest extends FormRequest
             'ticket_interno' => 'boolean',
             'ticket_para_mi' => 'boolean',
             'cc' => 'nullable|array',
+            // Recurrente
+            'is_recurring' => 'boolean',
+            'recurrence_active' => 'boolean',
+            'recurrence_frequency' => 'nullable|in:DAILY,WEEKLY,MONTHLY',
+            'recurrence_time' => 'nullable|date_format:H:i:s',
+            'recurrence_day_of_week' => 'nullable|integer|min:0|max:6|required_if:recurrence_frequency,weekly',
+            'recurrence_day_of_month' => 'nullable|integer|min:1|max:31|required_if:recurrence_frequency,monthly',
         ];
+
+        if ($this->isMethod('patch')) {
+            $rules = collect($rules)->only(array_keys($this->all()))->toArray(); // Esta regla está bien para pach, verificado el 14/8/2024
+        }
+
+        return $rules;
     }
 
-    public function all($keys = null)
+    /* public function all($keys = null)
     {
         $data = parent::all($keys);
 
@@ -58,7 +71,7 @@ class TicketRequest extends FormRequest
         $data['ticket_para_mi'] = filter_var($data['ticket_para_mi'], FILTER_VALIDATE_BOOLEAN);
 
         return $data;
-    }
+    } */
 
     public function messages()
     {

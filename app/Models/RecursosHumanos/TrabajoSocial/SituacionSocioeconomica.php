@@ -33,10 +33,14 @@ class SituacionSocioeconomica extends Model implements Auditable
         'cantidad_tarjetas_credito',
         'vehiculo',
         'tiene_terreno',
+        'especificacion_terreno',
         'tiene_bienes',
+        'especificacion_bienes',
         'tiene_ingresos_adicionales',
+        'especificacion_ingresos_adicionales',
         'ingresos_adicionales',
         'apoya_familiar_externo',
+        'valor_apoyo_familiar_externo',
         'familiar_externo_apoyado',
     ];
 

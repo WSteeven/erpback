@@ -19,6 +19,8 @@ class Hijo extends Model implements Auditable
     protected $fillable = [
         'ficha_id',  // el id de la ficha socioeconomica
         'empleado_id',  // el id del empleado para cuando se quiera acceder directamente
+        'tipo',
+        'genero',
         'nombres_apellidos',
         'ocupacion',
         'edad',

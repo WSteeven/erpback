@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\SystemNotificationService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
@@ -74,7 +75,7 @@ class RolPagoMesController extends Controller
             if (!$request->es_quincena && count($existe_mes) == 0) {
                 throw new Exception('Por favor primero realice el Rol de Pagos de Quincena');
             }
-            if (RolPagoMes::where('finalizado', false)->count() > 0) throw new Exception( 'Por favor asegurate de haber finalizado todos los roles de pagos anteriores para poder crear uno nuevo.');
+//            if (RolPagoMes::where('finalizado', false)->count() > 0) throw new Exception('Por favor asegurate de haber finalizado todos los roles de pagos anteriores para poder crear uno nuevo.');
             DB::beginTransaction();
             $rol = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rol);
@@ -85,7 +86,7 @@ class RolPagoMesController extends Controller
         } catch (Exception $e) {
             Log::channel('testing')->error('Log', ['error store ', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
-            throw Utils::obtenerMensajeErrorLanzable($e );
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
@@ -208,13 +209,34 @@ class RolPagoMesController extends Controller
      */
     public function enviarRoles(int $rolPagoId)
     {
+        try {
+
+        $correos=[];
+        $error = false;
+        $mensaje = '';
         $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
         foreach ($roles as $rol_pago) {
-            $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-            $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
+            try {
+                $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
+                $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
+            }catch (Exception $e) {
+                $error = true;
+                $mensaje = $e->getMessage();
+                $correos[] = $empleado->user->email;
+                SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error general: " .$rol_pago.' <-> '. $e->getMessage());
+            }
+        }
+        if ($error) {
+            if(strlen($mensaje)>5)
+            $mensaje = "Roles de pago enviados correctamente pero con algunos errores: $mensaje";
+            return response()->json(compact('mensaje', 'correos'));
         }
         $mensaje = 'Rol de pago enviado correctamente';
         return response()->json(compact('mensaje'));
+        }catch (Exception $e) {
+            SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error con el método RolPagoMesController::enviarRoles: " . $e->getMessage());
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
     }
 
     /**
@@ -516,7 +538,7 @@ class RolPagoMesController extends Controller
                 }
 //                if ($item[$key_cantidad] == 0) {
 //                    for ($j = 0; $j < $maximo; $j++) {
-                        //   $monto[$j] = 0;
+                //   $monto[$j] = 0;
 //                    }
 //                }
                 return $monto;
@@ -621,10 +643,10 @@ class RolPagoMesController extends Controller
                 ];
             }
             $rol->rolPago()->createMany($roles_pago);
-            if(!$rol->es_quincena){
-            // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
+            if (!$rol->es_quincena) {
+                // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
                 $this->nominaService->registrarIngresosProgramados($rol);
-            // Aquí se registra los egresos, solo en caso de que sea rol de fin de mes
+                // Aquí se registra los egresos, solo en caso de que sea rol de fin de mes
                 $this->nominaService->registrarEgresosProgramados($rol);
             }
 
@@ -656,9 +678,9 @@ class RolPagoMesController extends Controller
                 ->where('esta_en_rol_pago', true)
                 ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
                 ->where('salario', '!=', 0)
-                ->whereDoesntHave('rolesPago', function ($query) use ($rol){
+                ->whereDoesntHave('rolesPago', function ($query) use ($rol) {
                     // Validar que no haya roles asociados al ID del rol actual
-                            $query->where('rol_pago_id', $rol->id);
+                    $query->where('rol_pago_id', $rol->id);
                 })->get();
             // Log::channel('testing')->info('Log', ['mes rol', $rol, $mes_rol, $final_mes, $ultimo_dia_mes]);
             // Log::channel('testing')->info('Log', ['empleados sin rol', $empleadosSinRolPago]);
@@ -743,7 +765,7 @@ class RolPagoMesController extends Controller
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
             $roles_pago = RolPago::where('rol_pago_id', $rol_mes->id)->get();
-            Log::channel('testing')->info('Log', ['roles_pago', $roles_pago]);
+//            Log::channel('testing')->info('Log', ['roles_pago', $roles_pago]);
             foreach ($roles_pago as $rol_pago) {
                 $this->nominaService->setEmpleado($rol_pago->empleado_id);
                 $this->prestamoService->setEmpleado($rol_pago->empleado_id);
@@ -794,6 +816,12 @@ class RolPagoMesController extends Controller
                     'rol_pago_id' => $rol_mes->id,
                 ));
             }
+            if (!$rol_mes->es_quincena) {
+                // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
+                $this->nominaService->registrarIngresosProgramados($rol_mes);
+                // Aquí se registra los egresos, solo en caso de que sea rol de fin de mes
+                $this->nominaService->registrarEgresosProgramados($rol_mes);
+            }
         } catch (Throwable|Exception $ex) {
             Log::channel('testing')->info('Log', ['error actualizarTablaRoles', $ex->getMessage(), $ex->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($ex, 'Error al refrescar rol pago por empleado');
@@ -812,6 +840,15 @@ class RolPagoMesController extends Controller
         return response()->json(compact('mensaje'));
     }
 
+    public function activarRolPago(RolPagoMes $rol)
+    {
+        $rol->finalizado = false;
+        $rol->save();
+        $modelo = new RolPagoMesResource($rol);
+        $mensaje ='Rol activado exitosamente';
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
     public function finalizarRolPago(Request $request)
     {
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);

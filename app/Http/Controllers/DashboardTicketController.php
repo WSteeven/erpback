@@ -90,8 +90,8 @@ class DashboardTicketController extends Controller
     {
         // Obtencion de parametros
         $idEmpleado = request('empleado_id');
-        $fechaInicio = request('fecha_inicio');
-        $fechaFin = request('fecha_fin');
+        $fechaInicio = Carbon::parse(request('fecha_inicio'))->startOfDay();
+        $fechaFin = Carbon::parse(request('fecha_fin'))->endOfDay();
 
         // Busqueda de empleado
         $empleado = Empleado::find($idEmpleado);
@@ -247,8 +247,8 @@ class DashboardTicketController extends Controller
     private function obtenerTicketsPorEstado()
     {
         $idEmpleado = request('empleado_id');
-        $fechaInicio = request('fecha_inicio');
-        $fechaFin = request('fecha_fin');
+        $fechaInicio = Carbon::parse(request('fecha_inicio'))->startOfDay();
+        $fechaFin = Carbon::parse(request('fecha_fin'))->endOfDay();
 
         // Conversion de fechas
         // $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');

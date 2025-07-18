@@ -43,7 +43,7 @@ class TransferenciasController extends Controller
         try {
             $usuario = Auth::user();
             $usuario_ac = User::where('id', $usuario->id)->first();
-            if ($usuario_ac->hasRole('CONTABILIDAD'))
+            if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR]))
                 $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
             else
                 $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
@@ -126,9 +126,11 @@ class TransferenciasController extends Controller
     public function update(TransferenciaSaldoRequest $request, Transferencias $transferencia)
     {
         try {
-            $datos = $request->all();
-            if ($request->comprobante != null)
-                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
+            $datos = $request->validated();
+            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante']))
+                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::TRANSFERENCIASALDO, $transferencia->comprobante))->execute();
+            else unset($datos['comprobante']);
+
             $transferencia->update($datos);
             $modelo = new TransferenciaResource($transferencia->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

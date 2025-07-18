@@ -37,7 +37,8 @@ class ProductoEmpleadoService
     }
 
     /**
-     * Lista los productos de stock del empleado seleccionado
+     * Lista los productos de stock del empleado seleccionado.
+     * Esto se usa en productos de empleado.
      * @param int $empleado_id es el id del empleado resposanble
      * @param boolean $seguimiento *(pendiente verificar si se quita)
      * @param int $subtarea_id si tiene subtarea entonces se listan solo los *materiales en el seguimento
@@ -53,7 +54,26 @@ class ProductoEmpleadoService
         } else {
             // Mi bodega
             if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
-            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal'])->filter()->tieneStock()->get();
+            else {
+                if (request('search')) {
+                    $searchResults = MaterialEmpleado::whereHas('detalle', function ($q) {
+                        $q->where('descripcion', 'like', '%' . request('search') . '%')
+                        ->orWhere('serial', 'like', '%' . request('search') . '%');
+                    });
+
+                    $results = $searchResults
+                        ->when(request()->filled('empleado_id'), function ($query) {
+                            return $query->where('empleado_id', request('empleado_id'));
+                        })
+                        ->when(request()->filled('cliente_id'), function ($query) {
+                            return $query->where('cliente_id', request('cliente_id'));
+                        })
+                        ->where('cantidad_stock', '>', 0)
+                        ->get();
+                } else {
+                    $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'stock_personal', 'categoria_id', 'search', 'destino'])->filter()->tieneStock()->filterByCategoria(request('categoria_id'))->get();
+                }
+            }
         }
 
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->where('cliente_id', request('cliente_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
@@ -67,7 +87,11 @@ class ProductoEmpleadoService
 
             // Buscamos los egresos donde el producto conste para el empleado y el cliente dado
             $ids_inventarios = Inventario::where('detalle_id', $detalle->id)->pluck('id');
-            $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->where('estado_id', EstadosTransacciones::COMPLETA)->pluck('id');
+            $ids_transacciones = TransaccionBodega::where('responsable_id', request()->empleado_id)->whereIn('estado_id', [EstadosTransacciones::COMPLETA, EstadosTransacciones::PARCIAL])
+                ->whereHas('comprobante', function ($q) {
+                    $q->where('firmada', true);
+                })
+                ->pluck('id');
             $ids_egresos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_inventarios)->whereIn('transaccion_id', $ids_transacciones)->pluck('transaccion_id');
             $ids_preingresos = PreingresoMaterial::where('responsable_id', request()->empleado_id)->where('autorizacion_id', Autorizacion::APROBADO_ID)->pluck('id');
             $ids_items_preingresos = ItemDetallePreingresoMaterial::where('detalle_id', $detalle->id)->whereIn('preingreso_id', $ids_preingresos)->pluck('preingreso_id');
@@ -76,6 +100,7 @@ class ProductoEmpleadoService
                 'id' => $item->detalle_producto_id,
                 'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
+                'descripcion' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
@@ -143,8 +168,8 @@ class ProductoEmpleadoService
 
     /**
      * Recibe $detalle y $cliente entonces lista todos los responsables que tiene asignado ese materiales con sus cantidades correspondientes
-     * @param int $detalle_producto_id id del detalle de producto
-     * @param int $cliente_id id del cliente propietario del producto
+     * @param int|null $detalle_producto_id id del detalle de producto
+     * @param int|null $cliente_id id del cliente propietario del producto
      * @return array listado de asignaciones actuales del producto
      */
     public function obtenerProductosPorDetalleCliente(int $detalle_producto_id = null, int $cliente_id = null)

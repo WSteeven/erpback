@@ -2,10 +2,8 @@
 <html lang="es">
 {{-- Aquí codigo PHP --}}
 @php
+    use Src\Shared\Utils;
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    // $rol_pago = $roles_pago[0];
 @endphp
 
 <head>
@@ -28,7 +26,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -115,83 +113,84 @@
 
 
 <body>
-    <header>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10pt;">
-            <tr class="row" style="width:auto">
-                <td>
-                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
-                </td>
-                <td>
-                    <p class="encabezado-rol"> <strong>{{ $configuracion['razon_social'] }}</strong></p>
-                    <p class="encabezado-rol"><strong>RUC {{ $configuracion['ruc'] }}</strong></p>
-                    <div class="encabezado-rol"><b>REPORTE DE PEDIDOS </b></div>
-                </td>
-                <td>
-                    {{-- Columna vacia --}}
-                </td>
-            </tr>
-        </table>
-        <hr>
-    </header>
-    <footer>
-        <table style="width: 100%;">
-            <tr>
-                <td class="page">Página </td>
-                <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 6px; margin-top: 0px;" align="center">Esta información es
-                        propiedad de {{ $configuracion['razon_social'] }} <br>Válida únicamente para fines autorizados.
-                    </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
-                        {{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d-m-Y H:i') }}
-                    </div>
-                </td>
-                <td></td>
-            </tr>
-        </table>
-    </footer>
+<header>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10pt;">
+        <tr class="row" style="width:auto">
+            <td>
+                <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo">
+                </div>
+            </td>
+            <td>
+                <p class="encabezado-rol"><strong>{{ $configuracion['razon_social'] }}</strong></p>
+                <p class="encabezado-rol"><strong>RUC {{ $configuracion['ruc'] }}</strong></p>
+                <div class="encabezado-rol"><b>REPORTE DE PEDIDOS </b></div>
+            </td>
+            <td>
+                {{-- Columna vacia --}}
+            </td>
+        </tr>
+    </table>
+    <hr>
+</header>
+<footer>
+    <table style="width: 100%;">
+        <tr>
+            <td class="page">Página</td>
+            <td style="line-height: normal;">
+                <div style="margin: 0%; margin-bottom: 6px; margin-top: 0px;" align="center">Esta información es
+                    propiedad de {{ $configuracion['razon_social'] }} <br>Válida únicamente para fines autorizados.
+                </div>
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
+                    {{ auth('sanctum')->user()->empleado->nombres }}
+                    {{ auth('sanctum')->user()->empleado->apellidos }} el
+                    {{ $fecha->format('d-m-Y H:i') }}
+                </div>
+            </td>
+            <td></td>
+        </tr>
+    </table>
+</footer>
 
-    <!-- aqui va el contenido del document<br><br>o -->
-    <main>
-        <table border="1" style="border-collapse:collapse; margin-bottom: 4px; width: 100%" align="center">
-            <thead>
-                <td class="encabezado-tabla-rol"><strong>ID PEDIDO</strong> </td>
-                <td class="encabezado-tabla-rol"><strong> FECHA</strong></td>
-                <td class="encabezado-tabla-rol"><strong>JUSTIFICACION</strong></td>
-                <td class="encabezado-tabla-rol"><strong>DESCRIPCION</strong></td>
-                <td class="encabezado-tabla-rol"><strong>SERIAL</strong></td>
-                <td class="encabezado-tabla-rol"><strong>CATEGORIA</strong></td>
-                <td class="encabezado-tabla-rol"><strong>CANTIDAD</strong></td>
-                <td class="encabezado-tabla-rol"><strong>DESPACHADO</strong></td>
-                <td class="encabezado-tabla-rol"><strong>SOLICITANTE</strong></td>
-                <td class="encabezado-tabla-rol"><strong>AUTORIZACION</strong></td>
-                <td class="encabezado-tabla-rol"><strong>AUTORIZADOR</strong></td>
-                <td class="encabezado-tabla-rol"><strong>ESTADO</strong></td>
-                <td class="encabezado-tabla-rol"><strong>RESPONSABLE</strong></td>
-            </thead>
-            <tbody>
-                @foreach ($reporte as $rpt)
-                    <tr>
-                        <td align="center">{{ $rpt['pedido_id'] }}</td>
-                        <td>{{ $rpt['created_at'] }}</td>
-                        <td>{{ $rpt['justificacion'] }}</td>
-                        <td>{{ $rpt['descripcion'] }}</td>
-                        <td>{{ $rpt['serial'] }}</td>
-                        <td align="center">{{ $rpt['categoria'] }}</td>
-                        <td align="center">{{ $rpt['cantidad'] }}</td>
-                        <td align="center">{{ $rpt['despachado'] }}</td>
-                        <td>{{ $rpt['solicitante'] }}</td>
-                        <td align="center">{{ $rpt['autorizacion'] }}</td>
-                        <td>{{ $rpt['autorizador'] }}</td>
-                        <td>{{ $rpt['estado'] }}</td>
-                        <td>{{ $rpt['responsable'] }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </main>
+<!-- aqui va el contenido del document<br><br>o -->
+<main>
+    <table border="1" style="border-collapse:collapse; margin-bottom: 4px; width: 100%" align="center">
+        <thead>
+        <td class="encabezado-tabla-rol"><strong>ID PEDIDO</strong></td>
+        <td class="encabezado-tabla-rol"><strong> FECHA</strong></td>
+        <td class="encabezado-tabla-rol"><strong>JUSTIFICACION</strong></td>
+        <td class="encabezado-tabla-rol"><strong>DESCRIPCION</strong></td>
+        <td class="encabezado-tabla-rol"><strong>SERIAL</strong></td>
+        <td class="encabezado-tabla-rol"><strong>CATEGORIA</strong></td>
+        <td class="encabezado-tabla-rol"><strong>CANTIDAD</strong></td>
+        <td class="encabezado-tabla-rol"><strong>DESPACHADO</strong></td>
+        <td class="encabezado-tabla-rol"><strong>SOLICITANTE</strong></td>
+        <td class="encabezado-tabla-rol"><strong>AUTORIZACION</strong></td>
+        <td class="encabezado-tabla-rol"><strong>AUTORIZADOR</strong></td>
+        <td class="encabezado-tabla-rol"><strong>ESTADO</strong></td>
+        <td class="encabezado-tabla-rol"><strong>RESPONSABLE</strong></td>
+        </thead>
+        <tbody>
+        @foreach ($reporte as $rpt)
+            <tr>
+                <td align="center">{{ $rpt['pedido_id'] }}</td>
+                <td>{{ $rpt['created_at'] }}</td>
+                <td>{{ $rpt['justificacion'] }}</td>
+                <td>{{ $rpt['descripcion'] }}</td>
+                <td>{{ $rpt['serial'] }}</td>
+                <td align="center">{{ $rpt['categoria'] }}</td>
+                <td align="center">{{ $rpt['cantidad'] }}</td>
+                <td align="center">{{ $rpt['despachado'] }}</td>
+                <td>{{ $rpt['solicitante'] }}</td>
+                <td align="center">{{ $rpt['autorizacion'] }}</td>
+                <td>{{ $rpt['autorizador'] }}</td>
+                <td>{{ $rpt['estado'] }}</td>
+                <td>{{ $rpt['responsable'] }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+</main>
 
 
 </body>

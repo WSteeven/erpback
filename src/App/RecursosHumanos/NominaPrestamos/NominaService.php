@@ -21,6 +21,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Src\App\SystemNotificationService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Throwable;
 
@@ -58,7 +59,8 @@ class NominaService
     public function setRolPago(RolPagoMes $rol_pago_mes)
     {
         $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
-        $this->rolPago = $rolPago;
+        if ($rolPago)
+            $this->rolPago = $rolPago;
     }
 
 //    public function setVendedorMedioTiempo($es_vendedor_medio_tiempo)
@@ -171,7 +173,7 @@ class NominaService
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
 //                $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
-                throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual');
+                throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual. Revisa la fecha de ingreso del empleado ' . Empleado::extraerNombresApellidos($this->empleado) . ' cuya fecha de ingreso es: ' . $fechaIngresada);
             }
         } else {
             // La fecha ingresada no pertenece al mes actual
@@ -256,12 +258,12 @@ class NominaService
      */
     public function registrarIngresosProgramados(RolPagoMes $rol_mes)
     {
-        Log::channel('testing')->info('Log', ['registrarIngresosProgramados', $rol_mes]);
+//        Log::channel('testing')->info('Log', ['registrarIngresosProgramados', $rol_mes]);
         $mes = Carbon::createFromFormat('m-Y', $rol_mes->mes)->format('Y-m');
         try {
-
             $valores = ValorEmpleadoRolMensual::where('mes', $mes)
-                ->where('tipo', ValorEmpleadoRolMensual::INGRESO)->get();
+                ->where('tipo', ValorEmpleadoRolMensual::INGRESO)
+                ->whereNull('rol_pago_id')->get();
             foreach ($valores as $valor) {
                 $rol_empleado = RolPago::where('empleado_id', $valor->empleado_id)->where('rol_pago_id', $rol_mes->id)->first();
                 IngresoRolPago::create([
@@ -274,7 +276,6 @@ class NominaService
                 $valor->save();
             }
         } catch (Exception $ex) {
-            Log::channel('testing')->error('Log', [$ex]);
             Log::channel('testing')->error('Log', ['error registrarIngresosProgramados', $ex->getMessage(), $ex->getLine()]);
             throw $ex;
         }
@@ -307,7 +308,7 @@ class NominaService
             $descuentos = Descuento::where('pagado', false)
                 ->where('empleado_id', $rol_empleado->empleado_id)
                 ->where('mes_inicia_cobro', '<=', $mes)->get();
-            if ($descuentos->count() > 0) Log::channel('testing')->info('Log', ['descuentos', $descuentos]);
+//            if ($descuentos->count() > 0) Log::channel('testing')->info('Log', ['descuentos', $descuentos]);
             // Recorremos los descuentos para ver las cuotas por cada uno y tomarlas para registrar esos egresos
             foreach ($descuentos as $descuento) {
                 $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
@@ -327,7 +328,7 @@ class NominaService
         foreach ($descuentos as $descuento) {
             $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
             $cuota?->update(['pagada' => true, 'comentario' => 'PAGADO EN ROL DEL MES ' . $mes]);
-            if(!$descuento->pagado && $descuento->cuotas()->where('pagada', false)->count()===0) $descuento->update(['pagado' => true]);
+            if (!$descuento->pagado && $descuento->cuotas()->where('pagada', false)->count() === 0) $descuento->update(['pagado' => true]);
         }
     }
 
@@ -404,41 +405,49 @@ class NominaService
         $mesesTrabajados = $hoy->diffInMonths($fechaIngreso);
 //        Log::channel('testing')->info('Log', ['hoy y dias trabajados', $hoy, $diasTrabajados]);
 //        Log::channel('testing')->info('Log', ['meses trabajados', $mesesTrabajados]);
-        if ($mesesTrabajados >= 12 && $this->empleado->acumula_fondos_reserva == 0) {
+        if ($mesesTrabajados >= 13 && $this->empleado->acumula_fondos_reserva == 0) {
 //            Log::channel('testing')->info('Log', ['entro en el if', $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva()]);
             $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-            if ($mesesTrabajados == 12) {
-//                Log::channel('testing')->info('Log', ['entro en if de meses trabajados']);
-                $fechaVinculacion = Carbon::createFromFormat('Y-m-d', $this->empleado->fecha_vinculacion)->year($hoy->year);
-                $diasRestantes = 30 - $fechaVinculacion->day + 1;
-                if ($diasRestantes >= 1) {
-                    $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-//                    Log::channel('testing')->info('Log', ['entro en if de dias restantes >=1', $dias, $diasRestantes, $fondosDeReserva]);
-                }
-                if ($dias < $diasRestantes) {
-                    $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-//                    Log::channel('testing')->info('Log', ['entro en segundo if ', $dias, $diasRestantes, $fondosDeReserva]);
-                }
-            }
+//            if ($mesesTrabajados == 12) {
+//                $fechaVinculacion = Carbon::createFromFormat('Y-m-d', $this->empleado->fecha_vinculacion)->year($hoy->year);
+//                $diasRestantes = 30 - $fechaVinculacion->day + 1;
+//                if ($diasRestantes >= 1) {
+//                    $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+//                }
+//                if ($dias < $diasRestantes) {
+//                    $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+//                }
+//            }
         }
         return floatval(number_format($fondosDeReserva, 2));
     }
 
     /**
+     * Envia un rol de pago a un empleado
      * @throws Exception
      */
-    public function enviar_rol_pago($rolPagoId, $destinatario)
+    public function enviar_rol_pago(RolPago $rol_pago, Empleado $destinatario)
     {
-        $roles_pagos = RolPago::where('id', $rolPagoId)->get();
-        $results = RolPago::empaquetarListado($roles_pagos);
-        $recursosHumanos = Departamento::where('id', 7)->first()->responsable_id;
-        $responsable = Empleado::where('id', $recursosHumanos)->first();
-        $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
-        $vista = 'recursos-humanos.rol_pagos';
-        $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
-        $user = User::where('id', $destinatario->usuario_id)->first();
-        Mail::to($user->email)
-            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
+        try {
+            $results = RolPago::empaquetarListado($rol_pago);
+            $responsable = Departamento::where('id', 7)->first()->responsable;
+            $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
+            $vista = 'recursos-humanos.rol_pagos';
+            $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
+            $user = User::where('id', $destinatario->usuario_id)->first();
+            Mail::to($user->email)
+                ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
+//        } catch (TransportExceptionInterface $mailEx) {
+//            // Error específico de envío de correo
+//            ExceptionNotificationService::sendExceptionErrorToSystemAdminMail(
+//                "Error al enviar correo: " . $mailEx->getMessage() . ". Destinatario: " . ($user->email ?? 'no disponible')
+//            );
+        } catch (Exception $ex) {
+            SystemNotificationService::sendExceptionErrorMailToSystemAdmin(
+                "Error general: " . $ex->getMessage() . ". Destinatario: " . ($user->email ?? 'no disponible')
+            );
+            throw $ex;
+        }
     }
 
     /**

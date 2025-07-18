@@ -17,6 +17,7 @@ use App\Http\Controllers\Vehiculos\TanqueoController;
 use App\Http\Controllers\Vehiculos\TipoVehiculoController;
 use App\Http\Controllers\Vehiculos\TransferenciaVehiculoController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
+use App\Models\Vehiculos\BitacoraVehicular;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources(
@@ -59,6 +60,8 @@ Route::get('ultima-bitacora', [BitacoraVehicularController::class, 'ultima'])->m
 Route::post('historial/{vehiculo}', [VehiculoController::class, 'historial'])->middleware('auth:sanctum');
 Route::post('bitacoras-vehiculos/firmar-bitacora/{bitacora}', [BitacoraVehicularController::class, 'firmar'])->middleware('auth:sanctum');
 
+Route::post('ordenes-reparaciones/registrar-valor-reparacion/{orden}', [OrdenReparacionController::class, 'registrarValorReparacion']);
+
 // pagar multas
 Route::post('multas/marcar-pagada/{multa}', [MultaConductorController::class, 'pagar'])->middleware('auth:sanctum');
 // pagar matricula vehicular
@@ -91,6 +94,8 @@ Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactiv
  */
 Route::post('reporte-conductor-licencia', [ConductorController::class, 'reporteConductorLicencia'])->middleware('auth:sanctum');
 Route::post('reporte-combustibles', [TanqueoController::class, 'reporteCombustibles'])->middleware('auth:sanctum');
+Route::post('reporte-bitacoras', [BitacoraVehicularController::class, 'reporteBitacoras']);
+Route::post('reporte-mantenimientos', [OrdenReparacionController::class, 'reporte']);
 Route::get('reporte-seguros-vehiculos', [SeguroVehicularController::class, 'reporte'])->middleware('auth:sanctum');
 /**
  * RUTAS PARA IMPRIMIR PDFs

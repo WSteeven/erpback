@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
 use App\Http\Resources\SucursalResource;
+use App\Models\ActivosFijos\ActivoFijo;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Inventario;
@@ -13,13 +14,15 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class DetalleProductoController extends Controller
 {
-    private $entidad = 'Detalle de producto';
+    private string $entidad = 'Detalle de producto';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.detalles')->only('index', 'show');
@@ -33,7 +36,9 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
+        $controller_method = $request->route()->getActionMethod();
+//        Log::channel('testing')->info('Log', ['ruta:', $controller_method]);
+//        Log::channel('testing')->info('Log', ['Metodo recibido:', $request->route()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];
@@ -42,7 +47,7 @@ class DetalleProductoController extends Controller
         if ($request->tipo_busqueda) {
             switch ($request->tipo_busqueda) {
                 case 'only_inventario':
-                    $results = DetalleProducto::whereHas('inventarios')->get()->take(5000);
+                    $results = DetalleProducto::whereHas('inventarios')->get()->take(10000);
                     $results2 = DetalleProducto::whereHas('itemsPreingresos')->get()->take(5000);
                     $results = $results->merge($results2);
                     $results = DetalleProductoResource::collection($results);
@@ -59,7 +64,7 @@ class DetalleProductoController extends Controller
                     return response()->json(compact('results'));
                     break;
                 case 'only_cliente_tarea':
-                    Log::channel('testing')->info('Log', ['eSTOY EN EL CASE DE CLIENTE TAREA:', $request->all()]);
+//                    Log::channel('testing')->info('Log', ['eSTOY EN EL CASE DE CLIENTE TAREA:', $request->all()]);
                     //aqui se lista solo los detalles que tienen stock en inventario con el cliente de la tarea
                     // $ids_detalles = Inventario::where('cliente_id', $request->cliente_id)->limit(990)->get('detalle_id');
                     // Log::channel('testing')->info('Log', ['los detalles como tal:', DetalleProducto::whereIn('id', $ids_detalles)->get()]);
@@ -83,10 +88,10 @@ class DetalleProductoController extends Controller
         } else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);
         } else if ($search) { //en este caso busca en todos los detalles
-            Log::channel('testing')->info('Log', ['Pasó por el if de search:', $request->all()]);
+//            Log::channel('testing')->info('Log', ['Pasó por el if de search:', $request->all()]);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
-            Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
+//            Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
             // Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
@@ -100,7 +105,7 @@ class DetalleProductoController extends Controller
             $r2 = DetalleProducto::whereNotIn('id', $ids_detalles_en_inventario)->get();
             // Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
             $results = $results->concat($r2);
-            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
+//            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
         } else {
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
         }
@@ -125,7 +130,7 @@ class DetalleProductoController extends Controller
             if (count($request->seriales) > 0) {
                 // Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
                 foreach ($request->seriales as $item) {
-                    Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
+//                    Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
                     //aqui se pondria la siguiente linea
                     $datos['serial'] = $item['serial'];
                     $detalle = DetalleProducto::crearDetalle($request, $datos);
@@ -135,6 +140,9 @@ class DetalleProductoController extends Controller
                 $detalle = DetalleProducto::crearDetalle($request, $datos);
             }
 
+            if ($detalle) {
+                if ($detalle->esActivo) ActivoFijo::cargarComoActivo($detalle, Cliente::JPCONSTRUCRED);
+            }
             $modelo = new DetalleProductoResource($detalle);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -161,7 +169,7 @@ class DetalleProductoController extends Controller
      */
     public function update(DetalleProductoRequest $request, DetalleProducto $detalle)
     {
-        Log::channel('testing')->info('Log', ['request recibida:', $request->all()]);
+//        Log::channel('testing')->info('Log', ['request recibida:', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
@@ -175,13 +183,14 @@ class DetalleProductoController extends Controller
             // Log::channel('testing')->info('Log', ['datos validados:', $datos]);
 
             // Respuesta
-            if ($datos['fotografia'] && Utils::esBase64($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            if ($datos['fotografia'] && Utils::esBase64($datos['fotografia'])) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO, $detalle->fotografia))->execute();
             else unset($datos['fotografia']);
 
-            if ($datos['fotografia_detallada'] && Utils::esBase64($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO))->execute();
+            if ($datos['fotografia_detallada'] && Utils::esBase64($datos['fotografia_detallada'])) $datos['fotografia_detallada'] = (new GuardarImagenIndividual($datos['fotografia_detallada'], RutasStorage::FOTOGRAFIAS_DETALLE_PRODUCTO, $detalle->fotografia_detallada))->execute();
             else unset($datos['fotografia_detallada']);
 
             $detalle->update($datos);
+            if ($detalle->esActivo) ActivoFijo::cargarComoActivo($detalle, Cliente::JPCONSTRUCRED);
             if ($request->categoria === 'INFORMATICA') {
                 if ($detalle->computadora()->first()) {
                     $detalle->computadora()->update([
@@ -234,13 +243,13 @@ class DetalleProductoController extends Controller
     }
 
     /**
-     * Eliminar
+     * Actualmente no se permite eliminar un detalle de producto para evitar caer en el error de asignarlo a alguien
+     * y luego eliminarlo, ocasionando inconsistencias con la información.
+     * @throws ValidationException
      */
-    public function destroy(DetalleProducto $detalle)
+    public function destroy()
     {
-        $detalle->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
+        throw ValidationException::withMessages(['error' => 'Por razones de seguridad, no se puede eliminar un detalle ya creado. Por favor, desactívalo o comunícate con el departamento de Informática para más información.']);
     }
 
     /**
@@ -264,7 +273,7 @@ class DetalleProductoController extends Controller
         })->where(function ($query) use ($request) {
             $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
             $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');
-        })->get();
+        })->groupBy('descripcion')->get();
 
         $results = DetalleProductoResource::collection($detalles);
         return response()->json(compact('results'));

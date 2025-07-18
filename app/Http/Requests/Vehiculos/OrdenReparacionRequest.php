@@ -34,6 +34,10 @@ class OrdenReparacionRequest extends FormRequest
             'vehiculo_id' => 'required',
             'servicios' => 'required|string',
             'observacion' => 'required|string',
+            'fecha' => 'required|string',
+            'valor_reparacion' => 'nullable|numeric',
+            'motivo' => 'nullable|string',
+            'num_factura' => 'nullable|string',
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ActualizarNotificacionesEvent;
 use App\Events\Tickets\TicketEvent;
+use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Mail\Tickets\EnviarMailTicket;
@@ -16,12 +17,14 @@ use App\Models\TicketRechazado;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\App\TicketService;
 use Src\Shared\Utils;
 use Illuminate\Support\Facades\Mail;
+use Src\Config\Constantes;
 
 class TicketController extends Controller
 {
@@ -35,17 +38,28 @@ class TicketController extends Controller
 
     public function index()
     {
-        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        // $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $search = request('search');
+        $paginate = request('paginate');
 
-        if (request('estado') === Ticket::ETIQUETADOS_A_MI) $results = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest()->get($campos);
-        else $results = Ticket::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+        if (request('estado') === Ticket::ETIQUETADOS_A_MI) $query = Ticket::whereJsonContains('cc', intval(request('responsable_id')))->latest();
+        else if (request('estado') === Ticket::RECURRENTE) $query = Ticket::ignoreRequest(['estado', 'paginate'])->filter()->where('is_recurring', true)->latest();
+        else $query = Ticket::ignoreRequest(['campos', 'paginate', 'para_mi', 'search'])->filter()->latest();
 
-        /* $results = Ticket::ignoreRequest(['campos'])->filter()->when(request('estado') == Ticket::EJECUTANDO, function ($q) {
-            $q->orWhereJsonContains('cc', intval(request('responsable_id')))->where('estado', Ticket::EJECUTANDO);
-        })->latest()->get($campos); */
+        $filtrosCreadosPorMi = [
+            ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
+            ['clave' => 'solicitante_id', 'valor' => request('solicitante_id'), 'operador' => 'AND'],
+        ];
+        
+        $filtrosTicketsParaMi = [
+            ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
+            ['clave' => 'responsable_id', 'valor' => request('responsable_id'), 'operador' => 'AND'],
+        ];
 
-        $results = TicketResource::collection($results);
-        return response()->json(compact('results'));
+        $filtros = FiltroSearchHelper::formatearFiltrosPorMotor(request()->boolean('para_mi') ? $filtrosTicketsParaMi : $filtrosCreadosPorMi);
+
+        $results = buscarConAlgoliaFiltrado(Ticket::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
+        return $results = TicketResource::collection($results);
     }
 
     public function store(TicketRequest $request)
@@ -396,7 +410,48 @@ class TicketController extends Controller
         });
 
         $results = array_values($auditoria->filter(fn($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
-        Log::channel('testing')->info('Log', compact('results'));
+        // Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(TicketRequest $request, Ticket $ticket)
+    {
+        return DB::transaction(function () use ($request, $ticket) {
+            $datos = $request->validated();
+            $ticket->update($datos);
+            $modelo = new TicketResource($ticket->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        });
+    }
+
+    // Actualizar el estado de recurrencia
+    /* public function toggleRecurrence($id, Request $request)
+    {
+        $ticket = Ticket::where('id', $id)
+            ->whereNull('parent_ticket_id')
+            ->where('is_recurring', true)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'recurrence_active' => 'required|boolean'
+        ]);
+
+        $ticket->update([
+            'recurrence_active' => $validated['recurrence_active']
+        ]);
+
+        return response()->json([
+            'mensaje' => $ticket->recurrence_active ? 'Recurrencia reanudada' : 'Recurrencia pausada',
+            'modelo' => $ticket
+        ]);
+    } */
 }

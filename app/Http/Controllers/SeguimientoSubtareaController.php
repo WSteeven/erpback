@@ -338,8 +338,10 @@ class SeguimientoSubtareaController extends Controller
 
     public function actualizarCantidadUtilizadaMaterialTarea(Request $request)
     {
-        $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request);
-        return response()->json(compact('modelo'));
+        return DB::transaction(function () use ($request) {
+            $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request);
+            return response()->json(compact('modelo'));
+        });
     }
 
     public function actualizarCantidadUtilizadaMaterialStock(Request $request)
@@ -359,10 +361,10 @@ class SeguimientoSubtareaController extends Controller
             ->groupBy('cliente_id')
             ->get();
 
-        $results->push([
+        /* $results->push([
             'cliente_id' => null,
             'razon_social' => 'SIN CLIENTE',
-        ]);
+        ]);*/
 
         return response()->json(compact('results'));
     }
@@ -381,10 +383,10 @@ class SeguimientoSubtareaController extends Controller
         // Log::channel('testing')->info('Log', compact('sql'));
         $results = $results->get();
 
-        $results->push([
+        /* $results->push([
             'cliente_id' => null,
             'razon_social' => 'SIN CLIENTE',
-        ]);
+        ]);*/
 
 
         return response()->json(compact('results'));

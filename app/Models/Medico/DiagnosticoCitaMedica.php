@@ -3,11 +3,16 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\DiagnosticoCitaMedica
@@ -16,28 +21,28 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property string $recomendacion
  * @property int $cie_id
  * @property int $consulta_medica_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\Cie|null $cie
- * @property-read \App\Models\Medico\CitaMedica|null $citaMedica
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica query()
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica whereCieId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica whereConsultaMedicaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica whereRecomendacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DiagnosticoCitaMedica whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Cie|null $cie
+ * @property-read CitaMedica|null $citaMedica
+ * @method static Builder|DiagnosticoCitaMedica acceptRequest(?array $request = null)
+ * @method static Builder|DiagnosticoCitaMedica filter(?array $request = null)
+ * @method static Builder|DiagnosticoCitaMedica ignoreRequest(?array $request = null)
+ * @method static Builder|DiagnosticoCitaMedica newModelQuery()
+ * @method static Builder|DiagnosticoCitaMedica newQuery()
+ * @method static Builder|DiagnosticoCitaMedica query()
+ * @method static Builder|DiagnosticoCitaMedica setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|DiagnosticoCitaMedica setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|DiagnosticoCitaMedica setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|DiagnosticoCitaMedica whereCieId($value)
+ * @method static Builder|DiagnosticoCitaMedica whereConsultaMedicaId($value)
+ * @method static Builder|DiagnosticoCitaMedica whereCreatedAt($value)
+ * @method static Builder|DiagnosticoCitaMedica whereId($value)
+ * @method static Builder|DiagnosticoCitaMedica whereRecomendacion($value)
+ * @method static Builder|DiagnosticoCitaMedica whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class DiagnosticoCitaMedica extends Model implements Auditable
 {
@@ -52,7 +57,7 @@ class DiagnosticoCitaMedica extends Model implements Auditable
         // 'registro_empleado_examen_id',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function cie()
     {

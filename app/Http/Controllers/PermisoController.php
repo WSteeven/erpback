@@ -50,6 +50,7 @@ class PermisoController extends Controller
 
         return response()->json(compact('results', 'permisos_usuario'));
     }
+
     public function listarPermisos(Request $request)
     {
         switch ($request['tipo']) {
