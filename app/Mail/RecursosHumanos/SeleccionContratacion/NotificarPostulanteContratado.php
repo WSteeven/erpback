@@ -56,7 +56,7 @@ class NotificarPostulanteContratado extends Mailable
         return new Content(
             view: 'email.recursosHumanos.SeleccionContratacion.postulante_contratado',
             with: [
-                'url' => env('SPA_URL', 'https://sistema.jpconstrucred.com'),
+                'url' => env('SPA_URL', 'https://firstred.jpconstrucred.com'),
             ]
         );
     }

@@ -79,11 +79,11 @@ class LoginSocialNetworkController extends Controller
             $socialUser = Socialite::driver($provider)->stateless()->user();
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['Error al autenticar', $e->getMessage()]);
-            return redirect()->to(env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/error-login?message=authentication_failed');
+            return redirect()->to(env('SPA_URL', 'https://firstred.jpconstrucred.com') . '/error-login?message=authentication_failed');
         }
         // Verificamos si el usuario existe y tiene un correo válido
         if (!$socialUser || !$socialUser->getEmail()) {
-            return redirect()->to(env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/error-login?message=authentication_canceled');
+            return redirect()->to(env('SPA_URL', 'https://firstred.jpconstrucred.com') . '/error-login?message=authentication_canceled');
         }
         // Buscar o crear el usuario en tu base de datos
         $user = UserExternal::firstOrCreate(
