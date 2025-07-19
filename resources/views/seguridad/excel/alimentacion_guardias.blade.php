@@ -6,8 +6,8 @@
 </head>
 <body>
 
-    <h3 style="text-align:center; margin-bottom: 0;">REPORTE DE ALIMENTACIÓN DE GUARDIAS</h3>
-    <p><strong>Guardia:</strong> {{ $total['guardia'] }}</p>
+    <h3 style="text-align:center; margin-bottom: 0;">REPORTE DE ALIMENTACIÓN DE GUARDIAS </h3>
+    <p><strong>Guardia:</strong> {{ $guardia }}</p>
     <p><strong>Periodo:</strong> {{ $fecha_inicio }} al {{ $fecha_fin }}</p>
 
     <table border="1" cellspacing="0" cellpadding="5" style="width:100%; margin-top: 15px;">
@@ -32,7 +32,7 @@
     </table>
 
     <br>
-    <h4 style="text-align:right;">TOTAL ALIMENTACIÓN: ${{ number_format($total['monto_total'], 2, '.', '') }}</h4>
+    <h4 style="text-align:right;">TOTAL ALIMENTACIÓN: ${{ number_format($monto_total, 2, '.', '') }}</h4>
 
 </body>
 </html>

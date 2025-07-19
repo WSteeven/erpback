@@ -14,8 +14,8 @@
 </head>
 <body>
 
-    <h3>REPORTE DE ALIMENTACIÓN DE GUARDIAS</h3>
-    <p><strong>Guardia:</strong> {{ $total['guardia'] }}</p>
+    <h3>REPORTE DE ALIMENTACIÓN DE GUARDIAS PDF</h3>
+    <p><strong>Guardia:</strong> {{ $guardia }}</p>
     <p><strong>Periodo:</strong> {{ $fecha_inicio }} al {{ $fecha_fin }}</p>
 
     <table>
@@ -40,7 +40,7 @@
     </table>
 
     <div class="total">
-        TOTAL ALIMENTACIÓN: <strong>${{ number_format($total['monto_total'], 2, '.', '') }}</strong>
+        TOTAL ALIMENTACIÓN: <strong>${{ number_format($monto_total, 2, '.', '') }}</strong>
     </div>
 
 </body>

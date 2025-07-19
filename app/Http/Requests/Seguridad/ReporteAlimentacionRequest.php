@@ -10,7 +10,7 @@ class ReporteAlimentacionRequest extends FormRequest
     {
         return [
             'empleado' => 'nullable|exists:empleados,id',
-            'zona' => 'nullable|exists:zonas,id',
+            'zona' => 'nullable|exists:seg_zonas,id',
             'jornada' => 'nullable|in:DIURNA,NOCTURNA',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',

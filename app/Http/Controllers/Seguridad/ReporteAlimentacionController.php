@@ -2,40 +2,64 @@
 
 namespace App\Http\Controllers\Seguridad;
 
+
+use App\Exports\Seguridad\AlimentacionGuardias\ReporteAlimentacionGuardiasExport;
 use App\Http\Controllers\Controller;
 
 use App\Http\Requests\Seguridad\ReporteAlimentacionRequest;
 use App\Models\Seguridad\Bitacora;
-
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 
 class ReporteAlimentacionController extends Controller
 {
+
+    private ReportePdfExcelService $reporteService;
+
     public function index(ReporteAlimentacionRequest $request)
     {
+        $this->reporteService = new ReportePdfExcelService();
+        $tipo = $request->accion;
+        $fecha_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+        $fecha_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
+        $fecha_inicio = $fecha_inicio->format('Y-m-d');
+        $fecha_fin = $fecha_fin->format('Y-m-d');
 
-        $bitacoras = Bitacora::with(['zona', 'empleado'])
-            ->whereBetween('fecha', [$request->fecha_inicio, $request->fecha_fin])
-            ->when($request->empleado, fn ($q) => $q->where('empleado_id', $request->empleado))
-            ->when($request->zona, fn ($q) => $q->where('zona_id', $request->zona))
-            ->when($request->jornada, fn ($q) => $q->where('jornada', $request->jornada))
+        $bitacoras = Bitacora::with(['zona', 'agenteTurno'])
+            ->whereBetween('fecha_hora_fin_turno', [$request->fecha_inicio, $request->fecha_fin])
+            ->when($request->empleado, fn($q) => $q->where('agente_turno_id', $request->empleado))
+            ->when($request->zona, fn($q) => $q->where('zona_id', $request->zona))
+            ->when($request->jornada, fn($q) => $q->where('jornada', $request->jornada))
             ->get();
 
-        $guardia = optional($bitacoras->first()?->empleado)->nombre_completo ?? 'N/A';
+        Log::channel('testing')->info('Log', ['bitacoras', $bitacoras->first()]);
+        $guardia = optional($bitacoras->first()?->agenteTurno)->nombres . ' ' . optional($bitacoras->first()?->agenteTurno)->apellidos ?? '-' ?? 'N/A';
 
         $detalle = $this->mapearListado($bitacoras);
         $monto_total = $detalle->sum('monto');
 
-        return response()->json([
+        $reporte = compact('detalle', 'guardia', 'monto_total','fecha_inicio','fecha_fin');
+
+        $nombre_reporte = 'reporte_alimentacion_guardia_' . $guardia;
+
+        $vista = 'seguridad.alimentacion_guardias';
+
+        $export_excel = new ReporteAlimentacionGuardiasExport($reporte);
+
+        return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reporte, $nombre_reporte, $vista, $export_excel);
+
+
+        /*         return response()->json([
             'results' => $detalle,
             'guardia' => $guardia,
             'monto_total' => $monto_total,
-        ]);
+        ]); */
     }
 
     private function mapearListado($bitacoras)
     {
-        return $bitacoras->groupBy('fecha')->map(function ($items, $fecha) {
+        return $bitacoras->groupBy('fecha_hora_fin_turno')->map(function ($items, $fecha) {
             $jornadas = $items->pluck('jornada')->unique()->toArray();
             $zona = $items->first()?->zona?->nombre ?? '-';
 
