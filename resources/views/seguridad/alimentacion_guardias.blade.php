@@ -2,16 +2,18 @@
 <html lang="es">
 @php
     use Illuminate\Support\Arr;
+    use Src\Shared\Utils;
 
     $fecha = new DateTime();
-
-    $logo_principal = '';
-    if (!empty($configuracion->logo_claro ?? null)) {
-        $ruta_logo = public_path($configuracion->logo_claro);
-        if (file_exists($ruta_logo)) {
-            $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents($ruta_logo));
-        }
-    }
+    $logo_principal = Utils::urlToBase64(url($configuracion['logo_claro']));
+    
+    /*     $logo_principal = '';
+        if (!empty($configuracion->logo_claro ?? null)) {
+            $ruta_logo = public_path($configuracion->logo_claro);
+            if (file_exists($ruta_logo)) {
+                $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents($ruta_logo));
+            }
+        } */
 
     $razon_social = $configuracion->razon_social ?? ($configuracion['razon_social'] ?? 'Empresa');
 @endphp
@@ -21,15 +23,18 @@
     <title>Reporte de Alimentación</title>
     <style>
         @page {
-            margin: 0.6cm 1.5cm 0.6cm 1.5cm; /* espacio justo para header y footer */
+            margin: 0.6cm 1.5cm 0.6cm 1.5cm;
+            /* espacio justo para header y footer */
         }
 
         body {
             font-family: sans-serif;
             font-size: 12px;
             color: #000000;
-            padding-top: 1.6cm;  /* reserva para header */
-            padding-bottom: 1.6cm; /* reserva para footer */
+            padding-top: 1.6cm;
+            /* reserva para header */
+            padding-bottom: 1.6cm;
+            /* reserva para footer */
         }
 
         header {
@@ -61,7 +66,8 @@
             page-break-inside: auto;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #000;
             padding: 5px;
             text-align: center;
@@ -164,4 +170,5 @@
         }
     </script>
 </body>
+
 </html>

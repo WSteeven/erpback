@@ -8,14 +8,16 @@ use App\Http\Requests\Seguridad\ReporteAlimentacionRequest;
 use App\Models\Seguridad\Bitacora;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReporteAlimentacionController extends Controller
 {
     private ReportePdfExcelService $reporteService;
 
-    public function index(ReporteAlimentacionRequest $request): JsonResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function index(ReporteAlimentacionRequest $request): JsonResponse|BinaryFileResponse|Response
     {
         $this->reporteService = new ReportePdfExcelService();
 
