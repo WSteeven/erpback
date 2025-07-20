@@ -25,14 +25,14 @@
                     <td>{{ $r['fecha'] }}</td>
                     <td>{{ $r['zona'] ?? '-' }}</td>
                     <td>{{ implode(', ', $r['jornadas']) }}</td>
-                    <td>{{ number_format($r['monto'], 2, '.', '') }}</td>
+                    <td>{{ number_format($r['monto'], 2, ',', '') }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
     <br>
-    <h4 style="text-align:right;">TOTAL ALIMENTACIÓN: ${{ number_format($monto_total, 2, '.', '') }}</h4>
+    <h4 style="text-align:right;">TOTAL ALIMENTACIÓN: ${{ number_format($monto_total, 2, ',', '') }}</h4>
 
 </body>
 </html>

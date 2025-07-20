@@ -27,7 +27,7 @@ class ReporteAlimentacionController extends Controller
         $fecha_fin = $fecha_fin->format('Y-m-d');
 
         $bitacoras = Bitacora::with(['zona', 'agenteTurno'])
-            ->whereBetween('fecha_hora_fin_turno', [$request->fecha_inicio, $request->fecha_fin])
+            ->whereBetween('created_at', [$request->fecha_inicio, $request->fecha_fin])
             ->when($request->empleado, fn($q) => $q->where('agente_turno_id', $request->empleado))
             ->when($request->zona, fn($q) => $q->where('zona_id', $request->zona))
             ->when($request->jornada, fn($q) => $q->where('jornada', $request->jornada))
@@ -39,7 +39,7 @@ class ReporteAlimentacionController extends Controller
         $detalle = $this->mapearListado($bitacoras);
         $monto_total = $detalle->sum('monto');
 
-        $reporte = compact('detalle', 'guardia', 'monto_total','fecha_inicio','fecha_fin');
+        $reporte = compact('detalle', 'guardia', 'monto_total', 'fecha_inicio', 'fecha_fin');
 
         $nombre_reporte = 'reporte_alimentacion_guardia_' . $guardia;
 
@@ -48,18 +48,32 @@ class ReporteAlimentacionController extends Controller
         $export_excel = new ReporteAlimentacionGuardiasExport($reporte);
 
         return $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reporte, $nombre_reporte, $vista, $export_excel);
-
-
-        /*         return response()->json([
-            'results' => $detalle,
-            'guardia' => $guardia,
-            'monto_total' => $monto_total,
-        ]); */
     }
+
+    /*
+
+    Esta funcion no agrupa por fecha, tiene mas detalles como la hora en la que se realizo la bitacora
 
     private function mapearListado($bitacoras)
     {
-        return $bitacoras->groupBy('fecha_hora_fin_turno')->map(function ($items, $fecha) {
+        return $bitacoras->groupBy('created_at')->map(function ($items, $fecha) {
+            $jornadas = $items->pluck('jornada')->unique()->toArray();
+            $zona = $items->first()?->zona?->nombre ?? '-';
+
+            return [
+                'fecha' => $fecha,
+                'zona' => $zona,
+                'jornadas' => $jornadas,
+                'monto' => count($jornadas) * 3, // $3 por jornada
+            ];
+        })->values();
+    } */
+
+    private function mapearListado($bitacoras)
+    {
+        return $bitacoras->groupBy(function ($item) {
+            return Carbon::parse($item->created_at)->format('Y-m-d');
+        })->map(function ($items, $fecha) {
             $jornadas = $items->pluck('jornada')->unique()->toArray();
             $zona = $items->first()?->zona?->nombre ?? '-';
 
