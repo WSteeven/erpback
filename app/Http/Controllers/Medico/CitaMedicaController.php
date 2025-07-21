@@ -8,17 +8,17 @@ use App\Http\Resources\Medico\CitaMedicaResource;
 use App\Models\Medico\CitaMedica;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\CitaMedicaService;
 use Src\Shared\Utils;
+use Throwable;
 
 class CitaMedicaController extends Controller
 {
-    private $entidad = 'Cita médica';
-    private $citaMedicaService;
+    private string $entidad = 'Cita médica';
+    private CitaMedicaService $citaMedicaService;
 
     public function __construct()
     {
@@ -32,11 +32,15 @@ class CitaMedicaController extends Controller
 
     public function index()
     {
-        $results = CitaMedica::ignoreRequest(['campos'])->filter()->get();
+        $results = CitaMedica::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = CitaMedicaResource::collection($results);
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(CitaMedicaRequest $request)
     {
         try {
@@ -56,7 +60,6 @@ class CitaMedicaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de citamedica' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -66,6 +69,10 @@ class CitaMedicaController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function update(CitaMedicaRequest $request, CitaMedica $cita_medica)
     {
         try {
@@ -77,13 +84,13 @@ class CitaMedicaController extends Controller
             unset($keys['id']);
 
             if ($datos['estado_cita_medica'] === CitaMedica::CANCELADO) {
-                array_push($keys, ...['estado_cita_medica', 'fecha_hora_cancelado', 'motivo_cancelacion']);
+                array_push($keys, 'estado_cita_medica', 'fecha_hora_cancelado', 'motivo_cancelacion');
                 $request['fecha_hora_cancelado'] = Carbon::now();
                 $request['motivo_cancelacion'] = request('motivo_cancelacion');
             }
 
             if ($datos['estado_cita_medica'] === CitaMedica::RECHAZADO) {
-                array_push($keys, ...['estado_cita_medica', 'fecha_hora_rechazo', 'motivo_rechazo']);
+                array_push($keys, 'estado_cita_medica', 'fecha_hora_rechazo', 'motivo_rechazo');
                 $request['fecha_hora_rechazo'] = Carbon::now();
                 $request['motivo_rechazo'] = request('motivo_rechazo');
             }
@@ -107,7 +114,11 @@ class CitaMedicaController extends Controller
         }
     }
 
-    public function destroy(CitaMedicaRequest $request, CitaMedica $cita_medica)
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function destroy(CitaMedica $cita_medica)
     {
         try {
             DB::beginTransaction();
