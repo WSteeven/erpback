@@ -38,6 +38,7 @@ class LoginSocialNetworkController extends Controller
             ]);
 
             $user = UserExternal::where('email', $request['name'])->first();
+            Log::channel('testing')->info('Log', ['request y usuario', request()->all(), $user, $request['name']]);
             if (!$user) {
                 throw ValidationException::withMessages([
                     '404' => ['Usuario no registrado!'],

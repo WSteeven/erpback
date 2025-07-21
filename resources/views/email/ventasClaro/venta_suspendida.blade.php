@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 @php
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    use Src\Shared\Utils;
 @endphp
 
 <head>
@@ -26,7 +25,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -121,7 +120,7 @@
 
 <body>
     <h2>JP CONSTRUCTRED C.LTDA.</h2>
-    <img src="{{ $logo_principal }}" alt="logo" width="100" height="100" />
+    <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="100" height="100" />
     <h2> Estimado Vendedor, {{ auth('sanctum')->user()->empleado->nombres }}
         {{ auth('sanctum')->user()->empleado->apellidos }} ha marcado una venta como suspendida.</h2>
     <p>Se requiere realice la gestión de cobranza respectiva y adjuntar su evidencia en novedades de la venta realizada.

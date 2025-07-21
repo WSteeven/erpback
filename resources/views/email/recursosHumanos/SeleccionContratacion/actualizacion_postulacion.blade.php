@@ -3,7 +3,7 @@
 
 <head>
     @php
-$logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+        use Src\Shared\Utils;
     @endphp
 
     <meta charset="UTF-8">
@@ -52,28 +52,34 @@ $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(pub
 </head>
 
 <body>
-    <div class="container">
-        <div class="content">
-            <p>Estimado/a {{ $postulacion['nombres_apellidos'] }},</p>
-            <br>
-            <p>¡Gracias por postularte para el puesto de <strong>{{ $postulacion['nombre'] }}</strong> en <strong>{{ $configuracion->razon_social }}</strong>!</p>
+<div class="container">
+    <div class="content">
+        <p>Estimado/a {{ $postulacion['nombres_apellidos'] }},</p>
+        <br>
+        <p>¡Gracias por postularte para el puesto de <strong>{{ $postulacion['nombre'] }}</strong> en
+            <strong>{{ $configuracion->razon_social }}</strong>!</p>
 
-            <p>Queremos informarte que hemos recibido tu solicitud y que actualmente se encuentra en proceso de revisión.</p>
+        <p>Queremos informarte que hemos recibido tu solicitud y que actualmente se encuentra en proceso de
+            revisión.</p>
 
-            <p>En breve, uno de nuestros reclutadores se pondrá en contacto contigo para proporcionarte más detalles sobre los próximos pasos del proceso de selección, en caso de que tu perfil avance a la siguiente etapa. Mientras tanto, puedes consultar el estado de tu postulación en el <a href="{{ $link }}">siguiente enlace</a>.</p>
+        <p>En breve, uno de nuestros reclutadores se pondrá en contacto contigo para proporcionarte más detalles sobre
+            los próximos pasos del proceso de selección, en caso de que tu perfil avance a la siguiente etapa. Mientras
+            tanto, puedes consultar el estado de tu postulación en el <a href="{{ $link }}">siguiente enlace</a>.</p>
 
-            <p>Agradecemos tu interés en formar parte de <strong>{{ $configuracion->razon_social }}</strong> y por tomarte el tiempo para postularte.</p>
+        <p>Agradecemos tu interés en formar parte de <strong>{{ $configuracion->razon_social }}</strong> y por tomarte
+            el tiempo para postularte.</p>
 
-            <p>¡Te deseamos mucho éxito en el proceso de selección!</p>
-        </div>
-        <div class="footer">
-            <br>
-            <p>Atentamente,</p>
-            <p><strong><a href="{{$url}}">FIRSTRED ERP</a></strong> <br>
-                <strong>{{ $configuracion->razon_social }} </strong><br>
-                <strong><a href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
-            </p>
-            <img src="{{ $logo_principal }}" alt="logo" width="120" />
+        <p>¡Te deseamos mucho éxito en el proceso de selección!</p>
+    </div>
+    <div class="footer">
+        <br>
+        <p>Atentamente,</p>
+        <p><strong><a href="{{$url}}">FIRSTRED ERP</a></strong> <br>
+            <strong>{{ $configuracion->razon_social }} </strong><br>
+            <strong><a
+                    href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
+        </p>
+        <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="120" />
         </div>
         <br><br>
         <small><i>Este mensaje de correo electrónico es generado automáticamente. Por favor, no lo respondas. </i></small>

@@ -2,8 +2,6 @@
 <html lang="en">
 @php
     use Src\Shared\Utils;
-    // $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_principal = Utils::urlToBase64(url($configuracion['logo_claro']));
 @endphp
 
 <head>
@@ -14,7 +12,7 @@
 
 <body>
     <h2>JPCONSTRUCTRED C. Ltda.</h2>
-    <img src="{{ $logo_principal }}" alt="logo" width="100" height="100" />
+    <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="100" height="100" />
     <h2> Estimado contador, {{ Auth::user()->empleado->nombres }} {{ Auth::user()->empleado->apellidos }} ha creado una
         tarea y se generado un centro de costos nuevo. </h2>
     <p>Información:</p>

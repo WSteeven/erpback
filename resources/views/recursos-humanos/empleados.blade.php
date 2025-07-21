@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
     @php
-    $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
-    $suma_salario =0;
+        use Src\Shared\Utils;
+        $fecha = new Datetime();
+        $suma_salario =0;
 @endphp
 
 <head>
@@ -18,7 +17,7 @@
         }
 
         body {
-            background-image: url({{ $logo_watermark }});
+            background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
@@ -119,7 +118,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ $logo_principal }}"
+                            src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 @php
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    use Src\Shared\Utils;
 @endphp
 
 <head>
@@ -12,7 +12,7 @@
 
 <body>
     <!-- <h5>Estamos realizando pruebas, por favor no prestar atención a este correo.</h5> -->
-    <img src="{{ $logo_principal }}" alt="logo" width="100" height="100" />
+    <img src="{{Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="100" height="100" />
     <h2>JPCONSTRUCTRED C. Ltda.</h2>
 
     @if ($ticket->estado === 'RECHAZADO')

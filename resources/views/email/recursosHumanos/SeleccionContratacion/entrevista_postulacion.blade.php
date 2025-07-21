@@ -3,7 +3,7 @@
 
 <head>
     @php
-        $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+        use Src\Shared\Utils;
     @endphp
 
     <meta charset="UTF-8">
@@ -100,7 +100,7 @@
             <strong>{{ $configuracion->razon_social }} </strong><br>
             <strong><a href="https://{{$configuracion->sitio_web}}">{{ strtolower($configuracion->sitio_web) }}</a></strong>
         </p>
-        <img src="{{ $logo_principal }}" alt="logo" width="120"/>
+        <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="120"/>
     </div>
     <br><br>
     <small><i>Este mensaje de correo electrónico es generado automáticamente. Por favor, no lo respondas. </i></small>

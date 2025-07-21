@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 @php
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    use Src\Shared\Utils;
 @endphp
 
 <head>
@@ -72,7 +72,7 @@
 </table>
 <br>
 <br>
-<p><img src="{{ $logo_principal }}" alt="logo" width="100" height="100"/></p> <br> <br>
+<p><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" width="100" height="100"/></p> <br> <br>
 <small>Este mensaje de correo electrónico es generado automáticamente. Por favor, no lo responda.</small>
 </body>
 

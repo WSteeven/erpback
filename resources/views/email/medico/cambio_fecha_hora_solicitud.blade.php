@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 @php
-    $logo_principal =
-        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    use Src\Shared\Utils;
 @endphp
 
 <head>
@@ -65,7 +64,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ $logo_principal }}" alt="logo" class="logo" />
+            <img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" alt="logo" class="logo" />
             {{-- <h2>JP CONSTRUCTRED C.Ltda.</h2> --}}
         </div>
 
