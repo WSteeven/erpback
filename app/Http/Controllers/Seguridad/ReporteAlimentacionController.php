@@ -43,8 +43,17 @@ class ReporteAlimentacionController extends Controller
             }
 
             $nombre_reporte = 'reporte_alimentacion_guardias';
-            $vista = 'seguridad.alimentacion_guardias';
-            $export_excel = new ReporteAlimentacionGuardiasExport($reporte);
+            $nombre_reporte = substr($nombre_reporte, 0, 31);
+
+            $vista = $tipo === 'excel'
+                ? 'seguridad.excel.alimentacion_guardias'
+                : 'seguridad.alimentacion_guardias';
+            $titulo_hoja = substr($nombre_reporte, 0, 31);
+            $export_excel = new ReporteAlimentacionGuardiasExport($reporte, $vista, $titulo_hoja);
+
+
+
+
 
             return $tipo === 'consulta'
                 ? response()->json($reporte)
@@ -63,9 +72,17 @@ class ReporteAlimentacionController extends Controller
         $monto_total = $detalle->sum('monto');
 
         $reporte = compact('detalle', 'guardia', 'monto_total', 'fecha_inicio', 'fecha_fin');
-        $nombre_reporte = 'reporte_alimentacion_guardia_' . preg_replace('/\s+/', '_', $guardia);
-        $vista = 'seguridad.alimentacion_guardias';
-        $export_excel = new ReporteAlimentacionGuardiasExport($reporte);
+        $nombre_reporte = 'reporte_alimentacion_guardia_';
+
+        $vista = $tipo === 'excel'
+            ? 'seguridad.excel.alimentacion_guardia_individual'
+            : 'seguridad.alimentacion_guardia_individual';
+
+        $titulo_hoja = substr($nombre_reporte, 0, 31);
+        $export_excel = new ReporteAlimentacionGuardiasExport($reporte, $vista, $titulo_hoja);
+
+
+
 
         return $tipo === 'consulta'
             ? response()->json($reporte)

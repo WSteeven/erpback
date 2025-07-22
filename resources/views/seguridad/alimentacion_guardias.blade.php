@@ -100,7 +100,7 @@
                 @endif
             </td>
             <td style="text-align: center;">
-                <strong style="font-size: 12px;">REPORTE GENERAL DE ALIMENTACIÓN DE GUARDIAS</strong>
+                <strong style="font-size: 12px;">REPORTE GENERAL DE ALIMENTACIÓN DE GUARDIAS POR {{ $fecha->format('d-m-Y') }}</strong>
             </td>
             <td style="text-align: right; width: 20%;">
                 Sistema de Seguridad

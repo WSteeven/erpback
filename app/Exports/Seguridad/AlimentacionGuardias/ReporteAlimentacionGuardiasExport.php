@@ -9,20 +9,27 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
-class ReporteAlimentacionGuardiasExport extends DefaultValueBinder implements FromView, WithCustomValueBinder, ShouldAutoSize, WithColumnWidths
+
+class ReporteAlimentacionGuardiasExport extends DefaultValueBinder implements FromView, WithCustomValueBinder, ShouldAutoSize, WithColumnWidths, WithTitle
 {
     protected $filtros;
+    protected $vista;
 
-    public function __construct($filtros)
+    protected $titulo_reporte;
+
+    public function __construct(array $filtros, string $vista, string $tituloHoja = 'Reporte')
     {
         $this->filtros = $filtros;
+        $this->vista = $vista;
+        $this->titulo_reporte = substr($tituloHoja, 0, 31); // Limitar a 31 caracteres
     }
 
-        public function bindValue(Cell $cell, $value)
+    public function bindValue(Cell $cell, $value)
     {
         if (is_numeric($value)) {
             $cell->setValueExplicit($value, DataType::TYPE_STRING);
@@ -34,26 +41,32 @@ class ReporteAlimentacionGuardiasExport extends DefaultValueBinder implements Fr
         return parent::bindValue($cell, $value);
     }
 
-        public function columnWidths(): array
+    public function columnWidths(): array
     {
         return [
-            'A'=>10,
-            'B'=>33,
-            'C'=>10,
-            'D'=>10,
-            'E'=>22,
-            'F'=>22,
-            'G'=>87,
-            'H'=>60,
-            'I'=>25,
-            'J'=>25,
-            'K'=>27,
-            'L'=>10,
+            'A' => 10,
+            'B' => 33,
+            'C' => 10,
+            'D' => 10,
+            'E' => 22,
+            'F' => 22,
+            'G' => 87,
+            'H' => 60,
+            'I' => 25,
+            'J' => 25,
+            'K' => 27,
+            'L' => 10,
         ];
     }
 
     public function view(): View
     {
-        return view('seguridad.excel.alimentacion_guardias', $this->filtros);
+        return view($this->vista, $this->filtros);
+    }
+
+
+    public function title(): string
+    {
+        return $this->tituloHoja ?? 'Hoja';
     }
 }
