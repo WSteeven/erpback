@@ -9,7 +9,7 @@ class ReporteAlimentacionRequest extends FormRequest
     public function rules()
     {
         return [
-            'empleado' => 'required|exists:empleados,id',
+            'empleado' => 'required_without_all:zona,jornada|nullable|exists:empleados,id',
             'zona' => 'nullable|exists:seg_zonas,id',
             'jornada' => 'nullable|in:DIURNA,NOCTURNA',
             'fecha_inicio' => 'required|date',
@@ -17,6 +17,7 @@ class ReporteAlimentacionRequest extends FormRequest
             'accion' => 'nullable|in:consulta,excel,pdf',
         ];
     }
+
 
     public function messages()
     {

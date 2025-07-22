@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\Seguridad\ReporteAlimentacionService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReporteAlimentacionController extends Controller
@@ -32,9 +33,28 @@ class ReporteAlimentacionController extends Controller
             ->when($request->jornada, fn($q) => $q->where('jornada', $request->jornada))
             ->get();
 
+        // Si no se seleccionó un guardia, usar lógica del servicio nuevo
+        if (!$request->filled('empleado')) {
+            $reporteService = new ReporteAlimentacionService();
+            $reporte = $reporteService->generar($request->all());
+
+            if (empty($reporte['detalle']) && $tipo === 'consulta') {
+                return response()->json(['message' => 'No se encontraron registros para los filtros ingresados.'], 404);
+            }
+
+            $nombre_reporte = 'reporte_alimentacion_guardias';
+            $vista = 'seguridad.alimentacion_guardias';
+            $export_excel = new ReporteAlimentacionGuardiasExport($reporte);
+
+            return $tipo === 'consulta'
+                ? response()->json($reporte)
+                : $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reporte, $nombre_reporte, $vista, $export_excel);
+        }
+
         if ($bitacoras->isEmpty() && $tipo === 'consulta') {
             return response()->json(['message' => 'No se encontraron registros para los filtros ingresados.'], 404);
         }
+
 
         $agente = $bitacoras->first()?->agenteTurno;
         $guardia = $agente ? trim("{$agente->nombres} {$agente->apellidos}") : '-';
@@ -54,7 +74,8 @@ class ReporteAlimentacionController extends Controller
 
     private function mapearListado($bitacoras)
     {
-        return $bitacoras->groupBy(fn($item) =>
+        return $bitacoras->groupBy(
+            fn($item) =>
             Carbon::parse($item->created_at)->format('Y-m-d')
         )->map(function ($items, $fecha) {
             $jornadas = $items->pluck('jornada')->unique()->toArray();

@@ -113,6 +113,17 @@ class Bitacora extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'agente_turno_id', 'id');
     }
 
+    public function getEmpleadoAttribute()
+    {
+        return $this->agenteTurno;
+    }
+
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class, 'agente_turno_id');
+    }
+
+
     public function protector()
     {
         return $this->belongsTo(Empleado::class, 'protector_id', 'id');
@@ -124,9 +135,11 @@ class Bitacora extends Model implements Auditable
     }
 
     public function actividades()
-{
-    return $this->hasMany(ActividadBitacora::class, 'bitacora_id');
-}
+    {
+        return $this->hasMany(ActividadBitacora::class, 'bitacora_id');
+    }
+
+
 
     /************
      * Scopes
