@@ -26,7 +26,10 @@ class ReporteAlimentacionGuardiasExport extends DefaultValueBinder implements Fr
     {
         $this->filtros = $filtros;
         $this->vista = $vista;
-        $this->titulo_reporte = substr($tituloHoja, 0, 31); // Limitar a 31 caracteres
+
+        // Limpieza adicional del título
+        $tituloHoja = preg_replace('/[^\w\s]/', '', $tituloHoja); // Elimina caracteres especiales
+        $this->titulo_reporte = mb_substr(trim($tituloHoja), 0, 28); // Dejamos margen de seguridad
     }
 
     public function bindValue(Cell $cell, $value)
@@ -67,6 +70,10 @@ class ReporteAlimentacionGuardiasExport extends DefaultValueBinder implements Fr
 
     public function title(): string
     {
-        return $this->tituloHoja ?? 'Hoja';
+        // Fuerza un título seguro si detecta problemas
+        if (mb_strlen($this->titulo_reporte) > 31) {
+            return 'Reporte Guardia';
+        }
+        return $this->titulo_reporte;
     }
 }

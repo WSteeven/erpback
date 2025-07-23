@@ -29,18 +29,18 @@
                         <td>{{ $item['fecha'] }}</td>
                         <td>{{ $item['zona'] ?? '-' }}</td>
                         <td>{{ implode(', ', $item['jornadas']) }}</td>
-                        <td>{{ number_format($item['monto'], 2, ',', '') }}</td>
+                        <td>{{ number_format($item['monto'], 2, '.', '') }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
         <p style="text-align:right;"><strong>TOTAL GUARDIA:
-                ${{ number_format($guardia['monto_total'] ?? 0, 2, ',', '') }}</strong></p>
+                ${{ number_format($guardia['monto_total'] ?? 0, 2, '.', '') }}</strong></p>
         <br>
     @endforeach
 
-    <h3 style="text-align:right;">TOTAL GENERAL: ${{ number_format($total['monto_total'] ?? 0, 2, ',', '') }}</h3>
+    <h3 style="text-align:right;">TOTAL GENERAL: ${{ number_format($total['monto_total'] ?? 0, 2, '.', '') }}</h3>
 
 </body>
 

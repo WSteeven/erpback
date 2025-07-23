@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Reporte de Alimentación - Guardia</title>
+    <title>Reporte de Alimentación</title>
 </head>
 
 <body>
@@ -30,7 +30,7 @@
                     <td>
                         {{ is_array($r['jornadas'] ?? null) ? implode(', ', $r['jornadas']) : '-' }}
                     </td>
-                    <td>{{ number_format($r['monto'] ?? 0, 2, ',', '') }}</td>
+                    <td>{{ number_format($r['monto'] ?? 0, 2, '.', '') }}</td>
                 </tr>
             @endforeach
         </tbody>

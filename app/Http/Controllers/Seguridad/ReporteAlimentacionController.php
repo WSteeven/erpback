@@ -26,6 +26,48 @@ class ReporteAlimentacionController extends Controller
         $fecha_inicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
         $fecha_fin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
 
+        // Si no se seleccionó un guardia, usar lógica general
+        if (!$request->filled('empleado')) {
+            return $this->generarReporteGeneral($request, $tipo, $fecha_inicio, $fecha_fin);
+        }
+
+        // Si se seleccionó un guardia, usar lógica individual
+        return $this->generarReporteIndividual($request, $tipo, $fecha_inicio, $fecha_fin);
+    }
+
+    private function generarReporteGeneral($request, $tipo, $fecha_inicio, $fecha_fin)
+    {
+        $reporteService = new ReporteAlimentacionService();
+        $reporte = $reporteService->generar($request->all());
+
+        if (empty($reporte['detalle']) && $tipo === 'consulta') {
+            return response()->json(['message' => 'No se encontraron registros para los filtros ingresados.'], 404);
+        }
+
+        $nombre_reporte = 'alimentacion_guardias';
+        $titulo_hoja = substr($nombre_reporte, 0, 31);
+
+        $vista = $tipo === 'excel'
+            ? 'seguridad.excel.alimentacion_guardias'
+            : 'seguridad.alimentacion_guardias';
+
+        $export_excel = new ReporteAlimentacionGuardiasExport($reporte, $vista, $titulo_hoja);
+
+        return $tipo === 'consulta'
+            ? response()->json($reporte)
+            : $this->reporteService->imprimirReporte(
+                $tipo,
+                'A4',
+                'landscape',
+                $reporte,
+                $nombre_reporte,
+                $vista,
+                $export_excel
+            );
+    }
+
+    private function generarReporteIndividual($request, $tipo, $fecha_inicio, $fecha_fin)
+    {
         $bitacoras = Bitacora::with(['zona', 'agenteTurno'])
             ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
             ->when($request->empleado, fn($q) => $q->where('agente_turno_id', $request->empleado))
@@ -33,37 +75,9 @@ class ReporteAlimentacionController extends Controller
             ->when($request->jornada, fn($q) => $q->where('jornada', $request->jornada))
             ->get();
 
-        // Si no se seleccionó un guardia, usar lógica del servicio nuevo
-        if (!$request->filled('empleado')) {
-            $reporteService = new ReporteAlimentacionService();
-            $reporte = $reporteService->generar($request->all());
-
-            if (empty($reporte['detalle']) && $tipo === 'consulta') {
-                return response()->json(['message' => 'No se encontraron registros para los filtros ingresados.'], 404);
-            }
-
-            $nombre_reporte = 'reporte_alimentacion_guardias';
-            $nombre_reporte = substr($nombre_reporte, 0, 31);
-
-            $vista = $tipo === 'excel'
-                ? 'seguridad.excel.alimentacion_guardias'
-                : 'seguridad.alimentacion_guardias';
-            $titulo_hoja = substr($nombre_reporte, 0, 31);
-            $export_excel = new ReporteAlimentacionGuardiasExport($reporte, $vista, $titulo_hoja);
-
-
-
-
-
-            return $tipo === 'consulta'
-                ? response()->json($reporte)
-                : $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reporte, $nombre_reporte, $vista, $export_excel);
-        }
-
         if ($bitacoras->isEmpty() && $tipo === 'consulta') {
             return response()->json(['message' => 'No se encontraron registros para los filtros ingresados.'], 404);
         }
-
 
         $agente = $bitacoras->first()?->agenteTurno;
         $guardia = $agente ? trim("{$agente->nombres} {$agente->apellidos}") : '-';
@@ -72,21 +86,31 @@ class ReporteAlimentacionController extends Controller
         $monto_total = $detalle->sum('monto');
 
         $reporte = compact('detalle', 'guardia', 'monto_total', 'fecha_inicio', 'fecha_fin');
-        $nombre_reporte = 'reporte_alimentacion_guardia_';
+
+        // Nombre base con nombre del guardia (limpiando caracteres inválidos)
+        $nombre_reporte = 'alimentacion_guardia'; // Nombre corto y seguro
+        $titulo_hoja = 'Guardia ' . substr($guardia, 0, 20); // Ejemplo: "Guardia Juan Perez"
 
         $vista = $tipo === 'excel'
             ? 'seguridad.excel.alimentacion_guardia_individual'
             : 'seguridad.alimentacion_guardia_individual';
 
-        $titulo_hoja = substr($nombre_reporte, 0, 31);
-        $export_excel = new ReporteAlimentacionGuardiasExport($reporte, $vista, $titulo_hoja);
-
-
-
-
+        $export_excel = new ReporteAlimentacionGuardiasExport(
+            $reporte,
+            $vista,
+            $titulo_hoja
+        );
         return $tipo === 'consulta'
             ? response()->json($reporte)
-            : $this->reporteService->imprimirReporte($tipo, 'A4', 'landscape', $reporte, $nombre_reporte, $vista, $export_excel);
+            : $this->reporteService->imprimirReporte(
+                $tipo,
+                'A4',
+                'landscape',
+                $reporte,
+                $nombre_reporte,
+                $vista,
+                $export_excel
+            );
     }
 
     private function mapearListado($bitacoras)
@@ -105,5 +129,14 @@ class ReporteAlimentacionController extends Controller
                 'monto' => count($jornadas) * 3, // $3 por jornada
             ];
         })->values();
+    }
+
+    /**
+     * Limpia caracteres no válidos para archivos/hojas Excel y limita longitud
+     */
+    private function limpiarNombreArchivo(string $nombre, int $limite = 100): string
+    {
+        $nombre = preg_replace('/[\\\\\\/*?:\[\]]/', '', $nombre);
+        return substr($nombre, 0, $limite);
     }
 }
