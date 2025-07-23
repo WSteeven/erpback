@@ -117,6 +117,7 @@ class Postulacion extends Model implements Auditable
         'ruta_cv',
         'leido_rrhh',
         'estado',
+        'token_test',
         'dado_alta',
     ];
 
@@ -139,6 +140,8 @@ class Postulacion extends Model implements Auditable
     const POSTULADO = 'POSTULADO';
     const REVISION_CV = 'REVISION CV';
     const ENTREVISTA = 'EN ENTREVISTA';
+    const TEST_PERSONALIDAD = 'EN TEST PERSONALIDAD';
+    const TEST_VALANTI = 'EN TEST VALANTI';
     const DESCARTADO = 'DESCARTADO';
     const PRESELECCIONADO = 'PRESELECCIONADO';
     const SELECCIONADO = 'SELECCIONADO';

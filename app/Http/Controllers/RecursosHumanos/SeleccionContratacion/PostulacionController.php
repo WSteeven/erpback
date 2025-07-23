@@ -24,6 +24,7 @@ use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Config\RutasStorage;
 use Src\Shared\ObtenerInstanciaUsuario;
 use Src\Shared\Utils;
+use Str;
 use Throwable;
 
 class PostulacionController extends Controller
@@ -175,13 +176,13 @@ class PostulacionController extends Controller
     public function referenciasUsuario()
     {
         try {
-            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+            [, , $user] = ObtenerInstanciaUsuario::tipoUsuario();
 
-            $user = match ($user_type) {
-                User::class => User::find($user_id),
-                UserExternal::class => UserExternal::find($user_id),
+//            $user = match ($user_type) {
+//                User::class => User::find($user_id),
+//                UserExternal::class => UserExternal::find($user_id),
 //                default => null,
-            };
+//            };
             $results = $user->referencias()->get();
             return response()->json(compact('results'));
         } catch (Exception $ex) {
@@ -212,7 +213,7 @@ class PostulacionController extends Controller
             $postulacion->save();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (Throwable|Exception $ex) {
+        } catch (Throwable $ex) {
             DB::rollback();
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
@@ -240,7 +241,7 @@ class PostulacionController extends Controller
             $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (Throwable|Exception $ex) {
+        } catch (Throwable $ex) {
             DB::rollback();
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
@@ -263,7 +264,7 @@ class PostulacionController extends Controller
             $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (Throwable|Exception $ex) {
+        } catch (Throwable $ex) {
             DB::rollback();
             Log::channel('testing')->info('Log', ['error en seleccionar', $ex->getLine(), $ex->getMessage()]);
             throw  Utils::obtenerMensajeErrorLanzable($ex);
@@ -289,7 +290,7 @@ class PostulacionController extends Controller
             $modelo = new PostulacionResource($postulacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (Throwable|Exception $ex) {
+        } catch (Throwable $ex) {
             DB::rollback();
             $mensaje = $ex->getMessage();
             Log::channel('testing')->info('Log', ['error en darAlta', $ex->getLine(), $ex->getMessage()]);
@@ -335,13 +336,13 @@ class PostulacionController extends Controller
     {
         // Log::channel('testing')->info('Log', ['storeFiles de postulacion', $postulacion, request()->all()]);
         try {
-            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+            [$user_id, $user_type, $user] = ObtenerInstanciaUsuario::tipoUsuario();
             if (!is_null($user_id)) {
-                $user = match ($user_type) {
-                    User::class => User::find($user_id),
-                    UserExternal::class => UserExternal::find($user_id),
+//                $user = match ($user_type) {
+//                    User::class => User::find($user_id),
+//                    UserExternal::class => UserExternal::find($user_id),
 //                    default => null,
-                };
+//                };
                 // Log::channel('testing')->info('Log', ['user es', $user]);
                 // Hay que configurar para que se guarden los CV´s de los postulantes con su respectivo numero de cedula
                 // para luego poder buscarlos y versionarlos así como LinkedIn
@@ -367,5 +368,69 @@ class PostulacionController extends Controller
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             return response()->json(compact('mensaje'), 500);
         }
+    }
+
+    public function habilitarTestPersonalidad(Request $request, Postulacion $postulacion)
+    {
+//        Log::channel('testing')->info('Log', ['habilitarTestPersonalidad', $postulacion, $request->all()]);
+
+        //Generar el token único
+        $token = Str::random(20);
+
+        // se guarda en un solo campo y el mismo token servirá para todos los test que el postulante hará
+        $postulacion->token_test = $token;
+        $postulacion->save();
+
+        //Opcional, enviar por correo el link para que complete
+//        https://firstred.jpconstrucred.com/test-personalidad/token
+        $link = env('SPA_URL') . "/test-personalidad/$token";
+
+
+        $modelo = new PostulacionResource($postulacion);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('modelo', 'mensaje', 'link'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function validarTokenTestPersonalidad(string $token)
+    {
+        // Si no hay test contestado, por defecto es false
+        $contestado = false;
+
+        try {
+            [$user_id, $user_type] = ObtenerInstanciaUsuario::tipoUsuario();
+            $postulacion = Postulacion::where('user_id', $user_id)->where('user_type', $user_type)->where('token_test', $token)->first();
+            if (!$postulacion) throw new Exception('No se encontró un postulación válida para ese token');
+            $mensaje = 'Token validado correctamente, puedes contestar el test';
+
+            // Se debe validar si ya ha contestado o no para que no permita una segunda contestación
+            // modelo asociado a la $postulacion seria tests
+            // se verifica si ya hay alguno y en caso positivo se retorna el mensaje:
+//            $mensaje = 'Ya has contestado este test, proceso finalizado';
+            // también se envia una variable indicado que ya se ha contestado
+//            $contestado = true;
+
+
+        } catch (Exception $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+        return response()->json(compact('mensaje', 'contestado'));
+    }
+
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public function obtenerResultadosTestPersonalidad(Postulacion $postulacion)
+    {
+        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', $postulacion]);
+        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', request()->all()]);
+        $tempFile =  $this->service->generarExcelConRespuestasTestPersonalidad();
+        Log::channel('testing')->info('Log', ['$tempFile', $tempFile]);
+        return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend(true);
+
     }
 }
