@@ -173,6 +173,11 @@ class Postulacion extends Model implements Auditable
         return $this->belongsTo(Vacante::class, 'vacante_id');
     }
 
+    public function evaluacionPersonalidad()
+    {
+        return $this->hasOne(EvaluacionPersonalidad::class );
+    }
+
     public function paisResidencia()
     {
         return $this->belongsTo(Pais::class, 'pais_residencia_id', 'id');

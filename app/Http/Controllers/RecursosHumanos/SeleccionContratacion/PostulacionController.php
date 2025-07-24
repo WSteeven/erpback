@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\App\PolymorphicGenericService;
+use Src\App\RecursosHumanos\SeleccionContratacion\EvaluacionPersonalidadService;
 use Src\App\RecursosHumanos\SeleccionContratacion\PolymorphicSeleccionContratacionModelsService;
 use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Config\RutasStorage;
@@ -370,20 +371,31 @@ class PostulacionController extends Controller
         }
     }
 
-    public function habilitarTestPersonalidad(Request $request, Postulacion $postulacion)
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public function habilitarTestPersonalidad(Postulacion $postulacion)
     {
-//        Log::channel('testing')->info('Log', ['habilitarTestPersonalidad', $postulacion, $request->all()]);
+        // Se verifica si ya hay una evaluacion completada para esta postulación y en ese caso retorna la evaluación
+        $evaluacion_realizada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id);
+        if ($evaluacion_realizada) {
+            //aqui se debe redireccionar al caso que devuelve la evaluacion realizada
+            $tempFile = $this->service->generarExcelConRespuestasTestPersonalidad($postulacion);
+            return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend(true);
+        }
 
-        //Generar el token único
-        $token = Str::random(20);
-
-        // se guarda en un solo campo y el mismo token servirá para todos los test que el postulante hará
-        $postulacion->token_test = $token;
-        $postulacion->save();
+        // Verifica si ya hay un token creado en primer lugar
+        // Como ya existe un token, no se genera uno nuevo, se devuelve el mismo,
+        $existe_token = !is_null($postulacion->token_test);
+        if (!$existe_token) {
+            //Generar el token único y se guarda en la postulacion
+            $postulacion->token_test = Str::random(20);
+            $postulacion->save();
+        }
 
         //Opcional, enviar por correo el link para que complete
-//        https://firstred.jpconstrucred.com/test-personalidad/token
-        $link = env('SPA_URL') . "/test-personalidad/$token";
+        $link = env('SPA_URL') . "/test-personalidad/$postulacion->token_test";
 
 
         $modelo = new PostulacionResource($postulacion);
@@ -406,13 +418,11 @@ class PostulacionController extends Controller
             if (!$postulacion) throw new Exception('No se encontró un postulación válida para ese token');
             $mensaje = 'Token validado correctamente, puedes contestar el test';
 
-            // Se debe validar si ya ha contestado o no para que no permita una segunda contestación
-            // modelo asociado a la $postulacion seria tests
-            // se verifica si ya hay alguno y en caso positivo se retorna el mensaje:
-//            $mensaje = 'Ya has contestado este test, proceso finalizado';
-            // también se envia una variable indicado que ya se ha contestado
-//            $contestado = true;
-
+            $existe_evaluacion = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id);
+            if ($existe_evaluacion) {
+                $contestado = true;
+                $mensaje = 'Ya has contestado este test previamente. ¡Proceso finalizado!';
+            }
 
         } catch (Exception $ex) {
             throw Utils::obtenerMensajeErrorLanzable($ex);
@@ -428,7 +438,7 @@ class PostulacionController extends Controller
     {
         Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', $postulacion]);
         Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', request()->all()]);
-        $tempFile =  $this->service->generarExcelConRespuestasTestPersonalidad();
+        $tempFile = $this->service->generarExcelConRespuestasTestPersonalidad();
         Log::channel('testing')->info('Log', ['$tempFile', $tempFile]);
         return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend(true);
 

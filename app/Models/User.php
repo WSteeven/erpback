@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Models\RecursosHumanos\DiscapacidadUsuario;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
+use App\Models\RecursosHumanos\SeleccionContratacion\EvaluacionPersonalidad;
 use App\Models\RecursosHumanos\SeleccionContratacion\Favorita;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\RecursosHumanos\SeleccionContratacion\ReferenciaPersonal;
@@ -298,6 +299,10 @@ class User extends Authenticatable implements Auditable
     public function postulaciones(): MorphMany
     {
         return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
+    }
+    public function evaluacionesPersonalidades()
+    {
+        return $this->morphMany(EvaluacionPersonalidad::class, 'evaluacionable', 'user_type', 'user_id');
     }
 
     public function bancoPostulante(): MorphMany

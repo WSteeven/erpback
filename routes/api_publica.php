@@ -7,6 +7,7 @@ use App\Http\Controllers\Medico\PreguntaController;
 use App\Http\Controllers\Medico\TipoCuestionarioController;
 use App\Http\Controllers\RecursosHumanos\Capacitacion\FormularioController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
+use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\EvaluacionPersonalidadController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\VacanteController;
 use App\Http\Resources\CantonResource;
 use App\Models\Canton;
@@ -113,6 +114,11 @@ Route::prefix('seleccion-contratacion')->group(function () {
     Route::get('vacantes', [VacanteController::class, 'index']);
     Route::get('vacantes/{vacante}', [VacanteController::class, 'show']);
     Route::get('vacantes/show-preview/{vacante}', [VacanteController::class, 'showPreview']);
+    Route::apiResources(['evaluaciones-personalidades' => EvaluacionPersonalidadController::class], [
+        'parameters' => [
+            'evaluaciones-personalidades' => 'evaluacion',
+        ]
+    ]);
 });
 
 Route::prefix('capacitacion')->group(function (){

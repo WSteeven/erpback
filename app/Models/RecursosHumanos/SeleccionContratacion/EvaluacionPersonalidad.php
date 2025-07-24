@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Models\RecursosHumanos\SeleccionContratacion;
+
+use App\Models\User;
+use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+
+class EvaluacionPersonalidad extends Model implements Auditable
+{
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
+
+    protected $table = 'rrhh_contratacion_evaluaciones_personalidades';
+    protected $fillable = [
+        'postulacion_id',
+        'respuestas',
+        'fecha_realizacion',
+        'completado',
+        'user_id',
+        'user_type',
+    ];
+
+    protected $casts = [
+        'respuestas' => 'array',
+        'completado' => 'boolean',
+    ];
+
+    private static array $whiteListFilter = ['*'];
+
+
+    public function postulacion()
+    {
+        return $this->belongsTo(Postulacion::class);
+    }
+
+    public function evaluacionable()
+    {
+        return $this->morphTo();
+    }
+
+    public function user()
+    {
+        // Determina el tipo de usuario autenticado
+        if ($this->user_type === User::class) {
+            return $this->belongsTo(User::class, 'user_id', 'id');
+        }
+        if ($this->user_type === UserExternal::class) {
+            return $this->belongsTo(UserExternal::class, 'user_id', 'id');
+        }
+        return [];
+    }
+}

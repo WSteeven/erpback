@@ -163,6 +163,10 @@ class UserExternal extends Authenticatable implements Auditable
     {
         return $this->morphMany(Postulacion::class, 'postulacionable', 'user_type', 'user_id');
     }
+    public function evaluacionesPersonalidades()
+    {
+        return $this->morphMany(EvaluacionPersonalidad::class, 'evaluacionable', 'user_type', 'user_id');
+    }
     public function bancoPostulante()
     {
         return $this->morphMany(BancoPostulante::class, 'bancable', 'user_type', 'user_id');

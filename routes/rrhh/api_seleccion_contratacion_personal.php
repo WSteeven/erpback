@@ -12,7 +12,6 @@ use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoControl
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\UserExternalController;
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\VacanteController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
-use App\Http\Resources\RecursosHumanos\SeleccionContratacion\UserExternalResource;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources(
@@ -52,8 +51,8 @@ Route::post('postulaciones-vacantes/calificar/{postulacion}', [PostulacionContro
 Route::post('postulaciones-vacantes/descartar/{postulacion}', [PostulacionController::class, 'descartar']);
 Route::post('postulaciones-vacantes/seleccionar/{postulacion}', [PostulacionController::class, 'seleccionar']);
 Route::post('postulaciones-vacantes/dar-alta/{postulacion}', [PostulacionController::class, 'darAlta']);
-Route::post('habilitar-test-personalidad/{postulacion}', [PostulacionController::class, 'habilitarTestPersonalidad']);
 Route::post('validar-token-test-personalidad/{token}', [PostulacionController::class, 'validarTokenTestPersonalidad']);
+Route::post('habilitar-test-personalidad/{postulacion}', [PostulacionController::class, 'habilitarTestPersonalidad']);
 Route::get('resultados-test-personalidad/{postulacion}', [PostulacionController::class, 'obtenerResultadosTestPersonalidad']);
 
 
