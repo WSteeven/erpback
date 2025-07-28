@@ -46,6 +46,7 @@ class CitaMedicaRequest extends FormRequest
             // 'estado_cita_medica_id' => $this->estado_cita_medica,
             'paciente_id' => $this->paciente,
             'accidente_id' => $this->accidente,
+            'fecha_hora_cita' => $this->fecha_hora_cita ?? ($this->fecha_cita_medica && $this->hora_cita_medica ? Carbon::parse($this->fecha_cita_medica . ' ' . $this->hora_cita_medica) : null)
         ]);
     }
 }

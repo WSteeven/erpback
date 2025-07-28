@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Medico;
 
+use App\Events\Medico\NotificarCitaMedicaADoctorEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\CitaMedicaRequest;
 use App\Http\Resources\Medico\CitaMedicaResource;
@@ -50,6 +51,8 @@ class CitaMedicaController extends Controller
             $datos['estado_cita_medica'] = CitaMedica::PENDIENTE;
 
             $cita_medica = CitaMedica::create($datos);
+
+            event(new NotificarCitaMedicaADoctorEvent($cita_medica));
             $modelo = new CitaMedicaResource($cita_medica);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
