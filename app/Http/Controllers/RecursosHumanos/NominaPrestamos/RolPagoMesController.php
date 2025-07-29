@@ -8,6 +8,7 @@ use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
+use App\Jobs\RecursosHumanos\EnviarRolPagoJob;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
@@ -23,10 +24,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
-use Src\App\SystemNotificationService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
+use Src\App\SystemNotificationService;
 use Src\Shared\Utils;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
@@ -211,29 +212,56 @@ class RolPagoMesController extends Controller
     {
         try {
 
-        $correos=[];
-        $error = false;
-        $mensaje = '';
-        $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
-        foreach ($roles as $rol_pago) {
-            try {
-                $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-                $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
-            }catch (Exception $e) {
-                $error = true;
-                $mensaje = $e->getMessage();
-                $correos[] = $empleado->user->email;
-                SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error general: " .$rol_pago.' <-> '. $e->getMessage());
+            $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
+            $enviados = [];
+            $enCola = 0;
+
+            foreach ($roles as $rol_pago) {
+                $empleado = Empleado::find($rol_pago->empleado_id);
+
+                // Validamos correo
+                $email = strtolower($empleado->user->email ?? '');
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    Log::warning("Correo inválido: $email para empleado ID {$empleado->id}");
+                    continue;
+                }
+
+                //Enviamos a la cola
+                EnviarRolPagoJob::dispatch($rol_pago)->onQueue('emails');
+                $enviados[] = $email;
+                $enCola++;
             }
+
+            $mensaje = "Se han colocado $enCola roles para el pago en la cola de envio.";
+            return response()->json(compact('mensaje', 'enviados'));
+        } catch (Exception $e) {
+            SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error con el método RolPagoMesController::enviarRoles: " . $e->getMessage());
+            throw Utils::obtenerMensajeErrorLanzable($e);
         }
-        if ($error) {
-            if(strlen($mensaje)>5)
-            $mensaje = "Roles de pago enviados correctamente pero con algunos errores: $mensaje";
-            return response()->json(compact('mensaje', 'correos'));
-        }
-        $mensaje = 'Rol de pago enviado correctamente';
-        return response()->json(compact('mensaje'));
-        }catch (Exception $e) {
+    }
+
+    public function enviarRolesOld(int $rolPagoId)
+    {
+        try {
+
+            $exitos = [];
+            $fallos = [];
+
+            $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
+            foreach ($roles as $rol_pago) {
+                try {
+                    $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
+                    $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
+                    $exitos[] = $empleado->user->email;
+                } catch (Exception $e) {
+                    $fallos[] = $empleado->user->email;
+                    SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error general: " . $rol_pago . ' <-> ' . $e->getMessage());
+                }
+            }
+
+            $mensaje = count($fallos) ? "Se enviaron " . count($exitos) . " roles de pago con éxito y " . count($fallos) . " con fallos" : null;
+            return response()->json(compact('mensaje', 'exitos', 'fallos'));
+        } catch (Exception $e) {
             SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error con el método RolPagoMesController::enviarRoles: " . $e->getMessage());
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
@@ -845,10 +873,11 @@ class RolPagoMesController extends Controller
         $rol->finalizado = false;
         $rol->save();
         $modelo = new RolPagoMesResource($rol);
-        $mensaje ='Rol activado exitosamente';
+        $mensaje = 'Rol activado exitosamente';
 
         return response()->json(compact('mensaje', 'modelo'));
     }
+
     public function finalizarRolPago(Request $request)
     {
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);

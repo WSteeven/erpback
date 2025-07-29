@@ -434,6 +434,7 @@ class NominaService
             $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
+//            Log::channel('testing')->info('Log', ['enviar_rol_pago->args', $reportes, $destinatario]);
             $user = User::where('id', $destinatario->usuario_id)->first();
             Mail::to($user->email)
                 ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
