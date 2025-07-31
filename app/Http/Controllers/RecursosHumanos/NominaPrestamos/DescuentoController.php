@@ -10,9 +10,8 @@ use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
 use Carbon\Carbon;
 use DB;
 use Exception;
-use Hamcrest\Util;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
@@ -25,6 +24,7 @@ class DescuentoController extends Controller
     public function __construct()
     {
         $this->middleware('can:puede.ver.descuentos')->only('index', 'show');
+        $this->middleware('can:puede.crear.descuentos')->only('store');
         $this->middleware('can:puede.editar.descuentos')->only('update');
         $this->middleware('can:puede.eliminar.descuentos')->only('destroy');
     }
@@ -55,19 +55,17 @@ class DescuentoController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-//            Log::channel('testing')->info('Log', ['datos validados', $datos]);
 
-//            throw new Exception(Utils::metodoNoDesarrollado());
             $descuento = Descuento::create($datos);
             CuotaDescuento::actualizarCuotasDescuento($descuento, $datos['cuotas']);
 
-            $modelo = new DescuentoResource($descuento);
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Throwable $ex) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($ex, 'Guardar ' . $this->entidad);
         }
+        $modelo = new DescuentoResource($descuento);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -113,20 +111,38 @@ class DescuentoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @return Response
+     * @return JsonResponse
      * @throws ValidationException
      */
-    public function destroy(/*$id*/)
+    public function destroy(Descuento $descuento)
     {
-        throw ValidationException::withMessages([Utils::metodoNoDesarrollado()]);
+        try {
+            // si ya ha sido pagado, no se puede eliminar
+            if ($descuento->pagado) throw new Exception("No se puede eliminar un descuento que ya ha sido pagado");
+            // si tiene al menos 1 cuota pagada, tampoco se puede eliminar
+            if ($descuento->cuotas()->where('pagada', true)->count() > 0) throw new Exception("No se puede eliminar este descuento porque ya tiene cuotas que han sido pagadas, por favor regulariza de otra manera");
+
+            //Se procede con normalidad
+            // borramos las cuotas registradas en egreso_rol_pago, luego las cuotas y luego el descuento como tal
+            foreach ($descuento->cuotas()->get() as $cuota) {
+                $cuota->egreso_rol_pago()->delete();
+            }
+            $descuento->cuotas()->delete();
+            $descuento->delete();
+        } catch (Throwable $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
+//        throw ValidationException::withMessages([Utils::metodoNoDesarrollado()]);
     }
 
     /**
-     * @throws ValidationException
+     * Calcula la cantidad de cuotas para devolver al front un array con los valores necesarios
+     * @throws Exception
      */
     public function calcularCantidadCuotas(Request $request)
     {
-        $cuotas = [];
         $mes_inicia_cobro = Carbon::createFromFormat('Y-m', $request->mes_inicia_cobro)->endOfMonth();
         // si el mes de inicio de cobro es menor a la fecha de descuento, se lanza un error
         if ($mes_inicia_cobro->lt(Carbon::parse($request->fecha_descuento))) throw new Exception('La fecha de descuento debe ser menor al mes de inicio del cobro');
@@ -137,6 +153,14 @@ class DescuentoController extends Controller
         return response()->json(compact('cuotas'));
     }
 
+    /**
+     * Realiza el calculo de cuotas a pagar junto con el valor de cada cuota y el mes que debe pagarse,
+     * teniendo en cuenta como primer mes el mes_inicia_cobro y el valor para dividir en cuotas iguales
+     * @param Carbon $mes_inicia_cobro
+     * @param float $valor
+     * @param int|null $cantidad_cuotas
+     * @return array
+     */
     private function obtenerCuotasDescuento(Carbon $mes_inicia_cobro, float $valor = 0, ?int $cantidad_cuotas = 1)
     {
         if ($valor <= 0) return [];

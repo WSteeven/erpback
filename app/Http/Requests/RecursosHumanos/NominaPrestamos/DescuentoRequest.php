@@ -29,7 +29,7 @@ class DescuentoRequest extends FormRequest
             'tipo_descuento_id'=>'sometimes|nullable|exists:descuentos_generales,id',
             'multa_id'=>'sometimes|nullable|exists:multas,id',
             'descripcion'=>'required|string',
-            'valor'=>'required|decimal:2',
+            'valor'=>'required|numeric',
             'cantidad_cuotas'=>'required|integer',
             'mes_inicia_cobro'=>'required|string',
             'pagado'=>'boolean',
