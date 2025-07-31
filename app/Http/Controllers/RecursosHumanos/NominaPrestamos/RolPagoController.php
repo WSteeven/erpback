@@ -34,7 +34,7 @@ use Throwable;
 /**
  * INFO: Aqui se consultan los roles de empleados que se crean mensualmente
  */
-class RolPagosController extends Controller
+class RolPagoController extends Controller
 {
     private string $entidad = 'Rol_de_pagos';
     private ReportePdfExcelService $reporteService;

@@ -31,7 +31,7 @@ class PrestamoEmpresarialRequest extends FormRequest
             'monto' => 'required|numeric',
             'periodo_id' => 'nullable|exists:periodos,id',
             'valor_utilidad' => 'nullable|numeric',
-            'plazo' => 'required|string',
+            'plazo' => 'required',
             'estado' => 'required|string',
         ];
     }

@@ -103,8 +103,11 @@ class AsistenciaService
             $fastapi_apikey = env('API_KEY_FOR_FASTAPI');
             $url = $fastapi . 'biometrico-napoleon';
 
-            $response = Http::withHeaders(['x-api-key'=>$fastapi_apikey])->withOptions(['verify'=>false])->get($url);
-
+            $response = Http::withHeaders(['x-api-key'=>$fastapi_apikey])
+                ->withOptions(['verify'=>false])
+                ->timeout(90)
+                ->get($url);
+//            Log::channel('testing')->error('Log', ['respuesta obtenida en obtenerRegistrosMesFASTAPI', $response]);
             return $response['eventos'];
         } catch (Exception $e) {
 //            Log::channel('testing')->error('Log', ['error en obtenerRegistrosMesFASTAPI', $e->getLine(), $e->getMessage()]);

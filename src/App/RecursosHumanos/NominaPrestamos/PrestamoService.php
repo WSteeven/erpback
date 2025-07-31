@@ -2,11 +2,14 @@
 
 namespace Src\App\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirografario;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +28,7 @@ class PrestamoService
     public function setMes($mes)
     {
 
-        $this->mes =  $mes;
+        $this->mes = $mes;
     }
 
     public function setEmpleado($id_empleado = null)
@@ -48,12 +51,12 @@ class PrestamoService
         if ($query != null) {
             if ($todos) {
                 if ($pluck) {
-                    return $query == null ? null : $query->pluck('total_valor',  $key_empleado);
+                    return $query == null ? null : $query->pluck('total_valor', $key_empleado);
                 } else {
                     return $query->get();
                 }
             } else {
-                $suma =  $query == null ? 0 : $query->pluck('total_valor',  $key_empleado);
+                $suma = $query == null ? 0 : $query->pluck('total_valor', $key_empleado);
                 return $suma != 0 ? [$this->id_empleado] : 0;
             }
         } else {
@@ -71,7 +74,7 @@ class PrestamoService
             } else {
                 $query->select($key_empleado, DB::raw('SUM(valor) as total_valor'));
                 $prestamo = $query->first();
-                return $prestamo->total_valor != null  ?  $prestamo->total_valor : 0;
+                return $prestamo->total_valor != null ? $prestamo->total_valor : 0;
             }
         }
     }
@@ -79,7 +82,7 @@ class PrestamoService
     public function prestamosHipotecarios($todos = false, $pluck = false)
     {
         $mes_convertido = Carbon::createFromFormat('Y-m', $this->mes)->format('m-Y');
-        $query = $this->query(PrestamoHipotecario::where('mes',  $mes_convertido), $todos);
+        $query = $this->query(PrestamoHipotecario::where('mes', $mes_convertido), $todos);
         return $this->getPrestamos($query, $todos, $pluck);
     }
 
@@ -90,7 +93,41 @@ class PrestamoService
         return $this->getPrestamos($query, $todos, $pluck);
     }
 
+    protected function consultarPrestamoEmpleadoActual()
+    {
+        [$anio, $mes] = explode('-', $this->mes);
+
+        return PlazoPrestamoEmpresarial::join('prestamo_empresarial', 'plazo_prestamo_empresarial.id_prestamo_empresarial', '=', 'prestamo_empresarial.id')
+            ->where('prestamo_empresarial.solicitante', $this->id_empleado)
+            ->whereYear('fecha_vencimiento', $anio)
+            ->whereMonth('fecha_vencimiento', $mes)
+            ->where('pago_cuota', 0)
+            ->where('plazo_prestamo_empresarial.estado', true)
+            ->sum('valor_a_pagar') ?? 0;
+    }
+
+    protected function consultarPrestamosDeTodos(bool $pluck)
+    {
+        $query = PrestamoEmpresarial::where('estado', 'ACTIVO')
+            ->join('plazo_prestamo_empresarial as plazos', 'prestamo_empresarial.id', '=', 'plazos.id_prestamo_empresarial')
+            ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$this->mes])
+            ->groupBy('prestamo_empresarial.id')
+            ->select('solicitante', DB::raw('SUM(plazos.valor_a_pagar) as total_valor'));
+
+        return $pluck
+            ? $query->pluck('total_valor', 'solicitante')
+            : $query->get();
+    }
+
+
     public function prestamosEmpresariales($todos = false, $pluck = false)
+    {
+        return $todos
+            ? $this->consultarPrestamosDeTodos($pluck)
+            : $this->consultarPrestamoEmpleadoActual();
+    }
+
+    /*public function prestamosEmpresarialesOld($todos = false, $pluck = false)
     {
         $query = PrestamoEmpresarial::where('estado', 'ACTIVO')
             ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$this->mes])
@@ -117,19 +154,53 @@ class PrestamoService
             ->sum('valor_a_pagar');
             return $prestamo != null ? $prestamo : 0;
         }
+    }**/
+
+    /**
+     * @throws Exception
+     */
+    public function pagarPrestamoEmpresarialDesdeRol(RolPagoMes $rolPagoMes)
+    {
+        foreach ($rolPagoMes->rolesPagos() as $rol) {
+            if ($rol->prestamo_empresarial > 0) { // si el rol tiene valor de prestamo empresarial mayor a cero se paga
+                [$anio, $mes] = explode('-', $this->mes);
+                // buscamos un prestamo para ese empleado
+                $prestamo = PrestamoEmpresarial::where('solicitante', $rol->empleado_id)->where('estado', PrestamoEmpresarial::ACTIVO)->first();
+                // Buscar cuotas pendientes del empleado en ese mes
+                $cuota_actual = $prestamo->plazo_prestamo_empresarial_info->where('pago_cuota', false)->where('estado', true)
+                    ->whereYear('fecha_vencimiento', $anio)
+                    ->whereMonth('fecha_vencimiento', $mes)->first();
+                if ($cuota_actual) {
+                    //sacamos el valor de la cuota
+                    if ($cuota_actual->valor_a_pagar < $rol->prestamo_empresarial) {
+                        $empleado = Empleado::find($rol->empleado_id);
+                        $nombre_empleado = Empleado::extraerNombresApellidos($empleado);
+                        throw new Exception("Estas intentando pagar mayor cantidad al valor de la cuota de este mes: $cuota_actual->valor_a_pagar, para el empleado $nombre_empleado, por favor realiza el pago manualmente en la sección préstamos empresariales");
+                    }
+                    $cuota_actual->valor_pagado +=  $rol->prestamo_empresarial;
+                    $cuota_actual->valor_a_pagar -= $rol->prestamo_empresarial;
+                    if ($cuota_actual->valor_a_pagar == 0 || $cuota_actual->valor_cuota == $cuota_actual->valor_pagado) {// significa que se ha pagado la letra en su totalidad
+                        $cuota_actual->pago_cuota = true;
+                        $cuota_actual->comentario = "Pago realizado automaticamente por rol de pagos de $rol->mes";
+                    }
+                    $cuota_actual->save();
+                }
+            }
+        }
     }
+
     public function pagarPrestamoEmpresarial()
     {
         list($anio, $mes) = explode('-', $this->mes);
         $prestamo = PlazoPrestamoEmpresarial::whereYear('fecha_vencimiento', $anio)
             ->whereMonth('fecha_vencimiento', $mes)
-            ->where('pago_couta', 0)
+            ->where('pago_cuota', 0)
             ->first();
         if ($prestamo != null) {
             $prestamo->valor_pagado = $prestamo->valor_a_pagar;
             $prestamo->valor_a_pagar = 0;
-            $prestamo->fecha_pago = $prestamo->fecha_vencimiento;
-            $prestamo->pago_couta = 1;
+            $prestamo->fecha_pago = Carbon::now()->format('Y-m-d');
+            $prestamo->pago_cuota = true;
             $prestamo->save();
         }
     }

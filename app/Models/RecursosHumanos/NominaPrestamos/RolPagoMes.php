@@ -65,7 +65,7 @@ class RolPagoMes extends Model implements Auditable
         'es_quincena'
     ];
     protected $casts = ['finalizado' => 'boolean','es_quincena'=>'boolean'];
-    public function rolPago()
+    public function rolesPagos()
     {
         return $this->hasMany(RolPago::class,'rol_pago_id','id');
     }

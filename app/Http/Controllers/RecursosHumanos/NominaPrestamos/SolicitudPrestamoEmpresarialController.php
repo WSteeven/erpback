@@ -175,17 +175,17 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $valor_utilidad = !is_null($prestamo->valor_utilidad) ? $prestamo->valor_utilidad : 0;
 
         for ($index = 1; $index <= $prestamo->plazo; $index++) {
-            $valor_couta = number_format($valor_cuota / $plazo_prestamo, 2);
+            $valor_cuota = number_format($valor_cuota / $plazo_prestamo, 2);
             if ($valor_utilidad != 0) {
-                $valor_couta -= ($valor_utilidad / $plazo_prestamo);
+                $valor_cuota -= ($valor_utilidad / $plazo_prestamo);
             }
             $plazo = [
                 'num_cuota' => $index,
                 'fecha_vencimiento' => $this->calcular_fechas($index, 'meses', $prestamo),
-                'valor_couta' => $valor_couta,
+                'valor_cuota' => $valor_cuota,
                 'valor_pagado' => 0,
                 'valor_a_pagar' => 0,
-                'pago_couta' => false,
+                'pago_cuota' => false,
             ];
             $plazos[] = $plazo;
         }
@@ -197,10 +197,10 @@ class SolicitudPrestamoEmpresarialController extends Controller
             $plazo = [
                 'num_cuota' =>  $indice,
                 'fecha_vencimiento' => '30-04-' . $anio,
-                'valor_couta' =>  $valor_utilidad,
+                'valor_cuota' =>  $valor_utilidad,
                 'valor_pagado' => 0,
                 'valor_a_pagar' => 0,
-                'pago_couta' => false,
+                'pago_cuota' => false,
             ];
             $plazos[] = $plazo;
         }
@@ -243,10 +243,10 @@ class SolicitudPrestamoEmpresarialController extends Controller
             $fecha = Carbon::createFromFormat('d-m-Y', $plazo['fecha_vencimiento']);
             return [
                 'id_prestamo_empresarial' => $prestamoEmpresarial->id,
-                'pago_couta' => false,
+                'pago_cuota' => false,
                 'num_cuota' => $plazo['num_cuota'],
                 'fecha_vencimiento' => $fecha->format('Y-m-d'),
-                'valor_couta' => $plazo['valor_couta'],
+                'valor_cuota' => $plazo['valor_cuota'],
                 'valor_pagado' => $plazo['valor_pagado'],
                 'valor_a_pagar' => $plazo['valor_a_pagar']
             ];

@@ -7,11 +7,13 @@ use App\Http\Requests\RecursosHumanos\NominaPrestamos\DescuentoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\DescuentoResource;
 use App\Models\RecursosHumanos\NominaPrestamos\CuotaDescuento;
 use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
+use Carbon\Carbon;
 use DB;
 use Exception;
+use Hamcrest\Util;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 use Throwable;
@@ -49,11 +51,11 @@ class DescuentoController extends Controller
      */
     public function store(DescuentoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['store', $request->all()]);
+//        Log::channel('testing')->info('Log', ['store', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['datos validados', $datos]);
+//            Log::channel('testing')->info('Log', ['datos validados', $datos]);
 
 //            throw new Exception(Utils::metodoNoDesarrollado());
             $descuento = Descuento::create($datos);
@@ -62,7 +64,7 @@ class DescuentoController extends Controller
             $modelo = new DescuentoResource($descuento);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
-        } catch (Throwable|Exception $ex) {
+        } catch (Throwable $ex) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($ex, 'Guardar ' . $this->entidad);
         }
@@ -101,7 +103,7 @@ class DescuentoController extends Controller
             $modelo = new DescuentoResource($descuento);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-        } catch (Throwable|Exception $ex) {
+        } catch (Throwable $ex) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($ex, 'Actualizar ' . $this->entidad);
         }
@@ -117,5 +119,59 @@ class DescuentoController extends Controller
     public function destroy(/*$id*/)
     {
         throw ValidationException::withMessages([Utils::metodoNoDesarrollado()]);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function calcularCantidadCuotas(Request $request)
+    {
+        $cuotas = [];
+        $mes_inicia_cobro = Carbon::createFromFormat('Y-m', $request->mes_inicia_cobro)->endOfMonth();
+        // si el mes de inicio de cobro es menor a la fecha de descuento, se lanza un error
+        if ($mes_inicia_cobro->lt(Carbon::parse($request->fecha_descuento))) throw new Exception('La fecha de descuento debe ser menor al mes de inicio del cobro');
+
+        $cuotas = $this->obtenerCuotasDescuento($mes_inicia_cobro, $request->valor, $request->cantidad_cuotas);
+
+
+        return response()->json(compact('cuotas'));
+    }
+
+    private function obtenerCuotasDescuento(Carbon $mes_inicia_cobro, float $valor = 0, ?int $cantidad_cuotas = 1)
+    {
+        if ($valor <= 0) return [];
+        $cuotas = [];
+
+        //Redondear al centavo base
+        $valor_cuota_base = round($valor / $cantidad_cuotas, 2);
+
+        // Calcular el total con cuota base
+        $total_cuotas_base = $valor_cuota_base * $cantidad_cuotas;
+
+        // Determinar diferencia a ajustar (positiva o negativa)
+        $diferencia = round($valor - $total_cuotas_base, 2);
+
+        for ($i = 1; $i <= $cantidad_cuotas; $i++) {
+            $mes = $mes_inicia_cobro->copy()->addMonthsNoOverflow($i - 1);
+
+            // Ajustamos la primera cuota con la diferencia (si existe)
+            $ajuste = 0;
+            if ($diferencia !== 0.0) {
+                $ajuste = $diferencia;
+                $diferencia = 0.0; // solo se ajusta una vez
+            }
+
+            $cuotas[] = [
+                'id' => $i,
+                'num_cuota' => $i,
+                'mes_vencimiento' => $mes->format('Y-m'),
+                'valor_cuota' => round($valor_cuota_base + $ajuste, 2),
+                'pagada' => false,
+                'comentario' => null,
+            ];
+        }
+
+        return $cuotas;
+
     }
 }

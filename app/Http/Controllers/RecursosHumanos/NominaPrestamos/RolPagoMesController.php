@@ -222,7 +222,7 @@ class RolPagoMesController extends Controller
                 // Validamos correo
                 $email = strtolower($empleado->user->email ?? '');
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    Log::warning("Correo inválido: $email para empleado ID {$empleado->id}");
+                    Log::warning("Correo inválido: $email para empleado ID $empleado->id");
                     continue;
                 }
 
@@ -240,7 +240,7 @@ class RolPagoMesController extends Controller
         }
     }
 
-    public function enviarRolesOld(int $rolPagoId)
+    /*public function enviarRolesOld(int $rolPagoId)
     {
         try {
 
@@ -265,7 +265,7 @@ class RolPagoMesController extends Controller
             SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error con el método RolPagoMesController::enviarRoles: " . $e->getMessage());
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
-    }
+    }*/
 
     /**
      * La función crea un informe de pago de rol en efectivo en formato Excel para un rolPagoId
@@ -610,7 +610,7 @@ class RolPagoMesController extends Controller
      */
     private function crearRolIndividualMensualEmpleado(RolPagoMes $rol)
     {
-        Log::channel('testing')->info('Log', ['rol', $rol]);
+//        Log::channel('testing')->info('Log', ['rol', $rol]);
         try {
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m'); // mes en formato yyyy-mm
             $mes_fecha = new Carbon($mes); //mes en instancia de fecha
@@ -670,7 +670,7 @@ class RolPagoMesController extends Controller
                     'updated_at' => $this->date
                 ];
             }
-            $rol->rolPago()->createMany($roles_pago);
+            $rol->rolesPagos()->createMany($roles_pago);
             if (!$rol->es_quincena) {
                 // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
                 $this->nominaService->registrarIngresosProgramados($rol);
@@ -763,7 +763,15 @@ class RolPagoMesController extends Controller
                     'updated_at' => $this->date
                 ];
             }
-            $rol->rolPago()->createMany($roles_pago);
+            $rol->rolesPagos()->createMany($roles_pago);
+
+            if (!$rol->es_quincena) {
+                // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
+                $this->nominaService->registrarIngresosProgramados($rol);
+                // Aquí se registra los egresos, solo en caso de que sea rol de fin de mes
+                $this->nominaService->registrarEgresosProgramados($rol);
+            }
+
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
@@ -775,7 +783,7 @@ class RolPagoMesController extends Controller
     public function verificarTodasRolesFinalizadas(Request $request)
     {
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);
-        $total_subrol_pagos_no_finalizadas = $rol_pago->rolPago()->whereIn('estado', [RolPago::EJECUTANDO, RolPago::REALIZADO])->count();
+        $total_subrol_pagos_no_finalizadas = $rol_pago->rolesPagos()->whereIn('estado', [RolPago::EJECUTANDO, RolPago::REALIZADO])->count();
         $estan_finalizadas = $total_subrol_pagos_no_finalizadas == 0;
         return response()->json(compact('estan_finalizadas'));
     }
@@ -910,5 +918,20 @@ class RolPagoMesController extends Controller
         $periodo = $es_quincena ? 'DEL 1 AL  15 ' . Carbon::createFromFormat('m-Y', $mes)->locale('es')->translatedFormat(' F Y') : 'DEL 1 AL ' . Carbon::createFromFormat('m-Y', $mes)->locale('es')->translatedFormat('t F Y');
         $periodo = strtoupper($periodo);
         return "PERIODO: $periodo";
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function pagarPrestamosEmpresariales(RolPagoMes $rol)
+    {
+        try {
+            $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+            $this->prestamoService->setMes($mes);
+            $this->prestamoService->pagarPrestamoEmpresarialDesdeRol($rol);
+        } catch (Throwable $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
     }
 }

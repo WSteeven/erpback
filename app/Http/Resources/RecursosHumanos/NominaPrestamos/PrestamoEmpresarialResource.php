@@ -24,9 +24,10 @@ class PrestamoEmpresarialResource extends JsonResource
             'periodo' =>   $this->periodo_id,
             'periodo_info' => $this->periodo_info? $this->periodo_info->nombre:'' ,
             'valor_utilidad' => $this->valor_utilidad,
-            'plazo' => $this->plazo,
+            'plazo' => (int) $this->plazo,
             'plazos' => $this->plazo_prestamo_empresarial_info,
             'estado' => $this->estado,
+            'motivo' => $this->motivo,
 
 
         ];
