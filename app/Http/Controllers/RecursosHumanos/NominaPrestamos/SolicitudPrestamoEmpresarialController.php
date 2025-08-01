@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Events\RecursosHumanos\NotificarSolicitudPrestamoAprobadaRecursosHumanosEvent;
 use App\Events\SolicitudPrestamoEvent;
 use App\Events\SolicitudPrestamoGerenciaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
-use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
-use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
 use Carbon\Carbon;
-use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +20,7 @@ use Throwable;
 class SolicitudPrestamoEmpresarialController extends Controller
 {
     private string $entidad = 'Solicitud Prestamo Empresarial';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.solicitud_prestamo_empresarial')->only('index', 'show');
@@ -34,7 +32,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function index()
     {
         $usuario = Auth::user();
-        if ($usuario->hasRole('GERENTE') ||  $usuario->hasRole('RECURSOS HUMANOS')) {
+        if ($usuario->hasRole('GERENTE') || $usuario->hasRole('RECURSOS HUMANOS')) {
             $results = SolicitudPrestamoEmpresarial::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         } else {
             $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
@@ -56,7 +54,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $fechaActual = Carbon::now();
         $fechaIngreso = Carbon::parse($empleado->fecha_ingreso);
         $diff = $fechaActual->diff($fechaIngreso);
-        if($diff->y <1){
+        if ($diff->y < 1) {
             throw ValidationException::withMessages([
                 '404' => ['Solo se puede solicitar prestamos una vez cumplido 1 año de trabajo'],
             ]);
@@ -95,7 +93,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
             case 2: // Aprobado
                 return $this->aprobar_prestamo_empresarial($request, $solicitud);
             case 3: // Cancelado
-                return  $this->rechazar_prestamo_empresarial($request, $solicitud);
+                return $this->rechazar_prestamo_empresarial($request, $solicitud);
             case 4: // Validado
                 return $this->validar_prestamo_empresarial($request, $solicitud);
             default:
@@ -134,18 +132,21 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $datos = $request->validated();
         $solicitud->update($datos);
-        $prestamoEmpresarial = new PrestamoEmpresarial();
-        $prestamoEmpresarial->solicitante = $request->solicitante;
-        $prestamoEmpresarial->fecha = $request->fecha;
-        $prestamoEmpresarial->monto = $request->monto;
-        $prestamoEmpresarial->plazo = $request->plazo;
-        $prestamoEmpresarial->estado = PrestamoEmpresarial::ACTIVO;
-        $prestamoEmpresarial->periodo_id = $request->periodo_id;
-        $prestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
-        $prestamoEmpresarial->id_solicitud_prestamo_empresarial = $solicitud->id;
-        $prestamoEmpresarial->save();
+//        $prestamoEmpresarial = new PrestamoEmpresarial();
+//        $prestamoEmpresarial->solicitante = $request->solicitante;
+//        $prestamoEmpresarial->fecha = $request->fecha;
+//        $prestamoEmpresarial->monto = $request->monto;
+//        $prestamoEmpresarial->plazo = $request->plazo;
+//        $prestamoEmpresarial->estado = PrestamoEmpresarial::ACTIVO;
+//        $prestamoEmpresarial->periodo_id = $request->periodo_id;
+//        $prestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
+//        $prestamoEmpresarial->id_solicitud_prestamo_empresarial = $solicitud->id;
+//        $prestamoEmpresarial->save();
         event(new SolicitudPrestamoEvent($solicitud));
-        $this->tabla_plazos($prestamoEmpresarial);
+        event(new NotificarSolicitudPrestamoAprobadaRecursosHumanosEvent($solicitud));
+
+
+        //$this->tabla_plazos($prestamoEmpresarial);
         $modelo = new SolicitudPrestamoEmpresarialResource($solicitud);
         $mensaje = "Solicitud de Prestamo a sido Aprobada";
         return response()->json(compact('mensaje', 'modelo'));
@@ -167,91 +168,79 @@ class SolicitudPrestamoEmpresarialController extends Controller
     /**
      * @throws Exception
      */
-    public function tabla_plazos(PrestamoEmpresarial $prestamo)
+    /*public function tabla_plazos(PrestamoEmpresarial $prestamo)
     {
-        $valor_cuota = !is_null($prestamo->monto) ? $prestamo->monto : 0;
-        $plazo_prestamo = !is_null($prestamo->plazo) ? $prestamo->plazo : 0;
-        $plazos  = [];
-        $valor_utilidad = !is_null($prestamo->valor_utilidad) ? $prestamo->valor_utilidad : 0;
+        $monto = $prestamo->monto ?? 0;
+        $plazo = $prestamo->plazo ?? 0;
+        $valor_utilidad = $prestamo->valor_utilidad ?? 0;
 
-        for ($index = 1; $index <= $prestamo->plazo; $index++) {
-            $valor_cuota = number_format($valor_cuota / $plazo_prestamo, 2);
-            if ($valor_utilidad != 0) {
-                $valor_cuota -= ($valor_utilidad / $plazo_prestamo);
-            }
-            $plazo = [
-                'num_cuota' => $index,
-                'fecha_vencimiento' => $this->calcular_fechas($index, 'meses', $prestamo),
-                'valor_cuota' => $valor_cuota,
-                'valor_pagado' => 0,
-                'valor_a_pagar' => 0,
-                'pago_cuota' => false,
-            ];
-            $plazos[] = $plazo;
-        }
-        if ($valor_utilidad != 0) {
-            $periodo = Periodo::where('id', $prestamo->periodo_id)->first();
-            $nombrePeriodo = $periodo->nombre;
-            $anio = explode('-', $nombrePeriodo)[0];
-            $indice =  (int)$prestamo->plazo + 1;
-            $plazo = [
-                'num_cuota' =>  $indice,
-                'fecha_vencimiento' => '30-04-' . $anio,
-                'valor_cuota' =>  $valor_utilidad,
-                'valor_pagado' => 0,
-                'valor_a_pagar' => 0,
-                'pago_cuota' => false,
-            ];
-            $plazos[] = $plazo;
-        }
-        $this->crear_plazos($prestamo, $plazos);
-    }
+        if ($plazo ===0) throw new Exception('El préstamo no tiene plazo definido');
 
-    /**
-     * @throws Exception
-     */
-    public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
+        $valor_base_cuota =  $monto / $plazo;
+        $descuento_utilidad = $valor_utilidad != 0?  $valor_utilidad/$plazo : 0;
+        $valor_cuota = round($valor_base_cuota-$descuento_utilidad, 2);
+
+        $plazos = collect(range(1, $plazo))->map(function ($numeroCuota) use ($prestamo,$valor_cuota) {
+            return $this->crearPlazoCuota($numeroCuota, $valor_cuota, $this->calcularFechaVencimiento($numeroCuota, 'meses', $prestamo));
+        })->toArray();
+
+        if ($valor_utilidad > 0) {
+            $anio =$this->obtenerAnioDesdePeriodo($prestamo);
+            $plazos[] = $this->crearPlazoCuota($plazo+1, round($valor_utilidad,2), "$anio-04-30");
+        }
+
+        $this->guardarPlazos($prestamo, $plazos);
+    }*/
+
+    /*protected function crearPlazoCuota(int $numCuota, float $valorCuota, string $fechaVencimiento): array
     {
-        $partes = explode('-', $prestamo->fecha);
-        $fechaActual = new DateTime(
-            $partes[2] . '-' . $partes[1] . '-' . $partes[0]
-        );
-        switch ($plazo) {
-            case 'dias':
-                $fechaActual->modify('+' . $cuota . ' day');
-                break;
-            case 'semanas':
-                $fechaActual->modify('+' . $cuota . ' week');
-                break;
-            case 'meses':
-                $mes = (int)$fechaActual->format('m') + $cuota;
-                $fechaActual->setDate($fechaActual->format('Y'), (int)$fechaActual->format('m') + $cuota, 30);
-                if ($mes == 14) {
-                    $fechaActual->modify('-1 day');
-                }
-                break;
-            case 'anios':
-                $fechaActual->modify('+' . $cuota . ' year');
-                break;
-        }
-        return $fechaActual->format('d-m-Y');
-    }
+        return [
+            'num_cuota' => $numCuota,
+            'fecha_vencimiento' => $fechaVencimiento,
+            'valor_cuota' => $valorCuota,
+            'valor_pagado' => 0,
+            'valor_a_pagar' => 0,
+            'pago_cuota' => false,
+        ];
+    }*/
 
-    public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
+    /*protected function obtenerAnioDesdePeriodo(PrestamoEmpresarial $prestamo): string
     {
-        $plazosActualizados = collect($plazos)->map(function ($plazo) use ($prestamoEmpresarial) {
-            $fecha = Carbon::createFromFormat('d-m-Y', $plazo['fecha_vencimiento']);
+        $periodo = Periodo::find($prestamo->periodo_id);
+        $nombre = $periodo?->nombre;
+        return explode('-', $nombre)[0] ?? now()->year;
+    }*/
+
+    /*protected function calcularFechaVencimiento(int $cuota, string $unidad, PrestamoEmpresarial $prestamo): string
+    {
+        $fecha = Carbon::parse($prestamo->fecha); // $prestamo->fecha es en formato Y-m-d
+
+        match ($unidad) {
+            'dias' => $fecha->addDays($cuota),
+            'semanas' => $fecha->addWeeks($cuota),
+            'meses' => $fecha->addMonthsNoOverflow($cuota),
+            'anios' => $fecha->addYears($cuota),
+            default => throw new InvalidArgumentException("Unidad de plazo inválida: $unidad"),
+        };
+
+        return $fecha->format('Y-m-d');
+    }*/
+
+    /* protected function guardarPlazos(PrestamoEmpresarial $prestamo, array $plazos): void
+    {
+        $data = collect($plazos)->map(function ($plazo) use ($prestamo) {
             return [
-                'id_prestamo_empresarial' => $prestamoEmpresarial->id,
-                'pago_cuota' => false,
+                'id_prestamo_empresarial' => $prestamo->id,
                 'num_cuota' => $plazo['num_cuota'],
-                'fecha_vencimiento' => $fecha->format('Y-m-d'),
+                'fecha_vencimiento' => $plazo['fecha_vencimiento'],
                 'valor_cuota' => $plazo['valor_cuota'],
                 'valor_pagado' => $plazo['valor_pagado'],
-                'valor_a_pagar' => $plazo['valor_a_pagar']
+                'valor_a_pagar' => $plazo['valor_a_pagar'],
+                'pago_cuota' => $plazo['pago_cuota'],
             ];
         })->toArray();
-        PlazoPrestamoEmpresarial::insert($plazosActualizados);
-    }
+
+        PlazoPrestamoEmpresarial::insert($data);
+    } */
 
 }

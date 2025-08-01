@@ -71,6 +71,7 @@ class PrestamoEmpresarial extends Model  implements Auditable
     protected $fillable = [
         'solicitante',
         'fecha',
+        'fecha_inicio_cobro',
         'monto',
         'periodo_id',
         'valor_utilidad',
@@ -80,6 +81,10 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'id_solicitud_prestamo_empresarial'
     ];
 
+    public function plazos()
+    {
+        return $this->hasMany(PlazoPrestamoEmpresarial::class, 'id_prestamo_empresarial', 'id');
+    }
     public function plazo_prestamo_empresarial_info()
     {
         return $this->hasMany(PlazoPrestamoEmpresarial::class, 'id_prestamo_empresarial', 'id');
@@ -88,7 +93,7 @@ class PrestamoEmpresarial extends Model  implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'solicitante');
     }
-    public function solicitud_prestamo_empresarial_info()
+    public function solicitudPrestamoEmpresarial()
     {
         return $this->hasOne(SolicitudPrestamoEmpresarial::class, 'id', 'id_solicitud_prestamo_empresarial');
     }
@@ -99,6 +104,7 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'id',
         'solicitante',
         'fecha',
+        'fecha_inicio_cobro',
         'monto',
         'periodo',
         'valor_utilidad',

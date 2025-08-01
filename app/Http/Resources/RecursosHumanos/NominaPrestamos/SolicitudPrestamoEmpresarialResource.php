@@ -31,6 +31,7 @@ class SolicitudPrestamoEmpresarialResource extends JsonResource
             'valor_utilidad' => $this->valor_utilidad,
             'foto' =>  $this->foto?url($this->foto):null,
             'estado' => $this->estado,
+            'gestionada' => $this->gestionada,
             'estado_info' =>  $this->estado_info!=null ? $this->estado_info->nombre:'',
         ];
     }

@@ -11,6 +11,7 @@ use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\DiscapacidadUsuarioController;
 use App\Http\Controllers\RecursosHumanos\EmpleadoDelegadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\ConceptoIngresoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\CuotaDescuentoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosGeneralesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\DescuentosLeyController;
@@ -128,8 +129,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('rol_pago/actualizar-masivo', [RolPagoController::class, 'actualizarMasivo']);
     Route::post('rol_pago/finalizar-masivo', [RolPagoController::class, 'finalizarMasivo']);
     Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class, 'prestamos_hipotecario_empleado']);
-    Route::put('aprobar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'aprobar_prestamo_empresarial']);
-    Route::put('rechazar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'rechazar_prestamo_empresarial']);
+//    Route::put('aprobar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'aprobar_prestamo_empresarial']);
+//    Route::put('rechazar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'rechazar_prestamo_empresarial']);
     Route::get('$prestamos_quirografario_empleado', [PrestamoQuirografarioController::class, 'prestamoQuirografarioEmpleado']);
     Route::get('extension_cobertura_salud_empleado', [ExtensionCoverturaSaludController::class, 'extensionCoberturaSaludEmpleado']);
     Route::get('sueldo_basico', [RubroController::class, 'sueldo_basico']);
@@ -176,4 +177,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('finalizar-asignacion-alimentacion', [AlimentacionController::class, 'finalizarAsignacionAlimentacion']);
     Route::post('pagar-prestamos-rol-actual/{rol}', [RolPagoMesController::class, 'pagarPrestamosEmpresariales']);
     Route::post('calcular-cuotas-descuento', [DescuentoController::class, 'calcularCantidadCuotas']);
+    Route::post('calcular-cuotas-prestamo-empresarial', [PrestamoEmpresarialController::class, 'calcularCantidadCuotas']);
+    Route::post('aplazar-cuota-descuento/{cuota}', [CuotaDescuentoController::class, 'aplazarCuotaDescuento']);
 });

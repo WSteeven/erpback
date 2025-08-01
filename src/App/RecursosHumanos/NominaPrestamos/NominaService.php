@@ -312,8 +312,11 @@ class NominaService
             // Recorremos los descuentos para ver las cuotas por cada uno y tomarlas para registrar esos egresos
             foreach ($descuentos as $descuento) {
                 $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
+                if (!$cuota) continue;
 //                Log::channel('testing')->info('Log', ['Valor cuota a pagar', $cuota->valor_cuota]);
 //                Log::channel('testing')->info('Log', ['Rol Pago Individual', $rol_empleado]);
+                if(is_null($cuota->comentario))$cuota->comentario = "Estado transitorio, pendiente de finalizar, registrada en rol de pago de $mes. ";
+                $cuota->save();
                 EgresoRolPago::crearEgresoRol($rol_empleado, $cuota->valor_cuota, $cuota);
             }
         }

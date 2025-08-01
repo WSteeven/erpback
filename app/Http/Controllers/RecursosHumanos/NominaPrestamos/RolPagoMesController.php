@@ -797,7 +797,7 @@ class RolPagoMesController extends Controller
     {
         try {
             $mes = Carbon::createFromFormat('m-Y', $rol_mes->mes)->format('Y-m');
-            Log::channel('testing')->info('Log', ['mes', $mes]);
+//            Log::channel('testing')->info('Log', ['mes', $mes]);
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
             $roles_pago = RolPago::where('rol_pago_id', $rol_mes->id)->get();
@@ -870,7 +870,7 @@ class RolPagoMesController extends Controller
     public function refrescarRolPago(RolPagoMes $rol)
     {
         // $this->agregar_nuevos_empleados($rol_pago);
-        Log::channel('testing')->info('Log', ['RolPagoMes', $rol]);
+//        Log::channel('testing')->info('Log', ['RolPagoMes', $rol]);
         $this->actualizarTablaRoles($rol);
         $mensaje = "Rol de pago Actualizado Exitosamente";
         return response()->json(compact('mensaje'));

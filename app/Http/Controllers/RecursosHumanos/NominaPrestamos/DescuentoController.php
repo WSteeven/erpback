@@ -12,7 +12,6 @@ use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 use Throwable;
@@ -36,7 +35,7 @@ class DescuentoController extends Controller
      */
     public function index()
     {
-        $results = Descuento::filter()->get();
+        $results = Descuento::filter()->orderBy('id', 'desc')->get();
         $results = DescuentoResource::collection($results);
         return response()->json(compact('results'));
     }

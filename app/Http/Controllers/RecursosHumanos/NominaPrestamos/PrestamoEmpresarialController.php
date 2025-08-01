@@ -7,12 +7,15 @@ use App\Http\Requests\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialRequest
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialResource;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
+use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 use Throwable;
@@ -54,19 +57,29 @@ class PrestamoEmpresarialController extends Controller
      */
     public function store(PrestamoEmpresarialRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Datos', $request->all()]);
         try {
+            $this->validarSolicitudNoGestionada($request);
+
             DB::beginTransaction();
             $datos = $request->validated();
+            Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+
             $prestamo = PrestamoEmpresarial::create($datos);
-            $this->crearPlazos($prestamo, $request->plazos);
+            PlazoPrestamoEmpresarial::actualizarCuotasPrestamo($prestamo, $datos['plazos']);
+//            $this->crearPlazos($prestamo, $request->plazos);
+            if ($prestamo->id_solicitud_prestamo_empresarial) {
+                $prestamo->solicitudPrestamoEmpresarial()->update(['gestionada' => true]);
+            }
+            DB::commit();
+
             $modelo = new PrestamoEmpresarialResource($prestamo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al generra prestamo' => [$e->getMessage()],
+                'Error al generar préstamo' => [$e->getMessage()],
             ]);
         }
     }
@@ -122,7 +135,7 @@ class PrestamoEmpresarialController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function crearPlazos(PrestamoEmpresarial $prestamo, $plazos)
+    /*public function crearPlazos(PrestamoEmpresarial $prestamo, $plazos)
     {
         $plazos_actualizados = collect($plazos)->map(function ($plazo) use ($prestamo) {
             return [
@@ -136,7 +149,7 @@ class PrestamoEmpresarialController extends Controller
             ];
         })->toArray();
         PlazoPrestamoEmpresarial::insert($plazos_actualizados);
-    }
+    }*/
 
     public function modificarPlazo($plazos)
     {
@@ -172,5 +185,71 @@ class PrestamoEmpresarialController extends Controller
             ->sum('valor_a_pagar');
 
         return response()->json(compact('results'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function calcularCantidadCuotas(Request $request)
+    {
+//        Log::channel('testing')->info('Log', ['Datos', $request->all()]);
+        $mes_inicia_cobro = Carbon::parse($request->fecha_inicio_cobro)->endOfMonth();
+        // si el mes de inicio de cobro es menor a la fecha de descuento, se lanza un error
+        if ($mes_inicia_cobro->lt(Carbon::now())) throw new Exception('La fecha del préstamo debe ser menor al mes de inicio del cobro');
+
+        $cuotas = $this->obtenerCuotasPrestamoEmpresarial($mes_inicia_cobro, $request->monto, $request->plazo);
+
+        return response()->json(compact('cuotas'));
+    }
+
+    private function obtenerCuotasPrestamoEmpresarial(Carbon $mesIniciaCobro, float $valor = 0, ?int $cantidadCuotas = 1)
+    {
+        if ($valor <= 0) return [];
+        $cuotas = [];
+
+        //Redondear al centavo base
+        $valorCuotaBase = round($valor / $cantidadCuotas, 2);
+
+        // Calcular el total con cuota base
+        $totalCuotaBase = $valorCuotaBase * $cantidadCuotas;
+
+        // Determinar diferencia a ajustar (positiva o negativa)
+        $diferencia = round($valor - $totalCuotaBase, 2);
+
+        for ($i = 1; $i <= $cantidadCuotas; $i++) {
+            $mes = $mesIniciaCobro->copy()->addMonthsNoOverflow($i - 1);
+
+            // Ajustamos la primera cuota con la diferencia (si existe)
+            $ajuste = 0;
+            if ($diferencia !== 0.0) {
+                $ajuste = $diferencia;
+                $diferencia = 0.0; // solo se ajusta una vez
+            }
+
+            $cuotas[] = [
+                'id' => $i,
+                'num_cuota' => $i,
+                'fecha_vencimiento' => $mes->endOfMonth()->format('Y-m-d'),
+                'fecha_pago' => null,
+                'valor_cuota' => round($valorCuotaBase + $ajuste, 2),
+                'valor_pagado' => 0,
+                'valor_a_pagar' => round($valorCuotaBase + $ajuste, 2),
+                'pago_cuota' => false,
+                'comentario' => null,
+            ];
+        }
+
+        return $cuotas;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function validarSolicitudNoGestionada($request)
+    {
+        if ($request->id_solicitud_prestamo_empresarial) {
+            if (SolicitudPrestamoEmpresarial::where('id', $request->id_solicitud_prestamo_empresarial)->where('gestionada', true)->exists())
+                throw new Exception("La solicitud de préstamo que intentas registrar ya ha sido gestionada en un préstamo anterior. Verifica los datos");
+        }
     }
 }

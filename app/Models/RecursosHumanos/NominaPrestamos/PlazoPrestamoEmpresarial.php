@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use DB;
 use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,9 +10,11 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Models\Audit;
+use Throwable;
 
 /**
  * App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial
@@ -57,9 +60,11 @@ class PlazoPrestamoEmpresarial extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+
     protected $table = 'plazo_prestamo_empresarial';
     protected $fillable = [
         'num_cuota',
+        'fecha_vencimiento',
         'fecha_pago',
         'valor_cuota',
         'valor_pagado',
@@ -70,9 +75,34 @@ class PlazoPrestamoEmpresarial extends Model implements Auditable
     ];
 
     private static array $whiteListFilter = ['*'];
-    public function prestamo_info()
+
+    public function prestamo()
     {
-        return $this->hasOne(PrestamoEmpresarial::class, 'id','id_prestamo_empresarial');
+        return $this->hasOne(PrestamoEmpresarial::class, 'id', 'id_prestamo_empresarial');
     }
 
+    /**
+     * @throws Throwable
+     */
+    public static function actualizarCuotasPrestamo(PrestamoEmpresarial $prestamo, array $listado)
+    {
+        $idsPlazos = [];
+        try {
+            DB::beginTransaction();
+            foreach ($listado as $fila) {
+                $registro = $prestamo->plazos()->find($fila['id']);
+                if (!$registro) {
+                    $registro = $prestamo->plazos()->create($fila);
+                } else
+                    $registro->update($fila);
+
+                $idsPlazos[] = $registro->id;
+            }
+            $prestamo->plazos()->whereNotIn('id', $idsPlazos)->delete();
+            DB::commit();
+        } catch (Throwable $ex) {
+            DB::rollBack();
+            throw $ex;
+        }
+    }
 }

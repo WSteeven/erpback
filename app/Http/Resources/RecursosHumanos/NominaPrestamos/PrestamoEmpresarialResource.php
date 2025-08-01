@@ -28,6 +28,7 @@ class PrestamoEmpresarialResource extends JsonResource
             'plazos' => $this->plazo_prestamo_empresarial_info,
             'estado' => $this->estado,
             'motivo' => $this->motivo,
+            'fecha_inicio_cobro' => $this->fecha_inicio_cobro,
 
 
         ];
