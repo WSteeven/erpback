@@ -345,6 +345,7 @@ Route::get('transacciones/files/{transaccion_bodega}', [TransaccionBodegaControl
 /**
  * Subidas de archivos
  */
+Route::get('obtener-empleados-prestamos-empresariales', [EmpleadoController::class, 'obtenerEmpleadosPrestamoEmpresarial'])->middleware('auth:sanctum');
 Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');

@@ -36,7 +36,7 @@ use Throwable;
  */
 class RolPagoController extends Controller
 {
-    private string $entidad = 'Rol_de_pagos';
+    private string $entidad = 'Rol de pago individual';
     private ReportePdfExcelService $reporteService;
     private NominaService $nominaService;
     private PrestamoService $prestamoService;
@@ -95,7 +95,7 @@ class RolPagoController extends Controller
         // Formatea la fecha en el formato deseado
         $mes = $date->format('Y-m');
         $this->prestamoService->setMes($mes);
-        $this->prestamoService->pagarPrestamoEmpresarial();
+//        $this->prestamoService->pagarPrestamoEmpresarial();
 
         return response()->json(['modelo' => $rolpago, 'mensaje' => 'Subido exitosamente!']);
     }

@@ -9,6 +9,7 @@ use App\Http\Resources\RecursosHumanos\EmpleadoLiteResource;
 use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\User;
 use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Licencia;
@@ -143,6 +144,7 @@ class EmpleadoController extends Controller
             //Crear empleado
             $empleado = $user->empleado()->create($datos);
             if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades($user, $datos['discapacidades']);
+            if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
             //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
             if (!empty($request->conductor)) {
                 $datos_conductor = $request->conductor;
@@ -623,5 +625,14 @@ class EmpleadoController extends Controller
             return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+
+    public function obtenerEmpleadosPrestamoEmpresarial()
+    {
+        $idsPrestamosEmpresariales = PrestamoEmpresarial::pluck('solicitante');
+        $empleados = Empleado::whereIn('id', $idsPrestamosEmpresariales)->get();
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
     }
 }

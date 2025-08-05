@@ -45,6 +45,7 @@ use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\PostulanteControl
 use App\Http\Controllers\RecursosHumanos\SeleccionContratacion\TipoPuestoController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
+use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -178,5 +179,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('pagar-prestamos-rol-actual/{rol}', [RolPagoMesController::class, 'pagarPrestamosEmpresariales']);
     Route::post('calcular-cuotas-descuento', [DescuentoController::class, 'calcularCantidadCuotas']);
     Route::post('calcular-cuotas-prestamo-empresarial', [PrestamoEmpresarialController::class, 'calcularCantidadCuotas']);
+//    Route::post('recalcular-cuotas-prestamo-empresarial', [PrestamoEmpresarialController::class, 'recalcularValoresCuotas']);
     Route::post('aplazar-cuota-descuento/{cuota}', [CuotaDescuentoController::class, 'aplazarCuotaDescuento']);
+    Route::post('aplazar-cuota-prestamo/{cuota}', [PrestamoEmpresarialController::class, 'aplazarCuotaPrestamo']);
+    Route::post('pagar-cuota-prestamo/{cuota}', [PrestamoEmpresarialController::class, 'pagarCuotaPrestamo']);
+    Route::post('reporte-prestamos-empresariales', [PrestamoEmpresarialController::class, 'reportes']);
 });

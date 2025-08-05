@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -41,7 +42,7 @@ class PrestamoEmpresarialRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-//            'estado' => 'ACTIVO',
+            'estado' => $this->estado ?? PrestamoEmpresarial::ACTIVO,
             'periodo_id' => $this->periodo,
             'fecha_inicio_cobro' => Carbon::parse($this->fecha_inicio_cobro)->endOfMonth()->format('Y-m-d'),
         ]);

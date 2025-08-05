@@ -71,7 +71,15 @@ class PlazoPrestamoEmpresarial extends Model implements Auditable
         'valor_a_pagar',
         'comentario',
         'id_prestamo_empresarial',
-        'pago_cuota'
+        'pago_cuota',
+        'estado',
+        'modificada'
+    ];
+
+    protected $casts = [
+        'pago_cuota' => 'boolean',
+        'estado' => 'boolean',
+        'modificada' => 'boolean',
     ];
 
     private static array $whiteListFilter = ['*'];
@@ -86,15 +94,19 @@ class PlazoPrestamoEmpresarial extends Model implements Auditable
      */
     public static function actualizarCuotasPrestamo(PrestamoEmpresarial $prestamo, array $listado)
     {
+//        Log::channel('testing')->info('Log', ['actualizarCuotasPrestamo', $prestamo, $listado]);
         $idsPlazos = [];
         try {
             DB::beginTransaction();
             foreach ($listado as $fila) {
                 $registro = $prestamo->plazos()->find($fila['id']);
+//                Log::channel('testing')->info('Log', ['registro vs fila', $registro, $fila]);
                 if (!$registro) {
                     $registro = $prestamo->plazos()->create($fila);
-                } else
+                } else{
                     $registro->update($fila);
+//                    Log::channel('testing')->info('Update resultado', ['resultado' => $resultado, 'registro' => $registro->toArray()]);
+                }
 
                 $idsPlazos[] = $registro->id;
             }

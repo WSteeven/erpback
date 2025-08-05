@@ -34,7 +34,7 @@ use Throwable;
 
 class RolPagoMesController extends Controller
 {
-    private string $entidad = 'rol_pago';
+    private string $entidad = 'Rol de Pago';
     private ReportePdfExcelService $reporteService;
     private NominaService $nominaService;
     private PrestamoService $prestamoService;
@@ -633,19 +633,34 @@ class RolPagoMesController extends Controller
                 //$salario = $this->nominaService->calcularSalario();
                 $salario = $empleado->salario;
                 $sueldo = $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
-                $decimo_tercero = $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
-                $decimo_cuarto = $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
-                $fondos_reserva = $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
-                $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-                $iess = $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
-                $anticipo = $rol->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
-                $prestamo_quirorafario = $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
-                $prestamo_hipotecario = $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
-                $prestamo_empresarial = $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
-                $extension_conyugal = $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
-                $supa = $rol->es_quincena ? 0 : $valor_supa;
-                $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
+                if ($rol->es_quincena) { // si es quincena, no se calculan los decimos ni fondos de reserva ni otros valores
+                    $decimo_tercero = 0;
+                    $decimo_cuarto = 0;
+                    $fondos_reserva = 0;
+                    $ingresos = 0;
+                    $iess = 0;
+                    $anticipo = 0;
+                    $prestamo_quirorafario = 0;
+                    $prestamo_hipotecario = 0;
+                    $prestamo_empresarial = 0;
+                    $extension_conyugal = 0;
+                    $supa = 0;
+                    $egreso = 0;
+                } else { // si es rol de fin de mes, se calculan los decimos, fondos de reserva y otros valores
+                    $decimo_tercero = $this->nominaService->calcularDecimo(3, $dias);
+                    $decimo_cuarto = $this->nominaService->calcularDecimo(4, $dias);
+                    $fondos_reserva = $this->nominaService->calcularFondosReserva($dias);
+                    $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
+                    $iess = $this->nominaService->calcularAporteIESS();
+                    $anticipo = $this->nominaService->calcularAnticipo();
+                    $prestamo_quirorafario =  $this->prestamoService->prestamosQuirografarios();
+                    $prestamo_hipotecario =  $this->prestamoService->prestamosHipotecarios();
+                    $prestamo_empresarial =  $this->prestamoService->prestamosEmpresariales();
+                    $extension_conyugal = $this->nominaService->extensionesCoberturaSalud();
+                    $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
+                    $supa = $valor_supa;
+                    $egreso = ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
+                }
                 $total = abs($ingresos) - $egreso;
                 $roles_pago[] = [
                     'empleado_id' => $empleado->id,
@@ -886,6 +901,9 @@ class RolPagoMesController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
+    /**
+     * @throws Exception
+     */
     public function finalizarRolPago(Request $request)
     {
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);
@@ -907,7 +925,8 @@ class RolPagoMesController extends Controller
             // Formatea la fecha en el formato deseado
             $mes = $date->format('Y-m');
             $this->prestamoService->setMes($mes);
-            $this->prestamoService->pagarPrestamoEmpresarial();
+//            $this->prestamoService->pagarPrestamoEmpresarial(); // no funciona porque no se le indica que empleado tiene que pagar
+            $this->pagarPrestamosEmpresariales($rol_pago);
         }
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
@@ -933,5 +952,7 @@ class RolPagoMesController extends Controller
         } catch (Throwable $ex) {
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
+        $mensaje = "Cuotas de préstamos actualizados exitosamente";
+        return response()->json(compact('mensaje'));
     }
 }

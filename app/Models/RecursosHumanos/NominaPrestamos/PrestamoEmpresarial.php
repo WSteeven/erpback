@@ -89,6 +89,10 @@ class PrestamoEmpresarial extends Model  implements Auditable
     {
         return $this->hasMany(PlazoPrestamoEmpresarial::class, 'id_prestamo_empresarial', 'id');
     }
+    public function empleado()
+    {
+        return $this->hasOne(Empleado::class, 'id', 'solicitante');
+    }
     public function empleado_info()
     {
         return $this->hasOne(Empleado::class, 'id', 'solicitante');
