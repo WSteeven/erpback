@@ -93,7 +93,7 @@ class BitacoraController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(BitacoraRequest $request, Bitacora $bitacora)
+    /*     public function update(BitacoraRequest $request, Bitacora $bitacora)
     {
         return DB::transaction(function () use ($request, $bitacora) {
             $datos = $request->validated();
@@ -103,7 +103,49 @@ class BitacoraController extends Controller
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         });
+    } */
+    public function update(BitacoraRequest $request, Bitacora $bitacora)
+    {
+        return DB::transaction(function () use ($request, $bitacora) {
+            $datos = $request->validated();
+
+            // Validar que no se finalice si no tiene actividades
+            if (array_key_exists('fecha_hora_fin_turno', $datos) && $datos['fecha_hora_fin_turno']) {
+                if ($bitacora->actividades()->count() === 0) {
+                    return response()->json([
+                        'error' => 'No puede finalizar una bitácora que no tiene actividades registradas.'
+                    ], 422);
+                }
+            }
+
+            // Validar revisión por supervisor
+            if (
+                array_key_exists('revisado_por_supervisor', $datos) &&
+                $datos['revisado_por_supervisor'] === true
+            ) {
+                if (empty($bitacora->fecha_hora_fin_turno)) {
+                    return response()->json([
+                        'error' => 'La bitácora debe estar finalizada antes de ser revisada.'
+                    ], 422);
+                }
+
+                if (!Auth::user()->hasRole(User::ROL_SUPERVISOR_GUARDIAS)) {
+                    return response()->json([
+                        'error' => 'No tiene permisos para revisar bitácoras.'
+                    ], 403);
+                }
+            }
+
+            $bitacora->update($datos);
+
+            $modelo = new BitacoraResource($bitacora->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            return response()->json(compact('mensaje', 'modelo'));
+        });
     }
+
+
+
 
     /**
      * Remove the specified resource from storage.

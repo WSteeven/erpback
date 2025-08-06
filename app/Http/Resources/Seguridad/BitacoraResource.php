@@ -19,10 +19,21 @@ class BitacoraResource extends JsonResource
 
         $modelo = [
             'id' => $this['id'],
-            'fecha_hora_inicio_turno' => $this['fecha_hora_inicio_turno'],
-            'fecha_hora_fin_turno' => $this['fecha_hora_fin_turno'],
+            /*             'fecha_hora_inicio_turno' => $this['fecha_hora_inicio_turno'],
+            'fecha_hora_fin_turno' => $this['fecha_hora_fin_turno'], */
+            'fecha_hora_inicio_turno' => $this['fecha_hora_inicio_turno']
+                ? \Carbon\Carbon::parse($this['fecha_hora_inicio_turno'])->timezone('America/Guayaquil')->format('Y-m-d H:i:s')
+                : null,
+
+            'fecha_hora_fin_turno' => $this['fecha_hora_fin_turno']
+                ? \Carbon\Carbon::parse($this['fecha_hora_fin_turno'])->timezone('America/Guayaquil')->format('Y-m-d H:i:s')
+                : null,
             'jornada' => $this['jornada'],
             'observaciones' => $this['observaciones'],
+            // Campos para la revision del supervisor
+            'revisado_por_supervisor' => $this['revisado_por_supervisor'],
+            'retroalimentacion_supervisor' => $this['retroalimentacion_supervisor'],
+
         ];
 
         if (in_array($controller_method, ['index', 'store', 'update'])) {
