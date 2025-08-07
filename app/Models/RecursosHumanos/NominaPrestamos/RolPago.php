@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Administracion\CuentaBancaria;
 use App\Models\Empleado;
 use Carbon\Carbon;
 use Eloquent;
@@ -167,15 +168,21 @@ class RolPago extends Model implements Auditable
     ];
 
     /**
+     * @param int|null $cuenta_id
      * @return array
      */
-    public static function getDatosBancariosDefault(): array
+    public static function getDatosBancariosDefault(?int $cuenta_id=null): array
     {
+        if ($cuenta_id) $cuenta = CuentaBancaria::find($cuenta_id);
+        else $cuenta = CuentaBancaria::where('es_principal', true)->first();
+
         $row['tipo_pago'] = 'PA';
-        $row['numero_cuenta_empresa'] = '02653010903';
+//        $row['numero_cuenta_empresa'] = '02653010903';
+        $row['numero_cuenta_empresa'] = $cuenta->numero_cuenta;
         $row['moneda'] = 'USD';
         $row['forma_pago'] = 'CTA';
-        $row['codigo_banco'] = '0036';
+//        $row['codigo_banco'] = '0036';
+        $row['codigo_banco'] = $cuenta->banco->codigo;
         $row['tipo_cuenta'] = 'AHO';
         $row['tipo_documento_empleado'] = 'C';
         return $row;
@@ -320,7 +327,7 @@ class RolPago extends Model implements Auditable
      *
      * @return array serie de resultados.
      */
-    public static function empaquetarCash($rol_pagos)
+    public static function empaquetarCash($rol_pagos, ?int $cuenta_id=null)
     {
         $results = [];
         $id = 0;
@@ -329,7 +336,7 @@ class RolPago extends Model implements Auditable
             $cuenta_bancarea_num = intval($rol_pago->empleado_info->num_cuenta_bancaria);
             if ($cuenta_bancarea_num > 0) {
                 $referencia = $rol_pago->rolPagoMes->es_quincena ? 'PAGO ROL PRIMERA QUINCENA MES ' : 'PAGO ROL FIN DE MES ';
-                $row = self::getDatosBancariosDefault();
+                $row = self::getDatosBancariosDefault($cuenta_id);
                 $row['item'] = $id + 1;
                 $row['empleado_info'] = $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
                 $row['departamento'] = $rol_pago->empleado_info->departamento->nombre;

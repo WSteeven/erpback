@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administracion\CuentaBancariaController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\AutorizacionController;
@@ -139,6 +140,7 @@ Route::apiResources(
         'control-stocks' => ControlStockController::class,
         'comprobantes' => ComprobanteController::class,
         'codigos-clientes' => CodigoClienteController::class,
+        'cuentas-bancarias' => CuentaBancariaController::class,
         'devoluciones' => DevolucionController::class,
         'detalles-productos-transacciones' => DetalleProductoTransaccionController::class,
         'discos' => DiscoController::class,
@@ -188,6 +190,7 @@ Route::apiResources(
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',
+            'cuentas-bancarias' => 'cuenta',
             'devoluciones' => 'devolucion',
             'detalles-productos-transacciones' => 'detalle',
             'imagenesproductos' => 'imagenproducto',

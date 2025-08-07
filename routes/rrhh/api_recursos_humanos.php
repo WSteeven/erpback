@@ -167,7 +167,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirReporteGeneral']);
     Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
     Route::get('enviar-rol-pago-empleado/{rol_pago}',[RolPagoController::class, 'enviarRolPagoEmpleado']);
-    Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crearCashRolPago']);
+    Route::post('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crearCashRolPago']);
     Route::get('actualizar-rol-pago/{rol}',[RolPagoMesController::class, 'refrescarRolPago']);
     Route::get('agregar-nuevos-empleados/{rol}',[RolPagoMesController::class, 'agregarNuevosEmpleados']);
     Route::post('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);

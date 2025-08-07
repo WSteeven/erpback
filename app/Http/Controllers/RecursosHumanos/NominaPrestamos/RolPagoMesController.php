@@ -271,11 +271,12 @@ class RolPagoMesController extends Controller
      * La función crea un informe de pago de rol en efectivo en formato Excel para un rolPagoId
      * determinado.
      *
+     * @param Request $request
      * @param int $rolPagoId
      * @return BinaryFileResponse descarga de un archivo Excel.
      * @throws ValidationException
      */
-    public function crearCashRolPago(int $rolPagoId)
+    public function crearCashRolPago(Request $request, int $rolPagoId)
     {
         try {
 
@@ -283,7 +284,7 @@ class RolPagoMesController extends Controller
             $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
                 ->where('rol_pago_id', $rolPagoId)
                 ->get();
-            $results = RolPago::empaquetarCash($roles_pagos);
+            $results = RolPago::empaquetarCash($roles_pagos, $request->cuenta_id);
             $results = collect($results)->map(function ($elemento, $index) {
                 $elemento['item'] = $index + 1;
                 return $elemento;
@@ -653,9 +654,9 @@ class RolPagoMesController extends Controller
                     $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
                     $iess = $this->nominaService->calcularAporteIESS();
                     $anticipo = $this->nominaService->calcularAnticipo();
-                    $prestamo_quirorafario =  $this->prestamoService->prestamosQuirografarios();
-                    $prestamo_hipotecario =  $this->prestamoService->prestamosHipotecarios();
-                    $prestamo_empresarial =  $this->prestamoService->prestamosEmpresariales();
+                    $prestamo_quirorafario = $this->prestamoService->prestamosQuirografarios();
+                    $prestamo_hipotecario = $this->prestamoService->prestamosHipotecarios();
+                    $prestamo_empresarial = $this->prestamoService->prestamosEmpresariales();
                     $extension_conyugal = $this->nominaService->extensionesCoberturaSalud();
                     $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
                     $supa = $valor_supa;
