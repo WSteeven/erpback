@@ -24,6 +24,7 @@ class GastoResource extends JsonResource
             'id' => $this->id,
             'fecha_viat' => $this->cambiarFecha($this->fecha_viat),
             'lugar' => $this->id_lugar,
+            'cliente' => $this->cliente_id,
             'lugar_info' => $this->canton->canton,
             'num_tarea' => $this->id_tarea == null ? 0 : $this->id_tarea,
             'subTarea' => $this->id_subtarea == null ? 0 : $this->id_subtarea,
@@ -73,6 +74,7 @@ class GastoResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['nodo'] = $this->nodo_id;
+            $modelo['cliente'] = $this->cliente_id;
             $modelo['registros_valijas'] = ValijaResource::collection($this->valijas);
             $modelo['se_envia_valija'] = $this->valijas->count()>0;
         }

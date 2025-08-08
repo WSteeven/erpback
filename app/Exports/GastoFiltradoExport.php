@@ -52,7 +52,11 @@ class GastoFiltradoExport extends DefaultValueBinder implements FromView,ShouldA
             'H' => 250,
             'I' => 162,
             'J' => 37,
-            'K' => 15,
+            'K' => 10,
+            'L' => 10,
+            'M' => 20,
+            'N' => 10,
+            'O' => 10,
         ];
     }
 }

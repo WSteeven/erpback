@@ -20,7 +20,8 @@ class BaseResource extends JsonResource
         return empty($campos) ? $modelo : $this->filtrarCampos($modelo, $campos);
     }
 
-    protected function construirModelo($campos)
+//    protected function construirModelo($campos)
+    protected function construirModelo()
     {
         // Implementación en la clase base, puedes dejarlo vacío o añadir campos comunes
         return [];

@@ -159,9 +159,7 @@ class GastoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
-            ]);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Error al insertar el gasto');
         }
     }
 

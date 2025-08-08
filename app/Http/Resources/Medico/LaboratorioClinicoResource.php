@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Medico;
 
 use App\Http\Resources\BaseResource;
+
 // use Illuminate\Http\Resources\Json\JsonResource;
 
 class LaboratorioClinicoResource extends BaseResource
@@ -10,10 +11,9 @@ class LaboratorioClinicoResource extends BaseResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @return array
      */
-    public function construirModelo($request)
+    public function construirModelo()
     {
         $controller_method = request()->route()->getActionMethod();
 
@@ -24,7 +24,6 @@ class LaboratorioClinicoResource extends BaseResource
             'celular' => $this->celular,
             'correo' => $this->correo,
             'coordenadas' => $this->coordenadas,
-            'activo' => $this->activo,
             'canton' => $this->canton->canton,
             'activo' => $this->activo,
         ];
