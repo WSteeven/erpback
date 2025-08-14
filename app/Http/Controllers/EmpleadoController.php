@@ -11,8 +11,6 @@ use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\User;
-use App\Models\Vehiculos\Conductor;
-use App\Models\Vehiculos\Licencia;
 use DateTime;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -399,8 +397,8 @@ class EmpleadoController extends Controller
             ->where('esta_en_rol_pago', '1')
             ->where('realiza_factura', '0')
             ->where('salario', '!=', 0)
-            ->orderBy('area_id', 'asc')
-            ->orderBy('apellidos', 'asc')
+            ->orderBy('area_id')
+            ->orderBy('apellidos')
             ->get();
         $results = Empleado::empaquetarListado($reportes);
         $nombre_reporte = 'lista_empleados';

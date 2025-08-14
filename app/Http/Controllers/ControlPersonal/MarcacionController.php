@@ -14,17 +14,20 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\RecursosHumanos\ControlPersonal\AsistenciaService;
+use Src\App\RecursosHumanos\ControlPersonal\DashboardControlPersonalService;
 use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 
 class MarcacionController extends Controller
 {
     public AsistenciaService $service;
+    public DashboardControlPersonalService $dashboardService;
     private PaginationService $paginationService;
 
     public function __construct()
     {
         $this->service = new AsistenciaService();
+        $this->dashboardService = new DashboardControlPersonalService();
         $this->paginationService = new PaginationService();
     }
 
@@ -108,5 +111,14 @@ class MarcacionController extends Controller
         } catch (Exception $e) {
             throw Utils::obtenerMensajeErrorLanzable($e, 'sincronizarAsistencias');
         }
+    }
+
+    public function dashboard(Request $request)
+    {
+//         Log::channel('testing')->info('Log', ['MarcacionController::dashboard', $request->all()]);
+         [$graficos, $results] = $this->dashboardService->obtenerDashboard($request);
+
+             return response()->json(compact('graficos', 'results'));
+
     }
 }

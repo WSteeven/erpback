@@ -8,6 +8,7 @@ use App\Http\Resources\ControlPersonal\AtrasoResource;
 use App\Models\ControlPersonal\Atraso;
 use App\Models\User;
 use Auth;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -82,6 +83,7 @@ class AtrasoController extends Controller
      * @param AtrasoRequest $request
      * @param Atraso $atraso
      * @return JsonResponse
+     * @throws Throwable
      */
     public function update(AtrasoRequest $request, Atraso $atraso)
     {
@@ -125,5 +127,12 @@ class AtrasoController extends Controller
         }
     }
 
+    public function registrosAtrasos()
+    {
+        $results = Atraso::where('created_at', '>', Carbon::now()->subYear())->get();
+
+        $results = AtrasoResource::collection($results);
+        return response()->json(compact('results'));
+    }
 
 }
