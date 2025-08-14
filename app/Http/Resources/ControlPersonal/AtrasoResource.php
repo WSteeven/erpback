@@ -25,6 +25,7 @@ class AtrasoResource extends JsonResource
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
             'justificador' => Empleado::extraerNombresApellidos($this->justificador),
             'marcacion' => $this->marcacion_id,
+            'marcaciones' => $this->marcacion->marcaciones,
             'fecha_atraso' => $this->fecha_atraso,
             'ocurrencia' => $this->ocurrencia,
             'tiempo_atraso' => CarbonInterval::seconds($this->segundos_atraso)->cascade()->forHumans(),

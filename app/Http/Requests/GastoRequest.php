@@ -83,7 +83,7 @@ class GastoRequest extends FormRequest
             'comprobante4' => 'nullable|sometimes|string',
             'es_vehiculo_alquilado' => 'boolean',
             'vehiculo' => 'required_if:es_vehiculo_alquilado,false|integer',
-            'placa' => 'required_if:es_vehiculo_alquilado,true|string',
+            'placa' => 'required_if:es_vehiculo_alquilado,true|nullable|string',
             'kilometraje' => 'required|integer',
         ];
     }

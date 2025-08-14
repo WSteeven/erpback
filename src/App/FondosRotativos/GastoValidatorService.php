@@ -58,7 +58,7 @@ class GastoValidatorService
         }
     }
 
-    private function existeFactura(string $ruc, string $factura, string $estado): bool
+    private function existeFactura(string $ruc, ?string $factura, string $estado): bool
     {
         return  Gasto::whereNotNull('factura')
             ->where('factura', '!=', '')
