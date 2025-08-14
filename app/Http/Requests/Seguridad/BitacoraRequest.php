@@ -34,8 +34,8 @@ class BitacoraRequest extends FormRequest
             'prendas_recibidas_ids'       => 'required|string',
             'zona_id'                     => 'required|numeric|integer|exists:seg_zonas,id',
             'agente_turno_id'             => 'required|numeric|integer|exists:empleados,id',
-            'protector_id'                => 'required|numeric|integer|exists:empleados,id',
-            'conductor_id'                => 'required|numeric|integer|exists:empleados,id',
+            'protector_id'                => 'nullable|numeric|integer|exists:empleados,id',
+            'conductor_id'                => 'nullable|numeric|integer|exists:empleados,id',
             'revisado_por_supervisor'     => 'nullable|boolean',
             'retroalimentacion_supervisor'=> 'nullable|string|max:1000',
         ];
@@ -55,13 +55,23 @@ class BitacoraRequest extends FormRequest
     protected function prepareForValidation()
     {
         if ($this->isMethod('post')) {
-            $this->merge([
-                'zona_id'               => $this['zona']          ?? $this->input('zona_id'),
-                'agente_turno_id'       => $this['agente_turno']  ?? $this->input('agente_turno_id'),
-                'protector_id'          => $this['protector']     ?? $this->input('protector_id'),
-                'conductor_id'          => $this['conductor']     ?? $this->input('conductor_id'),
-                'prendas_recibidas_ids' => json_encode($this['prendas_recibidas']),
-            ]);
+            $mergeData = [
+                'zona_id'               => $this->input('zona') ?? $this->input('zona_id'),
+                'agente_turno_id'       => $this->input('agente_turno') ?? $this->input('agente_turno_id'),
+                'prendas_recibidas_ids' => json_encode($this->input('prendas_recibidas')),
+            ];
+
+            // Solo agregar protector_id si existe en el request
+            if ($this->has('protector') || $this->has('protector_id')) {
+                $mergeData['protector_id'] = $this->input('protector') ?? $this->input('protector_id');
+            }
+
+            // Solo agregar conductor_id si existe en el request
+            if ($this->has('conductor') || $this->has('conductor_id')) {
+                $mergeData['conductor_id'] = $this->input('conductor') ?? $this->input('conductor_id');
+            }
+
+            $this->merge($mergeData);
         }
     }
 
@@ -80,7 +90,7 @@ class BitacoraRequest extends FormRequest
                     $existe = DB::table('seg_bitacoras')
                         ->where('zona_id', $zonaId)
                         ->where('jornada', $jornada)
-                        ->whereDate('created_at', $fechaHoy) 
+                        ->whereDate('created_at', $fechaHoy)
                         ->exists();
 
                     if ($existe) {

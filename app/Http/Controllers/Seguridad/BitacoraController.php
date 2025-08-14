@@ -109,21 +109,26 @@ class BitacoraController extends Controller
         return DB::transaction(function () use ($request, $bitacora) {
             $datos = $request->validated();
 
-            // Validar que no se finalice si no tiene actividades
-            if (array_key_exists('fecha_hora_fin_turno', $datos) && $datos['fecha_hora_fin_turno']) {
-                if ($bitacora->actividades()->count() === 0) {
+            $intentandoCerrar = array_key_exists('fecha_hora_fin_turno', $datos)
+                && !empty($datos['fecha_hora_fin_turno']);
+
+            // 1) Cierre de bitácora sin actividades: solo supervisor puede hacerlo
+            if ($intentandoCerrar && $bitacora->actividades()->count() === 0) {
+                if (!Auth::user()->hasRole(User::ROL_SUPERVISOR_GUARDIAS)) {
                     return response()->json([
-                        'error' => 'No puede finalizar una bitácora que no tiene actividades registradas.'
+                        'error' => 'No se puede finalizar la bitácora sin actividades registradas. uyguydguyefd'
                     ], 422);
                 }
+                // (Opcional) Si quieres forzar la hora de cierre al momento actual:
+                // $datos['fecha_hora_fin_turno'] = Carbon::now();
             }
 
-            // Validar revisión por supervisor
+            // 2) Validar revisión por supervisor (se mantiene como lo tienes)
             if (
                 array_key_exists('revisado_por_supervisor', $datos) &&
                 $datos['revisado_por_supervisor'] === true
             ) {
-                if (empty($bitacora->fecha_hora_fin_turno)) {
+                if (empty($bitacora->fecha_hora_fin_turno) && empty($datos['fecha_hora_fin_turno'])) {
                     return response()->json([
                         'error' => 'La bitácora debe estar finalizada antes de ser revisada.'
                     ], 422);
@@ -143,6 +148,7 @@ class BitacoraController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         });
     }
+
 
 
 

@@ -38,7 +38,13 @@ class ReporteAlimentacionController extends Controller
     private function generarReporteGeneral($request, $tipo, $fecha_inicio, $fecha_fin)
     {
         $reporteService = new ReporteAlimentacionService();
-        $reporte = $reporteService->generar($request->all());
+
+        // Preparar datos con fechas completas para el Service
+        $datos = $request->all();
+        $datos['fecha_inicio'] = Carbon::parse($fecha_inicio)->startOfDay()->format('Y-m-d H:i:s');
+        $datos['fecha_fin'] = Carbon::parse($fecha_fin)->endOfDay()->format('Y-m-d H:i:s');
+
+        $reporte = $reporteService->generar($datos);
 
         if (empty($reporte['detalle']) && $tipo === 'consulta') {
             return response()->json(['message' => 'No se encontraron registros para los filtros ingresados.'], 404);
@@ -68,8 +74,12 @@ class ReporteAlimentacionController extends Controller
 
     private function generarReporteIndividual($request, $tipo, $fecha_inicio, $fecha_fin)
     {
+        // Convertir las fechas para incluir todo el día
+        $fecha_inicio_completa = Carbon::parse($fecha_inicio)->startOfDay();
+        $fecha_fin_completa = Carbon::parse($fecha_fin)->endOfDay();
+
         $bitacoras = Bitacora::with(['zona', 'agenteTurno'])
-            ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+            ->whereBetween('fecha_hora_inicio_turno', [$fecha_inicio_completa, $fecha_fin_completa])
             ->when($request->empleado, fn($q) => $q->where('agente_turno_id', $request->empleado))
             ->when($request->zona, fn($q) => $q->where('zona_id', $request->zona))
             ->when($request->jornada, fn($q) => $q->where('jornada', $request->jornada))
@@ -87,9 +97,8 @@ class ReporteAlimentacionController extends Controller
 
         $reporte = compact('detalle', 'guardia', 'monto_total', 'fecha_inicio', 'fecha_fin');
 
-        // Nombre base con nombre del guardia (limpiando caracteres inválidos)
-        $nombre_reporte = 'alimentacion_guardia'; // Nombre corto y seguro
-        $titulo_hoja = 'Guardia ' . substr($guardia, 0, 20); // Ejemplo: "Guardia Juan Perez"
+        $nombre_reporte = 'alimentacion_guardia';
+        $titulo_hoja = 'Guardia ' . substr($guardia, 0, 20);
 
         $vista = $tipo === 'excel'
             ? 'seguridad.excel.alimentacion_guardia_individual'
@@ -100,6 +109,7 @@ class ReporteAlimentacionController extends Controller
             $vista,
             $titulo_hoja
         );
+
         return $tipo === 'consulta'
             ? response()->json($reporte)
             : $this->reporteService->imprimirReporte(
@@ -116,8 +126,7 @@ class ReporteAlimentacionController extends Controller
     private function mapearListado($bitacoras)
     {
         return $bitacoras->groupBy(
-            fn($item) =>
-            Carbon::parse($item->created_at)->format('Y-m-d')
+            fn($item) => Carbon::parse($item->fecha_hora_inicio_turno)->format('Y-m-d')
         )->map(function ($items, $fecha) {
             $jornadas = $items->pluck('jornada')->unique()->toArray();
             $zona = $items->first()?->zona?->nombre ?? '-';

@@ -3,25 +3,17 @@
 namespace Src\App\Seguridad;
 
 use App\Models\Seguridad\Bitacora;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class ReporteAlimentacionService
 {
-
-    /**
-     * Summary of __construct
-     */
     public function __construct() {}
 
-    /**
-     * Summary of generar
-     * @param array $filtros
-     * @return array{detalle: Collection<int, array>, guardia: mixed, monto_total: mixed|array{detalle: Collection<int, array>, monto_total: mixed}}
-     */
     public function generar(array $filtros): array
     {
         $query = Bitacora::query()
-            ->with(['empleado', 'zona']) // usa accessor getEmpleadoAttribute()
+            ->with(['empleado', 'zona'])
             ->whereBetween('fecha_hora_inicio_turno', [$filtros['fecha_inicio'], $filtros['fecha_fin']]);
 
         if (!empty($filtros['empleado'])) {
@@ -40,12 +32,14 @@ class ReporteAlimentacionService
 
         // Si se seleccionó un guardia, agrupamos por fecha
         if (!empty($filtros['empleado'])) {
-            $detalle = $bitacoras->groupBy('fecha_hora_inicio_turno->format("Y-m-d")')->map(function ($items) {
+            $detalle = $bitacoras->groupBy(function($item) {
+                return Carbon::parse($item->fecha_hora_inicio_turno)->format('Y-m-d');
+            })->map(function ($items) {
                 $jornadas = $items->pluck('jornada')->unique();
                 $zona = $items->first()->zona->nombre ?? '-';
 
                 return [
-                    'fecha' => $items->first()->fecha_hora_inicio_turno->format('Y-m-d'),
+                    'fecha' => Carbon::parse($items->first()->fecha_hora_inicio_turno)->format('Y-m-d'),
                     'zona' => $zona,
                     'jornadas' => $jornadas->toArray(),
                     'monto' => count($jornadas) * 3,
@@ -70,12 +64,14 @@ class ReporteAlimentacionService
             $empleado = $registros->first()->empleado;
             $nombre = $empleado ? "{$empleado->nombres} {$empleado->apellidos}" : 'N/A';
 
-            $detallePorFecha = $registros->groupBy(fn($item) => $item->fecha_hora_inicio_turno->format('Y-m-d'))->map(function ($items) {
+            $detallePorFecha = $registros->groupBy(function($item) {
+                return Carbon::parse($item->fecha_hora_inicio_turno)->format('Y-m-d');
+            })->map(function ($items) {
                 $jornadas = $items->pluck('jornada')->unique();
                 $zona = $items->first()->zona->nombre ?? '-';
 
                 return [
-                    'fecha' => $items->first()->fecha_hora_inicio_turno->format('Y-m-d'),
+                    'fecha' => Carbon::parse($items->first()->fecha_hora_inicio_turno)->format('Y-m-d'),
                     'zona' => $zona,
                     'jornadas' => $jornadas->toArray(),
                     'monto' => count($jornadas) * 3,
