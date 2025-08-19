@@ -4,6 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class CitaMedicaRequest extends FormRequest
 {
@@ -46,7 +47,7 @@ class CitaMedicaRequest extends FormRequest
             // 'estado_cita_medica_id' => $this->estado_cita_medica,
             'paciente_id' => $this->paciente,
             'accidente_id' => $this->accidente,
-            'fecha_hora_cita' => $this->fecha_hora_cita ?? ($this->fecha_cita_medica && $this->hora_cita_medica ? Carbon::parse($this->fecha_cita_medica . ' ' . $this->hora_cita_medica) : null)
+            'fecha_hora_cita' => $this->fecha_hora_cita ?? ($this->fecha_cita_medica && $this->hora_cita_medica ? Carbon::parse($this->fecha_cita_medica . ' ' . $this->hora_cita_medica)->format('Y-m-d H:i:s')  : null)
         ]);
     }
 }

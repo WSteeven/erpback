@@ -3,6 +3,7 @@
 {{-- Aquí codigo PHP --}}
 @php
     use Src\Shared\Utils;
+    use \Src\App\RecursosHumanos\NominaPrestamos\NominaService;
     $fecha = new Datetime();
     $rol_pago = $roles_pago[0];
     if ($responsable->firma_url) {
@@ -190,7 +191,7 @@
             <td>
                 <table class="descripcion">
                     <tr>
-                        <td>Días Laborado</td>
+                        <td>Días Laborados</td>
 
                         <td>
                             {{ $rol_pago['dias_laborados'] }}
@@ -314,9 +315,10 @@
                         </tr>
                     @endif
                     @foreach ($rol_pago['egresos'] as $descuento)
+                        @php $nombreDescuento = NominaService::obtenerNombreDescuentoEgresoRolPago($descuento) @endphp
                         <tr>
                             <td>
-                                {{ $descuento->descuento->nombre }}
+                                {{ $nombreDescuento }}
                             </td>
 
                             <td>
