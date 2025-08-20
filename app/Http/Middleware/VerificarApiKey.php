@@ -19,7 +19,7 @@ class VerificarApiKey
      */
     public function handle(Request $request, Closure $next)
     {
-        $apiKey = $request->header('X-API-KEY');
+        $apiKey = $request->header('X-API-KEY') ?? $request->query('api_key');
         $claveEsperada = env('API_KEY_FOR_APPENATE');
 
         if($apiKey!==$claveEsperada) return response()->json(['error' => 'Unauthorized'], 401);

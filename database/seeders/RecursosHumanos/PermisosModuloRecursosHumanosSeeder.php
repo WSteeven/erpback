@@ -12,7 +12,7 @@ class PermisosModuloRecursosHumanosSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * php artisan db:seed --class=Database\Seeders\RecursosHumanos\PermisosModuloRecursosHumanosSeeder
+     * php artisan db:seed --class="Database\Seeders\RecursosHumanos\PermisosModuloRecursosHumanosSeeder"
      * @return void
      */
     public function run()
@@ -49,6 +49,22 @@ class PermisosModuloRecursosHumanosSeeder extends Seeder
 
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'valores_cargados_roles'])->syncRoles([$rrhh, $admin]);
         Permission::firstOrCreate(['name' => Permisos::VER . 'valores_cargados_roles'])->syncRoles([$rrhh, $admin]);
+
+
+
+        Permission::firstOrCreate(['name' => Permisos::BOTON . 'finalizar_rol_pago'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => 'puede.ver.campo.cash'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => 'puede.ver.campo.enviar_rol_pago'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::VER.'rol_pago'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR.'rol_pago'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::ELIMINAR.'rol_pago'])->syncRoles([$rrhh, $admin]);
+        // Botones de accionHeader
+        Permission::firstOrCreate(['name' => Permisos::BOTON . 'agregar_empleados'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::BOTON . 'agregar_empleado_rol'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::BOTON . 'ejecutar_rol_pago'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::BOTON . 'finalizar_rol_pago'])->syncRoles([$rrhh, $admin]);
+        Permission::firstOrCreate(['name' => Permisos::BOTON . 'actualizar_rol_pago'])->syncRoles([$rrhh, $admin]);
+
 
 
     }
