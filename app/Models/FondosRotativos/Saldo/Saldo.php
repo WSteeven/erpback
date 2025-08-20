@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
@@ -89,7 +90,18 @@ class Saldo extends Model implements Auditable
         return $this->morphTo();
     }
 
-    public static function empaquetarCombinado($nuevo_elemento, $arreglo, $empleado, $fecha_inicio, $fecha_fin)
+    /**
+     * Función que empaqueta valores de ingresos y egresos para empaquetarlos en un arreglo y devuelve un arreglo con los datos totalmente mapeados.
+     * TODO: Importante verificar que funcione correctamente y no se omitan registros, se comentó ese código ya que todo lo del case con el default hacen lo mismo
+     * @param $nuevo_elemento
+     * @param $arreglo
+     * @param $empleado
+     * @param Carbon $fecha_inicio
+     * @param Carbon $fecha_fin
+     * @return array
+     *
+     */
+    public static function empaquetarCombinado($nuevo_elemento, $arreglo, $empleado, Carbon $fecha_inicio, Carbon $fecha_fin)
     {
 //        Log::channel('testing')->info('Log', ['empaquetarCombinado -> arreglo es', $arreglo]);
         $results = [];
@@ -98,21 +110,24 @@ class Saldo extends Model implements Auditable
         $results[0] = $nuevo_elemento;
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
-                case Acreditaciones::class:
-                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION && (($saldo->fecha >= $fecha_inicio && $saldo->fecha <= $fecha_fin))) {
-                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable, $saldo->created_at);
-                        $results[$id] = $row;
-                        $id++;
-                    } else if ($saldo->tipo_saldo == self::ANULACION) {
-                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable, $saldo->created_at);
-                        $results[$id] = $row;
-                        $id++;
-                    }
-                    break;
+//                case Acreditaciones::class:
+//                    $fechaSaldo = Carbon::parse($saldo->fecha);
+//                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION && (($fechaSaldo >= $fecha_inicio && $fechaSaldo <= $fecha_fin))) {
+//                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+//                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+//                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable, $saldo->created_at);
+//                        $results[$id] = $row;
+//                        $id++;
+//                    } else if ($saldo->tipo_saldo == self::ANULACION) {
+//                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+//                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+//                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable, $saldo->created_at);
+//                        $results[$id] = $row;
+//                        $id++;
+////                    } else {
+////                        Log::channel('testing')->info('Log', ['saldo en el else definitivo', $saldo]);
+//                    }
+//                    break;
                 default:
                     // if ($saldo->fecha >= $fecha_inicio   && $saldo->fecha <= $fecha_fin) {
                     $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
@@ -134,7 +149,6 @@ class Saldo extends Model implements Auditable
         }
         return $results;
     }
-
 
     public static function empaquetarListado($saldos, $tipo)
     {
