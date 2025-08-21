@@ -8,6 +8,7 @@ use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
+use App\Jobs\RecursosHumanos\EnviarRolPagoJob;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
@@ -23,17 +24,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
-use Src\App\SystemNotificationService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
+use Src\App\SystemNotificationService;
 use Src\Shared\Utils;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 class RolPagoMesController extends Controller
 {
-    private string $entidad = 'rol_pago';
+    private string $entidad = 'Rol de Pago';
     private ReportePdfExcelService $reporteService;
     private NominaService $nominaService;
     private PrestamoService $prestamoService;
@@ -211,43 +212,71 @@ class RolPagoMesController extends Controller
     {
         try {
 
-        $correos=[];
-        $error = false;
-        $mensaje = '';
-        $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
-        foreach ($roles as $rol_pago) {
-            try {
-                $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-                $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
-            }catch (Exception $e) {
-                $error = true;
-                $mensaje = $e->getMessage();
-                $correos[] = $empleado->user->email;
-                SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error general: " .$rol_pago.' <-> '. $e->getMessage());
+            $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
+            $enviados = [];
+            $enCola = 0;
+
+            foreach ($roles as $rol_pago) {
+                $empleado = Empleado::find($rol_pago->empleado_id);
+
+                // Validamos correo
+                $email = strtolower($empleado->user->email ?? '');
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    Log::warning("Correo inválido: $email para empleado ID $empleado->id");
+                    continue;
+                }
+
+                //Enviamos a la cola
+                EnviarRolPagoJob::dispatch($rol_pago)->onQueue('emails');
+                $enviados[] = $email;
+                $enCola++;
             }
-        }
-        if ($error) {
-            if(strlen($mensaje)>5)
-            $mensaje = "Roles de pago enviados correctamente pero con algunos errores: $mensaje";
-            return response()->json(compact('mensaje', 'correos'));
-        }
-        $mensaje = 'Rol de pago enviado correctamente';
-        return response()->json(compact('mensaje'));
-        }catch (Exception $e) {
+
+            $mensaje = "Se han colocado $enCola roles para el pago en la cola de envio.";
+            return response()->json(compact('mensaje', 'enviados'));
+        } catch (Exception $e) {
             SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error con el método RolPagoMesController::enviarRoles: " . $e->getMessage());
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
     }
 
+    /*public function enviarRolesOld(int $rolPagoId)
+    {
+        try {
+
+            $exitos = [];
+            $fallos = [];
+
+            $roles = RolPago::where('rol_pago_id', $rolPagoId)->get();
+            foreach ($roles as $rol_pago) {
+                try {
+                    $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
+                    $this->nominaService->enviar_rol_pago($rol_pago, $empleado);
+                    $exitos[] = $empleado->user->email;
+                } catch (Exception $e) {
+                    $fallos[] = $empleado->user->email;
+                    SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error general: " . $rol_pago . ' <-> ' . $e->getMessage());
+                }
+            }
+
+            $mensaje = count($fallos) ? "Se enviaron " . count($exitos) . " roles de pago con éxito y " . count($fallos) . " con fallos" : null;
+            return response()->json(compact('mensaje', 'exitos', 'fallos'));
+        } catch (Exception $e) {
+            SystemNotificationService::sendExceptionErrorMailToSystemAdmin("Error con el método RolPagoMesController::enviarRoles: " . $e->getMessage());
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
+    }*/
+
     /**
      * La función crea un informe de pago de rol en efectivo en formato Excel para un rolPagoId
      * determinado.
      *
+     * @param Request $request
      * @param int $rolPagoId
      * @return BinaryFileResponse descarga de un archivo Excel.
      * @throws ValidationException
      */
-    public function crearCashRolPago(int $rolPagoId)
+    public function crearCashRolPago(Request $request, int $rolPagoId)
     {
         try {
 
@@ -255,7 +284,7 @@ class RolPagoMesController extends Controller
             $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
                 ->where('rol_pago_id', $rolPagoId)
                 ->get();
-            $results = RolPago::empaquetarCash($roles_pagos);
+            $results = RolPago::empaquetarCash($roles_pagos, $request->cuenta_id);
             $results = collect($results)->map(function ($elemento, $index) {
                 $elemento['item'] = $index + 1;
                 return $elemento;
@@ -329,7 +358,7 @@ class RolPagoMesController extends Controller
         $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
         $departamento_gerencia = Departamento::where("nombre", Departamento::DEPARTAMENTO_GERENCIA)->first();
         $responsable_gerencia = $departamento_gerencia ? $departamento_gerencia->responsable : Empleado::find(117);
-        $creador_rol_pago = User::role(User::ROL_RECURSOS_HUMANOS)->permission('puede.elaborar.rol_pago')->first()->empleado;
+        $creador_rol_pago = User::whereHas('empleado', function ($q){$q->where('estado', true);})->role(User::ROL_RECURSOS_HUMANOS)->permission('puede.elaborar.rol_pago')->first()->empleado;
         $results = RolPago::empaquetarListado($roles_pagos);
         $results = collect($results)->map(function ($elemento, $index) {
             $elemento['item'] = $index + 1;
@@ -582,7 +611,7 @@ class RolPagoMesController extends Controller
      */
     private function crearRolIndividualMensualEmpleado(RolPagoMes $rol)
     {
-        Log::channel('testing')->info('Log', ['rol', $rol]);
+//        Log::channel('testing')->info('Log', ['rol', $rol]);
         try {
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m'); // mes en formato yyyy-mm
             $mes_fecha = new Carbon($mes); //mes en instancia de fecha
@@ -605,19 +634,34 @@ class RolPagoMesController extends Controller
                 //$salario = $this->nominaService->calcularSalario();
                 $salario = $empleado->salario;
                 $sueldo = $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
-                $decimo_tercero = $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
-                $decimo_cuarto = $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
-                $fondos_reserva = $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
-                $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-                $iess = $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
-                $anticipo = $rol->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
-                $prestamo_quirorafario = $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
-                $prestamo_hipotecario = $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
-                $prestamo_empresarial = $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
-                $extension_conyugal = $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
-                $supa = $rol->es_quincena ? 0 : $valor_supa;
-                $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
+                if ($rol->es_quincena) { // si es quincena, no se calculan los decimos ni fondos de reserva ni otros valores
+                    $decimo_tercero = 0;
+                    $decimo_cuarto = 0;
+                    $fondos_reserva = 0;
+                    $ingresos = 0;
+                    $iess = 0;
+                    $anticipo = 0;
+                    $prestamo_quirorafario = 0;
+                    $prestamo_hipotecario = 0;
+                    $prestamo_empresarial = 0;
+                    $extension_conyugal = 0;
+                    $supa = 0;
+                    $egreso = 0;
+                } else { // si es rol de fin de mes, se calculan los decimos, fondos de reserva y otros valores
+                    $decimo_tercero = $this->nominaService->calcularDecimo(3, $dias);
+                    $decimo_cuarto = $this->nominaService->calcularDecimo(4, $dias);
+                    $fondos_reserva = $this->nominaService->calcularFondosReserva($dias);
+                    $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
+                    $iess = $this->nominaService->calcularAporteIESS();
+                    $anticipo = $this->nominaService->calcularAnticipo();
+                    $prestamo_quirorafario = $this->prestamoService->prestamosQuirografarios();
+                    $prestamo_hipotecario = $this->prestamoService->prestamosHipotecarios();
+                    $prestamo_empresarial = $this->prestamoService->prestamosEmpresariales();
+                    $extension_conyugal = $this->nominaService->extensionesCoberturaSalud();
+                    $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
+                    $supa = $valor_supa;
+                    $egreso = ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
+                }
                 $total = abs($ingresos) - $egreso;
                 $roles_pago[] = [
                     'empleado_id' => $empleado->id,
@@ -642,7 +686,7 @@ class RolPagoMesController extends Controller
                     'updated_at' => $this->date
                 ];
             }
-            $rol->rolPago()->createMany($roles_pago);
+            $rol->rolesPagos()->createMany($roles_pago);
             if (!$rol->es_quincena) {
                 // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
                 $this->nominaService->registrarIngresosProgramados($rol);
@@ -735,7 +779,15 @@ class RolPagoMesController extends Controller
                     'updated_at' => $this->date
                 ];
             }
-            $rol->rolPago()->createMany($roles_pago);
+            $rol->rolesPagos()->createMany($roles_pago);
+
+            if (!$rol->es_quincena) {
+                // Aqui se registra los ingresos (vacaciones, bonificaciones, etc)
+                $this->nominaService->registrarIngresosProgramados($rol);
+                // Aquí se registra los egresos, solo en caso de que sea rol de fin de mes
+                $this->nominaService->registrarEgresosProgramados($rol);
+            }
+
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
@@ -747,7 +799,7 @@ class RolPagoMesController extends Controller
     public function verificarTodasRolesFinalizadas(Request $request)
     {
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);
-        $total_subrol_pagos_no_finalizadas = $rol_pago->rolPago()->whereIn('estado', [RolPago::EJECUTANDO, RolPago::REALIZADO])->count();
+        $total_subrol_pagos_no_finalizadas = $rol_pago->rolesPagos()->whereIn('estado', [RolPago::EJECUTANDO, RolPago::REALIZADO])->count();
         $estan_finalizadas = $total_subrol_pagos_no_finalizadas == 0;
         return response()->json(compact('estan_finalizadas'));
     }
@@ -761,7 +813,7 @@ class RolPagoMesController extends Controller
     {
         try {
             $mes = Carbon::createFromFormat('m-Y', $rol_mes->mes)->format('Y-m');
-            Log::channel('testing')->info('Log', ['mes', $mes]);
+//            Log::channel('testing')->info('Log', ['mes', $mes]);
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
             $roles_pago = RolPago::where('rol_pago_id', $rol_mes->id)->get();
@@ -834,7 +886,7 @@ class RolPagoMesController extends Controller
     public function refrescarRolPago(RolPagoMes $rol)
     {
         // $this->agregar_nuevos_empleados($rol_pago);
-        Log::channel('testing')->info('Log', ['RolPagoMes', $rol]);
+//        Log::channel('testing')->info('Log', ['RolPagoMes', $rol]);
         $this->actualizarTablaRoles($rol);
         $mensaje = "Rol de pago Actualizado Exitosamente";
         return response()->json(compact('mensaje'));
@@ -845,10 +897,14 @@ class RolPagoMesController extends Controller
         $rol->finalizado = false;
         $rol->save();
         $modelo = new RolPagoMesResource($rol);
-        $mensaje ='Rol activado exitosamente';
+        $mensaje = 'Rol activado exitosamente';
 
         return response()->json(compact('mensaje', 'modelo'));
     }
+
+    /**
+     * @throws Exception
+     */
     public function finalizarRolPago(Request $request)
     {
         $rol_pago = RolPagoMes::find($request['rol_pago_id']);
@@ -870,7 +926,8 @@ class RolPagoMesController extends Controller
             // Formatea la fecha en el formato deseado
             $mes = $date->format('Y-m');
             $this->prestamoService->setMes($mes);
-            $this->prestamoService->pagarPrestamoEmpresarial();
+//            $this->prestamoService->pagarPrestamoEmpresarial(); // no funciona porque no se le indica que empleado tiene que pagar
+            $this->pagarPrestamosEmpresariales($rol_pago);
         }
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
@@ -881,5 +938,22 @@ class RolPagoMesController extends Controller
         $periodo = $es_quincena ? 'DEL 1 AL  15 ' . Carbon::createFromFormat('m-Y', $mes)->locale('es')->translatedFormat(' F Y') : 'DEL 1 AL ' . Carbon::createFromFormat('m-Y', $mes)->locale('es')->translatedFormat('t F Y');
         $periodo = strtoupper($periodo);
         return "PERIODO: $periodo";
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function pagarPrestamosEmpresariales(RolPagoMes $rol)
+    {
+        try {
+            $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+            $this->prestamoService->setMes($mes);
+            $this->prestamoService->pagarPrestamoEmpresarialDesdeRol($rol);
+        } catch (Throwable $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+        $mensaje = "Cuotas de préstamos actualizados exitosamente";
+        return response()->json(compact('mensaje'));
     }
 }

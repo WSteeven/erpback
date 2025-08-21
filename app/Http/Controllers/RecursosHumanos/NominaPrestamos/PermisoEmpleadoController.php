@@ -80,10 +80,10 @@ class PermisoEmpleadoController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         } else {
             $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->orderBy('id', 'desc')->get();
         }
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));

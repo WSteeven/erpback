@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+@php
+    use Src\Shared\Utils;
+@endphp
+    <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -45,10 +48,10 @@
                     style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
                     <tr>
                         <td width="17%">
-                            <img src="{{ url($configuracion['logo_claro']) }}" width="90">
+                            <img src="{{ Utils::getImagePath($configuracion['logo_claro']) }}" width="90">
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
-                            <div align="center">JPCONSTRUCRED C.LTDA</div>
+                            <div align="center">{{$configuracion['razon_social']}}</div>
                         </td>
                     </tr>
                     <tr>

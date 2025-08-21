@@ -99,7 +99,7 @@ class EgresoRolPago extends Model implements Auditable
     public static function crearEgresoRol(RolPago $rol_pago, $monto, $entidad)
     {
         if($entidad->egreso_rol_pago()->where('id_rol_pago', $rol_pago->id)->exists()) {
-            Log::channel('testing')->info('Log', ['Ya existe el egreso rol para esta entidad', $entidad->egreso_rol_pago()->where('id_rol_pago', $rol_pago->id)->get()]);
+//            Log::channel('testing')->info('Log', ['Ya existe el egreso rol para esta entidad', $entidad->egreso_rol_pago()->where('id_rol_pago', $rol_pago->id)->get()]);
             return null;
         }
         return $entidad->egreso_rol_pago()->create([

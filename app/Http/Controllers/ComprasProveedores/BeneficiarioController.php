@@ -8,9 +8,9 @@ use App\Http\Resources\ComprasProveedores\BeneficiarioResource;
 use App\Models\ComprasProveedores\Beneficiario;
 use Auth;
 use DB;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Log;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
 use Throwable;
@@ -24,12 +24,32 @@ class BeneficiarioController extends Controller
     {
         $this->paginationService = new PaginationService();
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
     public function index()
+    {
+        $search = request('search');
+        $paginate = request('paginate');
+
+        if ($search) $query = $this->buscarEnBD($search, [
+            'codigo_beneficiario',
+            'identificacion_beneficiario',
+            'nombre_beneficiario',
+            'correo'
+        ]);
+        else $query = Beneficiario::ignoreRequest(['paginate'])->filter()->latest();
+
+        if ($paginate) $results = $this->paginationService->paginate($query, 100, request('page'));
+        else $results = $query->get();
+
+        return BeneficiarioResource::collection($results);
+    }
+
+    /*    public function indexOld()
     {
         $search = request('search');
         $paginate = request('paginate');
@@ -41,13 +61,14 @@ class BeneficiarioController extends Controller
         else $results = $query->get();
 
         return BeneficiarioResource::collection($results);
-    }
+    }*/
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param BeneficiarioRequest $request
+     * @return Response
+     * @throws Throwable
      */
     public function store(BeneficiarioRequest $request)
     {
@@ -69,8 +90,8 @@ class BeneficiarioController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Beneficiario $beneficiario
+     * @return JsonResponse
      */
     public function show(Beneficiario $beneficiario)
     {
@@ -81,9 +102,10 @@ class BeneficiarioController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param BeneficiarioRequest $request
+     * @param Beneficiario $beneficiario
+     * @return Response
+     * @throws Throwable
      */
     public function update(BeneficiarioRequest $request, Beneficiario $beneficiario)
     {
@@ -98,16 +120,6 @@ class BeneficiarioController extends Controller
         });
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 
     private function gestionarCuentasBancarias($datos, Beneficiario $beneficiario)
     {
@@ -134,4 +146,19 @@ class BeneficiarioController extends Controller
             }
         }
     }
+
+    /**
+     * Realiza una búsqueda local con LIKE en múltiples columnas.
+     */
+    private function buscarEnBD($word, $columnas = [], $withGet = false)
+    {
+        $query = Beneficiario::where(function ($q) use ($word, $columnas) {
+            foreach ($columnas as $columna) {
+                $q->orWhere($columna, 'LIKE', "%$word%");
+            }
+        });
+
+        return $withGet ? $query->get() : $query;
+    }
+
 }

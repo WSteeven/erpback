@@ -4,11 +4,16 @@ namespace App\Models;
 
 use App\Models\ComprasProveedores\Prefactura;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Cliente
@@ -18,42 +23,42 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int $parroquia_id
  * @property bool $requiere_bodega
  * @property bool $estado
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $logo_url
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\CodigoCliente|null $codigos
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ControlStock> $controlStock
+ * @property-read CodigoCliente|null $codigos
+ * @property-read Collection<int, ControlStock> $controlStock
  * @property-read int|null $control_stock_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetalleProducto> $detalles
+ * @property-read Collection<int, DetalleProducto> $detalles
  * @property-read int|null $detalles_count
- * @property-read \App\Models\Empresa $empresa
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventario> $inventarios
+ * @property-read Empresa $empresa
+ * @property-read Collection<int, Inventario> $inventarios
  * @property-read int|null $inventarios_count
- * @property-read \App\Models\Parroquia $parroquia
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Prefactura> $prefacturas
+ * @property-read Parroquia $parroquia
+ * @property-read Collection<int, Prefactura> $prefacturas
  * @property-read int|null $prefacturas_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Sucursal> $sucursales
+ * @property-read Collection<int, Sucursal> $sucursales
  * @property-read int|null $sucursales_count
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente query()
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereEmpresaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereLogoUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereParroquiaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereRequiereBodega($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cliente whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Cliente acceptRequest(?array $request = null)
+ * @method static Builder|Cliente filter(?array $request = null)
+ * @method static Builder|Cliente ignoreRequest(?array $request = null)
+ * @method static Builder|Cliente newModelQuery()
+ * @method static Builder|Cliente newQuery()
+ * @method static Builder|Cliente query()
+ * @method static Builder|Cliente setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Cliente setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Cliente setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Cliente whereCreatedAt($value)
+ * @method static Builder|Cliente whereEmpresaId($value)
+ * @method static Builder|Cliente whereEstado($value)
+ * @method static Builder|Cliente whereId($value)
+ * @method static Builder|Cliente whereLogoUrl($value)
+ * @method static Builder|Cliente whereParroquiaId($value)
+ * @method static Builder|Cliente whereRequiereBodega($value)
+ * @method static Builder|Cliente whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Cliente extends Model implements Auditable
 {
@@ -62,12 +67,13 @@ class Cliente extends Model implements Auditable
     use Filterable;
 
     protected $table = "clientes";
-    protected $fillable = ['empresa_id', 'parroquia_id', 'requiere_bodega', 'estado', 'logo_url'];
+    protected $fillable = ['empresa_id', 'parroquia_id', 'requiere_bodega', 'requiere_fr', 'estado', 'logo_url'];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'requiere_bodega' => 'boolean',
+        'requiere_fr' => 'boolean',
         'estado' => 'boolean'
     ];
 
@@ -75,12 +81,13 @@ class Cliente extends Model implements Auditable
     const JEANPATRICIO = 1;
     const JPCONSTRUCRED = 5;
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function sucursales()
     {
         return $this->hasMany(Sucursal::class);
     }
+
     public function parroquia()
     {
         return $this->belongsTo(Parroquia::class);
@@ -98,6 +105,7 @@ class Cliente extends Model implements Auditable
     {
         return $this->belongsTo(Empresa::class, 'empresa_id', 'id');
     }
+
     /**
      * Relacion uno a muchos
      * Un cliente tiene varios codigos para varios productos

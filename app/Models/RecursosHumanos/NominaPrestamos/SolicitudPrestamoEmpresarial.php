@@ -5,11 +5,16 @@ namespace App\Models\RecursosHumanos\NominaPrestamos;
 use App\Models\Autorizacion;
 use App\Models\Empleado;
 use App\Models\Notificacion;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial
@@ -24,37 +29,37 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $motivo
  * @property string|null $observacion
  * @property int|null $estado
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empleado|null $empleado_info
  * @property-read Autorizacion|null $estado_info
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \App\Models\RecursosHumanos\NominaPrestamos\Periodo|null $periodo_info
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial query()
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereFecha($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereMonto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereMotivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial wherePeriodoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial wherePlazo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereSolicitante($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SolicitudPrestamoEmpresarial whereValorUtilidad($value)
- * @mixin \Eloquent
+ * @property-read Periodo|null $periodo_info
+ * @method static Builder|SolicitudPrestamoEmpresarial acceptRequest(?array $request = null)
+ * @method static Builder|SolicitudPrestamoEmpresarial filter(?array $request = null)
+ * @method static Builder|SolicitudPrestamoEmpresarial ignoreRequest(?array $request = null)
+ * @method static Builder|SolicitudPrestamoEmpresarial newModelQuery()
+ * @method static Builder|SolicitudPrestamoEmpresarial newQuery()
+ * @method static Builder|SolicitudPrestamoEmpresarial query()
+ * @method static Builder|SolicitudPrestamoEmpresarial setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|SolicitudPrestamoEmpresarial setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|SolicitudPrestamoEmpresarial setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereCreatedAt($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereEstado($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereFecha($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereId($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereMonto($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereMotivo($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereObservacion($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial wherePeriodoId($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial wherePlazo($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereSolicitante($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereUpdatedAt($value)
+ * @method static Builder|SolicitudPrestamoEmpresarial whereValorUtilidad($value)
+ * @mixin Eloquent
  */
 class SolicitudPrestamoEmpresarial extends  Model implements Auditable
 {
@@ -71,8 +76,14 @@ class SolicitudPrestamoEmpresarial extends  Model implements Auditable
         'plazo',
         'motivo',
         'observacion',
-        'estado'
+        'estado',
+        'gestionada'
     ];
+
+    protected $casts =[
+        'gestionada'=>'boolean',
+    ];
+
     public function estado_info()
     {
         return $this->hasOne(Autorizacion::class, 'id', 'estado');
@@ -89,7 +100,7 @@ class SolicitudPrestamoEmpresarial extends  Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'id',
         'solicitante',
         'fecha',

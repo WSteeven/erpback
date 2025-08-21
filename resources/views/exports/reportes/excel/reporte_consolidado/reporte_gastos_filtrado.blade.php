@@ -81,6 +81,9 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
                                             <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
                                         </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" >
+                                            <div align="center"><strong>CLIENTE</strong></div>
+                                        </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="4%">
                                             <div align="center"><strong>LUGAR</strong></div>
                                         </td>
@@ -144,6 +147,10 @@
                                             <td style="font-size:10px">
                                                 <div align="left">
                                                     {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px">
+                                                <div align="left">{{ $gasto['cliente'] }}
                                                 </div>
                                             </td>
                                             <td style="font-size:10px">

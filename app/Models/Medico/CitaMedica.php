@@ -3,12 +3,18 @@
 namespace App\Models\Medico;
 
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\CitaMedica
@@ -25,38 +31,38 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property string|null $fecha_hora_rechazo
  * @property string|null $fecha_hora_cancelado
  * @property int $paciente_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $tipo_cambio_cargo
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\ConsultaMedica|null $consultaMedica
+ * @property-read ConsultaMedica|null $consultaMedica
  * @property-read Empleado|null $paciente
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica query()
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereEstadoCitaMedica($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereFechaHoraAccidente($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereFechaHoraCancelado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereFechaHoraCita($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereFechaHoraRechazo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereMotivoCancelacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereMotivoRechazo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica wherePacienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereSintomas($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereTipoCambioCargo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereTipoCitaMedica($value)
- * @method static \Illuminate\Database\Eloquent\Builder|CitaMedica whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|CitaMedica acceptRequest(?array $request = null)
+ * @method static Builder|CitaMedica filter(?array $request = null)
+ * @method static Builder|CitaMedica ignoreRequest(?array $request = null)
+ * @method static Builder|CitaMedica newModelQuery()
+ * @method static Builder|CitaMedica newQuery()
+ * @method static Builder|CitaMedica query()
+ * @method static Builder|CitaMedica setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|CitaMedica setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|CitaMedica setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|CitaMedica whereCreatedAt($value)
+ * @method static Builder|CitaMedica whereEstadoCitaMedica($value)
+ * @method static Builder|CitaMedica whereFechaHoraAccidente($value)
+ * @method static Builder|CitaMedica whereFechaHoraCancelado($value)
+ * @method static Builder|CitaMedica whereFechaHoraCita($value)
+ * @method static Builder|CitaMedica whereFechaHoraRechazo($value)
+ * @method static Builder|CitaMedica whereId($value)
+ * @method static Builder|CitaMedica whereMotivoCancelacion($value)
+ * @method static Builder|CitaMedica whereMotivoRechazo($value)
+ * @method static Builder|CitaMedica whereObservacion($value)
+ * @method static Builder|CitaMedica wherePacienteId($value)
+ * @method static Builder|CitaMedica whereSintomas($value)
+ * @method static Builder|CitaMedica whereTipoCambioCargo($value)
+ * @method static Builder|CitaMedica whereTipoCitaMedica($value)
+ * @method static Builder|CitaMedica whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class CitaMedica extends Model implements Auditable
 {
@@ -92,7 +98,7 @@ class CitaMedica extends Model implements Auditable
         'accidente_id',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /*************
      * Relaciones
@@ -111,4 +117,14 @@ class CitaMedica extends Model implements Auditable
     {
         return $this->hasOne(ConsultaMedica::class);
     }
+
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una cita médica puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
 }

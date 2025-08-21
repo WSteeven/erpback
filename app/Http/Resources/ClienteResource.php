@@ -2,11 +2,9 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\JsonResource;
-
 class ClienteResource extends BaseResource
 {
-    protected function construirModelo($request)
+    protected function construirModelo()
     {
         $modelo = [
             'id' => $this->id,
@@ -17,6 +15,7 @@ class ClienteResource extends BaseResource
             'canton' => $this->parroquia?->canton?->canton,
             'parroquia' => $this->parroquia?->parroquia,
             'requiere_bodega' => $this->requiere_bodega,
+            'requiere_fr' => $this->requiere_fr,
             'estado' => $this->estado,
             'logo_url' => $this->logo_url ? url($this->logo_url) : null,
         ];

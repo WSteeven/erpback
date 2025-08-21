@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ControlPersonal\AtrasoController;
 use App\Http\Controllers\Medico\CuestionarioPublicoController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LinkCuestionarioPublicoController;
@@ -126,3 +127,8 @@ Route::prefix('capacitacion')->group(function (){
 });
 
 Route::view('reporte-accidente', 'sso.pdf.informe_accidente');
+
+/***************************
+ * Rutas del módulo Control de Personal
+ ***************************/
+Route::get('control-personal/registros-atrasos', [AtrasoController::class, 'registrosAtrasos'])->middleware('verificar.apikey');

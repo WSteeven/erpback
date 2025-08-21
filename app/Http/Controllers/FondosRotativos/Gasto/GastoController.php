@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
-use Algolia\AlgoliaSearch\SearchClient;
 use App\Events\FondoRotativoEvent;
 use App\Exports\AutorizacionesExport;
 use App\Exports\GastoExport;
@@ -14,6 +13,7 @@ use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
 use Exception;
@@ -67,7 +67,7 @@ class GastoController extends Controller
         try {
             $paginate = $request->paginate;
             $search = $request->search;
-            $ids_algolia = collect();
+//            $ids_algolia = collect();
             $filtros = [];
 
             if ($request->estado) {
@@ -159,9 +159,7 @@ class GastoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
-            ]);
+            throw Utils::obtenerMensajeErrorLanzable($e, 'Error al insertar el gasto');
         }
     }
 
@@ -179,6 +177,7 @@ class GastoController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
+            GastoService::validarNoAprobado($gasto);
             $datos = GastoService::convertirComprobantesBase64Url($datos, 'update', $gasto);
             $gasto->update($datos);
             $gasto_service = new GastoService($gasto);
@@ -369,6 +368,7 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
+            $this->verificarGastoAprobable($gasto, $datos); // Validar que el gasto no esté aprobado o registrado en la tabla de saldos
             $datos = GastoService::convertirComprobantesBase64Url($datos, 'update', $gasto);
             if ($gasto) {
                 $gasto->update($datos);
@@ -549,4 +549,31 @@ class GastoController extends Controller
             return response()->json(compact('mensaje'), 500);
         }
     }
+
+    /**
+     * Verifica si el gasto puede ser aprobado.
+     *
+     * @param Gasto $gasto
+     * @param array $datos
+     * @throws ValidationException
+     */
+    private function verificarGastoAprobable(Gasto $gasto, array $datos)
+    {
+        if ($gasto->estado == Gasto::APROBADO)
+            throw ValidationException::withMessages(['Gasto' => ['El gasto ya ha sido aprobado previamente.']]);
+
+
+        $existeSaldo = Saldo::where('fecha', $gasto->fecha_viat)
+            ->where('saldo_depositado', $datos['total'] ?? $gasto->total)
+            ->where('tipo_saldo', Saldo::EGRESO)
+            ->where('saldoable_id', $gasto->id)
+            ->exists();
+
+        if ($existeSaldo) {
+            throw ValidationException::withMessages([
+                'Saldo' => ['Ya existe un asiento contable para este gasto con la misma fecha, saldo y tipo.']
+            ]);
+        }
+    }
+
 }

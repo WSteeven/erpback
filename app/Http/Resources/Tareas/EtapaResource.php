@@ -3,17 +3,15 @@
 namespace App\Http\Resources\Tareas;
 
 use App\Http\Resources\BaseResource;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class EtapaResource extends BaseResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @return array
      */
-    protected function construirModelo($request)
+    protected function construirModelo()
     {
         $modelo =  [
             'id' => $this->id,

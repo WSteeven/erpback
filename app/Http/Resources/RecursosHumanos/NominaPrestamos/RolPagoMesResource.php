@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RolPagoMesResource extends JsonResource
@@ -9,8 +10,8 @@ class RolPagoMesResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -19,7 +20,7 @@ class RolPagoMesResource extends JsonResource
             'mes' => $this->mes,
             'nombre' => $this->nombre,
             'finalizado' => $this->finalizado,
-            'cantidad_roles_empleado' => $this->rolPago->count(),
+            'cantidad_roles_empleado' => $this->rolesPagos->count(),
             'es_quincena' => $this->es_quincena,
         ];
         return $modelo;

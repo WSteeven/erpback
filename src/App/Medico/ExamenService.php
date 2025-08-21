@@ -21,8 +21,9 @@ class ExamenService
         $todos = Examen::all();
         $filters = request()->only(['empleado_id', 'registro_empleado_examen_id']);
 
-        Log::channel('testing')->info('Log', ['filters', $filters]);
+//        Log::channel('testing')->info('Log', ['filters', $filters]);
         $results = Examen::ignoreRequest($this->ignoreRequest)->filter($filters)->get();
-        return $todos->diff($results);
+//        return $todos->diff($results);
+        return $todos;
     }
 }

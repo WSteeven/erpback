@@ -5,10 +5,14 @@ namespace App\Http\Resources;
 use App\Http\Resources\Tareas\EtapaResource;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Exception;
 
 class ProyectoResource extends BaseResource
 {
-    protected function construirModelo($campos)
+    /**
+     * @throws Exception
+     */
+    protected function construirModelo()
     {
         $modelo = [
             'id' => $this->id,
@@ -42,6 +46,9 @@ class ProyectoResource extends BaseResource
         return $modelo;
     }
 
+    /**
+     * @throws Exception
+     */
     private function calcularTiempoOcupado()
     {
         return $this->fecha_hora_finalizado ? CarbonInterval::seconds(Carbon::parse($this->fecha_hora_finalizado)->diffInSeconds(Carbon::parse($this->created_at)))->cascade()->forHumans() : null;

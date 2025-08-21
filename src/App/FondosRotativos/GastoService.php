@@ -8,11 +8,12 @@ use App\Models\FondosRotativos\Gasto\BeneficiarioGasto;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\GastoVehiculo;
 use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
-use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\FondosRotativos\Valija;
 use App\Models\Notificacion;
 use App\Models\Vehiculos\Vehiculo;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -23,8 +24,8 @@ use Throwable;
 
 class GastoService
 {
-    private $gasto;
-    private $entidad = 'gasto';
+    private Gasto $gasto;
+    private string $entidad = 'gasto';
 
     public function __construct(Gasto $gasto)
     {
@@ -52,7 +53,7 @@ class GastoService
      * @param GastoRequest $request es un objeto de tipo GastoRequest que contiene detalles de un
      * gasto que necesita ser validado para un gasto de vehículo. Probablemente incluya información como el
      * detalle y sub_detalle del gasto.
-     * @throws ValidationException
+     * @throws ValidationException|Throwable
      */
     public function validarGastoVehiculo(GastoRequest $request)
     {
@@ -148,22 +149,19 @@ class GastoService
     /**
      * La función `crearBeneficiarios` crea nuevas entradas de beneficiarios para un gasto determinado.
      *
-     * @param Gasto gasto El parámetro `gasto` es una instancia de la clase `Gasto`. Parece representar un
-     * gasto o costo específico para el cual es necesario crear beneficiarios. El método crearBeneficiarios
-     * se encarga de crear beneficiarios para este gasto.
-     * @param beneficiarios La función `createBeneficiaries` toma un objeto `Expense` y una matriz de
+     * @param Collection|array|null $beneficiarios La función `createBeneficiaries` toma un objeto `Expense` y una matriz de
      * `beneficiarios` como parámetros. La matriz `beneficiarios` contiene valores `employee_id` que
      * representan los ID de los empleados que se asociarán con el objeto `Expense` dado.
      */
-    public function crearBeneficiarios($beneficiarios)
+    public function crearBeneficiarios(Collection|array|null $beneficiarios)
     {
-        if ($beneficiarios != null) {
-            foreach ($beneficiarios as $empleado_id) {
-                BeneficiarioGasto::insert([
-                    'gasto_id' => $this->gasto->id,
-                    'empleado_id' => $empleado_id
-                ]);
-            }
+        if (empty($beneficiarios)) return;
+
+        foreach ($beneficiarios as $empleado_id) {
+            BeneficiarioGasto::insert([
+                'gasto_id' => $this->gasto->id,
+                'empleado_id' => $empleado_id
+            ]);
         }
     }
 
@@ -208,7 +206,7 @@ class GastoService
         // Supongamos que $ids es tu arreglo de empleados _id
         $ids = $beneficiarios;
         // Obtener el gasto al que se asocian los beneficiarios
-        $gasto_id = $this->gasto?->id;
+        $gasto_id = $this->gasto->id;
         // Obtener los registros existentes de beneficiarios para este gasto
         $registrosExistentes = BeneficiarioGasto::where('gasto_id', $gasto_id)->pluck('empleado_id');
         // Filtrar los ids para evitar repeticiones
@@ -231,17 +229,19 @@ class GastoService
      * La función `guardarGastoVehiculo` ahorra gasto de vehículo con validación y manejo de errores en PHP
      * usando Laravel.
      *
-     * @param GastoRequest request La función `guardarGastoVehiculo` se encarga de guardar un registro de
+     * @param GastoRequest $request La función `guardarGastoVehiculo` se encarga de guardar un registro de
      * gastos del vehículo en base a los objetos `GastoRequest` y `Gasto` proporcionados. Analicemos el
      * fragmento de código:
-     * @param Gasto gasto Con base en el fragmento de código proporcionado, la función
+     * @param Gasto $gasto Con base en el fragmento de código proporcionado, la función
      * `guardarGastoVehiculo` es responsable de ahorrar un gasto de vehículo (“GastoVehiculo`) asociado a
      * un `Gasto` específico. La función toma dos parámetros:
      *
-     * @return La función `guardarGastoVehiculo` está devolviendo una respuesta JSON con las variables
+     * @return JsonResponse función `guardarGastoVehiculo` está devolviendo una respuesta JSON con las variables
      * `` y `` compactadas. La variable `` contiene un mensaje obtenido usando el
      * método `Utils::obtenerMensaje` para la entidad y acción 'store'. La variable `` contiene la
      * representación de recursos del objeto `GastoVehiculo` creado.
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function guardarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
@@ -269,17 +269,18 @@ class GastoService
      * Esta función PHP modifica un registro de gastos de vehículo en función de los datos de solicitud
      * proporcionados.
      *
-     * @param GastoRequest request La función `modificarGastoVehiculo` parece estar actualizando un
+     * @param GastoRequest $request La función `modificarGastoVehiculo` parece estar actualizando un
      * registro en la tabla `gasto_vehiculos` en base a los datos proporcionados en el objeto
      * `GastoRequest` y el objeto `Gasto` existente.
-     * @param Gasto gasto La función `modificarGastoVehiculo` se utiliza para actualizar un registro
+     * @param Gasto $gasto La función `modificarGastoVehiculo` se utiliza para actualizar un registro
      * específico de `GastoVehiculo` basado en los datos de `GastoRequest` proporcionados y la instancia de
      * `Gasto` existente.
      *
-     * @return La función `modificarGastoVehiculo` está devolviendo una respuesta JSON con las variables
+     * @return JsonResponse función `modificarGastoVehiculo` está devolviendo una respuesta JSON con las variables
      * `mensaje` y `modelo`. La variable `mensaje` contiene un mensaje obtenido usando el método
      * `Utils::obtenerMensaje` para la acción 'almacenar' sobre la entidad. La variable `modelo` contiene
      * los datos del recurso `GastoVehiculo` actualizado luego de la modificación.
+     * @throws Throwable
      */
     public function modificarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
@@ -303,5 +304,21 @@ class GastoService
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
+    }
+
+    /**
+     * Valida que un gasto no se encuentre aprobado o rechazado para evitar modificaciones.
+     * Con esto se limita que un gasto pueda ser modificado una vez que ha sido aprobado, anulado o rechazado.
+     * @param Gasto $gasto
+     * @return void
+     * @throws Exception
+     */
+    public static function validarNoAprobado(Gasto $gasto)
+    {
+        if ($gasto->estado !== Gasto::PENDIENTE) {
+            $estado = $gasto->estadoViatico->descripcion;
+            throw new Exception("El gasto no se puede modificar porque se encuentra con estado $estado");
+        }
+
     }
 }

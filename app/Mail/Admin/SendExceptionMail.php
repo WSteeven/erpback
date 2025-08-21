@@ -3,7 +3,6 @@
 namespace App\Mail\Admin;
 
 use App\Models\ConfiguracionGeneral;
-use App\Models\Empleado;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
@@ -17,15 +16,17 @@ class SendExceptionMail extends Mailable
 
     public string $mensaje;
     public ConfiguracionGeneral $configuracion;
+    public string $remitente;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(string $mensaje = "")
+    public function __construct(string $mensaje = "", string $remitente = 'Sistema')
     {
         $this->mensaje = $mensaje;
+        $this->remitente = $remitente;
         $this->configuracion = ConfiguracionGeneral::first();
     }
 
@@ -36,8 +37,7 @@ class SendExceptionMail extends Mailable
      */
     public function envelope()
     {
-        return new Envelope(
-            from: new Address(env('MAIL_USERNAME'), Empleado::extraerNombresApellidos(auth()->user()->empleado)),
+        return new Envelope(from: new Address(env('MAIL_USERNAME'), $this->remitente),
             subject: 'Error de Exception',
         );
     }

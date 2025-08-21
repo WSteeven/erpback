@@ -12,7 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Src\App\RecursosHumanos\NominaPrestamos\VacacionService;
 use Throwable;
 
@@ -38,12 +38,11 @@ class CrearVacacionesEmpleadoJob implements ShouldQueue
     public function handle()
     {
         try {
+            $this->crearPeriodosFaltantes();
             // verificamos si hay algun empleado que ya tenga un año de antiguedad
             // el empleado debe estar activo y si tiene más de 1 año de antiguedad
             // deben crearse n registros conforme a los años de antiguedad del empleado
-            // tambien verificar los periodos, actualmente solo hay 2
-            $this->crearPeriodosFaltantes();
-            $empleados = Empleado::where('estado', true)->where('fecha_ingreso', '<', Carbon::now()->subYear())->get();
+            $empleados = Empleado::where('estado', true)->where('fecha_ingreso', '<=', Carbon::now()->subYear())->get();
             foreach ($empleados as $empleado) {
                 // Aqui vamos a verificar si el empleado tiene más de un año de antiguedad, en caso de que tenga 2 o más años deben crearse las respectivas vacaciones para esos años y periodos
                 $fecha_ingreso = Carbon::parse($empleado->fecha_ingreso);
@@ -66,7 +65,7 @@ class CrearVacacionesEmpleadoJob implements ShouldQueue
                     }
                 }
             }
-        } catch (Throwable|Exception $ex) {
+        } catch (Throwable $ex) {
             Log::channel('testing')->error('ERROR', ['Error en crear vacaciones JOB', $ex->getMessage(), $ex->getLine()]);
         }
 
@@ -83,7 +82,7 @@ class CrearVacacionesEmpleadoJob implements ShouldQueue
             $fecha_ingreso_mas_antigua = Carbon::parse(Empleado::where('estado', true)->whereNotNull('fecha_ingreso')->orderBy('fecha_ingreso')->first()->fecha_ingreso);
             $anio_actual = Carbon::now()->year;
 
-            for ($anio = $fecha_ingreso_mas_antigua->year; $anio < $anio_actual; $anio++) {
+            for ($anio = $fecha_ingreso_mas_antigua->year; $anio <= $anio_actual; $anio++) {
                 $nombre_periodo = $anio . '-' . ($anio + 1);
                 $existe_periodo = Periodo::where('nombre', $nombre_periodo)->exists();
                 if (!$existe_periodo) {

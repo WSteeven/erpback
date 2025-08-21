@@ -24,10 +24,12 @@ class PrestamoEmpresarialResource extends JsonResource
             'periodo' =>   $this->periodo_id,
             'periodo_info' => $this->periodo_info? $this->periodo_info->nombre:'' ,
             'valor_utilidad' => $this->valor_utilidad,
-            'plazo' => $this->plazo,
-            'plazos' => $this->plazo_prestamo_empresarial_info,
+            'plazo' => (int) $this->plazo,
+            'plazos' => PlazoPrestamoEmpresarialResource::collection($this->plazos),
             'estado' => $this->estado,
-
+            'motivo' => $this->motivo,
+            'fecha_inicio_cobro' => $this->fecha_inicio_cobro,
+            'saldo_pendiente' => $this->plazos->sum('valor_cuota') - $this->plazos->sum('valor_pagado'),
 
         ];
     }
