@@ -5,8 +5,8 @@ namespace App\Http\Controllers\RecursosHumanos\SeleccionContratacion;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\EvaluacionPersonalidadRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\EvaluacionPersonalidadResource;
-use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
 use App\Models\RecursosHumanos\SeleccionContratacion\EvaluacionPersonalidad;
+use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\User;
 use DB;
 use Exception;
@@ -20,6 +20,13 @@ use Throwable;
 
 class EvaluacionPersonalidadController extends Controller
 {
+
+    private string $entidad = 'Evaluacion de Personalidad';
+
+    public function __construct()
+    {
+
+    }
 
     public function index()
     {
@@ -50,17 +57,17 @@ class EvaluacionPersonalidadController extends Controller
         $datos = $request->validated();
         try {
             DB::beginTransaction();
-            throw new Exception('Error controlado');
             //antes de guardar verificar si ya existe una evaluacion para esa postulacion y/o usuario
-            $evaluacion_realizada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($datos['postulacion_id']);
-            if ($evaluacion_realizada) throw new Exception('Ya existe una evaluación de personalidad para esta postulación. No se puede crear más.');
-            $evaluacion = EvaluacionPersonalidad::create($datos);
+            $evaluacionRealizada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($datos['postulacion_id'], true);
+            if ($evaluacionRealizada) throw new Exception('Ya existe una evaluación de personalidad para esta postulación. No se puede crear más.');
+            $postulacion = Postulacion::find($datos['postulacion_id']);
+            $postulacion->evaluacionPersonalidad()->update(['completado' => true, 'respuestas' => $datos['respuestas'], 'fecha_realizacion' => now()]);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             throw Utils::obtenerMensajeErrorLanzable($e);
         }
-        $modelo = new PostulacionResource($evaluacion);
+        $modelo = new EvaluacionPersonalidadResource($postulacion->evaluacionPersonalidad);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }

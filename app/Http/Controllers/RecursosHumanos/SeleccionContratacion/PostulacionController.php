@@ -25,7 +25,6 @@ use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Config\RutasStorage;
 use Src\Shared\ObtenerInstanciaUsuario;
 use Src\Shared\Utils;
-use Str;
 use Throwable;
 
 class PostulacionController extends Controller
@@ -378,24 +377,24 @@ class PostulacionController extends Controller
     public function habilitarTestPersonalidad(Postulacion $postulacion)
     {
         // Se verifica si ya hay una evaluacion completada para esta postulación y en ese caso retorna la evaluación
-        $evaluacion_realizada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id);
-        if ($evaluacion_realizada) {
+        if (EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id, true)) {
             //aqui se debe redireccionar al caso que devuelve la evaluacion realizada
             $tempFile = $this->service->generarExcelConRespuestasTestPersonalidad($postulacion);
-            return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend(true);
+            return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend();
         }
 
-        // Verifica si ya hay un token creado en primer lugar
-        // Como ya existe un token, no se genera uno nuevo, se devuelve el mismo,
-        $existe_token = !is_null($postulacion->token_test);
-        if (!$existe_token) {
-            //Generar el token único y se guarda en la postulacion
-            $postulacion->token_test = Str::random(20);
-            $postulacion->save();
-        }
+        $this->service->generarTokenSiNoExiste($postulacion);
 
-        //Opcional, enviar por correo el link para que complete
-        $link = env('SPA_URL') . "/test-personalidad/$postulacion->token_test";
+        $this->service->crearEvaluacionSiNoexiste($postulacion);
+
+        $q = match (get_class($postulacion->user)) {
+            UserExternal::class => 'external',
+            default => '', // no se devuelve nada porque el front solo evalua si es explicitamente 'external'
+        };
+
+        $link = env('SPA_URL') . "/test-personalidad/$postulacion->token_test?q=$q";
+
+        $this->service->enviarLinkSiNoFueEnviado($postulacion, $link);
 
 
         $modelo = new PostulacionResource($postulacion);
@@ -418,8 +417,8 @@ class PostulacionController extends Controller
             if (!$postulacion) throw new Exception('No se encontró un postulación válida para ese token');
             $mensaje = 'Token validado correctamente, puedes contestar el test';
 
-            $existe_evaluacion = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id);
-            if ($existe_evaluacion) {
+            $existeEvaluacionCompletada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id,true);
+            if ($existeEvaluacionCompletada) {
                 $contestado = true;
                 $mensaje = 'Ya has contestado este test previamente. ¡Proceso finalizado!';
             }
@@ -434,13 +433,13 @@ class PostulacionController extends Controller
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function obtenerResultadosTestPersonalidad(Postulacion $postulacion)
-    {
-        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', $postulacion]);
-        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', request()->all()]);
-        $tempFile = $this->service->generarExcelConRespuestasTestPersonalidad();
-        Log::channel('testing')->info('Log', ['$tempFile', $tempFile]);
-        return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend(true);
-
-    }
+//    public function obtenerResultadosTestPersonalidad(Postulacion $postulacion)
+//    {
+//        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', $postulacion]);
+//        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', request()->all()]);
+//        $tempFile = $this->service->generarExcelConRespuestasTestPersonalidad();
+//        Log::channel('testing')->info('Log', ['$tempFile', $tempFile]);
+//        return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend();
+//
+//    }
 }

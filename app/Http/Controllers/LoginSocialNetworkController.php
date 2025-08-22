@@ -38,7 +38,7 @@ class LoginSocialNetworkController extends Controller
             ]);
 
             $user = UserExternal::where('email', $request['name'])->first();
-            Log::channel('testing')->info('Log', ['request y usuario', request()->all(), $user, $request['name']]);
+//            Log::channel('testing')->info('Log', ['request y usuario', request()->all(), $user, $request['name']]);
             if (!$user) {
                 throw ValidationException::withMessages([
                     '404' => ['Usuario no registrado!'],
@@ -79,7 +79,7 @@ class LoginSocialNetworkController extends Controller
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['Error al autenticar', $e->getMessage()]);
+            Log::channel('testing')->error('Log', ['Error al autenticar', $e->getMessage()]);
             return redirect()->to(env('SPA_URL', 'https://firstred.jpconstrucred.com') . '/error-login?message=authentication_failed');
         }
         // Verificamos si el usuario existe y tiene un correo válido
@@ -106,7 +106,7 @@ class LoginSocialNetworkController extends Controller
         if (!$existe_postulante) Postulante::create($datos);
 
 
-        Log::channel('testing')->info('Log', ['User autenticado', $user, $socialUser]);
+//        Log::channel('testing')->info('Log', ['User autenticado', $user, $socialUser]);
         // Generar el token de acceso
         $token = $user->createToken('auth_token')->plainTextToken;
 

@@ -3,10 +3,8 @@
 namespace App\Mail\RecursosHumanos\SeleccionContratacion;
 
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\PostulacionResource;
-use App\Models\Canton;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Departamento;
-use App\Models\RecursosHumanos\SeleccionContratacion\Entrevista;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -15,30 +13,26 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NotificarEntrevistaMail extends Mailable
+class EnviarLinkTestPersonalidadMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Entrevista $entrevista;
     public array $postulacion;
-    public ?string $canton;
     public ConfiguracionGeneral $configuracion;
     public Departamento $departamento_rrhh;
-
+    public string $linkEvaluacion;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Postulacion $postulacion, Entrevista $entrevista)
+    public function __construct(Postulacion $postulacion, string $link)
     {
-        $this->entrevista = $entrevista;
         $resource = new PostulacionResource($postulacion);
         $this->postulacion = $resource->resolve();
         $this->configuracion = ConfiguracionGeneral::first();
-        $this->canton = Canton::find($this->entrevista->canton_id)?->canton;
         $this->departamento_rrhh = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first();
-
+        $this->linkEvaluacion = $link;
     }
 
     /**
@@ -50,7 +44,7 @@ class NotificarEntrevistaMail extends Mailable
     {
         return new Envelope(
             from: new Address(env('MAIL_USERNAME'), 'Proceso de Postulación'),
-            subject: 'Agendamiento de Entrevista',
+            subject: 'Test Personalidad para continuar con el proceso de selección',
         );
     }
 
@@ -62,7 +56,7 @@ class NotificarEntrevistaMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'email.recursosHumanos.SeleccionContratacion.entrevista_postulacion',
+            view: 'email.recursosHumanos.SeleccionContratacion.link_test_personalidad',
             with: [
                 'url' => env('SPA_URL', 'https://firstred.jpconstrucred.com'),
             ]

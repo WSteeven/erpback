@@ -61,7 +61,7 @@ class GastoRequest extends FormRequest
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|string',
             'nodo_id' => 'nullable|exists:tar_nodos,id',
-            'cliente_id' => 'nullable|exists:clientes,id',
+            'cliente_id' => 'required|exists:clientes,id',
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
             'id_usuario' => 'required|exists:empleados,id',
@@ -82,7 +82,7 @@ class GastoRequest extends FormRequest
             'comprobante3' => 'nullable|sometimes|string',
             'comprobante4' => 'nullable|sometimes|string',
             'es_vehiculo_alquilado' => 'boolean',
-            'vehiculo' => 'required_if:es_vehiculo_alquilado,false|integer',
+            'vehiculo' => 'required_if:es_vehiculo_alquilado,false|nullable|integer',
             'placa' => 'required_if:es_vehiculo_alquilado,true|nullable|string',
             'kilometraje' => 'required|integer',
         ];
@@ -170,7 +170,7 @@ class GastoRequest extends FormRequest
 
         $this->merge([
             'nodo_id' => $this->nodo ?: null,
-            'cliente_id' => $this->cliente ?: null,
+            'cliente_id' => $this->cliente ?? $this->cliente_id,
         ]);
 
         // aqui va la parte de valija

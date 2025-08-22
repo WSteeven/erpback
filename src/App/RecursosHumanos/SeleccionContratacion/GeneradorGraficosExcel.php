@@ -22,8 +22,8 @@ class GeneradorGraficosExcel
         $rutaGlobal = storage_path('app/public/grafico_global_' . uniqid() . '.png');
 
 
-        self::graficoBarrasHorizontales($primarios, $rutaPrimario, 700, 700);
-        self::graficoBarrasHorizontales($globales, $rutaGlobal, 400, 180);
+        self::graficoBarrasHorizontales($primarios, $rutaPrimario, 700, 700,0);
+        self::graficoBarrasHorizontales($globales, $rutaGlobal, 400, 180,0);
 
         return [
             'graficoPrimario' => $rutaPrimario,

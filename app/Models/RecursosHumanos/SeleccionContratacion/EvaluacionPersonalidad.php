@@ -16,9 +16,10 @@ class EvaluacionPersonalidad extends Model implements Auditable
 
     protected $table = 'rrhh_contratacion_evaluaciones_personalidades';
     protected $fillable = [
-        'postulacion_id',
-        'respuestas',
-        'fecha_realizacion',
+        'postulacion_id', // nullable
+        'respuestas', // JSON field to store the answers
+        'fecha_realizacion', // Timestamp for when the evaluation was completed
+        'enviada_mail',
         'completado',
         'user_id',
         'user_type',
@@ -26,6 +27,7 @@ class EvaluacionPersonalidad extends Model implements Auditable
 
     protected $casts = [
         'respuestas' => 'array',
+        'enviada_mail' => 'boolean',
         'completado' => 'boolean',
     ];
 

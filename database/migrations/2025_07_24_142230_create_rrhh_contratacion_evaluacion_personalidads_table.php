@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('postulacion_id')->nullable();
             $table->json('respuestas');
             $table->timestamp('fecha_realizacion');
+            $table->boolean('enviada_mail')->default(false);
             $table->boolean('completado')->default(false);
             $table->timestamps();
 

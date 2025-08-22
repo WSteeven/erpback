@@ -15,8 +15,8 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('seg_bitacoras', function (Blueprint $table) {
-            $table->unsignedBigInteger('protector_id')->nullable(false)->change();
-            $table->unsignedBigInteger('conductor_id')->nullable(false)->change();
+            $table->unsignedBigInteger('protector_id')->change();
+            $table->unsignedBigInteger('conductor_id')->change();
         });
     }
 };
