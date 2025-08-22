@@ -2,13 +2,18 @@
 
 namespace App\Models\Ventas;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Ventas\Comision
@@ -18,28 +23,28 @@ use Exception;
  * @property string $forma_pago
  * @property string $comision
  * @property string|null $tipo_vendedor
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Ventas\Plan|null $plan
- * @method static \Illuminate\Database\Eloquent\Builder|Comision acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Comision newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Comision query()
- * @method static \Illuminate\Database\Eloquent\Builder|Comision setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision whereComision($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision whereFormaPago($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision wherePlanId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision whereTipoVendedor($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Comision whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Plan|null $plan
+ * @method static Builder|Comision acceptRequest(?array $request = null)
+ * @method static Builder|Comision filter(?array $request = null)
+ * @method static Builder|Comision ignoreRequest(?array $request = null)
+ * @method static Builder|Comision newModelQuery()
+ * @method static Builder|Comision newQuery()
+ * @method static Builder|Comision query()
+ * @method static Builder|Comision setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Comision setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Comision setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Comision whereComision($value)
+ * @method static Builder|Comision whereCreatedAt($value)
+ * @method static Builder|Comision whereFormaPago($value)
+ * @method static Builder|Comision whereId($value)
+ * @method static Builder|Comision wherePlanId($value)
+ * @method static Builder|Comision whereTipoVendedor($value)
+ * @method static Builder|Comision whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Comision extends Model implements Auditable
 {
@@ -47,7 +52,7 @@ class Comision extends Model implements Auditable
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_comisiones';
     protected $fillable = ['plan_id', 'forma_pago', 'comision'];
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
 
@@ -60,13 +65,13 @@ class Comision extends Model implements Auditable
     /**
      * La función calcula la comisión en función del tipo de vendedor, el precio del producto y la tasa
      * de comisión.
-     * 
+     *
      * @param int $idVendedor El id del vendedor (vendedor) para quien queremos calcular la comisión.
      * @param int $idProducto El parámetro "idProducto" es el ID del producto para el cual se debe calcular
      * la comisión.
      * @param string $forma_pago El parámetro "forma_pago" representa el método de pago de la venta. Podría ser
      * un valor de cadena como "efectivo", "tarjeta de crédito" o "transferencia bancaria".
-     * 
+     *
      * @return comision la comisión calculada en base a los parámetros dados.
      */
     public static function calcularComisionVenta($idVendedor, $idProducto, $forma_pago)

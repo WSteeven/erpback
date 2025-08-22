@@ -5,16 +5,20 @@ namespace App\Http\Controllers\Ventas;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\ProductoVentaRequest;
 use App\Http\Resources\Ventas\ProductoVentaResource;
+use App\Imports\VentasClaro\ProductosVentasClaroImport;
 use App\Models\Ventas\ProductoVenta;
+use Excel;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Throwable;
 
 class ProductoVentaController extends Controller
 {
-    private $entidad = 'Producto';
+    private string $entidad = 'Producto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.productos_ventas')->only('index', 'show');
@@ -24,16 +28,18 @@ class ProductoVentaController extends Controller
     }
 
 
-    public function index(Request $request)
+    public function index()
     {
-        $results = [];
         $results = ProductoVenta::ignoreRequest(['campos'])->filter()->orderBy('plan_id', 'asc')->get();
         $results = ProductoVentaResource::collection($results);
         return response()->json(compact('results'));
     }
-    
-    
-    
+
+
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(ProductoVentaRequest $request)
     {
         try {
@@ -50,9 +56,39 @@ class ProductoVentaController extends Controller
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
-    
-    
-    
+
+
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function storeLotes(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $this->validate($request, [
+                'file' => 'required|mimes:xls,xlsx'
+            ]);
+            if (!$request->hasFile('file')) {
+                throw ValidationException::withMessages([
+                    'file' => ['Debe seleccionar al menos un archivo.'],
+                ]);
+            }
+
+            Excel::import(new ProductosVentasClaroImport($request->file->getClientOriginalName()), $request->file);
+            $mensaje = 'Archivo subido exitosamente!';
+            DB::commit();
+            return response()->json(compact('mensaje'));
+        }catch (Exception $e){
+            DB::rollback();
+            Log::channel('testing')->error('Log', ['ERROR al leer el archivo', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'file' => [$e->getMessage(), $e->getLine()],
+            ]);
+        }
+    }
+
+
     public function show(ProductoVenta $producto)
     {
         $modelo = new ProductoVentaResource($producto);

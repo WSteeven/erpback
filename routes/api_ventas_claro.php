@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\Ventas\BaseComisionController;
 use App\Http\Controllers\Ventas\DashboardVentasController;
 use App\Http\Controllers\Ventas\BonoController;
 use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\Ventas\ComisionController;
 use App\Http\Controllers\Ventas\CortePagoComisionController;
 use App\Http\Controllers\Ventas\EscenarioVentaJPController;
 use App\Http\Controllers\Ventas\EsquemaComisionController;
+use App\Http\Controllers\Ventas\EstadoClaroController;
 use App\Http\Controllers\Ventas\ModalidadController;
 use App\Http\Controllers\Ventas\NovedadVentaController;
 use App\Http\Controllers\Ventas\PagoComisionController;
@@ -21,9 +24,6 @@ use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentaController;
-use App\Models\Ventas\BonoMensualCumplimiento;
-use App\Models\Ventas\CortePagoComision;
-use App\Models\Ventas\NovedadVenta;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -32,6 +32,8 @@ Route::apiResources(
         'bonos' => BonoController::class,
         'bono-porcentual' => BonoPorcentualController::class,
         'comisiones' => ComisionController::class,
+        'bases-comisiones' => BaseComisionController::class,
+        'estados' => EstadoClaroController::class,
         'modalidad' => ModalidadController::class,
         'planes' => PlanController::class,
         'productos-ventas' => ProductoVentaController::class,
@@ -53,6 +55,7 @@ Route::apiResources(
     [
         'parameters' => [
             'planes' => 'plan',
+            'bases-comisiones' => 'base',
             'clientes-claro' => 'cliente',
             'comisiones' => 'comision',
             'vendedores' => 'vendedor',
@@ -73,9 +76,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('pago', [VentaController::class, 'reporte_pagos']);
     Route::get('dashboard', [DashboardVentasController::class, 'index']);
 });
-
+Route::post('productos-ventas-lotes', [ProductoVentaController::class, 'storeLotes']);
 Route::post('productos-ventas/desactivar/{producto}', [ProductoVentaController::class, 'desactivar']);
 Route::post('vendedores/desactivar/{vendedor}', [VendedorController::class, 'desactivar']);
+Route::post('vendedores/desactivar-masivo', [VendedorController::class, 'desactivarMasivo']);
 Route::post('clientes-claro/desactivar/{cliente}', [ClienteClaroController::class, 'desactivar']);
 Route::post('ventas/suspender/{venta}', [VentaController::class, 'desactivar']);
 Route::post('ventas/marcar-pagado/{venta}', [VentaController::class, 'marcarPagado']);
@@ -85,6 +89,7 @@ Route::get('retenciones-chargebacks/marcar-pagada/{retencion}', [RetencionCharge
 Route::get('actualizar-comisiones-ventas', [VentaController::class, 'actualizarComisiones']);
 Route::post('bonos-mensuales-cumplimientos/marcar-pagada/{bono}', [BonoMensualCumplimientoController::class, 'marcarPagada']);
 
+Route::get('empleados-ventas', [EmpleadoController::class, 'empleadosConVentasClaro']);
 
 //listar archivos
 Route::get('ventas/files/{venta}', [VentaController::class, 'indexFiles'])->middleware('auth:sanctum');
@@ -99,3 +104,7 @@ Route::post('cortes-pagos-comisiones/anular/{corte}', [CortePagoComisionControll
  * Rutas para imprimir archivos (PDF y EXCEL)
  */
 Route::get('cortes-pagos-comisiones/imprimir-excel/{corte}', [CortePagoComisionController::class, 'imprimirExcel']);
+
+
+//Generar Orden Id
+Route::get('ventas/generar-orden-id', [VentaController::class, 'generarOrdenId']);

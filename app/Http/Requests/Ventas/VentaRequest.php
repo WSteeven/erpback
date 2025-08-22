@@ -30,21 +30,26 @@ class VentaRequest extends FormRequest
     public function rules()
     {
         return [
-
-            'orden_id' => 'required',
-            'orden_interna' => 'sometimes|string|nullable',
+            'orden_id' => 'sometimes|string|nullable',
+            //'orden_interna' => 'sometimes|string|nullable',
+            'fecha_ingreso' => 'nullable',
+            'fecha_agendamiento' => 'nullable',
             'supervisor_id' => 'required',
             'vendedor_id' => 'required',
             'producto_id' => 'required',
             'fecha_activacion' => 'nullable',
             'estado_activacion' => 'required',
             'forma_pago' => 'required',
+            'banco' => 'nullable',
+            'numero_tarjeta' => 'nullable',
+            'tipo_cuenta' => 'nullable',
             'comision_id' => 'required',
             'chargeback' => 'nullable',
             'comision_vendedor' => 'nullable',
             'cliente_id' => 'nullable',
             'primer_mes' => 'nullable|boolean',
-
+            'adicionales' => 'nullable|string',
+            'estado_id' => 'required|exists:ventas_estados_claro,id',
         ];
     }
     protected function prepareForValidation()
@@ -61,11 +66,13 @@ class VentaRequest extends FormRequest
         $this->merge([
             'supervisor_id' => auth()->user()->empleado->id,
             'cliente_id' => $this->cliente,
+            'fecha_ingreso' => Carbon::now()->format('Y-m-d'),
             'vendedor_id' => $this->vendedor,
             'producto_id' => $this->producto,
             'comision_id' => $comision->id,
             'comisiona' => Venta::obtenerVentaComisiona($this->vendedor),
             'comision_vendedor' => $comision_total,
+            'estado_id' => $this->estado,
             'chargeback' => $chargeback
         ]);
     }

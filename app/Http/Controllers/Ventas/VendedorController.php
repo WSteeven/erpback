@@ -10,20 +10,26 @@ use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\App\EmpleadoService;
 use Src\Shared\Utils;
+use Throwable;
 
 class VendedorController extends Controller
 {
-    private $entidad = 'Vendedor';
+    private string $entidad = 'Vendedor';
+    private EmpleadoService $empleadoService;
+
     public function __construct()
     {
+        $this->empleadoService = new EmpleadoService();
         $this->middleware('can:puede.ver.vendedores')->only('index', 'show');
         $this->middleware('can:puede.crear.vendedores')->only('store');
         $this->middleware('can:puede.editar.vendedores')->only('update');
         $this->middleware('can:puede.eliminar.vendedores')->only('destroy');
     }
-    public function index(Request $request)
+
+    public function index()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         if (auth()->user()->hasRole([User::SUPERVISOR_VENTAS])) {
@@ -35,6 +41,10 @@ class VendedorController extends Controller
         $results = VendedorResource::collection($results);
         return response()->json(compact('results'));
     }
+
+    /**
+     * @throws Throwable
+     */
     public function store(VendedorRequest $request)
     {
         try {
@@ -52,12 +62,15 @@ class VendedorController extends Controller
         }
     }
 
-    public function show(Request $request, Vendedor $vendedor)
+    public function show(Vendedor $vendedor)
     {
         $modelo = new VendedorResource($vendedor);
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws Throwable
+     */
     public function update(VendedorRequest $request, Vendedor $vendedor)
     {
         try {
@@ -73,23 +86,47 @@ class VendedorController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function destroy(Request $request, Vendedor $vendedor)
+
+    /**
+     * @throws ValidationException
+     */
+    public function destroy()
+//    public function destroy(Vendedor $vendedor)
     {
-        $vendedor->delete();
-        return response()->json(compact('vendedor'));
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
+
+//        $vendedor->delete();
+//        return response()->json(compact('vendedor'));
     }
 
     /**
      * Desactivar un vendedor
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function desactivar(Request $request, Vendedor $vendedor)
     {
-        $request->validate(['causa_desactivacion' => ['required', 'string']]);
-        $vendedor->causa_desactivacion = $request->causa_desactivacion;
-        $vendedor->activo = !$vendedor->activo;
-        $vendedor->save();
+        try {
+            DB::beginTransaction();
+            $request->validate(['causa_desactivacion' => ['required', 'string']]);
+            $vendedor->causa_desactivacion = $request->causa_desactivacion;
+            // Si como empleado esta inactivo, no se puede activar antes de que se active el empleado.
+            if (!$vendedor->empleado->estado) throw new Exception('El empleado esta inactivo. Por favor contacte a RRHH para que active el empleado y pueda continuar activandolo como vendedor.');
+            $vendedor->activo = !$vendedor->activo;
+            $vendedor->save();
+            DB::commit();
+            $modelo = new VendedorResource($vendedor->refresh());
+            return response()->json(compact('modelo'));
+        } catch (Exception $e) {
+            DB::rollback();
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
+    }
 
-        $modelo = new VendedorResource($vendedor->refresh());
-        return response()->json(compact('modelo'));
+    public function desactivarMasivo()
+    {
+        $this->empleadoService->desactivarMasivoVendedoresClaro();
+        $mensaje = 'Vendedores actualizados satisfactoriamente';
+        return response()->json(compact('mensaje'));
     }
 }

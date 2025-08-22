@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Ventas;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ClienteClaroResource extends JsonResource
@@ -9,8 +10,8 @@ class ClienteClaroResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -25,11 +26,24 @@ class ClienteClaroResource extends JsonResource
             'direccion' => $this->direccion,
             'telefono1' => $this->telefono1,
             'telefono2' => $this->telefono2,
+            'canton_id' => $this->canton_id,
+            'canton' => $this->canton?->nombre,
+            'paarroquia' => $this->parroquia?->nombre,
+            'parroquia_id' => $this->parroquia_id,
+            'tipo_cliente' => $this->tipo_cliente,
+            'correo_electronico' => $this->correo_electronico,
+            'foto_cedula_frontal' => $this->foto_cedula_frontal,
+            'foto_cedula_posterior' => $this->foto_cedula_posterior,
+            'fecha_expedicion_cedula' => $this->fecha_expedicion_cedula,
+            'estado' => $this->estado?->nombre,
             'activo' => $this->activo,
         ];
 
         if ($controller_method == 'show') {
             $modelo['supervisor'] = $this->supervisor_id;
+            $modelo['canton'] = $this->canton_id;
+            $modelo['parroquia'] = $this->parroquia_id;
+            $modelo['estado'] = $this->estado_id;
         }
         return $modelo;
     }

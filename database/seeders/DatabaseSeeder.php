@@ -90,5 +90,8 @@ class DatabaseSeeder extends Seeder
         $this->call(MotivoPausaTicketSeeder::class);
         $this->call(CategoriaTipoTicketSeeder::class);
         $this->call(TipoTicketSeeder::class);
+
+        //Ventas Claro
+        $this->call([\Database\Seeders\VentasClaro\PermisosModuloVentasClaroSeeder::class,]);
     }
 }

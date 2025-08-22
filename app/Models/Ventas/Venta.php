@@ -23,7 +23,9 @@ use OwenIt\Auditing\Models\Audit;
  *
  * @property int $id
  * @property string $orden_id
- * @property string|null $orden_interna
+ * @property string $fecha_ingreso
+ //* @property string|null $orden_interna
+ * @property string|null $fecha_agendamiento
  * @property int|null $supervisor_id
  * @property int|null $vendedor_id
  * @property int $producto_id
@@ -31,7 +33,11 @@ use OwenIt\Auditing\Models\Audit;
  * @property string|null $fecha_activacion
  * @property string $estado_activacion
  * @property string $forma_pago
+ * @property string|null $banco
+ * @property string|null $numero_tarjeta
+ * @property string|null $tipo_cuenta
  * @property int $comision_id
+ * @property string $estado_id
  * @property string $chargeback
  * @property string $comision_vendedor
  * @property int $comisiona
@@ -92,13 +98,18 @@ class Venta  extends Model implements Auditable
     protected $table = 'ventas_ventas';
     protected $fillable = [
         'orden_id',
-        'orden_interna',
+        //'orden_interna',
+        'fecha_ingreso',
+        'fecha_agendamiento',
         'supervisor_id',
         'vendedor_id',
         'producto_id',
         'fecha_activacion',
         'estado_activacion',
         'forma_pago',
+        'banco',
+        'numero_tarjeta',
+        'tipo_cuenta',
         'comision_id',
         'chargeback',
         'comisiona',
@@ -109,10 +120,17 @@ class Venta  extends Model implements Auditable
         'primer_mes',
         'fecha_pago_primer_mes',
         'comision_pagada',
+        'estado_id',
+        'adicionales',
     ];
 
     const ACTIVADO = 'ACTIVADO';
     const APROBADO = 'APROBADO';
+
+    //formas de pago
+    const EFECTIVO = 'EFECTIVO';
+    const TC = 'TC';
+    const D_BANCARIO = 'D. BANCARIO';
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -125,10 +143,10 @@ class Venta  extends Model implements Auditable
         '*',
     ];
 
-//    public function novedadesVenta()
-//    {
-//        return $this->hasMany(NovedadVenta::class);
-//    }
+    //    public function novedadesVenta()
+    //    {
+    //        return $this->hasMany(NovedadVenta::class);
+    //    }
     public function supervisor()
     {
         return $this->belongsTo(Vendedor::class, 'supervisor_id');
@@ -145,6 +163,12 @@ class Venta  extends Model implements Auditable
     {
         return $this->hasOne(ProductoVenta::class, 'id', 'producto_id')->with('plan');
     }
+
+    public function estado()
+    {
+        return $this->hasOne(EstadoClaro::class, 'id', 'estado_id');
+    }
+
     public function comision()
     {
         return $this->hasOne(Comision::class, 'id', 'comision_id');
@@ -174,11 +198,16 @@ class Venta  extends Model implements Auditable
             $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
             $row['venta'] = 1;
             $row['fecha_ingreso'] = $venta->created_at;
+            $row['fecha_agendamiento'] = $venta->fecha_agendamiento;
             $row['fecha_activacion'] =  $venta->fecha_activacion;
             $row['plan'] = $venta->producto->plan->nombre;
             $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
             $row['forma_pago'] = $venta->forma_pago;
+            $row['banco'] = $venta->banco->id;
+            $row['numero_tarjeta'] = $venta->numero_tarjeta;
+            $row['tipo_cuenta'] = $venta->tipo_cuenta;
             $row['orden_interna'] = $venta->orden_interna;
+            $row['estado_id'] = $venta->estado_id;
             $results[$id] = $row;
             $id++;
         }
@@ -212,7 +241,7 @@ class Venta  extends Model implements Auditable
         $suma = Venta::where(function ($query) use ($mes) {
             $query->whereMonth('fecha_activacion', $mes)
                 ->whereMonth('created_at', $mes);
-                // ->orWhereMonth('created_at', $mes);
+            // ->orWhereMonth('created_at', $mes);
         })->whereYear('created_at', date('Y'))
             ->where('vendedor_id', $vendedor_id)
             ->count();

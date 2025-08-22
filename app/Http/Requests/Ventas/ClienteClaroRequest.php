@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Ventas;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\ValidarIdentificacion;
+use Throwable;
 
 class ClienteClaroRequest extends FormRequest
 {
@@ -34,12 +34,32 @@ class ClienteClaroRequest extends FormRequest
             'direccion' => 'required',
             'telefono1' => 'required',
             'telefono2' => 'nullable',
+            'canton_id' => 'required',
+            'parroquia_id' => 'required',
+            'tipo_cliente' => 'required',
+            'correo_electronico' => 'nullable|email',
+            'foto_cedula_frontal' => 'nullable|string',
+            'foto_cedula_posterior' => 'nullable|string',
+            'fecha_expedicion_cedula' => 'required|date_format:Y-m-d',
+            'estado_id' => 'required|exists:ventas_estados_claro,id',
             'activo' => 'boolean',
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'canton_id' => $this->canton,
+            'parroquia_id' => $this->parroquia,
+            'estado_id' => $this->estado
+        ]);
+    }
+
     public function withValidator($validator)
     {
-        $validator->after(function ($validator) {
+        $validator->after(/**
+         * @throws ValidationException
+         */ function ($validator) {
             try {
                 $validador = new ValidarIdentificacion();
                 if (strlen($this->identificacion) === 13) {
@@ -52,7 +72,7 @@ class ClienteClaroRequest extends FormRequest
                     // aqui se valida la cedula recibida
                     if (!$validador->validarCedula($this->identificacion)) $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
                 }
-            } catch (\Throwable $th) {
+            } catch (Throwable $th) {
                 throw ValidationException::withMessages(['Error al validar la identificación' => $th->getMessage()]);
             }
         });

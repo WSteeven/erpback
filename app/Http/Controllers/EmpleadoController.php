@@ -7,6 +7,7 @@ use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\EmpleadoRolePermisoResource;
 use App\Http\Resources\RecursosHumanos\EmpleadoLiteResource;
 use App\Http\Resources\Vehiculos\ConductorResource;
+use App\Http\Resources\Ventas\VendedorResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
@@ -62,6 +63,11 @@ class EmpleadoController extends Controller
 
         if ($search) return $this->servicio->search($search);
 
+        if(request()->boolean('comercial')){
+            $ids_departamentos_comerciales = Departamento::where('nombre', 'LIKE', '%comercial%')->pluck('id');
+            $empleado_gerente = Empleado::where('departamento_id', 9)->where('estado', request('estado'))->first();
+            return collect([$empleado_gerente])->merge(Empleado::whereIn('departamento_id', $ids_departamentos_comerciales)->where('estado', request('estado'))->get());
+        }
         // Devuelve en un array al  empleado resposanble del departamento que se pase como parametro
         // Requiere de campos: es_responsable_departamento=true&departamento_id=
         if (request('es_responsable_departamento')) {
@@ -173,9 +179,11 @@ class EmpleadoController extends Controller
     public function HabilitaEmpleado(Request $request)
     {
         $empleado = Empleado::find($request->id);
-        $empleado->estado = $request->estado == 'true' ? 1 : 0;
+        $empleado->estado = $request->estado == 'true';
         $empleado->save();
-        EmpleadoService::eliminarUmbralFondosRotativos($empleado);
+        $this->servicio->eliminarUmbralFondosRotativos($empleado);
+        // Si el empleado es desactivado, desactiva el vendedor tambien
+        $this->servicio->desactivarVendedorClaro($empleado);
         $modelo = $empleado;
         return response()->json(compact('modelo'));
     }
@@ -460,6 +468,14 @@ class EmpleadoController extends Controller
         $empleados = $this->servicio->obtenerEmpleadosConSaldoFondosRotativos();
 
         $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
+    }
+    public function empleadosConVentasClaro(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = $this->servicio->obtenerEmpleadosConVentasClaro();
+
+        $results = VendedorResource::collection($empleados);
         return response()->json(compact('results'));
     }
 
