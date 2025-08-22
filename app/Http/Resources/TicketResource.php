@@ -2,28 +2,32 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ActividadRealizadaSeguimientoTicket;
 use App\Models\Empleado;
 use App\Models\Ticket;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class TicketResource extends JsonResource
 {
+
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
         $pendiente_calificar_solicitante = $this->verificarPendienteCalificar('SOLICITANTE');
         $pendiente_calificar_responsable = $this->verificarPendienteCalificar('RESPONSABLE');
+
+        Carbon::setLocale('es'); // o donde inicialices tu lógica
 
         $modelo = [
             'id' => $this->id,
@@ -59,8 +63,8 @@ class TicketResource extends JsonResource
             'primera_fecha_hora_ejecucion' => $this->obtenerPrimeraEjecucion(),
             'fecha_hora_ejecucion' => $this->fecha_hora_ejecucion,
             'fecha_hora_finalizado' => $this->fecha_hora_finalizado,
-            'tiempo_hasta_finalizar' => $this->obtenerTiempoHastaFinalizar(), //calcularTiempoEfectivoTotal(),
-            'tiempo_hasta_finalizar_h_m_s' => $this->convertirSegundosAFormato($this->calcularTiempoEfectivoTotalRealSinPausas()), //calcularTiempoEfectivoTotalHorasMinutosSegundos(),
+            'tiempo_hasta_finalizar' => $this->calcularTiempoEfectivoDesdeActividades()->cascade()->forHumans(), //calcularTiempoEfectivoTotal(),
+            'tiempo_hasta_finalizar_h_m_s' => $this->convertirSegundosAFormato($this->calcularTiempoEfectivoDesdeActividades()->seconds), //calcularTiempoEfectivoTotalHorasMinutosSegundos(),
             'tiempo_hasta_finalizar_horas' => $this->calcularTiempoEfectivoTotalHoras(),
             // 'tiempo_hasta_finalizar_segundos' => $this->calcularTiempoEfectivoTotalSegundos(),
             'tiempo_hasta_finalizar_departamento' => $this->calcularTiempoEfectivoDepartamento(),
@@ -239,6 +243,39 @@ class TicketResource extends JsonResource
         }
     }
 
+    private function calcularTiempoEfectivoDesdeActividades()
+    {
+        $ejecuciones = ActividadRealizadaSeguimientoTicket::where('ticket_id', $this->id)
+            ->where(function ($query) {
+                $query->whereIn('observacion', ['TICKET EJECUTADO','TICKET PAUSADO','TICKET REASIGNADO','TICKET FINALIZADO']);
+            })
+            ->orderBy('fecha_hora')
+            ->get();
+
+        $totalSegundos = 0;
+        $inicio = null;
+
+        foreach ($ejecuciones as $actividad) {
+            if ($actividad->observacion === 'TICKET EJECUTADO') {
+                // Marca el inicio de un bloque de tiempo efectivo
+                $inicio = Carbon::parse($actividad->fecha_hora);
+            } elseif (($actividad->observacion === 'TICKET PAUSADO' || $actividad->observacion === 'TICKET REASIGNADO' || $actividad->observacion === 'TICKET FINALIZADO') && $inicio) {
+                // Marca el final del bloque, se suma al total
+                $fin = Carbon::parse($actividad->fecha_hora);
+                $totalSegundos += $inicio->diffInSeconds($fin);
+                $inicio = null; // reseteamos para un próximo par ejecución-reasignado-finalización
+            }
+        }
+
+        // Descontar pausas si existen
+//        $totalSegundos -= $this->obtenerSumaPausasSegundos()->total('seconds');
+
+        // Evitar negativos por error
+        $totalSegundos = max(0, $totalSegundos);
+
+        return CarbonInterval::seconds($totalSegundos);
+    }
+
     /* private function calcularTiempoEfectivoTotalSegundos()
     {
         if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
@@ -275,6 +312,13 @@ class TicketResource extends JsonResource
         // return $pausas ? $pausas->cascade()->forHumans() : 0;
     }
 
+    /**
+     * La función retorna un objeto CarbonInterval con la duración total de pausas de un ticket, en segundos,
+     * calculada a partir de los campos fecha_hora_pausa y fecha_hora_retorno.
+     * Si no hay pausas te devuelve un objeto CarbonInterval que representa una duración de 0 segundos.
+     *
+     * @return CarbonInterval
+     */
     private function obtenerSumaPausasSegundos()
     {
         if ($this->pausasTicket->count() > 0) {

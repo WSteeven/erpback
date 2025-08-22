@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response as FacadeResponse;
 use Illuminate\Support\Facades\Storage;
 
 class CheckAndFetchImageOrFile
@@ -57,7 +58,22 @@ class CheckAndFetchImageOrFile
             // Log::channel('testing')->info('Log', ['remoteData', $remoteData]);
             if (isset($remoteData['url'])) {
                 // return redirect($remoteData['url']);
-                return redirect()->away($remoteData['url']);
+//                return redirect()->away($remoteData['url']);
+                // Proxificamos la imagen en vez de redirigir
+                $imageStream = @file_get_contents($remoteData['url'], false, $options);
+
+                if ($imageStream === false) {
+                    throw new Exception('Error descargando imagen remota', 500);
+                }
+
+                // Detectamos el tipo MIME (opcionalmente mejor con Guzzle y headers)
+                $mime = finfo_buffer(finfo_open(), $imageStream, FILEINFO_MIME_TYPE);
+
+                return FacadeResponse::make($imageStream, 200, [
+                    'Content-Type' => $mime,
+                    'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"',
+                    'Cache-Control' => 'public, max-age=86400',
+                ]);
 
             }
             throw new Exception('Error al procesar la solicitud', 500);

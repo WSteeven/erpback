@@ -54,8 +54,8 @@ class PostulacionLeidaMail extends Mailable
         return new Content(
             view: 'email.recursosHumanos.SeleccionContratacion.actualizacion_postulacion',
             with: [
-                'url' => env('SPA_URL', 'https://sistema.jpconstrucred.com'),
-                'link' => env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/puestos-aplicados?q=external'
+                'url' => env('SPA_URL', 'https://firstred.jpconstrucred.com'),
+                'link' => env('SPA_URL', 'https://firstred.jpconstrucred.com') . '/puestos-aplicados?q=external'
             ]
         );
     }

@@ -4,11 +4,16 @@ namespace App\Models\Medico;
 
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\RegistroEmpleadoExamen
@@ -18,35 +23,35 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property string $tipo_proceso_examen
  * @property int $numero_registro
  * @property int $empleado_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Empleado|null $empleado
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\EstadoSolicitudExamen> $estadosSolicitudesExamenes
+ * @property-read Collection<int, EstadoSolicitudExamen> $estadosSolicitudesExamenes
  * @property-read int|null $estados_solicitudes_examenes_count
- * @property-read \App\Models\Medico\FichaAptitud|null $fichaAptitud
- * @property-read \App\Models\Medico\FichaPeriodica|null $fichaPeriodica
- * @property-read \App\Models\Medico\FichaPreocupacional|null $fichaPreocupacional
- * @property-read \App\Models\Medico\FichaReintegro|null $fichaReintegro
- * @property-read \App\Models\Medico\FichaRetiro|null $fichaRetiro
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen query()
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen whereNumeroRegistro($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen whereTipoProcesoExamen($value)
- * @method static \Illuminate\Database\Eloquent\Builder|RegistroEmpleadoExamen whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read FichaAptitud|null $fichaAptitud
+ * @property-read FichaPeriodica|null $fichaPeriodica
+ * @property-read FichaPreocupacional|null $fichaPreocupacional
+ * @property-read FichaReintegro|null $fichaReintegro
+ * @property-read FichaRetiro|null $fichaRetiro
+ * @method static Builder|RegistroEmpleadoExamen acceptRequest(?array $request = null)
+ * @method static Builder|RegistroEmpleadoExamen filter(?array $request = null)
+ * @method static Builder|RegistroEmpleadoExamen ignoreRequest(?array $request = null)
+ * @method static Builder|RegistroEmpleadoExamen newModelQuery()
+ * @method static Builder|RegistroEmpleadoExamen newQuery()
+ * @method static Builder|RegistroEmpleadoExamen query()
+ * @method static Builder|RegistroEmpleadoExamen setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|RegistroEmpleadoExamen setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|RegistroEmpleadoExamen setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|RegistroEmpleadoExamen whereCreatedAt($value)
+ * @method static Builder|RegistroEmpleadoExamen whereEmpleadoId($value)
+ * @method static Builder|RegistroEmpleadoExamen whereId($value)
+ * @method static Builder|RegistroEmpleadoExamen whereNumeroRegistro($value)
+ * @method static Builder|RegistroEmpleadoExamen whereObservacion($value)
+ * @method static Builder|RegistroEmpleadoExamen whereTipoProcesoExamen($value)
+ * @method static Builder|RegistroEmpleadoExamen whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class RegistroEmpleadoExamen extends Model implements Auditable
 {
@@ -66,7 +71,7 @@ class RegistroEmpleadoExamen extends Model implements Auditable
         'empleado_id',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     // Relaciones
     public function empleado()

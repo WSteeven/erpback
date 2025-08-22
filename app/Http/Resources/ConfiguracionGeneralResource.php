@@ -2,10 +2,8 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use JsonSerializable;
 
 class ConfiguracionGeneralResource extends JsonResource
 {
@@ -36,6 +34,8 @@ class ConfiguracionGeneralResource extends JsonResource
             'correo_principal' => $this->correo_principal,
             'correo_secundario' => $this->correo_secundario,
             'sitio_web' => $this->sitio_web,
+            'sitio_web_erp' => $this->sitio_web_erp,
+            'link_app_movil' => $this->link_app_movil,
             'direccion_secundaria1' => $this->direccion_secundaria1,
             'direccion_secundaria2' => $this->direccion_secundaria2,
             'nombre_empresa' => $this->nombre_empresa,

@@ -68,9 +68,8 @@ class Licencia extends Model implements Auditable
 
     public static function eliminarObsoletos($conductor_id, $tiposEncontrados)
     {
-        $itemsNoEncontrados = Licencia::where('conductor_id', $conductor_id)
+        Licencia::where('conductor_id', $conductor_id)
             ->whereNotIn('tipo_licencia', $tiposEncontrados)
             ->delete();
-//        Log::channel('testing')->info('Log', ['Eliminados', $itemsNoEncontrados]);
     }
 }

@@ -10,11 +10,16 @@ use App\Http\Resources\ComprasProveedores\PagoResource;
 use App\Models\ComprasProveedores\GeneradorCash;
 use Auth;
 use DB;
-use Illuminate\Http\Request;
-use Log;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Exception;
 use Src\App\Sistema\PaginationService;
 use Src\Shared\Utils;
-use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class GeneradorCashController extends Controller
 {
@@ -29,7 +34,9 @@ class GeneradorCashController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Application|ResponseFactory|JsonResponse|Response|BinaryFileResponse
+     * @throws Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function index()
     {
@@ -51,7 +58,7 @@ class GeneradorCashController extends Controller
                 });
 
             if (request('export') == 'xlsx') {
-                $export = new CashGenericoExport($results, 'Cash');
+                $export = new CashGenericoExport($results);
                 return Excel::download($export, 'cash.xlsx');
             }
 
@@ -90,8 +97,9 @@ class GeneradorCashController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param GeneradorCashRequest $request
+     * @return Response
+     * @throws Throwable
      */
     public function store(GeneradorCashRequest $request)
     {
@@ -113,8 +121,8 @@ class GeneradorCashController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param GeneradorCash $generador_cash
+     * @return JsonResponse
      */
     public function show(GeneradorCash $generador_cash)
     {
@@ -125,9 +133,10 @@ class GeneradorCashController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param GeneradorCashRequest $request
+     * @param GeneradorCash $generador_cash
+     * @return Response
+     * @throws Throwable
      */
     public function update(GeneradorCashRequest $request, GeneradorCash $generador_cash)
     {
@@ -187,14 +196,4 @@ class GeneradorCashController extends Controller
 
 
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

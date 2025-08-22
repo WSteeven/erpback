@@ -56,8 +56,8 @@ class PostulacionDescartadaMail extends Mailable
         return new Content(
             view: $this->antes_entrevista?'email.recursosHumanos.SeleccionContratacion.postulacion_descartada':'email.recursosHumanos.SeleccionContratacion.postulacion_descartada_despues_entrevista',
             with: [
-                'url' => env('SPA_URL', 'https://sistema.jpconstrucred.com'),
-                'link' => env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/puestos-aplicados'
+                'url' => env('SPA_URL', 'https://firstred.jpconstrucred.com'),
+                'link' => env('SPA_URL', 'https://firstred.jpconstrucred.com') . '/puestos-aplicados'
             ]
         );
     }

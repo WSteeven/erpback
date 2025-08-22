@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\PausaTicket
@@ -18,22 +22,22 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int|null $responsable_id
  * @property string|null $created_at
  * @property string|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\MotivoPausaTicket|null $motivoPausaTicket
- * @property-read \App\Models\Empleado|null $responsable
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket query()
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereFechaHoraPausa($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereFechaHoraRetorno($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereMotivoPausaTicketId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereResponsableId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereTicketId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PausaTicket whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read MotivoPausaTicket|null $motivoPausaTicket
+ * @property-read Empleado|null $responsable
+ * @method static Builder|PausaTicket newModelQuery()
+ * @method static Builder|PausaTicket newQuery()
+ * @method static Builder|PausaTicket query()
+ * @method static Builder|PausaTicket whereCreatedAt($value)
+ * @method static Builder|PausaTicket whereFechaHoraPausa($value)
+ * @method static Builder|PausaTicket whereFechaHoraRetorno($value)
+ * @method static Builder|PausaTicket whereId($value)
+ * @method static Builder|PausaTicket whereMotivoPausaTicketId($value)
+ * @method static Builder|PausaTicket whereResponsableId($value)
+ * @method static Builder|PausaTicket whereTicketId($value)
+ * @method static Builder|PausaTicket whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class PausaTicket extends Model implements Auditable
 {

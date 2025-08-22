@@ -4,8 +4,10 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Archivo;
 use App\Models\Canton;
+use App\Models\Cliente;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Saldo;
+use App\Models\FondosRotativos\Valija;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
@@ -150,6 +152,7 @@ class Gasto extends Model implements Auditable
         'observacion_anulacion',
         'motivo',
         'activador_id',
+        'cliente_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -187,6 +190,10 @@ class Gasto extends Model implements Auditable
         return $this->belongsTo(Nodo::class);
     }
 
+    public function valijas()
+    {
+        return $this->hasMany(Valija::class);
+    }
     /**
      * Relación one to many.
      * Un gasto tiene varios subdetalles asociados
@@ -198,6 +205,10 @@ class Gasto extends Model implements Auditable
     public function empleadoBeneficiario()
     {
         return $this->belongsToMany(BeneficiarioGasto::class,'beneficiario_gastos', 'gasto_id', 'empleado_id');
+    }
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 
     public function authEspecialUser()
@@ -280,6 +291,7 @@ class Gasto extends Model implements Auditable
                 $row['autorizador'] = $gasto->authEspecialUser->nombres . ' ' . $gasto->authEspecialUser->apellidos;
                 $row['grupo'] =$gasto->empleado->grupo==null?'':$gasto->empleado->grupo->descripcion;
                 $row['tarea'] = $gasto->tarea;
+                $row['cliente'] = $gasto->cliente?->empresa->razon_social;
                 $row['centro_costo'] = $gasto->tarea !== null ? $gasto->tarea?->centroCosto?->nombre:'';
                 $row['sub_centro_costo'] = $gasto->empleado->grupo==null ?'':$gasto->empleado->grupo?->subCentroCosto?->nombre;
                 $row['proyecto'] = $gasto->Proyecto;

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Medico;
+namespace App\Http\Resources\Bodega;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TipoAntecedenteResource extends JsonResource
+class LoteResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,10 +14,6 @@ class TipoAntecedenteResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id' => $this->id,
-            'nombre' => $this->nombre,
-            'genero' => $this->genero,
-        ];
+        return parent::toArray($request);
     }
 }

@@ -59,5 +59,6 @@ class CreateRecurringTickets extends Command
                 }
             }
         }
+        return Command::SUCCESS;
     }
 }

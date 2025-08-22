@@ -2,14 +2,20 @@
 
 namespace App\Models\Medico;
 
+use App\Models\Archivo;
 use App\Models\Cargo;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\FichaPreocupacional
@@ -34,74 +40,74 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property int $identidad_genero_id
  * @property int $registro_empleado_examen_id
  * @property int $profesional_salud_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\AccidenteEnfermedadLaboral> $accidentesEnfermedades
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, AccidenteEnfermedadLaboral> $accidentesEnfermedades
  * @property-read int|null $accidentes_enfermedades_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\ActividadFisica> $actividadesFisicas
+ * @property-read Collection<int, ActividadFisica> $actividadesFisicas
  * @property-read int|null $actividades_fisicas_count
- * @property-read \App\Models\Medico\AntecedentePersonal|null $antecedentePersonal
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\AntecedenteClinico> $antecedentesClinicos
+ * @property-read AntecedentePersonal|null $antecedentePersonal
+ * @property-read Collection<int, AntecedenteClinico> $antecedentesClinicos
  * @property-read int|null $antecedentes_clinicos_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\AntecedenteFamiliar> $antecedentesFamiliares
+ * @property-read Collection<int, AntecedenteFamiliar> $antecedentesFamiliares
  * @property-read int|null $antecedentes_familiares_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\AntecedenteTrabajoAnterior> $antecedentesTrabajosAnteriores
+ * @property-read Collection<int, AntecedenteTrabajoAnterior> $antecedentesTrabajosAnteriores
  * @property-read int|null $antecedentes_trabajos_anteriores_count
- * @property-read \App\Models\Medico\AptitudMedica|null $aptitudesMedicas
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read AptitudMedica|null $aptitudesMedicas
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
  * @property-read Cargo|null $cargo
- * @property-read \App\Models\Medico\ConstanteVital|null $constanteVital
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\DiagnosticoFicha> $diagnosticos
+ * @property-read ConstanteVital|null $constanteVital
+ * @property-read Collection<int, DiagnosticoFicha> $diagnosticos
  * @property-read int|null $diagnosticos_count
  * @property-read Empleado|null $empleado
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\ExamenFisicoRegional> $examenesFisicosRegionales
+ * @property-read Collection<int, ExamenFisicoRegional> $examenesFisicosRegionales
  * @property-read int|null $examenes_fisicos_regionales_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\ExamenRealizado> $examenesRealizados
+ * @property-read Collection<int, ExamenRealizado> $examenesRealizados
  * @property-read int|null $examenes_realizados_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\FrPuestoTrabajoActual> $frPuestoTrabajoActual
+ * @property-read Collection<int, FrPuestoTrabajoActual> $frPuestoTrabajoActual
  * @property-read int|null $fr_puesto_trabajo_actual_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\ResultadoHabitoToxico> $habitosToxicos
+ * @property-read Collection<int, ResultadoHabitoToxico> $habitosToxicos
  * @property-read int|null $habitos_toxicos_count
- * @property-read \App\Models\Medico\IdentidadGenero|null $identidadGenero
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\Medicacion> $medicaciones
+ * @property-read IdentidadGenero|null $identidadGenero
+ * @property-read Collection<int, Medicacion> $medicaciones
  * @property-read int|null $medicaciones_count
- * @property-read \App\Models\Medico\OrientacionSexual|null $orientacionSexual
- * @property-read \App\Models\Medico\RegistroEmpleadoExamen|null $registroEmpleadoExamen
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\RevisionActualOrganoSistema> $revisionesActualesOrganosSistemas
+ * @property-read OrientacionSexual|null $orientacionSexual
+ * @property-read RegistroEmpleadoExamen|null $registroEmpleadoExamen
+ * @property-read Collection<int, RevisionActualOrganoSistema> $revisionesActualesOrganosSistemas
  * @property-read int|null $revisiones_actuales_organos_sistemas_count
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional query()
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereActividadesExtralaborales($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereActividadesRelevantesPuestoTrabajoOcupar($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereAreaTrabajo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereCargoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereEnfermedadActual($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereEstablecimientoSalud($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereGrupoSanguineo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereHijosMuertos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereHijosVivos($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereIdentidadGeneroId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereLateralidad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereMotivoConsulta($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereNumeroArchivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereObservacionExamenFisicoRegional($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereOrientacionSexualId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereProfesionalSaludId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereRecomendacionesTratamiento($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereRegistroEmpleadoExamenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereReligionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FichaPreocupacional whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|FichaPreocupacional acceptRequest(?array $request = null)
+ * @method static Builder|FichaPreocupacional filter(?array $request = null)
+ * @method static Builder|FichaPreocupacional ignoreRequest(?array $request = null)
+ * @method static Builder|FichaPreocupacional newModelQuery()
+ * @method static Builder|FichaPreocupacional newQuery()
+ * @method static Builder|FichaPreocupacional query()
+ * @method static Builder|FichaPreocupacional setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|FichaPreocupacional setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|FichaPreocupacional setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|FichaPreocupacional whereActividadesExtralaborales($value)
+ * @method static Builder|FichaPreocupacional whereActividadesRelevantesPuestoTrabajoOcupar($value)
+ * @method static Builder|FichaPreocupacional whereAreaTrabajo($value)
+ * @method static Builder|FichaPreocupacional whereCargoId($value)
+ * @method static Builder|FichaPreocupacional whereCreatedAt($value)
+ * @method static Builder|FichaPreocupacional whereEnfermedadActual($value)
+ * @method static Builder|FichaPreocupacional whereEstablecimientoSalud($value)
+ * @method static Builder|FichaPreocupacional whereGrupoSanguineo($value)
+ * @method static Builder|FichaPreocupacional whereHijosMuertos($value)
+ * @method static Builder|FichaPreocupacional whereHijosVivos($value)
+ * @method static Builder|FichaPreocupacional whereId($value)
+ * @method static Builder|FichaPreocupacional whereIdentidadGeneroId($value)
+ * @method static Builder|FichaPreocupacional whereLateralidad($value)
+ * @method static Builder|FichaPreocupacional whereMotivoConsulta($value)
+ * @method static Builder|FichaPreocupacional whereNumeroArchivo($value)
+ * @method static Builder|FichaPreocupacional whereObservacionExamenFisicoRegional($value)
+ * @method static Builder|FichaPreocupacional whereOrientacionSexualId($value)
+ * @method static Builder|FichaPreocupacional whereProfesionalSaludId($value)
+ * @method static Builder|FichaPreocupacional whereRecomendacionesTratamiento($value)
+ * @method static Builder|FichaPreocupacional whereRegistroEmpleadoExamenId($value)
+ * @method static Builder|FichaPreocupacional whereReligionId($value)
+ * @method static Builder|FichaPreocupacional whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class FichaPreocupacional extends Model implements Auditable
 {
@@ -128,7 +134,7 @@ class FichaPreocupacional extends Model implements Auditable
         'profesional_salud_id',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     //Esta relación se utiliza para llenar el item C de la ficha preocupacional
     public function antecedentesClinicos()
@@ -222,5 +228,10 @@ class FichaPreocupacional extends Model implements Auditable
     public function registroEmpleadoExamen()
     {
         return $this->belongsTo(RegistroEmpleadoExamen::class);
+    }
+
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }

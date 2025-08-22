@@ -28,6 +28,8 @@ class FichaPreocupacionalRequest extends FormRequest
     public function rules()
     {
         return [
+            'tiene_accidente_trabajo' => 'boolean',
+            'tiene_enfermedad_profesional' => 'boolean',
             // 'ciu' => 'required|string',
             'establecimiento_salud' => 'nullable|string',
             // 'numero_historia_clinica' => 'required|string',
@@ -78,19 +80,20 @@ class FichaPreocupacionalRequest extends FormRequest
             'constante_vital.indice_masa_corporal' => 'required|numeric',
             'constante_vital.perimetro_abdominal' => 'required|numeric',
             // fr_puestos_trabajos_actuales
-            'factoresRiesgoPuestoActual.*.puesto_trabajo' => 'required|string',
-            'factoresRiesgoPuestoActual.*.actividad' => 'required|string',
-            'factoresRiesgoPuestoActual.*.medidas_preventivas' => 'required|string',
-            'factoresRiesgoPuestoActual.*.categorias' => 'required|array',
+            'fr_puestos_trabajos_actuales' => 'required|array',
+            'fr_puestos_trabajos_actuales.*.puesto_trabajo' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.actividad' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.medidas_preventivas' => 'required|string',
+            'fr_puestos_trabajos_actuales.*.categorias' => 'required|array',
             // habitos_toxicos
-            'habitos_toxicos.*.tiempo_consumo_meses' => 'required|numeric',
-            'habitos_toxicos.*.cantidad' => 'required|numeric|integer',
+            'habitos_toxicos.*.tiempo_consumo_meses' => 'required|string',
+            'habitos_toxicos.*.cantidad' => 'required',
             'habitos_toxicos.*.ex_consumidor' => 'required|boolean',
             'habitos_toxicos.*.tipo_habito_toxico_id' => 'required|exists:med_tipos_habitos_toxicos,id',
-            'habitos_toxicos.*.tiempo_abstinencia_meses' => 'nullable|numeric|integer',
+            'habitos_toxicos.*.tiempo_abstinencia_meses' => 'nullable|string',
             // actividades_fisicas
             'actividades_fisicas.*.nombre_actividad' => 'required|string',
-            'actividades_fisicas.*.tiempo' => 'required|numeric',
+            'actividades_fisicas.*.tiempo' => 'required|string',
             // medicaciones
             'medicaciones.*.nombre' => 'required|string',
             'medicaciones.*.cantidad' => 'required|string',
@@ -125,12 +128,12 @@ class FichaPreocupacionalRequest extends FormRequest
             'examenes_fisicos_regionales.*.observacion' => 'nullable|string',
             // examenes_realizados
             'examenes_realizados.*.examen_id' => 'required|numeric|integer|exists:med_examenes_organos_reproductivos,id',
-            'examenes_realizados.*.tiempo' => 'required|numeric|integer',
+            'examenes_realizados.*.tiempo' => 'required|string',
             'examenes_realizados.*.resultado' => 'required|string',
             'profesional_salud_id' => 'nullable|numeric|integer',
         ];
     }
-    
+
     protected function prepareForValidation()
     {
         $this->merge([

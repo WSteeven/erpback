@@ -10,6 +10,7 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
+use Auth;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;

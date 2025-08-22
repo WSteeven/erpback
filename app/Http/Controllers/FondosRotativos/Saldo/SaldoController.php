@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoResource;
 use App\Models\Canton;
+use App\Models\Cliente;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
@@ -30,6 +31,7 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
+use http\Client;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -64,6 +66,8 @@ class SaldoController extends Controller
     private const RUC = 7;
 //    private const SINFACTURA = 8;
     private const CIUDAD = 9;
+    private const GRUPO = 10;
+    private const CLIENTE = 11;
 
 
     public function __construct()
@@ -293,7 +297,7 @@ class SaldoController extends Controller
             switch ($request->tipo_saldo) {
                 case self::ACREDITACION:
                     return $this->acreditacion($request, $tipo_reporte);
-                case self::GASTO:
+                case self::GASTO: //2
                     return $this->gastoFiltrado($request, $tipo_reporte);
                 case self::CONSOLIDADO:
                     return $this->reporteConsolidado($request, $tipo_reporte);
@@ -377,6 +381,9 @@ class SaldoController extends Controller
                         default => Empleado::where('grupo_id', $request->grupo)->pluck('id'),
                     };
                     $gastosQuery = Gasto::whereIn('id_usuario', $ids_empleados_grupo);
+                    break;
+                case '11': // cliente
+                    $gastosQuery = Gasto::where('cliente_id', $request->cliente_id);
                     break;
                 default: // todos o case '0'
                     $gastosQuery = Gasto::ignoreRequest([
@@ -490,6 +497,11 @@ class SaldoController extends Controller
                     $titulo .= 'DE GASTOS POR CIUDAD ';
                     $subtitulo = 'Ciudad: ' . $ciudad->canton;
                     break;
+                case self::CLIENTE:
+                    $cliente = Cliente::find($request->cliente_id);
+                    $titulo .= 'DE GASTOS POR CLIENTE ';
+                    $subtitulo = 'Cliente: ' . $cliente->empresa->razon_social;
+                    break;
             }
             $titulo .= 'DEL ' . $fecha_inicio->format('Y-m-d') . ' AL ' . $fecha_fin->format('Y-m-d') . '.';
             $tipo_filtro = $request->tipo_filtro;
@@ -516,7 +528,7 @@ class SaldoController extends Controller
             $export_excel = new GastoFiltradoExport($reportes);
             $tamanio_papel = $imagen ? 'A2' : 'A4';
             return $this->reporteService->imprimirReporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
-        } catch (Throwable|Exception $e) {
+        } catch (Throwable $e) {
             Log::channel('testing')->error('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e, 'gastoFiltrado');
         }
@@ -634,7 +646,7 @@ class SaldoController extends Controller
                 $usuario = Empleado::where('id', $request->empleado)
                     ->first();
             }
-            if($request->grupo){
+            if ($request->grupo) {
                 $ids_empleados_grupo = match ($request->grupo) {
                     0 => Empleado::whereNull('grupo_id')->pluck('id'),
                     default => Empleado::where('grupo_id', $request->grupo)->pluck('id'),

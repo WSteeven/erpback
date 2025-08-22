@@ -176,6 +176,7 @@ Route::get('/reporte-materiales', [TareaController::class, 'descargarReporteMate
  * Reportes
  ***********/
 Route::get('reportes', [ReporteModuloTareaController::class, 'index']);
+Route::post('reporte-asistencia', [ReporteModuloTareaController::class, 'asistenciaTecnicosAppenate']);
 
 /***********
  * Dashboard

@@ -28,6 +28,7 @@ Route::get('stock-responsables-activos-fijos', [ActivoFijoController::class, 'ob
 Route::get('activos-fijos-asignados', [ActivoFijoController::class, 'obtenerActivosFijosAsignados']); // activos fijos asignados al usuario pasado
 Route::get('reporte-activos-fijos', [ActivoFijoController::class, 'reporteActivosFijos']); // activos fijos asignados al usuario pasado
 Route::get('activos-fijos-imprimir-etiqueta/{id}', [ActivoFijoController::class, 'printLabel']);
+Route::post('activos-fijos-imprimir-etiqueta-personalizada', [ActivoFijoController::class, 'printCustomLabel']);
 // Route::get('seguimiento-consumo-activos-fijos', [SeguimientoConsumoActivosFijosController::class, 'index']);
 
 /*************************

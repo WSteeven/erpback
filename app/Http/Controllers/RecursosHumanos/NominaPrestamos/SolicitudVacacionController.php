@@ -166,7 +166,7 @@ class SolicitudVacacionController extends Controller
             $pdf->setPaper('A4');
             $pdf->render();
             return $pdf->output();
-        } catch (Throwable|Exception $th) {
+        } catch (Throwable $th) {
             Log::channel('testing')->error('Log', ['ERROR en el try-catch global del metodo imprimir de VacacionController::imprimir', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th, 'No se puede imprimir el pdf: ')]);
         }
@@ -218,8 +218,8 @@ class SolicitudVacacionController extends Controller
      */
     public function anular(Request $request, SolicitudVacacion $solicitud)
     {
-        Log::channel('testing')->info('Log', ['Request', $request->all()]);
-        Log::channel('testing')->info('Log', ['solicitud', $solicitud]);
+//        Log::channel('testing')->info('Log', ['Request', $request->all()]);
+//        Log::channel('testing')->info('Log', ['solicitud', $solicitud]);
 
         $request->validate(['motivo' => ['required', 'string']]);
         try {

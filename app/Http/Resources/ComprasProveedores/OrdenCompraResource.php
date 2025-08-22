@@ -39,6 +39,7 @@ class OrdenCompraResource extends JsonResource
             'estado' => $this->estado?->nombre,
             'estado_id' => $this->estado_id,
             'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),
+            'updated_at' => date('Y-m-d h:i:s a', strtotime($this->updated_at)),
             'forma' => $this->forma,
             'tiempo' => $this->tiempo,
             'fecha' => $this->fecha,

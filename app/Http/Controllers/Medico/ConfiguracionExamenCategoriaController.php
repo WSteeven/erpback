@@ -18,7 +18,7 @@ use Src\Shared\Utils;
 
 class ConfiguracionExamenCategoriaController extends Controller
 {
-    private $entidad = 'Configuracion de examen categoria';
+    private string $entidad = 'Configuracion de examen categoria';
     private SolicitudExamenService $solicitudExamenService;
 
     public function __construct()
@@ -45,14 +45,14 @@ class ConfiguracionExamenCategoriaController extends Controller
         $solicitudes_examenes = $this->solicitudExamenService->obtenerSolicitudExamenPorRegistro(request('registro_empleado_examen_id'));
 
 
-        Log::channel('testing')->info('Log', ['solicitudes_examenes', $solicitudes_examenes]);
-        Log::channel('testing')->info('Log', ['ids_examenes', $ids_examenes]);
+//        Log::channel('testing')->info('Log', ['solicitudes_examenes', $solicitudes_examenes]);
+//        Log::channel('testing')->info('Log', ['ids_examenes', $ids_examenes]);
 
         $configuracionExamenCategorias = ConfiguracionExamenCategoria::ignoreRequest(['registro_empleado_examen_id'])->filter()->whereIn('examen_id', $ids_examenes)->get();
-        Log::channel('testing')->info('Log', ['configuracionExamenCategorias', $configuracionExamenCategorias]);
+//        Log::channel('testing')->info('Log', ['configuracionExamenCategorias', $configuracionExamenCategorias]);
 
         $data = $configuracionExamenCategorias->groupBy('examen')->map(function ($categorias, $examen) use($solicitudes_examenes) {
-            Log::channel('testing')->info('Log', ['categorias', $categorias]);
+//            Log::channel('testing')->info('Log', ['categorias', $categorias]);
 
             return [
                 'examen' => json_decode($examen)->nombre,
@@ -67,7 +67,7 @@ class ConfiguracionExamenCategoriaController extends Controller
             ];
         });
 
-        Log::channel('testing')->info('Log', ['data', $data]);
+//        Log::channel('testing')->info('Log', ['data', $data]);
 
         // return array_values($data);
         return $data->values();

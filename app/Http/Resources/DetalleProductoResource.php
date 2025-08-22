@@ -2,23 +2,22 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
-use PgSql\Lob;
 
 class DetalleProductoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param Request $request
+     * @return array
      */
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
         // Log::channel('testing')->info('Log', ['request en resource de detalle_producto:', $request->all()]);
-        $modelo =  [
+        $modelo = [
             'id' => $this->id,
             'detalle_id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
@@ -35,7 +34,7 @@ class DetalleProductoResource extends JsonResource
             'stock' => $request->stock ? $this->detalle_stock($this->id, $request->sucursal_id)?->cantidad : 0,
 
             'activo' => $this->activo,
-            'esActivo'=>$this->esActivo ?? false,
+            'esActivo' => $this->esActivo ?? false,
 
             'ram' => $this->computadora ? $this->computadora->memoria->nombre : null,
             'disco' => $this->computadora ? $this->computadora->disco->nombre : null,
@@ -45,9 +44,9 @@ class DetalleProductoResource extends JsonResource
             'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei ? ', IMEI: ' . $this->computadora->imei : null) : null,
             'fibra' => $this->fibra ? 'Span ' . $this->fibra->span?->nombre . ', ' . $this->fibra->hilo?->nombre . 'H, ' . $this->fibra->tipo_fibra?->nombre : null,
 
-            'span' => $this->fibra ? $this->fibra?->span?->nombre : 'N/A',
+            'span' => $this->fibra ? $this->fibra->span?->nombre : 'N/A',
             'tipo_fibra' => $this->fibra ? $this->fibra->tipo_fibra?->nombre : null,
-            'hilos' => $this->fibra ?  $this->fibra->hilo?->nombre : null,
+            'hilos' => $this->fibra ? $this->fibra->hilo?->nombre : null,
             'punta_inicial' => $this->fibra ? $this->fibra->punta_inicial : null,
             'punta_final' => $this->fibra ? $this->fibra->punta_final : null,
             'custodia' => $this->fibra ? $this->fibra->custodia : null,
@@ -62,29 +61,28 @@ class DetalleProductoResource extends JsonResource
             'peso' => $this->peso,
             'dimensiones' => $this->dimensiones,
             'permiso' => $this->permisoArma?->nombre,
-
+            'vida_util' => $this->vida_util,
             'caducidad' => $this->caducidad,
             'codigo_activo_fijo' => $this->codigo_activo_fijo,
 
 
             //variables auxiliares
-            'tiene_serial' => is_null($this->serial) ? false : true,
-            'tiene_lote' => is_null($this->lote) ? false : true,
-            'es_computadora' => $this->producto->categoria->nombre == 'INFORMATICA' ? true : false,
-            'es_fibra' => $this->fibra || $this->es_fibra ? true : false,
-            'tiene_precio_compra' => $this->precio_compra > 0 ? true : false,
-            'tiene_adicionales' => $this->color || $this->talla || $this->capacidad ? true : false,
+            'tiene_serial' => !is_null($this->serial),
+            'tiene_lote' => !is_null($this->lote),
+            'es_computadora' => $this->producto->categoria->nombre == 'INFORMATICA',
+            'es_fibra' => $this->fibra || $this->es_fibra,
+            'tiene_precio_compra' => $this->precio_compra > 0,
+            'tiene_adicionales' => $this->color || $this->talla || $this->capacidad,
         ];
         if ($controller_method == 'show') {
-            Log::channel('testing')->info('Log', ['Entró aquí']);
             $modelo['producto'] = $this->producto_id;
             $modelo['marca'] = $this->modelo->marca_id;
             $modelo['nombre_marca'] = $this->modelo->marca->nombre;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['modelo_id'] = $this->modelo->nombre;
             $modelo['nombre_modelo'] = $this->modelo->nombre;
-            $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
-            $modelo['tipo_fibra'] =  $this->fibra ? $this->fibra->tipo_fibra_id : null;
+            $modelo['span'] = $this->fibra ? $this->fibra->span_id : null;
+            $modelo['tipo_fibra'] = $this->fibra ? $this->fibra->tipo_fibra_id : null;
             $modelo['hilos'] = $this->fibra ? $this->fibra->hilo_id : null;
             $modelo['ram'] = $this->computadora ? $this->computadora->memoria->id : null;
             $modelo['disco'] = $this->computadora ? $this->computadora->disco->id : null;

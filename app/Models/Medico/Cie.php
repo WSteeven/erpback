@@ -3,11 +3,16 @@
 namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\Cie
@@ -15,25 +20,25 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property int $id
  * @property string $codigo
  * @property string $nombre_enfermedad
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @method static \Illuminate\Database\Eloquent\Builder|Cie acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Cie newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Cie query()
- * @method static \Illuminate\Database\Eloquent\Builder|Cie setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie whereCodigo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie whereNombreEnfermedad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Cie whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Cie acceptRequest(?array $request = null)
+ * @method static Builder|Cie filter(?array $request = null)
+ * @method static Builder|Cie ignoreRequest(?array $request = null)
+ * @method static Builder|Cie newModelQuery()
+ * @method static Builder|Cie newQuery()
+ * @method static Builder|Cie query()
+ * @method static Builder|Cie setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Cie setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Cie setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Cie whereCodigo($value)
+ * @method static Builder|Cie whereCreatedAt($value)
+ * @method static Builder|Cie whereId($value)
+ * @method static Builder|Cie whereNombreEnfermedad($value)
+ * @method static Builder|Cie whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Cie extends Model implements Auditable
 {
@@ -45,5 +50,5 @@ class Cie extends Model implements Auditable
         'nombre_enfermedad',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 }

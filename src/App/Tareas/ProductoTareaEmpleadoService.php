@@ -3,28 +3,27 @@
 namespace Src\App\Tareas;
 
 use App\Models\Autorizacion;
+use App\Models\Cliente;
+use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
 use App\Models\ItemDetallePreingresoMaterial;
-use App\Models\PreingresoMaterial;
-use App\Models\SeguimientoMaterialSubtarea;
-use App\Models\TransaccionBodega;
-use Src\App\TransaccionBodegaEgresoService;
 use App\Models\MaterialEmpleadoTarea;
-use App\Models\DetalleProducto;
+use App\Models\PreingresoMaterial;
 use App\Models\Producto;
-use App\Models\Cliente;
+use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\Tarea;
+use App\Models\TransaccionBodega;
 use App\Models\User;
 use Auth;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\EstadosTransacciones;
 
 // Proyectos, Etapas y Tareas
 class ProductoTareaEmpleadoService
 {
-    private $servicio;
+    private TransaccionBodegaEgresoService $servicio;
 
     public function __construct()
     {
@@ -65,7 +64,7 @@ class ProductoTareaEmpleadoService
     {
         $ignoreRequest = ['subtarea_id'];
 
-        if (!request('etapa_id')) array_push($ignoreRequest, 'etapa_id');
+        if (!request('etapa_id')) $ignoreRequest[] = 'etapa_id';
         if (!request('cliente_id')) {
             if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->where('etapa_id', null)->materiales()->get();
             else $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->materiales()->get();
@@ -78,34 +77,34 @@ class ProductoTareaEmpleadoService
     }
 
     // Caso contrario se listan todos los productos con stock mayor a cero
-    private function listarProductosConStockOld()
-    {
-        $proyecto_id = request('proyecto_id');
-        $etapa_id = request('etapa_id');
-        $tarea_id = request('tarea_id');
-
-        $ignoreRequest = ['proyecto_id', 'etapa_id']; //!request('etapa_id') ? ['etapa_id'] : [];
-        $consulta = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock();
-        if (request('proyecto_id') && !request('etapa_id')) $consulta = $consulta->deProyecto($proyecto_id);
-        else if (request('proyecto_id') && request('etapa_id')) $consulta = $consulta->deEtapa($proyecto_id, $etapa_id);
-        else if (!request('proyecto_id') && !request('etapa_id') && request('tarea_id')) $consulta = $consulta->deTarea($tarea_id);
-
-        if (!$this->tieneCliente()) {
-
-            $consulta = $consulta->where('cliente_id', '=', null);
-            // $results = $consulta->get();
-            // if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->where('etapa_id', null)->filter()->tieneStock()->get();
-            // $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock()->get();
-            // } else {
-            // if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', null)->where('etapa_id', null)->tieneStock()->get();
-            // $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->tieneStock()->get();
-        }
-
-        $sql = $consulta->toSql();
-        Log::channel('testing')->info('Log', compact('sql'));
-        $results = $consulta->get();
-        return $results;
-    }
+//    private function listarProductosConStockOld()
+//    {
+//        $proyecto_id = request('proyecto_id');
+//        $etapa_id = request('etapa_id');
+//        $tarea_id = request('tarea_id');
+//
+//        $ignoreRequest = ['proyecto_id', 'etapa_id']; //!request('etapa_id') ? ['etapa_id'] : [];
+//        $consulta = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock();
+//        if (request('proyecto_id') && !request('etapa_id')) $consulta = $consulta->deProyecto($proyecto_id);
+//        else if (request('proyecto_id') && request('etapa_id')) $consulta = $consulta->deEtapa($proyecto_id, $etapa_id);
+//        else if (!request('proyecto_id') && !request('etapa_id') && request('tarea_id')) $consulta = $consulta->deTarea($tarea_id);
+//
+//        if (!$this->tieneCliente()) {
+//
+//            $consulta = $consulta->where('cliente_id', '=', null);
+//            // $results = $consulta->get();
+//            // if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->where('etapa_id', null)->filter()->tieneStock()->get();
+//            // $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock()->get();
+//            // } else {
+//            // if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', null)->where('etapa_id', null)->tieneStock()->get();
+//            // $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->tieneStock()->get();
+//        }
+//
+//        $sql = $consulta->toSql();
+//
+//        $results = $consulta->get();
+//        return $results;
+//    }
 
     public function listarProductosConStock($proyecto_id, $etapa_id, $tarea_id)
     {
@@ -117,9 +116,8 @@ class ProductoTareaEmpleadoService
 
         if (!$this->tieneCliente()) $consulta = $consulta->where('cliente_id', '=', null);
 
-        $results = $consulta->get();
         // Log::channel('testing')->info('Log', compact('results'));
-        return $results;
+        return $consulta->get();
     }
 
     private function tieneCliente()
@@ -130,7 +128,7 @@ class ProductoTareaEmpleadoService
     // Se mapean los campos y se coloca en 'cantidad utilizada' la cantidad usada en el dia actual
     private function mapearCantidadUtilizadaHoyMaterialesTarea($results, $materialesUtilizadosHoy)
     {
-        return collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
+        return collect($results)->map(function ($item) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
 
@@ -199,11 +197,12 @@ class ProductoTareaEmpleadoService
             return in_array($producto['categoria'], ['MATERIAL', 'EQUIPO']);
         });
     }
+
     public function filtrarHerramientasAccesoriosEquiposPropios($productos) // Destino Stock
     {
         $esCoordinadorBodega = Auth::user()->hasRole(User::ROL_COORDINADOR_BODEGA);
 
-        $categoriasCoordinadorBodega = ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP'];
+        $categoriasCoordinadorBodega = ['HERRAMIENTA','MATERIAL', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP', 'UNIFORME'];
         $categoriasCualquierRol = ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA'];
 
         return $productos->filter(function ($producto) use ($esCoordinadorBodega, $categoriasCoordinadorBodega, $categoriasCualquierRol) {

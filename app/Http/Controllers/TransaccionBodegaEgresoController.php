@@ -10,6 +10,7 @@ use App\Exports\TransaccionBodegaEgresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\ActivosFijos\ActivoFijo;
 use App\Models\Cliente;
 use App\Models\Comprobante;
 use App\Models\ConfiguracionGeneral;
@@ -24,17 +25,20 @@ use App\Models\Pedido;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\InventarioService;
 use Src\App\Tareas\ProductoEmpleadoService;
 use Src\App\Tareas\ProductoTareaEmpleadoService;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\Autorizaciones;
 use Src\Config\Constantes;
+use Src\Config\MotivosTransaccionesBodega;
 use Src\Shared\Utils;
 use Throwable;
 
@@ -221,6 +225,12 @@ class TransaccionBodegaEgresoController extends Controller
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
 
+            // Verificamos que el egreso se asigna a un responsable
+            $es_egreso_liquidacion_materiales = TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales);
+            $no_genera_comprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
+            $se_asigna_responsable = (!$es_egreso_liquidacion_materiales && !$no_genera_comprobante);
+
+
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
                 // $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
@@ -231,6 +241,16 @@ class TransaccionBodegaEgresoController extends Controller
                 // Actualizamos la cantidad en inventario
                 $item_inventario->cantidad -= $listado['cantidad'];
                 $item_inventario->save();
+
+                // supongamos que despacho 5
+                InventarioService::guardarLoteEgreso($item_inventario, $transaccion, $listado['cantidad']);
+
+                if($se_asigna_responsable && is_null($transaccion->tarea_id)) {
+                    Log::channel('testing')->info('Log', ['entró a guardar activo fijo', $transaccion]);
+                    ActivoFijo::cargarComoActivo($item_inventario->detalle, $transaccion->cliente_id);
+                    ActivoFijo::notificarEntregaActivos($item_inventario->detalle, $transaccion);
+                    Log::channel('testing')->info('Log', ['pasó guardar activo fijo']);
+                }
             }
 
             //Si hay pedido, actualizamos su estado.
@@ -275,75 +295,6 @@ class TransaccionBodegaEgresoController extends Controller
     }
 
     /**
-     * Actualizar
-     */
-    /*
-    public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
-    {
-        $datos = $request->validated();
-        //        !is_null($request->pedido) ?? $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-        //        if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-        //        if ($request->motivo) $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-        //        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-        //        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-        //        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
-        //        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        //        if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-        //        if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
-        //        if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-        //        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-
-        //        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-        //        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-
-        $transaccion->update($datos); //actualizar la transaccion
-
-        //Aquí el coordinador o jefe inmediato autoriza la transaccion de sus subordinados y modifica los datos del listado
-        if ($transaccion->per_autoriza_id === auth()->user()->empleado->id) {
-            try {
-                DB::beginTransaction();
-                if ($request->obs_autorizacion) {
-                    $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['obs_autorizacion']]);
-                } else {
-                    $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
-                }
-                $transaccion->detalles()->detach(); //borra el listado anterior
-                foreach ($request->listadoProductosTransaccion as $listado) { //Guarda los productos seleccionados en un nuevo listado
-                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
-                }
-                DB::commit();
-            } catch (Exception $e) {
-                DB::rollBack();
-                return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar la autorización. ' . $e->getMessage()], 422);
-            }
-
-            $modelo = new TransaccionBodegaResource($transaccion->refresh());
-            $mensaje = 'Autorización actualizada correctamente';
-        } else {
-            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                // Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
-                try {
-                    DB::beginTransaction();
-                    if ($request->obs_estado) {
-                        $transaccion->estados()->attach($datos['estado'], ['observacion' => $datos['obs_estado']]);
-                    } else {
-                        $transaccion->estados()->attach($datos['estado_id']);
-                    }
-                    DB::commit();
-                } catch (Exception $ex) {
-                    DB::rollBack();
-                    //                    return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro'], 422);
-                    throw Utils::obtenerMensajeErrorLanzable($ex);
-                }
-            }
-
-            $modelo = new TransaccionBodegaResource($transaccion->refresh());
-            $mensaje = 'Estado actualizado correctamente';
-        }
-        return response()->json(compact('mensaje', 'modelo'));
-    }*/
-
-    /**
      * Eliminar
      */
     public function destroy(TransaccionBodega $transaccion)
@@ -379,6 +330,8 @@ class TransaccionBodegaEgresoController extends Controller
             $transaccion->save();
             $transaccion->comprobante()->delete();
             $transaccion->latestNotificacion()->update(['leida' => true]);
+            // Se anula los lotes despachados y se revierte la cantidad
+            InventarioService::anularLoteEgreso($transaccion);
             DB::commit();
             $mensaje = 'Transacción anulada correctamente';
             $modelo = new TransaccionBodegaResource($transaccion->refresh());
@@ -482,7 +435,6 @@ class TransaccionBodegaEgresoController extends Controller
                     Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
                     throw Utils::obtenerMensajeErrorLanzable($ex);
                 }
-                break;
             default:
                 $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
                 break;
@@ -509,9 +461,31 @@ class TransaccionBodegaEgresoController extends Controller
                 default:
                     throw ValidationException::withMessages(['error' => 'Método no implementado']);
             }
-        } catch (Throwable|Exception $th) {
+        } catch (Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th, 'reporteUniformesEpps');
         }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function reporteVidaUtilMateriales(Request $request)
+    {
+        $fecha_inicio = Carbon::parse($request->fecha_inicio)->startOfDay();
+        $fecha_fin = Carbon::parse($request->fecha_fin)->endOfDay();
+
+        try {
+            return match ($request->accion) {
+                'excel' => match ($request->tipo) {
+                    'INVENTARIO' => InventarioService::reporteVidaUtilEnInventario(true),
+                    default => InventarioService::reporteVidaUtilAsignadosResponsables(true),
+                },
+                default => throw ValidationException::withMessages(['error' => 'Método no implementado']),
+            };
+        } catch (Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th, 'reporteVidaUtilMateriales');
+        }
+
     }
 
 
@@ -576,7 +550,6 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function modificarItemEgreso(Request $request, TransaccionBodega $transaccion)
     {
-        //         Log::channel('testing')->info('Log', ['¿modificarItemEgreso?', $request->all()]);
         try {
             switch ($request->tipo) {
                 case 'PENDIENTE':

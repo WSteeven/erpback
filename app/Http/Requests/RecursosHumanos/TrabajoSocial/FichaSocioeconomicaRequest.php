@@ -143,8 +143,6 @@ class FichaSocioeconomicaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        Log::channel('testing')->error('Log', ['prepareforvalidation',$this->situacion_socioeconomica]);
-        Log::channel('testing')->error('Log', ['prepareforvalidation',$this->situacion_socioeconomica['cantidad_prestamos']]);
         $this->merge([
             'empleado_id' => $this->empleado,
             'canton_id' => $this->canton,

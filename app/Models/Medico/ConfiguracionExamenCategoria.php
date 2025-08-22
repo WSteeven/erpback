@@ -2,12 +2,17 @@
 
 namespace App\Models\Medico;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\ConfiguracionExamenCategoria
@@ -15,26 +20,26 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property int $id
  * @property string $nombre
  * @property int $examen_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\Examen|null $examen
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria query()
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria whereExamenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConfiguracionExamenCategoria whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Examen|null $examen
+ * @method static Builder|ConfiguracionExamenCategoria acceptRequest(?array $request = null)
+ * @method static Builder|ConfiguracionExamenCategoria filter(?array $request = null)
+ * @method static Builder|ConfiguracionExamenCategoria ignoreRequest(?array $request = null)
+ * @method static Builder|ConfiguracionExamenCategoria newModelQuery()
+ * @method static Builder|ConfiguracionExamenCategoria newQuery()
+ * @method static Builder|ConfiguracionExamenCategoria query()
+ * @method static Builder|ConfiguracionExamenCategoria setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|ConfiguracionExamenCategoria setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|ConfiguracionExamenCategoria setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|ConfiguracionExamenCategoria whereCreatedAt($value)
+ * @method static Builder|ConfiguracionExamenCategoria whereExamenId($value)
+ * @method static Builder|ConfiguracionExamenCategoria whereId($value)
+ * @method static Builder|ConfiguracionExamenCategoria whereNombre($value)
+ * @method static Builder|ConfiguracionExamenCategoria whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ConfiguracionExamenCategoria extends Model implements Auditable
 {
@@ -46,7 +51,7 @@ class ConfiguracionExamenCategoria extends Model implements Auditable
         'examen_id',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function examen()
     {

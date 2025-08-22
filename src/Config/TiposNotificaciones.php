@@ -41,6 +41,7 @@ enum TiposNotificaciones: string{
     case MANTENIMIENTOS_VEHICULOS = 'MANTENIMIENTO DE VEHICULOS';
     // medico
     case SOLICITUD_EXAMEN = 'SOLICITUD DE EXAMEN';
+    case CITA_MEDICA = 'CITA MEDICA';
     case DIAS_DESCANSO = 'DIAS DE DESCANSO';
 
     // Seleccion y contratacion
@@ -50,4 +51,7 @@ enum TiposNotificaciones: string{
     // Activos fijos
     case ENTREGA_ACTIVO_FIJO = 'ENTREGA ACTIVO FIJO';
     case FICHA_SOCIOECONOMICA = 'FICHA SOCIOECONOMICA';
+
+    // Control de personal
+    case ATRASO = 'ATRASO';
 }

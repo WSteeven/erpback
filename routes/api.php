@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administracion\CuentaBancariaController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\AutorizacionController;
@@ -141,6 +142,7 @@ Route::apiResources(
         'control-stocks' => ControlStockController::class,
         'comprobantes' => ComprobanteController::class,
         'codigos-clientes' => CodigoClienteController::class,
+        'cuentas-bancarias' => CuentaBancariaController::class,
         'devoluciones' => DevolucionController::class,
         'detalles-productos-transacciones' => DetalleProductoTransaccionController::class,
         'discos' => DiscoController::class,
@@ -191,6 +193,7 @@ Route::apiResources(
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',
+            'cuentas-bancarias' => 'cuenta',
             'devoluciones' => 'devolucion',
             'detalles-productos-transacciones' => 'detalle',
             'imagenesproductos' => 'imagenproducto',
@@ -260,6 +263,7 @@ Route::get('sucursales-detalle', [DetalleProductoController::class, 'sucursalesD
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes-epps', [TransaccionBodegaEgresoController::class, 'reporteUniformesEpps']); // reporte para imprimir en excel y con la firma del tecnico responsable
+Route::post('transacciones/reporte-vida-util-epps', [TransaccionBodegaEgresoController::class, 'reporteVidaUtilMateriales']); // reporte de epps despachados cuya vida util ya ha pasado
 //Reportes inventario
 Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
 Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);
@@ -283,6 +287,8 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 
 //Modificar egreso
 Route::patch('modificar-item-egreso/{transaccion}',[TransaccionBodegaEgresoController::class, 'modificarItemEgreso'])->middleware('auth:sanctum');
+// Modificar ingreso
+Route::patch('quitar-item-ingreso/{transaccion}',[TransaccionBodegaIngresoController::class, 'modificarItemIngreso'])->middleware('auth:sanctum');
 
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
@@ -346,6 +352,7 @@ Route::get('transacciones/files/{transaccion_bodega}', [TransaccionBodegaControl
 /**
  * Subidas de archivos
  */
+Route::get('obtener-empleados-prestamos-empresariales', [EmpleadoController::class, 'obtenerEmpleadosPrestamoEmpresarial'])->middleware('auth:sanctum');
 Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
@@ -369,6 +376,9 @@ Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtener
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
 
 Route::put('transacciones-ingresos-editar-fecha-compra/{transaccion}', [TransaccionBodegaIngresoController::class, 'editarFechaCompra']);
+
+
+
 
 
 Route::post('obtener-plantilla-base-por-nombre',[PlantillaBaseController::class, 'devolverArchivo'])->middleware('auth:sanctum');

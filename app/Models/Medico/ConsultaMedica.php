@@ -6,11 +6,16 @@ use App\ModelFilters\Medico\ConsultaMedicaFilter;
 use App\Models\Archivo;
 use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Medico\ConsultaMedica
@@ -21,38 +26,38 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property int $dias_descanso
  * @property int|null $cita_medica_id
  * @property int|null $registro_empleado_examen_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $examen_fisico
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Medico\CitaMedica|null $citaMedica
- * @property-read \App\Models\Medico\ConstanteVital|null $constanteVital
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Medico\DiagnosticoCitaMedica> $diagnosticosCitaMedica
+ * @property-read CitaMedica|null $citaMedica
+ * @property-read ConstanteVital|null $constanteVital
+ * @property-read Collection<int, DiagnosticoCitaMedica> $diagnosticosCitaMedica
  * @property-read int|null $diagnosticos_cita_medica_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Notificacion> $notificaciones
+ * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
- * @property-read \App\Models\Medico\Receta|null $receta
- * @property-read \App\Models\Medico\RegistroEmpleadoExamen|null $registroEmpleadoExamen
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica query()
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereCitaMedicaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereDadoAlta($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereDiasDescanso($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereEvolucion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereExamenFisico($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereRegistroEmpleadoExamenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ConsultaMedica whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Receta|null $receta
+ * @property-read RegistroEmpleadoExamen|null $registroEmpleadoExamen
+ * @method static Builder|ConsultaMedica acceptRequest(?array $request = null)
+ * @method static Builder|ConsultaMedica filter(?array $request = null)
+ * @method static Builder|ConsultaMedica ignoreRequest(?array $request = null)
+ * @method static Builder|ConsultaMedica newModelQuery()
+ * @method static Builder|ConsultaMedica newQuery()
+ * @method static Builder|ConsultaMedica query()
+ * @method static Builder|ConsultaMedica setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|ConsultaMedica setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|ConsultaMedica setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|ConsultaMedica whereCitaMedicaId($value)
+ * @method static Builder|ConsultaMedica whereCreatedAt($value)
+ * @method static Builder|ConsultaMedica whereDadoAlta($value)
+ * @method static Builder|ConsultaMedica whereDiasDescanso($value)
+ * @method static Builder|ConsultaMedica whereEvolucion($value)
+ * @method static Builder|ConsultaMedica whereExamenFisico($value)
+ * @method static Builder|ConsultaMedica whereId($value)
+ * @method static Builder|ConsultaMedica whereRegistroEmpleadoExamenId($value)
+ * @method static Builder|ConsultaMedica whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class ConsultaMedica extends Model implements Auditable
 {
@@ -71,7 +76,7 @@ class ConsultaMedica extends Model implements Auditable
         'observaciones_alta',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function archivos()
     {

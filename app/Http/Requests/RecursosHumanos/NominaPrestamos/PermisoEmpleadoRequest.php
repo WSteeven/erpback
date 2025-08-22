@@ -69,7 +69,6 @@ class PermisoEmpleadoRequest extends FormRequest
                 'fecha_hora_fin' => $fecha_fin,
             ]);
 
-//        Log::channel('testing')->info('Log', ['PrepareForValidation', gettype($this->fecha_hora_inicio), gettype($this->fecha_hora_fin)]);
 
         if ($this->fecha_hora_reagendamiento != null) {
             $this->merge([

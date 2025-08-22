@@ -126,7 +126,7 @@ class Empresa extends Model implements Auditable
         'es_proveedor'=>'boolean',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     //Tipo de contribuyente
     const NATURAL = 'PERSONA NATURAL'; //persona natural

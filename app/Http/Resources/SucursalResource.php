@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SucursalResource extends JsonResource
@@ -9,8 +10,8 @@ class SucursalResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -23,6 +24,7 @@ class SucursalResource extends JsonResource
             'correo' => $this->correo,
             'extension' => $this->extension,
             'cliente'=>$this->cliente?->empresa->razon_social,
+            'activo'=>$this->activo,
         ];
 
         if($controller_method=='show'){

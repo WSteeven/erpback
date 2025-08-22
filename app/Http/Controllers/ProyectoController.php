@@ -11,14 +11,12 @@ use App\Models\Tarea;
 use App\Models\Tareas\Etapa;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ProyectoController extends Controller
 {
-    private $entidad = 'Proyecto';
+    private string $entidad = 'Proyecto';
 
     public function listar()
     {
@@ -107,14 +105,9 @@ class ProyectoController extends Controller
      * La función obtiene proyectos asociados con un empleado específico y los devuelve como una
      * respuesta JSON.
      *
-     * @param Request request El parámetro  es una instancia de la clase Request, que se
-     * utiliza para recuperar datos de la solicitud HTTP. En este caso, se utiliza para recuperar el
-     * valor del parámetro 'empleado_id' de la solicitud.
+     * @param int $empleado_id El ID del empleado para el cual se desean obtener los proyectos.
      *
-     * @return una respuesta JSON que contiene los resultados de la consulta. Los resultados se
-     * obtienen filtrando y ordenando una colección de proyectos según el ID del empleado proporcionado
-     * en la solicitud. Luego, los resultados se transforman en una colección de objetos
-     * ProyectoResource antes de ser devueltos.
+     * @return Proyecto[] una lista de proyectos encontrados.
      */
     public function obtenerProyectosEmpleado(int $empleado_id)
     {
@@ -139,26 +132,6 @@ class ProyectoController extends Controller
         $ids_proyectos = Etapa::where(function ($query) use ($ids_etapas, $empleado_id) {
             $query->whereIn('id', $ids_etapas)->orWhere('responsable_id', $empleado_id);
         })->where('activo', true)->get('proyecto_id');
-        $proyectos = Proyecto::whereIn('id', $ids_proyectos)->orWhereIn('id', $ids_proyectos_tareas)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id', 'desc')->get();
-        return $proyectos;
-    }
-    public function obtenerProyectosEmpleadoOld(int $empleado_id)
-    {
-        $empleado = Empleado::find($empleado_id);
-        $grupo_id = $empleado->grupo_id;
-        if ($grupo_id) {
-            $tareas_ids_subtareas = Subtarea::where(function ($q) use ($empleado_id, $grupo_id) {
-                $q->where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%');
-            })->groupBy('tarea_id')->pluck('tarea_id');
-        } else {
-            $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%')->disponible()->get('tarea_id');
-        }
-        $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('etapa_id');
-        $ids_proyectos_tareas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('proyecto_id');
-        $ids_proyectos = Etapa::where(function ($query) use ($ids_etapas, $empleado_id) {
-            $query->whereIn('id', $ids_etapas)->orWhere('responsable_id', $empleado_id);
-        })->where('activo', true)->get('proyecto_id');
-        $proyectos = Proyecto::whereIn('id', $ids_proyectos)->orWhereIn('id', $ids_proyectos_tareas)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id', 'desc')->get();
-        return $proyectos;
+        return Proyecto::ignoreRequest(['empleado_id', 'campos'])->whereIn('id', $ids_proyectos)->orWhereIn('id', $ids_proyectos_tareas)->filter()->orderBy('id', 'desc')->get();
     }
 }

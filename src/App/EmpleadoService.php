@@ -15,9 +15,13 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\User;
 use App\Models\Ventas\Vendedor;
+use App\Models\Vehiculos\Conductor;
+use App\Models\Vehiculos\Licencia;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 use Throwable;
 
 class EmpleadoService
@@ -26,14 +30,16 @@ class EmpleadoService
     {
     }
 
-    /* BORRAR public function obtenerEmpleadosPorRol(string $rol)
+
+    /**
+     * Obtiene todos los ids de los empleados cuyo jefe_id sea igual al id del empleado de la sesión logueada.
+     * @return Collection
+     */
+    public static function obtenerIdsEmpleadosSubordinadosJefe()
     {
-        $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
-        $empleados = Empleado::ignoreRequest(['rol'])->filter()->where('estado', true)->get();
-        $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
-        EmpleadoResource::collection($results);
-        return $results;
-    } */
+        return Empleado::where('jefe_id', Auth::user()->empleado->id)
+            ->pluck('id');
+    }
 
     public static function obtenerIdsEmpleadosOtroAutorizador()
     {
@@ -48,61 +54,9 @@ class EmpleadoService
             ->orWhere('id', Auth::user()->empleado->id)->pluck('id');
     }
 
-    public function obtenerPaginacion($offset)
-    {
-        $results = Empleado::where('id', '<>', 1)->where('estado', true)->simplePaginate($offset);
-        EmpleadoResource::collection($results);
-        return $results;
-    }
-
-    public function obtenerPaginacionTodos($offset)
-    {
-        $results = Empleado::where('id', '<>', 1)->simplePaginate($offset);
-        EmpleadoResource::collection($results);
-        return $results;
-    }
-
     public function obtenerTodos()
     {
         $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
-        /*    [
-                'id',
-                'identificacion',
-                'nombres',
-                'apellidos',
-                'telefono',
-                'jefe_id',
-                'canton_id',
-                'direccion',
-                'fecha_nacimiento',
-                'estado',
-                'grupo_id',
-                'cargo_id',
-                'area_id',
-                'departamento_id',
-                'firma_url',
-                'foto_url',
-                'convencional',
-                'telefono_empresa',
-                'extension',
-                'coordenadas',
-                'casa_propia',
-                'vive_con_discapacitados',
-                'responsable_discapacitados',
-                'area_id',
-                'fecha_vinculacion',
-                'tipo_contrato_id',
-                'tiene_discapacidad',
-                'observacion',
-                'esta_en_rol_pago',
-                'acumula_fondos_reserva',
-                'realiza_factura',
-                'usuario_id',
-                'num_cuenta_bancaria',
-                'salario',
-                'supa'
-            ]  */
-        // Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
     }
 
@@ -292,24 +246,6 @@ class EmpleadoService
         }
     }
 
-    /**
-     * Aqui se agregan las discapacidades de un Empleado
-     * Cambiaremos esto para que se agreguen al usuario, y será un metodo generico.
-     * @param Empleado $empleado
-     * @param array $discapacidades
-     * @return void
-     */
-    public function agregarDiscapacidades(Empleado $empleado, array $discapacidades)
-    {
-        $discapacidades_collection = collect($discapacidades);
-        $mappedCollection = $discapacidades_collection->map(function ($object) {
-            $object['tipo_discapacidad_id'] = $object['tipo_discapacidad'];
-            unset($object['tipo_discapacidad']);
-            return $object;
-        });
-        $empleado->tiposDiscapacidades()->sync($mappedCollection);
-    }
-
     public function agregarFamiliares(Empleado $empleado, array $familiares)
     {
         $familiares_collection = collect($familiares);
@@ -325,7 +261,7 @@ class EmpleadoService
     }
 
     /**
-     * Método que busca un autorizador directo para un determinado empleado y retorna el ID del autorizador directo encontrado, caso contrario, el proporcionado.
+     * Busca un autorizador directo para un determinado empleado y retorna el ID del autorizador directo encontrado, caso contrario, el proporcionado.
      * @param int $empleado_id ID del empleado que realiza el gasto.
      * @param int $aut_especial ID del empleado autorizador.
      * @return int el ID del autorizador.
@@ -333,8 +269,8 @@ class EmpleadoService
     public static function obtenerAutorizadorDirecto(int $empleado_id, int $aut_especial)
     {
         $empleado = Empleado::find($empleado_id); // El empleado que realiza el gasto
-        $autorizacion_directa  = AutorizadorDirecto::where('empleado_id', $empleado->id)->where('activo', true)->first();
-        if($autorizacion_directa) return $autorizacion_directa->autorizador_id;
+        $autorizacion_directa = AutorizadorDirecto::where('empleado_id', $empleado->id)->where('activo', true)->first();
+        if ($autorizacion_directa) return $autorizacion_directa->autorizador_id;
 
         return $aut_especial;
     }
@@ -343,5 +279,52 @@ class EmpleadoService
     {
         $vendedores = Vendedor::has('ventas')->get();
         return $vendedores;
+    }
+
+    public function actualizarDatosConductor($empleado, $datosConductor)
+    {
+        $datosConductor['empleado_id'] = $empleado->id;
+        $datosConductor['tipo_licencia'] = Utils::convertArrayToString($datosConductor['tipo_licencia']??[]);
+
+        $conductor = Conductor::firstOrNew(['empleado_id' => $empleado->id]);
+        $conductor->fill($datosConductor)->save();
+
+        if(!empty($datosConductor['licencias'])){
+            $this->syncronizarLicencias($conductor, $datosConductor['licencias']);
+        }
+
+    }
+
+    /**
+     * @param int $id el id del conductor a eliminar
+     * @return void
+     */
+    public function eliminarConductor(int $id):void
+    {
+        $conductor = Conductor::find($id);
+        $conductor?->delete();
+
+    }
+
+    private function syncronizarLicencias(Conductor $conductor, array $licencias):void
+    {
+        $licenciasMapeadas = array_map(function ($licencia) use($conductor) {
+            return [
+                'conductor_id' => $conductor->empleado_id,
+                'tipo_licencia' => $licencia['tipo_licencia'],
+                'inicio_vigencia' => $licencia['inicio_vigencia'],
+                'fin_vigencia' => $licencia['fin_vigencia'],
+            ];
+        }, $licencias);
+
+        $tiposLicencias = array_column($licenciasMapeadas, 'tipo_licencia');
+
+        Licencia::upsert(
+            $licenciasMapeadas,
+            uniqueBy: ['conductor_id', 'tipo_licencia'],
+            update: ['tipo_licencia', 'inicio_vigencia', 'fin_vigencia']
+        );
+        Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
+
     }
 }

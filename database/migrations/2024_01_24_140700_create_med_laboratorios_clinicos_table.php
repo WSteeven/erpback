@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('direccion');
             $table->string('celular');
             $table->string('correo');
-            $table->string('coordenadas');
+            $table->string('coordenadas')->nullable();
             $table->boolean('activo');
 
             // Foreign keys

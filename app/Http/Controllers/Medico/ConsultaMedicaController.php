@@ -47,6 +47,9 @@ class ConsultaMedicaController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable
+     */
     public function store(ConsultaMedicaRequest $request)
     {
         try {
@@ -101,6 +104,9 @@ class ConsultaMedicaController extends Controller
         }
     }
 
+    /**
+     * @throws Throwable
+     */
     public function update(ConsultaMedicaRequest $request, ConsultaMedica $consulta_medica)
     {
 //        if ($request->isMethod('patch')) {
@@ -118,6 +124,7 @@ class ConsultaMedicaController extends Controller
 //            'restricciones_alta' => $datos['restricciones_alta'],
 //            'observaciones_alta' => $datos['observaciones_alta'],
 //        ]);
+        $this->polymorphicMedicoModelsService->crearConstanteVital($consulta_medica, $request->constante_vital);
 
         $modelo = new ConsultaMedicaResource($consulta_medica->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -131,6 +138,10 @@ class ConsultaMedicaController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function destroy($consulta)
     {
         try {
@@ -144,7 +155,6 @@ class ConsultaMedicaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de consulta' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -158,10 +168,10 @@ class ConsultaMedicaController extends Controller
 
         foreach ($idsDestinatarios as $destinatario) {
             event(new DiasDescansoEvent($consulta_medica, $idEmisor, $destinatario));
-        };
+        }
     }
 
-    public function indexFiles(Request $request, ConsultaMedica $consulta_medica)
+    public function indexFiles( ConsultaMedica $consulta_medica)
     {
         try {
             $results = $this->archivoService->listarArchivos($consulta_medica);
@@ -181,7 +191,7 @@ class ConsultaMedicaController extends Controller
         try {
             $modelo = $this->archivoService->guardarArchivo($consulta_medica, $request['file'], RutasStorage::CONSULTAS_MEDICAS->value, 'CONSULTAS MEDICAS');
             $mensaje = 'Archivo subido correctamente';
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw Utils::obtenerMensajeErrorLanzable($ex);
         }
         return response()->json(compact('mensaje', 'modelo'));

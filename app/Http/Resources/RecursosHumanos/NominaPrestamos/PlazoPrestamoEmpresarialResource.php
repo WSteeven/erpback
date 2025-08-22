@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
-use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlazoPrestamoEmpresarialResource extends JsonResource
@@ -10,26 +10,25 @@ class PlazoPrestamoEmpresarialResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
-        $controller_method = $request->route()->getActionMethod();
-        $modelo = [
+        return [
             'id' => $this->id,
             'num_cuota' => $this->num_cuota,
-            'fecha_vencimiento' => $this->cambiar_fecha($this->fecha_vencimiento),
-            'valor_couta' => $this->valor_cuota,
+            'fecha_vencimiento' => $this->fecha_vencimiento,
+            'fecha_pago' => $this->fecha_vencimiento,
+            'valor_cuota' => $this->valor_cuota,
             'valor_pagado' => $this->valor_pagado,
             'valor_a_pagar' =>  $this->valor_a_pagar,
-            'estado_couta' => $this->estado_couta,
+            'pago_cuota' => $this->pago_cuota,
+            'id_prestamo_empresarial' => $this->id_prestamo_empresarial,
+            'estado' => $this->estado,
+            'comentario' => $this->comentario,
+            'modificada' => $this->modificada,
         ];
-        return $modelo;
     }
-    private function cambiar_fecha($fecha)
-    {
-        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
-        return $fecha_formateada;
-    }
+
 }

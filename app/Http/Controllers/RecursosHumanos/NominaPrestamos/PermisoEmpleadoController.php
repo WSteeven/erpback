@@ -80,10 +80,10 @@ class PermisoEmpleadoController extends Controller
     public function index()
     {
         if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         } else {
             $ids_empleados = EmpleadoService::obtenerIdsEmpleadosOtroAutorizador();
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->get();
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $ids_empleados)->orderBy('id', 'desc')->get();
         }
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));
@@ -150,7 +150,7 @@ class PermisoEmpleadoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Throwable|Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
             Log::channel('testing')->error('Log', ['ERROR en el update de permiso de empleado', $e->getMessage(), $e->getLine()]);
             throw Utils::obtenerMensajeErrorLanzable($e);

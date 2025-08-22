@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Canton
@@ -17,29 +22,29 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property string $canton
  * @property string|null $cod_canton
  * @property int $provincia_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Parroquia> $parroquias
+ * @property-read Collection<int, Parroquia> $parroquias
  * @property-read int|null $parroquias_count
- * @property-read \App\Models\Provincia $provincia
- * @method static \Illuminate\Database\Eloquent\Builder|Canton acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Canton newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Canton query()
- * @method static \Illuminate\Database\Eloquent\Builder|Canton setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton whereCanton($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton whereCodCanton($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton whereProvinciaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Canton whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Provincia $provincia
+ * @method static Builder|Canton acceptRequest(?array $request = null)
+ * @method static Builder|Canton filter(?array $request = null)
+ * @method static Builder|Canton ignoreRequest(?array $request = null)
+ * @method static Builder|Canton newModelQuery()
+ * @method static Builder|Canton newQuery()
+ * @method static Builder|Canton query()
+ * @method static Builder|Canton setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Canton setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Canton setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Canton whereCanton($value)
+ * @method static Builder|Canton whereCodCanton($value)
+ * @method static Builder|Canton whereCreatedAt($value)
+ * @method static Builder|Canton whereId($value)
+ * @method static Builder|Canton whereProvinciaId($value)
+ * @method static Builder|Canton whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Canton extends Model implements Auditable
 {
@@ -52,7 +57,7 @@ class Canton extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     /**
      * Get the parroquia associated with the canton.

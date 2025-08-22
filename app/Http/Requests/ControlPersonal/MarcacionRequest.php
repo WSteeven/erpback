@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Medico;
+namespace App\Http\Requests\ControlPersonal;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TipoAntecedenteRequest extends FormRequest
+class MarcacionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class TipoAntecedenteRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,8 +24,7 @@ class TipoAntecedenteRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string',
-            'genero' => 'required|string',
+            //
         ];
     }
 }

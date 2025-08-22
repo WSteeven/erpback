@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_tipos_antecedentes', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-            $table->string('genero');
-            $table->timestamps();
+        Schema::table('clientes', function (Blueprint $table) {
+            $table->boolean('requiere_fr')->default(false)->after('requiere_bodega')
+                ->comment('Indica si el cliente aparecera en fondos rotativos');
         });
     }
 
@@ -28,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_tipos_antecedentes');
+        Schema::table('clientes', function (Blueprint $table) {
+            $table->dropColumn('requiere_fr');
+        });
     }
 };

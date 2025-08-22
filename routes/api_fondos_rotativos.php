@@ -16,6 +16,7 @@ use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
 use App\Http\Controllers\FondosRotativos\Saldo\ValorAcreditarController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\UmbralFondosRotativosController;
+use App\Http\Controllers\FondosRotativos\ValijaController;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,7 @@ Route::apiResources(
         'detalles-viaticos' => DetalleViaticoController::class,
         'sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'gastos' => GastoController::class,
+        'valijas' => ValijaController::class,
         'tipo-saldo' => TipoSaldoController::class,
         'tipo-fondo' => TipoFondoController::class,
         'saldo-grupo' => SaldoController::class,
@@ -76,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporteAcreditacionSemanal']);
     Route::post('reporte-valores-fondos', [GastoController::class, 'reporteValoresFondos']);
+    Route::post('reporte-valijas/{tipo}', [ValijaController::class, 'reporteValijas']);
     Route::put('activar-gasto-rechazado/{gasto}', [GastoController::class, 'activarGastoRechazado']);
     Route::post('gastos/files/{gasto}', [GastoController::class, 'storeFiles'])->middleware('auth:sanctum');
     Route::get('estados-viaticos', function () {

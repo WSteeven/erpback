@@ -78,6 +78,10 @@
                                         <td
                                             style="text-align: center !important;
                                 background-color: #DBDBDB;">
+                                            N°</td>
+                                        <td
+                                            style="text-align: center !important;
+                                background-color: #DBDBDB;">
                                             CODIGO</td>
                                         <td
                                             style="text-align: center !important;
@@ -100,10 +104,13 @@
                                         <td style="background-color:#DBDBDB">ESTADO</td>
                                         <td style="background-color:#DBDBDB">FECHA</td>
                                         <td style="background-color:#DBDBDB">TOTAL</td>
+                                        <td style="background-color:#DBDBDB">F. CREACION</td>
+                                        <td style="background-color:#DBDBDB">ULT. MODIFICACION</td>
                                     </tr>
 
                                     @foreach ($reporte as $rpt)
                                         <tr>
+                                            <td>{{ $rpt['id'] }}</td>
                                             <td>{{ $rpt['codigo'] }}</td>
                                             <td>{{ $rpt['solicitante']['nombres'] }}
                                                 {{ $rpt['solicitante']['apellidos'] }}</td>
@@ -116,6 +123,8 @@
                                             <td>{{ $rpt['estado']['nombre'] ?? '' }}</td>
                                             <td>{{ $rpt['fecha'] }}</td>
                                             <td>{{ round($rpt->obtenerSumaListado($rpt->id)[5], 2) }}</td>
+                                            <td>{{ $rpt['created_at'] }}</td>
+                                            <td>{{ $rpt['updated_at'] }}</td>
                                         </tr>
                                     @endforeach
                                 </table>

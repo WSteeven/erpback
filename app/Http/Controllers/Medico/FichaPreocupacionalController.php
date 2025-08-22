@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Medico;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\FichaPreocupacionalRequest;
 use App\Http\Resources\EmpleadoResource;
-use App\Http\Resources\Medico\ConsultaMedicaResource;
 use App\Http\Resources\Medico\FichaPreocupacionalResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
-use App\Models\Medico\AccidenteEnfermedadLaboral;
-use App\Models\Medico\AntecedentePersonal;
 use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\ConsultaMedica;
 use App\Models\Medico\FichaPreocupacional;
@@ -19,24 +16,31 @@ use App\Models\Medico\RegistroEmpleadoExamen;
 use App\Models\Medico\ResultadoExamen;
 use App\Models\Medico\SolicitudExamen;
 use App\Models\Medico\TipoAptitudMedicaLaboral;
-use App\Models\Medico\TipoEvaluacionMedicaRetiro;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
+use Hamcrest\Util;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\ArchivoService;
 use Src\App\Medico\FichaPreocupacionalService;
 use Src\App\Medico\SolicitudExamenService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class FichaPreocupacionalController extends Controller
 {
-    private $entidad = 'FichaPreocupacional';
+    private string $entidad = 'FichaPreocupacional';
+    private ArchivoService $archivoService;
 
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
+
         $this->middleware('can:puede.ver.fichas_preocupacionales')->only('index', 'show');
         $this->middleware('can:puede.crear.fichas_preocupacionales')->only('store');
         $this->middleware('can:puede.editar.fichas_preocupacionales')->only('update');
@@ -49,6 +53,10 @@ class FichaPreocupacionalController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function store(FichaPreocupacionalRequest $request)
     {
         try {
@@ -56,7 +64,7 @@ class FichaPreocupacionalController extends Controller
             DB::beginTransaction();
             $ficha_preocupacional = FichaPreocupacional::create($datos);
             $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional);
-            $ficha_preocupacional_service->guardarDatosFichaPreocupacional($request);
+            $ficha_preocupacional_service->crearOActualizarDatosFichaPreocupacional($request);
 
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
@@ -77,6 +85,10 @@ class FichaPreocupacionalController extends Controller
     }
 
 
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
     public function update(FichaPreocupacionalRequest $request, FichaPreocupacional $ficha_preocupacional)
     {
         try {
@@ -84,7 +96,7 @@ class FichaPreocupacionalController extends Controller
             $datos = $request->validated();
             $ficha_preocupacional->update($datos);
             $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional);
-            $ficha_preocupacional_service->actualizarDatosFichaPreocupacional($request);
+            $ficha_preocupacional_service->crearOActualizarDatosFichaPreocupacional($request);
 
             $modelo = new FichaPreocupacionalResource($ficha_preocupacional->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -98,20 +110,23 @@ class FichaPreocupacionalController extends Controller
         }
     }
 
-    public function destroy(FichaPreocupacionalRequest $request, FichaPreocupacional $ficha_preocupacional)
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function destroy(FichaPreocupacional $ficha_preocupacional)
     {
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         try {
             DB::beginTransaction();
             $ficha_preocupacional->delete();
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
+                $mensaje => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de preocupacional' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -128,27 +143,30 @@ class FichaPreocupacionalController extends Controller
         $modelo = [
             'motivo_consulta' => 'Ficha preocupacional',
             'recomendaciones_tratamiento' => $consulta_medica?->receta->rp . '/' . $consulta_medica?->receta->prescripcion,
-            'enfermedad_actual' => $consulta_medica?->diagnosticosCitaMedica->map(fn ($diagnostico) => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad)->implode(',', ' '),
+            'enfermedad_actual' => $consulta_medica?->diagnosticosCitaMedica->map(fn($diagnostico) => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad)->implode(',', ' '),
             'cargo' => $cargo_id,
         ];
 
         return response()->json(compact('modelo'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function imprimirPDF(FichaPreocupacional $ficha_preocupacional)
     {
         $configuracion = ConfiguracionGeneral::first();
         $resource = new FichaPreocupacionalResource($ficha_preocupacional);
         $empleado = Empleado::find($ficha_preocupacional->registroEmpleadoExamen->empleado_id);
         $profesionalSalud = ProfesionalSalud::find($ficha_preocupacional->profesional_salud_id);
-        $idEmpleado = $empleado->id;
+//        $idEmpleado = $empleado->id;
         $registro_empleado_examen_id = $ficha_preocupacional->registro_empleado_examen_id;
 
-        $respuestasTiposEvaluacionesMedicasRetiros = [
-            ['SI', 'NO'],
-            ['PRESUNTIVA', 'DEFINITIVA', 'NO APLICA'],
-            ['SI', 'NO', 'NO APLICA'],
-        ];
+//        $respuestasTiposEvaluacionesMedicasRetiros = [
+//            ['SI', 'NO'],
+//            ['PRESUNTIVA', 'DEFINITIVA', 'NO APLICA'],
+//            ['SI', 'NO', 'NO APLICA'],
+//        ];
 
         // Historial
         /* $consultasMedicas = ConsultaMedica::whereHas('registroEmpleadoExamen', function ($query) use ($idEmpleado) {
@@ -160,7 +178,7 @@ class FichaPreocupacionalController extends Controller
         // Solo de la ficha actual
         $consultasMedicas = ConsultaMedica::where('registro_empleado_examen_id', $registro_empleado_examen_id)->latest()->get();
 
-        Log::channel('testing')->info('Log', ['empleado', $empleado]);
+//        Log::channel('testing')->info('Log', ['empleado', $empleado]);
 
         $consultasMedicasMapeado = $consultasMedicas->map(function ($consulta) {
             return [
@@ -170,12 +188,11 @@ class FichaPreocupacionalController extends Controller
                         'recomendacion' => $diagnostico->recomendacion,
                         'cie' => $diagnostico->cie->codigo . '-' . $diagnostico->cie->nombre_enfermedad,
                         'pre' => null,
-                        'def' => null,
+                        'def' => 'x',
                     ];
                 }),
             ];
         });
-
 
 
         /* $opcionesRespuestasTipoEvaluacionMedicaRetiro = TipoEvaluacionMedicaRetiro::all()->map(function ($tipo, $index) use ($respuestasTiposEvaluacionesMedicasRetiros, $ficha_aptitud) {
@@ -204,7 +221,7 @@ class FichaPreocupacionalController extends Controller
         // $ficha['tipos_aptitudes_medicas_laborales'] = $tipos_aptitudes_medicas_laborales;
 
         $ficha['consultas_medicas'] = $consultasMedicasMapeado;
-        $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : '';
+        $ficha['recomendaciones_tratamiento'] = count($consultasMedicas) ? $consultasMedicas[0]?->receta->rp . ' / ' . $consultasMedicas[0]?->receta->prescripcion : $ficha_preocupacional->recomendaciones_tratamiento;
         $ficha['resultados_examenes'] = $this->consultarResultadosExamenes($registro_empleado_examen_id);
         $ficha['observaciones_aptitud_medica'] = 'observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica observaciones_aptitud_medica';
 
@@ -238,16 +255,14 @@ class FichaPreocupacionalController extends Controller
 
         try {
             $pdf = Pdf::loadView('medico.pdf.ficha_preocupacional', $datos);
-            $pdf->setPaper('A4', 'portrait');
+            $pdf->setPaper('A4');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
 
-            $file = $pdf->output();
-            return $file;
+            return $pdf->output();
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
-            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
-            return response()->json(compact('mensaje'));
+            throw  Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
 
@@ -256,7 +271,7 @@ class FichaPreocupacionalController extends Controller
         $examenes_solicitados = collect([]);
         $solicitudesExamenes = SolicitudExamen::where('registro_empleado_examen_id', $registro_empleado_examen_id)->where('estado_solicitud_examen', SolicitudExamen::SOLICITADO)->latest()->get();
         $resultadosExamenesRegistrados = $this->consultarResultadosExamenesRegistrados($registro_empleado_examen_id);
-        Log::channel('testing')->info('Log', ['resultadosExamenesRegistrados', $resultadosExamenesRegistrados]);
+//        Log::channel('testing')->info('Log', ['resultadosExamenesRegistrados', $resultadosExamenesRegistrados]);
 
         foreach ($solicitudesExamenes as $solicitudExamen) {
             foreach ($solicitudExamen->examenesSolicitados as $examenSolicitado) {
@@ -269,7 +284,7 @@ class FichaPreocupacionalController extends Controller
             }
         }
 
-        Log::channel('testing')->info('Log', ['examenes_solicitados', $examenes_solicitados]);
+//        Log::channel('testing')->info('Log', ['examenes_solicitados', $examenes_solicitados]);
         return $examenes_solicitados;
     }
 
@@ -278,13 +293,12 @@ class FichaPreocupacionalController extends Controller
         $solicitudExamenService = new SolicitudExamenService();
         $ids_examenes_solicitados = $solicitudExamenService->obtenerIdsExamenesSolicitados($registro_empleado_examen_id);
 
-        $results = ResultadoExamen::ignoreRequest(['campos', 'registro_empleado_examen_id'])->filter()->whereIn('examen_solicitado_id', $ids_examenes_solicitados)->get();
-        return $results;
+        return ResultadoExamen::ignoreRequest(['campos', 'registro_empleado_examen_id'])->filter()->whereIn('examen_solicitado_id', $ids_examenes_solicitados)->get();
     }
 
     private function filtrarResultadosExamenesRegistradosPorIdExamenSolicitado(Collection $resultadosExamenesRegistrados, int $examen_solicitado_id)
     {
-        return $resultadosExamenesRegistrados->filter(fn ($resultado_examen_registrado) => $resultado_examen_registrado->examen_solicitado_id == $examen_solicitado_id)->map(fn ($resultado_examen_registrado) => [
+        return $resultadosExamenesRegistrados->filter(fn($resultado_examen_registrado) => $resultado_examen_registrado->examen_solicitado_id == $examen_solicitado_id)->map(fn($resultado_examen_registrado) => [
             'resultado' => $resultado_examen_registrado->resultado,
             'configuracion_examen_campo' => $resultado_examen_registrado->configuracionExamenCampo->campo,
             'unidad_medida' => $resultado_examen_registrado->configuracionExamenCampo->unidad_medida,
@@ -294,9 +308,37 @@ class FichaPreocupacionalController extends Controller
 
     private function mapearObservacionesExamenFisicoRegional($observaciones_examen_fisico_regional)
     {
-        return $observaciones_examen_fisico_regional->map(fn ($item) => [
+        return $observaciones_examen_fisico_regional->map(fn($item) => [
             'categoria' => CategoriaExamenFisico::find($item['categoria_examen_fisico_id'])->nombre,
             'observacion' => $item['observacion'],
         ]); //->toArray();
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(FichaPreocupacional $ficha_preocupacional)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($ficha_preocupacional);
+        } catch (Throwable $th) {
+            return $th;
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     * @throws Throwable
+     */
+    public function storeFiles(Request $request, FichaPreocupacional $ficha_preocupacional)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($ficha_preocupacional, $request->file, RutasStorage::FICHAS_PREOCUPACIONALES->value . '_' . $ficha_preocupacional->id);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (Exception $ex) {
+            return $ex;
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

@@ -52,7 +52,6 @@ use App\Http\Controllers\Medico\ResultadoHabitoToxicoController;
 use App\Http\Controllers\Medico\RevisionActualOrganoSistemaController;
 use App\Http\Controllers\Medico\SistemaOrganicoController;
 use App\Http\Controllers\Medico\SolicitudExamenController;
-use App\Http\Controllers\Medico\TipoAntecedenteController;
 use App\Http\Controllers\Medico\TipoAntecedenteFamiliarController;
 use App\Http\Controllers\Medico\TipoAptitudController;
 use App\Http\Controllers\Medico\TipoAptitudMedicaLaboralController;
@@ -109,7 +108,7 @@ Route::apiResources(
         'resultados-examenes' => ResultadoExamenController::class,
         'revisiones-actuales-organos' => RevisionActualOrganoSistemaController::class,
         'sistemas-organos' => SistemaOrganicoController::class,
-        'tipos-antecedentes' => TipoAntecedenteController::class,
+//        'tipos-antecedentes' => TipoAntecedenteController::class,
         'laboratorios-clinicos' => LaboratorioClinicoController::class,
         'tipos-antecedentes-familiares' => TipoAntecedenteFamiliarController::class,
         'tipos-aptitudes' => TipoAptitudController::class,
@@ -145,7 +144,7 @@ Route::apiResources(
             'tipos-eval-medicas-retiro' => 'tipo_evaluacion_medica_retiro',
             'tipos-aptitudes-medicas-laborales' => 'tipo_aptitud_medica_laboral',
             'tipos-antecedentes-familiare' => 'tipo_antecedente_familiar',
-            'tipos-antecedentes' => 'tipo_antecedente',
+//            'tipos-antecedentes' => 'tipo_antecedente',
             'tipos-antecedentes-familiares' => 'tipo_antecedente_familiar',
             'tipos-habitos_toxico' => 'tipo_habito_toxico',
             'fichas-aptitudes' => 'ficha_aptitud',
@@ -208,6 +207,13 @@ Route::post('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController:
 
 Route::get('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenController::class, 'indexFiles']);
 Route::post('solicitudes-examenes/files/{solicitud_examen}', [SolicitudExamenController::class, 'storeFiles']);
+
+Route::get('fichas-preocupacionales/files/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'indexFiles']);
+Route::post('fichas-preocupacionales/files/{ficha_preocupacional}', [FichaPreocupacionalController::class, 'storeFiles']);
+
+
+Route::get('fichas-aptitudes/files/{ficha_aptitud}', [FichaAptitudController::class, 'indexFiles']);
+Route::post('fichas-aptitudes/files/{ficha_aptitud}', [FichaAptitudController::class, 'storeFiles']);
 
 /*****************
  * Imprimir PDFs

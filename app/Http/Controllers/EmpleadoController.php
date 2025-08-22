@@ -10,9 +10,8 @@ use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Http\Resources\Ventas\VendedorResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\User;
-use App\Models\Vehiculos\Conductor;
-use App\Models\Vehiculos\Licencia;
 use DateTime;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -149,18 +148,14 @@ class EmpleadoController extends Controller
             //Crear empleado
             $empleado = $user->empleado()->create($datos);
             if (array_key_exists('discapacidades', $datos)) $this->polymorphicGenericService->actualizarDiscapacidades($user, $datos['discapacidades']);
+            if (array_key_exists('familiares', $datos)) $this->servicio->agregarFamiliares($empleado, $datos['familiares']);
             //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
             if (!empty($request->conductor)) {
-                $datos_conductor = $request->conductor;
-                $datos_conductor['empleado_id'] = $empleado->id;
-                $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia']);
-                /* $conductor = */
-                Conductor::create($datos_conductor);
+                $this->servicio->actualizarDatosConductor($empleado, $request->conductor);
+            }else{
+                $this->servicio->eliminarConductor($empleado->id);
             }
 
-
-            //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
-            //$grupo = Grupo::find($datos['grupo_id']);
 
             DB::commit();
         } catch (Exception $e) {
@@ -196,22 +191,7 @@ class EmpleadoController extends Controller
     /**
      * @throws ValidationException
      */
-//    public function existeResponsableGrupo(Request $request)
-//    {
-//        $request->validate([
-//            'grupo_id' => 'required|numeric|integer',
-//        ]);
-//
-//        $responsableActualGrupo = Empleado::where('grupo_id', $request['grupo_id'])->where('es_responsable_grupo', true)->first();
-//
-//        if ($responsableActualGrupo) {
-//            throw ValidationException::withMessages([
-//                'responsable_grupo' => ['Ya existe un empleado designado como responsable del grupo. ¿Desea reemplazarlo por el empleado actual?'],
-//            ]);
-//        }
-//
-//        return response()->isOk();
-//    }
+
 
     /**
      * Consultar
@@ -255,50 +235,10 @@ class EmpleadoController extends Controller
 
         //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
         if (!empty($request->conductor)) {
-            $datos_conductor = $request->conductor;
-            $datos_conductor['empleado_id'] = $empleado->id;
-            $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia']);
-            //buscamos un conductor
-            $conductor = Conductor::find($empleado->id);
-            if ($conductor) {
-                $conductor->update($datos_conductor);
-                $datos['licencias'] = array_map(function ($licencia) use ($conductor) {
-                    return [
-                        'conductor_id' => $conductor->empleado_id,
-                        'tipo_licencia' => $licencia['tipo_licencia'],
-                        'inicio_vigencia' => $licencia['inicio_vigencia'],
-                        'fin_vigencia' => $licencia['fin_vigencia'],
-                    ];
-                }, $request->conductor['licencias']);
-                $tiposLicencias = array_column($datos['licencias'], 'tipo_licencia');
-                Licencia::upsert(
-                    $datos['licencias'],
-                    uniqueBy: ['conductor_id', 'tipo_licencia'],
-                    update: ['tipo_licencia', 'inicio_vigencia', 'fin_vigencia']
-                );
-                Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
-            } else {
-                $conductor = Conductor::create($datos_conductor);
-                $datos['licencias'] = array_map(function ($licencia) use ($conductor) {
-                    return [
-                        'conductor_id' => $conductor->empleado_id,
-                        'tipo_licencia' => $licencia['tipo_licencia'],
-                        'inicio_vigencia' => $licencia['inicio_vigencia'],
-                        'fin_vigencia' => $licencia['fin_vigencia'],
-                    ];
-                }, $request->conductor['licencias']);
-                $tiposLicencias = array_column($datos['licencias'], 'tipo_licencia');
-                Licencia::upsert(
-                    $datos['licencias'],
-                    uniqueBy: ['conductor_id', 'tipo_licencia'],
-                    update: ['tipo_licencia', 'inicio_vigencia', 'fin_vigencia']
-                );
-                Licencia::eliminarObsoletos($conductor->empleado_id, $tiposLicencias);
-            }
+            $this->servicio->actualizarDatosConductor($empleado, $request->conductor);
         } else {
             //Eliminamos el conductor
-            $conductor = Conductor::find($empleado->id);
-            if ($conductor) $conductor->delete();
+            $this->servicio->eliminarConductor($empleado->id);
         }
 
         if (!is_null($request->password)) {
@@ -312,7 +252,6 @@ class EmpleadoController extends Controller
             'email' => $request->email,
         ]);
 
-        // $empleado->user()->update(['status' => $request->estado === 'ACTIVO' ? true : false]);
         $modelo = new EmpleadoResource($empleado->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
@@ -418,52 +357,6 @@ class EmpleadoController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-//    public function designarSecretarioGrupo(Request $request)
-//    {
-//        /* $request->validate([
-//            'grupo' => 'required|numeric|integer',
-//            'nuevo_jefe' => 'required|numeric|integer',
-//        ]);
-//
-//        // Empleados
-//        $empleados = Grupo::find($request['grupo'])->empleados;
-//        $secretarioActual = null;
-//
-//        // Buscar secretario actual
-//        foreach ($empleados as $empleado) {
-//            $es_secretario = in_array(User::ROL_TECNICO_SECRETARIO, $empleado->user->getRoleNames()->toArray()); //()->with(User::ROL_TECNICO_JEFE_CUADRILLA)->first();
-//            if ($es_secretario) $secretarioActual = $empleado->user;
-//        }
-//
-//        $nuevoJefe = User::find(Empleado::find($request['nuevo_jefe'])->usuario_id);
-//
-//        Log::channel('testing')->info('Log', ['Grupo empleado ', Empleado::find($request['nuevo_jefe'])->grupo_id]);
-//        Log::channel('testing')->info('Log', ['Grupo asignado ', $request['grupo']]);
-//
-//        // Validar que el empleado pertenezca al grupo seleccionado
-//        if (Empleado::find($request['nuevo_jefe'])->grupo_id !== $request['grupo']) {
-//            throw ValidationException::withMessages([
-//                'error_grupo' => ['Este empleado no pertenece al grupo seleccionado. Asígnelo y vuelva a intentar.'],
-//            ]);
-//        }
-//
-//        // Validar que nuevo jefe no sea secretario
-//        if (in_array(User::ROL_TECNICO_JEFE_CUADRILLA, $nuevoJefe->getRoleNames()->toArray())) {
-//            throw ValidationException::withMessages([
-//                'jefe_cuadrilla' => ['Este empleado tiene rol de Jefe de cuadrilla. Cámbielo y vuelva a intentar.'],
-//            ]);
-//        }
-//
-//        // Quitar rol de secretario al actual
-//        $nuevosRolesAnteriorJefe = $secretarioActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_TECNICO_SECRETARIO);
-//        $secretarioActual->syncRoles($nuevosRolesAnteriorJefe);
-//
-//        // Agregar rol de secretario a nuevo secretario
-//        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_SECRETARIO);
-//        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
-//
-//        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
-//    }
 
     /**
      * Obtiene los empleados que tengan los roles enviados en la `$request`. Enviar `$request->excluir:true` para devolver los empleados que no tienen el/los role/s enviados
@@ -512,8 +405,8 @@ class EmpleadoController extends Controller
             ->where('esta_en_rol_pago', '1')
             ->where('realiza_factura', '0')
             ->where('salario', '!=', 0)
-            ->orderBy('area_id', 'asc')
-            ->orderBy('apellidos', 'asc')
+            ->orderBy('area_id')
+            ->orderBy('apellidos')
             ->get();
         $results = Empleado::empaquetarListado($reportes);
         $nombre_reporte = 'lista_empleados';
@@ -639,5 +532,14 @@ class EmpleadoController extends Controller
             return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+
+    public function obtenerEmpleadosPrestamoEmpresarial()
+    {
+        $idsPrestamosEmpresariales = PrestamoEmpresarial::pluck('solicitante');
+        $empleados = Empleado::whereIn('id', $idsPrestamosEmpresariales)->get();
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
     }
 }

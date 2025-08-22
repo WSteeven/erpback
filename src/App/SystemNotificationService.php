@@ -4,6 +4,8 @@ namespace Src\App;
 
 use App\Mail\Admin\SendExceptionMail;
 use App\Mail\Admin\SendInformationMail;
+use App\Models\Empleado;
+use Auth;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Mail;
@@ -24,7 +26,10 @@ class SystemNotificationService
     public static function sendExceptionErrorMailToSystemAdmin(string $exception)
     {
         try {
-            Mail::to(self::$admin_mail)->send(new SendExceptionMail($exception));
+            $nombre = Auth::check() && Auth::user()?->empleado
+                ? Empleado::extraerNombresApellidos(Auth::user()->empleado)
+                : 'Sistema';
+            Mail::to(self::$admin_mail)->send(new SendExceptionMail($exception, $nombre));
 
         } catch (Exception $e) {
             Log::channel('testing')->error('Log', ["error en sendExceptionErrorToSystemAdminMail", $e->getMessage(), $e->getLine()]);

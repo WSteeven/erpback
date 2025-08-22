@@ -36,6 +36,9 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('clean:temp-images')->daily();
         $schedule->command('clean:old-files')->daily(); // para borrar diariamente las imagenes que ya cumplan el periodo valido
+
+        $schedule->command('hikvision:fetch-records')->weekdays()->between('08:05', '19:05')->everyThirtyMinutes();
+
         // $schedule->command('inspire')->hourly();
         // $schedule->job(new MyJobExample)->everyMinute(); // Execute job every 5 minutes
         $schedule->job(new ClearCacheJob)->daily(); // Execute job every day at 08:00
@@ -88,14 +91,15 @@ class Kernel extends ConsoleKernel
          * Tickets
          ***********/
         // Programación para días de semana lunes a viernes
-        $schedule->job(new PausarTicketsFinJornadaJob)
+        $schedule->job(new PausarTicketsFinJornadaJob())->weekdays()->at('17:05');
+        $schedule->job(new PausarTicketsFinJornadaJob())
             ->timezone('America/Guayaquil')
             ->days([Schedule::MONDAY, Schedule::TUESDAY, Schedule::WEDNESDAY, Schedule::THURSDAY, Schedule::FRIDAY])
             ->between('17:00', '8:00')
             ->everyFourHours();
 
         // Programación para fines de semana
-        $schedule->job(new PausarTicketsFinJornadaJob)
+        $schedule->job(new PausarTicketsFinJornadaJob())
             ->everyFourHours()
             ->when(function () {
                 return in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);

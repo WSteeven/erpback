@@ -7,10 +7,12 @@ use App\Models\Autorizacion;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\ConceptoIngreso;
+use App\Models\RecursosHumanos\NominaPrestamos\CuotaDescuento;
 use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago;
+use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
@@ -312,8 +314,11 @@ class NominaService
             // Recorremos los descuentos para ver las cuotas por cada uno y tomarlas para registrar esos egresos
             foreach ($descuentos as $descuento) {
                 $cuota = $descuento->cuotas()->where('pagada', false)->where('mes_vencimiento', $mes)->first();
+                if (!$cuota) continue;
 //                Log::channel('testing')->info('Log', ['Valor cuota a pagar', $cuota->valor_cuota]);
 //                Log::channel('testing')->info('Log', ['Rol Pago Individual', $rol_empleado]);
+                if (is_null($cuota->comentario)) $cuota->comentario = "Estado transitorio, pendiente de finalizar, registrada en rol de pago de $mes. ";
+                $cuota->save();
                 EgresoRolPago::crearEgresoRol($rol_empleado, $cuota->valor_cuota, $cuota);
             }
         }
@@ -434,6 +439,7 @@ class NominaService
             $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
+//            Log::channel('testing')->info('Log', ['enviar_rol_pago->args', $reportes, $destinatario]);
             $user = User::where('id', $destinatario->usuario_id)->first();
             Mail::to($user->email)
                 ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
@@ -468,5 +474,24 @@ class NominaService
 //        }
 //    }
 
+
+    /**
+     * Obtiene el nombre o abreviatura del descuento asociado a un egreso de rol de pago.
+     *
+     * Dependiendo del tipo de descuento, se retorna la abreviatura de la multa o del tipo de descuento,
+     * o el nombre del descuento si no se encuentra una abreviatura.
+     *
+     * @param EgresoRolPago $egresoRolPago instancia del egreso de rol de pago.
+     * @return string Nombre o abreviatura del descuento.
+     */
+    public static function obtenerNombreDescuentoEgresoRolPago(EgresoRolPago $egresoRolPago)
+    {
+        return match (get_class($egresoRolPago->descuento)) {
+            CuotaDescuento::class => $egresoRolPago->descuento?->descuento?->multa?->abreviatura
+                ?? $egresoRolPago->descuento?->descuento?->tipoDescuento?->abreviatura
+                ?? 'DESC.',
+            default => $egresoRolPago->descuento?->nombre ?? 'DESC.',
+        };
+    }
 
 }

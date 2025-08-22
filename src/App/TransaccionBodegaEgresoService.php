@@ -563,6 +563,7 @@ class TransaccionBodegaEgresoService
         $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $request->item['id'])->first();
         try {
             DB::beginTransaction();
+            if (is_null($request->item['cantidad']) || $request->item['cantidad'] < 0) throw new Exception('La cantidad debe ser un numero mayor o igual a 0');
             //primero verificamos si se va a restar o no
             if ($request->item['cantidad'] > $request->item['pendiente']) {
                 // Esto significa que se va a despachar más cantidad
@@ -604,6 +605,7 @@ class TransaccionBodegaEgresoService
     public function modificarItemEgresoParcial(Request $request, TransaccionBodega $transaccion)
     {
         $item_inventario = Inventario::find($request->item['id']);
+        if (is_null($request->item['cantidad']) || $request->item['cantidad'] < 0) throw new Exception('La cantidad debe ser un numero mayor o igual a 0');
         $detalle_producto_transaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->where('inventario_id', $request->item['id'])->first();
         if ($detalle_producto_transaccion->recibido > 0 && $request->item['cantidad'] > $detalle_producto_transaccion->cantidad_inicial) throw new Exception('No se puede despachar más cantidad a un ítem que ya tiene una cantidad recibida mayor a 0');
         if ($request->item['cantidad'] === 0 && $detalle_producto_transaccion->recibido > 0) throw new Exception('No puede establecer cantidad cero para un item que ya tiene un valor de recibido');

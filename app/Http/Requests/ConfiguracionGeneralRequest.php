@@ -42,6 +42,8 @@ class ConfiguracionGeneralRequest extends FormRequest
             'correo_principal' => 'required|string',
             'correo_secundario' => 'nullable|string',
             'sitio_web' => 'required|string',
+            'sitio_web_erp' => 'sometimes|nullable|string',
+            'link_app_movil' => 'sometimes|nullable|string',
             'direccion_secundaria1' => 'nullable|string',
             'direccion_secundaria2' => 'nullable|string',
             'nombre_empresa' => 'required|string',
