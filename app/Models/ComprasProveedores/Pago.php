@@ -12,7 +12,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class Pago extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, Searchable, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     // Tipo de transacción
     const PAGOS = 'PA';
@@ -40,12 +40,12 @@ class Pago extends Model implements Auditable
 
     private static array $whiteListFilter = ['*'];
 
-    public function toSearchableArray()
+    /*public function toSearchableArray()
     {
         return [
             'num_comprobante' => $this['num_comprobante'],
         ];
-    }
+    }*/
 
     /**************
      * Relaciones

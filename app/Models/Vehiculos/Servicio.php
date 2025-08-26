@@ -3,12 +3,18 @@
 namespace App\Models\Vehiculos;
 
 use App\Traits\UppercaseValuesTrait;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Laravel\Scout\EngineManager;
 use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\Vehiculos\Servicio
@@ -20,34 +26,35 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int|null $notificar_antes
  * @property int|null $intervalo
  * @property bool $estado
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio query()
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereEstado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereIntervalo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereNombre($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereNotificarAntes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereTipo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Servicio whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|Servicio acceptRequest(?array $request = null)
+ * @method static Builder|Servicio filter(?array $request = null)
+ * @method static Builder|Servicio ignoreRequest(?array $request = null)
+ * @method static Builder|Servicio newModelQuery()
+ * @method static Builder|Servicio newQuery()
+ * @method static Builder|Servicio query()
+ * @method static Builder|Servicio setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Servicio setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Servicio setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Servicio whereCreatedAt($value)
+ * @method static Builder|Servicio whereEstado($value)
+ * @method static Builder|Servicio whereId($value)
+ * @method static Builder|Servicio whereIntervalo($value)
+ * @method static Builder|Servicio whereNombre($value)
+ * @method static Builder|Servicio whereNotificarAntes($value)
+ * @method static Builder|Servicio whereTipo($value)
+ * @method static Builder|Servicio whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Servicio extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
-    use UppercaseValuesTrait, Filterable, Searchable;
+    use UppercaseValuesTrait, Filterable;
+    use Searchable;
 
     protected $table = 'veh_servicios';
     protected $fillable = [
@@ -66,7 +73,7 @@ class Servicio extends Model implements Auditable
         'estado' => 'boolean',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function toSearchableArray()
     {
@@ -74,6 +81,11 @@ class Servicio extends Model implements Auditable
             'nombre' => $this->nombre,
             'tipo' => $this->tipo,
         ];
+    }
+
+    public function searchableUsing()
+    {
+        return app(EngineManager::class)->engine('database');
     }
 
     /**

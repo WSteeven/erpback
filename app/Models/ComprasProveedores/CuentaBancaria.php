@@ -7,13 +7,12 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class CuentaBancaria extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, Searchable, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, Filterable,  AuditableModel;
 
     // Tipos de cuentas
     const AHORRO = 'AHO';
@@ -29,12 +28,12 @@ class CuentaBancaria extends Model implements Auditable
 
     private static array $whiteListFilter = ['*'];
 
-    public function toSearchableArray()
+/*    public function toSearchableArray()
     {
         return [
             'numero_cuenta' => $this['numero_cuenta'],
         ];
-    }
+    }*/
 
     /**************
      * Relaciones

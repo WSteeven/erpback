@@ -7,13 +7,12 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Beneficiario extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, Searchable, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, Filterable,  AuditableModel;
 
     protected $table = 'cmp_beneficiarios';
     protected $fillable = [
@@ -30,13 +29,13 @@ class Beneficiario extends Model implements Auditable
 
     private static array $whiteListFilter = ['*'];
 
-    public function toSearchableArray()
+    /*public function toSearchableArray()
     {
         return [
             'identificacion_beneficiario' => $this['identificacion_beneficiario'],
             'nombre_beneficiario' => $this['nombre_beneficiario'],
         ];
-    }
+    }*/
 
     /**************
      * Relaciones
