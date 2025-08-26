@@ -7,13 +7,12 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class OficinaBiometrico extends Model implements  Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, Searchable;
+    use HasFactory, UppercaseValuesTrait, Filterable;
     use AuditableModel;
 
     protected $table = 'rrhh_cp_oficinas_biometricos';

@@ -11,7 +11,7 @@ use Src\Shared\Utils;
 
 class CentroCostoController extends Controller
 {
-    private $entidad = 'Centro de Costos';
+    private string $entidad = 'Centro de Costos';
     public function __construct()
     {
         $this->middleware('can:puede.ver.centros_costos')->only('index', 'show');
@@ -23,7 +23,7 @@ class CentroCostoController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
         $results = CentroCosto::filter()->orderBy('id', 'desc')->get();
         $results = CentroCostoResource::collection($results);
