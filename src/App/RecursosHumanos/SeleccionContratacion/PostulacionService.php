@@ -11,6 +11,7 @@ use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionSeleccionadaMail;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
+use App\Models\Sistema\PlantillaBase;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -184,8 +185,11 @@ class PostulacionService
         ];
         Log::channel('testing')->info('Log', ['generarExcelConRespuestasTestPersonalidad respuestas', $respuestas]);
 //        $plantilla = storage_path('app\\public\\plantillas\\plantilla_test_16pf.xlsx');
-        $plantilla = storage_path('app\\plantillas\\plantilla_test_16pf.xlsx');
-        $spreadsheet = IOFactory::load($plantilla);
+        $nombrePlantilla = 'EVALUACION DE PERSONALIDAD 16PF';
+        $plantilla = PlantillaBase::where('nombre', $nombrePlantilla)->first();
+        if(!$plantilla) throw new \Exception("No se encuentra la plantilla, por favor asegurate de que esté subida con el nombre de $nombrePlantilla");
+
+        $spreadsheet = IOFactory::load($plantilla->url);
         $hoja = $spreadsheet->getSheetByName('Ingreso Datos');
         $hojaResultados = $spreadsheet->getSheetByName('Resultados');
 

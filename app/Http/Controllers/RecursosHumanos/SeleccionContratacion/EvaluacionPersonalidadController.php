@@ -59,7 +59,7 @@ class EvaluacionPersonalidadController extends Controller
             DB::beginTransaction();
             //antes de guardar verificar si ya existe una evaluacion para esa postulacion y/o usuario
             $evaluacionRealizada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($datos['postulacion_id'], true);
-            if ($evaluacionRealizada) throw new Exception('Ya existe una evaluación de personalidad para esta postulación. No se puede crear más.');
+//            if ($evaluacionRealizada) throw new Exception('Ya existe una evaluación de personalidad para esta postulación. No se puede crear más.');
             $postulacion = Postulacion::find($datos['postulacion_id']);
             $postulacion->evaluacionPersonalidad()->update(['completado' => true, 'respuestas' => $datos['respuestas'], 'fecha_realizacion' => now()]);
             DB::commit();

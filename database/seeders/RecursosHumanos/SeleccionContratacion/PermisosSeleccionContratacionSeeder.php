@@ -93,6 +93,11 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         // otros permisos
         Permission::firstOrCreate(['name' => Permisos::VER . 'tipos_discapacidades'])->syncRoles($rrhh);
 
+        // plantillas_base
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'plantillas_base'])->syncRoles($administrador);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'plantillas_base'])->syncRoles($administrador);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'plantillas_base'])->syncRoles($administrador);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'plantillas_base'])->syncRoles($administrador);
 
     }
 }
