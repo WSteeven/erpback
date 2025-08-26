@@ -151,6 +151,9 @@ class FichaPreocupacionalRequest extends FormRequest
     public function messages()
     {
         return [
+            'antecedentes_empleos_anteriores.*.tipos_riesgos_ids'=>'Debe seleccionar al menos un riesgo para el antecedente de empleo anterior ingresado',
+            'fr_puestos_trabajos_actuales'=>'Debe ingresar al menos 1 factor de riesgo del puesto de trabajo actual',
+            'fr_puestos_trabajos_actuales.*.categorias'=>'Debe seleccionar al menos un riesgo para el factor de riesgo del puesto de trabajo actual',
             'aptitud_medica.tipo_aptitud_id.required' => 'Seleccione la aptitud médica para el trabajo.'
         ];
     }
