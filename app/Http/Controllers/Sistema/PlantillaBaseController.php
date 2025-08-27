@@ -115,8 +115,7 @@ class PlantillaBaseController extends Controller
     {
         try {
             $request->validate(['nombre' => ['required', 'string']]);
-            $plantilla = PlantillaBase::where('nombre', $request['nombre'])->first();
-            if (!$plantilla) throw new Exception('El archivo con el nombre proporcionado no existe');
+            $plantilla = PlantillaBase::obtenerPlantillaByNombre($request['nombre']);
 
             $modelo = new PlantillaBaseResource($plantilla);
             return response()->json(compact('modelo'));

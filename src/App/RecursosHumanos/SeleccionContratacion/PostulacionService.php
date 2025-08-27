@@ -11,18 +11,10 @@ use App\Mail\RecursosHumanos\SeleccionContratacion\PostulacionSeleccionadaMail;
 use App\Models\RecursosHumanos\SeleccionContratacion\BancoPostulante;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use App\Models\RecursosHumanos\SeleccionContratacion\Vacante;
-use App\Models\Sistema\PlantillaBase;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Exception;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class PostulacionService
@@ -133,18 +125,7 @@ class PostulacionService
     }
 
 
-    /**
-     * @throws Exception
-     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @throws \Exception
-     */
-    public function generarExcelConRespuestasTestPersonalidad(Postulacion $postulacion)
-    {
-        $evaluacion = $postulacion->evaluacionPersonalidad()->first();
-        $respuestas = $evaluacion->respuestas;
-        Log::channel('testing')->info('Log', ['generarExcelConRespuestasTestPersonalidad respuestas', $evaluacion->respuestas]);
-
-        $respuestas = [
+    /*        $respuestas = [
             "1" => "C", "2" => "C", "3" => "A", "4" => "C", "5" => "C",
             "6" => "C", "7" => "C", "8" => "A", "9" => "C", "10" => "C",
             "11" => "A", "12" => "A", "13" => "A", "14" => "A", "15" => "C",
@@ -182,105 +163,7 @@ class PostulacionService
             "171" => "B", "172" => "B", "173" => "A", "174" => "C", "175" => "C",
             "176" => "B", "177" => "A", "178" => "A", "179" => "B", "180" => "B",
             "181" => "B", "182" => "A", "183" => "C", "184" => "B", "185" => "A"
-        ];
-        Log::channel('testing')->info('Log', ['generarExcelConRespuestasTestPersonalidad respuestas', $respuestas]);
-//        $plantilla = storage_path('app\\public\\plantillas\\plantilla_test_16pf.xlsx');
-        $nombrePlantilla = 'EVALUACION DE PERSONALIDAD 16PF';
-        $plantilla = PlantillaBase::where('nombre', $nombrePlantilla)->first();
-        if(!$plantilla) throw new \Exception("No se encuentra la plantilla, por favor asegurate de que esté subida con el nombre de $nombrePlantilla");
-
-        $spreadsheet = IOFactory::load($plantilla->url);
-        $hoja = $spreadsheet->getSheetByName('Ingreso Datos');
-        $hojaResultados = $spreadsheet->getSheetByName('Resultados');
-
-
-        // Rango de búsqueda de la tabla: A3:X18 (Pregunta en la primera fila de cada bloque)
-        $inicio_fila = 3;
-        $fin_fila = 18;
-        $inicio_columna = Coordinate::columnIndexFromString('A'); // 1
-        $fin_columna = Coordinate::columnIndexFromString('X'); // 24
-        foreach ($respuestas as $pregunta => $letra) {
-            $valor_numerico = match ($letra) {
-                'A' => 1,
-                'C' => 3,
-                default => 2
-            };
-
-            $coordenada = null;
-
-            // Buscar dentro del rango A3:X18 el número de pregunta
-            for ($fila = $inicio_fila; $fila <= $fin_fila; $fila++) {
-                for ($col = $inicio_columna; $col <= $fin_columna; $col += 2) {
-                    $celda_valor = $hoja->getCell([$col, $fila])->getValue();
-                    if ((string)$celda_valor === (string)$pregunta) {
-                        $coordenada = [
-                            'col' => $col + 1, // una columna a la derecha
-                            'fila' => $fila
-                        ];
-                        break 2; // salir de ambos bucles
-                    }
-                }
-            }
-
-            if ($coordenada) {
-                $hoja->setCellValue([$coordenada['col'], $coordenada['fila']], $valor_numerico);
-            }
-
-        }
-        // Aqui va el nombre de la persona y el genero real
-        $hoja->setCellValue('D2', 'Nombre por defecto');
-        $hoja->setCellValue('N2', 'M');// M o F según el sexo de la persona
-        $hoja->setCellValue('U2', Carbon::now()->format('Y-m-d')); // La fecha que se hizo la evaluación
-
-        // Leer los datos de la hojaResultados desde la B33 a la B48 para las claves del primer grafico y D33 a la D48 para los valores
-        $datosPrimarios = [];
-        for ($fila = 33; $fila <= 48; $fila++) {
-            $clave = $hojaResultados->getCell("B$fila")->getValue();
-            $valor = $hojaResultados->getCell("D$fila")->getValue();
-            if ($clave !== null && !is_null($valor)) {
-                $datosPrimarios[(string)$clave] = floatval($valor);
-            }
-        }
-        // Leer los datos de la hojaResultados desde la B51 a la B55 para las claves del primer grafico y D51 a la D55 para los valores
-        $datosGlobales = [];
-        for ($fila = 51; $fila <= 55; $fila++) {
-            $clave = $hojaResultados->getCell("B$fila")->getValue();
-            $valor = $hojaResultados->getCell("D$fila")->getValue();
-            if ($clave !== null && !is_null($valor)) {
-                $datosGlobales[(string)$clave] = floatval($valor);
-            }
-        }
-
-        $graficos = GeneradorGraficosExcel::generarGraficos($datosPrimarios, $datosGlobales);
-
-        $dibujoPrimario = new Drawing();
-        $dibujoPrimario->setName('Gráfico Primario');
-        $dibujoPrimario->setPath($graficos['graficoPrimario']); // Ruta al PNG generado
-        $dibujoPrimario->setCoordinates('J32'); // Posición donde aparecerá en la hoja
-        $dibujoPrimario->setHeight(350); // Puedes ajustar el tamaño
-        $dibujoPrimario->setWorksheet($hojaResultados);
-
-        // Insertar gráfico de dimensiones globales
-        $dibujoGlobal = new Drawing();
-        $dibujoGlobal->setName('Gráfico Global');
-        $dibujoGlobal->setPath($graficos['graficoGlobal']);
-        $dibujoGlobal->setCoordinates('J50'); // Otra posición
-        $dibujoGlobal->setHeight(150);
-        $dibujoGlobal->setWorksheet($hojaResultados);
-
-        // Colocar la hoja de resultados como la activa
-        $spreadsheet->setActiveSheetIndexByName('Resultados');
-
-        // Enviar directamente como descarga sin guardar
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $writer->setIncludeCharts(true); // ⚠️ Esto es clave para conservar los gráficos
-        $tempFile = tempnam(sys_get_temp_dir(), 'test16pf_') . '.xlsx';
-        $writer->save($tempFile);
-
-
-//        return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend(true);
-        return $tempFile;
-    }
+        ];*/
 
 
     /**

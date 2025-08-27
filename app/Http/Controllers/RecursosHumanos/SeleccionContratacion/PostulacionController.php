@@ -20,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\App\PolymorphicGenericService;
 use Src\App\RecursosHumanos\SeleccionContratacion\EvaluacionPersonalidadService;
+use Src\App\RecursosHumanos\SeleccionContratacion\GeneradorExcelTestPersonalidad;
 use Src\App\RecursosHumanos\SeleccionContratacion\PolymorphicSeleccionContratacionModelsService;
 use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Config\RutasStorage;
@@ -378,24 +379,20 @@ class PostulacionController extends Controller
     {
         // Se verifica si ya hay una evaluacion completada para esta postulación y en ese caso retorna la evaluación
         if (EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id, true)) {
-            //aqui se debe redireccionar al caso que devuelve la evaluacion realizada
-            $tempFile = $this->service->generarExcelConRespuestasTestPersonalidad($postulacion);
+            $generadorExcel = new GeneradorExcelTestPersonalidad();
+            $tempFile = $generadorExcel->generar($postulacion);
             return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend();
         }
 
         $this->service->generarTokenSiNoExiste($postulacion);
-
         $this->service->crearEvaluacionSiNoexiste($postulacion);
 
         $q = match (get_class($postulacion->user)) {
             UserExternal::class => 'external',
             default => '', // no se devuelve nada porque el front solo evalua si es explicitamente 'external'
         };
-
         $link = env('SPA_URL') . "/test-personalidad/$postulacion->token_test?q=$q";
-
         $this->service->enviarLinkSiNoFueEnviado($postulacion, $link);
-
 
         $modelo = new PostulacionResource($postulacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

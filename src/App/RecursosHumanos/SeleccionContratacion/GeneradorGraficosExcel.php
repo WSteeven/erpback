@@ -18,12 +18,12 @@ class GeneradorGraficosExcel
      */
     public static function generarGraficos(array $primarios, array $globales): array
     {
-        $rutaPrimario = storage_path('app/public/grafico_primario_' . uniqid() . '.png');
-        $rutaGlobal = storage_path('app/public/grafico_global_' . uniqid() . '.png');
+        $rutaPrimario = tempnam(sys_get_temp_dir(), 'grafico_primario_').'.png';
+        $rutaGlobal = tempnam(sys_get_temp_dir(), 'grafico_global_' ).'.png';
 
 
-        self::graficoBarrasHorizontales($primarios, $rutaPrimario, 700, 700,0);
-        self::graficoBarrasHorizontales($globales, $rutaGlobal, 400, 180,0);
+        self::graficoBarrasHorizontales($primarios, $rutaPrimario, 700, 700);
+        self::graficoBarrasHorizontales($globales, $rutaGlobal, 400, 180);
 
         return [
             'graficoPrimario' => $rutaPrimario,
@@ -34,7 +34,7 @@ class GeneradorGraficosExcel
     /**
      * @throws Exception
      */
-    private static function graficoBarrasHorizontales(array $datos, string $ruta, int $ancho, int $alto, int $min=1, int $max=10)
+    private static function graficoBarrasHorizontales(array $datos, string $ruta, int $ancho, int $alto)
     {
         // Cargar módulos necesarios
         MtJpGraph::load(['bar'], true);
@@ -45,7 +45,6 @@ class GeneradorGraficosExcel
         $grafico = new Graph($ancho, $alto);
         $grafico->SetShadow();
         $grafico->SetScale("textlin");
-
         $grafico->Set90AndMargin(100, 30, 20, 40); // Gráfico horizontal
 
         $grafico->xaxis->SetTickLabels($etiquetas);
@@ -54,8 +53,8 @@ class GeneradorGraficosExcel
         $grafico->yaxis->HideLine(true);
         $grafico->yaxis->HideTicks(true, true);
 
-        $grafico->yaxis->scale->SetAutoMin($min);   // mínimo fijo
-        $grafico->yaxis->scale->SetAutoMax($max);  // máximo fijo
+//        $grafico->yaxis->scale->SetAutoMin($min);   // mínimo fijo
+//        $grafico->yaxis->scale->SetAutoMax($max);  // máximo fijo
         $grafico->yaxis->SetLabelFormat('%d');
         $grafico->yaxis->SetTextLabelInterval(1); // fuerza enteros si es necesario
 
