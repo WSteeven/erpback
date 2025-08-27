@@ -75,4 +75,22 @@ class DepartamentoController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
+
+    /*************
+     * Consultar Departamentos con empleados activos
+     ************ */
+    public function departamentosConEmpleados()
+    {
+        $departamentos = Departamento::withCount([
+            'empleados as cantidad_empleados' => function ($query) {
+                $query->where('estado', 1); // solo empleados activos
+            }
+        ])
+            ->where('activo', 1) // solo departamentos activos
+            ->where('id', '!=', 9) // excluir id 9, según tu lógica
+            ->having('cantidad_empleados', '>', 0)
+            ->get();
+
+        return response()->json($departamentos);
+    }
 }
