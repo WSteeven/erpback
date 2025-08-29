@@ -14,6 +14,7 @@ use App\Http\Controllers\ComprobanteController;
 use App\Http\Controllers\CondicionController;
 use App\Http\Controllers\ConfiguracionGeneralController;
 use App\Http\Controllers\ControlStockController;
+use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\DetalleProductoTransaccionController;
 use App\Http\Controllers\DevolucionController;
@@ -359,8 +360,6 @@ Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::cla
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('transacciones/files/{transaccion_bodega}', [TransaccionBodegaController::class, 'storeFiles']);
 
-//Route::post('plantillas-base-file', [PlantillaBaseController::class, 'storeFile']);
-
 /**
  * Actualizar materiales de empleados
  */
@@ -376,6 +375,10 @@ Route::get('intranet/organigrama/datos', [OrganigramaController::class, 'obtener
 Route::get('dado', fn() => response()->json(['mensaje' => 'saludo']));
 
 Route::put('transacciones-ingresos-editar-fecha-compra/{transaccion}', [TransaccionBodegaIngresoController::class, 'editarFechaCompra']);
+
+
+// Obtener departamentos con empleados
+Route::get('departamentos-con-empleados', [DepartamentoController::class, 'departamentosConEmpleados']);
 
 
 
