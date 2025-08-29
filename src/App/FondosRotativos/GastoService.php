@@ -93,8 +93,7 @@ class GastoService
                 if ($dato['imagen_evidencia']) {
                     $dato['imagen_evidencia'] = (new GuardarImagenIndividual($dato['imagen_evidencia'], RutasStorage::IMAGENES_VALIJAS))->execute();
                 }
-                $valija = Valija::create($dato);
-                Log::channel('testing')->info('Log', ['guardarRegistrosValijas -> Valija creada', $valija]);
+                Valija::create($dato);
             }
 
             DB::commit();

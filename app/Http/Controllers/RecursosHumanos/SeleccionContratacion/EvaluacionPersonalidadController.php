@@ -59,7 +59,7 @@ class EvaluacionPersonalidadController extends Controller
             DB::beginTransaction();
             //antes de guardar verificar si ya existe una evaluacion para esa postulacion y/o usuario
             $evaluacionRealizada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($datos['postulacion_id'], true);
-//            if ($evaluacionRealizada) throw new Exception('Ya existe una evaluación de personalidad para esta postulación. No se puede crear más.');
+            if ($evaluacionRealizada) throw new Exception('Ya existe una evaluación de personalidad para esta postulación. No se puede crear más.');
             $postulacion = Postulacion::find($datos['postulacion_id']);
             $postulacion->evaluacionPersonalidad()->update(['completado' => true, 'respuestas' => $datos['respuestas'], 'fecha_realizacion' => now()]);
             DB::commit();
@@ -88,12 +88,19 @@ class EvaluacionPersonalidadController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @return Response
-     * @throws ValidationException
+     * @param EvaluacionPersonalidadRequest $request
+     * @param EvaluacionPersonalidad $evaluacion
+     * @return JsonResponse
      */
-    public function update()
+    public function update(EvaluacionPersonalidadRequest $request, EvaluacionPersonalidad $evaluacion)
     {
-        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
+        $datos = $request->validated();
+
+        $evaluacion->update($datos);
+
+        $modelo = new EvaluacionPersonalidadResource($evaluacion->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**

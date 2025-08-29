@@ -6,11 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\SeleccionContratacion\EntrevistaRequest;
 use App\Http\Resources\RecursosHumanos\SeleccionContratacion\EntrevistaResource;
 use App\Mail\RecursosHumanos\SeleccionContratacion\NotificarEntrevistaMail;
+use App\Mail\RecursosHumanos\SeleccionContratacion\NotificarEntrevistaReagendadaMail;
 use App\Models\RecursosHumanos\SeleccionContratacion\Entrevista;
 use App\Models\RecursosHumanos\SeleccionContratacion\Postulacion;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -69,14 +68,31 @@ class EntrevistaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param int $id
-     * @return Response
+     * @param EntrevistaRequest $request
+     * @param Entrevista $entrevista
+     * @return JsonResponse
+     * @throws Throwable
+     * @throws ValidationException
      */
-//    public function update(Request $request, Entrevista $entrevista)
-//    {
-//
-//    }
+    public function update(EntrevistaRequest $request, Entrevista $entrevista)
+    {
+        $datos = $request->validated();
+        $reagendadaPreviamente = $entrevista->reagendada;
+        $postulacion = Postulacion::find($datos['postulacion_id']);
+        try {
+            DB::beginTransaction();
+            $entrevista->update($datos);
+            $modelo = new EntrevistaResource($entrevista->refresh());
+            if (!$reagendadaPreviamente && $entrevista->reagendada) // Se envia mail indicando el nuevo horario
+                Mail::to($postulacion->user->email)->send(new NotificarEntrevistaReagendadaMail($postulacion, $entrevista));
+            $mensaje = "¡Entrevista actualizada exitosamente!";
+            DB::commit();
+        } catch (Throwable $th) {
+            DB::rollback();
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
+    }
 
 
 }

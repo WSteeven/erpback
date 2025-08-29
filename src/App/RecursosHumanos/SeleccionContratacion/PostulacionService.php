@@ -73,15 +73,7 @@ class PostulacionService
      */
     public function notificarPostulanteSeleccionadoMedico(int $postulacion_id)
     {
-        try {
-            Log::channel('testing')->info('Log', ['Antes de crear el evento...']);
-            event(new NotificarPostulanteSeleccionadoMedicoEvent($postulacion_id));
-            Log::channel('testing')->info('Log', ['Pase de crear el evento, no debería haber error']);
-        } catch (Throwable $e) {
-            Log::channel('testing')->info('Log', ['Error completo', $e]);
-            Log::channel('testing')->error('Log', ['Error notificarPostulanteSeleccionadoMedico notificacion', $e->getMessage(), $e->getLine()]);
-            throw $e;
-        }
+        event(new NotificarPostulanteSeleccionadoMedicoEvent($postulacion_id));
     }
 
     /**

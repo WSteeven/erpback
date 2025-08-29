@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('ventas_ventas', function (Blueprint $table) {
             // Add new columns after forma_pago
-            $table->string('banco')->nullable()->after('forma_pago');
+//            $table->string('banco')->nullable()->after('forma_pago');
             $table->string('numero_tarjeta')->nullable()->after('banco');
             $table->string('tipo_cuenta')->nullable()->after('numero_tarjeta');
 
@@ -29,7 +29,7 @@ return new class extends Migration
     {
         Schema::table('ventas_ventas', function (Blueprint $table) {
             // Drop the new columns
-            $table->dropColumn(['banco', 'numero_tarjeta', 'tipo_cuenta']);
+            $table->dropColumn([ 'numero_tarjeta', 'tipo_cuenta']);
 
             // Revert orden_interna to not nullable
             $table->string('orden_interna')->nullable(false)->change();

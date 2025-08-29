@@ -3,6 +3,7 @@
 namespace App\Http\Resources\RecursosHumanos\SeleccionContratacion;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,11 +24,15 @@ class EvaluacionPersonalidadResource extends JsonResource
             'postulacion' => $this->postulacion->vacante->nombre,
             'respuestas' => $this->respuestas,
             'fecha_realizacion' => $this->fecha_realizacion,
+            'enviada_mail' => $this->enviada_mail,
             'completado' => $this->completado,
+//            'completado' =>  false,
             'usuario' => $this->user,
             'persona' => $persona,
             'user_id' => $this->user_id,
             'user_type' => $this->user_type,
+            'observacion' => $this->observacion,
+            'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
         ];
 
         if ($controller_method == 'show') {

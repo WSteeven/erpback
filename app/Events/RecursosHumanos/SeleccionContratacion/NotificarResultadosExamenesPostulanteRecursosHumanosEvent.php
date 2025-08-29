@@ -14,7 +14,6 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 use Throwable;
 
@@ -59,7 +58,6 @@ class NotificarResultadosExamenesPostulanteRecursosHumanosEvent implements Shoul
     private function obtenerMensaje()
     {
         $postulacion = Postulacion::find($this->examen->postulacion_id);
-        Log::channel('testing')->info('Log', ['postulacion es', $postulacion]);
         $persona = $postulacion->user_type === User::class ? $postulacion->user?->empleado : $postulacion->user?->persona;
         if ($this->examen->se_realizo_examen) {
             if ($this->examen->es_apto)

@@ -255,7 +255,6 @@ class PostulacionController extends Controller
      */
     public function seleccionar(Postulacion $postulacion)
     {
-        Log::channel('testing')->info('Log', ['seleccionar', $postulacion, request()->all()]);
         try {
             DB::beginTransaction();
             $postulacion->estado = Postulacion::SELECCIONADO;
@@ -305,7 +304,6 @@ class PostulacionController extends Controller
      */
     public function indexFiles(Postulacion $postulacion)
     {
-        // Log::channel('testing')->info('Log', ['indexFiles de postulacion', $postulacion, request()->all()]);
         try {
             $user_id = $postulacion->user_id;
             $user_type = $postulacion->user_type;
@@ -374,8 +372,9 @@ class PostulacionController extends Controller
     /**
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     * @throws Exception
      */
-    public function habilitarTestPersonalidad(Postulacion $postulacion)
+    public function descargarTestPersonalidadCompletado(Postulacion $postulacion)
     {
         // Se verifica si ya hay una evaluacion completada para esta postulación y en ese caso retorna la evaluación
         if (EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id, true)) {
@@ -383,7 +382,11 @@ class PostulacionController extends Controller
             $tempFile = $generadorExcel->generar($postulacion);
             return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend();
         }
+        throw new Exception("No se encontró una evaluación de personalidad completada");
+    }
 
+    public function habilitarTestPersonalidad(Postulacion $postulacion)
+    {
         $this->service->generarTokenSiNoExiste($postulacion);
         $this->service->crearEvaluacionSiNoexiste($postulacion);
 
@@ -414,7 +417,7 @@ class PostulacionController extends Controller
             if (!$postulacion) throw new Exception('No se encontró un postulación válida para ese token');
             $mensaje = 'Token validado correctamente, puedes contestar el test';
 
-            $existeEvaluacionCompletada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id,true);
+            $existeEvaluacionCompletada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id, true);
             if ($existeEvaluacionCompletada) {
                 $contestado = true;
                 $mensaje = 'Ya has contestado este test previamente. ¡Proceso finalizado!';
@@ -426,17 +429,10 @@ class PostulacionController extends Controller
         return response()->json(compact('mensaje', 'contestado'));
     }
 
-    /**
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
-     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     */
-//    public function obtenerResultadosTestPersonalidad(Postulacion $postulacion)
-//    {
-//        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', $postulacion]);
-//        Log::channel('testing')->info('Log', ['obtenerResultadosTestPersonalidad', request()->all()]);
-//        $tempFile = $this->service->generarExcelConRespuestasTestPersonalidad();
-//        Log::channel('testing')->info('Log', ['$tempFile', $tempFile]);
-//        return response()->download($tempFile, 'evaluacion_personalidad.xlsx')->deleteFileAfterSend();
-//
-//    }
+    public function chequearTieneEvaluacionPersonalidad(Postulacion $postulacion)
+    {
+        $completada = EvaluacionPersonalidadService::verificarExisteEvaluacionPostulacion($postulacion->id, true);
+
+        return response()->json(compact('completada'));
+    }
 }

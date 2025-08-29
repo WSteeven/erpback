@@ -14,7 +14,7 @@ class PostulacionResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
@@ -67,8 +67,8 @@ class PostulacionResource extends JsonResource
             $modelo['referencias'] = $this->user->referencias()->get();
             $modelo['tengo_discapacidad'] = $this->user->discapacidades()->exists();
             $modelo['discapacidades'] = DiscapacidadUsuario::mapearDiscapacidades($this->user->discapacidades()->get());
+            $modelo['token_test'] = $this->token_test;
         }
-
 
 
         return $modelo;

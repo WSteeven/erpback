@@ -21,6 +21,7 @@ class EvaluacionPersonalidad extends Model implements Auditable
         'fecha_realizacion', // Timestamp for when the evaluation was completed
         'enviada_mail',
         'completado',
+        'observacion',
         'user_id',
         'user_type',
     ];

@@ -45,14 +45,14 @@ class ExamenController extends Controller
     public function store(ExamenRequest $request)
     {
         $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['store', $request->all(), $datos]);
+
         try {
             DB::beginTransaction();
             $postulacion = Postulacion::find($datos['postulacion_id']);
             $postulacion->estado = Postulacion::EXAMENES_MEDICOS;
             $postulacion->save();
             $examen = $postulacion->examen()->save(new Examen($datos));
-            Log::channel('testing')->info('Log', ['examen creado', $examen]);
+
             Mail::to($postulacion->user->email)->send(new NotificarAgendamientoExamenesMail($postulacion, $examen));
             // aquí se notifica a RRHH que se agendó examenes con alguien
             event(new NotificarAgendamientoExamenesPostulanteRecursosHumanosEvent($postulacion));

@@ -4,6 +4,7 @@ namespace App\Http\Requests\RecursosHumanos\SeleccionContratacion;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Src\App\RecursosHumanos\SeleccionContratacion\PostulacionService;
 use Src\Shared\ObtenerInstanciaUsuario;
 
@@ -33,6 +34,11 @@ class EvaluacionPersonalidadRequest extends FormRequest
             'completado' => 'boolean',
             'user_id' => 'required|integer',
             'user_type' => 'required|string',
+            'observacion' => [
+                'nullable',
+                'string',
+                Rule::requiredIf($this->route()->getActionMethod() === 'update'),
+            ],
         ];
     }
 

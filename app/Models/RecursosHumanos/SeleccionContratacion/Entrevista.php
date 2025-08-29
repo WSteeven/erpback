@@ -78,6 +78,13 @@ class Entrevista extends Model implements Auditable
         'asistio' //boolean
     ];
 
+    protected $casts =[
+        'presencial'=>'boolean',
+        'reagendada'=>'boolean',
+        'asistio'=>'boolean',
+
+    ];
+
     //obtener la llave primaria
     public function getKeyName()
     {

@@ -15,7 +15,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NotificarEntrevistaMail extends Mailable
+class NotificarEntrevistaReagendadaMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -24,7 +24,6 @@ class NotificarEntrevistaMail extends Mailable
     public ?string $canton;
     public ConfiguracionGeneral $configuracion;
     public Departamento $departamento_rrhh;
-
     /**
      * Create a new message instance.
      *
@@ -49,7 +48,7 @@ class NotificarEntrevistaMail extends Mailable
     {
         return new Envelope(
             from: new Address(env('MAIL_USERNAME'), 'Proceso de Postulación'),
-            subject: 'Agendamiento de Entrevista',
+            subject: 'Reagendamiento de Entrevista',
         );
     }
 
@@ -61,7 +60,7 @@ class NotificarEntrevistaMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'email.recursosHumanos.SeleccionContratacion.entrevista_postulacion',
+            view: 'email.recursosHumanos.SeleccionContratacion.reagendar_entrevista_postulacion',
             with: [
                 'url' => env('SPA_URL', 'https://firstred.jpconstrucred.com'),
             ]

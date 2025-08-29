@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('conf__plantilla_bases');
+        Schema::dropIfExists('conf_plantillas');
     }
 };

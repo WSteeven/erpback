@@ -16,6 +16,7 @@ class EntrevistaResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->postulacion_id,
             'postulacion_id' => $this->postulacion_id,
             'fecha_hora' => $this->fecha_hora,
             'duracion' => $this->duracion,

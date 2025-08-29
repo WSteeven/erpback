@@ -53,7 +53,8 @@ Route::post('postulaciones-vacantes/seleccionar/{postulacion}', [PostulacionCont
 Route::post('postulaciones-vacantes/dar-alta/{postulacion}', [PostulacionController::class, 'darAlta']);
 Route::post('validar-token-test-personalidad/{token}', [PostulacionController::class, 'validarTokenTestPersonalidad']);
 Route::post('habilitar-test-personalidad/{postulacion}', [PostulacionController::class, 'habilitarTestPersonalidad']);
-Route::get('resultados-test-personalidad/{postulacion}', [PostulacionController::class, 'obtenerResultadosTestPersonalidad']);
+Route::get('descargar-evaluacion-personalidad/{postulacion}', [PostulacionController::class, 'descargarTestPersonalidadCompletado']);
+Route::get('tiene-evaluacion-personalidad/{postulacion}', [PostulacionController::class, 'chequearTieneEvaluacionPersonalidad']);
 
 
 //listar archivos
