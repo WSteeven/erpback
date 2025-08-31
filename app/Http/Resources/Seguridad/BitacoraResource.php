@@ -51,7 +51,7 @@ class BitacoraResource extends JsonResource
             $modelo['nombres_protector'] = Empleado::extraerNombresApellidos($this->protector);
             $modelo['nombres_conductor'] = Empleado::extraerNombresApellidos($this->conductor);
             $modelo['prendas_recibidas'] = json_decode($this['prendas_recibidas_ids']);
-            $modelo['id'] = $aliasZona . '_' . $this['id'];
+            $modelo['codigo_custom_id'] = $aliasZona . '_' . $this['id'];
         }
 
         return $modelo;
