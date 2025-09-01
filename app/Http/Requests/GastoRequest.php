@@ -38,7 +38,7 @@ class GastoRequest extends FormRequest
         if (!is_null($this->vehiculo) || $this->es_vehiculo_alquilado) {
             $rules = array_merge($rules, $this->vehiculoExtraRules());
         }
-        return $rules;
+        return array_merge($rules, $this->valijaRules());
     }
 
     private function baseRules(): array
@@ -67,13 +67,24 @@ class GastoRequest extends FormRequest
             'id_usuario' => 'required|exists:empleados,id',
             'observacion_anulacion' => 'nullable',
             'estado' => 'required',
-            'registros_valijas' => 'sometimes|array',
-            'registros_valijas.*.empleado_id' => 'required|exists:empleados,id',
-            'registros_valijas.*.departamento_id' => 'sometimes|nullable|exists:departamentos,id',
-            'registros_valijas.*.descripcion' => 'required|string',
-            'registros_valijas.*.destinatario_id' => 'sometimes|nullable|exists:empleados,id',
-            'registros_valijas.*.imagen_evidencia' => 'required|string'
         ];
+    }
+
+    private function valijaRules(): array
+    {
+        if ($this->route()->uri() !== 'api/fondos-rotativos/aprobar-gasto') {
+            return [
+                'envio_valija' => 'sometimes|array',
+                'envio_valija.courier' => 'sometimes|string',
+                'envio_valija.fotografia_guia' => 'sometimes|string',
+                'registros_valijas' => 'sometimes|array',
+                'registros_valijas.*.departamento_id' => 'sometimes|nullable|exists:departamentos,id',
+                'registros_valijas.*.descripcion' => 'required|string',
+                'registros_valijas.*.destinatario_id' => 'sometimes|nullable|exists:empleados,id',
+                'registros_valijas.*.imagen_evidencia' => 'required|string'
+            ];
+        }
+        return [];
     }
 
     private function vehiculoExtraRules(): array
@@ -152,7 +163,7 @@ class GastoRequest extends FormRequest
 
         $this->merge([
             'id_tarea' => $this->num_tarea !== 0 ? $this->num_tarea : null,
-            'id_proyecto' => $this->proyecto!== 0 ? $this->proyecto : null,
+            'id_proyecto' => $this->proyecto !== 0 ? $this->proyecto : null,
             'id_lugar' => $this->lugar,
         ]);
 
@@ -177,7 +188,6 @@ class GastoRequest extends FormRequest
         if (is_array($this->registros_valijas)) {
             $valijas = array_map(function ($item) {
                 return [
-                    'empleado_id' => $item['empleado_id'] ?? null,
                     'departamento_id' => $item['departamento'] ?? null,
                     'descripcion' => $item['descripcion'] ?? null,
                     'destinatario_id' => $item['destinatario'] ?? null,

@@ -150,7 +150,7 @@ class GastoController extends Controller
             $gasto_service->validarGastoVehiculo($request);
             // si hay registros de valija, guardarlos
             if (!empty($request->input('registros_valijas'))) {
-                $gasto_service->guardarRegistrosValijas($datos['registros_valijas']);
+                $gasto_service->guardarRegistrosValijas($datos['registros_valijas'], $datos['envio_valija']);
             }
             event(new FondoRotativoEvent($gasto));
             $modelo = new GastoResource($modelo);

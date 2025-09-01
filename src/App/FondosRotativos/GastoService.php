@@ -83,13 +83,27 @@ class GastoService
     /**
      * @throws Throwable
      */
-    public function guardarRegistrosValijas(array $datos)
+    public function guardarRegistrosValijas(array $datos, array $envio_valija)
     {
+//        Log::channel('testing')->info('Log', ['guardarRegistrosValijas', $envio_valija]);
+        if ($envio_valija['fotografia_guia']) {
+            $envio_valija['fotografia_guia'] = (new GuardarImagenIndividual($envio_valija['fotografia_guia'], RutasStorage::IMAGENES_VALIJAS))->execute();
+        }
+
+        $envioValija = $this->gasto->envioValija()->create([
+            'empleado_id' => $this->gasto->id_usuario,
+            'courier' => $envio_valija['courier'],
+            'fotografia_guia' => $envio_valija['fotografia_guia'],
+        ]);
+
+//        Log::channel('testing')->info('Log', ['Envio Valija Creado', $envioValija]);
+
+//        throw new Exception(Utils::metodoNoDesarrollado());
         try {
             DB::beginTransaction();
 
             foreach ($datos as $dato) {
-                $dato['gasto_id'] = $this->gasto->id;
+                $dato['envio_valija_id'] = $envioValija->id;
                 if ($dato['imagen_evidencia']) {
                     $dato['imagen_evidencia'] = (new GuardarImagenIndividual($dato['imagen_evidencia'], RutasStorage::IMAGENES_VALIJAS))->execute();
                 }

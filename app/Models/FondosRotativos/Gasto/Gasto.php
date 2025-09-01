@@ -6,6 +6,7 @@ use App\Models\Archivo;
 use App\Models\Canton;
 use App\Models\Cliente;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\EnvioValija;
 use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Valija;
 use App\Models\Notificacion;
@@ -190,9 +191,9 @@ class Gasto extends Model implements Auditable
         return $this->belongsTo(Nodo::class);
     }
 
-    public function valijas()
+    public function envioValija()
     {
-        return $this->hasMany(Valija::class);
+        return $this->hasOne(EnvioValija::class);
     }
     /**
      * Relación one to many.

@@ -65,6 +65,7 @@ trait UppercaseValuesTrait
         // Verifica si el nombre de la propiedad contiene la palabra "imagen", para no transformarla en mayuscula
         if (preg_match('/imagen/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/fotografia/i', $key)) $this->attributes[$key] = $value;
+        if (preg_match('/foto/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/ruta/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/link/i', $key)) $this->attributes[$key] = $value;
         if (preg_match('/url/i', $key)) $this->attributes[$key] = $value;

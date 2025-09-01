@@ -4,7 +4,6 @@ namespace App\Http\Controllers\FondosRotativos;
 
 use App\Exports\FondosRotativos\ValijaExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FondosRotativos\ValijaRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\FondosRotativos\ValijaResource;
 use App\Models\ConfiguracionGeneral;
@@ -16,7 +15,6 @@ use Excel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use PhpOffice\PhpSpreadsheet\Exception;
 use Src\Shared\Utils;
@@ -40,11 +38,10 @@ class ValijaController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
      * @return Response
      * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store()
     {
         throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
     }
@@ -64,12 +61,10 @@ class ValijaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param ValijaRequest $request
-     * @param Valija $valija
      * @return Response
      * @throws ValidationException
      */
-    public function update(ValijaRequest $request, Valija $valija)
+    public function update()
     {
         throw ValidationException::withMessages(['error'=>Utils::metodoNoDesarrollado()]);
     }
@@ -89,6 +84,7 @@ class ValijaController extends Controller
      * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      * @throws ValidationException
+     * @throws \Exception
      */
     public function reporteValijas(Request $request, string $tipo){
         $configuracion = ConfiguracionGeneral::first();

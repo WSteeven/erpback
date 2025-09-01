@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\FondosRotativos\Gastos;
 
+use App\Http\Resources\FondosRotativos\EnvioValijaResource;
 use App\Http\Resources\FondosRotativos\ValijaResource;
 use App\Models\Empleado;
 use Carbon\Carbon;
@@ -70,13 +71,15 @@ class GastoResource extends JsonResource
             'updated_at' => Carbon::parse($this->updated_at)->format('Y-m-d H:i:s'),
             'centro_costo' => $this->tarea !== null ? $this->tarea->centroCosto?->nombre : '',
             'subcentro_costo' => $this->empleado?->grupo == null ? '' : $this->empleado?->grupo?->subCentroCosto?->nombre,
+            'se_envia_valija' => $this->envioValija?->valijas->count()>0,
         ];
 
         if ($controller_method == 'show') {
             $modelo['nodo'] = $this->nodo_id;
             $modelo['cliente'] = $this->cliente_id;
-            $modelo['registros_valijas'] = ValijaResource::collection($this->valijas);
-            $modelo['se_envia_valija'] = $this->valijas->count()>0;
+            $modelo['envio_valija'] = new EnvioValijaResource($this->envioValija);
+            $modelo['registros_valijas'] = ValijaResource::collection($this->envioValija->valijas);
+            $modelo['se_envia_valija'] = $this->envioValija->valijas->count()>0;
         }
         return $modelo;
     }

@@ -14,7 +14,7 @@ class PermisosSeleccionContratacionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * php artisan db:seed --class=Database\Seeders\RecursosHumanos\SeleccionContratacion\PermisosSeleccionContratacionSeeder
+     * php artisan db:seed --class="Database\Seeders\RecursosHumanos\SeleccionContratacion\PermisosSeleccionContratacionSeeder"
      *
      * @return void
      */
@@ -99,5 +99,10 @@ class PermisosSeleccionContratacionSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'plantillas_base'])->syncRoles([$administrador, $rrhh]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'plantillas_base'])->syncRoles([$administrador, $rrhh]);
 
+        // Permisos de botones en formulario de postulaciones
+        Permission::firstOrCreate(['name'=>Permisos::BOTON. 'entrevistar_postulante'])->assignRole($rrhh);
+        Permission::firstOrCreate(['name'=>Permisos::BOTON. 'preseleccionar_candidato'])->assignRole($rrhh);
+        Permission::firstOrCreate(['name'=>Permisos::BOTON. 'descartar_postulante'])->assignRole($rrhh);
+        Permission::firstOrCreate(['name'=>Permisos::BOTON. 'seleccionar_postulante'])->assignRole($rrhh);
     }
 }

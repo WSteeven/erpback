@@ -26,9 +26,9 @@
         /** Definir las reglas del encabezado **/
         header {
             position: fixed;
-            top: 0cm;
-            left: 0cm;
-            right: 0cm;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 2cm;
 
             /** Estilos extra personales **/
@@ -41,8 +41,8 @@
         footer {
             position: fixed;
             bottom: 5px;
-            left: 0cm;
-            right: 0cm;
+            left: 0;
+            right: 0;
             height: 2cm;
 
             /** Estilos extra personales **/
@@ -51,15 +51,13 @@
             line-height: 1.5cm;
         }
 
-        footer .page:after {
-            content: counter(page);
-        }
+
 
         main {
             position: relative;
             top: 80px;
-            left: 0cm;
-            right: 0cm;
+            left: 0;
+            right: 0;
             margin-bottom: 4.3cm;
             font-size: 12px;
         }
@@ -118,7 +116,7 @@
                                            alt="logo"></div>
             </td>
             <td style="width: 100%">
-                <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE VALIJAS
+                <div class="col-md-7"><b style="font-size: 75%; align-items: center">REPORTE VALIJAS
                         DEL {{$peticion['fecha_inicio']}} AL {{$peticion['fecha_fin']}}</b>
                 </div>
             </td>
@@ -148,6 +146,8 @@
         <thead>
         <tr>
             <th>ID</th>
+            <th>Courier</th>
+            <th>Foto Guía</th>
             <th>Fecha</th>
             <th>Gasto ID</th>
             <th>N° Factura</th>
@@ -162,10 +162,21 @@
         @foreach($reporte as $valija)
             <tr>
                 <td>{{ $valija->id }}</td>
+                <td>{{ $valija->envioValija->courier }}</td>
+                <td style="vertical-align: middle; overflow: hidden">
+                    @if($valija->envioValija->fotografia_guia)
+                        <a href="{{ url($valija->envioValija->fotografia_guia) }}" target="_blank">
+                            <img src="{{ Utils::urlToBase64(url($valija->envioValija->fotografia_guia)) }}" alt="Evidencia"
+                                 width="100">
+                        </a>
+                    @else
+                        Sin imagen
+                    @endif
+                </td>
                 <td>{{ $valija->created_at }}</td>
-                <td>{{ $valija->gasto_id }}</td>
-                <td>{{ $valija->gasto->factura ?? $valija->gasto->num_comprobante ?? '' }}</td>
-                <td>{{ Empleado::extraerNombresApellidos($valija->empleado) }}</td>
+                <td>{{ $valija->envioValija->gasto_id }}</td>
+                <td>{{ $valija->envioValija->gasto->factura ?? $valija->envioValija->gasto->num_comprobante ?? '' }}</td>
+                <td>{{ Empleado::extraerNombresApellidos($valija->envioValija->empleado) }}</td>
                 <td>{{ $valija->departamento?->nombre }}</td>
                 <td>{{ $valija->descripcion }}</td>
                 <td>{{ Empleado::extraerNombresApellidos($valija->destinatario) ?? Empleado::extraerNombresApellidos($valija->departamento->responsable) ?? 'N/A' }}</td>
