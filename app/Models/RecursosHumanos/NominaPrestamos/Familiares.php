@@ -23,6 +23,7 @@ use OwenIt\Auditing\Models\Audit;
  * @property string $parentezco
  * @property string $nombres
  * @property string $apellidos
+ * @property string $fecha_nacimiento
  * @property int $empleado_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -62,6 +63,7 @@ class Familiares extends Model implements Auditable
         'parentezco',
         'nombres',
         'apellidos',
+        'fecha_nacimiento',
         'empleado_id',
 
     ];
@@ -72,6 +74,7 @@ class Familiares extends Model implements Auditable
         'parentezco',
         'nombres',
         'apellidos',
+        'fecha_nacimiento',
         'empleado'
     ];
     public function empleado_info()

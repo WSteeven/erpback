@@ -33,6 +33,7 @@ class FamiliaresRequest extends FormRequest
             'parentezco' => 'required',
             'nombres' => 'required',
             'apellidos' => 'required',
+            'fecha_nacimiento' => 'required',
             'empleado_id' => 'required|exists:empleados,id',
 
         ];

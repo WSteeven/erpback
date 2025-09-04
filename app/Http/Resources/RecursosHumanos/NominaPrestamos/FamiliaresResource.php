@@ -20,6 +20,7 @@ class FamiliaresResource extends JsonResource
             'parentezco' =>$this->parentezco,
             'nombres' =>$this->nombres,
             'apellidos' =>$this->apellidos,
+            'fecha_nacimiento' =>$this->fecha_nacimiento,
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado_info != null ? $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos : '',
         ];
