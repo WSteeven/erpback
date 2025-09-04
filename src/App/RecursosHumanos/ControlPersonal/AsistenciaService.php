@@ -82,16 +82,84 @@ class AsistenciaService
                 }
             } while (count($data['AcsEvent']['InfoList']) === $maxResults);
 
-//            Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios-> eventos obtenidos', $eventosTotales]);
+            //            Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios-> eventos obtenidos', $eventosTotales]);
 
             return $eventosTotales;
-//            return ['AcsEvent' => ['InfoList' => $eventosTotales]];
+            //            return ['AcsEvent' => ['InfoList' => $eventosTotales]];
         } catch (Exception $e) {
             // Manejar errores en caso de falla
             Log::channel('testing')->info('Log', ['Exception en obtenerRegistrosDiarios:', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
+
+
+    /**
+     * Summary of obtenerRegistrosDiariosDeTodos
+     * Este metodo permite obtener todos los eventos del mes de todos los biometricos en general,
+     * de esta manera podemos obtener todos los eventos de todos los biometricos,
+     * se debe registrar las ips de los biometricos en la variable HIKVISION_URLS en el archivo .env
+     *
+     * @return array
+     */
+    public function obtenerRegistrosMesDeTodos()
+    {
+        $urls = explode(',', env('HIKVISION_URLS'));
+        $eventosTotales = [];
+
+        foreach ($urls as $url) {
+            try {
+                $client = new Client([
+                    'base_uri' => trim($url),
+                    'timeout' => 10.0,
+                    'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+                ]);
+
+                $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+                $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+                $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+                $maxResults = 30;
+                $searchResultPosition = 0;
+
+                do {
+                    $ascEventCond = [
+                        "searchID" => "1",
+                        "searchResultPosition" => $searchResultPosition,
+                        "maxResults" => $maxResults,
+                        "major" => 5,
+                        "minor" => 0,
+                        "startTime" => $startTime,
+                        "endTime" => $endTime,
+                        "picEnable" => false,
+                        "eventAttribute" => "attendance",
+                        "currentVerifyMode" => "cardOrFaceOrFp",
+                        "timeReverseOrder" => true,
+                    ];
+
+                    $response = $client->post($endpoint, [
+                        "json" => ["AcsEventCond" => $ascEventCond],
+                    ]);
+
+                    $data = json_decode($response->getBody(), true);
+
+                    if (isset($data['AcsEvent']['InfoList']) && is_array($data['AcsEvent']['InfoList'])) {
+                        $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
+                        $searchResultPosition += count($data['AcsEvent']['InfoList']);
+                    } else {
+                        break;
+                    }
+                } while (count($data['AcsEvent']['InfoList']) === $maxResults);
+            } catch (\Exception $e) {
+                // Aquí evitamos que un biométrico caído rompa todo
+                Log::channel('testing')->warning("⚠️ No se pudo conectar al biométrico $url: " . $e->getMessage());
+                continue;
+            }
+        }
+
+        return $eventosTotales;
+    }
+
+
 
     /**
      * @throws Exception
@@ -103,14 +171,14 @@ class AsistenciaService
             $fastapi_apikey = env('API_KEY_FOR_FASTAPI');
             $url = $fastapi . 'biometrico-napoleon';
 
-            $response = Http::withHeaders(['x-api-key'=>$fastapi_apikey])
-                ->withOptions(['verify'=>false])
+            $response = Http::withHeaders(['x-api-key' => $fastapi_apikey])
+                ->withOptions(['verify' => false])
                 ->timeout(90)
                 ->get($url);
-//            Log::channel('testing')->error('Log', ['respuesta obtenida en obtenerRegistrosMesFASTAPI', $response]);
+            //            Log::channel('testing')->error('Log', ['respuesta obtenida en obtenerRegistrosMesFASTAPI', $response]);
             return $response['eventos'];
         } catch (Exception $e) {
-//            Log::channel('testing')->error('Log', ['error en obtenerRegistrosMesFASTAPI', $e->getLine(), $e->getMessage()]);
+            //            Log::channel('testing')->error('Log', ['error en obtenerRegistrosMesFASTAPI', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
@@ -121,8 +189,9 @@ class AsistenciaService
     public function sincronizarAsistencias()
     {
         try {
-//            $datos = $this->obtenerRegistrosDiarios();
-            $datos = $this->obtenerRegistrosMesFASTAPI();
+            //            $datos = $this->obtenerRegistrosDiarios();
+            //$datos = $this->obtenerRegistrosMesFASTAPI();
+            $datos = $this->obtenerRegistrosMesDeTodos();
             //De los eventos recibidos filtramos para obtener solo los eventos con 'minor' igual a 75 o 38
             $eventos = array_filter($datos, function ($evento) {
                 return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
@@ -131,21 +200,21 @@ class AsistenciaService
             $eventos = array_filter($eventos, function ($evento) {
                 return isset($evento['cardNo']);
             });
-//            Log::channel('testing')->info('Log', ['eventos obtenidos validos', count($eventos), $eventos]);
+            //            Log::channel('testing')->info('Log', ['eventos obtenidos validos', count($eventos), $eventos]);
             // Ordenar eventos por hora para procesarlos en orden cronológico desdel el mas reciente al mas antiguo
             usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
 
-//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos ordenados',count($eventos), $eventos]);
+            //            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos ordenados',count($eventos), $eventos]);
             // Agrupar eventos por empleado y fecha
             $eventosAgrupados = [];
             foreach ($eventos as $evento) {
                 $fechaEvento = Carbon::parse($evento['time'])->format('Y-m-d');
                 $eventosAgrupados[$evento['name']][$fechaEvento][] = $evento;
             }
-//            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos agrupados', count($eventosAgrupados), $eventosAgrupados]);
+            //            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos agrupados', count($eventosAgrupados), $eventosAgrupados]);
 
             foreach ($eventosAgrupados as $nombreEmpleado => $fechas) {
-//                Log::channel('testing')->info('Log', ['Nombre: ', $nombreEmpleado, count($fechas), $fechas]);
+                //                Log::channel('testing')->info('Log', ['Nombre: ', $nombreEmpleado, count($fechas), $fechas]);
                 $this->guardarEventosEmpleado($fechas);
             }
         } catch (Exception $e) {
@@ -157,7 +226,7 @@ class AsistenciaService
     public function guardarEventosEmpleado($eventosDelDia)
     {
         foreach ($eventosDelDia as $dia => $eventos) {
-//            Log::channel('testing')->info('Log', ['recorrerEventosEmpleado ', $dia, $eventos]);
+            //            Log::channel('testing')->info('Log', ['recorrerEventosEmpleado ', $dia, $eventos]);
             // se tiene el dia y los eventos, falta obtener la cedula del empleado, pero primero filtramos los eventos para eliminar los duplicados en segundos
             $eventosFiltrados = $this->filtrarEventosPorTiempo($eventos);
             // se mapea las fechas de los eventos filtrados, ya que esos registros irán a las marcaciones como un json
@@ -165,18 +234,18 @@ class AsistenciaService
                 return Carbon::parse($evento['time'])->format('H:i:s');
             }, $eventosFiltrados);
 
-//            Log::channel('testing')->info('Log', ['eventos-filtrados', $eventosFiltrados]);
+            //            Log::channel('testing')->info('Log', ['eventos-filtrados', $eventosFiltrados]);
 
             //obtenemos el empleado
             $empleado = Empleado::where('identificacion', $eventosFiltrados[0]['cardNo'])->first();
             if (!$empleado) {
-//                Log::channel('testing')->info('Log', ['no se encontro el empleado', $eventosFiltrados[0]['cardNo'], $dia, $marcaciones]);
+                //                Log::channel('testing')->info('Log', ['no se encontro el empleado', $eventosFiltrados[0]['cardNo'], $dia, $marcaciones]);
                 continue;
             } // se salta ese registro si no hay el cardNo, pero no debería entrar aquí
 
             $marcacionExistente = Marcacion::where('empleado_id', $empleado->id)->where('fecha', $dia)->first();
             if ($marcacionExistente) {
-//                Log::channel('testing')->info('Log', ['$marcacionExistente', $marcacion, $dia, $marcacionExistente, $marcaciones]);
+                //                Log::channel('testing')->info('Log', ['$marcacionExistente', $marcacion, $dia, $marcacionExistente, $marcaciones]);
                 $marcacionExistente->update(['marcaciones' => $marcaciones]);
             } else {
                 $marcacion = new Marcacion();
@@ -184,7 +253,7 @@ class AsistenciaService
                 $marcacion->fecha = $dia;
                 $marcacion->marcaciones = $marcaciones;
                 $marcacion->save();
-//                Log::channel('testing')->info('Log', ['nueva marcacion', $marcacion, $dia]);
+                //                Log::channel('testing')->info('Log', ['nueva marcacion', $marcacion, $dia]);
             }
         }
     }
