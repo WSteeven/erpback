@@ -102,62 +102,67 @@ class AsistenciaService
      *
      * @return array
      */
-    public function obtenerRegistrosMesDeTodos()
-    {
-        $urls = explode(',', env('HIKVISION_URLS'));
-        $eventosTotales = [];
+public function obtenerRegistrosMesDeTodos()
+{
+    $urls = explode(',', env('HIKVISION_URLS'));
+    $eventosTotales = [];
 
-        foreach ($urls as $url) {
-            try {
-                $client = new Client([
-                    'base_uri' => trim($url),
-                    'timeout' => 10.0,
-                    'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+    foreach ($urls as $url) {
+        try {
+            // Limpia la URL: quita espacios y slashes finales
+            $cleanedUrl = rtrim(trim($url), '/');
+
+            $client = new Client([
+                'base_uri' => $cleanedUrl,
+                'timeout' => 10.0,
+                'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+            ]);
+
+            $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+            $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+            $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+            $maxResults = 30;
+            $searchResultPosition = 0;
+
+            do {
+                $ascEventCond = [
+                    "searchID" => "1",
+                    "searchResultPosition" => $searchResultPosition,
+                    "maxResults" => $maxResults,
+                    "major" => 5,
+                    "minor" => 0,
+                    "startTime" => $startTime,
+                    "endTime" => $endTime,
+                    "picEnable" => false,
+                    "eventAttribute" => "attendance",
+                    "currentVerifyMode" => "cardOrFaceOrFp",
+                    "timeReverseOrder" => true,
+                ];
+
+                $response = $client->post($endpoint, [
+                    "json" => ["AcsEventCond" => $ascEventCond],
                 ]);
 
-                $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
-                $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-                $endTime = Carbon::now()->endOfMonth()->toIso8601String();
-                $maxResults = 30;
-                $searchResultPosition = 0;
+                $data = json_decode($response->getBody(), true);
 
-                do {
-                    $ascEventCond = [
-                        "searchID" => "1",
-                        "searchResultPosition" => $searchResultPosition,
-                        "maxResults" => $maxResults,
-                        "major" => 5,
-                        "minor" => 0,
-                        "startTime" => $startTime,
-                        "endTime" => $endTime,
-                        "picEnable" => false,
-                        "eventAttribute" => "attendance",
-                        "currentVerifyMode" => "cardOrFaceOrFp",
-                        "timeReverseOrder" => true,
-                    ];
+                if (isset($data['AcsEvent']['InfoList']) && is_array($data['AcsEvent']['InfoList'])) {
+                    $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
+                    $searchResultPosition += count($data['AcsEvent']['InfoList']);
+                } else {
+                    break; // No más eventos
+                }
+            } while (count($data['AcsEvent']['InfoList']) === $maxResults);
 
-                    $response = $client->post($endpoint, [
-                        "json" => ["AcsEventCond" => $ascEventCond],
-                    ]);
-
-                    $data = json_decode($response->getBody(), true);
-
-                    if (isset($data['AcsEvent']['InfoList']) && is_array($data['AcsEvent']['InfoList'])) {
-                        $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
-                        $searchResultPosition += count($data['AcsEvent']['InfoList']);
-                    } else {
-                        break;
-                    }
-                } while (count($data['AcsEvent']['InfoList']) === $maxResults);
-            } catch (\Exception $e) {
-                // Aquí evitamos que un biométrico caído rompa todo
-                Log::channel('testing')->warning("⚠️ No se pudo conectar al biométrico $url: " . $e->getMessage());
-                continue;
-            }
+        } catch (\Exception $e) {
+            // Loguea sin romper la ejecución si un dispositivo falla
+            Log::channel('testing')->warning("⚠️ No se pudo conectar al biométrico {$url}: " . $e->getMessage());
+            continue;
         }
-
-        return $eventosTotales;
     }
+
+    return $eventosTotales;
+}
+
 
 
 
