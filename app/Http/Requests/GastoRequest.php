@@ -74,9 +74,9 @@ class GastoRequest extends FormRequest
     {
         if ($this->route()->uri() !== 'api/fondos-rotativos/aprobar-gasto') {
             return [
-                'envio_valija' => 'sometimes|array',
-                'envio_valija.courier' => 'sometimes|string',
-                'envio_valija.fotografia_guia' => 'sometimes|string',
+                'envio_valija' => 'sometimes|nullable|array',
+                'envio_valija.courier' => 'sometimes|nullable|string',
+                'envio_valija.fotografia_guia' => 'sometimes|nullable|string',
                 'registros_valijas' => 'sometimes|array',
                 'registros_valijas.*.departamento_id' => 'sometimes|nullable|exists:departamentos,id',
                 'registros_valijas.*.descripcion' => 'required|string',
@@ -119,7 +119,8 @@ class GastoRequest extends FormRequest
                 };
             } catch (Exception $e) {
                 throw ValidationException::withMessages([
-                    'error' => "Error: {$e->getMessage()} en línea {$e->getLine()}"]);
+                    'error' => "Error: {$e->getMessage()} en línea {$e->getLine()}"
+                ]);
             }
         });
     }

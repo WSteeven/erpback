@@ -126,11 +126,11 @@
 </footer>
 
 <main>
-    @foreach ($detalle as $item)
+    @foreach ($detalle ?? [] as $item)
         @php
-            $guardia = $item['guardia'] ?? 'SIN NOMBRE';
-            $detalleGuardia = $item['detalle'] ?? [];
-            $montoGuardia = $item['monto_total'] ?? 0;
+            $guardia = $item['guardia'] ?? ($total['guardia'] ?? 'SIN NOMBRE');
+            $detalleGuardia = $item['detalle'] ?? $detalle ?? [];
+            $montoGuardia = $item['monto_total'] ?? ($total['monto_total'] ?? 0);
         @endphp
 
         <div class="guardia-titulo">Guardia: {{ $guardia }}</div>
@@ -149,7 +149,9 @@
                     <tr>
                         <td>{{ $r['fecha'] ?? '-' }}</td>
                         <td>{{ $r['zona'] ?? '-' }}</td>
-                        <td>{{ is_array($r['jornadas']) ? implode(', ', $r['jornadas']) : '-' }}</td>
+                        <td>
+                            {{ is_array($r['jornadas'] ?? null) ? implode(', ', $r['jornadas']) : '-' }}
+                        </td>
                         <td>{{ number_format($r['monto'] ?? 0, 2, '.', '') }}</td>
                     </tr>
                 @endforeach
@@ -164,9 +166,11 @@
     <hr style="margin-top: 30px; margin-bottom: 10px;">
 
     <div class="total" style="font-size: 14px;">
-        TOTAL GENERAL DE ALIMENTACIÓN: <strong>${{ number_format($total['monto_total'] ?? 0, 2, ',', '.') }}</strong>
+        TOTAL GENERAL DE ALIMENTACIÓN:
+        <strong>${{ number_format($total['monto_total'] ?? 0, 2, ',', '.') }}</strong>
     </div>
 </main>
+
 
 <script type="text/php">
     if (isset($pdf)) {
