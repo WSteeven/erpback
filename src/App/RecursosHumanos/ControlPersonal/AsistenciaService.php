@@ -8,14 +8,13 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Http;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * TODO: Codigos de minor
- * TODO: 0x26 => 38 => Fingerprint Authentication Completed
- * TODO: 0x4b => 75 => Face Authentication Completed
- **
+ * TODO: Códigos de minor
+ * 0x26 => 38 => Fingerprint Authentication Completed
+ * 0x4b => 75 => Face Authentication Completed
  */
 class AsistenciaService
 {
@@ -25,24 +24,24 @@ class AsistenciaService
     {
         $this->client = new Client([
             'base_uri' => env('HIKVISION_BASE_URL'),
-            'timeout' => 10.0,
-            'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+            'timeout'  => 10.0,
+            'auth'     => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
         ]);
     }
 
     /**
-     * INFO: Metodo con el que se esta trabajando, consultando desde asistenciaController
-     * Este metodo esta implementado en FetchHikVisionRecords
-     * Obtiene todos los eventos del mes del biometrico.
+     * INFO: Método con el que se está trabajando, consultando desde asistenciaController
+     * Este método está implementado en FetchHikVisionRecords
+     * Obtiene todos los eventos del mes del biométrico (Napoleón, base actual).
      *
      * @throws GuzzleException
      * @throws Exception
      */
-    public function obtenerRegistrosDiarios()
+    public function obtenerRegistrosDiarios(): array
     {
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+        $endTime   = Carbon::now()->endOfMonth()->toIso8601String();
         /* $startTime = Carbon::now()->subMonth()->startOfMonth()->toIso8601String();
         $endTime = Carbon::now()->subMonth()->endOfMonth()->toIso8601String(); */
         $maxResults = 30; // Ajustar al límite del dispositivo
@@ -82,10 +81,7 @@ class AsistenciaService
                 }
             } while (count($data['AcsEvent']['InfoList']) === $maxResults);
 
-            //            Log::channel('testing')->info('Log', ['obtenerRegistrosDiarios-> eventos obtenidos', $eventosTotales]);
-
             return $eventosTotales;
-            //            return ['AcsEvent' => ['InfoList' => $eventosTotales]];
         } catch (Exception $e) {
             // Manejar errores en caso de falla
             Log::channel('testing')->info('Log', ['Exception en obtenerRegistrosDiarios:', $e->getLine(), $e->getMessage()]);
@@ -93,133 +89,187 @@ class AsistenciaService
         }
     }
 
-
     /**
-     * Summary of obtenerRegistrosDiariosDeTodos
-     * Este metodo permite obtener todos los eventos del mes de todos los biometricos en general,
-     * de esta manera podemos obtener todos los eventos de todos los biometricos,
-     * se debe registrar las ips de los biometricos en la variable HIKVISION_URLS en el archivo .env
+     * Retorna asistencias: Napoleón vía FastAPI.
      *
-     * @return array
-     */
-public function obtenerRegistrosMesDeTodos()
-{
-    $urls = explode(',', env('HIKVISION_URLS'));
-    $eventosTotales = [];
-
-    foreach ($urls as $url) {
-        try {
-            // Limpia la URL: quita espacios y slashes finales
-            $cleanedUrl = rtrim(trim($url), '/');
-
-            $client = new Client([
-                'base_uri' => $cleanedUrl,
-                'timeout' => 10.0,
-                'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
-            ]);
-
-            $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
-            $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-            $endTime = Carbon::now()->endOfMonth()->toIso8601String();
-            $maxResults = 30;
-            $searchResultPosition = 0;
-
-            do {
-                $ascEventCond = [
-                    "searchID" => "1",
-                    "searchResultPosition" => $searchResultPosition,
-                    "maxResults" => $maxResults,
-                    "major" => 5,
-                    "minor" => 0,
-                    "startTime" => $startTime,
-                    "endTime" => $endTime,
-                    "picEnable" => false,
-                    "eventAttribute" => "attendance",
-                    "currentVerifyMode" => "cardOrFaceOrFp",
-                    "timeReverseOrder" => true,
-                ];
-
-                $response = $client->post($endpoint, [
-                    "json" => ["AcsEventCond" => $ascEventCond],
-                ]);
-
-                $data = json_decode($response->getBody(), true);
-
-                if (isset($data['AcsEvent']['InfoList']) && is_array($data['AcsEvent']['InfoList'])) {
-                    $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
-                    $searchResultPosition += count($data['AcsEvent']['InfoList']);
-                } else {
-                    break; // No más eventos
-                }
-            } while (count($data['AcsEvent']['InfoList']) === $maxResults);
-
-        } catch (\Exception $e) {
-            // Loguea sin romper la ejecución si un dispositivo falla
-            Log::channel('testing')->warning("⚠️ No se pudo conectar al biométrico {$url}: " . $e->getMessage());
-            continue;
-        }
-    }
-
-    return $eventosTotales;
-}
-
-
-
-
-    /**
      * @throws Exception
      */
-    public function obtenerRegistrosMesFASTAPI()
+    public function obtenerRegistrosMesFASTAPI(): array
     {
         try {
             $fastapi = env('FAST_API_URL_DEFAULT');
             $fastapi_apikey = env('API_KEY_FOR_FASTAPI');
-            $url = $fastapi . 'biometrico-napoleon';
+            $url = rtrim($fastapi, '/') . '/biometrico-napoleon';
 
             $response = Http::withHeaders(['x-api-key' => $fastapi_apikey])
                 ->withOptions(['verify' => false])
                 ->timeout(90)
                 ->get($url);
-            //            Log::channel('testing')->error('Log', ['respuesta obtenida en obtenerRegistrosMesFASTAPI', $response]);
+
+            // Retorna como antes (sin añadir validaciones para no romper nada)
             return $response['eventos'];
         } catch (Exception $e) {
-            //            Log::channel('testing')->error('Log', ['error en obtenerRegistrosMesFASTAPI', $e->getLine(), $e->getMessage()]);
             throw $e;
         }
     }
 
     /**
+     * NUEVO: parsea HIKVISION_URLS en una lista de URLs normalizadas (con / al final),
+     * excluyendo el HIKVISION_BASE_URL si por accidente fue incluido.
+     */
+    private function parseHikvisionUrls(): array
+    {
+        $raw = env('HIKVISION_URLS', '');
+        if (!$raw) return [];
+
+        $urls = array_filter(array_map(function ($u) {
+            $u = trim($u);
+            if ($u === '') return '';
+            // normaliza trailing slash
+            if (substr($u, -1) !== '/') {
+                $u .= '/';
+            }
+            return $u;
+        }, explode(',', $raw)));
+
+        $base = env('HIKVISION_BASE_URL');
+        if ($base && substr($base, -1) !== '/') {
+            $base .= '/';
+        }
+
+        // quita duplicados y base si estuviera incluida
+        $urls = array_values(array_unique(array_filter($urls, function ($u) use ($base) {
+            return $u !== '' && $u !== $base;
+        })));
+
+        return $urls;
+    }
+
+    /**
+     * NUEVO: consulta ISAPI de un biométrico (distinto a Napoleón) y devuelve sus eventos del mes.
+     *
+     * @throws GuzzleException
+     */
+    private function fetchFromBiometrico(string $baseUrl): array
+    {
+        $client = new Client([
+            'base_uri' => $baseUrl,
+            'timeout'  => 10.0,
+            'auth'     => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+        ]);
+
+        $endpoint   = 'ISAPI/AccessControl/AcsEvent?format=json';
+        $startTime  = Carbon::now()->startOfMonth()->toIso8601String();
+        $endTime    = Carbon::now()->endOfMonth()->toIso8601String();
+        $maxResults = 30;
+
+        $ascEventCondBase = [
+            "searchID" => "1",
+            "major" => 5,
+            "minor" => 0,
+            "startTime" => $startTime,
+            "endTime" => $endTime,
+            "picEnable" => false,
+            "eventAttribute" => "attendance",
+            "currentVerifyMode" => "cardOrFaceOrFp",
+            "timeReverseOrder" => true,
+        ];
+
+        $todos = [];
+        $pos = 0;
+
+        do {
+            $ascEventCond = $ascEventCondBase + [
+                "searchResultPosition" => $pos,
+                "maxResults"           => $maxResults,
+            ];
+
+            $resp  = $client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+            $data  = json_decode($resp->getBody(), true);
+            $lista = $data['AcsEvent']['InfoList'] ?? [];
+
+            if (!is_array($lista) || empty($lista)) break;
+
+            // Etiqueta el origen por si luego lo quieres usar (no afecta tu pipeline)
+            foreach ($lista as $ev) {
+                $ev['device_url'] = rtrim($baseUrl, '/');
+                $todos[] = $ev;
+            }
+
+            $pos += count($lista);
+        } while (count($lista) === $maxResults);
+
+        return $todos;
+    }
+
+    /**
+     * NUEVO: recolecta eventos de TODOS los biométricos listados en HIKVISION_URLS (excepto Napoleón).
+     */
+    public function obtenerRegistrosOtrosBiometricos(): array
+    {
+        $urls = $this->parseHikvisionUrls();
+        if (empty($urls)) return [];
+
+        $acumulado = [];
+        foreach ($urls as $url) {
+            try {
+                $acumulado = array_merge($acumulado, $this->fetchFromBiometrico($url));
+            } catch (Exception $e) {
+                Log::channel('testing')->warning('Hikvision extra falló', [
+                    'url'  => $url,
+                    'line' => $e->getLine(),
+                    'msg'  => $e->getMessage(),
+                ]);
+                // continúa con los demás
+            }
+        }
+        return $acumulado;
+    }
+
+    /**
+     * NUEVO: fusiona Napoleón (vía FastAPI) + otros biométricos (vía ISAPI múltiple).
+     *
+     * @throws Exception
+     */
+    public function obtenerRegistrosTodosBiometricos(): array
+    {
+        $napoleon = $this->obtenerRegistrosMesFASTAPI(); // biometrico principal
+        $otros    = $this->obtenerRegistrosOtrosBiometricos();
+        return array_merge($napoleon, $otros);
+    }
+
+    /**
+     * Sincroniza asistencias desde todas las fuentes.
+     * Importante: usa obtenerRegistrosTodosBiometricos() en lugar de solo FastAPI.
+     *
      * @throws Exception
      */
     public function sincronizarAsistencias()
     {
         try {
-            //            $datos = $this->obtenerRegistrosDiarios();
-            //$datos = $this->obtenerRegistrosMesFASTAPI();
-            $datos = $this->obtenerRegistrosMesDeTodos();
-            //De los eventos recibidos filtramos para obtener solo los eventos con 'minor' igual a 75 o 38
+            // Antes: $datos = $this->obtenerRegistrosMesFASTAPI();
+            $datos = $this->obtenerRegistrosTodosBiometricos();
+
+            // De los eventos recibidos filtramos para obtener solo los eventos con 'minor' igual a 75 o 38
             $eventos = array_filter($datos, function ($evento) {
                 return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
             });
-            // Validar que los eventos tienen las claves 'name' y 'time'
+            // Validar que los eventos tienen las claves 'cardNo'
             $eventos = array_filter($eventos, function ($evento) {
                 return isset($evento['cardNo']);
             });
-            //            Log::channel('testing')->info('Log', ['eventos obtenidos validos', count($eventos), $eventos]);
-            // Ordenar eventos por hora para procesarlos en orden cronológico desdel el mas reciente al mas antiguo
+
+            // Ordenar eventos por hora para procesarlos en orden cronológico desde el más reciente al más antiguo
             usort($eventos, fn($a, $b) => strtotime($a['time']) - strtotime($b['time']));
 
-            //            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos ordenados',count($eventos), $eventos]);
-            // Agrupar eventos por empleado y fecha
+            // Agrupar eventos por empleado y fecha (mantengo tu agrupación por name)
             $eventosAgrupados = [];
             foreach ($eventos as $evento) {
                 $fechaEvento = Carbon::parse($evento['time'])->format('Y-m-d');
                 $eventosAgrupados[$evento['name']][$fechaEvento][] = $evento;
             }
-            //            Log::channel('testing')->info('Log', ['sincronizarAsistencias -> eventos agrupados', count($eventosAgrupados), $eventosAgrupados]);
 
             foreach ($eventosAgrupados as $nombreEmpleado => $fechas) {
-                //                Log::channel('testing')->info('Log', ['Nombre: ', $nombreEmpleado, count($fechas), $fechas]);
                 $this->guardarEventosEmpleado($fechas);
             }
         } catch (Exception $e) {
@@ -231,26 +281,25 @@ public function obtenerRegistrosMesDeTodos()
     public function guardarEventosEmpleado($eventosDelDia)
     {
         foreach ($eventosDelDia as $dia => $eventos) {
-            //            Log::channel('testing')->info('Log', ['recorrerEventosEmpleado ', $dia, $eventos]);
             // se tiene el dia y los eventos, falta obtener la cedula del empleado, pero primero filtramos los eventos para eliminar los duplicados en segundos
             $eventosFiltrados = $this->filtrarEventosPorTiempo($eventos);
+
             // se mapea las fechas de los eventos filtrados, ya que esos registros irán a las marcaciones como un json
             $marcaciones = array_map(function ($evento) {
                 return Carbon::parse($evento['time'])->format('H:i:s');
             }, $eventosFiltrados);
 
-            //            Log::channel('testing')->info('Log', ['eventos-filtrados', $eventosFiltrados]);
-
-            //obtenemos el empleado
+            // obtenemos el empleado
+            if (empty($eventosFiltrados)) {
+                continue;
+            }
             $empleado = Empleado::where('identificacion', $eventosFiltrados[0]['cardNo'])->first();
             if (!$empleado) {
-                //                Log::channel('testing')->info('Log', ['no se encontro el empleado', $eventosFiltrados[0]['cardNo'], $dia, $marcaciones]);
                 continue;
             } // se salta ese registro si no hay el cardNo, pero no debería entrar aquí
 
             $marcacionExistente = Marcacion::where('empleado_id', $empleado->id)->where('fecha', $dia)->first();
             if ($marcacionExistente) {
-                //                Log::channel('testing')->info('Log', ['$marcacionExistente', $marcacion, $dia, $marcacionExistente, $marcaciones]);
                 $marcacionExistente->update(['marcaciones' => $marcaciones]);
             } else {
                 $marcacion = new Marcacion();
@@ -258,15 +307,14 @@ public function obtenerRegistrosMesDeTodos()
                 $marcacion->fecha = $dia;
                 $marcacion->marcaciones = $marcaciones;
                 $marcacion->save();
-                //                Log::channel('testing')->info('Log', ['nueva marcacion', $marcacion, $dia]);
             }
         }
     }
 
     /**
-     * Filtra los eventos, para eliminar los duplicados, porque los registros del biometrico muchas veces graba
+     * Filtra los eventos, para eliminar los duplicados, porque los registros del biométrico muchas veces graba
      * dos registros, cara y huella, entonces se trabaja con el primer registro obtenido y el segundo se descarta,
-     * a menos que la diferencia sea superior a 1 minuto, lo cual toma como una marcacion valida
+     * a menos que la diferencia sea superior a 1 minuto, lo cual toma como una marcación válida
      * @param $eventos
      * @return array
      */
