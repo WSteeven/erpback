@@ -63,7 +63,7 @@ class EmpleadoController extends Controller
 
         if ($search) return $this->servicio->search($search);
 
-        if(request()->boolean('comercial')){
+        if (request()->boolean('comercial')) {
             $ids_departamentos_comerciales = Departamento::where('nombre', 'LIKE', '%comercial%')->pluck('id');
             $empleado_gerente = Empleado::where('departamento_id', 9)->where('estado', request('estado'))->first();
             return collect([$empleado_gerente])->merge(Empleado::whereIn('departamento_id', $ids_departamentos_comerciales)->where('estado', request('estado'))->get());
@@ -76,6 +76,21 @@ class EmpleadoController extends Controller
                 return Empleado::where('id', $idResponsable)->get($campos);
             } else return [];
         }
+        //devuelve si hay una fecha de corte
+        if (request('fecha_ingreso_hasta')) {
+            $fechaCorte = request('fecha_ingreso_hasta');
+
+            return Empleado::whereDate('fecha_ingreso', '<=', $fechaCorte)
+                ->where(function ($q) use ($fechaCorte) {
+                    $q->whereNull('fecha_salida')
+                        ->orWhereDate('fecha_salida', '>=', $fechaCorte);
+                })
+                ->whereHas('departamento', function ($q) {
+                    $q->where('nombre', '!=', 'Gerencia');
+                })
+                ->get($campos);
+        }
+
 
         // Si es de RRHH devuelve incluso de inactivos
         if (auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS])) {
@@ -92,6 +107,7 @@ class EmpleadoController extends Controller
         // Procesar respuesta
         if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
+
 
         return $this->servicio->obtenerTodos();
     }
@@ -133,7 +149,7 @@ class EmpleadoController extends Controller
         try {
             DB::beginTransaction();
             $username = $this->generarNombreUsuario($datos);
-//            $email = $username . '@' . explode("@", $datos['email'])[1];
+            //            $email = $username . '@' . explode("@", $datos['email'])[1];
             $user = User::create([
                 'name' => $username,
                 'email' => $datos['email'],
@@ -152,7 +168,7 @@ class EmpleadoController extends Controller
             //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
             if (!empty($request->conductor)) {
                 $this->servicio->actualizarDatosConductor($empleado, $request->conductor);
-            }else{
+            } else {
                 $this->servicio->eliminarConductor($empleado->id);
             }
 
@@ -199,7 +215,7 @@ class EmpleadoController extends Controller
     public function show(Empleado $empleado)
     {
         $modelo = new EmpleadoResource($empleado);
-        if($modelo->conductor) $modelo['conductor'] = new ConductorResource($modelo->conductor);
+        if ($modelo->conductor) $modelo['conductor'] = new ConductorResource($modelo->conductor);
         return response()->json(compact('modelo'));
     }
 
@@ -369,7 +385,7 @@ class EmpleadoController extends Controller
         if (!is_null($request->roles)) {
             $roles = explode(',', $request->roles);
             if ($request->excluir) { // devuelve los usuarios que no tienen los roles proporcionados en $request->roles
-//                $roles_filtrados =Role::whereNotIn('name', [User::ROL_TECNICO, User::ROL_LIDER_DE_GRUPO, User::ROL_EMPLEADO])->get();
+                //                $roles_filtrados =Role::whereNotIn('name', [User::ROL_TECNICO, User::ROL_LIDER_DE_GRUPO, User::ROL_EMPLEADO])->get();
                 $roles_filtrados = Role::whereNotIn('name', $roles)->get();
                 $results = EmpleadoRolePermisoResource::collection(User::role($roles_filtrados)->with('empleado')->whereHas('empleado', function ($query) {
                     $query->where('estado', true);
@@ -388,7 +404,7 @@ class EmpleadoController extends Controller
         if (!is_null($request->permisos)) {
             $permisos = explode(',', $request->permisos);
             $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->whereHas('empleado', function ($query){
+            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->whereHas('empleado', function ($query) {
                 $query->where('estado', true);
             })->get());
         }
@@ -432,7 +448,7 @@ class EmpleadoController extends Controller
         // Comprobamos si el nombre de usuario ya existe
         $query = User::where('name', $nombreUsuario)->get();
         $username = $nombreUsuario;
-        if ($query->count() > 0 && (!$request['sobreescribir'])){
+        if ($query->count() > 0 && (!$request['sobreescribir'])) {
             // Separamos el nombre y el apellido en dos cadenas
             $nombre = explode(" ", $nombres);
             // ['primer', 'segundo']
@@ -457,14 +473,15 @@ class EmpleadoController extends Controller
             'nombres' => 'required|string',
             'apellidos' => 'required|string',
             'usuario' => 'required|string',
-            'sobreescribir'=>'boolean']);
+            'sobreescribir' => 'boolean'
+        ]);
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
     }
 
     public function empleadosConSaldoFondosRotativos()
     {
-//        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        //        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $empleados = $this->servicio->obtenerEmpleadosConSaldoFondosRotativos();
 
         $results = EmpleadoResource::collection($empleados);

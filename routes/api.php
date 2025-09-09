@@ -41,6 +41,7 @@ use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\PisoController;
+use App\Http\Controllers\Plantillas\PlantillaCapacitacionController;
 use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ProductoController;
@@ -385,3 +386,18 @@ Route::get('departamentos-con-empleados', [DepartamentoController::class, 'depar
 
 
 Route::post('obtener-plantilla-base-por-nombre',[PlantillaBaseController::class, 'devolverArchivo'])->middleware('auth:sanctum');
+
+/***********************************
+ * PLANTILLAS DE CAPACITACIONES
+ ***********************************/
+Route::get('plantillas-capacitaciones', [PlantillaCapacitacionController::class, 'index']);
+Route::post('plantillas-capacitaciones', [PlantillaCapacitacionController::class, 'store']);
+
+Route::get('plantillas-capacitaciones/{id}', [PlantillaCapacitacionController::class, 'show']);
+Route::put('plantillas-capacitaciones/{id}', [PlantillaCapacitacionController::class, 'update']);
+Route::delete('plantillas-capacitaciones/{id}', [PlantillaCapacitacionController::class, 'destroy']);
+
+Route::get(
+    'plantillas-capacitaciones/{id}/imprimir',
+    [PlantillaCapacitacionController::class, 'imprimir']
+)->middleware('auth:sanctum');
