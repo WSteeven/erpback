@@ -22,6 +22,11 @@ class PlantillaCapacitacionResource extends JsonResource
             'duracion'    => $this->duracion, // del accessor en el modelo
             'modalidad'   => $this->modalidad,
 
+            // Capacitador (nombre)
+            'capacitador_nombre' => $this->whenLoaded('capacitador', function () {
+                return $this->capacitador->nombres . ' ' . $this->capacitador->apellidos;
+            }),
+
             // Capacitador (empleado que dicta la capacitación)
             'capacitador' => $this->whenLoaded('capacitador', function () {
                 return [

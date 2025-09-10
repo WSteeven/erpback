@@ -11,21 +11,23 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\Plantillas\ReporteCapacitacionService;
+use Src\Shared\Utils;
 
 class PlantillaCapacitacionController extends Controller
 {
     private ReportePdfExcelService $reporteService;
+    public string $entidad = 'Capacitación';
 
     /**
      * Listar capacitaciones.
      */
     public function index()
     {
-        $capacitaciones = PlantillaCapacitacion::with(['capacitador', 'asistentes'])
+        $results = PlantillaCapacitacion::with(['capacitador', 'asistentes'])
             ->orderBy('fecha', 'desc')
             ->paginate(10);
 
-        return PlantillaCapacitacionResource::collection($capacitaciones);
+        return response()->json(compact('results'));
     }
 
     /**
@@ -41,9 +43,12 @@ class PlantillaCapacitacionController extends Controller
             $capacitacion->asistentes()->sync($data['asistentes']);
         }
 
-        return new PlantillaCapacitacionResource(
+        $modelo = new PlantillaCapacitacionResource(
             $capacitacion->load(['capacitador', 'asistentes'])
         );
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -51,11 +56,13 @@ class PlantillaCapacitacionController extends Controller
      */
     public function show(Request $request)
     {
-        $id = $request->id; // ahora viene como ?id=123
+        $id = $request->id; // viene como ?id=123
         $capacitacion = PlantillaCapacitacion::with(['capacitador', 'asistentes'])
             ->findOrFail($id);
 
-        return new PlantillaCapacitacionResource($capacitacion);
+        $modelo = new PlantillaCapacitacionResource($capacitacion);
+
+        return response()->json(compact('modelo'));
     }
 
     /**
@@ -63,7 +70,7 @@ class PlantillaCapacitacionController extends Controller
      */
     public function update(PlantillaCapacitacionRequest $request)
     {
-        $id = $request->id; // ahora viene como ?id=123
+        $id = $request->id;
         $data = $request->validated();
 
         $capacitacion = PlantillaCapacitacion::findOrFail($id);
@@ -73,9 +80,12 @@ class PlantillaCapacitacionController extends Controller
             $capacitacion->asistentes()->sync($data['asistentes']);
         }
 
-        return new PlantillaCapacitacionResource(
+        $modelo = new PlantillaCapacitacionResource(
             $capacitacion->load(['capacitador', 'asistentes'])
         );
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -83,11 +93,13 @@ class PlantillaCapacitacionController extends Controller
      */
     public function destroy(Request $request)
     {
-        $id = $request->id; // ahora viene como ?id=123
+        $id = $request->id;
         $capacitacion = PlantillaCapacitacion::findOrFail($id);
         $capacitacion->delete();
 
-        return response()->json(['message' => 'Capacitación eliminada correctamente']);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+
+        return response()->json(compact('mensaje'));
     }
 
     /**
