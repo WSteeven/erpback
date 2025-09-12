@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Http; // <- corregido
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -26,6 +26,7 @@ class AsistenciaService
             'base_uri' => env('HIKVISION_BASE_URL'),
             'timeout'  => 10.0,
             'auth'     => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+            'verify'   => false,
         ]);
     }
 
@@ -90,7 +91,7 @@ class AsistenciaService
     }
 
     /**
-     * Retorna asistencias: Napoleón vía FastAPI.
+     * Mantiene tu flujo actual: Napoleón vía FastAPI.
      *
      * @throws Exception
      */
@@ -156,6 +157,7 @@ class AsistenciaService
             'base_uri' => $baseUrl,
             'timeout'  => 10.0,
             'auth'     => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+            'verify'   => false,
         ]);
 
         $endpoint   = 'ISAPI/AccessControl/AcsEvent?format=json';
@@ -233,14 +235,14 @@ class AsistenciaService
      */
     public function obtenerRegistrosTodosBiometricos(): array
     {
-        $napoleon = $this->obtenerRegistrosMesFASTAPI(); // biometrico principal
+        $napoleon = $this->obtenerRegistrosMesFASTAPI(); // se mantiene tu forma actual
         $otros    = $this->obtenerRegistrosOtrosBiometricos();
         return array_merge($napoleon, $otros);
     }
 
     /**
      * Sincroniza asistencias desde todas las fuentes.
-     * Importante: usa obtenerRegistrosTodosBiometricos() en lugar de solo FastAPI.
+     * CAMBIO MÍNIMO: usa obtenerRegistrosTodosBiometricos() en lugar de solo FastAPI.
      *
      * @throws Exception
      */
