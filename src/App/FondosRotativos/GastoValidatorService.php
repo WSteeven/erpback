@@ -34,9 +34,18 @@ class GastoValidatorService
     public function validarUpdate(Validator $validator, GastoRequest $request)
     {
         $gasto = Gasto::where('id', $request->id)->lockForUpdate()->first();
-        if($gasto && $gasto->ruc !== $request->ruc) {
+
+        if (!$gasto) {
+            $validator->errors()->add('id', 'Gasto no encontrado');
+            return;
+        }
+
+        if ($gasto->ruc !== $request->ruc) {
             $this->validarRUC($validator, $request->ruc);
         }
+
+        // Reusar la misma validación de comprobantes, pero ignorando este gasto
+        $this->validarNumeroComprobante($validator, $request, $gasto->id);
     }
 
     /**
@@ -58,60 +67,56 @@ class GastoValidatorService
         }
     }
 
-    private function existeFactura(string $ruc, ?string $factura, string $estado): bool
+    private function existeFactura(string $ruc, ?string $factura, string $estado, ?int $ignoreId = null): bool
     {
-        return  Gasto::whereNotNull('factura')
+        $query = Gasto::whereNotNull('factura')
             ->where('factura', '!=', '')
             ->where('ruc', $ruc)
             ->where('factura', $factura)
             ->where('estado', $estado)
-            ->lockForUpdate()
-            ->exists();
+            ->lockForUpdate();
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        return $query->exists();
     }
+
     /**
      * @throws Exception
      */
-    public function validarNumeroComprobante($validator, GastoRequest $request)
+    public function validarNumeroComprobante($validator, GastoRequest $request, ?int $ignoreId = null)
     {
         $ruc = $request->ruc;
         $factura = $request->factura;
         $numComprobante = $request->num_comprobante;
 
-        // Validar si el número de factura ya está registrado
-        $facturaExistente = $this->existeFactura($ruc, $factura, Gasto::APROBADO);
+        // Validar duplicado de factura (APROBADO o PENDIENTE)
+        if ($factura !== null) {
+            $facturaDuplicada = $this->existeFactura($ruc, $factura, Gasto::APROBADO, $ignoreId)
+                || $this->existeFactura($ruc, $factura, Gasto::PENDIENTE, $ignoreId);
 
-        if ($facturaExistente) {
-            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+            if ($facturaDuplicada) {
+                $validator->errors()->add('factura', 'El número de factura ya se encuentra registrado');
+            }
         }
 
-        $facturaPendiente = $this->existeFactura($ruc, $factura, Gasto::PENDIENTE);
+        // Validar duplicado de comprobante (APROBADO o PENDIENTE)
+        if (!empty($numComprobante)) {
+            $comprobanteDuplicado = Gasto::whereNotNull('num_comprobante')
+                ->where('num_comprobante', $numComprobante)
+                ->whereIn('estado', [Gasto::APROBADO, Gasto::PENDIENTE])
+                ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+                ->lockForUpdate()
+                ->exists();
 
-        if ($facturaPendiente) {
-            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+            if ($comprobanteDuplicado) {
+                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+            }
         }
 
-        //Validar si el número de comprobante ya está registrado
-        $comprobante = Gasto::whereNotNull('num_comprobante')
-            ->where('num_comprobante', $numComprobante)
-            ->where('estado', Gasto::APROBADO)
-            ->lockForUpdate()
-            ->first();
-
-        if ($comprobante) {
-            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
-        }
-
-        $comprobantePendiente = Gasto::whereNotNull('num_comprobante')
-            ->where('num_comprobante', $numComprobante)
-            ->where('estado', Gasto::PENDIENTE)
-            ->lockForUpdate()
-            ->first();
-
-        if ($comprobantePendiente) {
-            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
-        }
-
-        // Validación adicional de longitud de factura para ciertos países
+        // Validación adicional de longitud de factura
         if ($factura !== null) {
             switch ($this->pais) {
                 case PaisesOperaciones::PERU:
