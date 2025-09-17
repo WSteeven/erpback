@@ -1,50 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
-    @php
-        use Src\Shared\Utils;
-        $fecha = new Datetime();
+@php
+    use Src\Shared\Utils;
+    $fecha = new Datetime();
+    $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    $numcol_egreso = $cantidad_columna_egresos + 6;
+    $tiene_supa = $sumatoria['supa'] > 0;
+    $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
+    $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+    $carry_ingreso = [];
+    $index_ingreso = 0;
+    $carry_egreso = [];
+    $index_egreso = 0;
+    if ($tiene_bono_recurente) {
         $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        $numcol_egreso = $cantidad_columna_egresos + 6;
-        $tiene_supa = $sumatoria['supa'] > 0;
-        $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
-        $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-        $carry_ingreso = [];
-        $index_ingreso = 0;
-        $carry_egreso = [];
-        $index_egreso = 0;
-        if ($tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        }
-        if ($tiene_bonificacion) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 5;
-        }
-        if ($tiene_bonificacion && $tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 5;
-        }
+    }
+    if ($tiene_bonificacion) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 5;
+    }
+    if ($tiene_bonificacion && $tiene_bono_recurente) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 5;
+    }
 
-        if ($tiene_supa) {
-            $numcol_egreso = $cantidad_columna_egresos + 7;
-        }
-        $sumColumns = [
-            'salario' => 0,
-            'sueldo' => 0,
-            'decimo_tercero' => 0,
-            'decimo_cuarto' => 0,
-            'fondos_reserva' => 0,
-            'iess' => 0,
-            'anticipo' => 0,
-            'bonificacion' => 0,
-            'bono_recurente' => 0,
-            'total_ingreso' => 0,
-            'prestamo_quirorafario' => 0,
-            'prestamo_hipotecario' => 0,
-            'extension_conyugal' => 0,
-            'prestamo_empresarial' => 0,
-            'supa' => 0,
-            'total_egreso' => 0,
-            'total' => 0,
-        ];
+    if ($tiene_supa) {
+        $numcol_egreso = $cantidad_columna_egresos + 7;
+    }
+    $sumColumns = [
+        'salario' => 0,
+        'sueldo' => 0,
+        'decimo_tercero' => 0,
+        'decimo_cuarto' => 0,
+        'fondos_reserva' => 0,
+        'iess' => 0,
+        'anticipo' => 0,
+        'bonificacion' => 0,
+        'bono_recurente' => 0,
+        'total_ingreso' => 0,
+        'prestamo_quirorafario' => 0,
+        'prestamo_hipotecario' => 0,
+        'extension_conyugal' => 0,
+        'prestamo_empresarial' => 0,
+        'supa' => 0,
+        'total_egreso' => 0,
+        'total' => 0,
+    ];
 @endphp
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -158,9 +159,8 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img
-                            src="{{ Utils::urlToBase64(url($configuracion->logo_claro))}}" alt="logo"
-                            width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}"
+                            alt="logo" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 14pt">ROL GENERAL</b>
@@ -174,10 +174,12 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; font-size:14pt;" align="center">Esta informacion es
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; font-size:14pt;" align="center">Esta
+                        informacion es
                         propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
                     </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; font-size:14pt;" align="center">Generado por el
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; font-size:14pt;" align="center">
+                        Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
@@ -202,12 +204,10 @@
                     style="text-align: center !important;
                                                 background-color: #DBDBDB; ">
                     ITEM</td>
-                <td
-                    rowspan="2"style="text-align: center !important;
+                <td rowspan="2"style="text-align: center !important;
                                                 background-color: #DBDBDB;">
                     EMPLEADO</td>
-                <td
-                    rowspan="2"style="  text-align: center !important;
+                <td rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
                     CEDULA</td>
                 <!--<td
@@ -218,8 +218,7 @@
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
                     CIUDAD</td>-->
-                <td
-                    rowspan="2"style="  text-align: center !important;
+                <td rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
                     SUELDO</td>
                 <td rowspan="2" style="background-color: #F8CBAD">DIAS </td>
@@ -240,42 +239,35 @@
 
             </tr>
             <tr class="encabezado-datos">
-                <td
-                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                <td scope="col"class="encabezado-ingresos" style="text-align: center !important;
                                                 background-color: #FFF2CC;">
                     SUELDO GANADO</td>
-                <th
-                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                <th scope="col"class="encabezado-ingresos" style="text-align: center !important;
                                                 background-color: #FFF2CC;">
                     XIIIROL</th>
-                <th
-                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                <th scope="col"class="encabezado-ingresos" style="text-align: center !important;
                                                 background-color: #FFF2CC;">
                     XIVROL</th>
-                <th
-                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                <th scope="col"class="encabezado-ingresos" style="text-align: center !important;
                                                 background-color:#FFF2CC;">
                     FDRAROL</th>
                 @if ($tiene_bonificacion)
-                    <th scope="col"
-                        class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color: #FFF2CC;">
-                        BONIFICACION</th>
+                    <th scope="col" class="encabezado-ingresos"
+                        style="text-align:center !important; background-color:#FFF2CC;">
+                        BONIFICACION
+                    </th>
                 @endif
                 @if ($tiene_bono_recurente)
-                    <th scope="col"
-                        class="encabezado-ingresos"style="text-align: center !important;
+                    <th scope="col" class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color:#FFF2CC;">
                         BONO RECURENTE</th>
                 @endif
                 @foreach ($columnas_ingresos as $ingreso)
-                    <th
-                        scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                    <th scope="col"class="encabezado-ingresos" style="text-align: center !important;
                                                 background-color:#FFF2CC;">
                         {{ strtoupper($ingreso) }}</th>
                 @endforeach
-                <th
-                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                <th scope="col"class="encabezado-ingresos" style="text-align: center !important;
                                                background-color: #BDD7EE;">
                     IESS (9.45%)</th>
                 <th scope="col"class="encabezado-egresos"
@@ -315,12 +307,12 @@
             </tr>
             @foreach ($roles_pago as $rol_pago)
                 @php
-                    $sumColumns['prestamo_quirorafario'] += round($rol_pago['prestamo_quirorafario'],2);
-                    $sumColumns['decimo_tercero']+=round($rol_pago['decimo_tercero'],2);
-                    $sumColumns['decimo_cuarto']+=round($rol_pago['decimo_cuarto'],2);
-                    $sumColumns['total_ingreso']+=round($rol_pago['total_ingreso'],2);
-                    $sumColumns['total_egreso']+=round($rol_pago['total_egreso'],2);
-                    $sumColumns['total']+=round($rol_pago['total'],2);
+                    $sumColumns['prestamo_quirorafario'] += round($rol_pago['prestamo_quirorafario'], 2);
+                    $sumColumns['decimo_tercero'] += round($rol_pago['decimo_tercero'], 2);
+                    $sumColumns['decimo_cuarto'] += round($rol_pago['decimo_cuarto'], 2);
+                    $sumColumns['total_ingreso'] += round($rol_pago['total_ingreso'], 2);
+                    $sumColumns['total_egreso'] += round($rol_pago['total_egreso'], 2);
+                    $sumColumns['total'] += round($rol_pago['total'], 2);
                 @endphp
                 <tr>
                     <td>{{ $rol_pago['item'] }}</td>
@@ -389,7 +381,7 @@
                                     @endif
                                 @endforeach
                             @endforeach
-                            @else
+                        @else
                             @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
                                 <td>0,00</td>
                             @endfor
@@ -437,7 +429,7 @@
                 @endforeach
                 <td>{{ number_format($sumColumns['total_egreso'], 2, ',', '.') }}
                 </td>
-                <td>{{ round($sumColumns['total'],2)}}</td>
+                <td>{{ round($sumColumns['total'], 2) }}</td>
             </tr>
         </table>
 
@@ -458,12 +450,11 @@
                 <th align="center"></th>
                 <th align="center">
                     __________________________________________<br />
-                    <b>{{ $aprueba_rol_pago->nombres.' '.$aprueba_rol_pago->apellidos }}</b>
+                    <b>{{ $aprueba_rol_pago->nombres . ' ' . $aprueba_rol_pago->apellidos }}</b>
                     <br>
                     <b>APROBADO </b>
                 </th>
             </thead>
-
         </table>
     </div>
     <script type="text/php">
