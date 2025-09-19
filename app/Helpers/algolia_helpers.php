@@ -50,7 +50,7 @@ if (!function_exists('buscarConAlgoliaFiltrado')) {
 
         $results = $index->search($search, [
             'filters' => $filters,
-            'hitsPerPage' => 500,
+            'hitsPerPage' => 750,
             // 'page' => $page ?? request('page', 0),
         ]);
 
