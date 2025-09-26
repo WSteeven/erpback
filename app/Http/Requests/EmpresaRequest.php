@@ -63,18 +63,44 @@ class EmpresaRequest extends FormRequest
      * @param \Illuminate\Validation\Validator $validator
      * @return void
      */
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            if (substr_count($this->identificacion, '9') < 9) {
-                $validador = new ValidarIdentificacion();
-                $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->identificacion);
-                if (!(($validador->validarCedula($this->identificacion)) || ($existeRUC->body() == 'true'))) {
-                    $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
-                }
+public function withValidator($validator)
+{
+    $validator->after(function ($validator) {
+        $validador = new \Src\Shared\ValidarIdentificacion();
+
+        try {
+            $identificacion = $this->identificacion;
+            $len = strlen($identificacion);
+
+            $esValido = false;
+
+            if ($len === 11) {
+                // ===== PERÚ =====
+                // Solo validación local (estructura + dígito verificador)
+                $esValido = $validador->validarRUCSRI($identificacion);
+            } elseif (in_array($len, [10, 13])) {
+                // ===== ECUADOR =====
+                $existeRUC = Http::get(
+                    'https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $identificacion
+                );
+                $esValido = ($existeRUC->body() === 'true');
+            } else {
+                // Ni RUC Perú ni cédula/RUC Ecuador
+                $esValido = false;
             }
-        });
-    }
+
+            if (!$esValido) {
+                $validator->errors()->add(
+                    'identificacion',
+                    'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido.'
+                );
+            }
+        } catch (\Exception $e) {
+            $validator->errors()->add('identificacion', $e->getMessage());
+        }
+    });
+}
+
 
     /**
      * Personalizacion de atributos y mensajes

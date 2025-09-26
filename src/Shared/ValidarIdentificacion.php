@@ -74,33 +74,63 @@ class ValidarIdentificacion
     /**
      * Función para validar RUC en el SRI
      *
-     * @param string $ruc El RUC a validar en el SRI
+     * @param string $ruc El RUC a validar en el SRI | SUNAT
      *
      * @return Boolean
      * @throws Exception
      */
-    public function validarRUCSRI(string $ruc)
+    public function validarRUCSRI(string $id)
     {
+        $id = trim($id);
+
         try {
-            switch ($this->pais) {
-                case PaisesOperaciones::PERU:
-                    return true;
-                default :
-//                    $response = Http::withOptions(['verify'=>false])->get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc); //opcion para cuando el SRI presenta problemas de cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=
-                    $response = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc);
-                    return $response->body() == 'true';
+            $len = strlen($id);
+
+            if ($len === 11) {
+                // ===== PERÚ (RUC) =====
+                // Validación de EXISTENCIA sin token: solo estructura + dígito verificador
+                // (No hay endpoint público oficial para “existe”)
+                $this->validarRucPeru($id);
+
+                // OPCIONAL: si algún día quieres requerir confirmación remota y tienes token:
+                // if ($token = config('services.sunat.token')) {
+                //     $resp = Http::timeout(8)->withHeaders([
+                //         'Accept' => 'application/json',
+                //         'Authorization' => 'Bearer ' . $token,
+                //     ])->get('https://api.apis.net.pe/v1/ruc', ['numero' => $id]);
+                //
+                //     if ($resp->failed()) return false;
+                //     $data = $resp->json();
+                //     // Asegura que coincida el RUC en la respuesta
+                //     return isset($data['ruc']) && $data['ruc'] === $id;
+                // }
+
+                return true; // Estructuralmente válido (lo que pediste “como SRI” pero sin token)
+
+            } elseif ($len === 10) {
+                // ===== ECUADOR (CÉDULA) =====
+                // Validación local (módulo 10, provincia, etc.)
+                return $this->validarCedula($id);
+            } elseif ($len === 13) {
+                // ===== ECUADOR (RUC) =====
+                $resp = Http::timeout(8)->get(
+                    'https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc',
+                    ['numeroRuc' => $id]
+                );
+                if ($resp->failed()) return false;
+                return trim($resp->body()) === 'true';
+            } else {
+                // Ni Perú ni Ecuador
+                return false;
             }
         } catch (Exception $e) {
-            throw match ($this->pais) {
-                PaisesOperaciones::PERU => new Exception('Ha ocurrido una excepción, por favor comunicate con el Administrador del Sistema. ' . $e->getMessage()),
-                default => new Exception('No se puede validar RUC con el servicio del SRI, porfavor intentelo mas tarde. ' . $e->getMessage()),
-            };
+            // No propagues excepción; convierte en false para que el Request controle el mensaje
+            return false;
         }
     }
 
     /**
-     * Validar cédula
-     *
+     * Validar cédula.
      * @param string $numero Número de cédula
      *
      * @return Boolean
@@ -115,13 +145,14 @@ class ValidarIdentificacion
 
         // validaciones
         try {
-//            Log::channel('testing')->info('Log', ['Metodo validarCedula', $this->pais ]);
-//            Log::channel('testing')->info('Log', ['Metodo comparacion', $this->pais == PaisesOperaciones::PERU ]);
-//            Log::channel('testing')->info('Log', ['como clase', PaisesOperaciones::PERU ]);
+            //            Log::channel('testing')->info('Log', ['Metodo validarCedula', $this->pais ]);
+            //            Log::channel('testing')->info('Log', ['Metodo comparacion', $this->pais == PaisesOperaciones::PERU ]);
+            //            Log::channel('testing')->info('Log', ['como clase', PaisesOperaciones::PERU ]);
             switch ($this->pais) {
                 case PaisesOperaciones::PERU:
+                    //return $this->validarDniPeru($numero);
                     return true;
-                default :
+                default:
                     $this->validarInicial($numero, '10');
                     $this->validarCodigoProvincia(substr($numero, 0, 2));
                     $this->validarTercerDigito($numero[2], 'cedula');
@@ -132,7 +163,6 @@ class ValidarIdentificacion
             $this->setError($e->getMessage());
             return false;
         }
-
     }
 
     /**
@@ -142,28 +172,28 @@ class ValidarIdentificacion
      *
      * @return Boolean
      */
-//    public function validarRucPersonaNatural($numero = '')
-//    {
-//        // fuerzo parametro de entrada a string
-//        $numero = (string)$numero;
-//
-//        // borro por si acaso errores de llamadas anteriores.
-//        $this->setError('');
-//
-//        // validaciones
-//        try {
-//            $this->validarInicial($numero, '13');
-//            $this->validarCodigoProvincia(substr($numero, 0, 2));
-//            $this->validarTercerDigito($numero[2], 'ruc_natural');
-//            $this->validarCodigoEstablecimiento(substr($numero, 10, 3));
-//            $this->algoritmoModulo10(substr($numero, 0, 9), $numero[9]);
-//        } catch (Exception $e) {
-//            $this->setError($e->getMessage());
-//            return false;
-//        }
-//
-//        return true;
-//    }
+    //    public function validarRucPersonaNatural($numero = '')
+    //    {
+    //        // fuerzo parametro de entrada a string
+    //        $numero = (string)$numero;
+    //
+    //        // borro por si acaso errores de llamadas anteriores.
+    //        $this->setError('');
+    //
+    //        // validaciones
+    //        try {
+    //            $this->validarInicial($numero, '13');
+    //            $this->validarCodigoProvincia(substr($numero, 0, 2));
+    //            $this->validarTercerDigito($numero[2], 'ruc_natural');
+    //            $this->validarCodigoEstablecimiento(substr($numero, 10, 3));
+    //            $this->algoritmoModulo10(substr($numero, 0, 9), $numero[9]);
+    //        } catch (Exception $e) {
+    //            $this->setError($e->getMessage());
+    //            return false;
+    //        }
+    //
+    //        return true;
+    //    }
 
 
     /**
@@ -173,28 +203,28 @@ class ValidarIdentificacion
      *
      * @return Boolean
      */
-//    public function validarRucSociedadPrivada($numero = '')
-//    {
-//        // fuerzo parametro de entrada a string
-//        $numero = (string)$numero;
-//
-//        // borro por si acaso errores de llamadas anteriores.
-//        $this->setError('');
-//
-//        // validaciones
-//        try {
-//            $this->validarInicial($numero, '13');
-//            $this->validarCodigoProvincia(substr($numero, 0, 2));
-//            $this->validarTercerDigito($numero[2], 'ruc_privada');
-//            $this->validarCodigoEstablecimiento(substr($numero, 10, 3));
-//            $this->algoritmoModulo11(substr($numero, 0, 9), $numero[9], 'ruc_privada');
-//        } catch (Exception $e) {
-//            $this->setError($e->getMessage());
-//            return false;
-//        }
-//
-//        return true;
-//    }
+    //    public function validarRucSociedadPrivada($numero = '')
+    //    {
+    //        // fuerzo parametro de entrada a string
+    //        $numero = (string)$numero;
+    //
+    //        // borro por si acaso errores de llamadas anteriores.
+    //        $this->setError('');
+    //
+    //        // validaciones
+    //        try {
+    //            $this->validarInicial($numero, '13');
+    //            $this->validarCodigoProvincia(substr($numero, 0, 2));
+    //            $this->validarTercerDigito($numero[2], 'ruc_privada');
+    //            $this->validarCodigoEstablecimiento(substr($numero, 10, 3));
+    //            $this->algoritmoModulo11(substr($numero, 0, 9), $numero[9], 'ruc_privada');
+    //        } catch (Exception $e) {
+    //            $this->setError($e->getMessage());
+    //            return false;
+    //        }
+    //
+    //        return true;
+    //    }
 
     /**
      * Validar RUC sociedad publica
@@ -203,28 +233,28 @@ class ValidarIdentificacion
      *
      * @return Boolean
      */
-//    public function validarRucSociedadPublica($numero = '')
-//    {
-//        // fuerzo parametro de entrada a string
-//        $numero = (string)$numero;
-//
-//        // borro por si acaso errores de llamadas anteriores.
-//        $this->setError('');
-//
-//        // validaciones
-//        try {
-//            $this->validarInicial($numero, '13');
-//            $this->validarCodigoProvincia(substr($numero, 0, 2));
-//            $this->validarTercerDigito($numero[2], 'ruc_publica');
-//            $this->validarCodigoEstablecimiento(substr($numero, 9, 4));
-//            $this->algoritmoModulo11(substr($numero, 0, 8), $numero[8], 'ruc_publica');
-//        } catch (Exception $e) {
-//            $this->setError($e->getMessage());
-//            return false;
-//        }
-//
-//        return true;
-//    }
+    //    public function validarRucSociedadPublica($numero = '')
+    //    {
+    //        // fuerzo parametro de entrada a string
+    //        $numero = (string)$numero;
+    //
+    //        // borro por si acaso errores de llamadas anteriores.
+    //        $this->setError('');
+    //
+    //        // validaciones
+    //        try {
+    //            $this->validarInicial($numero, '13');
+    //            $this->validarCodigoProvincia(substr($numero, 0, 2));
+    //            $this->validarTercerDigito($numero[2], 'ruc_publica');
+    //            $this->validarCodigoEstablecimiento(substr($numero, 9, 4));
+    //            $this->algoritmoModulo11(substr($numero, 0, 8), $numero[8], 'ruc_publica');
+    //        } catch (Exception $e) {
+    //            $this->setError($e->getMessage());
+    //            return false;
+    //        }
+    //
+    //        return true;
+    //    }
 
     /**
      * Validaciones iniciales para CI y RUC
@@ -332,15 +362,15 @@ class ValidarIdentificacion
      *
      * @throws exception Cuando el establecimiento es menor a 1
      */
-//    protected function validarCodigoEstablecimiento($numero)
-//    {
-//        if ($numero < 1) {
-//            throw new Exception('Código de establecimiento no puede ser 0');
-//            //throw new Exception('RUC debe terminar en 001');
-//        }
-//
-//        return true;
-//    }
+    //    protected function validarCodigoEstablecimiento($numero)
+    //    {
+    //        if ($numero < 1) {
+    //            throw new Exception('Código de establecimiento no puede ser 0');
+    //            //throw new Exception('RUC debe terminar en 001');
+    //        }
+    //
+    //        return true;
+    //    }
 
     /**
      * Algoritmo Modulo10 para validar si CI y RUC de persona natural son válidos.
@@ -467,42 +497,42 @@ class ValidarIdentificacion
      * @throws exception Cuando los digitosIniciales no concuerdan contra
      * el código verificador.
      */
-//    protected function algoritmoModulo11($digitosIniciales, $digitoVerificador, $tipo)
-//    {
-//        switch ($tipo) {
-//            case 'ruc_privada':
-//                $arrayCoeficientes = array(4, 3, 2, 7, 6, 5, 4, 3, 2);
-//                break;
-//            case 'ruc_publica':
-//                $arrayCoeficientes = array(3, 2, 7, 6, 5, 4, 3, 2);
-//                break;
-//            default:
-//                throw new Exception('Tipo de Identificación no existe.');
-//        }
-//
-//        $digitoVerificador = (int)$digitoVerificador;
-//        $digitosIniciales = str_split($digitosIniciales);
-//
-//        $total = 0;
-//        foreach ($digitosIniciales as $key => $value) {
-//            $valorPosicion = ((int)$value * $arrayCoeficientes[$key]);
-//            $total = $total + $valorPosicion;
-//        }
-//
-//        $residuo = $total % 11;
-//
-//        if ($residuo == 0) {
-//            $resultado = 0;
-//        } else {
-//            $resultado = 11 - $residuo;
-//        }
-//
-//        if ($resultado != $digitoVerificador) {
-//            throw new Exception('Dígitos iniciales no validan contra Dígito Idenficador');
-//        }
-//
-//        return true;
-//    }
+    //    protected function algoritmoModulo11($digitosIniciales, $digitoVerificador, $tipo)
+    //    {
+    //        switch ($tipo) {
+    //            case 'ruc_privada':
+    //                $arrayCoeficientes = array(4, 3, 2, 7, 6, 5, 4, 3, 2);
+    //                break;
+    //            case 'ruc_publica':
+    //                $arrayCoeficientes = array(3, 2, 7, 6, 5, 4, 3, 2);
+    //                break;
+    //            default:
+    //                throw new Exception('Tipo de Identificación no existe.');
+    //        }
+    //
+    //        $digitoVerificador = (int)$digitoVerificador;
+    //        $digitosIniciales = str_split($digitosIniciales);
+    //
+    //        $total = 0;
+    //        foreach ($digitosIniciales as $key => $value) {
+    //            $valorPosicion = ((int)$value * $arrayCoeficientes[$key]);
+    //            $total = $total + $valorPosicion;
+    //        }
+    //
+    //        $residuo = $total % 11;
+    //
+    //        if ($residuo == 0) {
+    //            $resultado = 0;
+    //        } else {
+    //            $resultado = 11 - $residuo;
+    //        }
+    //
+    //        if ($resultado != $digitoVerificador) {
+    //            throw new Exception('Dígitos iniciales no validan contra Dígito Idenficador');
+    //        }
+    //
+    //        return true;
+    //    }
 
     /**
      * Get error
@@ -524,5 +554,49 @@ class ValidarIdentificacion
     {
         $this->error = $newError;
         return $this;
+    }
+
+    /**
+     * =========================
+     * VALIDACIONES PERÚ
+     * =========================
+     */
+
+    protected function validarDniPeru(string $dni)
+    {
+        if (!ctype_digit($dni) || strlen($dni) !== 8) {
+            throw new Exception('El DNI debe tener exactamente 8 dígitos.');
+        }
+        return true;
+    }
+
+    protected function validarRucPeru(string $ruc)
+    {
+        if (!ctype_digit($ruc) || strlen($ruc) !== 11) {
+            throw new Exception('El RUC debe tener exactamente 11 dígitos.');
+        }
+
+        // Prefijos válidos
+        $prefix = substr($ruc, 0, 2);
+        if (!in_array($prefix, ['10', '15', '17', '20'])) {
+            throw new Exception('El RUC no tiene un prefijo válido.');
+        }
+
+        // Dígito verificador
+        $coeficientes = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+        $suma = 0;
+        for ($i = 0; $i < 10; $i++) {
+            $suma += intval($ruc[$i]) * $coeficientes[$i];
+        }
+
+        $residuo = $suma % 11;
+        $resta = 11 - $residuo;
+        $digitoVerificador = ($resta == 10) ? 0 : (($resta == 11) ? 1 : $resta);
+
+        if ($digitoVerificador != intval($ruc[10])) {
+            throw new Exception('RUC inválido (dígito verificador no coincide).');
+        }
+
+        return true;
     }
 }

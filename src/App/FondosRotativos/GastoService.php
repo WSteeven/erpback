@@ -58,24 +58,26 @@ class GastoService
     public function validarGastoVehiculo(GastoRequest $request)
     {
         $gasto_vehiculo = GastoVehiculo::where('id_gasto', $this->gasto->id)->first();
+
+        // Caso detalle == 24
         if ($request->detalle == 24) {
-            is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $this->gasto) : $this->modificarGastovehiculo($request, $this->gasto);
+            is_null($gasto_vehiculo)
+                ? $this->guardarGastoVehiculo($request, $this->gasto)
+                : $this->modificarGastovehiculo($request, $this->gasto);
         }
+
+        // Caso detalle == 6 o 16 con sub_detalles específicos
         if ($request->detalle == 6 || $request->detalle == 16) {
-            $sub_detalle = $request->sub_detalle;
-            $sub_detalle = array_map('intval', $sub_detalle);
-            $sub_detalle = array_flip($sub_detalle);
-            if (array_key_exists(65, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $this->gasto) : $this->modificarGastovehiculo($request, $this->gasto);
-            }
-            if (array_key_exists(66, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $this->gasto) : $this->modificarGastovehiculo($request, $this->gasto);
-            }
-            if (array_key_exists(96, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $this->gasto) : $this->modificarGastovehiculo($request, $this->gasto);
-            }
-            if (array_key_exists(97, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $this->gasto) : $this->modificarGastovehiculo($request, $this->gasto);
+            $sub_detalle = array_flip(array_map('intval', $request->sub_detalle ?? []));
+            $keys_interes = [65, 66, 96, 97];
+
+            // Verificar si alguno de los sub_detalle está presente
+            $tiene_clave = count(array_intersect_key(array_flip($keys_interes), $sub_detalle)) > 0;
+
+            if ($tiene_clave) {
+                is_null($gasto_vehiculo)
+                    ? $this->guardarGastoVehiculo($request, $this->gasto)
+                    : $this->modificarGastovehiculo($request, $this->gasto);
             }
         }
     }
@@ -85,7 +87,7 @@ class GastoService
      */
     public function guardarRegistrosValijas(array $datos, array $envio_valija)
     {
-//        Log::channel('testing')->info('Log', ['guardarRegistrosValijas', $envio_valija]);
+        //        Log::channel('testing')->info('Log', ['guardarRegistrosValijas', $envio_valija]);
         if ($envio_valija['fotografia_guia']) {
             $envio_valija['fotografia_guia'] = (new GuardarImagenIndividual($envio_valija['fotografia_guia'], RutasStorage::IMAGENES_VALIJAS))->execute();
         }
@@ -96,9 +98,9 @@ class GastoService
             'fotografia_guia' => $envio_valija['fotografia_guia'],
         ]);
 
-//        Log::channel('testing')->info('Log', ['Envio Valija Creado', $envioValija]);
+        //        Log::channel('testing')->info('Log', ['Envio Valija Creado', $envioValija]);
 
-//        throw new Exception(Utils::metodoNoDesarrollado());
+        //        throw new Exception(Utils::metodoNoDesarrollado());
         try {
             DB::beginTransaction();
 
@@ -332,6 +334,5 @@ class GastoService
             $estado = $gasto->estadoViatico->descripcion;
             throw new Exception("El gasto no se puede modificar porque se encuentra con estado $estado");
         }
-
     }
 }

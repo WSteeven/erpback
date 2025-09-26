@@ -23,7 +23,7 @@ class DetalleProductoResource extends JsonResource
             'categoria' => $this->producto->categoria->nombre,
             'codigo' => $this->codigo ? $this->codigo->codigo : '',
             'producto' => $this->producto->nombre,
-            'unidad_medida' => $this->producto->unidadMedida->nombre,
+            'unidad_medida' => $this->producto->unidadMedida?->nombre,
             'producto_id' => $this->producto_id,
             'descripcion' => $this->descripcion,
             'marca' => $this->marca?->nombre,

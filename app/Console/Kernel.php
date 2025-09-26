@@ -109,6 +109,12 @@ class Kernel extends ConsoleKernel
             });
 
         $schedule->command('tickets:generate-recurring')->dailyAt('08:00');
+
+        // Revisar tickets de usuarios inactivos
+        $schedule->command('tickets:revisar-inactivos')->dailyAt('00:00');
+
+
+
         // En producción podrías usar ->dailyAt('08:00');
     }
 

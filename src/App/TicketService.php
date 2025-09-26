@@ -71,7 +71,7 @@ class TicketService
         $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
         $datos['cc'] = json_encode($request['cc']);
 
-//        Log::channel('testing')->info('Log', ['Datos', $datos]);
+        //        Log::channel('testing')->info('Log', ['Datos', $datos]);
 
         // Calcular estados
         $datos['estado'] = Ticket::ASIGNADO;
@@ -167,4 +167,78 @@ class TicketService
             ]);
         }
     }
+
+/**
+ * Manejar Usuarios Inactivos
+ *
+ */
+public function manejarUsuariosInactivos(Ticket $ticket)
+{
+    $cambios = false;
+
+    // Caso 1: Solicitante inactivo → reasignar al jefe inmediato activo
+    if ($ticket->solicitante && !$ticket->solicitante->activo) {
+        $nuevoSolicitante = $this->obtenerJefeActivo($ticket->solicitante);
+
+        if ($nuevoSolicitante) {
+            $ticket->solicitante_id = $nuevoSolicitante->id;
+            $cambios = true;
+
+            $this->registrarActividad(
+                $ticket,
+                "El solicitante estaba inactivo. Reasignado automáticamente a {$nuevoSolicitante->nombres}."
+            );
+        }
+    }
+
+    // Caso 2: Responsable inactivo → reasignar al jefe inmediato activo
+    if ($ticket->responsable && !$ticket->responsable->activo) {
+        $nuevoResponsable = $this->obtenerJefeActivo($ticket->responsable);
+
+        if ($nuevoResponsable) {
+            $ticket->responsable_id = $nuevoResponsable->id;
+            $ticket->estado = Ticket::REASIGNADO;
+            $cambios = true;
+
+            $this->registrarActividad(
+                $ticket,
+                "El responsable estaba inactivo. Ticket reasignado automáticamente a {$nuevoResponsable->nombres}."
+            );
+        }
+    }
+
+    if ($cambios) {
+        $ticket->save();
+        return ['accion' => 'reasignado', 'ticket' => $ticket->refresh()];
+    }
+
+    return ['accion' => 'sin_cambios', 'ticket' => $ticket];
+}
+
+/**
+ * Buscar jefe inmediato activo (sube jerarquía si es necesario)
+ */
+private function obtenerJefeActivo($empleado)
+{
+    $jefe = $empleado->jefe; // usa tu relación en Empleado
+    while ($jefe && !$jefe->activo) {
+        $jefe = $jefe->jefe;
+    }
+    return $jefe;
+}
+
+/**
+ * Registrar actividad en seguimiento del ticket
+ */
+private function registrarActividad(Ticket $ticket, $mensaje)
+{
+    \App\Models\ActividadRealizadaSeguimientoTicket::create([
+        'ticket_id' => $ticket->id,
+        'fecha_hora' => now(),
+        'observacion' => 'REASIGNACIÓN AUTOMÁTICA',
+        'actividad_realizada' => $mensaje,
+        'responsable_id' => $ticket->responsable_id,
+    ]);
+}
+
 }
