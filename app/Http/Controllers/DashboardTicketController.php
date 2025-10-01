@@ -67,6 +67,10 @@ class DashboardTicketController extends Controller
         $tiempoPromedio = CarbonInterval::seconds($tiempoPromedio)->cascade()->forHumans();
         $totalTicketsFinalizados = $ticketsPorDepartamentoEstadoFinalizadoSolucionado->count();
 
+        // Tickets por categoría y tipo para departamento
+$ticketsPorDepartamentoCategoria = $this->service->obtenerTicketsPorCategoriaDepartamento();
+$ticketsPorDepartamentoTipo = $this->service->obtenerTicketsPorTipoDepartamento();
+
         $results = compact(
             // Graficos de pastel
             'ticketsPorDepartamentoEstadoAsignado',
@@ -81,6 +85,10 @@ class DashboardTicketController extends Controller
             'tiempoPromedio',
             'totalTicketsFinalizados',
             'ticketsPorDepartamentoEstadoFinalizadoSolucionado',
+
+            // Tickets por categoría y tipo para departamento
+            'ticketsPorDepartamentoCategoria',
+            'ticketsPorDepartamentoTipo'
         );
 
         return response()->json(compact('results'));
@@ -161,6 +169,10 @@ class DashboardTicketController extends Controller
         $ticketsCreadosADepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsSolicitadosPorDepartamento());
         $ticketsRecibidosPorDepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsRecibidosPorDepartamento());
 
+        // Tickets por categoría y tipo
+        $ticketsPorCategoria = TicketResource::collection($this->service->obtenerTicketsPorCategoria());
+        $ticketsPorTipo = TicketResource::collection($this->service->obtenerTicketsPorTipo());
+
         $results = compact(
             'cantTicketsCreados',
             'cantTicketsCreadosParaMi',
@@ -183,6 +195,9 @@ class DashboardTicketController extends Controller
             // Listados
             'ticketsPorEstado',
             'creados',
+            // Tickets por categoria y tipo
+            'ticketsPorCategoria',
+            'ticketsPorTipo'
         );
 
         return response()->json(compact('results'));

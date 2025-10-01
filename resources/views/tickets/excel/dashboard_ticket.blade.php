@@ -13,6 +13,7 @@
         <thead>
             <tr>
                 <th rowspan="1" valign="center" bgcolor="#99b4ff">{{ 'CÓDIGO DEL TICKET' }}</th>
+                <th rowspan="1" valign="center" bgcolor="#99b4ff">{{ 'CATEGORÍA' }}</th>
                 <th rowspan="1" valign="center" bgcolor="#99b4ff">{{ 'TIPO' }}</th>
                 <th rowspan="1" valign="center" bgcolor="#99b4ff">{{ 'ASUNTO' }}</th>
                 <th rowspan="1" valign="center" bgcolor="#99b4ff">{{ 'SOLICITANTE' }}</th>
@@ -32,6 +33,7 @@
             @foreach ($reporte as $ticket)
                 <tr>
                     <td valign="center">{{ $ticket['codigo'] }}</td>
+                    <td valign="center">{{ $ticket['categoria_tipo_ticket'] }}</td>
                     <td valign="center">{{ $ticket['tipo_ticket'] }}</td>
                     <td valign="center">{{ $ticket['asunto'] }}</td>
                     <td valign="center">{{ $ticket['solicitante'] }}</td>
@@ -49,6 +51,7 @@
             @endforeach
             <tr></tr>
             <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>

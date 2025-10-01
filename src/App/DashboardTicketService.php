@@ -93,4 +93,66 @@ class DashboardTicketService
             ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
             ->get();
     }
+
+    // Funciones para  obtener tickets por Categoria y Tipo
+    public function obtenerTicketsPorCategoria()
+{
+    $idEmpleado = request('empleado_id');
+    $fechaInicio = Carbon::createFromFormat('Y-m-d', request('fecha_inicio'))->startOfDay();
+    $fechaFin = Carbon::createFromFormat('Y-m-d', request('fecha_fin'))->endOfDay();
+
+    return Ticket::select('tickets.*', 'categorias_tipos_tickets.nombre as categoria')
+        ->join('tipos_tickets', 'tickets.tipo_ticket_id', '=', 'tipos_tickets.id')
+        ->join('categorias_tipos_tickets', 'tipos_tickets.categoria_tipo_ticket_id', '=', 'categorias_tipos_tickets.id')
+        ->where('tickets.responsable_id', $idEmpleado)
+        ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])
+        ->get();
+}
+
+    public function obtenerTicketsPorTipo()
+    {
+        $idEmpleado = request('empleado_id');
+        $fechaInicio = Carbon::createFromFormat('Y-m-d', request('fecha_inicio'))->startOfDay();
+        $fechaFin = Carbon::createFromFormat('Y-m-d', request('fecha_fin'))->endOfDay();
+
+        return Ticket::select('tickets.*', 'tipos_tickets.nombre as tipo_ticket')
+            ->join('tipos_tickets', 'tickets.tipo_ticket_id', '=', 'tipos_tickets.id')
+            ->where('tickets.responsable_id', $idEmpleado)
+            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])
+            ->get();
+    }
+
+public function obtenerTicketsPorCategoriaDepartamento()
+{
+    $departamentoResponsableId = request('departamento_responsable_id');
+    $fechaInicio = Carbon::createFromFormat('Y-m-d', request('fecha_inicio'))->startOfDay();
+    $fechaFin = Carbon::createFromFormat('Y-m-d', request('fecha_fin'))->endOfDay();
+
+    return Ticket::select(
+            'categorias_tipos_tickets.nombre as categoria',
+            DB::raw('COUNT(tickets.id) as total_tickets')
+        )
+        ->join('tipos_tickets', 'tickets.tipo_ticket_id', '=', 'tipos_tickets.id')
+        ->join('categorias_tipos_tickets', 'tipos_tickets.categoria_tipo_ticket_id', '=', 'categorias_tipos_tickets.id')
+        ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
+        ->where('empleados.departamento_id', $departamentoResponsableId)
+        ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])
+        ->groupBy('categorias_tipos_tickets.id', 'categorias_tipos_tickets.nombre')
+        ->get();
+}
+
+    public function obtenerTicketsPorTipoDepartamento()
+    {
+        $departamentoResponsableId = request('departamento_responsable_id');
+        $fechaInicio = Carbon::createFromFormat('Y-m-d', request('fecha_inicio'))->startOfDay();
+        $fechaFin = Carbon::createFromFormat('Y-m-d', request('fecha_fin'))->endOfDay();
+
+        return Ticket::select('tickets.*', 'tipos_tickets.nombre as tipo_ticket', DB::raw('COUNT(tickets.id) as total_tickets'))
+            ->join('tipos_tickets', 'tickets.tipo_ticket_id', '=', 'tipos_tickets.id')
+            ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
+            ->where('empleados.departamento_id', $departamentoResponsableId)
+            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])
+            ->groupBy('tipos_tickets.id', 'tipos_tickets.nombre')
+            ->get();
+    }
 }
