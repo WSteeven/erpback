@@ -429,7 +429,7 @@ class NominaService
     {
         try {
             $results = RolPago::empaquetarListado($rol_pago);
-            $responsable = Departamento::where('id', 7)->first()->responsable;
+            $responsable = Departamento::where('nombre', Departamento::DEPARTAMENTO_RRHH)->first()->responsable;
             $reportes = ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);

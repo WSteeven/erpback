@@ -44,7 +44,7 @@ class RolPagoEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            from: new Address(env('MAIL_USERNAME'), 'JP CONSTRUCRED C.LTDA'),
+            from: new Address(env('MAIL_USERNAME'), env('RAZON_SOCIAL')),
             subject: 'Rol de Pagos de ' . $this->reportes['roles_pago'][0]['mes'],
         );
     }

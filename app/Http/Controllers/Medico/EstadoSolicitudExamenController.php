@@ -39,7 +39,7 @@ class EstadoSolicitudExamenController extends Controller
             $results = EstadoSolicitudExamen::select('registro_empleado_examen_id', 'created_at', DB::raw('COUNT(*) AS cantidad_examenes_solicitados'))->where('estado_examen_id', request('estado_examen_id'))->where('registro_empleado_examen_id', request('registro_empleado_examen_id'))->groupBy('registro_empleado_examen_id', 'created_at')->get();
             // $results = EstadoSolicitudExamen::select('id', 'registro_empleado_examen_id', 'created_at')->where('estado_examen_id', request('estado_examen_id'))->where('registro_empleado_examen_id', request('registro_empleado_examen_id'))->get();
             // $results =
-            Log::channel('testing')->info('Log', ['results', $results]);
+//            Log::channel('testing')->info('Log', ['results', $results]);
 
             $results = $results->map(function ($solicitud) {
                 return [

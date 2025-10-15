@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class TareaRequest extends FormRequest
 {
@@ -51,12 +50,12 @@ class TareaRequest extends FormRequest
 
         // Verifica si el usuario actual tiene el rol específico
         if (Auth::check() && Auth::user()->hasRole([User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, USer::ROL_SUPERVISOR_TECNICO, User::ROL_ADMINISTRADOR])) {
-            Log::channel('testing')->info('Log', ['Validacion Tarea:', 'Dentro del if']);
+//            Log::channel('testing')->info('Log', ['Validacion Tarea:', 'Dentro del if']);
             // Agrega una regla de validación para marcar el campo como requerido
             $rules['coordinador'] = 'required|numeric|integer';
         }
 
-        Log::channel('testing')->info('Log', compact('rules'));
+//        Log::channel('testing')->info('Log', compact('rules'));
         return $rules;
     }
 }

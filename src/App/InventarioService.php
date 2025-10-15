@@ -722,7 +722,7 @@ class InventarioService
 
         }
 
-        Log::channel('testing')->info('Log', ['results', $results]);
+//        Log::channel('testing')->info('Log', ['results', $results]);
 
         if ($excel) return Excel::download(new MaterialesVidaUtilResponsableExport($results), 'materiales_vida_util_responsable.xlsx');
 

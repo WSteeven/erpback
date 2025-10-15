@@ -35,7 +35,7 @@ class EsquemaVacunaController extends Controller
         if (request('agrupar')) $results = EsquemaVacuna::ignoreRequest(['campos', 'agrupar'])->filter()->selectRaw('*, COUNT(*) as aplicadas')->groupBy('tipo_vacuna_id')->get();
         else $results = EsquemaVacuna::ignoreRequest(['campos'])->filter()->get();
 
-        Log::channel('testing')->info('Log', ['results', $results]);
+//        Log::channel('testing')->info('Log', ['results', $results]);
         /* $results = $results->map(function ($esquema) {
             return [
                 'tipo_vacuna' => $esquema->tipoVacuna?->nombre,

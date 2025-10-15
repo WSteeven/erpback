@@ -67,7 +67,7 @@ Route::get('/send-firebase', function () {
  * Localizacion
  ****************/
 Route::get('paises', fn() => ['results' => Pais::filter()->get()]);
-Route::get('provincias', fn() => ['results' => Provincia::filter()->get()]);
+Route::get('provincias', fn() => ['results' => Provincia::all()]);
 Route::get('cantones', function () {
     $results = Canton::ignoreRequest(['campos'])->filter()->get();
     $results = CantonResource::collection($results);

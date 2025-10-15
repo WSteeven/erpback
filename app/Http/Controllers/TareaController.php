@@ -152,7 +152,7 @@ class TareaController extends Controller
                     $guardar_imagen = new GuardarImagenIndividual($request['imagen_informe'], RutasStorage::TAREAS);
                     $request['imagen_informe'] = $guardar_imagen->execute();
                 }
-                Log::channel('testing')->info('Log', ['Excepto: ', $request->except(['id'])]);
+//                Log::channel('testing')->info('Log', ['Excepto: ', $request->except(['id'])]);
                 $actualizado = $tarea->update($request->except(['id']));
             }
 

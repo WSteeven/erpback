@@ -22,7 +22,6 @@ use OwenIt\Auditing\Models\Audit;
  *
  * @method static find(mixed $vehiculo_id)
  * @method static whereNot(string $string, $null)
- * @method static where(string $string, string $string1, $null)
  * @property int $id
  * @property string $tipo
  * @property string $placa

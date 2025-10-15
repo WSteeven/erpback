@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -75,5 +76,14 @@ class SeguroVehicular extends Model implements Auditable
     public function vehiculo()
     {
         return $this->hasOne(Vehiculo::class, 'seguro_id');
+    }
+
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Un seguro vehicular puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }
