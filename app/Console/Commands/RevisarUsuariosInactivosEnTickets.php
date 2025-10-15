@@ -10,25 +10,37 @@ use Illuminate\Support\Facades\Log;
 
 class RevisarUsuariosInactivosEnTickets extends Command
 {
-    protected $signature = 'tickets:revisar-inactivos';
+    protected $signature = 'tickets:revisar-inactivos {jefe_id?}';
+
     protected $description = 'Revisa los tickets y reasigna automáticamente si el responsable está inactivo';
 
     public function handle()
     {
-        $tickets = Ticket::whereNotIn('estado', [
+        $jefeId = $this->argument('jefe_id');
+
+        $ticketsQuery = Ticket::whereNotIn('estado', [
             Ticket::CANCELADO,
             Ticket::FINALIZADO_SOLUCIONADO,
             Ticket::FINALIZADO_SIN_SOLUCION
-        ])
-            ->get();
+        ])->with(['responsable.jefe']);
 
-        foreach ($tickets as $ticket) {
-            $this->procesarTicket($ticket);
+        // Si se pasa un jefe, filtra solo sus empleados
+        if ($jefeId) {
+            $ticketsQuery->whereHas('responsable', function ($q) use ($jefeId) {
+                $q->where('jefe_id', $jefeId);
+            });
         }
 
-        $this->info("Revisión completada. Tickets actualizados automáticamente.");
+        $ticketsQuery->chunk(100, function ($tickets) {
+            foreach ($tickets as $ticket) {
+                $this->procesarTicket($ticket);
+            }
+        });
+
+        $this->info("Revisión completada.");
         Log::info("Revisión de tickets ejecutada: " . now());
     }
+
 
     private function procesarTicket(Ticket $ticket)
     {
