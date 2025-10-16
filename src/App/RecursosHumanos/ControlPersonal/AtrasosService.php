@@ -8,6 +8,7 @@ use App\Models\ControlPersonal\Atraso;
 use App\Models\ControlPersonal\Marcacion;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
+use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -16,8 +17,9 @@ use Throwable;
 
 class AtrasosService
 {
-
     /**
+     * Sincroniza atrasos y anomalías con base en las marcaciones biométricas.
+     *
      * @throws Exception
      * @throws Throwable
      */
@@ -25,96 +27,229 @@ class AtrasosService
     {
         $asistenciaService = new AsistenciaService();
         $asistenciaService->sincronizarAsistencias();
+
         try {
-            // En esta etapa trabajamos con los horarios y las marcaciones, para determinar si hubo algun atraso,
-            // Primero obtenemos el ultimo registro de atraso para trabajar a partir de allí y no hacer muy pesado, volver a evaluar nuevamente
             $ultimoAtraso = Atraso::latest()->first();
-            if ($ultimoAtraso) {
-                $marcaciones = Marcacion::where('fecha', '>=', $ultimoAtraso->fecha_atraso)->orderBy('fecha', 'asc')->get();
-            } else {
-                $marcaciones = Marcacion::orderBy('fecha', 'asc')->get();
-            }
-            // Se recorre las marcaciones encontradas para verificar si hay atrasos
+            $marcaciones = $ultimoAtraso
+                ? Marcacion::where('fecha', '>=', $ultimoAtraso->fecha_atraso)->orderBy('fecha', 'asc')->get()
+                : Marcacion::orderBy('fecha', 'asc')->get();
+
             foreach ($marcaciones as $marcacion) {
                 $empleado = Empleado::find($marcacion->empleado_id);
-                // Aqui se busca si el empleado tiene enlazado algun horario diferente para trabajar con aquel
-                //                Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcacion', $marcacion]);
-                $dia = Carbon::parse($marcacion->fecha)->locale('es-ES')->dayName;
-                $horario = HorarioLaboral::where('dia', 'LIKE', '%' . $dia . '%')->where('activo', true)->first();
-                if (!$horario) continue;
+                if (!$empleado) {
+                    continue;
+                }
 
-                // Tomamos de ejemplo que todos los empleados se ajustan al horario normal que esta definido
-                $marcaciones_biometrico = $marcacion->marcaciones;
+                // Obtener horario del día
+                $dia = Carbon::parse($marcacion->fecha)->locale('es')->dayName;
+                $horario = HorarioLaboral::where('dia', 'LIKE', '%' . $dia . '%')
+                    ->where('activo', true)
+                    ->first();
 
-                foreach ($marcaciones_biometrico as $index => $marcacion_biometrica) {
-                    // Log::channel('testing')->info('Log', ['sincronizarAtrasos -> marcacion individual de cada biometrico', $index, $marcacion_biometrica]);
-                    $hora_biometrico = Carbon::createFromFormat('H:i:s', $marcacion_biometrica);
-                    $hora_entrada = Carbon::parse($horario->hora_entrada)->format('H:i:s');
-                    //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $hora_entrada casteada', $hora_entrada, $horario->hora_salida]);
-                    //                    $hora_salida = Carbon::createFromFormat('H:i:s', $horario->hora_salida);
-                    $hora_salida = Carbon::parse($horario->hora_salida)->format('H:i:s');
-                    //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $hora_salida casteada', $hora_salida, $horario->inicio_pausa]);
-                    $inicio_pausa = Carbon::parse($horario->inicio_pausa)->format('H:i:s');
-                    //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $inicio_pausa casteada', $inicio_pausa, $horario->fin_pausa]);
-                    $fin_pausa = Carbon::parse($horario->fin_pausa)->format('H:i:s');
-                    //                    Log::channel('testing')->info('Log', ['sincronizarAtrasos -> $fin_pausa casteada', $fin_pausa]);
-                    $resultado = [];
-                    if ($hora_biometrico->lessThan($hora_entrada)) {
-                        $resultado['estado'] = 'Temprano';
-                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($hora_entrada) . ' segundos antes de la hora de entrada o .' . $hora_biometrico->diffInMinutes($hora_entrada) . ' minutos';
+                if (!$horario) {
+                    continue;
+                }
 
-                    } elseif ($hora_biometrico->greaterThan($hora_entrada) && $hora_biometrico->lessThan($hora_salida)) {
-                        $resultado['estado'] = Atraso::ENTRADA;
-                        $resultado['segundos'] = $hora_biometrico->diffInSeconds($hora_entrada);
-                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($hora_entrada) . ' segundos después de la hora de entrada o .' . $hora_biometrico->diffInMinutes($hora_entrada) . ' minutos';
+                // Crear objetos Carbon con la fecha completa para comparaciones precisas
+                $fechaMarcacion = Carbon::parse($marcacion->fecha);
+
+                // Extraer solo la parte de tiempo de los horarios (por si vienen con fecha)
+                $horaEntradaStr = Carbon::parse($horario->hora_entrada)->format('H:i:s');
+                $inicioPausaStr = Carbon::parse($horario->inicio_pausa)->format('H:i:s');
+                $finPausaStr = Carbon::parse($horario->fin_pausa)->format('H:i:s');
+                $horaSalidaStr = Carbon::parse($horario->hora_salida)->format('H:i:s');
+
+                // Combinar con la fecha de la marcación
+                $horaEntrada = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $horaEntradaStr);
+                $inicioPausa = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $inicioPausaStr);
+                $finPausa = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $finPausaStr);
+                $horaSalida = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $horaSalidaStr);
+
+                $marcacionesBiometrico = $marcacion->marcaciones;
+                $totalMarcaciones = count($marcacionesBiometrico);
+
+                // Verificar si existe permiso aprobado o pendiente para esta fecha
+                $permiso = PermisoEmpleado::where('empleado_id', $empleado->id)
+                    ->whereIn('estado_permiso_id', [
+                        PermisoEmpleado::APROBADO,
+                        PermisoEmpleado::PENDIENTE // Incluir pendientes también
+                    ])
+                    ->where(function ($q) use ($marcacion) {
+                        $q->whereDate('fecha_hora_inicio', '<=', $marcacion->fecha)
+                          ->whereDate('fecha_hora_fin', '>=', $marcacion->fecha);
+                    })
+                    ->first();
+
+                // CASO: Sin marcaciones en el día
+                if ($totalMarcaciones === 0) {
+                    if (!$permiso) {
+                        $this->guardarAnomalia($empleado, $marcacion, 'SIN MARCACIONES',
+                            'No existen registros biométricos para este día.');
+                    } else {
+                        Log::channel('testing')->info('Sin marcaciones pero tiene permiso.', [
+                            'empleado' => $empleado->nombres,
+                            'fecha' => $marcacion->fecha,
+                            'permiso' => $permiso->justificacion ?? 'Sin justificación'
+                        ]);
                     }
+                    continue;
+                }
 
-                    // Evaluar si la hora está cerca del inicio o fin de la pausa
-                    if ($hora_biometrico->between($inicio_pausa, $fin_pausa)) {
-                        $resultado['estado'] = 'En pausa';
-                        //                    } elseif ($hora_biometrico->lessThan($inicio_pausa)) {
-                        //                        $resultado['estado'] = 'Antes de la pausa';
-                        //                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($inicio_pausa) . ' segundos antes del inicio de la pausa o .'.$hora_biometrico->diffInMinutes($inicio_pausa).' minutos';
-                    } elseif ($hora_biometrico->greaterThan($fin_pausa) && $hora_biometrico->lessThan($hora_salida)) {
-                        $resultado['estado'] = Atraso::PAUSA;
-                        $resultado['segundos'] = $hora_biometrico->diffInSeconds($fin_pausa);
-                        $resultado['diferencia'] = $hora_biometrico->diffInSeconds($fin_pausa) . ' segundos después del fin de la pausa o .' . $hora_biometrico->diffInMinutes($fin_pausa) . ' minutos';
+                // CASO: Una sola marcación
+                if ($totalMarcaciones === 1) {
+                    if (!$permiso) {
+                        $this->guardarAnomalia($empleado, $marcacion, 'UNA MARCACION',
+                            'Solo una marcación registrada: ' . $marcacionesBiometrico[0]);
+                    } else {
+                        Log::channel('testing')->info('Una marcación pero tiene permiso.', [
+                            'empleado' => $empleado->nombres,
+                            'fecha' => $marcacion->fecha,
+                            'hora' => $marcacionesBiometrico[0],
+                            'permiso' => $permiso->justificacion ?? 'Sin justificación'
+                        ]);
                     }
+                    continue;
+                }
 
+                // Convertir marcaciones a objetos Carbon y ordenar
+                $horas = collect($marcacionesBiometrico)
+                    ->map(function($h) use ($fechaMarcacion) {
+                        return Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $h);
+                    })
+                    ->sort()
+                    ->values();
 
-                    if ($resultado) {
-//                        Log::channel('testing')->info('Log', ['sincronizarAtrasos -> resultado', $resultado]);
+                $primeraHora = $horas->first();
+                $ultimaHora = $horas->last();
 
-                        if ($resultado['estado'] == Atraso::ENTRADA || $resultado['estado'] == Atraso::PAUSA) {
-                            $this->guardarAtraso($resultado['estado'], $resultado['segundos'], $marcacion);
+                // Separar marcaciones en periodos
+                $marcacionesAntesPausa = $horas->filter(fn($h) => $h->lessThan($inicioPausa));
+                $marcacionesDespuesPausa = $horas->filter(fn($h) => $h->greaterThanOrEqualTo($inicioPausa));
+
+                // VALIDACIÓN 1: ATRASO EN HORA DE ENTRADA
+                if ($marcacionesAntesPausa->isNotEmpty()) {
+                    $primeraEntrada = $marcacionesAntesPausa->first();
+
+                    if ($primeraEntrada->greaterThan($horaEntrada)) {
+                        $segundos = $primeraEntrada->diffInSeconds($horaEntrada);
+                        $this->guardarAtraso(Atraso::ENTRADA, $segundos, $marcacion);
+
+                        Log::channel('testing')->info('Atraso registrado en hora de entrada.', [
+                            'empleado' => $empleado->nombres,
+                            'hora_marcacion' => $primeraEntrada->format('H:i:s'),
+                            'hora_entrada' => $horaEntrada->format('H:i:s'),
+                            'segundos' => $segundos,
+                        ]);
+                    }
+                } else {
+                    // No hay marcaciones antes de pausa
+                    if (!$permiso) {
+                        $this->guardarAnomalia($empleado, $marcacion, 'SIN ENTRADA',
+                            'No se detectó marcación de entrada antes del almuerzo.');
+                    }
+                    continue;
+                }
+
+                // VALIDACIÓN 2: ATRASO EN REGRESO DE PAUSA
+                if ($marcacionesDespuesPausa->isNotEmpty()) {
+                    $primeraRegresoPausa = $marcacionesDespuesPausa->first();
+
+                    // Solo evaluar atraso si la marcación está en horario laboral
+                    if ($primeraRegresoPausa->lessThan($horaSalida) &&
+                        $primeraRegresoPausa->greaterThan($finPausa)) {
+
+                        $segundos = $primeraRegresoPausa->diffInSeconds($finPausa);
+                        $this->guardarAtraso(Atraso::PAUSA, $segundos, $marcacion);
+
+                        Log::channel('testing')->info('Atraso registrado en fin de pausa.', [
+                            'empleado' => $empleado->nombres,
+                            'hora_marcacion' => $primeraRegresoPausa->format('H:i:s'),
+                            'hora_fin_pausa' => $finPausa->format('H:i:s'),
+                            'segundos' => $segundos,
+                        ]);
+                    }
+                } else {
+                    // No hay marcaciones después de la pausa
+                    if ($permiso) {
+                        // Verificar si el permiso cubre la tarde
+                        $inicioPermiso = Carbon::parse($permiso->fecha_hora_inicio);
+                        $finPermiso = Carbon::parse($permiso->fecha_hora_fin);
+
+                        if ($inicioPermiso->lessThanOrEqualTo($finPausa)) {
+                            Log::channel('testing')->info('Sin marcación de regreso, pero tiene permiso que cubre la tarde.', [
+                                'empleado' => $empleado->nombres,
+                                'fecha' => $marcacion->fecha,
+                                'permiso_inicio' => $inicioPermiso->format('H:i:s'),
+                                'permiso_fin' => $finPermiso->format('H:i:s'),
+                            ]);
+                        } else {
+                            $this->guardarAnomalia($empleado, $marcacion, 'SIN FIN PAUSA',
+                                'No se detectó marcación de regreso después del almuerzo. Permiso: ' .
+                                $inicioPermiso->format('H:i') . ' - ' . $finPermiso->format('H:i'));
                         }
+                    } else {
+                        $this->guardarAnomalia($empleado, $marcacion, 'SIN FIN PAUSA',
+                            'No se detectó marcación de regreso después del almuerzo.');
+                    }
+                }
+
+                // CASO ESPECIAL: Solo 2 marcaciones
+                if ($totalMarcaciones === 2 && !$permiso) {
+                    // Verificar si ambas marcaciones son en la mañana o si falta la tarde
+                    if ($marcacionesDespuesPausa->isEmpty()) {
+                        $this->guardarAnomalia($empleado, $marcacion, 'SALIDA TEMPRANA',
+                            'Solo hay marcaciones en la mañana. Última marcación: ' .
+                            $ultimaHora->format('H:i:s'));
                     }
                 }
             }
+
+            Log::channel('testing')->info('Sincronización de atrasos completada correctamente.');
         } catch (Exception $e) {
-            Log::channel('testing')->error('Log', ['error en sincronizarAtrasos ', $e->getLine(), $e->getMessage()]);
+            Log::channel('testing')->error('Error en sincronizarAtrasos', [
+                'line' => $e->getLine(),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             throw $e;
         }
     }
 
     /**
-     * @throws Throwable
+     * Registra un atraso evitando duplicados y enviando notificaciones.
+     *
+     * @param string $ocurrencia Tipo de atraso (ENTRADA o PAUSA)
+     * @param int $segundos Segundos de atraso
+     * @param Marcacion $marcacion Objeto de marcación
+     * @throws Exception
      */
     public function guardarAtraso(string $ocurrencia, int $segundos, Marcacion $marcacion)
     {
         try {
             DB::beginTransaction();
-            //buscamos si ya existe un atraso para los argumentos proporcionados, en caso de existir, omitimos
-            $atraso = Atraso::firstOrCreate([
+
+            // Verificar si ya existe este atraso
+            $existe = Atraso::where('empleado_id', $marcacion->empleado_id)
+                ->where('fecha_atraso', $marcacion->fecha)
+                ->where('ocurrencia', $ocurrencia)
+                ->exists();
+
+            if ($existe) {
+                DB::rollBack();
+                return;
+            }
+
+            $atraso = Atraso::create([
                 'empleado_id' => $marcacion->empleado_id,
                 'marcacion_id' => $marcacion->id,
                 'ocurrencia' => $ocurrencia,
                 'fecha_atraso' => $marcacion->fecha,
-                'segundos_atraso' => $segundos
-            ], []);
+                'segundos_atraso' => $segundos,
+                'justificado' => false,
+                'revisado' => false,
+            ]);
 
-            if ($atraso->wasRecentlyCreated) {
-                // Se envia el evento de notificacion al jefe inmediato del empleado cuyo atraso se registra
+            if ($atraso && $atraso->wasRecentlyCreated) {
                 $empleado = Empleado::find($marcacion->empleado_id);
                 if ($empleado) {
                     event(new NotificarAtrasoEmpleado($atraso));
@@ -124,9 +259,64 @@ class AtrasosService
 
             DB::commit();
         } catch (Exception $e) {
-            Log::channel('testing')->error('Log', ['error en guardar Atraso', $e->getLine(), $e->getMessage()]);
+            Log::channel('testing')->error('Error al guardar atraso.', [
+                'line' => $e->getLine(),
+                'message' => $e->getMessage(),
+            ]);
             DB::rollBack();
             throw $e;
+        }
+    }
+
+    /**
+     * Registra anomalías como atrasos de tipo especial.
+     *
+     * @param Empleado $empleado
+     * @param Marcacion $marcacion
+     * @param string $tipo
+     * @param string $detalle
+     */
+    private function guardarAnomalia(Empleado $empleado, Marcacion $marcacion, string $tipo, string $detalle)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Verificar si ya existe esta anomalía
+            $existe = Atraso::where('empleado_id', $empleado->id)
+                ->where('fecha_atraso', $marcacion->fecha)
+                ->where('ocurrencia', 'ANOMALIA: ' . $tipo)
+                ->exists();
+
+            if ($existe) {
+                DB::rollBack();
+                return;
+            }
+
+            Atraso::create([
+                'empleado_id' => $empleado->id,
+                'marcacion_id' => $marcacion->id,
+                'fecha_atraso' => $marcacion->fecha,
+                'ocurrencia' => 'ANOMALIA: ' . $tipo,
+                'segundos_atraso' => 0,
+                'justificado' => false,
+                'justificacion' => $detalle,
+                'revisado' => false,
+            ]);
+
+            DB::commit();
+
+            Log::channel('testing')->warning('Anomalía registrada.', [
+                'empleado' => $empleado->nombres,
+                'fecha' => $marcacion->fecha,
+                'tipo' => $tipo,
+                'detalle' => $detalle,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->error('Error al guardar anomalía.', [
+                'line' => $e->getLine(),
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 }
