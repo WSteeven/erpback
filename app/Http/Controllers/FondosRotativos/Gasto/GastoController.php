@@ -447,7 +447,9 @@ class GastoController extends Controller
                 ]);
             }
             $gasto->estado = Gasto::ANULADO;
-            $gasto->observacion_anulacion = $request->observacion_anulacion;
+            $gasto->detalle_estado = $request->detalle_estado;
+            $gasto->observacion_anulacion = $request->detalle_estado;
+//            $gasto->observacion_anulacion = $request->observacion_anulacion;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);

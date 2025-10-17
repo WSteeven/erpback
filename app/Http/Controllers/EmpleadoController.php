@@ -25,6 +25,7 @@ use Src\App\ArchivoService;
 use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\PolymorphicGenericService;
+use Src\App\RecursosHumanos\ControlPersonal\DesvinculacionEmpleadoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\SystemNotificationService;
 use Src\Config\RutasStorage;
@@ -36,6 +37,7 @@ class EmpleadoController extends Controller
 {
     private string $entidad = 'Empleado';
     private EmpleadoService $servicio;
+    private DesvinculacionEmpleadoService $desvinculacionEmpleadoService;
     private ReportePdfExcelService $reporteService;
     private PolymorphicGenericService $polymorphicGenericService;
     private ArchivoService $archivoService;
@@ -44,6 +46,7 @@ class EmpleadoController extends Controller
     public function __construct()
     {
         $this->servicio = new EmpleadoService();
+        $this->desvinculacionEmpleadoService = new DesvinculacionEmpleadoService();
         $this->reporteService = new ReportePdfExcelService();
         $this->archivoService = new ArchivoService();
         $this->polymorphicGenericService = new PolymorphicGenericService();
@@ -464,7 +467,7 @@ class EmpleadoController extends Controller
                 }
             }
         }
-        return  str_replace(['ñ', 'Ñ'], ['n', 'N'],  $username); // Se usa para reemplazar las eñes en mayusculas y en minusculas
+        return str_replace(['ñ', 'Ñ'], ['n', 'N'], $username); // Se usa para reemplazar las eñes en mayusculas y en minusculas
     }
 
     function obtenerNombreUsuario(Request $request)
@@ -487,6 +490,7 @@ class EmpleadoController extends Controller
         $results = EmpleadoResource::collection($empleados);
         return response()->json(compact('results'));
     }
+
     public function empleadosConVentasClaro(Request $request)
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
@@ -558,5 +562,83 @@ class EmpleadoController extends Controller
         $empleados = Empleado::whereIn('id', $idsPrestamosEmpresariales)->get();
         $results = EmpleadoResource::collection($empleados);
         return response()->json(compact('results'));
+    }
+
+    public function consultarEmpleadosSubordinados(Empleado $empleado)
+    {
+        $empleadosSubordinados = Empleado::where('jefe_id', $empleado->id)->where('estado', true)->get();
+        $tiene_subordinados = $empleadosSubordinados->isNotEmpty();
+        $empleados_subordinados = EmpleadoResource::collection($empleadosSubordinados);
+        return response()->json(compact('tiene_subordinados', 'empleados_subordinados'));
+    }
+
+    /**
+     * Recibe una lista de empleados cada uno con el id del nuevo jefe al que se le reasignará y actualiza el jefe_id de cada empleado.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function reasignarEmpleadosSubordinados(Request $request)
+    {
+        foreach ($request->subordinados as $subordinado) {
+            $empleado = Empleado::find($subordinado['id']);
+            $empleado->update(['jefe_id' => $subordinado['nuevo_jefe_id']]);
+        }
+
+        $cantidad = count($request->subordinados);
+        $mensaje = "$cantidad empleados subordinados reasignados correctamente a su nuevo jefe.";
+
+        return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function desvincularEmpleado(Request $request)
+    {
+        try {
+            $empleado = Empleado::find($request->empleado_id);
+            if (!$empleado)
+                throw new Exception("Empleado no encontrado");
+            if ($empleado->desvinculado)
+                throw new Exception("El empleado ya se encuentra desvinculado");
+
+            // Se obtiene un resumen con el POI de Desvinculación de Empleados y regularizaciones a seguir
+            $resumen = [];
+            // Siempre se inicializa la variable $empleado en el servicio de desvinculación
+            $this->desvinculacionEmpleadoService->setEmpleado($empleado);
+
+            $resumen['prestamos_empresariales_activos'] = $this->desvinculacionEmpleadoService->obtenerPrestamosActivosEmpleado();
+            // Validar que el empleado no tenga descuentos activos
+            $resumen['descuentos_activos'] = $this->desvinculacionEmpleadoService->obtenerDescuentosActivosEmpleado();
+            // Validar que el empleado no tenga gastos pendientes de aprobar
+            $resumen['gastos_pendientes_aprobacion'] = $this->desvinculacionEmpleadoService->obtenerGastosPendientes();
+            $resumen['gastos_pendientes_mi_aprobacion'] = $this->desvinculacionEmpleadoService->obtenerGastosPendientes('mi aprobacion');
+            // Validar que el empleado no tenga órdenes de compra pendientes de aprobar
+            $resumen['ordenes_compras_pendientes_autorizacion'] = $this->desvinculacionEmpleadoService->obtenerOrdenesCompraPendientes();
+            $resumen['ordenes_compras_pendientes_revision_compras'] = $this->desvinculacionEmpleadoService->obtenerOrdenesCompraPendientes('autorizadas pendientes revision compras');
+            $resumen['ordenes_compras_pendientes_realizar'] = $this->desvinculacionEmpleadoService->obtenerOrdenesCompraPendientes('autorizadas pendientes realizar');
+            $resumen['tickets'] = $this->desvinculacionEmpleadoService->obtenerTicketsEmpleado();
+            $resumen['tareas_pendientes'] = $this->desvinculacionEmpleadoService->obtenerTareasPendientesEmpleado();
+            $resumen['mis_tareas_creadas_no_finalizadas'] = $this->desvinculacionEmpleadoService->obtenerTareasPendientesCreadasEmpleado();
+            $resumen['vehiculos_asignados'] = $this->desvinculacionEmpleadoService->obtenerVehiculosAsignadosEmpleado();
+            $resumen['saldo_fondos_rotativos'] = $this->desvinculacionEmpleadoService->obtenerSaldoFondosRotativosEmpleado();
+            // Validar que el empleado no tenga transferencias de fondos rotativos pendientes
+            $resumen['transferencias_enviadas_pendientes']  =$this->desvinculacionEmpleadoService->obtenerTransferenciasPendientes();
+            $resumen['transferencias_recibidas_pendientes']  =$this->desvinculacionEmpleadoService->obtenerTransferenciasPendientes('recibidas');
+            $resumen['departamento_responsable'] = $this->desvinculacionEmpleadoService->departamentoResponsable();
+            // Validar que el empleado no sea líder de grupo
+            $resumen['grupo_lidera'] = $this->desvinculacionEmpleadoService->obtenerGrupoEmpleadoLidera();
+
+            // Desvincular empleado
+            $this->desvinculacionEmpleadoService->desvincularEmpleado($request->fecha_salida, $request->motivo, $resumen);
+            $mensaje = "Empleado desvinculado correctamente";
+            $modelo = new EmpleadoResource($empleado->refresh());
+            return response()->json(compact('mensaje', 'modelo', 'resumen'));
+
+
+        } catch (Throwable $th) {
+            throw Utils::obtenerMensajeErrorLanzable($th, 'Error al intentar desvincular el empleado');
+        }
     }
 }

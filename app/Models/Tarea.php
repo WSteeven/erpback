@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Tareas\Etapa;
 use App\Models\Tareas\CentroCosto;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,6 @@ use Laravel\Scout\Searchable;
 /**
  * App\Models\Tarea
  *
- * @method static where(string $string, mixed $tarea)
  * @property int $id
  * @property string $codigo_tarea
  * @property string|null $codigo_tarea_cliente
@@ -65,45 +65,45 @@ use Laravel\Scout\Searchable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Traspaso> $traspasos
  * @property-read int|null $traspasos_count
  * @property-read \App\Models\UbicacionTarea|null $ubicacionTarea
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea disponibleUnaHoraFinalizar()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea estaActiva()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea fechaInicioFin()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea orderByAgendadoDesc()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea porCoordinador()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea porRol()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea query()
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCentroCostoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereClienteFinalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCodigoTarea($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCodigoTareaCliente($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCoordinadorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea where($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereEtapaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFechaSolicitud($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFinalizado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereFiscalizadorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereImagenInforme($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereMedioNotificacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereMetrajeTendido($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereNovedad($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereObservacion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereParaClienteProyecto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereProyectoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereRutaTareaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereTitulo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereUbicacionTrabajo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tarea whereUpdatedAt($value)
+ * @method static Builder|Tarea acceptRequest(?array $request = null)
+ * @method static Builder|Tarea disponibleUnaHoraFinalizar()
+ * @method static Builder|Tarea estaActiva()
+ * @method static Builder|Tarea fechaInicioFin()
+ * @method static Builder|Tarea filter(?array $request = null)
+ * @method static Builder|Tarea ignoreRequest(?array $request = null)
+ * @method static Builder|Tarea newModelQuery()
+ * @method static Builder|Tarea newQuery()
+ * @method static Builder|Tarea orderByAgendadoDesc()
+ * @method static Builder|Tarea porCoordinador()
+ * @method static Builder|Tarea porRol()
+ * @method static Builder|Tarea query()
+ * @method static Builder|Tarea setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|Tarea setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|Tarea setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|Tarea whereCentroCostoId($value)
+ * @method static Builder|Tarea whereClienteFinalId($value)
+ * @method static Builder|Tarea whereClienteId($value)
+ * @method static Builder|Tarea whereCodigoTarea($value)
+ * @method static Builder|Tarea whereCodigoTareaCliente($value)
+ * @method static Builder|Tarea whereCoordinadorId($value)
+ * @method static Builder|Tarea whereCreatedAt($value)
+ * @method static Builder|Tarea where($value)
+ * @method static Builder|Tarea whereEtapaId($value)
+ * @method static Builder|Tarea whereFechaSolicitud($value)
+ * @method static Builder|Tarea whereFinalizado($value)
+ * @method static Builder|Tarea whereFiscalizadorId($value)
+ * @method static Builder|Tarea whereId($value)
+ * @method static Builder|Tarea whereImagenInforme($value)
+ * @method static Builder|Tarea whereMedioNotificacion($value)
+ * @method static Builder|Tarea whereMetrajeTendido($value)
+ * @method static Builder|Tarea whereNovedad($value)
+ * @method static Builder|Tarea whereObservacion($value)
+ * @method static Builder|Tarea whereParaClienteProyecto($value)
+ * @method static Builder|Tarea whereProyectoId($value)
+ * @method static Builder|Tarea whereRutaTareaId($value)
+ * @method static Builder|Tarea whereTitulo($value)
+ * @method static Builder|Tarea whereUbicacionTrabajo($value)
+ * @method static Builder|Tarea whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Tarea extends Model implements Auditable
@@ -148,7 +148,7 @@ class Tarea extends Model implements Auditable
 
     protected $casts = ['finalizado' => 'boolean'];
 
-    private static $whiteListFilter = ['*'];
+    private static array $whiteListFilter = ['*'];
 
     public function toSearchableArray()
     {

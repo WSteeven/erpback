@@ -281,7 +281,10 @@ class RolPagoController extends Controller
                 $estado_mensaje = ' Realizado el Rol de Pagos';
                 break;
             case RolPago::FINALIZADO:
+                $estado_mensaje = 'Rol de Pagos Finalizado';
+                break;
             case  RolPago::CANCELADO:
+                $estado_mensaje = 'Rol de Pagos Cancelado';
                 break;
         }
         $rol_pago->estado = $request->estado;

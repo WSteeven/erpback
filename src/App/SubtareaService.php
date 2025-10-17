@@ -157,7 +157,7 @@ class SubtareaService
                 ['clave' => 'estado', 'valor' => request('estado')],
             ];
             $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
-            Log::channel('testing')->info('Log', ['DENTRO', $filtros]);
+//            Log::channel('testing')->info('Log', ['DENTRO', $filtros]);
             return buscarConAlgoliaFiltrado(Subtarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
             // return TareaResource::collection($results);
         }
