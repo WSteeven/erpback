@@ -3,17 +3,15 @@
 namespace App\Events;
 
 use App\Models\Departamento;
-use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
-use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Auth;
 use Src\Config\TiposNotificaciones;
+use Throwable;
 
 class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
 {
@@ -21,11 +19,13 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     public Transferencias $transferencia;
     public Notificacion $notificacion;
 
-    public $ruta = '/transferencia';
+    public string $ruta = '/transferencia';
+
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param $transferencia
+     * @throws Throwable
      */
     public function __construct($transferencia)
     {
@@ -116,6 +116,10 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
         }
         return $ruta;
     }
+
+    /**
+     * @throws Throwable
+     */
     public function enviarNotificacionesContabilidad()
     {
         $ruta =  $this->obtenerRuta();
@@ -126,6 +130,10 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
             $ruta['destinatario'],
         );
     }
+
+    /**
+     * @throws Throwable
+     */
     public function notificar($mensaje, $ruta, $originador, $destinatario)
     {
         $this->notificacion = Notificacion::crearNotificacion(
@@ -141,7 +149,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel
      */
     public function broadcastOn()
     {

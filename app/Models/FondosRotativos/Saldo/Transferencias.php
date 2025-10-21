@@ -83,6 +83,8 @@ class Transferencias extends Model implements Auditable
     protected $fillable = [
         'usuario_envia_id',
         'usuario_recibe_id',
+        'motivo_aprobacion_tercero',
+        'usuario_tercero_aprueba_id',
         'monto',
         'motivo',
         'cuenta',
@@ -94,7 +96,7 @@ class Transferencias extends Model implements Auditable
         'es_devolucion'
     ];
     public const APROBADO = 1;
-    public const RECHAZADO = 2;
+    public const RECHAZADO = 2;// no escribe en la tabla de saldos
     public const PENDIENTE = 3;
     public const ANULADO = 4;
 
@@ -105,6 +107,11 @@ class Transferencias extends Model implements Auditable
     public function empleadoEnvia()
     {
         return $this->belongsTo(Empleado::class, 'usuario_envia_id');
+    }
+
+    public function terceroAprueba()
+    {
+        return $this->belongsTo(Empleado::class, 'usuario_tercero_aprueba_id');
     }
     public function estadoViatico()
     {

@@ -175,6 +175,11 @@ class TransferenciasController extends Controller
             $transferencia = Transferencias::find($request->id);
             if ($transferencia) {
                 $transferencia->estado = Transferencias::APROBADO;
+
+                if(!is_null($request->motivo_aprobacion_tercero)){
+                    $transferencia->motivo_aprobacion_tercero = $request->motivo_aprobacion_tercero;
+                    $transferencia->usuario_tercero_aprueba_id = Auth::user()->empleado->id;
+                }
                 $transferencia->save();
                 event(new TransferenciaSaldoEvent($transferencia));
                 event(new TransferenciaSaldoContabilidadEvent($transferencia));

@@ -2,34 +2,23 @@
 
 namespace App\Observers\FondosRotativos\Saldo;
 
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
-use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Src\App\FondosRotativos\SaldoService;
 
 class TransferenciaObserver
 {
-    /**
-     * Handle the Transferencias "created" event.
-     *
-     * @param  \App\Models\Transferencias  $transferencias
-     * @return void
-     */
-    public function created(Transferencias $transferencia)
-    {
-    }
+
 
     /**
      * Handle the Transferencias "updated" event.
      *
-     * @param  \App\Models\Transferencias  $transferencias
+     * @param Transferencias $transferencia
      * @return void
      */
     public function updated(Transferencias $transferencia)
     {
         if ($transferencia->estado == Transferencias::APROBADO) {
-            $this->guardara_transferencia($transferencia);
+            $this->guardarTransferencia($transferencia);
         }
         if ($transferencia->estado == Transferencias::ANULADO) {
             if($transferencia->es_devolucion){
@@ -41,40 +30,11 @@ class TransferenciaObserver
         }
     }
 
-    /**
-     * Handle the Transferencias "deleted" event.
-     *
-     * @param  \App\Models\Transferencias  $transferencias
-     * @return void
-     */
-    public function deleted(Transferencias $transferencias)
-    {
-        //
-    }
 
-    /**
-     * Handle the Transferencias "restored" event.
-     *
-     * @param  \App\Models\Transferencias  $transferencias
-     * @return void
-     */
-    public function restored(Transferencias $transferencias)
-    {
-        //
-    }
 
-    /**
-     * Handle the Transferencias "force deleted" event.
-     *
-     * @param  \App\Models\Transferencias  $transferencias
-     * @return void
-     */
-    public function forceDeleted(Transferencias $transferencias)
-    {
-        //
-    }
 
-    private function guardara_transferencia(Transferencias $transferencia)
+
+    private function guardarTransferencia(Transferencias $transferencia)
     {
         $this->actualizacionEmpleadoEnvia($transferencia);
         if (!$transferencia->es_devolucion) {

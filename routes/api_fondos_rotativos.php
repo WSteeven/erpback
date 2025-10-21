@@ -63,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('consolidado-filtrado/{tipo}', [SaldoController::class, 'consolidadoFiltrado']);
     Route::get('gastocontabilidad', [SaldoController::class, 'gastoContabilidad']);
     Route::get('autorizaciones_gastos', [GastoController::class, 'autorizacionesGastos']);
+    Route::post('cambiar-autorizador-gasto/{gasto}', [GastoController::class, 'cambiarAutorizadorGasto']);
     Route::get('autorizaciones_transferencia', [TransferenciasController::class, 'autorizacionesTransferencia']);
     Route::post('aprobar-gasto', [GastoController::class, 'aprobarGasto']);
     Route::post('rechazar-gasto', [GastoController::class, 'rechazarGasto']);

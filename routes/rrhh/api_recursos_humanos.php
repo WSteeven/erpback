@@ -51,7 +51,7 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
-        'empleados-delegados'=> EmpleadoDelegadoController::class,
+        'empleados-delegados' => EmpleadoDelegadoController::class,
         'departamentos' => DepartamentoController::class,
         'rol-pagos' => RolPagoController::class,
         'rol_pago_mes' => RolPagoMesController::class,
@@ -95,7 +95,7 @@ Route::apiResources(
         'detalle-alimentacion' => DetalleAlimentacionController::class,
 
         'tipos_puestos_trabajos' => TipoPuestoController::class,
-         'tipos-discapacidades' => TipoDiscapacidadController::class,
+        'tipos-discapacidades' => TipoDiscapacidadController::class,
     ],
     [
         'parameters' => [
@@ -106,17 +106,17 @@ Route::apiResources(
             'prestamos_quirografarios' => 'prestamo',
             'planes-vacaciones' => 'plan',
             'planificadores' => 'plan',
-            'licencia_empleado'=>'licencia',
-            'permiso_empleado'=>'permiso',
+            'licencia_empleado' => 'licencia',
+            'permiso_empleado' => 'permiso',
             'tipos_puestos_trabajos' => 'tipo_puesto_trabajo',
             'solicitudes-vacaciones' => 'solicitud',
             'solicitud-prestamo-empresarial' => 'solicitud',
             'vacaciones' => 'vacacion',
             'detalles-vacaciones' => 'detalle',
-            'rol_pago_mes'=>'rol',
-            'tipo_licencia'=>'tipo',
-            'valores-cargados-roles'=>'valor',
-            'empleados-delegados'=>'delegacion',
+            'rol_pago_mes' => 'rol',
+            'tipo_licencia' => 'tipo',
+            'valores-cargados-roles' => 'valor',
+            'empleados-delegados' => 'delegacion',
         ],
 
     ]
@@ -126,7 +126,7 @@ Route::post('registro', [PostulanteController::class, 'store'])->withoutMiddlewa
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('empleados-delegados/desactivar/{empleado}', [EmpleadoDelegadoController::class, 'desactivar']);
     Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
-    Route::post('rol_pago/estado/{rol_pago}', [RolPagoController::class, 'cambiarEstado']);
+    Route::post('rol_pago/estado/{rol_pago}', [RolPagoController::class, 'cambiarEstado']); // TODO: Revisar, este endpoint no se está usando, revisar por que se crea roles de pago y automatica se ponen en estado CANCELADO
     Route::post('rol_pago/actualizar-masivo', [RolPagoController::class, 'actualizarMasivo']);
     Route::post('rol_pago/finalizar-masivo', [RolPagoController::class, 'finalizarMasivo']);
     Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class, 'prestamos_hipotecario_empleado']);
@@ -165,16 +165,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'finalizarRolPago']);
     Route::get('habilitar-empleado', [EmpleadoController::class, 'HabilitaEmpleado']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimirReporteGeneral']);
-    Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
-    Route::get('enviar-rol-pago-empleado/{rol_pago}',[RolPagoController::class, 'enviarRolPagoEmpleado']);
-    Route::post('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crearCashRolPago']);
-    Route::get('actualizar-rol-pago/{rol}',[RolPagoMesController::class, 'refrescarRolPago']);
-    Route::get('agregar-nuevos-empleados/{rol}',[RolPagoMesController::class, 'agregarNuevosEmpleados']);
-    Route::post('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
-    Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
-    Route::get('actualizar-prestamo-empresarial/{prestamo}',[PrestamoEmpresarialController::class, 'actualizarPrestamo']);
-    Route::get('crear-cash-alimentacion/{alimentacion_id}',[AlimentacionController::class, 'crear_cash_alimentacion']);
-    Route::get('imprimir-reporte-general-alimentacion/{id}',[AlimentacionController::class, 'reporte_alimentacion']);
+    Route::get('enviar-roles-pago/{rolPagoId}', [RolPagoMesController::class, 'enviarRoles']);
+    Route::get('enviar-rol-pago-empleado/{rol_pago}', [RolPagoController::class, 'enviarRolPagoEmpleado']);
+    Route::post('crear-cash-roles-pago/{rolPagoId}', [RolPagoMesController::class, 'crearCashRolPago']);
+    Route::get('actualizar-rol-pago/{rol}', [RolPagoMesController::class, 'refrescarRolPago']);
+    Route::get('agregar-nuevos-empleados/{rol}', [RolPagoMesController::class, 'agregarNuevosEmpleados']);
+    Route::post('generar-username', [EmpleadoController::class, 'obtenerNombreUsuario']);
+    Route::post('anular-prestamo-empresarial', [PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
+    Route::get('actualizar-prestamo-empresarial/{prestamo}', [PrestamoEmpresarialController::class, 'actualizarPrestamo']);
+    Route::get('crear-cash-alimentacion/{alimentacion_id}', [AlimentacionController::class, 'crear_cash_alimentacion']);
+    Route::get('imprimir-reporte-general-alimentacion/{id}', [AlimentacionController::class, 'reporte_alimentacion']);
     Route::get('finalizar-asignacion-alimentacion', [AlimentacionController::class, 'finalizarAsignacionAlimentacion']);
     Route::post('pagar-prestamos-rol-actual/{rol}', [RolPagoMesController::class, 'pagarPrestamosEmpresariales']);
     Route::post('calcular-cuotas-descuento', [DescuentoController::class, 'calcularCantidadCuotas']);
@@ -184,4 +184,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('aplazar-cuota-prestamo/{cuota}', [PrestamoEmpresarialController::class, 'aplazarCuotaPrestamo']);
     Route::post('pagar-cuota-prestamo/{cuota}', [PrestamoEmpresarialController::class, 'pagarCuotaPrestamo']);
     Route::post('reporte-prestamos-empresariales', [PrestamoEmpresarialController::class, 'reportes']);
+
+    Route::get('empleado-tiene-subordinados/{empleado}', [EmpleadoController::class, 'consultarEmpleadosSubordinados']);
+    Route::post('reasignar-empleados-subordinados', [EmpleadoController::class, 'reasignarEmpleadosSubordinados']);
+    Route::post('desvincular-empleado', [EmpleadoController::class, 'desvincularEmpleado']);
 });

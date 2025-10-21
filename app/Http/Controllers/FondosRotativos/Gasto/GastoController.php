@@ -212,18 +212,16 @@ class GastoController extends Controller
     /**
      * La función `destroy` elimina una instancia de Gasto y devuelve una respuesta JSON con un mensaje.
      *
-     * @param Gasto $gasto La función `destruir` que proporcionó se utiliza para eliminar un objeto `Gasto`
-     * de la base de datos. Luego de eliminar el objeto `Gasto`, recupera un mensaje usando el método
-     * `Utils::obtenerMensaje` para la acción 'destruir' sobre la entidad. Finalmente, devuelve un JSON.
-     *
      * @return JsonResponse respuesta JSON que contiene el mensaje obtenido del método `Utils::obtenerMensaje` luego
      * de eliminar la entidad `Gasto`.
+     * @throws ValidationException
      */
-    public function destroy(Gasto $gasto)
+    public function destroy(/*Gasto $gasto*/)
     {
-        $gasto->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
+        throw ValidationException::withMessages(['Error' => Utils::metodoNoPermitidoLogicaSistema()]);
+//        $gasto->delete();
+//        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+//        return response()->json(compact('mensaje'));
     }
 
     /**
@@ -446,8 +444,15 @@ class GastoController extends Controller
                     '404' => ['El gasto ya fue anulado'],
                 ]);
             }
+
+            if ($gasto->estado == Gasto::PENDIENTE) {
+                throw new Exception('El gasto no puede ser anulado porque está en estado Pendiente de Aprobación');
+            }
+
             $gasto->estado = Gasto::ANULADO;
-            $gasto->observacion_anulacion = $request->observacion_anulacion;
+            $gasto->detalle_estado = $request->detalle_estado;
+            $gasto->observacion_anulacion = $request->detalle_estado;
+//            $gasto->observacion_anulacion = $request->observacion_anulacion;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
@@ -547,6 +552,32 @@ class GastoController extends Controller
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->error('Log', ['Error en el storeFiles de GastoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function cambiarAutorizadorGasto(Request $request, Gasto $gasto)
+    {
+        try {
+            if ($gasto->estado != EstadoViatico::POR_APROBAR_ID) throw new Exception("No se puede cambiar el autorizador de un gasto que no está en estado 'PENDIENTE' o 'POR APROBAR'");
+
+            $request->validate([
+                'nuevo_autorizador_id' => ['required', 'exists:empleados,id'],
+                'motivo_cambio'=>['required', 'string']
+            ]);
+
+            $gasto->aut_especial = $request->nuevo_autorizador_id;
+            $gasto->motivo_cambio_autorizador = $request->motivo_cambio;
+            $gasto->save();
+
+            $modelo = new GastoResource($gasto->refresh());
+            $mensaje = 'Autorizador cambiado correctamente';
+
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $ex) {
+            throw Utils::obtenerMensajeErrorLanzable($ex);
         }
     }
 

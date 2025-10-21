@@ -138,6 +138,7 @@ class Gasto extends Model implements Auditable
         'factura',
         'num_comprobante',
         'aut_especial',
+        'motivo_cambio_autorizador',
         'detalle',
         'cantidad',
         'valor_u',
