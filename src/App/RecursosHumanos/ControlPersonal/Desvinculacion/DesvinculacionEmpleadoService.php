@@ -1,15 +1,14 @@
 <?php
 
-namespace Src\App\RecursosHumanos\ControlPersonal;
+namespace Src\App\RecursosHumanos\ControlPersonal\Desvinculacion;
 
-use App\Http\Controllers\FondosRotativos\Saldo\SaldoController;
 use App\Mail\RecursosHumanos\EmpleadoDesvinculadoMail;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Departamento;
 use App\Models\Empleado;
-use App\Models\EstadoTransaccion;
+use App\Models\FondosRotativos\Gasto\AutorizadorDirecto;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Saldo;
@@ -24,6 +23,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Mail;
@@ -41,6 +41,42 @@ class DesvinculacionEmpleadoService
     public function setEmpleado(Empleado $empleado)
     {
         $this->empleado = $empleado;
+    }
+
+    public function generarResumenDesvinculacion($empleado)
+    {
+        $this->setEmpleado($empleado);
+        $this->desactivarConfiguracionAutorizadorDirecto();
+        $resumen['prestamos_empresariales_activos'] = $this->obtenerPrestamosActivosEmpleado();
+        // Validar que el empleado no tenga descuentos activos
+        $resumen['descuentos_activos'] = $this->obtenerDescuentosActivosEmpleado();
+        // Validar que el empleado no tenga gastos pendientes de aprobar
+        $resumen['gastos_pendientes_aprobacion'] = $this->obtenerGastosPendientes();
+        $resumen['gastos_pendientes_mi_aprobacion'] = $this->obtenerGastosPendientes('mi aprobacion');
+        // Validar que el empleado no tenga órdenes de compra pendientes de aprobar
+        $resumen['ordenes_compras_pendientes_autorizacion'] = $this->obtenerOrdenesCompraPendientes();
+        $resumen['ordenes_compras_pendientes_revision_compras'] = $this->obtenerOrdenesCompraPendientes('autorizadas pendientes revision compras');
+        $resumen['ordenes_compras_pendientes_realizar'] = $this->obtenerOrdenesCompraPendientes('autorizadas pendientes realizar');
+        $resumen['tickets'] = $this->obtenerTicketsEmpleado();
+        $resumen['tareas_pendientes'] = $this->obtenerTareasPendientesEmpleado();
+        $resumen['mis_tareas_creadas_no_finalizadas'] = $this->obtenerTareasPendientesCreadasEmpleado();
+        $resumen['vehiculos_asignados'] = $this->obtenerVehiculosAsignadosEmpleado();
+        $resumen['saldo_fondos_rotativos'] = $this->obtenerSaldoFondosRotativosEmpleado();
+        // Validar que el empleado no tenga transferencias de fondos rotativos pendientes
+        $resumen['transferencias_enviadas_pendientes'] = $this->obtenerTransferenciasPendientes();
+        $resumen['transferencias_recibidas_pendientes'] = $this->obtenerTransferenciasPendientes('recibidas');
+        $resumen['departamento_responsable'] = $this->departamentoResponsable();
+        // Validar que el empleado no sea líder de grupo
+        $resumen['grupo_lidera'] = $this->obtenerGrupoEmpleadoLidera();
+
+        return $resumen;
+    }
+
+    public function desactivarConfiguracionAutorizadorDirecto()
+    {
+        AutorizadorDirecto::where('empleado_id', $this->empleado->id)
+            ->orWhere('autorizador_id', $this->empleado->id)
+            ->update(['activo' => false]);
     }
 
     public function obtenerPrestamosActivosEmpleado()
@@ -124,14 +160,16 @@ class DesvinculacionEmpleadoService
     {
         $subtareas = Subtarea::where(function ($q) {
             $q->where('empleado_id', $this->empleado->id)
-                ->orWhere('grupo_id', $this->empleado->grupo_id)
-                ->orWhereJsonContains('empleados_designados', $this->empleado->id)
-                ->get();
+                ->when(!is_null($this->empleado->grupo_id), function ($q) {
+                    $q->orWhere('grupo_id', $this->empleado->grupo_id);
+                })
+                ->orWhereJsonContains('empleados_designados', $this->empleado->id);
         })->whereIn('estado', [Subtarea::EJECUTANDO, Subtarea::ASIGNADO, Subtarea::PAUSADO, Subtarea::AGENDADO])->get();
+        $tareas = Tarea::whereIn('id', $subtareas->pluck('tarea_id'))->where('finalizado', false)->get();
 
-        $tareas = Tarea::whereIn('id', $subtareas->pluck('id'))->where('finalizado', false)->get();
-
-        return ['tareas_pendientes' => $tareas, 'subtareas_pendientes' => $subtareas,
+        return [
+            'tareas_pendientes' => $tareas,
+            'subtareas_pendientes' => $subtareas,
             'subtareas_asignadas' => $subtareas->where('estado', Subtarea::ASIGNADO),
             'subtareas_ejecutando' => $subtareas->where('estado', Subtarea::EJECUTANDO),
             'subtareas_pausadas' => $subtareas->where('estado', Subtarea::PAUSADO),
@@ -162,7 +200,7 @@ class DesvinculacionEmpleadoService
         $query = Transferencias::where('estado', Transferencias::PENDIENTE);
         return match ($tipo) {
             'recibidas' => $query->where('usuario_recibe_id', $this->empleado->id)->get(),
-            default => Transferencias::where('usuario_envia_id', $this->empleado->id)->get()
+            default => $query->where('usuario_envia_id', $this->empleado->id)->get()
         };
     }
 
@@ -175,11 +213,23 @@ class DesvinculacionEmpleadoService
     {
         if (is_null($this->empleado->grupo_id)) return null;
 
-        return ['es_lider_grupo' => $this->empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO), 'grupo' => $this->empleado->grupo];
+        return ['es_lider_grupo' => $this->empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO), 'grupo' => $this->empleado->grupo->nombre];
     }
 
+    /**
+     * @throws Exception
+     */
     public function desvincularEmpleado($fecha_salida, $motivo_desvinculacion, $resumenSalida)
     {
+
+        // Se desvincula guardando la fecha de salida, el motivo de desvinculación
+        $this->empleado->update([
+            'estado' => false,
+            'fecha_salida' => $fecha_salida,
+            'desvinculado' => true,
+            'motivo_desvinculacion' => $motivo_desvinculacion,
+        ]);
+        $this->empleado->refresh();
 
         // Se envía un correo de notificación con los detalles de la desvinculación a RRHH
         $configuracion = ConfiguracionGeneral::first();
@@ -194,15 +244,6 @@ class DesvinculacionEmpleadoService
         $responsableRRHH = Empleado::find($departamentoRRHH->responsable_id);
         Mail::to($responsableRRHH->user->email)->send(new EmpleadoDesvinculadoMail($this->empleado, $resumenSalida, $configuracion, $pdf->output()));
 
-
-        // Se desvincula guardando la fecha de salida, el motivo de desvinculación
-        /*
-        $this->empleado->update([
-            'fecha_salida' => $fecha_salida,
-            'motivo_desvinculacion' => $motivo_desvinculacion,
-            'estado' => false,
-        ]);
-*/
 
     }
 }

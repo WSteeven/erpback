@@ -238,6 +238,10 @@ public static function quitarTildes($cadena)
     {
         return 'Método no desarrollado, por favor contacta al departamento de Informática para más información.';
     }
+    public static function metodoNoPermitidoLogicaSistema()
+    {
+        return 'Método no permitido por la lógica del sistema, por favor contacta al departamento de Informática para más información.';
+    }
 
     /**
      * Calcula la diferencia entre dos fechas incluyendo ambas fechas por defecto para contar los días transcurridos

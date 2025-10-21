@@ -25,7 +25,7 @@ use Src\App\ArchivoService;
 use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\PolymorphicGenericService;
-use Src\App\RecursosHumanos\ControlPersonal\DesvinculacionEmpleadoService;
+use Src\App\RecursosHumanos\ControlPersonal\Desvinculacion\DesvinculacionEmpleadoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\SystemNotificationService;
 use Src\Config\RutasStorage;
@@ -491,9 +491,9 @@ class EmpleadoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function empleadosConVentasClaro(Request $request)
+    public function empleadosConVentasClaro()
     {
-        $campos = request('campos') ? explode(',', request('campos')) : '*';
+//        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $empleados = $this->servicio->obtenerEmpleadosConVentasClaro();
 
         $results = VendedorResource::collection($empleados);
@@ -604,32 +604,8 @@ class EmpleadoController extends Controller
                 throw new Exception("El empleado ya se encuentra desvinculado");
 
             // Se obtiene un resumen con el POI de Desvinculación de Empleados y regularizaciones a seguir
-            $resumen = [];
             // Siempre se inicializa la variable $empleado en el servicio de desvinculación
-            $this->desvinculacionEmpleadoService->setEmpleado($empleado);
-
-            $resumen['prestamos_empresariales_activos'] = $this->desvinculacionEmpleadoService->obtenerPrestamosActivosEmpleado();
-            // Validar que el empleado no tenga descuentos activos
-            $resumen['descuentos_activos'] = $this->desvinculacionEmpleadoService->obtenerDescuentosActivosEmpleado();
-            // Validar que el empleado no tenga gastos pendientes de aprobar
-            $resumen['gastos_pendientes_aprobacion'] = $this->desvinculacionEmpleadoService->obtenerGastosPendientes();
-            $resumen['gastos_pendientes_mi_aprobacion'] = $this->desvinculacionEmpleadoService->obtenerGastosPendientes('mi aprobacion');
-            // Validar que el empleado no tenga órdenes de compra pendientes de aprobar
-            $resumen['ordenes_compras_pendientes_autorizacion'] = $this->desvinculacionEmpleadoService->obtenerOrdenesCompraPendientes();
-            $resumen['ordenes_compras_pendientes_revision_compras'] = $this->desvinculacionEmpleadoService->obtenerOrdenesCompraPendientes('autorizadas pendientes revision compras');
-            $resumen['ordenes_compras_pendientes_realizar'] = $this->desvinculacionEmpleadoService->obtenerOrdenesCompraPendientes('autorizadas pendientes realizar');
-            $resumen['tickets'] = $this->desvinculacionEmpleadoService->obtenerTicketsEmpleado();
-            $resumen['tareas_pendientes'] = $this->desvinculacionEmpleadoService->obtenerTareasPendientesEmpleado();
-            $resumen['mis_tareas_creadas_no_finalizadas'] = $this->desvinculacionEmpleadoService->obtenerTareasPendientesCreadasEmpleado();
-            $resumen['vehiculos_asignados'] = $this->desvinculacionEmpleadoService->obtenerVehiculosAsignadosEmpleado();
-            $resumen['saldo_fondos_rotativos'] = $this->desvinculacionEmpleadoService->obtenerSaldoFondosRotativosEmpleado();
-            // Validar que el empleado no tenga transferencias de fondos rotativos pendientes
-            $resumen['transferencias_enviadas_pendientes']  =$this->desvinculacionEmpleadoService->obtenerTransferenciasPendientes();
-            $resumen['transferencias_recibidas_pendientes']  =$this->desvinculacionEmpleadoService->obtenerTransferenciasPendientes('recibidas');
-            $resumen['departamento_responsable'] = $this->desvinculacionEmpleadoService->departamentoResponsable();
-            // Validar que el empleado no sea líder de grupo
-            $resumen['grupo_lidera'] = $this->desvinculacionEmpleadoService->obtenerGrupoEmpleadoLidera();
-
+            $resumen =  $this->desvinculacionEmpleadoService->generarResumenDesvinculacion($empleado);
             // Desvincular empleado
             $this->desvinculacionEmpleadoService->desvincularEmpleado($request->fecha_salida, $request->motivo, $resumen);
             $mensaje = "Empleado desvinculado correctamente";

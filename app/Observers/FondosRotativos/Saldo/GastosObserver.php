@@ -10,16 +10,6 @@ use Throwable;
 class GastosObserver
 {
     /**
-     * Handle the Gasto "created" event.
-     *
-     * @param Gasto $gasto
-     * @return void
-     */
-    public function created(Gasto $gasto)
-    {
-    }
-
-    /**
      * Handle the Gasto "updated" event.
      *
      * @param Gasto $gasto
@@ -33,38 +23,6 @@ class GastosObserver
         if ($gasto->estado == Gasto::ANULADO) $this->revertirCambios($gasto);
     }
 
-    /**
-     * Handle the Gasto "deleted" event.
-     *
-     * @param Gasto $gasto
-     * @return void
-     */
-    public function deleted(Gasto $gasto)
-    {
-        //
-    }
-
-    /**
-     * Handle the Gasto "restored" event.
-     *
-     * @param Gasto $gasto
-     * @return void
-     */
-    public function restored(Gasto $gasto)
-    {
-        //
-    }
-
-    /**
-     * Handle the Gasto "force deleted" event.
-     *
-     * @param Gasto $gasto
-     * @return void
-     */
-    public function forceDeleted(Gasto $gasto)
-    {
-        //
-    }
 
     /**
      * La función `revertirCambios` anula un gasto específico guardando los datos necesarios en un

@@ -262,7 +262,7 @@ class Empleado extends Model implements Auditable
         'jefe_id',
         'canton_id',
         'estado',
-        'desvinculado',
+        'desvinculado','motivo_desvinculacion',
         'grupo_id',
         'cargo_id',
         'departamento_id',
