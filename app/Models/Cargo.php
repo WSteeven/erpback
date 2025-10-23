@@ -53,7 +53,7 @@ class Cargo extends Model implements Auditable
         'aprobado_rrhh'
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         'id',
         'nombre',
         'estado',
