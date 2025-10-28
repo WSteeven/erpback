@@ -218,6 +218,7 @@ class EmpleadoController extends Controller
     public function show(Empleado $empleado)
     {
         $modelo = new EmpleadoResource($empleado);
+        Log::channel('testing')->info('Log', ['Auditoria', $empleado->audits()->get()]);
         if ($modelo->conductor) $modelo['conductor'] = new ConductorResource($modelo->conductor);
         return response()->json(compact('modelo'));
     }
