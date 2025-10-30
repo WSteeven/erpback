@@ -33,6 +33,12 @@ class DetalleProductoRequest extends FormRequest
             'precio_compra' => 'sometimes|numeric',
             'vida_util' => 'sometimes|nullable|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
+
+            // Reglas para varios items
+            'varios_items' => 'boolean',
+            'seriales' => 'required_if:varios_items,true|array|min:1',
+            'seriales.*.serial' => 'required|string',
+
             'lote' => 'nullable|string|sometimes|unique:detalles_productos',
             'span' => 'nullable|integer|exists:spans,id',
             'tipo_fibra' => 'nullable|integer|exists:tipo_fibras,id',
@@ -87,12 +93,61 @@ class DetalleProductoRequest extends FormRequest
     protected function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $detalle = DetalleProducto::where('descripcion', $this->descripcion)->where('serial', $this->serial)->first();
-//            Log::channel('testing')->info('Log', ['El detalle encontrado es: ', $detalle]);
+            $detalle = DetalleProducto::where('descripcion', $this->descripcion)
+                ->where('serial', $this->serial)
+                ->first();
+
             if (!is_null($detalle)) {
-//                Log::channel('testing')->info('Log', ['Hay un detalle: ', $detalle]);
-                if (in_array($this->method(), ['POST']))
-                    if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial) !== $detalle->serial && count($this->seriales) < 1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
+                if (in_array($this->method(), ['POST'])) {
+                    if (
+                        $detalle->descripcion === strtoupper($this->descripcion) &&
+                        strtoupper($this->serial) !== $detalle->serial &&
+                        count($this->seriales) < 1
+                    ) {
+                        $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
+                    }
+                }
+            }
+
+            // Validación para varios items
+            if ($this->varios_items && is_array($this->seriales) && count($this->seriales) > 0) {
+
+                // Validar que no haya seriales vacíos
+                $serialesVacios = collect($this->seriales)->filter(function ($item) {
+                    return empty($item['serial']);
+                });
+
+                if ($serialesVacios->count() > 0) {
+                    $validator->errors()->add('seriales', 'Todos los seriales deben estar completos');
+                    return;
+                }
+
+                // Validar duplicados en el array
+                $seriales = array_column($this->seriales, 'serial');
+                $duplicados = array_diff_assoc($seriales, array_unique($seriales));
+
+                if (!empty($duplicados)) {
+                    $validator->errors()->add(
+                        'seriales',
+                        'Tienes números de serie repetidos: ' . implode(', ', array_unique($duplicados))
+                    );
+                    return;
+                }
+                //  Validar que cada serial no exista en BD con la misma descripción
+                $descripcion = strtoupper($this->descripcion);
+
+                foreach ($this->seriales as $index => $item) {
+                    $existe = DetalleProducto::where('descripcion', $descripcion)
+                        ->where('serial', $item['serial'])
+                        ->exists();
+
+                    if ($existe) {
+                        $validator->errors()->add(
+                            "seriales.{$index}.serial",
+                            "El serial '{$item['serial']}' ya existe con esta descripción en la base de datos"
+                        );
+                    }
+                }
             }
         });
     }
