@@ -16,7 +16,8 @@ class DatosPruebaGestionTareasConecelSeeder extends Seeder
     public function run()
     {
 
-        TipoActividad::create(['nombre' => 'INSTALACION']);
+        TipoActividad::create(['nombre' => 'INSTALACIONES']);
+        TipoActividad::create(['nombre' => 'GARANTIAS INSTALACIONES']);
 
 
     }

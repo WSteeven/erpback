@@ -62,7 +62,7 @@ class Grupo extends Model implements Auditable
     const R5 = 'R5';
 
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'region', 'activo', 'coordinador_id'];
+    protected $fillable = ['nombre', 'nombre_alternativo', 'region', 'activo', 'coordinador_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -87,7 +87,8 @@ class Grupo extends Model implements Auditable
         return $this->belongsToMany(Subtarea::class);
     } */
 
-    public function empleados(){
+    public function empleados()
+    {
         return $this->hasMany(Empleado::class);
     }
 
@@ -105,6 +106,7 @@ class Grupo extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
     }
+
     public function subCentroCosto()
     {
         return $this->belongsTo(SubcentroCosto::class, 'id', 'grupo_id');

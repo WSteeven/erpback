@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * TODO: Esto posiblemente no se va a usar,
+ * TODO: por favor tener en cuenta para eliminar
+ *
+ */
 class TipoActividad extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;

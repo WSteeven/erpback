@@ -73,7 +73,7 @@ class TipoActividadController extends Controller
      * @param TipoActividad $tipo
      * @return JsonResponse
      */
-    public function update(Request $request, TipoActividad $tipo)
+    public function update(TipoActividadRequest $request, TipoActividad $tipo)
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Conecel\GestionTareas\TareaController;
 use App\Http\Controllers\ControlPersonal\AtrasoController;
+use App\Http\Controllers\Hunter\PosicionHunterController;
 use App\Http\Controllers\Medico\CuestionarioPublicoController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LinkCuestionarioPublicoController;
@@ -132,3 +134,5 @@ Route::view('reporte-accidente', 'sso.pdf.informe_accidente');
  * Rutas del módulo Control de Personal
  ***************************/
 Route::get('control-personal/registros-atrasos', [AtrasoController::class, 'registrosAtrasos'])->middleware('verificar.apikey');
+Route::post('hunter/positions', [PosicionHunterController::class, 'posicionesHunter'])->middleware('verificar.apikey');
+Route::post('ofs/activities', [TareaController::class, 'actividadesOFSClaro'])->middleware('verificar.apikey');

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Hunter;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GrupoRequest extends FormRequest
+class PosicionHunterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class GrupoRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,11 +24,7 @@ class GrupoRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string',
-            'nombre_alternativo' => 'sometimes|nullable|string',
-            'region' => 'nullable|string',
-            'activo' => 'required|boolean',
-            'coordinador' => 'required|numeric|integer',
+            //
         ];
     }
 }

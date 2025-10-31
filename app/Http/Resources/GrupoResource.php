@@ -22,6 +22,7 @@ class GrupoResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'nombre' => $this->nombre,
+            'nombre_alternativo' => $this->nombre_alternativo??'No configurado',
             'region' => $this->region,
             'activo' => $this->activo,
             'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
@@ -30,6 +31,7 @@ class GrupoResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['coordinador'] = $this->coordinador_id;
+            $modelo['nombre_alternativo']= $this->nombre_alternativo;
             $modelo['empleados'] = EmpleadoLiteResource::collection($empleados_activos);
         }
 

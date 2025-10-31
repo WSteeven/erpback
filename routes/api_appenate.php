@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Appenate\ProgresivaController;
+use App\Http\Controllers\Conecel\GestionTareas\TareaController;
 
 Route::apiResource('progresivas', ProgresivaController::class, ['only' => ['index', 'show', 'update', 'destroy']]);
 
