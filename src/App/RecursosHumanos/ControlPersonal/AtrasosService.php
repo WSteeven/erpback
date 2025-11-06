@@ -41,8 +41,8 @@ class AtrasosService
                 }
 
                 // Obtener horario del día
-                $dia = Carbon::parse($marcacion->fecha)->locale('es')->dayName;
-                $horario = HorarioLaboral::where('dia', 'LIKE', '%' . $dia . '%')
+                $dia = Carbon::parse($marcacion->fecha)->dayOfWeekIso;
+                $horario = HorarioLaboral::where('dia', $dia)
                     ->where('activo', true)
                     ->first();
 
@@ -76,15 +76,19 @@ class AtrasosService
                     ])
                     ->where(function ($q) use ($marcacion) {
                         $q->whereDate('fecha_hora_inicio', '<=', $marcacion->fecha)
-                          ->whereDate('fecha_hora_fin', '>=', $marcacion->fecha);
+                            ->whereDate('fecha_hora_fin', '>=', $marcacion->fecha);
                     })
                     ->first();
 
                 // CASO: Sin marcaciones en el día
                 if ($totalMarcaciones === 0) {
                     if (!$permiso) {
-                        $this->guardarAnomalia($empleado, $marcacion, 'SIN MARCACIONES',
-                            'No existen registros biométricos para este día.');
+                        $this->guardarAnomalia(
+                            $empleado,
+                            $marcacion,
+                            'SIN MARCACIONES',
+                            'No existen registros biométricos para este día.'
+                        );
                     } else {
                         Log::channel('testing')->info('Sin marcaciones pero tiene permiso.', [
                             'empleado' => $empleado->nombres,
@@ -98,8 +102,12 @@ class AtrasosService
                 // CASO: Una sola marcación
                 if ($totalMarcaciones === 1) {
                     if (!$permiso) {
-                        $this->guardarAnomalia($empleado, $marcacion, 'UNA MARCACION',
-                            'Solo una marcación registrada: ' . $marcacionesBiometrico[0]);
+                        $this->guardarAnomalia(
+                            $empleado,
+                            $marcacion,
+                            'UNA MARCACION',
+                            'Solo una marcación registrada: ' . $marcacionesBiometrico[0]
+                        );
                     } else {
                         Log::channel('testing')->info('Una marcación pero tiene permiso.', [
                             'empleado' => $empleado->nombres,
@@ -113,7 +121,7 @@ class AtrasosService
 
                 // Convertir marcaciones a objetos Carbon y ordenar
                 $horas = collect($marcacionesBiometrico)
-                    ->map(function($h) use ($fechaMarcacion) {
+                    ->map(function ($h) use ($fechaMarcacion) {
                         return Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $h);
                     })
                     ->sort()
@@ -144,8 +152,12 @@ class AtrasosService
                 } else {
                     // No hay marcaciones antes de pausa
                     if (!$permiso) {
-                        $this->guardarAnomalia($empleado, $marcacion, 'SIN ENTRADA',
-                            'No se detectó marcación de entrada antes del almuerzo.');
+                        $this->guardarAnomalia(
+                            $empleado,
+                            $marcacion,
+                            'SIN ENTRADA',
+                            'No se detectó marcación de entrada antes del almuerzo.'
+                        );
                     }
                     continue;
                 }
@@ -155,8 +167,10 @@ class AtrasosService
                     $primeraRegresoPausa = $marcacionesDespuesPausa->first();
 
                     // Solo evaluar atraso si la marcación está en horario laboral
-                    if ($primeraRegresoPausa->lessThan($horaSalida) &&
-                        $primeraRegresoPausa->greaterThan($finPausa)) {
+                    if (
+                        $primeraRegresoPausa->lessThan($horaSalida) &&
+                        $primeraRegresoPausa->greaterThan($finPausa)
+                    ) {
 
                         $segundos = $primeraRegresoPausa->diffInSeconds($finPausa);
                         $this->guardarAtraso(Atraso::PAUSA, $segundos, $marcacion);
@@ -183,13 +197,21 @@ class AtrasosService
                                 'permiso_fin' => $finPermiso->format('H:i:s'),
                             ]);
                         } else {
-                            $this->guardarAnomalia($empleado, $marcacion, 'SIN FIN PAUSA',
+                            $this->guardarAnomalia(
+                                $empleado,
+                                $marcacion,
+                                'SIN FIN PAUSA',
                                 'No se detectó marcación de regreso después del almuerzo. Permiso: ' .
-                                $inicioPermiso->format('H:i') . ' - ' . $finPermiso->format('H:i'));
+                                    $inicioPermiso->format('H:i') . ' - ' . $finPermiso->format('H:i')
+                            );
                         }
                     } else {
-                        $this->guardarAnomalia($empleado, $marcacion, 'SIN FIN PAUSA',
-                            'No se detectó marcación de regreso después del almuerzo.');
+                        $this->guardarAnomalia(
+                            $empleado,
+                            $marcacion,
+                            'SIN FIN PAUSA',
+                            'No se detectó marcación de regreso después del almuerzo.'
+                        );
                     }
                 }
 
@@ -197,9 +219,13 @@ class AtrasosService
                 if ($totalMarcaciones === 2 && !$permiso) {
                     // Verificar si ambas marcaciones son en la mañana o si falta la tarde
                     if ($marcacionesDespuesPausa->isEmpty()) {
-                        $this->guardarAnomalia($empleado, $marcacion, 'SALIDA TEMPRANA',
+                        $this->guardarAnomalia(
+                            $empleado,
+                            $marcacion,
+                            'SALIDA TEMPRANA',
                             'Solo hay marcaciones en la mañana. Última marcación: ' .
-                            $ultimaHora->format('H:i:s'));
+                                $ultimaHora->format('H:i:s')
+                        );
                     }
                 }
             }
