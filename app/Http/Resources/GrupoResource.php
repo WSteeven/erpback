@@ -12,7 +12,7 @@ class GrupoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
@@ -22,16 +22,20 @@ class GrupoResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'nombre_alternativo' => $this->nombre_alternativo??'No configurado',
+            'vehiculo' => $this->vehiculo_id,
+            'placa' => $this->vehiculo->placa,
+            'nombre_alternativo' => $this->nombre_alternativo ?? 'No configurado',
             'region' => $this->region,
             'activo' => $this->activo,
             'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
-            'cant_empleados'=> count($empleados_activos),
+            'coordinador_id' => $this->coordinador_id,
+            'cant_empleados' => count($empleados_activos),
         ];
 
         if ($controller_method == 'show') {
             $modelo['coordinador'] = $this->coordinador_id;
-            $modelo['nombre_alternativo']= $this->nombre_alternativo;
+            $modelo['vehiculo'] = $this->vehiculo_id;
+            $modelo['nombre_alternativo'] = $this->nombre_alternativo;
             $modelo['empleados'] = EmpleadoLiteResource::collection($empleados_activos);
         }
 

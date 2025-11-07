@@ -2,9 +2,11 @@
 
 namespace App\Models\Conecel\GestionTareas;
 
+use App\ModelFilters\TareaFilter;
 use App\Models\Grupo;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -12,7 +14,10 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class Tarea extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable;
+    use HasFactory;
+    use UppercaseValuesTrait;
+    use Filterable;
+    use TareaFilter;
     use AuditableModel;
 
     protected $table = 'claro_tar_tareas';
@@ -53,9 +58,15 @@ class Tarea extends Model implements Auditable
         return $this->belongsTo(Grupo::class, 'nombre_alternativo', 'source');
     }
 
+    /**
+     * Busca en la lista de grupos el primer grupo que contenga el nombre alternativo dado.
+     * Si no se encuentra ningún grupo, devuelve null.
+     * @param string $nombreAlternativo
+     * @return Grupo|Builder|Model|object|null
+     */
     public static function obtenerGrupoRelacionado(string $nombreAlternativo)
     {
-        return  Grupo::where('nombre_alternativo', 'like' ,"%$nombreAlternativo%")->first();
+        return Grupo::where('nombre_alternativo', 'like', "%$nombreAlternativo%")->first();
     }
 
 }

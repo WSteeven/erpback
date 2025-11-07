@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::table('grupos', function (Blueprint $table) {
             $table->string('nombre_alternativo')->nullable()->after('nombre');
+            $table->unsignedBigInteger('vehiculo_id')->nullable()->after('activo');
+
+            $table->foreign('vehiculo_id')->references('id')->on('vehiculos');
         });
     }
 
@@ -26,7 +29,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('grupos', function (Blueprint $table) {
-            $table->dropColumn('nombre_alternativo');
+            $table->dropForeign(['vehiculo_id']);
+            $table->dropColumn(['nombre_alternativo', 'vehiculo_id']);
         });
     }
 };

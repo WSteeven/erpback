@@ -65,4 +65,15 @@ class PosicionHunter extends Model implements Auditable
             ->select('hunt_posiciones_hunter.*');
     }
 
+
+    public static function mapearCoordenadas($posicion)
+    {
+        $encendido = $posicion->tipo_reporte[0] ? 'SI' : 'NO';
+        return [
+            'lat' => $posicion->lat,
+            'lng' => $posicion->lng,
+            'titulo' => $posicion->placa,
+            'descripcion' => "Encendido: $encendido,  $posicion->tipo_reporte",
+        ];
+    }
 }

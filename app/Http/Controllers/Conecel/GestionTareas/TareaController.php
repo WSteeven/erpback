@@ -199,7 +199,7 @@ class TareaController extends Controller
             }
 
             $mensaje = "Datos recibidos y almacenados con éxito. {$savedCount} actividades procesadas.";
-            Log::channel('testing')->info('Log', ['Mensaje', $mensaje]);
+            Log::channel('testing')->info('Log', ['Mensaje actividadesOFSClaro', $mensaje]);
             return response()->json(compact('mensaje', 'savedCount'));
 
         } catch (Exception $e) {

@@ -36,6 +36,9 @@ class PermisosGestionTareasConecelSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'tareas_conecel'])->syncRoles([$administrador, $coordinador, $jefeTecnico, ]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'tareas_conecel'])->syncRoles([$administrador, $coordinador, $jefeTecnico]);
 
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'vehiculos_cuadrillas_conecel'])->syncRoles([$administrador, $coordinador, $jefeTecnico, $gerente]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'vehiculos_cuadrillas_conecel'])->syncRoles([$administrador, $coordinador, $jefeTecnico]);
+
 
 
 

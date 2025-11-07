@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\ModelFilters\GrupoFilter;
+use App\Models\Conecel\GestionTareas\Tarea;
 use App\Models\Tareas\SubcentroCosto;
+use App\Models\Vehiculos\Vehiculo;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -11,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
@@ -54,6 +58,7 @@ use OwenIt\Auditing\Models\Audit;
 class Grupo extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
+    use GrupoFilter;
 
     const R1 = 'R1';
     const R2 = 'R2';
@@ -62,7 +67,7 @@ class Grupo extends Model implements Auditable
     const R5 = 'R5';
 
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'nombre_alternativo', 'region', 'activo', 'coordinador_id'];
+    protected $fillable = ['nombre', 'nombre_alternativo', 'region', 'activo', 'vehiculo_id', 'coordinador_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -71,21 +76,16 @@ class Grupo extends Model implements Auditable
 
     private static array $whiteListFilter = [
         'nombre',
+        'nombre_alternativo',
         'activo',
         'region',
         'coordinador_id',
     ];
 
-    /*public function tareas()
+    public function vehiculo()
     {
-        return $this->belongsToMany(Tarea::class);
-    }*/
-
-    // eliminar
-    /*public function subtareas()
-    {
-        return $this->belongsToMany(Subtarea::class);
-    } */
+        return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
+    }
 
     public function empleados()
     {
@@ -110,6 +110,24 @@ class Grupo extends Model implements Auditable
     public function subCentroCosto()
     {
         return $this->belongsTo(SubcentroCosto::class, 'id', 'grupo_id');
+    }
+
+    /**
+     * Toma un array de IDs de tareas de conecel y devuelve los grupos relacionados con esas tareas.
+     * @param array $ids
+     * @return mixed
+     */
+    public static function obtenerGruposRelacionadosConTareasConecel(array $ids)
+    {
+        $grupos = [];
+        foreach ($ids as $id) {
+            $grupo = Tarea::obtenerGrupoRelacionado(Tarea::find($id)?->source);
+            if ($grupo) {
+                $grupos[] = $grupo;
+            }
+        }
+        return collect($grupos)->unique('id')->values()->all();
+
     }
 
 }

@@ -321,6 +321,33 @@ public static function quitarTildes($cadena)
         return explode(',', $cadena);
     }
 
+    public static function obtenerEstiloPorEstado(?string $estado):array{
+     $estado = strtoupper(trim($estado??''));
+
+        return match ($estado) {
+            'INICIADA' => [
+                'color' => 'blue', // azul
+                'icono' => 'bi-play-circle-fill'
+            ],
+            'FINALIZADA' => [
+                'color' => 'green', // verde
+                'icono' => 'bi-check-circle-fill'
+            ],
+            'PENDIENTE' => [
+                'color' => 'yellow', // amarillo
+                'icono' => 'bi-hourglass-split'
+            ],
+            'CANCELADA', 'NO REALIZADA', 'RIESGO DE PERDERSE' => [
+                'color' => 'red', // rojo
+                'icono' => 'bi-x-circle-fill'
+            ],
+            default => [
+                'color' => 'gray', // por defecto
+                'icono' => 'bi-question-circle-fill'
+            ]
+        };
+    }
+
     public static function tiempoTranscurrido($min, $type)
     { //obtener segundos
         $sec = $min * 60;

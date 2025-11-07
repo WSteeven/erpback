@@ -254,7 +254,8 @@ class TareaController extends Controller
     public function verificarTodasSubtareasFinalizadas(Request $request)
     {
         $tarea = Tarea::find($request['tarea_id']);
-        $totalSubtareasNoFinalizadas = $tarea->subtareas()->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO])->count();
+//        $totalSubtareasNoFinalizadas = $tarea->subtareas()->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO])->count();
+        $totalSubtareasNoFinalizadas = $tarea->subtareas()->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO])->count(); // se quita suspendido para poder finalizar tarea segun los requerimientos de Frank Mantilla 07-11-2025
         $estan_finalizadas = $totalSubtareasNoFinalizadas == 0;
         return response()->json(compact('estan_finalizadas'));
     }

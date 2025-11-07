@@ -24,7 +24,8 @@ class TareaResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'fecha' => $this->atime_of_assignment ? Carbon::createFromFormat('d/m/y H:i', $this->atime_of_assignment)->format(Utils::MASKFECHA) : Carbon::parse($this->received_at)->format(Utils::MASKFECHA),
+            'fecha' => $this->raw_data['_v']['D'],
+//            'fecha' => $this->atime_of_assignment ? Carbon::createFromFormat('d/m/y H:i', $this->atime_of_assignment)->format(Utils::MASKFECHA) : Carbon::parse($this->received_at)->format(Utils::MASKFECHA),
             'registrador' => 'automatico',
             'tipo_actividad' => $this->activity_workskills,
             'grupo' => Tarea::obtenerGrupoRelacionado($this->source)?->nombre_alternativo,
@@ -54,10 +55,13 @@ class TareaResource extends JsonResource
 
     private function mapearCoordenadas()
     {
+        $estilo = Utils::obtenerEstiloPorEstado($this->astatus);
         return ['lat' => $this->lat,
             'lng' => $this->lng,
-            'titulo' => $this->orden_trabajo ?? 'No OT',
-            'descripcion' => "$this->nombre_cliente, estado: $this->estado_tarea",
+            'titulo' => $this->appt_number ?? 'No OT',
+            'descripcion' => "$this->cname, estado: $this->astatus",
+            'color'=>$estilo['color'],
+//            'icono'=>$estilo['icono']
         ];
     }
 }

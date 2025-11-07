@@ -28,7 +28,16 @@ class GrupoRequest extends FormRequest
             'nombre_alternativo' => 'sometimes|nullable|string',
             'region' => 'nullable|string',
             'activo' => 'required|boolean',
-            'coordinador' => 'required|numeric|integer',
+            'coordinador_id' => 'required|numeric|integer',
+            'vehiculo_id' => 'sometimes|nullable|integer|exists:vehiculos,id',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'coordinador_id' => $this->coordinador,
+            'vehiculo_id' => $this->vehiculo,
+        ]);
     }
 }
