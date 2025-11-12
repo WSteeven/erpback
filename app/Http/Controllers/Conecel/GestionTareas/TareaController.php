@@ -3,31 +3,26 @@
 namespace App\Http\Controllers\Conecel\GestionTareas;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Conecel\GestionTareas\TareaRequest;
 use App\Http\Resources\Conecel\GestionTareas\TareaResource;
-use App\Imports\Conecel\GestionTareas\ClaroTareasImport;
 use App\Models\Conecel\GestionTareas\Tarea;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use Throwable;
 
 class TareaController extends Controller
 {
-    private string $entidad = 'Tarea';
 
     public function __construct()
     {
         $this->middleware('can:puede.ver.tareas_conecel')->only('index', 'show');
-        $this->middleware('can:puede.crear.tareas_conecel')->only('store');
-        $this->middleware('can:puede.editar.tareas_conecel')->only('update');
-        $this->middleware('can:puede.eliminar.tareas_conecel')->only('destroy');
+        $this->middleware('can:puede.crear.tareas_conecel')->except('store');
+        $this->middleware('can:puede.editar.tareas_conecel')->except('update');
+        $this->middleware('can:puede.eliminar.tareas_conecel')->except('destroy');
     }
 
     /**
@@ -37,7 +32,7 @@ class TareaController extends Controller
      */
     public function index()
     {
-        $results = (request('astatus') == 'TODAS') ? Tarea::all() : Tarea::filter()->get();
+        $results = (request('astatus') == 'TODAS') ? Tarea::orderBy('id', 'desc')->get() : Tarea::filter()->orderBy('id', 'desc')->get();
         $results = TareaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -45,18 +40,12 @@ class TareaController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param TareaRequest $request
      * @return JsonResponse
+     * @throws ValidationException
      */
-    public function store(TareaRequest $request)
+    public function store()
     {
-        $datos = $request->validated();
-
-        // Respuesta
-        $modelo = Tarea::create($datos);
-        $modelo = new TareaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        return response()->json(compact('mensaje', 'modelo'));
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
     /**
@@ -74,20 +63,12 @@ class TareaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TareaRequest $request
-     * @param Tarea $tarea
      * @return JsonResponse
+     * @throws ValidationException
      */
-    public function update(TareaRequest $request, Tarea $tarea)
+    public function update()
     {
-        // Adaptacion de foreign keys
-        $datos = $request->validated();
-
-        // Respuesta
-        $tarea->update($datos);
-        $modelo = new TareaResource($tarea->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('modelo', 'mensaje'));
+        throw ValidationException::withMessages(['error' => Utils::metodoNoDesarrollado()]);
     }
 
     /**
@@ -105,10 +86,8 @@ class TareaController extends Controller
      * @throws Throwable
      * @throws ValidationException
      */
-    public function subirTareasLotes(Request $request, $grupo_id)
+    /*public function subirTareasLotes(Request $request, $grupo_id)
     {
-        Log::channel('testing')->error('Log', ['Grupo Recibido en la request', $grupo_id]);
-        Log::channel('testing')->error('Log', ['Recibido en la request', $request->all()]);
         try {
             DB::beginTransaction();
             $this->validate($request, [
@@ -131,7 +110,7 @@ class TareaController extends Controller
                 'file' => [$e->getMessage(), $e->getLine()],
             ]);
         }
-    }
+    }*/
 
 
     public function actividadesOFSClaro(Request $request)
@@ -198,13 +177,13 @@ class TareaController extends Controller
                 $savedCount++;
             }
 
-            $mensaje = "Datos recibidos y almacenados con éxito. {$savedCount} actividades procesadas.";
-            Log::channel('testing')->info('Log', ['Mensaje actividadesOFSClaro', $mensaje]);
+            $mensaje = "Datos recibidos y almacenados con éxito. $savedCount actividades procesadas.";
+//            Log::channel('testing')->info('Log', ['Mensaje actividadesOFSClaro', $mensaje]);
             return response()->json(compact('mensaje', 'savedCount'));
 
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['Excepcion', $e->getMessage(), $e->getLine()]);
-            return response()->json(['Hubo error'], 200);
+            Log::channel('testing')->error('Log', ['Excepcion', $e->getMessage(), $e->getLine()]);
+            return response()->json(['Hubo error']);
         }
     }
 }

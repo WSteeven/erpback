@@ -3,9 +3,7 @@
 namespace App\Http\Resources\Conecel\GestionTareas;
 
 use App\Models\Conecel\GestionTareas\Tarea;
-use App\Models\Empleado;
 use Carbon\Carbon;
-use Composer\Util\Tar;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Shared\Utils;

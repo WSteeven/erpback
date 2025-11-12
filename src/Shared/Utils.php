@@ -326,23 +326,23 @@ public static function quitarTildes($cadena)
 
         return match ($estado) {
             'INICIADA' => [
-                'color' => 'blue', // azul
+                'color' => '#1d4ed8', // azul
                 'icono' => 'bi-play-circle-fill'
             ],
             'FINALIZADA' => [
-                'color' => 'green', // verde
+                'color' => '#16A34A', // verde
                 'icono' => 'bi-check-circle-fill'
             ],
             'PENDIENTE' => [
-                'color' => 'yellow', // amarillo
+                'color' => '#F2C037', // amarillo
                 'icono' => 'bi-hourglass-split'
             ],
             'CANCELADA', 'NO REALIZADA', 'RIESGO DE PERDERSE' => [
-                'color' => 'red', // rojo
+                'color' => '#B91C1C', // rojo
                 'icono' => 'bi-x-circle-fill'
             ],
             default => [
-                'color' => 'gray', // por defecto
+                'color' => '#898989', // por defecto
                 'icono' => 'bi-question-circle-fill'
             ]
         };

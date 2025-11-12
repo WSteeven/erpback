@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SubtareaResource;
 use App\Http\Requests\SubtareaRequest;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use App\Events\SubtareaEvent;
+use Illuminate\Validation\ValidationException;
 use Src\App\SubtareaService;
 use Illuminate\Http\Request;
 use Carbon\CarbonInterval;
@@ -39,34 +41,43 @@ class SubtareaController extends Controller
         return $results; //response()->json(compact('results'));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(SubtareaRequest $request)
     {
-        $tarea_id = $request['tarea'];
+        try {
 
-        // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
-        $datos['subtarea_dependiente_id'] = $request->safe()->only(['subtarea_dependiente'])['subtarea_dependiente'];
-        $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
-        $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
-        $datos['fecha_hora_creacion'] = Carbon::now();
-        $datos['fecha_inicio_trabajo'] = Carbon::parse($request->safe()->only(['fecha_inicio_trabajo'])['fecha_inicio_trabajo'])->format('Y-m-d');
-        $datos['empleados_designados'] = $request['empleados_designados'];
+            $tarea_id = $request['tarea'];
 
-        // Calcular estados
-        $datos['estado'] = Subtarea::AGENDADO;
-        $datos['fecha_hora_asignacion'] = Carbon::now();
-        $datos['fecha_hora_agendado'] = Carbon::now();
+            // Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
+            $datos['subtarea_dependiente_id'] = $request->safe()->only(['subtarea_dependiente'])['subtarea_dependiente'];
+            $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+            $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
+            $datos['fecha_hora_creacion'] = Carbon::now();
+            $datos['fecha_inicio_trabajo'] = Carbon::parse($request->safe()->only(['fecha_inicio_trabajo'])['fecha_inicio_trabajo'])->format('Y-m-d');
+            $datos['empleados_designados'] = $request['empleados_designados'];
 
-        $modelo = Subtarea::create($datos);
+            // Calcular estados
+            $datos['estado'] = Subtarea::AGENDADO;
+            $datos['fecha_hora_asignacion'] = Carbon::now();
+            $datos['fecha_hora_agendado'] = Carbon::now();
+            if ($this->subtareaService->verificarSubtareaCreada($datos['titulo'])) throw new Exception('Ya existe una subtarea con el mismo título o donde se repite el número de actividad o el AID');
 
-        event(new SubtareaEvent($modelo, User::ROL_TECNICO));
+            $modelo = Subtarea::create($datos);
 
-        $modelo = new SubtareaResource($modelo->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
+            event(new SubtareaEvent($modelo, User::ROL_TECNICO));
 
+            $modelo = new SubtareaResource($modelo->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
+
+        } catch (Exception $e) {
+            throw Utils::obtenerMensajeErrorLanzable($e);
+        }
         return response()->json(compact('mensaje', 'modelo'));
     }
 

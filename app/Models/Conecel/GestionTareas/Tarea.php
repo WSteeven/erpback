@@ -53,10 +53,6 @@ class Tarea extends Model implements Auditable
         '*',
     ];
 
-    public function grupo()
-    {
-        return $this->belongsTo(Grupo::class, 'nombre_alternativo', 'source');
-    }
 
     /**
      * Busca en la lista de grupos el primer grupo que contenga el nombre alternativo dado.

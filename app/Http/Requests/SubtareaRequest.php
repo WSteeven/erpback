@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Empleado;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Foundation\Http\FormRequest;
+use Src\App\SubtareaService;
 
 class SubtareaRequest extends FormRequest
 {
@@ -80,4 +84,18 @@ class SubtareaRequest extends FormRequest
             'tecnicos_grupo_principal.required'=> 'Debe asignar al menos un técnico del grupo asignado.'
         ];
     }*/
+
+    /**
+     * @throws Exception
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'fecha_inicio_trabajo' => $this->fecha_inicio_trabajo ? date('Y-m-d', strtotime($this->fecha_inicio_trabajo)) : Carbon::now()->format('Y-m-d'),
+            'empleado' => $this->empleado ?? SubtareaService::obtenerEmpleadoEnBaseAgrupo($this->grupo),
+            'empleados_designados' => (!empty($this->empleados_designados) && is_array($this->empleados_designados))
+                ? $this->empleados_designados
+                : Empleado::where('grupo_id',$this->grupo)->pluck('id')->toArray(),
+        ]);
+    }
 }

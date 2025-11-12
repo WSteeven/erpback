@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -21,31 +23,31 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
  * @property string $longitud_llegada
  * @property int|null $coordinador_registrante_llegada
  * @property string $estado_subtarea_llegada
- * @property-read \App\Models\Empleado|null $coordinadorRegistranteLlegada
- * @property-read \App\Models\Empleado|null $empleado
- * @property-read \App\Models\Subtarea|null $subtarea
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea query()
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereCoordinadorRegistranteLlegada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereEstadoSubtareaLlegada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereFechaHoraLlegada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereFechaHoraSalida($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereLatitud($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereLatitudLlegada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereLongitud($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereLongitudLlegada($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereMotivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MovilizacionSubtarea whereSubtareaId($value)
- * @mixin \Eloquent
+ * @property-read Empleado|null $coordinadorRegistranteLlegada
+ * @property-read Empleado|null $empleado
+ * @property-read Subtarea|null $subtarea
+ * @method static Builder|MovilizacionSubtarea acceptRequest(?array $request = null)
+ * @method static Builder|MovilizacionSubtarea filter(?array $request = null)
+ * @method static Builder|MovilizacionSubtarea ignoreRequest(?array $request = null)
+ * @method static Builder|MovilizacionSubtarea newModelQuery()
+ * @method static Builder|MovilizacionSubtarea newQuery()
+ * @method static Builder|MovilizacionSubtarea query()
+ * @method static Builder|MovilizacionSubtarea setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|MovilizacionSubtarea setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|MovilizacionSubtarea setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|MovilizacionSubtarea whereCoordinadorRegistranteLlegada($value)
+ * @method static Builder|MovilizacionSubtarea whereEmpleadoId($value)
+ * @method static Builder|MovilizacionSubtarea whereEstadoSubtareaLlegada($value)
+ * @method static Builder|MovilizacionSubtarea whereFechaHoraLlegada($value)
+ * @method static Builder|MovilizacionSubtarea whereFechaHoraSalida($value)
+ * @method static Builder|MovilizacionSubtarea whereId($value)
+ * @method static Builder|MovilizacionSubtarea whereLatitud($value)
+ * @method static Builder|MovilizacionSubtarea whereLatitudLlegada($value)
+ * @method static Builder|MovilizacionSubtarea whereLongitud($value)
+ * @method static Builder|MovilizacionSubtarea whereLongitudLlegada($value)
+ * @method static Builder|MovilizacionSubtarea whereMotivo($value)
+ * @method static Builder|MovilizacionSubtarea whereSubtareaId($value)
+ * @mixin Eloquent
  */
 class MovilizacionSubtarea extends Model
 {

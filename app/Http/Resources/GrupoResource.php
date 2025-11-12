@@ -23,7 +23,7 @@ class GrupoResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'vehiculo' => $this->vehiculo_id,
-            'placa' => $this->vehiculo->placa,
+            'placa' => $this->vehiculo?->placa,
             'nombre_alternativo' => $this->nombre_alternativo ?? 'No configurado',
             'region' => $this->region,
             'activo' => $this->activo,
