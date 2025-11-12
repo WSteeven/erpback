@@ -1,5 +1,6 @@
 @php
     use App\Models\Empleado;
+    use Src\Shared\Utils;
 @endphp
 <!DOCTYPE html>
 <html lang="es">

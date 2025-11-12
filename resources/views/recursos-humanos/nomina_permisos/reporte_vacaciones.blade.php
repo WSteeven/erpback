@@ -1,7 +1,8 @@
 @php
+    use App\Models\Empleado;
     use Src\Shared\Utils;
 @endphp
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -10,74 +11,108 @@
     <title>Reporte de Vacaciones</title>
 
     <style>
-        @page {
-            margin: 100px 25px;
+        @page { margin: 90px 40px; }
+
+        body {
+            font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            color: #222;
         }
 
         .header {
             position: fixed;
-            top: -55px;
+            top: -70px;
             left: 0;
             right: 0;
-            height: 80px;
             text-align: center;
-            line-height: 35px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
         }
+
+        .header img {
+            float: left;
+            width: 70px;
+        }
+
+        .header .title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+        }
+
+        th, td {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
-<table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
-    <tr>
-        <div class="header">
-            <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
-                <tr>
-                    <td style="width: 17%">
-                        <img src="{{ Utils::urlToBase64(url($configuracion['logo_claro'])) }}" width="90" alt="logo empresa">
-                    </td>
-                    <td style="width: 83%; font-size:16px; font-weight:bold">
-                        <div style="text-align: center">{{$configuracion['razon_social']}}}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 17%">
-                        <div style="text-align: center"></div>
-                    </td>
-                    <td style="width:83%; font-size:12px">
-                        <div style="text-align: center"><strong>REPORTE DE PROVEEDORES
-                            </strong>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </tr>
-    <tr>
-        <td>
-            <div style="text-align: center">
-                <table style="width: 100%">
-                    <tr>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table style="width: 100%; border: 3px solid #000000;">
-                                <tr>
-                                    <td style="background-color:#DBDBDB">RUC</td>
-                                </tr>
 
-                                @foreach ($reporte as $rpt)
-                                    <tr>
-                                        <td>{{ $rpt }}</td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </td>
-    </tr>
+<div class="header">
+    <img src="{{ Utils::urlToBase64(url($configuracion['logo_claro'])) }}" alt="logo">
+    <div class="title">{{ $configuracion['razon_social'] }}</div>
+    <div style="font-size: 12px; margin-top: 4px;">REPORTE DE VACACIONES</div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Empleado</th>
+            <th>Identificación</th>
+            <th>Cargo</th>
+            <th>Jefe inmediato</th>
+            <th>Fecha ingreso</th>
+            <th>Días</th>
+            <th>Completadas</th>
+            <th>Observación</th>
+            <th>Pagadas</th>
+            <th>Mes pago</th>
+            <th>Fechas tomadas</th>
+            <th>Desgloce días</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($reporte as $rpt)
+            <tr>
+                <td>{{ Empleado::extraerNombresApellidos($rpt->empleado) }}</td>
+                <td>{{ $rpt->empleado->identificacion }}</td>
+                <td>{{ $rpt->empleado->cargo->nombre }}</td>
+                <td>{{ Empleado::extraerNombresApellidos(Empleado::find($rpt->empleado->jefe_id)) }}</td>
+                <td>{{ $rpt->empleado->fecha_ingreso }}</td>
+                <td class="text-center">{{ $rpt->dias }}</td>
+                <td class="text-center">{{ $rpt->completadas ? 'SI' : 'NO' }}</td>
+                <td>{{ $rpt->observacion }}</td>
+                <td class="text-center">{{ $rpt->opto_pago ? 'SI' : 'NO' }}</td>
+                <td>{{ $rpt->mes_pago ?: 'Vacaciones tomadas' }}</td>
+                <td>
+                    @foreach ($rpt->detalles()->get() as $detalle)
+                        {{ $detalle->fecha_inicio }} al {{ $detalle->fecha_fin }}{!! !$loop->last ? '<br>' : '' !!}
+                    @endforeach
+                </td>
+                <td class="text-center">
+                    @foreach ($rpt->detalles()->get() as $detalle)
+                        {{ $detalle->dias_utilizados }}{!! !$loop->last ? '<br>' : '' !!}
+                    @endforeach
+                </td>
+            </tr>
+        @endforeach
+    </tbody>
 </table>
-</body>
 
+</body>
 </html>
