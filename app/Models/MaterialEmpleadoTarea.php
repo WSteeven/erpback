@@ -2,15 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use Eloquent;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Models\Audit;
+use Throwable;
 
 /**
  * App\Models\MaterialEmpleadoTarea
@@ -21,50 +26,50 @@ use OwenIt\Auditing\Auditable as AuditableModel;
  * @property int $tarea_id
  * @property int $empleado_id
  * @property int $detalle_producto_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int $despachado
  * @property int $devuelto
  * @property int|null $cliente_id
  * @property int|null $proyecto_id
  * @property int|null $etapa_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\DetalleProducto|null $detalle
- * @property-read \App\Models\Tarea|null $tarea
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea deEtapa($proyecto_id, $etapa_id)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea deProyecto($proyecto_id)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea deTarea($tarea_id)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea devolverFiltroTareaEtapaProyecto()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea materiales()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea query()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea responsable()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea soloEtapas()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea soloProyectos()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea soloTareas()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea tieneStock()
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereCantidadStock($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereDespachado($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereDetalleProductoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereDevuelto($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereEmpleadoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereEsFibra($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereEtapaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereProyectoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereTareaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MaterialEmpleadoTarea whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read DetalleProducto|null $detalle
+ * @property-read Tarea|null $tarea
+ * @method static Builder|MaterialEmpleadoTarea acceptRequest(?array $request = null)
+ * @method static Builder|MaterialEmpleadoTarea deEtapa($proyecto_id, $etapa_id)
+ * @method static Builder|MaterialEmpleadoTarea deProyecto($proyecto_id)
+ * @method static Builder|MaterialEmpleadoTarea deTarea($tarea_id)
+ * @method static Builder|MaterialEmpleadoTarea devolverFiltroTareaEtapaProyecto()
+ * @method static Builder|MaterialEmpleadoTarea filter(?array $request = null)
+ * @method static Builder|MaterialEmpleadoTarea ignoreRequest(?array $request = null)
+ * @method static Builder|MaterialEmpleadoTarea materiales()
+ * @method static Builder|MaterialEmpleadoTarea newModelQuery()
+ * @method static Builder|MaterialEmpleadoTarea newQuery()
+ * @method static Builder|MaterialEmpleadoTarea query()
+ * @method static Builder|MaterialEmpleadoTarea responsable()
+ * @method static Builder|MaterialEmpleadoTarea setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|MaterialEmpleadoTarea setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|MaterialEmpleadoTarea setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|MaterialEmpleadoTarea soloEtapas()
+ * @method static Builder|MaterialEmpleadoTarea soloProyectos()
+ * @method static Builder|MaterialEmpleadoTarea soloTareas()
+ * @method static Builder|MaterialEmpleadoTarea tieneStock()
+ * @method static Builder|MaterialEmpleadoTarea whereCantidadStock($value)
+ * @method static Builder|MaterialEmpleadoTarea whereClienteId($value)
+ * @method static Builder|MaterialEmpleadoTarea whereCreatedAt($value)
+ * @method static Builder|MaterialEmpleadoTarea whereDespachado($value)
+ * @method static Builder|MaterialEmpleadoTarea whereDetalleProductoId($value)
+ * @method static Builder|MaterialEmpleadoTarea whereDevuelto($value)
+ * @method static Builder|MaterialEmpleadoTarea whereEmpleadoId($value)
+ * @method static Builder|MaterialEmpleadoTarea whereEsFibra($value)
+ * @method static Builder|MaterialEmpleadoTarea whereEtapaId($value)
+ * @method static Builder|MaterialEmpleadoTarea whereId($value)
+ * @method static Builder|MaterialEmpleadoTarea whereProyectoId($value)
+ * @method static Builder|MaterialEmpleadoTarea whereTareaId($value)
+ * @method static Builder|MaterialEmpleadoTarea whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class MaterialEmpleadoTarea extends Model implements Auditable
 {
@@ -149,8 +154,6 @@ class MaterialEmpleadoTarea extends Model implements Auditable
      */
     public function scopeDevolverFiltroTareaEtapaProyecto($query)
     {
-        $request = request()->all();
-        Log::channel('testing')->info('Log', compact('request'));
         if (request('filtrar_por_tarea')) return $query->deTarea(request('tarea_id'));
         if (request('filtrar_por_etapa')) return $query->deEtapa(request('proyecto_id'), request('etapa_id'));
         if (request('filtrar_por_proyecto')) return $query->deProyecto(request('proyecto_id'));
@@ -162,69 +165,69 @@ class MaterialEmpleadoTarea extends Model implements Auditable
     }
 
     // Suma los productos del stock
+
+    /**
+     * @throws Throwable
+     */
     public static function cargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int|null $cliente_id, int|null $proyecto_id, int|null $etapa_id)
     {
-        try {
-            $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
-                ->where('tarea_id', $tarea_id)
-                ->where('cliente_id', $cliente_id)
-                ->where('empleado_id', $empleado_id)
-                ->when('proyecto_id', function ($query) use ($proyecto_id) {
-                    $query->where('proyecto_id', $proyecto_id);
-                })
-                ->when('etapa_id', function ($query) use ($etapa_id) {
-                    $query->where('etapa_id', $etapa_id);
-                })
-                ->first();
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
+            ->where('tarea_id', $tarea_id)
+            ->where('cliente_id', $cliente_id)
+            ->where('empleado_id', $empleado_id)
+            ->when('proyecto_id', function ($query) use ($proyecto_id) {
+                $query->where('proyecto_id', $proyecto_id);
+            })
+            ->when('etapa_id', function ($query) use ($etapa_id) {
+                $query->where('etapa_id', $etapa_id);
+            })
+            ->first();
 
-            if ($material) {
-                $material->cantidad_stock += $cantidad;
-                $material->despachado += $cantidad;
-                $material->save();
-            } else {
-                MaterialEmpleadoTarea::create([
-                    'cantidad_stock' => $cantidad,
-                    'despachado' => $cantidad,
-                    'tarea_id' => $tarea_id,
-                    'empleado_id' => $empleado_id,
-                    'detalle_producto_id' => $detalle_id,
-                    'cliente_id' => $cliente_id,
-                    'proyecto_id' => $proyecto_id,
-                    'etapa_id' => $etapa_id,
-                ]);
-            }
-        } catch (\Throwable $th) {
-            throw $th;
+        if ($material) {
+            $material->cantidad_stock += $cantidad;
+            $material->despachado += $cantidad;
+            $material->save();
+        } else {
+            MaterialEmpleadoTarea::create([
+                'cantidad_stock' => $cantidad,
+                'despachado' => $cantidad,
+                'tarea_id' => $tarea_id,
+                'empleado_id' => $empleado_id,
+                'detalle_producto_id' => $detalle_id,
+                'cliente_id' => $cliente_id,
+                'proyecto_id' => $proyecto_id,
+                'etapa_id' => $etapa_id,
+            ]);
         }
     }
 
     // Descuenta los productos del stock
+
+    /**
+     * @throws Throwable
+     */
     public static function descargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id)
     {
-        try {
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
+            ->where('tarea_id', $tarea_id)
+            ->where('cliente_id', $cliente_id)
+            ->where('empleado_id', $empleado_id)->first();
+
+        if ($material) {
+            $material->cantidad_stock -= $cantidad;
+            $material->devuelto += $cantidad;
+            $material->save();
+        } else {
             $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
                 ->where('tarea_id', $tarea_id)
-                ->where('cliente_id', $cliente_id)
+                ->whereNull('cliente_id')
                 ->where('empleado_id', $empleado_id)->first();
-
             if ($material) {
                 $material->cantidad_stock -= $cantidad;
                 $material->devuelto += $cantidad;
                 $material->save();
-            } else {
-                $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
-                    ->where('tarea_id', $tarea_id)
-                    ->where('cliente_id', null)
-                    ->where('empleado_id', $empleado_id)->first();
-                if ($material) {
-                    $material->cantidad_stock -= $cantidad;
-                    $material->devuelto += $cantidad;
-                    $material->save();
-                } else
-                    throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado en la tarea seleccionada');
-            }
-        } catch (\Throwable $th) {
-            throw $th;
+            } else
+                throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado en la tarea seleccionada');
         }
     }
 
@@ -232,47 +235,40 @@ class MaterialEmpleadoTarea extends Model implements Auditable
      * La función `cargarMaterialEmpleadoTareaPorAnulacionDevolucion` se utiliza para actualizar el
      * stock y cantidad de devolución de un material asignado a un empleado para una tarea específica,
      * en función de la cancelación o anulación de una devolución de material.
-     * 
-     * @param int detalle_id El ID del producto detallado.
-     * @param int empleado_id El parámetro `empleado_id` representa el ID del empleado.
-     * @param int tarea_id El parámetro `tarea_id` representa el ID de la tarea para la cual se carga
-     * el material para el empleado.
-     * @param int cantidad El parámetro cantidad representa la cantidad de material que se necesita
-     * cargar para el empleado y tarea debido a una baja o devolución.
-     * @param int|null cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
-     * cargando el material.
-     * @param int proyecto_id El parámetro "proyecto_id" es un número entero opcional que representa el
-     * ID de un proyecto. Se utiliza para filtrar el material por proyecto si se proporciona. Si no se
-     * proporciona, no se utilizará en la consulta.
-     * @param int etapa_id El parámetro "etapa_id" representa el ID de una etapa o fase de un proyecto.
-     * Se utiliza en la función para filtrar el material asignado a un empleado según la etapa
-     * específica del proyecto.
+     *
+     * @param int $detalle_id
+     * @param int $empleado_id
+     * @param int $tarea_id
+     * @param int $cantidad
+     * @param int|null $cliente_id
+     * @param int|null $proyecto_id
+     * @param int|null $etapa_id
+     * @throws Throwable
      */
     public static function cargarMaterialEmpleadoTareaPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int|null $cliente_id, int|null $proyecto_id, int|null $etapa_id)
     {
-        try {
-            $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
-                ->where('tarea_id', $tarea_id)
-                ->where('cliente_id', $cliente_id)
-                ->where('empleado_id', $empleado_id)
-                ->when('proyecto_id', function ($query) use ($proyecto_id) {
-                    $query->where('proyecto_id', $proyecto_id);
-                })
-                ->when('etapa_id', function ($query) use ($etapa_id) {
-                    $query->where('etapa_id', $etapa_id);
-                })
-                ->first();
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
+            ->where('tarea_id', $tarea_id)
+            ->where('cliente_id', $cliente_id)
+            ->where('empleado_id', $empleado_id)
+            ->when('proyecto_id', function ($query) use ($proyecto_id) {
+                $query->where('proyecto_id', $proyecto_id);
+            })
+            ->when('etapa_id', function ($query) use ($etapa_id) {
+                $query->where('etapa_id', $etapa_id);
+            })
+            ->first();
 
-            if ($material) {
-                $material->cantidad_stock += $cantidad;
-                $material->devuelto -= $cantidad;
-                $material->save();
-            } else throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado para descontar lo devuelto');
-        } catch (\Throwable $th) {
-            throw $th;
-        }
+        if ($material) {
+            $material->cantidad_stock += $cantidad;
+            $material->devuelto -= $cantidad;
+            $material->save();
+        } else throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado para descontar lo devuelto');
     }
 
+    /**
+     * @throws Throwable
+     */
     public static function actualizarMaterialesEmpleadoTarea($registroAntiguo, $registro, $empleado)
     {
         try {
@@ -282,7 +278,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
             //asignamos al nuevo registro
             self::cargarMaterialEmpleadoTarea($registro['detalle_producto_id'], $empleado, $registroAntiguo['tarea_id'], $registro['stock_actual'], $registro['cliente'], null, null);
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             throw $th;
         }

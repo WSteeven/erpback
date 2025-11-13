@@ -36,7 +36,7 @@ class DetalleProductoRequest extends FormRequest
 
             // Reglas para varios items
             'varios_items' => 'boolean',
-            'seriales' => 'required_if:varios_items,true|array|min:1',
+            'seriales' => 'required_if:varios_items,true|array',
             'seriales.*.serial' => 'required|string',
 
             'lote' => 'nullable|string|sometimes|unique:detalles_productos',

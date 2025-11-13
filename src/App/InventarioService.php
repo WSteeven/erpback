@@ -377,10 +377,9 @@ class InventarioService
     /**
      * @throws ValidationException
      */
-    public function kardex(int $detalle_id, $fecha_inicio, $fecha_fin, $tipo_rpt = null, int $sucursal_id = null)
+    public function kardex(int $detalle_id, $fecha_inicio, $fechaFin, $tipo_rpt = null, int $sucursal_id = null)
     {
-        $fecha_fin = Carbon::parse($fecha_fin)->endOfDay();
-        // Log::channel('testing')->info('Log', ['Request kardex', $request->all()]);
+        $fecha_fin = Carbon::parse($fechaFin)->endOfDay();
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
@@ -392,12 +391,13 @@ class InventarioService
         $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
         $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $ids_itemsInventario = Inventario::where('detalle_id', $detalle_id)
-            ->when($sucursal_id, function ($q) use ($sucursal_id, $fecha_inicio, $fecha_fin) {
+            ->when($sucursal_id, function ($q) use ($sucursal_id) {
                 $q->where('sucursal_id', $sucursal_id);
             })->orderBy('updated_at', 'desc')->get('id');
         if ($fecha_inicio && $fecha_fin) {
             $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
-                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($fecha_inicio)), date('Y-m-d', strtotime($fecha_fin))])
+                ->whereBetween('detalle_producto_transaccion.created_at', [$fecha_inicio, $fecha_fin])
+//                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($fecha_inicio)), date('Y-m-d', strtotime($fecha_fin))])
                 ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
         if ($fecha_inicio && !$fecha_fin) {

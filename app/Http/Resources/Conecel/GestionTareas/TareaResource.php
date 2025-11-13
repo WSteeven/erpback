@@ -25,6 +25,7 @@ class TareaResource extends JsonResource
             'fecha' => $this->raw_data['_v']['D'],
 //            'fecha' => $this->atime_of_assignment ? Carbon::createFromFormat('d/m/y H:i', $this->atime_of_assignment)->format(Utils::MASKFECHA) : Carbon::parse($this->received_at)->format(Utils::MASKFECHA),
             'registrador' => 'automatico',
+            'aid'=>$this->aid,
             'tipo_actividad' => $this->activity_workskills,
             'grupo' => Tarea::obtenerGrupoRelacionado($this->source)?->nombre_alternativo,
             'asignada' => !!Tarea::obtenerGrupoRelacionado($this->source),

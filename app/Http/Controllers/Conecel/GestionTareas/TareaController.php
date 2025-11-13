@@ -20,9 +20,9 @@ class TareaController extends Controller
     public function __construct()
     {
         $this->middleware('can:puede.ver.tareas_conecel')->only('index', 'show');
-        $this->middleware('can:puede.crear.tareas_conecel')->except('store');
-        $this->middleware('can:puede.editar.tareas_conecel')->except('update');
-        $this->middleware('can:puede.eliminar.tareas_conecel')->except('destroy');
+//        $this->middleware('can:puede.crear.tareas_conecel')->except('store');
+//        $this->middleware('can:puede.editar.tareas_conecel')->except('update');
+//        $this->middleware('can:puede.eliminar.tareas_conecel')->except('destroy');
     }
 
     /**

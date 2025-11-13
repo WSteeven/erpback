@@ -98,8 +98,8 @@ class CitaMedicaController extends Controller
                 $request['motivo_rechazo'] = request('motivo_rechazo');
             }
 
-            Log::channel('testing')->info('Log', ['keys', $keys]);
-            Log::channel('testing')->info('Log', ['request', $request]);
+//            Log::channel('testing')->info('Log', ['keys', $keys]);
+//            Log::channel('testing')->info('Log', ['request', $request]);
 
             $cita_medica->update($request->only($keys));
 

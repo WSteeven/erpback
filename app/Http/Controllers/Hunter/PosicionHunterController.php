@@ -74,7 +74,7 @@ class PosicionHunterController extends Controller
 
         $results = PosicionHunterResource::collection($posiciones);
         $idsPlacas = $posiciones->pluck('placa')->toArray();
-
+//        Log::channel('testing')->info('Log', ['ubicacionesGPSconTareas->placas', $idsPlacas]);
         $idsVehiculos = Vehiculo::whereIn('placa', $idsPlacas)->pluck('id');
 
         $gruposRelacionados = Grupo::whereIn('vehiculo_id', $idsVehiculos)->where('activo', true)->get();

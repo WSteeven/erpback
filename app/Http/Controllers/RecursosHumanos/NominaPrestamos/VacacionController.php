@@ -167,7 +167,7 @@ class VacacionController extends Controller
                     // Nothing, return the data
             }
         } catch (Exception $ex) {
-            Log::channel('testing')->error('Log', ['Request', $ex->getLine(), $ex->getMessage(), $ex]);
+            Log::channel('testing')->error('Log', ['error en reporteVacaciones', $ex->getLine(), $ex->getMessage(), $ex]);
             throw Utils::obtenerMensajeErrorLanzable($ex, 'No se pudo obtener el reporte');
         }
 

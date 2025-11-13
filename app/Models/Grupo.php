@@ -58,7 +58,8 @@ use OwenIt\Auditing\Models\Audit;
 class Grupo extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
-    use GrupoFilter;
+
+//    use GrupoFilter; // no usar, da problemas en producción
 
     const R1 = 'R1';
     const R2 = 'R2';

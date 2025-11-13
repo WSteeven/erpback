@@ -178,6 +178,7 @@ class DetalleProducto extends Model implements Auditable
         'es_fibra' => 'boolean',
         'esActivo' => 'boolean',
         'activo' => 'boolean',
+        'varios_items' => 'boolean',
     ];
 
     private static $whiteListFilter = [

@@ -70,7 +70,7 @@ class PrestamoEmpresarialController extends Controller
             $datos = $request->validated();
             $this->validarSolicitudNoGestionada($request);
             $this->validarMontoVSCuotas($datos['monto'], $datos['plazos']);
-            Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+//            Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
             $prestamo = PrestamoEmpresarial::create($datos);
             PlazoPrestamoEmpresarial::actualizarCuotasPrestamo($prestamo, $datos['plazos']);
@@ -293,8 +293,8 @@ class PrestamoEmpresarialController extends Controller
      */
     public function aplazarCuotaPrestamo(Request $request, PlazoPrestamoEmpresarial $cuota)
     {
-        Log::channel('testing')->info('Log', ['Request', $request->all()]);
-        Log::channel('testing')->info('Log', ['Cuota', $cuota]);
+//        Log::channel('testing')->info('Log', ['Request', $request->all()]);
+//        Log::channel('testing')->info('Log', ['Cuota', $cuota]);
         try {
             DB::beginTransaction();
 
@@ -377,7 +377,7 @@ class PrestamoEmpresarialController extends Controller
                     // Nothing, return the data
             }
         } catch (Throwable $ex) {
-            Log::channel('testing')->error('Log', ['Request', $ex->getLine(), $ex->getMessage(), $ex]);
+            Log::channel('testing')->error('Log', ['PrestamoEmpresarialController->reportes', $ex->getLine(), $ex->getMessage(), $ex]);
             throw Utils::obtenerMensajeErrorLanzable($ex, 'No se pudo obtener el reporte');
         }
         return response()->json(compact('results'));

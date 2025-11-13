@@ -4,6 +4,7 @@ namespace Src\App\Hunter;
 
 use App\Models\Conecel\GestionTareas\Tarea;
 use Illuminate\Database\Eloquent\Collection;
+use Log;
 use Src\Shared\Utils;
 
 class PosicionHunterService
@@ -22,7 +23,7 @@ class PosicionHunterService
         $nombresGrupos = $grupos->pluck('nombre_alternativo')->filter()->toArray();
 
         // Pre-cargar tareas una sola vez
-        $todasLasTareas = Tarea::filter()->get();
+        $todasLasTareas = Tarea::whereIn('astatus', request()->astatus)->whereRaw("JSON_EXTRACT(raw_data, '$._v.D') = ?", [request()->raw_data])->get();
 
         // Indexamos tareas por source (nombre del grupo)
         $tareasPorGrupo = [];
@@ -83,7 +84,7 @@ class PosicionHunterService
     {
         $nombresGrupos = $grupos->pluck('nombre_alternativo')->filter()->toArray();
 
-        $tareas = Tarea::filter()
+        $tareas = Tarea::whereIn('astatus', request()->astatus)->whereRaw("JSON_EXTRACT(raw_data, '$._v.D') = ?", [request()->raw_data])
             ->where(function ($query) use ($nombresGrupos) {
                 $query->whereNull('source')
                     ->orWhereNotIn('source', $nombresGrupos);

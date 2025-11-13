@@ -103,10 +103,10 @@ class EsquemaVacunaController extends Controller
         try {
             DB::beginTransaction();
 
-            Log::channel('testing')->info('Log', ['esquema_vacuna', $esquema_vacuna]);
+//            Log::channel('testing')->info('Log', ['esquema_vacuna', $esquema_vacuna]);
 
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['datos', $datos]);
+//            Log::channel('testing')->info('Log', ['datos', $datos]);
             $esquema_vacuna->update($datos);
             $modelo = new EsquemaVacunaResource($esquema_vacuna->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

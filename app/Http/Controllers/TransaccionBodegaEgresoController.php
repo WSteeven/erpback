@@ -246,10 +246,10 @@ class TransaccionBodegaEgresoController extends Controller
                 InventarioService::guardarLoteEgreso($item_inventario, $transaccion, $listado['cantidad']);
 
                 if($se_asigna_responsable && is_null($transaccion->tarea_id)) {
-                    Log::channel('testing')->info('Log', ['entró a guardar activo fijo', $transaccion]);
+//                    Log::channel('testing')->info('Log', ['entró a guardar activo fijo', $transaccion]);
                     ActivoFijo::cargarComoActivo($item_inventario->detalle, $transaccion->cliente_id);
                     ActivoFijo::notificarEntregaActivos($item_inventario->detalle, $transaccion);
-                    Log::channel('testing')->info('Log', ['pasó guardar activo fijo']);
+//                    Log::channel('testing')->info('Log', ['pasó guardar activo fijo']);
                 }
             }
 

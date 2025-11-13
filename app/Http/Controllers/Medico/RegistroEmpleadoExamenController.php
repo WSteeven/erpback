@@ -39,7 +39,7 @@ class RegistroEmpleadoExamenController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
 
-            Log::channel('testing')->info('Log', ['Datos registro', $datos]);
+//            Log::channel('testing')->info('Log', ['Datos registro', $datos]);
 
             $proximoNumeroRegistro = RegistroEmpleadoExamen::where('tipo_proceso_examen', $datos['tipo_proceso_examen'])->where('empleado_id', $datos['empleado_id'])->count() + 1;
             $datos['numero_registro'] = $proximoNumeroRegistro;
