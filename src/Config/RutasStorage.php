@@ -31,6 +31,7 @@ enum RutasStorage: string
     case PEDIDOS = 'public/pedidos/evidencias';
     case CLIENTES = 'public/clientes/logos';
     case TICKETS = 'public/tickets';
+    case ARCHIVOS_COMENTARIOS_TICKETS = 'public/tickets/comentarios';
     case ATRASOS = 'public/evidencias_atrasos_empleados';
     case FOTOGRAFIAS_ACTIVIDADES_REALIZADAS = 'public/fotografias_actividades_realizadas';
     case FOTOGRAFIAS_SEGUIMIENTOS_TICKETS = 'public/fotografias_seguimiento_tickets';

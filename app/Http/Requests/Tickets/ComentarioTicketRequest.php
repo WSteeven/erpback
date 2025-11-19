@@ -27,6 +27,7 @@ class ComentarioTicketRequest extends FormRequest
             'comentario' => 'required|string',
             'empleado_id' => 'required|numeric|integer|exists:empleados,id',
             'ticket_id' => 'required|numeric|integer|exists:tickets,id',
+            'adjuntos' => 'array|nullable',
         ];
     }
 

@@ -81,7 +81,7 @@ class ArchivoService
         } catch (Throwable $th) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Error en el guardar de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
-            throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine(), $th->getCode());
+            throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine(). $th->getCode());
         }
     }
 

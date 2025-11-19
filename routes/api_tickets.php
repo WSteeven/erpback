@@ -54,6 +54,7 @@ Route::prefix('tickets')->group(function () {
     Route::get('obtener-rechazados/{ticket}', [TicketController::class, 'obtenerRechazados']);
 });
 
+Route::post('comentario-archivo-tickets', [ComentarioTicketController::class, 'subirArchivoComentarioTicket']);
 Route::put('/tickets/{id}/toggle-recurrence', [TicketController::class, 'toggleRecurrence']);
 
 /***********
