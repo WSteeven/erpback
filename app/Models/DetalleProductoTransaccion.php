@@ -30,7 +30,6 @@ use OwenIt\Auditing\Models\Audit;
  * @property-read Collection<int, DevolucionTransaccion> $devoluciones
  * @property-read int|null $devoluciones_count
  * @property-read Inventario|null $inventario
- * @property-read Collection<int, MovimientoProducto> $movimientos
  * @property-read int|null $movimientos_count
  * @property-read TransaccionBodega|null $transaccion
  * @method static Builder|DetalleProductoTransaccion acceptRequest(?array $request = null)
@@ -107,21 +106,6 @@ class DetalleProductoTransaccion extends Model implements Auditable
         return $this->belongsTo(TransaccionBodega::class, 'transaccion_id', 'id');
     }
 
-    /**
-     * Relación uno a muchos.
-     * Un detalle_producto_transaccion tiene varios movimientos
-     */
-    public function movimientos(){
-        return $this->hasMany(MovimientoProducto::class);
-    }
-
-    /**
-     * Relacion uno a muchos polimorfica
-     */
-    // public function movimientos(){
-    //     // return $this->morphMany('App\Models\MovimientoProducto', 'movimientable');
-    //     return $this->morphMany(MovimientoProducto::class, 'movimientable');
-    // }
     /**
      * Relación uno a muchos.
      * Un detalle de una transaccion tiene una o varias devoluciones parciales

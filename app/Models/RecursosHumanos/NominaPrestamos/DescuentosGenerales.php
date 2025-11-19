@@ -46,17 +46,19 @@ class DescuentosGenerales extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+
     protected $table = 'descuentos_generales';
     protected $fillable = [
         'nombre',
         'abreviatura'
     ];
-
+    const DESCUENTO = 'DESCUENTO';
     private static array $whiteListFilter = [
         'id',
         'nombre',
         'abreviatura'
     ];
+
     public function egreso_rol_pago()
     {
         return $this->morphMany(EgresoRolPago::class, 'descuento');

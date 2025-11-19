@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PisoResource extends JsonResource
+class BancoHorasMovimientoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,12 +14,6 @@ class PisoResource extends JsonResource
      */
     public function toArray($request)
     {
-        //return parent::toArray($request);
-        return [
-            'id'=>$this->id,
-            //'nombre'=>$this->fila.$this->columna,
-            'fila'=>$this->fila,
-            'columna'=>$this->columna,
-        ];
+        return parent::toArray($request);
     }
 }

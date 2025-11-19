@@ -13,6 +13,7 @@ use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
 use App\Models\RecursosHumanos\EmpleadoDelegado;
+use App\Models\RecursosHumanos\NominaPrestamos\BancoHorasMovimiento;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
@@ -131,7 +132,6 @@ use OwenIt\Auditing\Models\Audit;
  * @property-read Grupo|null $grupo
  * @property-read IdentidadGenero|null $identidadGenero
  * @property-read Empleado|null $jefe
- * @property-read Collection<int, MovimientoProducto> $movimientos
  * @property-read int|null $movimientos_count
  * @property-read Collection<int, Notificacion> $notificaciones
  * @property-read int|null $notificaciones_count
@@ -262,7 +262,7 @@ class Empleado extends Model implements Auditable
         'jefe_id',
         'canton_id',
         'estado',
-        'desvinculado','motivo_desvinculacion',
+        'desvinculado', 'motivo_desvinculacion',
         'grupo_id',
         'cargo_id',
         'departamento_id',
@@ -292,6 +292,7 @@ class Empleado extends Model implements Auditable
         'nivel_academico',
         'titulo',
         'supa',
+        'horas_pendientes',
         'talla_zapato',
         'talla_camisa',
         'talla_guantes',
@@ -506,14 +507,6 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsToMany(Subtarea::class);e
     } */
-    /**
-     * Relacion uno a muchos.
-     * Un empleado BODEGUERO puede registrar muchos movimientos
-     */
-    public function movimientos()
-    {
-        return $this->hasMany(MovimientoProducto::class);
-    }
 
     /**
      * Relacion uno a muchos
@@ -867,5 +860,17 @@ class Empleado extends Model implements Auditable
     function scopeHabilitado($query)
     {
         return $query->where('id', '>=', 2)->where('estado', true); //->where('esta_en_rol_pago', true);
+    }
+
+    public function bancoHoras()
+    {
+        return $this->hasMany(BancoHorasMovimiento::class);
+    }
+
+    public static function obtenerValorHorasDescuento(Empleado $empleado)
+    {
+
+        $valorHora = $empleado->salario / 30 / 8;
+        return round($valorHora * $empleado->horas_pendientes, 2);
     }
 }

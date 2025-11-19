@@ -8,8 +8,6 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Inventario;
-use App\Models\MovimientoProducto;
-use App\Models\Percha;
 use App\Models\Proveedor;
 use App\Observers\DetalleObserver;
 use App\Observers\DetallePedidoProductoObserver;
@@ -17,8 +15,6 @@ use App\Observers\FondosRotativos\Saldo\AcreditacionObserver;
 use App\Observers\FondosRotativos\Saldo\GastosObserver;
 use App\Observers\FondosRotativos\Saldo\TransferenciaObserver;
 use App\Observers\InventarioObserver;
-use App\Observers\MovimientoProductoObserver;
-use App\Observers\PerchaObserver;
 use App\Observers\ProveedorObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -54,9 +50,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         DetalleProducto::observe(DetalleObserver::class);
-        Percha::observe(PerchaObserver::class);
         Inventario::observe(InventarioObserver::class);
-        MovimientoProducto::observe(MovimientoProductoObserver::class);
         DetallePedidoProducto::observe(DetallePedidoProductoObserver::class);
         Gasto::observe(GastosObserver::class);
         Acreditaciones::observe(AcreditacionObserver::class);

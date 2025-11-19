@@ -27,7 +27,6 @@ use OwenIt\Auditing\Models\Audit;
  * @property-read Pedido|null $pedido
  * @property-read Collection<int, TransaccionBodega> $transacciones
  * @property-read int|null $transacciones_count
- * @property-read Collection<int, Traspaso> $traspasos
  * @property-read int|null $traspasos_count
  * @method static Builder|EstadoTransaccion acceptRequest(?array $request = null)
  * @method static Builder|EstadoTransaccion filter(?array $request = null)
@@ -88,13 +87,6 @@ class EstadoTransaccion extends Model implements Auditable
         return $this->hasMany(TransaccionBodega::class);
     }
 
-    /**
-     * Relacion uno a muchos.
-     * Un estado esta en varios traspasos
-     */
-    public function traspasos(){
-        return $this->hasMany(Traspaso::class);
-    }
 
     /**
      * Relación uno a uno.

@@ -19,7 +19,7 @@ class BodegaSeeder extends Seeder
     public function run()
     {
         $bodega = Role::firstOrCreate(['name' => User::ROL_BODEGA]);
-        
+
         Permission::firstOrCreate(['name' => Permisos::VER . 'modulo_administracion'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::VER . 'modulo_bodega'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::VER . 'autorizaciones'])->assignRole($bodega);
@@ -55,22 +55,10 @@ class BodegaSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::VER . 'motivos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'motivos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'motivos'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'perchas'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::CREAR . 'perchas'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'perchas'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'perchas'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'pisos'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::CREAR . 'pisos'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'pisos'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'pisos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::VER . 'prestamos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'prestamos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'prestamos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::VER . 'productos'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'productos_perchas'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::CREAR . 'productos_perchas'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'productos_perchas'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'productos_perchas'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::VER . 'sucursales'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::VER . 'traspasos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'traspasos'])->assignRole($bodega);
@@ -90,10 +78,6 @@ class BodegaSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::VER . 'transacciones'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'transacciones'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'transacciones'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::VER . 'ubicaciones'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::CREAR . 'ubicaciones'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'ubicaciones'])->assignRole($bodega);
-        Permission::firstOrCreate(['name' => Permisos::ELIMINAR . 'ubicaciones'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::VER . 'unidades_medidas'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'unidades_medidas'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'unidades_medidas'])->assignRole($bodega);

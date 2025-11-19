@@ -101,6 +101,7 @@ class PermisoEmpleado extends Model implements Auditable
         'cargo_vacaciones',
         'aceptar_sugerencia',
         'recupero',
+        'descontado',
         'documento'
     ];
 
@@ -109,6 +110,7 @@ class PermisoEmpleado extends Model implements Auditable
         'cargo_vacaciones' => 'boolean',
         'aceptar_sugerencia' => 'boolean',
         'recupero' => 'boolean',
+        'descontado' => 'boolean',
     ];
     public function tipoPermiso()
     {
@@ -140,5 +142,10 @@ class PermisoEmpleado extends Model implements Auditable
     public function archivos()
     {
         return $this->morphMany(Archivo::class, 'archivable');
+    }
+
+    public function bancoHoras()
+    {
+        return $this->morphMany(BancoHorasMovimiento::class, 'modelable', 'model_type', 'model_id');
     }
 }

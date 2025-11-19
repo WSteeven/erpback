@@ -78,6 +78,7 @@ class EmpleadoResource extends JsonResource
             'archivos' => $this->archivos->count(),
             'estado_civil' => $this->estadoCivil?->nombre,
         );
+        if ($controller_method == 'consultarEmpleadosTiempoPendiente') $modelo['horas_pendientes'] = $this->horas_pendientes;
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
             $modelo['jefe_inmediato'] = Empleado::extraerNombresApellidos($this->jefe);
@@ -101,6 +102,7 @@ class EmpleadoResource extends JsonResource
             $modelo['banco_info'] = $this->bancoInfo ? $this->bancoInfo->nombre : null;
             $modelo['fecha_ingreso'] = $this->fecha_ingreso;
             $modelo['antiguedad'] = $this->antiguedad($this->fecha_ingreso);
+            $modelo['horas_pendientes'] = $this->horas_pendientes;
             $modelo['fecha_salida'] = $this->fecha_salida;
             $modelo['talla_zapato'] = $this->talla_zapato;
             $modelo['talla_camisa'] = $this->talla_camisa;

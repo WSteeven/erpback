@@ -12,10 +12,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 
 /**
@@ -40,13 +39,10 @@ use OwenIt\Auditing\Models\Audit;
  * @property-read DetalleProducto|null $detalle
  * @property-read Collection<int, Transferencia> $detalleInventarioTransferencia
  * @property-read int|null $detalle_inventario_transferencia_count
- * @property-read Collection<int, Traspaso> $detalleInventarioTraspaso
  * @property-read int|null $detalle_inventario_traspaso_count
  * @property-read Collection<int, TransaccionBodega> $detalleProductoTransaccion
  * @property-read int|null $detalle_producto_transaccion_count
- * @property-read Collection<int, MovimientoProducto> $movimientos
  * @property-read int|null $movimientos_count
- * @property-read Collection<int, ProductoEnPercha> $productoPercha
  * @property-read int|null $producto_percha_count
  * @property-read Sucursal|null $sucursal
  * @method static Builder|Inventario acceptRequest(?array $request = null)
@@ -126,12 +122,16 @@ class Inventario extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-    public function lotes(){
+    public function lotes()
+    {
         return $this->hasMany(Lote::class, 'inventario_id');
     }
-    public function lotesDisponible(){
+
+    public function lotesDisponible()
+    {
         return $this->lotes()->where('cant_disponible', '>', 0)->orderBy('fecha_vencimiento', 'desc');
     }
+
     /**
      * Relación muchos a muchos.
      * Uno o varios detalles de producto estan en una transacción.
@@ -142,15 +142,7 @@ class Inventario extends Model implements Auditable
             ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
-    /**
-     * Relación muchos a muchos.
-     * Uno o varios items del inventario estan en un traspaso.
-     */
-    public function detalleInventarioTraspaso()
-    {
-        return $this->belongsToMany(Traspaso::class, 'detalle_inventario_traspaso', 'traspaso_id', 'inventario_id')
-            ->withPivot(['cantidad'])->withTimestamps();
-    }
+
     /**
      * Relación muchos a muchos.
      * Uno o varios items del inventarion estan en una transferencia
@@ -159,13 +151,6 @@ class Inventario extends Model implements Auditable
     {
         return $this->belongsToMany(Transferencia::class, 'detalle_inventario_transferencia', 'transferencia_id', 'inventario_id')
             ->withPivot(['cantidad'])->withTimestamps();
-    }
-    /**
-     * Obtener los movimientos para el id de inventario
-     */
-    public function movimientos()
-    {
-        return $this->hasMany(MovimientoProducto::class);
     }
 
     /**
@@ -176,6 +161,7 @@ class Inventario extends Model implements Auditable
     {
         return $this->belongsTo(DetalleProducto::class);
     }
+
     /**
      * Relacion uno a uno (inversa)
      * Muchos inventarios tienen una sucursal
@@ -184,6 +170,7 @@ class Inventario extends Model implements Auditable
     {
         return $this->belongsTo(Sucursal::class);
     }
+
     /**
      * Relacion uno a uno (inversa)
      * Muchos inventarios tienen una sucursal
@@ -192,6 +179,7 @@ class Inventario extends Model implements Auditable
     {
         return $this->belongsTo(Condicion::class);
     }
+
     /**
      * Relacion uno a uno (inversa)
      * Un item del inventario pertenece a un cliente
@@ -201,26 +189,6 @@ class Inventario extends Model implements Auditable
         return $this->belongsTo(Cliente::class);
     }
 
-    /**
-     * Relación uno a muchos.
-     * Un producto del inventario puede estar en muchas ubicaciones.
-     */
-    public function productoPercha()
-    {
-        return $this->hasMany(ProductoEnPercha::class);
-    }
-
-    /**
-     * Relación muchos a muchos.
-     * Uno o varios items del inventario estan en un prestamo temporal
-     */
-    // public function detallesPrestamoInventario()
-    // {
-    //     return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
-    //         ->withPivot('cantidad')
-    //         ->withTimestamps()
-    //         ->using(InventarioPrestamoTemporal::class);
-    // }
 
     /**
      * ______________________________________________________________________________________
@@ -232,241 +200,30 @@ class Inventario extends Model implements Auditable
      */
     public static function estructurarItem($detalle_id, $sucursal_id, $cliente_id, $condicion_id, $cantidad)
     {
-        $datos = [
+        return [
             'detalle_id' => $detalle_id,
             'sucursal_id' => $sucursal_id,
             'cliente_id' => $cliente_id,
             'condicion_id' => $condicion_id,
             'cantidad' => $cantidad
         ];
-        return $datos;
     }
 
     /**
      * La función "contarExistenciasDetalleSerial" cuenta la cantidad total de artículos del inventario
      * para un determinado "detalle_id".
      *
-     * @param detalle_id El parámetro "detalle_id" es el ID del detalle del que se quieren contar las
+     * @param int $detalle_id El parámetro "detalle_id" es el ID del detalle del que se quieren contar las
      * existencias.
      *
-     * @return la suma del campo 'cantidad' de la colección 'existencias'.
+     * @return int la suma del campo 'cantidad' de la colección 'existencias'.
      */
-    public static function contarExistenciasDetalleSerial($detalle_id){
+    public static function contarExistenciasDetalleSerial(int $detalle_id)
+    {
         $existencias = Inventario::where('detalle_id', $detalle_id)->get();
         return $existencias->sum('cantidad');
     }
 
-
-
-    /**
-     * It takes an array of data and returns the same array of data
-     *
-     * @param inventario_id The id of the inventory
-     * @param detalle_producto_transaccion_id is the id of the detail of the transaction
-     * @param cantidad quantity
-     * @param precio_unitario the price of the product
-     * @param saldo the current stock of the product
-     * @param tipo 1 = entrada, 2 = salida
-     *
-     * @return an array with the following structure:
-     * <code> = [
-     *             'inventario_id' =&gt; ,
-     *             'detalle_producto_transaccion_id' =&gt; ,
-     *             'cantidad' =
-     */
-    public static function estructurarMovimiento($inventario_id, $detalle_producto_transaccion_id, $cantidad, $precio_unitario, $saldo, $tipo)
-    {
-        $datos = [
-            'inventario_id' => $inventario_id,
-            'detalle_producto_transaccion_id' => $detalle_producto_transaccion_id,
-            'cantidad' => $cantidad,
-            'precio_unitario' => $precio_unitario,
-            'saldo' => $saldo,
-            'tipo' => $tipo
-        ];
-        return $datos;
-    }
-
-
-    /**
-     * Función para hacer ingreso masivo de elementos al inventario
-     * @param int $sucursal_id as $sucursal
-     * @param int $cliente_id as $cliente
-     * @param int $condicion_id as $condicion
-     * @param DetalleProducto[] $elementos
-     */
-    public static function ingresoMasivo(TransaccionBodega $transaccion, int $condicion, array $elementos)
-    {
-        try {
-            DB::beginTransaction();
-            Log::channel('testing')->info('Log', ['Elementos recibidos en el metodo de ingreso masivo', $elementos]);
-            $elementos = $transaccion->items();
-            foreach ($elementos as $elemento) {
-                Log::channel('testing')->info('Log', ['Elemento dentro del foreach', $elemento]);
-                $detalleTransaccion = DetalleProductoTransaccion::where('inventario_id', $elemento['id'])->where('transaccion_id', $transaccion->id)->first();
-                $item = Inventario::where('detalle_id', $elemento['id'])
-                    ->where('sucursal_id', $transaccion->sucursal_id)
-                    ->where('cliente_id', $transaccion->cliente_id)
-                    ->where('condicion_id', $condicion)
-                    ->first();
-                if ($item) {
-                    Log::channel('testing')->info('Log', ['item encontrado en el inventario', $item]);
-                    $cantidad = $elemento['cantidad'] + $item->cantidad;
-                    $item->cantidad = $cantidad;
-                    $item->save();
-
-                    //Aqui va el registro de movimientos
-                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'], $elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
-                    $movimiento = MovimientoProducto::create($datos);
-                } else {
-                    $datos = self::estructurarItem($elemento['id'], $transaccion->sucursal_id, $transaccion->cliente_id, $condicion, $elemento['cantidad']);
-                    Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
-                    $item = Inventario::create($datos);
-                    Log::channel('testing')->info('Log', ['item creado es ', $item]);
-
-                    //Aqui va el registro de movimientos
-                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'], $elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
-                    $movimiento = MovimientoProducto::create($datos);
-                }
-                //Se crea la lista de movimientos
-                Log::channel('testing')->info('Log', ['Se creó el movimiento', $movimiento]);
-            }
-
-            DB::commit();
-        } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['[Inventario] Ha ocurrido un error', $e->getMessage(), $e->getLine()]);
-            DB::rollBack();
-            // throwException($e);
-        }
-    }
-
-
-    public static function devolverProductos(int $sucursal, int $cliente_devuelve, array $elementos)
-    {
-        Log::channel('testing')->info('Log', ['Recibido en el metodo devolverProductos', $sucursal, $cliente_devuelve, $elementos]);
-        try {
-            DB::beginTransaction();
-            foreach ($elementos as $elemento) {
-                $itemRecibe = Inventario::find($elemento['id']);
-                $detalle = DetalleProducto::find($itemRecibe->detalle_id);
-
-                $itemDevuelve = Inventario::where('detalle_id', $detalle->id)
-                    ->where('cliente_id', $cliente_devuelve)
-                    ->where('sucursal_id', $sucursal)
-                    ->where('condicion_id', $itemRecibe->condicion_id)->first();
-
-                Log::channel('testing')->info('Log', ['Item que devuelve: ', $itemDevuelve]);
-                $itemDevuelve->por_entregar -= $elemento['devolucion'];
-                $itemDevuelve->cantidad -= $elemento['devolucion'];
-                $itemDevuelve->save();
-
-                $itemRecibe->por_recibir -= $elemento['devolucion'];
-                $itemRecibe->cantidad += $elemento['devolucion'];
-                $itemRecibe->save();
-            }
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error devolviendo productos', $e->getMessage(), $e->getLine()]);
-            throw $e;
-        }
-    }
-
-    /* public static function devolverProductosParcial(int $sucursal, int $cliente_devuelve, array $elementos)
-    {
-        try {
-            DB::beginTransaction();
-            foreach ($elementos as $elemento) {
-                $itemRecibe = Inventario::find($elemento['id']);
-                $detalle = DetalleProducto::find($itemRecibe->detalle_id);
-
-                $itemDevuelve = Inventario::where('detalle_id', $detalle->id)
-                    ->where('cliente_id', $cliente_devuelve)
-                    ->where('sucursal_id', $sucursal)
-                    ->where('condicion_id', $itemRecibe->condicion_id)->first();
-
-                $itemDevuelve->por_entregar -= $elemento['devolucion'];
-                $itemDevuelve->cantidad -= $elemento['devolucion'];
-                $itemDevuelve->save();
-
-                $itemRecibe->por_recibir -= $elemento['devolucion'];
-                $itemRecibe->cantidad += $elemento['devolucion'];
-                $itemRecibe->save();
-            }
-
-            DB::commit();
-        } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error devolviendo productos parciales', $e->getMessage(), $e->getLine()]);
-            DB::rollBack();
-            throw $e;
-        }
-    } */
-
-
-    public static function traspasarProductos(int $sucursal, int $desde_cliente, Traspaso $traspaso, $hasta_cliente, array $elementos)
-    {
-        try {
-            DB::beginTransaction();
-
-            //primero restar productos de un cliente
-            foreach ($elementos as $elemento) {
-                $condicion = Condicion::where('nombre', $elemento['condiciones'])->first();
-                $item = Inventario::find($elemento['id']);
-                $detalle = DetalleProducto::find($item->detalle_id);
-                Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
-                $item->cantidad -= $elemento['cantidades'];
-                if ($item->por_entregar) {
-                    $item->por_entregar -= $elemento['cantidades'];
-                } else {
-                    $item->por_recibir += $elemento['cantidades'];
-                }
-                $item->save();
-
-                // $traspaso->items()->movimientos();
-
-
-                //luego insertar productos en otro cliente
-                $item = Inventario::where('detalle_id', $detalle->id)
-                    ->where('sucursal_id', $sucursal)
-                    ->where('cliente_id', $hasta_cliente)
-                    ->where('condicion_id', $condicion->id)
-                    ->first();
-                Log::channel('testing')->info('Log', ['El item encontrado es', $item]);
-                if ($item) {
-                    $item->por_entregar += $elemento['cantidades'];
-                    $item->cantidad += $elemento['cantidades'];
-                    /* if($item->por_recibir){
-                        $item->por_recibir += $elemento['cantidades'];
-                    }else{
-                        $item->por_entregar -= $elemento['cantidades'];
-                    } */
-                    $item->save();
-                } else {
-                    $datos = self::estructurarItem($detalle->id, $sucursal, $hasta_cliente, $condicion->id, $elemento['cantidades']);
-                    Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
-                    $itemCreado = Inventario::create($datos);
-                    Log::channel('testing')->info('Log', ['El item creado es', $itemCreado]);
-                    $itemCreado->por_entregar += $elemento['cantidades'];
-                    $itemCreado->save();
-                }
-            }
-
-            //luego insertar productos en otro cliente
-            /* foreach ($elementos as $elemento) {
-                $item = Inventario::where('id', $elemento['id'])->where('cliente_id', $hasta_cliente)->first();
-                $item->cantidad+=$elemento['cantidad'];
-                $item->save();
-            } */
-
-
-            DB::commit();
-        } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error traspasando productos', $e->getMessage(), $e->getLine()]);
-            DB::rollBack();
-            throw $e;
-        }
-    }
 
     /**
      * La función "verificarExistenciasDetalles" verifica si hay suficientes artículos en inventario
@@ -496,7 +253,7 @@ class Inventario extends Model implements Auditable
                 foreach ($pedido->detalles as $index => $detalle) {
                     Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
                     // aqui se verifica si el detalle no pertenece a la categoria del array $categorias para continuar a generar la preorden
-                    if(!in_array($detalle->producto->categoria->nombre, $categorias)){
+                    if (!in_array($detalle->producto->categoria->nombre, $categorias)) {
                         Log::channel('testing')->info('Log', ['La categoria es', $detalle->producto->categoria->nombre]);
 
                         $itemsInventario = Inventario::where('detalle_id', $detalle['id'])->whereIn('sucursal_id', $ids_sucursales)->whereIn('condicion_id', [Condicion::NUEVO, Condicion::USADO])->get();
@@ -518,16 +275,17 @@ class Inventario extends Model implements Auditable
             }
         }
     }
+
     /**
      * La función "verificarClienteSucursalPedido" comprueba si una sucursal determinada pertenece a un
      * cliente específico.
      *
-     * @param sucursal_id El parámetro "sucursal_id" es el ID de la sucursal o bodega.
+     * @param int $sucursal_id El parámetro "sucursal_id" es el ID de la sucursal o bodega.
      *
-     * @return un valor booleano. Si la condición es verdadera, devolverá verdadero. De lo contrario,
+     * @return boolean un valor booleano. Si la condición es verdadera, devolverá verdadero. De lo contrario,
      * devolverá falso.
      */
-    public static function verificarClienteSucursalPedido($sucursal_id)
+    public static function verificarClienteSucursalPedido(int $sucursal_id)
     {
         $sucursal = Sucursal::find($sucursal_id); //Busca la bodega para saber si los detalles deben crear una orden de compra o no
         return $sucursal->cliente_id === Cliente::JEANPATRICIO || $sucursal->cliente_id === Cliente::JPCONSTRUCRED;

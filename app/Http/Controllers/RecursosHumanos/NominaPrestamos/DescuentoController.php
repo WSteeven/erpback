@@ -5,8 +5,11 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\DescuentoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\DescuentoResource;
+use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\CuotaDescuento;
 use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
+use App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales;
+use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -196,5 +199,54 @@ class DescuentoController extends Controller
 
         return $cuotas;
 
+    }
+
+    /**
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function descontarHorasNoRecuperadasEmpleado(Request $request)
+    {
+        try {
+//            Log::channel('testing')->info('Log', ['descontarHorasNoRecuperadasEmpleado', $request->all()]);
+            $empleado = Empleado::find($request->empleado_id);
+//            Log::channel('testing')->info('Log', ['descontarHorasNoRecuperadasEmpleado', $empleado->horas_pendientes, $empleado->bancoHoras->unique('model_id')->first()]);
+
+            $banco = $empleado->bancoHoras->unique('model_id')->first();
+//            $banco->load('modelable');
+            $permiso = PermisoEmpleado::find($banco->model_id);
+            DB::beginTransaction();
+//            throw new Exception('Error controlado');
+            $descuento = Descuento::create([
+                'fecha_descuento' => Carbon::now()->format('Y-m-d'),
+                'empleado_id' => $empleado->id,
+                'tipo_descuento_id' => DescuentosGenerales::where('nombre', DescuentosGenerales::DESCUENTO)->first()?->id ?? 1,
+                'descripcion' => $request->motivo ?? 'Descuento por horas no recuperadas',
+                'valor' => Empleado::obtenerValorHorasDescuento($empleado),
+                'cantidad_cuotas' => 1,
+                'mes_inicia_cobro' => Carbon::now()->format('Y-m'),
+                'pagado' => false,
+            ]);
+
+            CuotaDescuento::actualizarCuotasDescuento($descuento, [[
+                'id' => 1,
+                'num_cuota' => 1,
+                'mes_vencimiento' => Carbon::now()->format('Y-m'),
+                'valor_cuota' => $descuento->valor,
+                'pagada' => false,
+            ]]);
+            $empleado->update(['horas_pendientes' => 0]);
+            $permiso->update(['descontado' => true]);
+
+            DB::commit();
+            $mensaje = 'Descuento por horas no recuperadas creado exitosamente';
+
+        } catch (Throwable $ex) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($ex);
+        }
+
+        $modelo = new DescuentoResource($descuento);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

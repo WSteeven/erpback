@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
 use App\Models\Autorizacion;
+use App\Models\RecursosHumanos\NominaPrestamos\BancoHorasMovimiento;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\User;
 use Carbon\Carbon;
@@ -145,6 +146,10 @@ class PermisoEmpleadoController extends Controller
                     event(new PermisoNotificacionEvent($permiso));
                 }
             }
+            if ($request->cargo_descuento) {
+                // Aquí se suma el tiempo
+                $this->cargarATiempoDescuentoEmpleado($permiso);
+            }
             $modelo = new PermisoEmpleadoResource($permiso);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -179,4 +184,21 @@ class PermisoEmpleadoController extends Controller
 
         return response()->json(compact('total_dias_permiso'));
     }
+
+    private function cargarATiempoDescuentoEmpleado(PermisoEmpleado $permiso)
+    {
+        $minutos = Carbon::parse($permiso->fecha_hora_inicio)->diffInMinutes(Carbon::parse($permiso->fecha_hora_fin));
+        $decimal = round($minutos / 60, 2);
+        if ($permiso->bancoHoras()->count() > 0) return;
+
+        $permiso->bancoHoras()->create(['empleado_id' => $permiso->empleado_id,
+            'tipo' => BancoHorasMovimiento::TIPO_PERMISO_NO_RECUPERADO,
+            'horas' => $decimal,
+            'fecha_movimiento' => Carbon::now(),
+            'detalle' => 'Permiso no recuperado cargado para descuento',
+        ]);
+        $permiso->empleado()->update(['horas_pendientes' => $permiso->empleado->horas_pendientes + $decimal]);
+    }
+
+
 }

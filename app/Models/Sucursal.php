@@ -43,13 +43,12 @@ use Throwable;
  * @property-read Inventario|null $inventarios
  * @property-read Collection<int, Pedido> $pedidos
  * @property-read int|null $pedidos_count
- * @property-read Collection<int, Percha> $perchas
  * @property-read int|null $perchas_count
  * @property-read Collection<int, TransaccionBodega> $transacciones
  * @property-read int|null $transacciones_count
  * @property-read Collection<int, Transferencia> $transferencias
  * @property-read int|null $transferencias_count
- * @property-read Collection<int, Traspaso> $traspasos
+
  * @property-read int|null $traspasos_count
  * @method static Builder|Sucursal acceptRequest(?array $request = null)
  * @method static Builder|Sucursal filter(?array $request = null)
@@ -122,14 +121,6 @@ class Sucursal extends Model implements Auditable
         return $this->hasMany(Empleado::class);
     }
 
-    /**
-     * Relacion uno a muchos
-     * Una sucursal tiene muchas perchas
-     */
-    public function perchas()
-    {
-        return $this->hasMany(Percha::class);
-    }
 
     /**
      * Relacion uno a uno
@@ -167,14 +158,7 @@ class Sucursal extends Model implements Auditable
         return $this->hasMany(Devolucion::class);
     }
 
-    /**
-     * Relacion uno a muchos.
-     * En una sucursal se realizan varios traspasos
-     */
-    public function traspasos()
-    {
-        return $this->hasMany(Traspaso::class);
-    }
+
 
     /**
      * Relación uno a muchos .

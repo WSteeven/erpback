@@ -31,7 +31,7 @@ class RolPagoResource extends JsonResource
             'empleado_info' => $this->empleado_info->apellidos . ' ' . $this->empleado_info->nombres,
             'tipo_contrato' => $this->empleado_info->tipo_contrato_id,
             'cargo' => $this->empleado_info->cargo,
-            'salario' => number_format($this->salario, 2),
+            'salario' => round($this->salario, 2),
             'dias' => (int)$this->dias,
 //            'dias' => is_float($this->dias) ? $this->dias : intval($this->dias),
             'mes' => $this->mes,

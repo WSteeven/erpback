@@ -62,7 +62,7 @@ use Laravel\Scout\Searchable;
  * @property-read int|null $subtareas_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransaccionBodega> $transacciones
  * @property-read int|null $transacciones_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Traspaso> $traspasos
+
  * @property-read int|null $traspasos_count
  * @property-read \App\Models\UbicacionTarea|null $ubicacionTarea
  * @method static Builder|Tarea acceptRequest(?array $request = null)
@@ -211,14 +211,7 @@ class Tarea extends Model implements Auditable
         return $this->hasMany(Devolucion::class);
     }
 
-    /**
-     * Relación uno a muchos .
-     * Una tarea puede uno o varios traspasos
-     */
-    public function traspasos()
-    {
-        return $this->hasMany(Traspaso::class);
-    }
+
 
     public function proyecto()
     {

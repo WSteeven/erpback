@@ -605,7 +605,7 @@ class EmpleadoController extends Controller
 
             // Se obtiene un resumen con el POI de Desvinculación de Empleados y regularizaciones a seguir
             // Siempre se inicializa la variable $empleado en el servicio de desvinculación
-            $resumen =  $this->desvinculacionEmpleadoService->generarResumenDesvinculacion($empleado);
+            $resumen = $this->desvinculacionEmpleadoService->generarResumenDesvinculacion($empleado);
             // Desvincular empleado
             $this->desvinculacionEmpleadoService->desvincularEmpleado($request->fecha_salida, $request->motivo, $resumen);
             $mensaje = "Empleado desvinculado correctamente";
@@ -616,5 +616,13 @@ class EmpleadoController extends Controller
         } catch (Throwable $th) {
             throw Utils::obtenerMensajeErrorLanzable($th, 'Error al intentar desvincular el empleado');
         }
+    }
+
+
+    public function consultarEmpleadosTiempoPendiente()
+    {
+        $results = Empleado::where('horas_pendientes', '>', 0)->get();
+        $results = EmpleadoResource::collection($results);
+        return response()->json(compact('results'));
     }
 }

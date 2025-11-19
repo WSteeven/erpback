@@ -33,6 +33,7 @@ class EgresoRolPagoResource extends JsonResource
 
     private function obtenerNombreDescuento()
     {
+        Log::channel('testing')->info('Log', ['obtenerNombreDescuento', $this->descuento->descuento]);
         return $this->descuento->descuento->tipoDescuento->nombre ?? $this->descuento->descuento->multa->nombre;
     }
     /**

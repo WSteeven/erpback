@@ -3,43 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InventarioExport;
-use App\Exports\KardexExport;
 use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
-use App\Http\Resources\ItemDetallePreingresoMaterialResource;
-use App\Http\Resources\Tareas\DetalleTransferenciaProductoEmpleadoResource;
-use App\Http\Resources\VistaInventarioPerchaResource;
 use App\Models\Cliente;
 use App\Models\ConfiguracionGeneral;
-use App\Models\DetalleProductoTransaccion;
-use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
-use App\Models\ItemDetallePreingresoMaterial;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
-use App\Models\Motivo;
-use App\Models\Tareas\DetalleTransferenciaProductoEmpleado;
-use App\Models\TipoTransaccion;
-use App\Models\TransaccionBodega;
-use App\Models\VistaInventarioPercha;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
-use OwenIt\Auditing\Models\Audit;
 use Src\App\InventarioService;
-use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
 class InventarioController extends Controller
 {
-    private $entidad = 'Inventario';
-    private $servicio;
+    private string $entidad = 'Inventario';
+    private InventarioService $servicio;
 
 
     public function __construct()
@@ -146,12 +131,6 @@ class InventarioController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function vista()
-    {
-        $results = VistaInventarioPercha::consultarItemsInventarioPercha();
-        $results = VistaInventarioPerchaResource::collection($results);
-        return response()->json(compact('results'));
-    }
 
     /*******************************************
      * REPORTES

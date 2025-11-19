@@ -9,12 +9,10 @@ use Illuminate\Http\JsonResponse;
 
 class ValorEmpleadoRolMensualController extends Controller
 {
-//    private string $entidad = "Valor";
 
     public function __construct()
     {
         $this->middleware('can:puede.ver.vacaciones')->only('index', 'show');
-//        $this->middleware('can:puede.editar.vacaciones')->only('update');
     }
     /**
      * Display a listing of the resource.
@@ -27,17 +25,7 @@ class ValorEmpleadoRolMensualController extends Controller
         $results = ValorEmpleadoRolMensualResource::collection($results);
         return response()->json(compact('results'));
     }
-//
-//    /**
-//     * Store a newly created resource in storage.
-//     *
-//     * @param  \Illuminate\Http\Request  $request
-//     * @return \Illuminate\Http\Response
-//     */
-//    public function store(Request $request)
-//    {
-//        //
-//    }
+
 
     /**
      * Display the specified resource.
@@ -51,16 +39,6 @@ class ValorEmpleadoRolMensualController extends Controller
         return response()->json(compact('modelo'));
     }
 
-//    /**
-//     * Update the specified resource in storage.
-//     *
-//     * @param  \Illuminate\Http\Request  $request
-//     * @param  int  $id
-//     * @return \Illuminate\Http\Response
-//     */
-//    public function update(Request $request, $id)
-//    {
-//        //
-//    }
+
 
 }

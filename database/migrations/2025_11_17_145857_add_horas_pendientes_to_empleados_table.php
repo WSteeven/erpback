@@ -13,13 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('pisos', function (Blueprint $table) {
-            $table->id();
-            $table->string('fila');
-            $table->string('columna')->nullable();
-            $table->timestamps();
-
-            $table->unique(['fila','columna']);
+        Schema::table('empleados', function (Blueprint $table) {
+            $table->decimal('horas_pendientes')->default(0)->after('realiza_factura');
         });
     }
 
@@ -30,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pisos');
+        Schema::table('empleados', function (Blueprint $table) {
+            $table->dropColumn('horas_pendientes');
+        });
     }
 };

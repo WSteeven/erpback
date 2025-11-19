@@ -13,14 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('perchas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-            $table->unsignedBigInteger('sucursal_id');
-            $table->timestamps();
-
-            $table->unique(['nombre','sucursal_id']);
-            $table->foreign('sucursal_id')->references('id')->on('sucursales');
+        Schema::table('permiso_empleados', function (Blueprint $table) {
+            $table->boolean('descontado')->default(false);
         });
     }
 
@@ -31,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('perchas');
+        Schema::table('permiso_empleados', function (Blueprint $table) {
+            $table->dropColumn('descontado');
+        });
     }
 };

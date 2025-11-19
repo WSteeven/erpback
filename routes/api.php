@@ -33,19 +33,15 @@ use App\Http\Controllers\LoginSocialNetworkController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\MotivoController;
-use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ParroquiaController;
 use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\PermisoRolController;
-use App\Http\Controllers\PisoController;
 use App\Http\Controllers\Plantillas\PlantillaCapacitacionController;
 use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
@@ -59,8 +55,6 @@ use App\Http\Controllers\TransaccionBodegaController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Controllers\TransferenciaController;
-use App\Http\Controllers\TraspasoController;
-use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
@@ -157,17 +151,13 @@ Route::apiResources(
         'imagenes-productos' => ImagenProductoController::class,
         'marcas' => MarcaController::class,
         'modelos' => ModeloController::class,
-        'movimientos-productos' => MovimientoProductoController::class,
         'motivos' => MotivoController::class,
         'notificaciones' => NotificacionController::class,
         'pedidos' => PedidoController::class,
         'plantillas-base' => PlantillaBaseController::class,
         'procesadores' => ProcesadorController::class,
         'productos' => ProductoController::class,
-        'productos-perchas' => ProductoEnPerchaController::class,
-        'perchas' => PerchaController::class,
         'permisos' => PermisoController::class,
-        'pisos' => PisoController::class,
         'detalles' => DetalleProductoController::class,
         'permisos-armas' => PermisoArmaController::class,
         'preingresos' => PreingresoMaterialController::class,
@@ -182,8 +172,6 @@ Route::apiResources(
         'transacciones-ingresos' => TransaccionBodegaIngresoController::class,
         'transacciones-egresos' => TransaccionBodegaEgresoController::class,
         'transferencias' => TransferenciaController::class,
-        'traspasos' => TraspasoController::class,
-        'ubicaciones' => UbicacionController::class,
         'unidades-medidas' => UnidadMedidaController::class,
         'parroquias' => ParroquiaController::class,
         'productos-empleados' => ProductoEmpleadoController::class,
@@ -205,13 +193,11 @@ Route::apiResources(
             'plantillas-base' => 'plantilla',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
-            'productos-perchas' => 'producto_en_percha',
             'sucursales' => 'sucursal',
             'tipos-transacciones' => 'tipo_transaccion',
             'transacciones' => 'transaccion',
             'transacciones-ingresos' => 'transaccion',
             'transacciones-egresos' => 'transaccion',
-            'ubicaciones' => 'ubicacion',
             'unidades-medidas' => 'unidad',
             'tipos-fibras' => 'tipo_fibra',
             'productos-empleados' => 'producto_empleado',
@@ -236,7 +222,6 @@ Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos']
 // Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('devoluciones/imprimir/{devolucion}', [DevolucionController::class, 'imprimir'])->middleware('auth:sanctum');
-Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir-entrega-recepcion/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimirActaEntregaRecepcion']);
@@ -299,7 +284,6 @@ Route::put('pedidos/corregir-pedido/{pedido}', [PedidoController::class, 'correg
 Route::put('devoluciones/corregir-devolucion/{devolucion}', [DevolucionController::class, 'corregirDevolucion']);
 Route::post('pedidos/eliminar-item', [PedidoController::class, 'eliminarDetallePedido']);
 Route::post('devoluciones/eliminar-item', [DevolucionController::class, 'eliminarDetalleDevolucion']);
-Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
 Route::get('proveedores/show-preview/{proveedor}', [ProveedorController::class, 'showPreview']);
@@ -312,7 +296,6 @@ Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarP
 
 
 
-Route::get('all-items', [InventarioController::class, 'vista']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 Route::get('empleados-fondos-rotativos', [EmpleadoController::class, 'obtenerEmpleadosFondosRotativos'])->middleware('auth:sanctum');
