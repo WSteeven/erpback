@@ -21,7 +21,8 @@
                 <th rowspan="3" colspan="1" style="vertical-align: middle; text-align: center; width: 200px;">
                     <img src="img/logo_nedetel.png" height="70px" style="margin: 0 auto;" />
                 </th>
-                <th rowspan="3" colspan="2" style="vertical-align: middle; text-align: center; font-size: 14pt; font-weight: bold; color: #2f5597;">
+                <th rowspan="3" colspan="2"
+                    style="vertical-align: middle; text-align: center; font-size: 14pt; font-weight: bold; color: #2f5597;">
                     {{'REPORTE DE ASISTENCIA TÉCNICA OPERATIVA'}} <br>
                     {{'NEDETEL/UFINET - OUTSOURCING'}}
                 </th>
@@ -39,7 +40,7 @@
                 <td style="font-weight: bold;">TICKET/TAREA ASIGNADA:</td>
                 <td style="width: 200px;"></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000; width: 200px;">{{
-                    $subtarea->codigo_subtarea }}</td>
+    $subtarea->codigo_subtarea }}</td>
                 <td style="width: 80px; border-right: 8pt solid #000;"></td>
             </tr>
 
@@ -48,7 +49,7 @@
                 <td style="font-weight: bold;">REGIONAL:</td>
                 <td></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
-                    $subtarea->grupoResponsable?->region }}</td>
+    $subtarea->grupoResponsable?->region }}</td>
                 <td></td>
             </tr>
 
@@ -65,7 +66,7 @@
                 <td style="font-weight: bold;">CUADRILLA ASIGNADA:</td>
                 <td></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
-                    $subtarea->grupoResponsable?->nombre }}</td>
+    $subtarea->grupoResponsable?->nombre }}</td>
                 <td></td>
             </tr>
 
@@ -110,10 +111,10 @@
                         </tr>
 
                         @foreach ($empleados_designados as $empleado)
-                        <tr>
-                            <td style="border: 1px solid #000; text-align: center;">{{ $loop->index + 1 }}</td>
-                            <td colspan="3" style="border: 1px solid #000;">{{ $empleado }}</td>
-                        </tr>
+                            <tr>
+                                <td style="border: 1px solid #000; text-align: center;">{{ $loop->index + 1 }}</td>
+                                <td colspan="3" style="border: 1px solid #000;">{{ $empleado }}</td>
+                            </tr>
                         @endforeach
                     </table>
                 </td>
@@ -133,7 +134,7 @@
                 <td style="font-weight: bold;">TIPO DE INTERVENCIÓN:</td>
                 <td></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
-                    $subtarea->tipo_trabajo->descripcion }}</td>
+    $subtarea->tipo_trabajo->descripcion }}</td>
                 <td></td>
             </tr>
 
@@ -142,7 +143,7 @@
                 <td style="font-weight: bold;">TRAMO AFECTADO/OBSERVADO:</td>
                 <td></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
-                    $subtarea->tarea->rutaTarea?->ruta
+    $subtarea->tarea->rutaTarea?->ruta
                     }}</td>
                 <td></td>
             </tr>
@@ -152,7 +153,7 @@
                 <td style="font-weight: bold;">CAUSA DE INTERVENCIÓN:</td>
                 <td></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
-                    $subtarea->causaIntervencion?->nombre
+    $subtarea->causaIntervencion?->nombre
                     }}</td>
                 <td></td>
             </tr>
@@ -164,7 +165,7 @@
                 <td style="font-weight: bold;">CONTACTO NEDETEL/UFINET:</td>
                 <td></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000;">{{
-                    $subtarea->tarea->clienteFinal?->nombres . $subtarea->tarea->clienteFinal?->apellidos
+    $subtarea->tarea->clienteFinal?->nombres . $subtarea->tarea->clienteFinal?->apellidos
                     }}</td>
                 <td></td>
             </tr>
@@ -185,7 +186,7 @@
                 <td style="font-weight: bold;">HORA DE REPORTE DEL PROBLEMA:</td>
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    \Carbon\Carbon::parse($subtarea->tarea->fecha_solicitud)->format('d/m/Y')
+    \Carbon\Carbon::parse($subtarea->tarea->fecha_solicitud)->format('d/m/Y')
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;"></td>
                 <td></td>
@@ -196,12 +197,12 @@
                 <td style="font-weight: bold;">HORA DE ARRIBO:</td>
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('d/m/Y') :
-                    ''
+    $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('d/m/Y') :
+    ''
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('H:i') :
-                    ''
+    $fecha_hora_arribo_personal ? \Carbon\Carbon::parse($fecha_hora_arribo_personal)->format('H:i') :
+    ''
                     }}</td>
                 <td></td>
             </tr>
@@ -211,10 +212,10 @@
                 <td style="font-weight: bold;">HORA DE FIN DE REPARACIÓN:</td>
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('d/m/Y')
+    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('d/m/Y')
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('H:i')
+    \Carbon\Carbon::parse($subtarea->fecha_hora_realizado)->format('H:i')
                     }}</td>
                 <td></td>
             </tr>
@@ -224,16 +225,15 @@
                 <td style="font-weight: bold;">HORA DE RETIRO DE PERSONAL:</td>
                 <td></td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('d/m/Y') :
-                    ''
+    $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('d/m/Y') :
+    ''
                     }}</td>
                 <td style="text-align: center; border: 1px solid #000;">{{
-                    $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('H:i') :
-                    ''
+    $fecha_hora_retiro_personal ? \Carbon\Carbon::parse($fecha_hora_retiro_personal)->format('H:i') :
+    ''
                     }}</td>
                 <td></td>
             </tr>
-
             <tr>
                 <td></td>
                 <td style="font-weight: bold;">TIEMPO DE ESPERA ADICIONALES (TERCEROS/CLIMA/SECTOR):</td>
@@ -242,9 +242,7 @@
                 <td style="text-align: center; border: 1px solid #000;"></td>
                 <td></td>
             </tr>
-
             <tr></tr>
-
             <tr>
                 <td></td>
                 <td></td>
@@ -253,7 +251,6 @@
                 <td style="font-weight: bold; text-align: center;">DISTANCIA</td>
                 <td></td>
             </tr>
-
             <tr>
                 <td></td>
                 <td style="font-weight: bold;">{{ 'DISTANCIA DE LA AFECTACIÓN' }}</td>
@@ -262,9 +259,7 @@
                 <td style="border: 1px solid #000;"></td>
                 <td></td>
             </tr>
-
             <tr></tr>
-
             <tr>
                 <td></td>
                 <td style="font-weight: bold;">CRONOLOGÍA DE TRABAJOS REALIZADOS:</td>
@@ -273,9 +268,7 @@
                 <td></td>
                 <td></td>
             </tr>
-
             <tr></tr>
-
             <tr>
                 <td></td>
                 <td colspan="4">
@@ -287,11 +280,11 @@
                         </tr>
 
                         @foreach ($subtarea->trabajosRealizados as $trabajo)
-                        <tr>
-                            <td style="border: 1px solid #000; text-align: center;">{{
-                                \Carbon\Carbon::parse($trabajo->fecha_hora)->format('H:i') }}</td>
-                            <td colspan="3" style="border: 1px solid #000;">{{ $trabajo->trabajo_realizado }}</td>
-                        </tr>
+                                            <tr>
+                                                <td style="border: 1px solid #000; text-align: center;">{{
+                            \Carbon\Carbon::parse($trabajo->fecha_hora)->format('H:i') }}</td>
+                                                <td colspan="3" style="border: 1px solid #000;">{{ $trabajo->trabajo_realizado }}</td>
+                                            </tr>
                         @endforeach
                     </table>
                 </td>
@@ -323,17 +316,12 @@
             </tr>
 
             <tr></tr>
-
-
-
             <tr>
                 <td></td>
                 <td colspan="4" style="font-weight: bold;">{{ 'MATERIALES UTILIZADOS:' }}</td>
                 <td></td>
             </tr>
-
             <tr></tr>
-
             <tr>
                 <td></td>
                 <td colspan="4">
@@ -346,30 +334,36 @@
                         </tr>
 
                         @foreach ($materiales_tarea_usados as $material)
-                        <tr>
-                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
-                            </td>
-                            <td colspan="3" style="border: 1px solid #000;">{{ $material->descripcion }}</td>
-                        </tr>
+                            <tr>
+                                <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
+                                </td>
+                                <td colspan="3" style="border: 1px solid #000;">
+                                    {{ $material->descripcion }}
+                                    @if(!empty($material->serial))
+                                        - Serie: {{ $material->serial }}
+                                    @endif
+                                </td>
+                            </tr>
                         @endforeach
 
                         @foreach ($materiales_stock_usados as $material)
-                        <tr>
-                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
-                            </td>
-                            <td colspan="3" style="border: 1px solid #000;">{{ $material->descripcion }}</td>
-                        </tr>
+                            <tr>
+                                <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
+                                </td>
+                                <td colspan="3" style="border: 1px solid #000;">
+                                    {{ $material->descripcion }}
+                                    @if(!empty($material->serial))
+                                        - Serie: {{ $material->serial }}
+                                    @endif
+                                </td>
+                            </tr>
                         @endforeach
                     </table>
                 </td>
                 <td></td>
             </tr>
         </tbody>
-
-
     </table>
-
-
 </body>
 
 </html>

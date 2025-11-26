@@ -256,7 +256,6 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
                 array_push($empleados_designados, Empleado::extraerNombresApellidos(Empleado::find($empleado_id)));
             }
         }
-
         return $empleados_designados;
     }
 
@@ -277,7 +276,7 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
     private function obtenerMaterialesTareaUsados()
     {
         $empleado_id = $this->subtarea->empleado_id;
-        $materialTareaUsado = SeguimientoMaterialSubtarea::selectRaw('detalles_productos.descripcion, SUM(cantidad_utilizada) as cantidad_utilizada')
+        $materialTareaUsado = SeguimientoMaterialSubtarea::selectRaw('detalles_productos.descripcion,detalles_productos.serial, SUM(cantidad_utilizada) as cantidad_utilizada')
             ->where('empleado_id', $empleado_id)
             ->where('subtarea_id', $this->subtarea->id)
             ->groupBy('detalle_producto_id')
@@ -289,7 +288,7 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
     private function obtenerMaterialesStockUsados()
     {
         $empleado_id = $this->subtarea->empleado_id;
-        $materialStockUsado = SeguimientoMaterialStock::selectRaw('detalles_productos.descripcion, SUM(cantidad_utilizada) as cantidad_utilizada')
+        $materialStockUsado = SeguimientoMaterialStock::selectRaw('detalles_productos.descripcion,detalles_productos.serial, SUM(cantidad_utilizada) as cantidad_utilizada')
             ->where('empleado_id', $empleado_id)
             ->where('subtarea_id', $this->subtarea->id)
             // ->whereNotNull('cliente_id')
