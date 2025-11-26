@@ -2,15 +2,18 @@
 
 namespace App\Http\Resources\FondosRotativos;
 
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Shared\Utils;
 
 class AjusteSaldoFondoRotativoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array
      */
     public function toArray($request)
     {
@@ -25,6 +28,7 @@ class AjusteSaldoFondoRotativoResource extends JsonResource
             'descripcion' => $this->descripcion,
             'monto' => $this->monto,
             'tipo' => $this->tipo,
+            'fecha'=> Carbon::parse($this->created_at)->format(Utils::MASKFECHA)
         ];
 
         if ($controller_method == 'show') {

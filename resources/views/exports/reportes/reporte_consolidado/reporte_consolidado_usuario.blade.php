@@ -10,7 +10,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>REPORTE ESTADO DE CUENTA</title>
+    <title>REPORTE CONSOLIDADO</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
