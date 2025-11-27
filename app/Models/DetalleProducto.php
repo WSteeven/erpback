@@ -8,18 +8,17 @@ use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableModel;
-use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Models\Audit;
 use Request;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -120,7 +119,7 @@ use Throwable;
  * @method static Builder|DetalleProducto whereSerial($value)
  * @method static Builder|DetalleProducto whereTalla($value)
  * @method static Builder|DetalleProducto whereTipo($value)
- * @method static Builder|DetalleProducto whereIn($value)
+ * @method static Builder|DetalleProducto whereIn($key, $values)
  * @method static Builder|DetalleProducto whereUpdatedAt($value)
  * @method static Builder|DetalleProducto whereUrlImagen($value)
  * @property string|null $codigo_activo_fijo
@@ -181,14 +180,14 @@ class DetalleProducto extends Model implements Auditable
         'varios_items' => 'boolean',
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
     public function toSearchableArray()
     {
         return [
             'descripcion' => $this->descripcion,
-            'producto' => $this->producto->nombre,
+            'producto' => $this->producto?->nombre,
             'serial' => $this->serial,
             'color' => $this->color,
             'talla' => $this->talla,
@@ -417,7 +416,7 @@ class DetalleProducto extends Model implements Auditable
                     'memoria_id' => $datos['ram'],
                     'disco_id' => $datos['disco'],
                     'procesador_id' => $datos['procesador'],
-                    'imei' => $datos['imei'],
+                    'imei' => $datos['imei']?? $request->imei ?? null,
                 ]);
                 DB::commit();
             }

@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -103,7 +105,8 @@ class Utils
         return base64_decode($partes[1]);
     }
 
-    public static function obtenerMimeType(string $imagen_base64):string{
+    public static function obtenerMimeType(string $imagen_base64): string
+    {
         // Eliminar el prefijo "data:image/jpeg;base64," si existe
         $base64_image = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
 
@@ -179,13 +182,15 @@ class Utils
         $ruta = str_replace('public/', '', $ruta);
         return '/storage/' . $ruta;
     }
-public static function quitarTildes($cadena)
-{
-    $texto = mb_convert_encoding($cadena, 'UTF-8', 'auto');
-    $buscar  = ['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú','ñ','Ñ'];
-    $reemplazar = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U','n','N'];
-    return str_replace($buscar, $reemplazar, $texto);
-}
+
+    public static function quitarTildes($cadena)
+    {
+        $texto = mb_convert_encoding($cadena, 'UTF-8', 'auto');
+        $buscar = ['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú', 'ñ', 'Ñ'];
+        $reemplazar = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U', 'n', 'N'];
+        return str_replace($buscar, $reemplazar, $texto);
+    }
+
     public static function obtenerMensaje(string $entidad, string $metodo, string $genero = 'M')
     {
         $mensajes = [
@@ -238,9 +243,28 @@ public static function quitarTildes($cadena)
     {
         return 'Método no desarrollado, por favor contacta al departamento de Informática para más información.';
     }
+
     public static function metodoNoPermitidoLogicaSistema()
     {
         return 'Método no permitido por la lógica del sistema, por favor contacta al departamento de Informática para más información.';
+    }
+
+    /**
+     * Parsea los valores booleanos cuando se trabaja con FormData(envia toda variable en string),
+     * para que tengan un valor booleano y no salte la validación.
+     * @param $booleanFields
+     * @param FormRequest|Request $request
+     * @return array
+     */
+    public static function castearBooleanosFormRequestFormData($booleanFields, FormRequest|Request $request)
+    {
+        $booleans = [];
+        foreach ($booleanFields as $field) {
+            if ($request->has($field)) {
+                $booleans[$field] = filter_var($request->filled($field) ? $request->input($field) : false, FILTER_VALIDATE_BOOLEAN);
+            }
+        }
+        return $booleans;
     }
 
     /**
@@ -321,8 +345,9 @@ public static function quitarTildes($cadena)
         return explode(',', $cadena);
     }
 
-    public static function obtenerEstiloPorEstado(?string $estado):array{
-     $estado = strtoupper(trim($estado??''));
+    public static function obtenerEstiloPorEstado(?string $estado): array
+    {
+        $estado = strtoupper(trim($estado ?? ''));
 
         return match ($estado) {
             'INICIADA' => [

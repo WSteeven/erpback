@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Models\DetalleProducto;
+use App\Rules\ValidarFormatoSerialExcel;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Src\Shared\Utils;
 
 class DetalleProductoRequest extends FormRequest
 {
@@ -25,20 +27,25 @@ class DetalleProductoRequest extends FormRequest
      */
     public function rules()
     {
+//        Log::channel('testing')->info('Log', ['DetalleProductoRequest->rules:', $this->all()]);
         $rules = [
-            'producto' => 'required|exists:productos,id',
+            'producto_id' => 'required|exists:productos,id',
             'descripcion' => 'required|string',
             'marca' => 'required|exists:marcas,id',
-            'modelo' => 'required|exists:modelos,id',
+            'modelo_id' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
             'vida_util' => 'sometimes|nullable|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
 
             // Reglas para varios items
             'varios_items' => 'boolean',
-            'seriales' => 'required_if:varios_items,true|array',
-            'seriales.*.serial' => 'required|string',
-
+            'subida_masiva' => 'boolean',
+            'archivo' => [
+                'required_if:subida_masiva,true',
+                'file', 'mimes:xlsx,xls',
+                'max:10240', // 10 MB maximo,
+                new ValidarFormatoSerialExcel()
+            ],
             'lote' => 'nullable|string|sometimes|unique:detalles_productos',
             'span' => 'nullable|integer|exists:spans,id',
             'tipo_fibra' => 'nullable|integer|exists:tipo_fibras,id',
@@ -98,7 +105,7 @@ class DetalleProductoRequest extends FormRequest
                 ->first();
 
             if (!is_null($detalle)) {
-                if (in_array($this->method(), ['POST'])) {
+                if ($this->method() == 'POST') {
                     if (
                         $detalle->descripcion === strtoupper($this->descripcion) &&
                         strtoupper($this->serial) !== $detalle->serial &&
@@ -143,7 +150,7 @@ class DetalleProductoRequest extends FormRequest
 
                     if ($existe) {
                         $validator->errors()->add(
-                            "seriales.{$index}.serial",
+                            "seriales.$index.serial",
                             "El serial '{$item['serial']}' ya existe con esta descripción en la base de datos"
                         );
                     }
@@ -154,8 +161,25 @@ class DetalleProductoRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        /**
+         * Hacer este casteo de booleanos cuando se trabaje con Form Data
+         */
+        // Lista completa de todos tus campos booleanos del formulario
+        $booleanFields = [
+            'esActivo',
+            'es_fibra',
+            'es_generico',
+            'varios_items',
+            'subida_masiva',
+        ];
+        $this->merge(Utils::castearBooleanosFormRequestFormData($booleanFields, $this));
+
+
         $this->merge([
-            'descripcion' => strtoupper($this->descripcion)
+            'descripcion' => strtoupper($this->descripcion),
+            'producto_id' => $this->producto,
+            'modelo_id' => $this->modelo,
+            'seriales'=> $this->seriales ?? []
         ]);
 
         if (is_null($this->precio_compra)) {

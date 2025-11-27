@@ -24,7 +24,6 @@ class PedidoService
 
     public static function filtrarPedidosReporte($request)
     {
-        $results = [];
         switch ($request->estado) {
             case 1: //pendientes
                 $results = Pedido::where('autorizacion_id', Autorizaciones::PENDIENTE)
@@ -98,7 +97,6 @@ class PedidoService
      */
     public static function filtrarPedidosEmpleado(string $estado)
     {
-        $results = [];
         try {
             $autorizacion = Autorizacion::where('nombre', $estado)->first();
             switch ($estado) {
@@ -146,7 +144,6 @@ class PedidoService
      */
     public static function filtrarPedidosBodegueroTelconet($estado)
     {
-        $results = [];
         try {
             $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
             $autorizacion = Autorizacion::where('nombre', $estado)->first();
@@ -204,23 +201,15 @@ class PedidoService
      */
     public static function filtrarPedidosBodeguero(string $estado)
     {
-        $results = [];
         try {
             $autorizacion = Autorizacion::where('nombre', $estado)->first();
-            switch ($estado) {
-                case 'PENDIENTE': //cuando el pedido está PENDIENTE de autorización
-                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC');
-                case  'APROBADO': // cuando el pedido está con autorización APROBADO y pendiente de despacho
-                    return Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '=', EstadosTransacciones::PENDIENTE)->orderBy('id', 'DESC');
-                case 'PARCIAL': //cuando el pedido está con autorización aprobado y despacho PARCIAL
-                    return Pedido::where('estado_id', '=', EstadosTransacciones::PARCIAL)->orderBy('id', 'DESC');
-                case 'COMPLETA': //cuando el pedido está con estado de despacho COMPLETA
-                    return Pedido::where('estado_id', '=', EstadosTransacciones::COMPLETA)->orderBy('id', 'DESC');
-                case 'CANCELADO': // cuando el pedido está con autorización CANCELADO
-                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC');
-                default:
-                    throw new Exception('Opción no permitida para filtrarPedidosBodeguero');
-            }
+            return match ($estado) {
+                'PENDIENTE', 'CANCELADO' => Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC'),
+                'APROBADO' => Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '=', EstadosTransacciones::PENDIENTE)->orderBy('id', 'DESC'),
+                'PARCIAL' => Pedido::where('estado_id', '=', EstadosTransacciones::PARCIAL)->orderBy('id', 'DESC'),
+                'COMPLETA' => Pedido::where('estado_id', '=', EstadosTransacciones::COMPLETA)->orderBy('id', 'DESC'),
+                default => throw new Exception('Opción no permitida para filtrarPedidosBodeguero'),
+            };
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['Error al filtrar:', $ex]);
             throw $ex;
@@ -233,7 +222,6 @@ class PedidoService
      */
     public static function filtrarPedidosActivosFijos($estado)
     {
-        $results = [];
         try {
             $autorizacion = Autorizacion::where('nombre', $estado)->first();
             switch ($estado) {
@@ -294,7 +282,7 @@ class PedidoService
     /**
      * ejemplo de filtros para Algolia, actualmente no se usa
      */
-    public static function obtenerFiltrosAlgolia($estado)
+/*    public static function obtenerFiltrosAlgolia($estado)
     {
         return match (strtoupper($estado)) {
             'PENDIENTE' => "autorizacion:PENDIENTE",
@@ -304,7 +292,7 @@ class PedidoService
             'COMPLETA' => "estado:COMPLETA",
             default => throw new Exception("El estado '$estado' no es válido para filtros de Algolia."),
         };
-    }
+    }*/
 
 
     /**
