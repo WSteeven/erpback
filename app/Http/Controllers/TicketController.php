@@ -50,7 +50,7 @@ class TicketController extends Controller
             ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
             ['clave' => 'solicitante_id', 'valor' => request('solicitante_id'), 'operador' => 'AND'],
         ];
-        
+
         $filtrosTicketsParaMi = [
             ['clave' => 'estado', 'valor' => "'" . request('estado') . "'"],
             ['clave' => 'responsable_id', 'valor' => request('responsable_id'), 'operador' => 'AND'],

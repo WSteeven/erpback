@@ -5,6 +5,7 @@ namespace App\Http\Resources\ControlPersonal;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Shared\Utils;
 
 class MarcacionResource extends JsonResource
 {
@@ -21,9 +22,11 @@ class MarcacionResource extends JsonResource
             'empleado_id' => $this->empleado_id,
             'empleado' => Empleado::extraerNombresApellidos($this->empleado),
             'fecha' => $this->fecha,
-            'marcaciones' => is_array($this->marcaciones)
-                ? implode(' - ', $this->marcaciones)
-                : $this->marcaciones,
+            'marcaciones' => collect($this->marcaciones)->map(function ($marcacion) {
+                foreach ($marcacion as $key=>$hora) {
+                    return trim($hora) ? "<b>$key</b>: $hora":null;
+                }
+            })->filter()->implode(', '),
         ];
     }
 }

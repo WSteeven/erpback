@@ -194,9 +194,9 @@ class NominaService
             $sueldo = $sueldo <= 0 ? $this->empleado->salario * NominaService::calcularPorcentajeAnticipo() : $sueldo;
             // $sueldo = $sueldo !== 0 ? $sueldo : $this->empleado->salario * NominaService::calcularPorcentajeAnticipo();
         } else {
-//            Log::channel('testing')->info('Log', [Empleado::extraerNombresApellidos($this->empleado), $this->empleado->salario, $dias, $this->permisoEmpleado()]);
             $dias_trabajados = $dias - $this->permisoEmpleado();
             $sueldo = $salario_diario * $dias_trabajados;
+//            Log::channel('testing')->info('Log', ['calcularSueldo',Empleado::extraerNombresApellidos($this->empleado), $this->empleado->salario, $dias, $this->permisoEmpleado()]);
         }
         if ($sueldo === 0) {
 //            Log::channel('testing')->info('Log', ['ID this->rolpago', $this->rolPago]);

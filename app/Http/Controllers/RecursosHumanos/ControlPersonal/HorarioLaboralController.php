@@ -7,6 +7,7 @@ use App\Http\Requests\RecursosHumanos\ControlPersonal\HorarioLaboralRequest;
 use App\Http\Resources\RecursosHumanos\ControlPersonal\HorarioLaboralResource;
 use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
 use Illuminate\Http\JsonResponse;
+use Log;
 use Src\Shared\Utils;
 
 class HorarioLaboralController extends Controller
@@ -15,10 +16,10 @@ class HorarioLaboralController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:ver.horario_laboral')->only('index', 'show');
-        $this->middleware('can:crear.horario_laboral')->only('store');
-        $this->middleware('can:editar.horario_laboral')->only('update');
-        $this->middleware('can:eliminar.horario_laboral')->only('destroy');
+        $this->middleware('can:puede.ver.horario_laboral')->only('index', 'show');
+        $this->middleware('can:puede.crear.horario_laboral')->only('store');
+        $this->middleware('can:puede.editar.horario_laboral')->only('update');
+        $this->middleware('can:puede.eliminar.horario_laboral')->only('destroy');
     }
 
     /**
@@ -37,13 +38,16 @@ class HorarioLaboralController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param HorarioLaboralRequest $request
+     * @return JsonResponse
      */
     public function store(HorarioLaboralRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Request', $request]);
         // Respuesta
-        $modelo = HorarioLaboral::create($request->validated());
+        $datos = $request->validated();
+        Log::channel('testing')->info('Log', ['Datos en el store', $datos]);
+        $modelo = HorarioLaboral::create($datos);
         $modelo = new HorarioLaboralResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -53,8 +57,8 @@ class HorarioLaboralController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral  $horario
-     * @return \Illuminate\Http\Response
+     * @param HorarioLaboral $horario
+     * @return JsonResponse
      */
     public function show(HorarioLaboral $horario)
     {
@@ -65,9 +69,9 @@ class HorarioLaboralController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral  $horario
-     * @return \Illuminate\Http\Response
+     * @param HorarioLaboralRequest $request
+     * @param HorarioLaboral $horario
+     * @return JsonResponse
      */
     public function update(HorarioLaboralRequest $request, HorarioLaboral $horario)
     {
@@ -82,8 +86,8 @@ class HorarioLaboralController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral  $horario
-     * @return \Illuminate\Http\Response
+     * @param HorarioLaboral $horario
+     * @return JsonResponse
      */
     public function destroy(HorarioLaboral $horario)
     {

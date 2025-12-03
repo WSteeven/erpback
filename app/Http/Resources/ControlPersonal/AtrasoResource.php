@@ -22,8 +22,9 @@ class AtrasoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'empleado' => Empleado::extraerNombresApellidos($this->empleado),
-            'justificador' => Empleado::extraerNombresApellidos($this->justificador),
+            'empleado' => Empleado::extraerApellidosNombres($this->empleado),
+            'departamento' => $this->empleado->departamento->nombre ?? 'SIN DEPARTAMENTO',
+            'justificador' => Empleado::extraerApellidosNombres($this->justificador),
             'marcacion' => $this->marcacion_id,
             'marcaciones' => $this->marcacion->marcaciones,
             'fecha_atraso' => $this->fecha_atraso,
@@ -33,7 +34,7 @@ class AtrasoResource extends JsonResource
             'justificado' => $this->justificado,
             'justificacion' => $this->justificacion ?: '',
             'justificacion_atrasado' => $this->justificacion_atrasado,
-            'justificado_por_atrasado'=>!!$this->justificacion_atrasado,
+            'justificado_por_atrasado' => !!$this->justificacion_atrasado,
             'imagen_evidencia' => $this->imagen_evidencia ? url($this->imagen_evidencia) : null,
             'revisado' => $this->revisado,
         ];
@@ -46,6 +47,9 @@ class AtrasoResource extends JsonResource
             $modelo['marcacion'] = $this->marcacion_id;
         }
 
+        if ($controller_method == 'registrosAtrasos') {
+            $modelo['justificacion'] = $this->justificacion ? strip_tags($this->justificacion) : '';
+        }
 
         return $modelo;
     }

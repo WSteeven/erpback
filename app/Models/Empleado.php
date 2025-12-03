@@ -676,7 +676,7 @@ class Empleado extends Model implements Auditable
     public static function extraerApellidosNombres(Empleado|null $empleado)
     {
         if (is_null($empleado)) return null;
-        return $empleado->nombres . ' ' . $empleado->apellidos;
+        return $empleado->apellidos . ' ' . $empleado->nombres;
     }
 
     public static function obtenerNombresApellidosEmpleados(array $empleados_id)

@@ -24,6 +24,7 @@ class OficinaBiometrico extends Model implements  Auditable
         'longitud',
         'direccion_ip',
         'puerto', //opcional
+        'clave_acceso', //opcional
         'canton_id',
         'activo',
     ];

@@ -29,8 +29,9 @@ class OficinaBiometricoRequest extends FormRequest
             'direccion'=>'sometimes|nullable|string',
             'latitud'=>'sometimes|nullable|numeric|between:-90,90',
             'longitud'=>'sometimes|nullable|numeric|between:-180,180',
-            'direccion_ip'=>'sometimes|nullable|ip',
+            'direccion_ip'=>'sometimes|nullable|string',
             'puerto'=>'sometimes|nullable|integer|min:1|max:65535', // opcional
+            'clave_acceso'=>'sometimes|nullable|string',// requerido para principal
             'canton_id'=>'required|exists:cantones,id',
             'activo'=>'boolean',
         ];

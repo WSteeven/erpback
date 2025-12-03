@@ -11,6 +11,8 @@ use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
 use App\Jobs\RecursosHumanos\EnviarRolPagoJob;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\Descuento;
+use App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\User;
@@ -186,7 +188,7 @@ class RolPagoMesController extends Controller
             $es_quincena = $rol_pago->es_quincena;
             $reportes = $this->generateReportData($roles_pagos, $rol_pago->nombre);
             $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
-            // Log::channel('testing')->info('Log', ['191 - reportes', $es_quincena, $reportes]);
+//            Log::channel('testing')->info('Log', ['191 - reportes', $reportes]);
             $export_excel = new RolPagoMesExport($reportes, $es_quincena);
             $orientacion = $es_quincena ? 'portail' : 'landscape';
             $tipo_pagina = $es_quincena ? 'A4' : 'A2';
@@ -358,22 +360,26 @@ class RolPagoMesController extends Controller
         $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
         $departamento_gerencia = Departamento::where("nombre", Departamento::DEPARTAMENTO_GERENCIA)->first();
         $responsable_gerencia = $departamento_gerencia ? $departamento_gerencia->responsable : Empleado::find(117);
-        $creador_rol_pago = User::whereHas('empleado', function ($q){$q->where('estado', true);})->role(User::ROL_RECURSOS_HUMANOS)->permission('puede.elaborar.rol_pago')->first()->empleado;
+        $creador_rol_pago = User::whereHas('empleado', function ($q) {
+            $q->where('estado', true);
+        })->role(User::ROL_RECURSOS_HUMANOS)->permission('puede.elaborar.rol_pago')->first()->empleado;
         $results = RolPago::empaquetarListado($roles_pagos);
         $results = collect($results)->map(function ($elemento, $index) {
             $elemento['item'] = $index + 1;
             return $elemento;
         })->all();
+//        Log::channel('testing')->info('Log', ['roles-results', $roles_pagos, $results]);
         $column_names_egresos = $this->extractColumnNames($results, 'egresos', 'descuento', 'abreviatura');
         $column_names_ingresos = $this->extractColumnNames($results, 'ingresos', 'concepto_ingreso_info', 'abreviatura');
         $columnas_ingresos = array_unique($column_names_ingresos['ingresos']);
         $colum_ingreso_value = $this->columValues($results, $columnas_ingresos, 'ingresos', 'concepto_ingreso_info', true);
         $columnas_egresos = array_unique($column_names_egresos['egresos']);
+//        Log::channel('testing')->info('Log', ['info para colum values', $results, $columnas_egresos, 'egresos', 'descuento', true]);
         $colum_egreso_value = $this->columValues($results, $columnas_egresos, 'egresos', 'descuento', true);
         $max_column_egresos_value = count($columnas_egresos);
         $max_column_ingresos_value = count($columnas_ingresos);
 
-
+//        Log::channel('testing')->info('Log', ['column egreso value', $colum_egreso_value]);
         // Calculate the sum of specific columns from the main data array
         $sum_columns = [
             'salario' => 0,
@@ -467,7 +473,54 @@ class RolPagoMesController extends Controller
      * @param bool $abreviatura
      * @return array matriz llamada .
      */
-    private function columValues(array $data, array $column_name, string $key1, string $key2, bool $abreviatura = false)
+    private function columValues(array $data, array $column_name, string $key1, string $key2, bool $abreviatura = false): array
+    {
+        $arrayDescuentos = collect($column_name)->mapWithKeys(fn($col) => [$col => []])->toArray();
+//        Log::channel('testing')->info('Colum  name results', [$column_name, $arrayDescuentos]);
+// key1 = egresos, key2 = descuento
+        $allIds = collect($data)->pluck('id')->unique()->sort()->values();
+
+        foreach ($data as $rolMesEmpleado) {
+            $descuentos = $rolMesEmpleado[$key1] ?? [];
+
+            foreach ($descuentos as $descuento) {
+                $key = $abreviatura
+                    ? ($descuento->{$key2}->abreviatura ?? $descuento->{$key2}->nombre ?? null)
+                    : ($descuento->{$key2}->nombre ?? null);
+                if(is_null($key)) {
+                    $descuentoDB = Descuento::find($descuento->{$key2}->descuento_id);
+                    $key =  $descuentoDB->tipoDescuento->abreviatura ?? $descuentoDB->multa->abreviatura ?? 'OTROS DESC.';
+                }
+
+                if (!$key || !in_array($key, $column_name, true)) {
+                    continue;
+                }
+
+                $arrayDescuentos[$key][] = [
+                    'id'    => $rolMesEmpleado['id'],
+                    'valor' => $descuento->monto ?? 0,
+                ];
+            }
+        }
+
+        // Completar con ceros donde falta el id
+        foreach ($arrayDescuentos as $col => &$items) {
+            $existing = collect($items)->pluck('id')->flip();
+            $missing = $allIds->diff($existing->keys());
+
+            foreach ($missing as $id) {
+                $items[] = ['id' => $id, 'valor' => 0];
+            }
+
+            // Ordenar por id
+            usort($items, fn($a, $b) => $a['id'] <=> $b['id']);
+        }
+
+//        Log::channel('testing')->info('Colum values result', ['data' => $arrayDescuentos]);
+
+        return $this->eliminarDuplicados($arrayDescuentos);
+    }
+    private function columValuesOld(array $data, array $column_name, string $key1, string $key2, bool $abreviatura = false)
     {
         // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
         $grouped_data = [];
@@ -488,6 +541,7 @@ class RolPagoMesController extends Controller
                 }
             }
         }
+//        Log::channel('testing')->info('Log', ['Grouped data', $grouped_data]);
         return $this->eliminarDuplicados($grouped_data);
     }
 
@@ -538,7 +592,13 @@ class RolPagoMesController extends Controller
         foreach ($results as $item) {
             if ($item[$key1 . '_cantidad_columna'] > 0) {
                 foreach ($item[$key1] as $subitem) {
-                    $column_names[$key1][] = $subitem[$key2][$columnName];
+                    if (is_null($subitem[$key2][$columnName])) {
+                        $descuento = Descuento::find($subitem[$key2]['descuento_id']);
+                        $column_names[$key1][] = $descuento->tipoDescuento->abreviatura ?? $descuento->multa->abreviatura ?? 'OTROS DESC.';
+//                        Log::channel('testing')->info('Log', ['$subitem[$key2][$columnName] es nulo', $descuento->tipoDescuento->abreviatura ?? $descuento->multa->abreviatura ?? 'OTROS DESC.']);
+                    } else {
+                        $column_names[$key1][] = $subitem[$key2][$columnName];
+                    }
                 }
             }
         }
@@ -695,7 +755,7 @@ class RolPagoMesController extends Controller
             }
 
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['erro tablaRoles', $ex->getMessage(), $ex->getLine()]);
+            Log::channel('testing')->info('Log', ['error crearRolIndividualMensualEmpleado', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],
             ]);

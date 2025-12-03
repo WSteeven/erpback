@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CargoResource extends JsonResource
+class ConceptoIngresoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
@@ -18,9 +18,8 @@ class CargoResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'area' => $this->area,
-            'estado' => $this->estado,
-            'aprobado_rrhh' => $this->aprobado_rrhh,
+            'calculable_iess' => $this->calculable_iess,
+            'abreviatura' => $this->abreviatura,
         ];
     }
 }

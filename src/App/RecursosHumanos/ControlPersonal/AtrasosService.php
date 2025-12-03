@@ -49,16 +49,23 @@ class AtrasosService
                 $horaSalida = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->hora_salida)->format('H:i:s'));
 
                 $marcacionesBiometrico = $marcacion->marcaciones;
-                $totalMarcaciones = count($marcacionesBiometrico);
+                $totalMarcaciones = 0;
+                $horas = collect();
+
+                foreach ($marcacionesBiometrico as $marcacionBiometrico) {
+                    foreach ($marcacionBiometrico as $hora) {
+                        if($hora && trim($hora)!== ''){
+                            $horas->push(Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $hora));
+                            $totalMarcaciones++;
+                        }
+                    }
+                }
 
                 // Saltar días sin marcaciones
                 if ($totalMarcaciones === 0) continue;
 
-                // Convertir marcaciones a objetos Carbon ordenados
-                $horas = collect($marcacionesBiometrico)
-                    ->map(fn($h) => Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $h))
-                    ->sort()
-                    ->values();
+                // Ordenar las horas
+                $horas = $horas->sort()->values();
 
                 $primeraHora = $horas->first();
 

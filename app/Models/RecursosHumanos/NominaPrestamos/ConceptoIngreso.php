@@ -53,7 +53,12 @@ class ConceptoIngreso extends Model implements Auditable
     protected $table = 'concepto_ingresos';
     protected $fillable = [
         'nombre',
-        'calculable_iess'
+        'calculable_iess',
+        'abreviatura',
+    ];
+
+    protected $casts = [
+        'calculable_iess' => 'boolean'
     ];
 
     const BONIFICACION_ID = 4;
@@ -72,7 +77,7 @@ class ConceptoIngreso extends Model implements Auditable
     {
         // se obtiene el id o se crea vacaciones en caso de que no haya
         $conceptoVacacion = ConceptoIngreso::where('nombre', ConceptoIngreso::VACACION)->first();
-        if(!$conceptoVacacion) {
+        if (!$conceptoVacacion) {
             $conceptoVacacion = ConceptoIngreso::create(['nombre' => ConceptoIngreso::VACACION,
                 'calculable_iess' => false,
                 'abreviatura' => 'VAC']);

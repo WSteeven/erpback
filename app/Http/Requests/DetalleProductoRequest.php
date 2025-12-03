@@ -41,6 +41,8 @@ class DetalleProductoRequest extends FormRequest
             'varios_items' => 'boolean',
             'subida_masiva' => 'boolean',
             'archivo' => [
+                'sometimes',
+                'nullable',
                 'required_if:subida_masiva,true',
                 'file', 'mimes:xlsx,xls',
                 'max:10240', // 10 MB maximo,

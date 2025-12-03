@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RecursosHumanos\CargoRequest;
 use App\Http\Resources\CargoResource;
 use App\Models\Cargo;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Src\Shared\Utils;
 
 class CargoController extends Controller
 {
-    private $entidad = 'Cargo';
+    private string $entidad = 'Cargo';
     public function __construct()
     {
         $this->middleware('can:puede.ver.cargos')->only('index', 'show');
@@ -23,7 +23,7 @@ class CargoController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function index()
     {
@@ -35,8 +35,8 @@ class CargoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param CargoRequest $request
+     * @return JsonResponse
      */
     public function store(CargoRequest $request)
     {
@@ -52,8 +52,8 @@ class CargoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Cargo  $cargo
-     * @return \Illuminate\Http\Response
+     * @param Cargo $cargo
+     * @return JsonResponse
      */
     public function show(Cargo $cargo)
     {
@@ -65,9 +65,9 @@ class CargoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Cargo  $cargo
-     * @return \Illuminate\Http\Response
+     * @param CargoRequest $request
+     * @param Cargo $cargo
+     * @return JsonResponse
      */
     public function update(CargoRequest $request, Cargo $cargo)
     {
@@ -82,8 +82,8 @@ class CargoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Cargo  $cargo
-     * @return \Illuminate\Http\Response
+     * @param Cargo $cargo
+     * @return JsonResponse
      */
     public function destroy(Cargo $cargo)
     {

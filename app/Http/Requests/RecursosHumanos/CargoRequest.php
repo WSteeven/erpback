@@ -26,6 +26,7 @@ class CargoRequest extends FormRequest
     {
         $rules = [
             'nombre' => 'required|unique:cargos',
+            'area' => 'sometimes|nullable|string',
             'estado' => 'boolean',
             'aprobado_rrhh' => 'boolean'
         ];

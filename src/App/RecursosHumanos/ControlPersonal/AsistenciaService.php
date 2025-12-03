@@ -3,12 +3,15 @@
 namespace Src\App\RecursosHumanos\ControlPersonal;
 
 use App\Models\ControlPersonal\Marcacion;
+use App\Models\ControlPersonal\OficinaBiometrico;
 use App\Models\Empleado;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Facades\Http; // <- corregido
+use Illuminate\Support\Facades\Http;
+
+// <- corregido
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -18,16 +21,10 @@ use Illuminate\Support\Facades\Log;
  */
 class AsistenciaService
 {
-    protected Client $client;
+//    protected Client $client;
 
     public function __construct()
     {
-        $this->client = new Client([
-            'base_uri' => env('HIKVISION_BASE_URL'),
-            'timeout'  => 10.0,
-            'auth'     => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
-            'verify'   => false,
-        ]);
     }
 
     /**
@@ -38,57 +35,57 @@ class AsistenciaService
      * @throws GuzzleException
      * @throws Exception
      */
-    public function obtenerRegistrosDiarios(): array
-    {
-        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
-        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-        $endTime   = Carbon::now()->endOfMonth()->toIso8601String();
-        /* $startTime = Carbon::now()->subMonth()->startOfMonth()->toIso8601String();
-        $endTime = Carbon::now()->subMonth()->endOfMonth()->toIso8601String(); */
-        $maxResults = 30; // Ajustar al límite del dispositivo
-        $searchResultPosition = 0;
-        $eventosTotales = [];
+    /*    public function obtenerRegistrosDiarios(): array
+        {
+            $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+            $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+            $endTime   = Carbon::now()->endOfMonth()->toIso8601String();
+            /* $startTime = Carbon::now()->subMonth()->startOfMonth()->toIso8601String();
+            $endTime = Carbon::now()->subMonth()->endOfMonth()->toIso8601String();
+            $maxResults = 30; // Ajustar al límite del dispositivo
+            $searchResultPosition = 0;
+            $eventosTotales = [];
 
-        try {
-            do {
-                // Crear las condiciones de búsqueda
-                $ascEventCond = [
-                    "searchID" => "1",
-                    "searchResultPosition" => $searchResultPosition,
-                    "maxResults" => $maxResults,
-                    "major" => 5,
-                    "minor" => 0,
-                    "startTime" => $startTime,
-                    "endTime" => $endTime,
-                    "picEnable" => false,
-                    "eventAttribute" => "attendance",
-                    "currentVerifyMode" => "cardOrFaceOrFp",
-                    "timeReverseOrder" => true,
-                ];
+            try {
+                do {
+                    // Crear las condiciones de búsqueda
+                    $ascEventCond = [
+                        "searchID" => "1",
+                        "searchResultPosition" => $searchResultPosition,
+                        "maxResults" => $maxResults,
+                        "major" => 5,
+                        "minor" => 0,
+                        "startTime" => $startTime,
+                        "endTime" => $endTime,
+                        "picEnable" => false,
+                        "eventAttribute" => "attendance",
+                        "currentVerifyMode" => "cardOrFaceOrFp",
+                        "timeReverseOrder" => true,
+                    ];
 
-                // Realizar la consulta
-                $response = $this->client->post($endpoint, [
-                    "json" => ["AcsEventCond" => $ascEventCond],
-                ]);
+                    // Realizar la consulta
+                    $response = $this->client->post($endpoint, [
+                        "json" => ["AcsEventCond" => $ascEventCond],
+                    ]);
 
-                $data = json_decode($response->getBody(), true);
+                    $data = json_decode($response->getBody(), true);
 
-                // Validar que la respuesta contiene eventos
-                if (isset($data['AcsEvent']['InfoList']) && is_array($data['AcsEvent']['InfoList'])) {
-                    $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
-                    $searchResultPosition += count($data['AcsEvent']['InfoList']);
-                } else {
-                    break; // Salir si no hay más eventos
-                }
-            } while (count($data['AcsEvent']['InfoList']) === $maxResults);
+                    // Validar que la respuesta contiene eventos
+                    if (isset($data['AcsEvent']['InfoList']) && is_array($data['AcsEvent']['InfoList'])) {
+                        $eventosTotales = array_merge($eventosTotales, $data['AcsEvent']['InfoList']);
+                        $searchResultPosition += count($data['AcsEvent']['InfoList']);
+                    } else {
+                        break; // Salir si no hay más eventos
+                    }
+                } while (count($data['AcsEvent']['InfoList']) === $maxResults);
 
-            return $eventosTotales;
-        } catch (Exception $e) {
-            // Manejar errores en caso de falla
-            Log::channel('testing')->info('Log', ['Exception en obtenerRegistrosDiarios:', $e->getLine(), $e->getMessage()]);
-            throw $e;
-        }
-    }
+                return $eventosTotales;
+            } catch (Exception $e) {
+                // Manejar errores en caso de falla
+                Log::channel('testing')->info('Log', ['Exception en obtenerRegistrosDiarios:', $e->getLine(), $e->getMessage()]);
+                throw $e;
+            }
+        }*/
 
     /**
      * Mantiene tu flujo actual: Napoleón vía FastAPI.
@@ -114,11 +111,25 @@ class AsistenciaService
         }
     }
 
+    private function parseHikvisionUrls($biometricos)
+    {
+        $results = [];
+        foreach ($biometricos as $biometrico) {
+            $url = $biometrico->puerto ? $biometrico->direccion_ip . ':' . $biometrico->puerto : $biometrico->direccion_ip;
+            $r['nombre'] = $biometrico->nombre;
+            $r['url'] = $url;
+            $r['x-api-key'] = $biometrico->clave_acceso;
+            $results[] = $r;
+        }
+//        Log::channel('testing')->info('Hikvision parseHikvisionUrls', [$results]);
+        return $results;
+    }
+
     /**
      * NUEVO: parsea HIKVISION_URLS en una lista de URLs normalizadas (con / al final),
      * excluyendo el HIKVISION_BASE_URL si por accidente fue incluido.
      */
-    private function parseHikvisionUrls(): array
+    private function parseHikvisionUrlsLegacy(): array
     {
         $raw = env('HIKVISION_URLS', '');
         if (!$raw) return [];
@@ -151,18 +162,18 @@ class AsistenciaService
      *
      * @throws GuzzleException
      */
-    private function fetchFromBiometrico(string $baseUrl): array
+    private function fetchFromBiometricoLegacy(string $baseUrl): array
     {
         $client = new Client([
             'base_uri' => $baseUrl,
-            'timeout'  => 10.0,
-            'auth'     => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
-            'verify'   => false,
+            'timeout' => 10.0,
+            'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+            'verify' => false,
         ]);
 
-        $endpoint   = 'ISAPI/AccessControl/AcsEvent?format=json';
-        $startTime  = Carbon::now()->startOfMonth()->toIso8601String();
-        $endTime    = Carbon::now()->endOfMonth()->toIso8601String();
+        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
         $maxResults = 30;
 
         $ascEventCondBase = [
@@ -182,12 +193,12 @@ class AsistenciaService
 
         do {
             $ascEventCond = $ascEventCondBase + [
-                "searchResultPosition" => $pos,
-                "maxResults"           => $maxResults,
-            ];
+                    "searchResultPosition" => $pos,
+                    "maxResults" => $maxResults,
+                ];
 
-            $resp  = $client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
-            $data  = json_decode($resp->getBody(), true);
+            $resp = $client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+            $data = json_decode($resp->getBody(), true);
             $lista = $data['AcsEvent']['InfoList'] ?? [];
 
             if (!is_array($lista) || empty($lista)) break;
@@ -200,9 +211,72 @@ class AsistenciaService
 
             $pos += count($lista);
         } while (count($lista) === $maxResults);
-
+//        Log::channel('testing')->info('Hikvision fetchFromBiometrico->todos', [$todos]);
         return $todos;
     }
+
+    private function fetchFromBiometrico(array $biometricoRow): array
+    {
+
+        $client = new Client([
+            'base_uri' => $biometricoRow['url'],
+//            'base_uri' => $baseUrl,
+            'timeout' => 10.0,
+            'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+            'verify' => false,
+        ]);
+
+        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+        $startTime = Carbon::now()->startOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+        $maxResults = 30;
+
+        $ascEventCondBase = [
+            "searchID" => "1",
+            "major" => 5,
+            "minor" => 0,
+            "startTime" => $startTime,
+            "endTime" => $endTime,
+            "picEnable" => false,
+            "eventAttribute" => "attendance",
+            "currentVerifyMode" => "cardOrFaceOrFp",
+            "timeReverseOrder" => true,
+        ];
+
+        $todos = [];
+        $pos = 0;
+
+        do {
+            $ascEventCond = $ascEventCondBase + [
+                    "searchResultPosition" => $pos,
+                    "maxResults" => $maxResults,
+                ];
+            if (isset($biometricoRow['x-api-key'])) {
+                $response = Http::withHeaders(['x-api-key' => $biometricoRow['x-api-key']])
+                    ->withOptions(['verify' => false])
+                    ->timeout(90)
+                    ->get($biometricoRow['url']);
+                $lista = $response['eventos'];
+            } else {
+                $resp = $client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+                $data = json_decode($resp->getBody(), true);
+                $lista = $data['AcsEvent']['InfoList'] ?? [];
+            }
+
+            if (!is_array($lista) || empty($lista)) break;
+
+            // Etiqueta el origen por si luego lo quieres usar (no afecta tu pipeline)
+            foreach ($lista as $ev) {
+                $ev['biometrico'] = trim($biometricoRow['nombre']);
+                $todos[] = $ev;
+            }
+
+            $pos += count($lista);
+        } while (count($lista) === $maxResults);
+//        Log::channel('testing')->info('Hikvision fetchFromBiometrico->todos', [$biometricoRow, $todos]);
+        return $todos;
+    }
+
 
     /**
      * NUEVO: recolecta eventos de TODOS los biométricos listados en HIKVISION_URLS (excepto Napoleón).
@@ -218,9 +292,9 @@ class AsistenciaService
                 $acumulado = array_merge($acumulado, $this->fetchFromBiometrico($url));
             } catch (Exception $e) {
                 Log::channel('testing')->warning('Hikvision extra falló', [
-                    'url'  => $url,
+                    'url' => $url,
                     'line' => $e->getLine(),
-                    'msg'  => $e->getMessage(),
+                    'msg' => $e->getMessage(),
                 ]);
                 // continúa con los demás
             }
@@ -228,16 +302,45 @@ class AsistenciaService
         return $acumulado;
     }
 
+    public function obtenerRegistrosOficinasBiometricos(): array
+    {
+        $biometricos = OficinaBiometrico::where('activo', true)->get();
+        $urls = $this->parseHikvisionUrls($biometricos);
+        if (empty($urls)) return [];
+
+        $acumulado = [];
+        foreach ($urls as $url) {
+            try {
+                $acumulado = array_merge($acumulado, $this->fetchFromBiometrico($url));
+            } catch (Exception $e) {
+                Log::channel('testing')->warning('Hikvision extra falló', [
+                    'url' => $url,
+                    'line' => $e->getLine(),
+                    'msg' => $e->getMessage(),
+                ]);
+                // continúa con los demás
+            }
+        }
+        Log::channel('testing')->info('Hikvision obtener todos los registros', [$acumulado]);
+        return $acumulado;
+    }
+
+
     /**
      * NUEVO: fusiona Napoleón (vía FastAPI) + otros biométricos (vía ISAPI múltiple).
      *
      * @throws Exception
      */
-    public function obtenerRegistrosTodosBiometricos(): array
+    public function obtenerRegistrosTodosBiometricosLegacy(): array
     {
         $napoleon = $this->obtenerRegistrosMesFASTAPI(); // se mantiene tu forma actual
-        $otros    = $this->obtenerRegistrosOtrosBiometricos();
+        $otros = $this->obtenerRegistrosOtrosBiometricos();
         return array_merge($napoleon, $otros);
+    }
+
+    public function obtenerRegistrosTodosBiometricos(): array
+    {
+        return $this->obtenerRegistrosOficinasBiometricos();
     }
 
     /**
@@ -270,7 +373,7 @@ class AsistenciaService
                 $fechaEvento = Carbon::parse($evento['time'])->format('Y-m-d');
                 $eventosAgrupados[$evento['name']][$fechaEvento][] = $evento;
             }
-
+//            Log::channel('testing')->info('Eventos agrupados', [$eventosAgrupados]);
             foreach ($eventosAgrupados as $nombreEmpleado => $fechas) {
                 $this->guardarEventosEmpleado($fechas);
             }
@@ -286,11 +389,12 @@ class AsistenciaService
             // se tiene el dia y los eventos, falta obtener la cedula del empleado, pero primero filtramos los eventos para eliminar los duplicados en segundos
             $eventosFiltrados = $this->filtrarEventosPorTiempo($eventos);
 
+//            Log::channel('testing')->info('Eventos filtrados', [$eventosFiltrados]);
             // se mapea las fechas de los eventos filtrados, ya que esos registros irán a las marcaciones como un json
             $marcaciones = array_map(function ($evento) {
-                return Carbon::parse($evento['time'])->format('H:i:s');
+                return [$evento['biometrico']=> Carbon::parse($evento['time'])->format('H:i:s')];
             }, $eventosFiltrados);
-
+//            Log::channel('testing')->info('marcaciones', [$marcaciones]);
             // obtenemos el empleado
             if (empty($eventosFiltrados)) {
                 continue;

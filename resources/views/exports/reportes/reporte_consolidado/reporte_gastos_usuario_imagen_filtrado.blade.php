@@ -17,7 +17,6 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
             background-image: url({{ Utils::urlToBase64(url($configuracion->logo_marca_agua)) }});
             background-size: 50% auto;
             background-repeat: no-repeat;
@@ -27,9 +26,9 @@
         /** Definir las reglas del encabezado **/
         header {
             position: fixed;
-            top: 0cm;
-            left: 0cm;
-            right: 0cm;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 2cm;
 
             /** Estilos extra personales **/
@@ -41,8 +40,8 @@
         footer {
             position: fixed;
             bottom: 5px;
-            left: 0cm;
-            right: 0cm;
+            left: 0;
+            right: 0;
             height: 2cm;
 
             /** Estilos extra personales **/
@@ -58,8 +57,8 @@
         main {
             position: relative;
             top: 80px;
-            left: 0cm;
-            right: 0cm;
+            left: 0;
+            right: 0;
             margin-bottom: 4.3cm;
             font-size: 12px;
         }
@@ -78,7 +77,6 @@
             width: 100%;
         }
 
-        }
     </style>
 </head>
 
@@ -89,7 +87,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ Utils::urlToBase64(url($configuracion->logo_claro)) }}" width="90" alt="logo"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">{{ $titulo }}</b></div>
@@ -102,9 +100,9 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
+                    <div style="margin: 0 0;" align="center">{{ $copyright }}
                     </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                    <div style="margin: 0;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
@@ -117,9 +115,8 @@
     </footer>
     <main>
         @if ($subtitulo != '')
-            <p
-                style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
-            <div align="center" style=" background-color:#bfbfbf;"><strong>{{ $subtitulo }} </strong></div>
+            <p style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px; font-weight:bold; margin-top: -6px;">
+                <div align="center" style=" background-color:#bfbfbf;"><strong>{{ $subtitulo }} </strong></div>
             </p>
             <br>
         @endif
