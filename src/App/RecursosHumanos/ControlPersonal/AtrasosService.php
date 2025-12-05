@@ -19,7 +19,7 @@ use Throwable;
 class AtrasosService
 {
     /**
-     * Sincroniza todos los atrasos del mes de entrada y regreso de pausa
+     * Sincroniza todos los atrasos del mes actual, de entrada y regreso de pausa
      * con base en las marcaciones biométricas.
      * @throws Throwable
      */
@@ -201,7 +201,7 @@ class AtrasosService
      * Verifica al final del día si los empleados tienen las 4 marcaciones esperadas.
      * Idealmente se ejecuta mediante un cron a las 23:59:59.
      */
-    public function verificarMarcacionesCompletasDelDia()
+    /*public function verificarMarcacionesCompletasDelDia()
     {
         try {
             $fechaHoy = Carbon::today()->format('Y-m-d');
@@ -282,7 +282,7 @@ class AtrasosService
             ]);
             throw $e;
         }
-    }
+    }*/
 
     /**
      * Registra un atraso evitando duplicados y enviando notificaciones.
@@ -335,7 +335,7 @@ class AtrasosService
     /**
      * Registra anomalías (como faltantes de marcaciones).
      */
-    private function guardarAnomalia(Empleado $empleado, Marcacion $marcacion, string $tipo, string $detalle)
+    /*private function guardarAnomalia(Empleado $empleado, Marcacion $marcacion, string $tipo, string $detalle)
     {
         try {
             DB::beginTransaction();
@@ -376,5 +376,5 @@ class AtrasosService
                 'message' => $e->getMessage(),
             ]);
         }
-    }
+    }*/
 }

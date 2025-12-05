@@ -380,7 +380,7 @@ class AsistenciaService
         $acumulado = [];
         foreach ($urls as $url) {
             try {
-                $hoy = Carbon::parse('2025-12-05');
+                $hoy = Carbon::now();
                 $acumulado = array_merge($acumulado, $this->fetchFromBiometricoPorDia($url, $hoy));
             } catch (Exception $e) {
                 Log::channel('testing')->warning('Hikvision extra falló', [
