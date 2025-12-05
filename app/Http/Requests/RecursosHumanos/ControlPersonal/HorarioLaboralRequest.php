@@ -25,9 +25,10 @@ class HorarioLaboralRequest extends FormRequest
     {
         return [
             'nombre' => 'required|string',
-            'dia' => 'required|string',
+            'dias' => 'required|array',
             'hora_entrada' => ['required', 'date_format:H:i'],
             'hora_salida' => ['required', 'date_format:H:i'],
+            'es_turno_de_noche' => 'boolean',
             'tiene_pausa' => 'boolean',
             'activo' => 'boolean',
             'inicio_pausa' => ['nullable', 'required_if_accepted:tiene_pausa', 'date_format:H:i'],

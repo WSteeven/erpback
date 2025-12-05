@@ -29,7 +29,7 @@ class HorarioLaboralController extends Controller
      */
     public function index()
     {
-        $results = HorarioLaboral::filter()->orderBy('nombre')->get();
+        $results = HorarioLaboral::filter()->orderBy('nombre','desc')->get();
         $results = HorarioLaboralResource::collection($results);
 
         return response()->json(compact('results'));
@@ -43,10 +43,9 @@ class HorarioLaboralController extends Controller
      */
     public function store(HorarioLaboralRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Request', $request]);
+
         // Respuesta
         $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['Datos en el store', $datos]);
         $modelo = HorarioLaboral::create($datos);
         $modelo = new HorarioLaboralResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

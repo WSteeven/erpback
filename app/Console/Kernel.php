@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('clean:temp-images')->daily();
         $schedule->command('clean:old-files')->daily(); // para borrar diariamente las imagenes que ya cumplan el periodo valido
 
-        $schedule->command('hikvision:fetch-records')->weekdays()->between('08:05', '19:05')->everyThirtyMinutes();
+        $schedule->command('hikvision:fetch-records')->daily()->everyThirtyMinutes();
 
         // $schedule->command('inspire')->hourly();
         // $schedule->job(new MyJobExample)->everyMinute(); // Execute job every 5 minutes

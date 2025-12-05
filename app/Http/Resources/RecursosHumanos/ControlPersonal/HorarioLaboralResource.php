@@ -16,17 +16,18 @@ class HorarioLaboralResource extends JsonResource
      */
     public function toArray($request)
     {
-        $tipos_horarios = ['Normal', 'Nocturno', 'Fin de semana'];
+        $tipos_horarios = ['NORMAL', 'NOCTURNO', 'FIN DE SEMANA'];
 
         return [
             'id' => $this->id,
-            'tipo' => in_array($this->nombre, $tipos_horarios) ? $this->nombre : 'Personalizado',
+            'tipo' => in_array($this->nombre, $tipos_horarios) ? $this->nombre : 'PERSONALIZADO',
             'nombre' => $this->nombre,
-            'dia' => $this->dia,
+            'dias' => $this->dias,
             'inicio_pausa' => $this->inicio_pausa ? Carbon::parse($this->inicio_pausa)->format('H:i') : null,
             'fin_pausa' => $this->inicio_pausa ? Carbon::parse($this->fin_pausa)->format('H:i') : null,
             'tiene_pausa' => !!($this->inicio_pausa || $this->fin_pausa),
             'activo' => $this->activo,
+            'es_turno_de_noche' => $this->es_turno_de_noche,
             'hora_entrada' => $this->hora_entrada ? Carbon::parse($this->hora_entrada)->format('H:i') : null,
             'hora_salida' => $this->hora_salida ? Carbon::parse($this->hora_salida)->format('H:i') : null,
         ];

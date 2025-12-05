@@ -12,6 +12,7 @@ use App\Models\Medico\Religion;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
+use App\Models\RecursosHumanos\ControlPersonal\HorarioEmpleado;
 use App\Models\RecursosHumanos\EmpleadoDelegado;
 use App\Models\RecursosHumanos\NominaPrestamos\BancoHorasMovimiento;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
@@ -442,6 +443,11 @@ class Empleado extends Model implements Auditable
     public function jefe()
     {
         return $this->belongsTo(Empleado::class, 'jefe_id');
+    }
+
+    public function horarioEmpleado()
+    {
+        return $this->hasMany(HorarioEmpleado::class, 'empleado_id', 'id');
     }
 
     /**

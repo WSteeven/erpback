@@ -6,6 +6,7 @@
 use App\Http\Controllers\ControlPersonal\AtrasoController;
 use App\Http\Controllers\ControlPersonal\MarcacionController;
 use App\Http\Controllers\ControlPersonal\OficinaBiometricoController;
+use App\Http\Controllers\RecursosHumanos\ControlPersonal\HorarioEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\ControlPersonal\HorarioLaboralController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,7 @@ Route::apiResources(
     [
         'atrasos' => AtrasoController::class,
         'horarios-laborales' => HorarioLaboralController::class,
+        'horarios-empleados' => HorarioEmpleadoController::class,
         'marcaciones' => MarcacionController::class,
         'oficinas' => OficinaBiometricoController::class,
     ],
@@ -22,6 +24,7 @@ Route::apiResources(
             'asistencias' => 'asistencia',
             'atrasos' => 'atraso',
             'horarios-laborales' => 'horario',
+            'horarios-empleados' => 'horario',
             'marcaciones' => 'marcacion',
         ]
 

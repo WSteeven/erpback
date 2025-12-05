@@ -30,9 +30,8 @@ class FetchHikvisionRecords extends Command
     /**
      * Execute the console command.
      *
+     * @param AtrasosService $service
      * @return int
-     * @throws GuzzleException
-     * @throws Throwable
      */
 //    public function handle(AsistenciaService $service)
     public function handle(AtrasosService $service)

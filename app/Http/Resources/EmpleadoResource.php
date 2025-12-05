@@ -118,6 +118,10 @@ class EmpleadoResource extends JsonResource
             $modelo['realiza_factura'] = $this->realiza_factura;
             $modelo['conductor'] = $this->conductor;
             $modelo['discapacidades'] = DiscapacidadUsuario::mapearDiscapacidades($this->user->discapacidades()->get());
+
+            //horario laboral
+            $modelo['tiene_horario_laboral'] = $this->horarioEmpleado->count() > 0;
+            $modelo['horario_laboral'] = $this->mapearHorariosEmpleado();
         }
 
         // Filtra los campos personalizados y añádelos a la respuesta si existen
@@ -130,6 +134,15 @@ class EmpleadoResource extends JsonResource
         }
 //        Log::channel('testing')->info('Log', ['EmpleadoResource', $modelo]);
         return count($campos) ? $data : $modelo;
+    }
+
+    private function mapearHorariosEmpleado()
+    {
+        if($this->horarioEmpleado->isEmpty()) {
+            return 'No tiene horario configurado.';
+        }
+
+        return $this->horarioEmpleado->map(fn ($horario) => $horario->horarioLaboral->nombre)->implode(', ');
     }
 
     public function antiguedad($fecha_ingreso)

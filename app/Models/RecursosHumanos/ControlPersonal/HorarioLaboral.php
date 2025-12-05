@@ -26,7 +26,8 @@ class HorarioLaboral extends Model implements Auditable
 
     protected $fillable = [
         'nombre',
-        'dia',
+        'dias',
+        'es_turno_de_noche',
         'hora_entrada',
         'hora_salida',
         'inicio_pausa',
@@ -39,20 +40,14 @@ class HorarioLaboral extends Model implements Auditable
         'hora_salida' => 'datetime:H:i',
         'inicio_pausa' => 'datetime:H:i',
         'fin_pausa' => 'datetime:H:i',
+        'dias' => 'json',
         'activo' => 'boolean',
+        'es_turno_de_noche' => 'boolean',
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-//    public function getHoraEntradaAttribute($value)
-//    {
-//        return \Carbon\Carbon::parse($value)->format('H:i');
-//    }
-
-//    public function getHoraSalidaAttribute($value)
-//    {
-//        return \Carbon\Carbon::parse($value)->format('H:i');
-//    }
+    const HORARIO_NORMAL = 'NORMAL';
 
     private static array $whiteListFilter = [
         '*',

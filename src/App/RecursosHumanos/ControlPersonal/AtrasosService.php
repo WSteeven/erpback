@@ -8,18 +8,20 @@ use App\Models\ControlPersonal\Atraso;
 use App\Models\ControlPersonal\Marcacion;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\ControlPersonal\HorarioLaboral;
-use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use Carbon\Carbon;
 use DB;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 use Throwable;
 
 class AtrasosService
 {
     /**
-     * Sincroniza atrasos de entrada y regreso de pausa
+     * Sincroniza todos los atrasos del mes de entrada y regreso de pausa
      * con base en las marcaciones biométricas.
+     * @throws Throwable
      */
     public function sincronizarAtrasos()
     {
@@ -29,80 +31,83 @@ class AtrasosService
         try {
             $ultimoAtraso = Atraso::latest()->first();
             $marcaciones = $ultimoAtraso
-                ? Marcacion::where('fecha', '>=', $ultimoAtraso->fecha_atraso)->orderBy('fecha', 'asc')->get()
+                ? Marcacion::where('fecha', '>=', Carbon::now()->startOfMonth())->orderBy('fecha', 'asc')->get()
                 : Marcacion::orderBy('fecha', 'asc')->get();
 
             foreach ($marcaciones as $marcacion) {
+                $fechaMarcacion = Carbon::parse($marcacion->fecha);
                 $empleado = Empleado::find($marcacion->empleado_id);
                 if (!$empleado) continue;
 
-                $dia = Carbon::parse($marcacion->fecha)->locale('es')->dayName;
-                $horario = HorarioLaboral::where('dia', 'LIKE', '%' . $dia . '%')
-                    ->where('activo', true)
-                    ->first();
+                $dia = $fechaMarcacion->locale('es')->dayName; //dia en español
 
-                if (!$horario) continue;
+                $horarios = $this->obtenerHorarioLaboralPorEmpleadoYDia($empleado, Utils::normalizarDiaSemana($dia));
+                if ($horarios->isEmpty()) continue;
 
-                $fechaMarcacion = Carbon::parse($marcacion->fecha);
-                $horaEntrada = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->hora_entrada)->format('H:i:s'));
-                $finPausa = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->fin_pausa)->format('H:i:s'));
-                $horaSalida = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->hora_salida)->format('H:i:s'));
+                // Si hay múltiples horarios, se recorre cada ambos para calcular los atrasos en base a cada uno
+                foreach ($horarios as $horario) {
+                    $horaEntrada = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->hora_entrada)->format('H:i:s'));
+                    $finPausa = $horario->fin_pausa ? Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->fin_pausa)->format('H:i:s')) : null;
+                    $horaSalida = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->hora_salida)->format('H:i:s'));
 
-                $marcacionesBiometrico = $marcacion->marcaciones;
-                $totalMarcaciones = 0;
-                $horas = collect();
+                    $marcacionesBiometrico = $marcacion->marcaciones;
+                    $totalMarcaciones = 0;
+                    $horas = collect();
 
-                foreach ($marcacionesBiometrico as $marcacionBiometrico) {
-                    foreach ($marcacionBiometrico as $hora) {
-                        if($hora && trim($hora)!== ''){
-                            $horas->push(Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $hora));
-                            $totalMarcaciones++;
+                    foreach ($marcacionesBiometrico as $marcacionBiometrico) {
+                        foreach ($marcacionBiometrico as  $hora) {
+                            if ($hora && trim($hora) !== '') {
+                                $horas->push(Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . $hora));
+                                $totalMarcaciones++;
+                            }
                         }
                     }
-                }
 
-                // Saltar días sin marcaciones
-                if ($totalMarcaciones === 0) continue;
+                    // Saltar días sin marcaciones
+                    if ($totalMarcaciones === 0) continue;
 
-                // Ordenar las horas
-                $horas = $horas->sort()->values();
+                    // Ordenar las horas
+                    $horas = $horas->sort()->values();
 
-                $primeraHora = $horas->first();
+                    $primeraHora = $horas->first();
 
-                // VALIDACIÓN: ATRASO EN ENTRADA
-                if ($primeraHora->greaterThan($horaEntrada)) {
-                    $segundos = $primeraHora->diffInSeconds($horaEntrada);
-                    $this->guardarAtraso(Atraso::ENTRADA, $segundos, $marcacion);
+                    // VALIDACIÓN: ATRASO EN ENTRADA
+                    if ($primeraHora->greaterThan($horaEntrada)) {
+                        $segundos = $primeraHora->diffInSeconds($horaEntrada);
+                        $this->guardarAtraso(Atraso::ENTRADA, $segundos, $marcacion);
 
-                    Log::channel('testing')->info('Atraso registrado en hora de entrada.', [
-                        'empleado' => $empleado->nombres,
-                        'hora_marcacion' => $primeraHora->format('H:i:s'),
-                        'hora_entrada' => $horaEntrada->format('H:i:s'),
-                        'segundos' => $segundos,
-                        'minutos' => round($segundos / 60, 2)
-                    ]);
-                }
-
-                // VALIDACIÓN: ATRASO EN REGRESO DE PAUSA
-                $marcacionesDespuesPausa = $horas->filter(fn($h) => $h->greaterThan($finPausa));
-                if ($marcacionesDespuesPausa->isNotEmpty()) {
-                    $primeraRegresoPausa = $marcacionesDespuesPausa->first();
-
-                    if ($primeraRegresoPausa->lessThan($horaSalida) && $primeraRegresoPausa->greaterThan($finPausa)) {
-                        $segundos = $primeraRegresoPausa->diffInSeconds($finPausa);
-                        $this->guardarAtraso(Atraso::PAUSA, $segundos, $marcacion);
-
-                        Log::channel('testing')->info('Atraso registrado en regreso de pausa.', [
+                        Log::channel('testing')->info('Atraso registrado en hora de entrada.', [
                             'empleado' => $empleado->nombres,
-                            'hora_marcacion' => $primeraRegresoPausa->format('H:i:s'),
-                            'hora_fin_pausa' => $finPausa->format('H:i:s'),
+                            'hora_marcacion' => $primeraHora->format('H:i:s'),
+                            'hora_entrada' => $horaEntrada->format('H:i:s'),
                             'segundos' => $segundos,
                             'minutos' => round($segundos / 60, 2)
                         ]);
                     }
+
+                    // VALIDACIÓN: ATRASO EN REGRESO DE PAUSA
+                    $marcacionesDespuesPausa = $horas->filter(fn($h) => $h->greaterThan($finPausa));
+                    if ($marcacionesDespuesPausa->isNotEmpty()) {
+                        $primeraRegresoPausa = $marcacionesDespuesPausa->first();
+
+                        if ($primeraRegresoPausa->lessThan($horaSalida) && $primeraRegresoPausa->greaterThan($finPausa)) {
+                            $segundos = $primeraRegresoPausa->diffInSeconds($finPausa);
+                            $this->guardarAtraso(Atraso::PAUSA, $segundos, $marcacion);
+
+                            Log::channel('testing')->info('Atraso registrado en regreso de pausa.', [
+                                'empleado' => $empleado->nombres,
+                                'hora_marcacion' => $primeraRegresoPausa->format('H:i:s'),
+                                'hora_fin_pausa' => $finPausa->format('H:i:s'),
+                                'segundos' => $segundos,
+                                'minutos' => round($segundos / 60, 2)
+                            ]);
+                        }
+                    }
+
+                    // Borrar atrasos mal registrados
+                    $this->borrarAtrasosMalRegistrados($empleado, $marcacion, $horario, $horas);
                 }
             }
-
             Log::channel('testing')->info('Sincronización de atrasos completada correctamente.');
         } catch (Exception $e) {
             Log::channel('testing')->error('Error en sincronizarAtrasos', [
@@ -113,6 +118,84 @@ class AtrasosService
             throw $e;
         }
     }
+
+    private function obtenerHorarioLaboralPorEmpleadoYDia(Empleado $empleado, string $dia)
+    {
+        $diaNormalizado = Utils::normalizarDiaSemana($dia);
+
+        // Si el empleado no tiene un horario asignado, buscar en el horario normal
+        if ($empleado->horarioEmpleado->isEmpty()) {
+            $horario = HorarioLaboral::where('nombre', HorarioLaboral::HORARIO_NORMAL)
+                ->whereJsonContains('dias', $diaNormalizado)->where('activo', true)->first();
+            return collect($horario ? [$horario] : []);
+        }
+        // Buscar en los horarios asignados al empleado
+        return $empleado->horarioEmpleado
+            ->map(fn($horarioEmpleado) => $horarioEmpleado->horarioLaboral)
+            ->filter(fn($horarioLaboral) => $horarioLaboral && in_array($diaNormalizado, $horarioLaboral->dias) && $horarioLaboral->activo)
+            ->values();
+
+    }
+
+    /**
+     * @throws Throwable
+     */
+    private function borrarAtrasosMalRegistrados(Empleado $empleado, Marcacion $marcacion, HorarioLaboral $horario, Collection $horasOrdenadas)
+    {
+        try {
+
+            $fechaMarcacion = Carbon::parse($marcacion->fecha);
+            $primeraMarcacion = $horasOrdenadas->first();
+            $horaEntrada = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->hora_entrada)->format('H:i:s'));
+            $finPausa = $horario->fin_pausa ? Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->fin_pausa)->format('H:i:s')) : null;
+            $horaSalida = Carbon::parse($fechaMarcacion->format('Y-m-d') . ' ' . Carbon::parse($horario->hora_salida)->format('H:i:s'));
+
+            // Borrar atraso de entrada si la primera marcación es antes o igual a la hora de entrada
+            if ($primeraMarcacion->lessThanOrEqualTo($horaEntrada)) {
+                $atraso = Atraso::where('empleado_id', $empleado->id)
+                    ->where('marcacion_id', $marcacion->id)
+                    ->where('ocurrencia', Atraso::ENTRADA)
+                    ->first();
+                $atraso?->notificaciones()->delete();
+                $atraso?->delete();
+                Log::channel('testing')->info("Atraso de ENTRADA eliminado junto a sus notificaciones (ya no aplica).", [
+                    'empleado' => $empleado->nombres,
+                    'fecha' => $fechaMarcacion,
+                    'primer_marcaje' => $primeraMarcacion,
+                    'hora_entrada' => $horaEntrada->toDateTimeString()
+                ]);
+            }
+            // Borrar atraso de regreso de pausa si la primera marcación después de la pausa es antes o igual al fin de pausa
+            if ($finPausa) {
+                $marcacionesDespuesPausa = $horasOrdenadas->filter(fn($h) => $h->greaterThan($finPausa));
+                $primerRegresoPausa = $marcacionesDespuesPausa->isNotEmpty() ? $marcacionesDespuesPausa->first() : null;
+                $hayAtrasoRegresoPausa = $primerRegresoPausa && $primerRegresoPausa->greaterThan($finPausa) && $primerRegresoPausa->lessThan($horaSalida);
+
+                // Si no hay atraso en regreso de pausa, eliminar el registro si existe
+                if (!$hayAtrasoRegresoPausa) {
+                    $atrasoPausa = Atraso::where('empleado_id', $empleado->id)
+                        ->where('marcacion_id', $marcacion->id)
+                        ->where('ocurrencia', Atraso::PAUSA)
+                        ->first();
+                    $atrasoPausa?->notificaciones()->delete();
+                    $atrasoPausa?->delete();
+                    Log::channel('testing')->info("Atraso de REGRESO DE PAUSA eliminado junto a sus notificaciones (ya no aplica).", [
+                        'empleado' => $empleado->nombres,
+                        'fecha' => $fechaMarcacion,
+                        'primer_regreso_pausa' => $primerRegresoPausa,
+                        'fin_pausa' => $finPausa->toDateTimeString()
+                    ]);
+                }
+            }
+        } catch (Throwable $e) {
+            Log::channel('testing')->error("Error en borrarAtrasosMalRegistrados", [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine()
+            ]);
+            throw $e;
+        }
+    }
+
 
     /**
      * Verifica al final del día si los empleados tienen las 4 marcaciones esperadas.
@@ -203,6 +286,7 @@ class AtrasosService
 
     /**
      * Registra un atraso evitando duplicados y enviando notificaciones.
+     * @throws Throwable
      */
     public function guardarAtraso(string $ocurrencia, int $segundos, Marcacion $marcacion)
     {

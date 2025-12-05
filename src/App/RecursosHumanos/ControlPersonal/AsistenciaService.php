@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Http;
 
 // <- corregido
 use Illuminate\Support\Facades\Log;
+use Tests\Models\Car;
 
 /**
  * TODO: Códigos de minor
@@ -215,6 +216,74 @@ class AsistenciaService
         return $todos;
     }
 
+    private function fetchFromBiometricoPorDia(array $biometricoRow, Carbon $dia): array
+    {
+
+        $client = new Client([
+            'base_uri' => $biometricoRow['url'],
+            'timeout' => 10.0,
+            'auth' => [env('HIKVISION_USER'), env('HIKVISION_PASSWORD'), 'digest'],
+            'verify' => false,
+        ]);
+
+        $startTime = $dia->copy()->startOfDay()->toIso8601String();
+        $endTime = $dia->copy()->endOfDay()->toIso8601String();
+
+        $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
+        $maxResults = 30;
+
+        $ascEventCondBase = [
+            "searchID" => "1",
+            "major" => 5,
+            "minor" => 0,
+            "startTime" => $startTime,
+            "endTime" => $endTime,
+            "picEnable" => false,
+            "eventAttribute" => "attendance",
+            "currentVerifyMode" => "cardOrFaceOrFp",
+            "timeReverseOrder" => true,
+        ];
+
+        $todos = [];
+        $pos = 0;
+
+        do {
+            $ascEventCond = $ascEventCondBase + [
+                    "searchResultPosition" => $pos,
+                    "maxResults" => $maxResults,
+                ];
+            if (isset($biometricoRow['x-api-key'])) {
+                $response = Http::withHeaders(['x-api-key' => $biometricoRow['x-api-key']])
+                    ->withOptions(['verify' => false])
+                    ->timeout(90)
+                    ->get($biometricoRow['url'], [
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
+                    ]);
+                $lista = $response['eventos'];
+            } else {
+                $resp = $client->post($endpoint, ["json" => ["AcsEventCond" => $ascEventCond]]);
+                $data = json_decode($resp->getBody(), true);
+                $lista = $data['AcsEvent']['InfoList'] ?? [];
+            }
+
+            if (!is_array($lista) || empty($lista)) break;
+
+            // Etiqueta el origen por si luego lo quieres usar (no afecta tu pipeline)
+            foreach ($lista as $ev) {
+                $ev['biometrico'] = trim($biometricoRow['nombre']);
+                $todos[] = $ev;
+            }
+
+            $pos += count($lista);
+        } while (count($lista) === $maxResults);
+        Log::channel('testing')->info('Hikvision fetchFromBiometrico->todos', [$biometricoRow['nombre'], $dia, array_filter($todos, function ($evento) {
+            return isset($evento['minor']) && in_array($evento['minor'], [75, 38]);
+        })]);
+        return $todos;
+    }
+
+
     private function fetchFromBiometrico(array $biometricoRow): array
     {
 
@@ -228,7 +297,7 @@ class AsistenciaService
 
         $endpoint = 'ISAPI/AccessControl/AcsEvent?format=json';
         $startTime = Carbon::now()->startOfMonth()->toIso8601String();
-        $endTime = Carbon::now()->endOfMonth()->toIso8601String();
+        $endTime = Carbon::now()->startOfMonth()->endOfDay()->toIso8601String();
         $maxResults = 30;
 
         $ascEventCondBase = [
@@ -273,7 +342,7 @@ class AsistenciaService
 
             $pos += count($lista);
         } while (count($lista) === $maxResults);
-//        Log::channel('testing')->info('Hikvision fetchFromBiometrico->todos', [$biometricoRow, $todos]);
+        Log::channel('testing')->info('Hikvision fetchFromBiometrico->todos', [$biometricoRow['nombre'], $todos]);
         return $todos;
     }
 
@@ -311,7 +380,8 @@ class AsistenciaService
         $acumulado = [];
         foreach ($urls as $url) {
             try {
-                $acumulado = array_merge($acumulado, $this->fetchFromBiometrico($url));
+                $hoy = Carbon::parse('2025-12-05');
+                $acumulado = array_merge($acumulado, $this->fetchFromBiometricoPorDia($url, $hoy));
             } catch (Exception $e) {
                 Log::channel('testing')->warning('Hikvision extra falló', [
                     'url' => $url,
@@ -391,30 +461,66 @@ class AsistenciaService
 
 //            Log::channel('testing')->info('Eventos filtrados', [$eventosFiltrados]);
             // se mapea las fechas de los eventos filtrados, ya que esos registros irán a las marcaciones como un json
-            $marcaciones = array_map(function ($evento) {
-                return [$evento['biometrico']=> Carbon::parse($evento['time'])->format('H:i:s')];
+            $marcacionesNuevas = array_map(function ($evento) {
+                return [$evento['biometrico'] => Carbon::parse($evento['time'])->format('H:i:s')];
             }, $eventosFiltrados);
 //            Log::channel('testing')->info('marcaciones', [$marcaciones]);
             // obtenemos el empleado
-            if (empty($eventosFiltrados)) {
-                continue;
-            }
+            if (empty($eventosFiltrados)) continue;
+
+
             $empleado = Empleado::where('identificacion', $eventosFiltrados[0]['cardNo'])->first();
-            if (!$empleado) {
-                continue;
-            } // se salta ese registro si no hay el cardNo, pero no debería entrar aquí
+            if (!$empleado) continue; // se salta ese registro si no hay el cardNo, pero no debería entrar aquí
 
             $marcacionExistente = Marcacion::where('empleado_id', $empleado->id)->where('fecha', $dia)->first();
             if ($marcacionExistente) {
-                $marcacionExistente->update(['marcaciones' => $marcaciones]);
+                // Unir marcaciones nuevas con existentes
+                $marcacionExistente->update(['marcaciones' => $this->normalizarMarcaciones($marcacionExistente, $marcacionesNuevas)]);
             } else {
                 $marcacion = new Marcacion();
                 $marcacion->empleado_id = $empleado->id;
                 $marcacion->fecha = $dia;
-                $marcacion->marcaciones = $marcaciones;
+                $marcacion->marcaciones = $marcacionesNuevas;
                 $marcacion->save();
             }
         }
+    }
+
+    /**
+     * Normaliza las marcaciones para no sobreescribir el array de marcaciones existentes,
+     * sino agregar nuevas siempre que llegue una nueva
+     * y si llega con alguna marcacion incompleta no se borre de las ya existentes.
+     * @param Marcacion $marcacionExistente
+     * @param array $marcacionesNuevas
+     * @return array
+     */
+    private function normalizarMarcaciones(Marcacion $marcacionExistente, array $marcacionesNuevas)
+    {
+        $marcacionesPrevias = $marcacionExistente->marcaciones ??[];
+        $unidas = array_merge($marcacionesPrevias, $marcacionesNuevas);
+
+        // Quitar duplicados por valor de hora
+        $hash = [];
+        $final = [];
+        foreach ($unidas as $u) {
+            $biometrico = array_keys($u)[0];
+            $hora = $u[$biometrico];
+            $key = $biometrico."_".$hora;
+
+            if(!isset($hash[$key])) {
+                $hash[$key] = true;
+                $final[] = $u;
+            }
+        }
+
+        // ordenamos cronologicamente
+        usort($final, function ($a, $b) {
+            $horaA = reset($a);
+            $horaB = reset($b);
+            return strcmp($horaA, $horaB);
+        });
+
+        return $final;
     }
 
     /**

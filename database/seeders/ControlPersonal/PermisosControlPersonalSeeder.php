@@ -49,6 +49,12 @@ class PermisosControlPersonalSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'horario_laboral'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'horario_laboral'])->syncRoles([$rrhh, $administrador]);
 
+        // Horarios de Empleados
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'horarios_empleados'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'horarios_empleados'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'horarios_empleados'])->syncRoles([$rrhh, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'horarios_empleados'])->syncRoles([$rrhh, $administrador]);
+
         // Oficinas Biometricos
         Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'oficinas_biometricos'])->syncRoles([$rrhh, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::VER . 'oficinas_biometricos'])->syncRoles([$rrhh, $administrador]);

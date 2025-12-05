@@ -250,6 +250,21 @@ class Utils
     }
 
     /**
+     * Normaliza el nombre del día de la semana eliminando tildes y ajustando mayúsculas o minúsculas.
+     * @param string $dia
+     * @param bool $mayusculas
+     * @return string
+     */
+    public static function normalizarDiaSemana(string $dia, bool $mayusculas = true)
+    {
+        $diaNormalizado = trim(str_replace(
+            ['Á', 'É', 'Í', 'Ó', 'Ú', 'á', 'é', 'í', 'ó', 'ú'],
+            ['A', 'E', 'I', 'O', 'U', 'a', 'e', 'i', 'o', 'u'],
+            $dia));
+        return $mayusculas ? strtoupper($diaNormalizado) : strtolower($diaNormalizado);
+    }
+
+    /**
      * Parsea los valores booleanos cuando se trabaja con FormData(envia toda variable en string),
      * para que tengan un valor booleano y no salte la validación.
      * @param $booleanFields
