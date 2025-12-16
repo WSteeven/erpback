@@ -14,7 +14,7 @@ use Src\Shared\Utils;
 
 class ConstanteVitalController extends Controller
 {
-    private $entidad = 'Constante Vital';
+    private string $entidad = 'Constante Vital';
 
     public function __construct()
     {

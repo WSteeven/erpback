@@ -97,7 +97,7 @@
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">ROL GENERAL</b>
+                    <div class="col-md-7" align="center"><b style="font-size: 75%">GENERAL: {{strtoupper($nombre)}}</b>
                     </div>
                 </td>
             </tr>
