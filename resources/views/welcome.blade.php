@@ -406,7 +406,7 @@
 
 <body class="antialiased">
     <div class="text-center py-4">
-        Bienvenido a JP CONSTRUCRED API
+        Bienvenido a la API
 
 
     </div>

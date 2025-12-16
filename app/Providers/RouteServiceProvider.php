@@ -45,17 +45,17 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api/tareas')
                 ->group(base_path('routes/api_tareas.php'));
 
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/vehiculos')
-                ->group(base_path('routes/api_vehiculos.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/vehiculos')
+//                ->group(base_path('routes/api_vehiculos.php'));
 
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/compras')
-                ->group(base_path('routes/api_compras_proveedores.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/compras')
+//                ->group(base_path('routes/api_compras_proveedores.php'));
 
-            Route::middleware('api')
-                ->prefix('api/appenate')
-                ->group(base_path('routes/api_appenate.php'));
+//            Route::middleware('api')
+//                ->prefix('api/appenate')
+//                ->group(base_path('routes/api_appenate.php'));
 
             Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api/tickets')
@@ -68,47 +68,47 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api/recursos-humanos')
                 ->group(base_path('routes/rrhh/api_recursos_humanos.php'));
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/trabajo-social')
-                ->group(base_path('routes/rrhh/api_trabajo_social.php'));
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/seleccion-contratacion')
-                ->group(base_path('routes/rrhh/api_seleccion_contratacion_personal.php'));
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/capacitacion')
-                ->group(base_path('routes/rrhh/api_capacitacion.php'));
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/control-personal')
-                ->group(base_path('routes/rrhh/api_control_personal.php'));
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/tareas-conecel')
-                ->group(base_path('routes/api_tareas_conecel.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/trabajo-social')
+//                ->group(base_path('routes/rrhh/api_trabajo_social.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/seleccion-contratacion')
+//                ->group(base_path('routes/rrhh/api_seleccion_contratacion_personal.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/capacitacion')
+//                ->group(base_path('routes/rrhh/api_capacitacion.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/control-personal')
+//                ->group(base_path('routes/rrhh/api_control_personal.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/tareas-conecel')
+//                ->group(base_path('routes/api_tareas_conecel.php'));
 
 
 
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/medico')
-                ->group(base_path('routes/api_medicos.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/medico')
+//                ->group(base_path('routes/api_medicos.php'));
+//
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/ventas-claro')
+//                ->group(base_path('routes/api_ventas_claro.php'));
+//
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/activos-fijos')
+//                ->group(base_path('routes/api_activos_fijos.php'));
+//
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/intranet')
+//                ->group(base_path('routes/api_intranet.php'));
 
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/ventas-claro')
-                ->group(base_path('routes/api_ventas_claro.php'));
-
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/activos-fijos')
-                ->group(base_path('routes/api_activos_fijos.php'));
-
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/intranet')
-                ->group(base_path('routes/api_intranet.php'));
-
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/sso')
-                ->group(base_path('routes/api_sso.php'));
-
-            Route::middleware(['api', 'auth:sanctum'])
-                ->prefix('api/seguridad')
-                ->group(base_path('routes/api_seguridad.php'));
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/sso')
+//                ->group(base_path('routes/api_sso.php'));
+//
+//            Route::middleware(['api', 'auth:sanctum'])
+//                ->prefix('api/seguridad')
+//                ->group(base_path('routes/api_seguridad.php'));
         });
     }
 
