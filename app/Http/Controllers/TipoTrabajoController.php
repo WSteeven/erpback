@@ -5,34 +5,27 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TipoTrabajoRequest;
 use App\Http\Resources\TipoTrabajoResource;
 use App\Models\TipoTrabajo;
-use Illuminate\Http\Request;
+use Exception;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class TipoTrabajoController extends Controller
 {
-    private $entidad = 'Tipo de trabajo';
+    private string $entidad = 'Tipo de trabajo';
 
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
-        $cliente = $request['cliente'];
         $campos = request('campos') ? explode(',', request('campos')) : '*';
-        $results = [];
-        // $page = $request['page'];
 
-        /*if ($page) {
-            $results = TipoTrabajo::simplePaginate($request['offset']);
-            TipoTrabajoResource::collection($results);
-        } else*/
-        /*if ($cliente) {
-            $results = TipoTrabajoResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
-        } else {*/
+        $results = $campos
+            ? TipoTrabajo::ignoreRequest(['campos'])->filter()->get($campos)
+            : TipoTrabajo::filter()->get();
 
-        if ($campos) $results = TipoTrabajo::ignoreRequest(['campos'])->filter()->get($campos);
-        else $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
-
+        $results = TipoTrabajoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -43,7 +36,12 @@ class TipoTrabajoController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        if ($request->hasFile('url_plantilla')) {
+            $ruta_relativa = ArchivoService::guardarArchivoSingle($request->file('url_plantilla'), RutasStorage::PLANTILLAS_TIPOS_TRABAJOS->value);
+        }
+
+        $datos['url_plantilla'] = $ruta_relativa;
+
 
         // Respuesta
         $modelo = TipoTrabajo::create($datos);
@@ -68,7 +66,10 @@ class TipoTrabajoController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        if ($request->hasFile('url_plantilla')) {
+            $ruta_relativa = ArchivoService::guardarArchivoSingle($request->file('url_plantilla'), RutasStorage::PLANTILLAS_TIPOS_TRABAJOS->value, null, $tipo_trabajo->url_plantilla);
+            $datos['url_plantilla'] = $ruta_relativa;
+        }
 
         // Respuesta
         $tipo_trabajo->update($datos);

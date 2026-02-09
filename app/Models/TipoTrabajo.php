@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\MaterialDefecto;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * App\Models\TipoTrabajo
@@ -15,28 +21,28 @@ use App\Traits\UppercaseValuesTrait;
  * @property int $id
  * @property string $descripcion
  * @property int $cliente_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property bool $activo
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \App\Models\Cliente|null $cliente
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo acceptRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo filter(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo ignoreRequest(?array $request = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo query()
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo setBlackListDetection(?array $black_list_detections = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo setCustomDetection(?array $object_custom_detect = null)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo setLoadInjectedDetection($load_default_detection)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo whereActivo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo whereClienteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo whereDescripcion($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TipoTrabajo whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read Cliente|null $cliente
+ * @method static Builder|TipoTrabajo acceptRequest(?array $request = null)
+ * @method static Builder|TipoTrabajo filter(?array $request = null)
+ * @method static Builder|TipoTrabajo ignoreRequest(?array $request = null)
+ * @method static Builder|TipoTrabajo newModelQuery()
+ * @method static Builder|TipoTrabajo newQuery()
+ * @method static Builder|TipoTrabajo query()
+ * @method static Builder|TipoTrabajo setBlackListDetection(?array $black_list_detections = null)
+ * @method static Builder|TipoTrabajo setCustomDetection(?array $object_custom_detect = null)
+ * @method static Builder|TipoTrabajo setLoadInjectedDetection($load_default_detection)
+ * @method static Builder|TipoTrabajo whereActivo($value)
+ * @method static Builder|TipoTrabajo whereClienteId($value)
+ * @method static Builder|TipoTrabajo whereCreatedAt($value)
+ * @method static Builder|TipoTrabajo whereDescripcion($value)
+ * @method static Builder|TipoTrabajo whereId($value)
+ * @method static Builder|TipoTrabajo whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class TipoTrabajo extends Model implements Auditable
 {
@@ -47,9 +53,10 @@ class TipoTrabajo extends Model implements Auditable
         'descripcion',
         'activo',
         'cliente_id',
+        'url_plantilla',
     ];
 
-    private static $whiteListFilter = [
+    private static array $whiteListFilter = [
         '*',
     ];
 
@@ -57,7 +64,6 @@ class TipoTrabajo extends Model implements Auditable
         'activo' => 'boolean',
     ];
 
-    // Relacion uno a muchos (inversa)
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);

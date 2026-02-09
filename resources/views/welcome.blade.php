@@ -406,7 +406,7 @@
 
 <body class="antialiased">
     <div class="text-center py-4">
-        Bienvenido a la API
+        Bienvenido a la API {{config('app.name')}}
 
 
     </div>
