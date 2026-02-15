@@ -49,7 +49,7 @@ class UserInfoResource extends JsonResource
             'es_responsable_departamento' => Departamento::where('responsable_id', $empleado->id)->exists(),
             'foto_url' => $empleado->foto_url ? url($empleado->foto_url) : url('/storage/sinfoto.png'),
             'nombre_canton' => $empleado->canton?->canton,
-            'pais' => $this->empleado->canton->provincia->pais_id,
+            'pais' => $this->empleado->canton?->provincia->pais_id,
             'tipo_sangre' => $empleado->tipo_sangre,
             'area_info' => $empleado->area?->nombre,
             'nombre_cargo' => $empleado->cargo?->nombre,

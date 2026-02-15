@@ -9,7 +9,9 @@ trait UppercaseValuesTrait
     {
         parent::setAttribute($key, $value);
 
-        if ($key !== 'password') {
+        if ($key !== 'password' && 
+            !preg_match('/(config|path|token|url|link|route|ruta|imagen|foto|fotografia|email|correo|web)/i', $key)
+        ) {
             if (is_string($value))
                 $this->attributes[$key] = trim(strtoupper($value));
         }

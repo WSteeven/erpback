@@ -79,6 +79,22 @@ class TipoTrabajoController extends Controller
     }
 
     /**
+     * Obtener configuración del formulario
+     */
+    public function getFormConfig(TipoTrabajo $tipo_trabajo)
+    {
+        if (!$tipo_trabajo->form_config) {
+            return response()->json([
+                'error' => 'Este tipo de trabajo no tiene configuración de formulario'
+            ], 404);
+        }
+
+        return response()->json([
+            'form_config' => $tipo_trabajo->form_config
+        ]);
+    }
+
+    /**
      * Eliminar
      */
     public function destroy(TipoTrabajo $tipo_trabajo)

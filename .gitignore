@@ -15,3 +15,22 @@ yarn-error.log
 /.idea
 /.vscode
 composer.lock
+# Laravel storage
+/storage/framework/*
+!/storage/framework/.gitignore
+
+/storage/logs/*
+!/storage/logs/.gitignore
+
+/storage/app/*
+!/storage/app/.gitignore
+!/storage/app/public
+/storage/app/public/*
+!/storage/app/public/.gitignore
+
+# Ignorar documentos generados y uploads
+/storage/app/*
+/storage/app/public/*
+
+# Cache
+/storage/framework/cache/*

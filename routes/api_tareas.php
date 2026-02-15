@@ -31,6 +31,7 @@ use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
 use App\Http\Controllers\Tareas\CentroCostoController;
 use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
+use App\Http\Controllers\SubtareaDocumentController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -188,3 +189,24 @@ Route::get('dashboard', [DashboardTareaController::class, 'index']);
  *************************/
 Route::get('transferencias-productos-empleados/files/{transferencia}', [TransferenciaProductoEmpleadoController::class, 'indexFiles']);
 Route::post('transferencias-productos-empleados/files/{transferencia}', [TransferenciaProductoEmpleadoController::class, 'storeFiles']);
+
+/************************************
+ * FORMULARIOS DINÁMICOS Y DOCUMENTOS
+ ************************************/
+// Obtener configuración de formulario por tipo de trabajo
+Route::get('tipos-trabajos/{tipo_trabajo}/form-config', [TipoTrabajoController::class, 'getFormConfig']);
+
+// Rutas para formularios dinámicos de subtareas
+Route::prefix('subtareas')->group(function () {
+    // Guardar datos del formulario dinámico
+    Route::post('{subtarea}/form-data', [SubtareaDocumentController::class, 'saveFormData']);
+    
+    // Obtener datos del formulario
+    Route::get('{subtarea}/form-data', [SubtareaDocumentController::class, 'getFormData']);
+    
+    // Previsualizar configuración del formulario
+    Route::get('{subtarea}/form-config-preview', [SubtareaDocumentController::class, 'previewFormConfig']);
+    
+    // Generar documento Word
+    Route::get('{subtarea}/generate-document', [SubtareaDocumentController::class, 'generateDocument']);
+});

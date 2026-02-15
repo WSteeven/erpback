@@ -199,6 +199,7 @@ class Subtarea extends Model implements Auditable
         'coordinador_id',
         'seguimiento_id',
         'causa_intervencion_id',
+        'form_data',
     ];
 
     protected $casts = [
@@ -206,6 +207,7 @@ class Subtarea extends Model implements Auditable
         'es_ventana' => 'boolean',
         'tiene_subtrabajos' => 'boolean',
         'empleados_designados' => 'json',
+        'form_data' => 'array',
     ];
 
     static $noFiltrar = ['codigo_tarea'];

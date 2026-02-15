@@ -51,7 +51,7 @@ class ActividadRealizadaSeguimientoSubtarea extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'trabajos_realizados';
-    protected $fillable = ['fecha_hora', 'trabajo_realizado', 'fotografia', 'subtarea_id'];
+    protected $fillable = ['fecha_hora', 'trabajo_realizado','tipo_fotografia', 'fotografia', 'subtarea_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

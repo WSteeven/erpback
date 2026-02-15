@@ -70,7 +70,6 @@ class SubtareaController extends Controller
 
             $modelo = Subtarea::create($datos);
 
-            event(new SubtareaEvent($modelo, User::ROL_TECNICO));
 
             $modelo = new SubtareaResource($modelo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');

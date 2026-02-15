@@ -19,7 +19,8 @@ class TrabajoAsignadoService
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
     {
-        return $empleado->subtareas()->filter()->anterioresNoFinalizados()->noEsStandby()->get();
+        // return $empleado->subtareas()->filter()->anterioresNoFinalizados()->noEsStandby()->get();
+return $empleado->grupo->subtareas()->filter()->anterioresNoFinalizados()->noEsStandby()->get();
         // ->where('fecha_hora_agendado', '!=', null)
     }
 

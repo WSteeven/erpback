@@ -24,7 +24,7 @@ class TipoTrabajoRequest extends FormRequest
     public function rules()
     {
         return [
-            'cliente' => 'required|exists:clientes,id',
+            'cliente_id' => 'required|exists:clientes,id',
             'descripcion' => 'required|string',
             'activo' => 'required|boolean',
             'url_plantilla' => 'nullable|file|mimes:doc,docx',

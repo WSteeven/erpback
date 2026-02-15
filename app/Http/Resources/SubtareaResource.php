@@ -73,6 +73,7 @@ class SubtareaResource extends JsonResource
             'dias_ocupados' => $this->cargar('id', $campos) ? ($this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null) : null,
             'canton' => $this->cargar('canton', $campos) ? $this->obtenerCanton() : null,
             'es_responsable' => $this->cargar('es_responsable', $campos) ? $this->verificarSiEsResponsable() : null,
+            'es_miembro_grupo_responsable' => $this->cargar('es_miembro_grupo_responsable', $campos) ? $this->esMiembroGrupoResponsable() : null,
             'empleado_responsable_id' => $this->cargar('empleado_responsable_id', $campos) ? $this->empleado_id : null, // Se utiliza para que el coordinador pueda acceder a los materiales del empleado respondable ya sea individual o de grupo y poder manipular sus materiales al editar el seguimiento.
             'empleado_responsable' => $this->cargar('empleado_responsable', $campos) ? $this->extraerNombresApellidos($this->empleado) : null,
             'empleado' => $this->cargar('empleado', $campos) ? $this->extraerNombresApellidos($this->empleado) : null,
@@ -205,6 +206,18 @@ class SubtareaResource extends JsonResource
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
             return $this->empleado_id == $usuario->empleado->id;
+        }
+
+        return false;
+    }
+
+    public function esMiembroGrupoResponsable()
+    {
+        $usuario = Auth::user();
+
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
+            $grupo_id = $usuario->empleado->grupo_id;
+            return $this->grupo_id == $grupo_id;
         }
 
         return false;

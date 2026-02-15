@@ -6,12 +6,9 @@ use App\Events\TareaEvent;
 use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
-use App\Models\Empleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
-use App\Models\Tareas\CentroCosto;
-use App\Models\UbicacionTarea;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -20,9 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Src\App\SubtareaService;
 use Src\Shared\Utils;
-use stdClass;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\Sistema\PaginationService;
@@ -30,7 +25,6 @@ use Src\App\TareaService;
 use Src\Config\ClientesCorporativos;
 use Src\Config\Constantes;
 use Src\Config\RutasStorage;
-use Src\Shared\GuardarArchivo;
 
 class TareaController extends Controller
 {
@@ -103,8 +97,7 @@ class TareaController extends Controller
             $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
             $para_cliente_proyecto = $request['para_cliente_proyecto'];
-            if ($request->centro_costo) $datos['centro_costo_id'] = $request->safe()->only(['centro_costo'])['centro_costo'];
-            else $datos['centro_costo_id'] = $request->no_lleva_centro_costo ? null : CentroCosto::crearCentroCosto('TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1), $request->cliente, false);
+
 
             // Establecer coordinador tarea para cliente final o mantenimiento
             $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);

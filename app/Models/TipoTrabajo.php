@@ -54,6 +54,7 @@ class TipoTrabajo extends Model implements Auditable
         'activo',
         'cliente_id',
         'url_plantilla',
+        'form_config',
     ];
 
     private static array $whiteListFilter = [
@@ -62,6 +63,8 @@ class TipoTrabajo extends Model implements Auditable
 
     protected $casts = [
         'activo' => 'boolean',
+        'form_config' => 'array',
+        'document_config' => 'array',
     ];
 
     public function cliente()

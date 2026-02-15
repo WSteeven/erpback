@@ -30,6 +30,7 @@
         "mehdi-fathi/eloquent-filter": "^4.4",
         "mitoteam/jpgraph": "^10.4",
         "owen-it/laravel-auditing": "^13.0",
+        "phpoffice/phpword": "^1.4",
         "pusher/pusher-php-server": "^7.2",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "^5.5",
