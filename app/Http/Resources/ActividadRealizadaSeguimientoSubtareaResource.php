@@ -18,6 +18,7 @@ class ActividadRealizadaSeguimientoSubtareaResource extends JsonResource
             'id' => $this->id,
             'fecha_hora' => $this->fecha_hora,
             'trabajo_realizado' => $this->trabajo_realizado,
+            'tipo_fotografia' => $this->tipo_fotografia,
             'fotografia' => $this->fotografia ? url($this->fotografia) : null,
             'seguimiento' => $this->seguimiento_id,
         ];

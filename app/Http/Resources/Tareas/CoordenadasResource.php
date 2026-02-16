@@ -14,6 +14,22 @@ class CoordenadasResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'subtarea' => $this->subtarea_id,
+            'tipo' => $this->tipo?->nombre,
+            'nombre' => $this->nombre,
+            'latitud' => $this->latitud,
+            'longitud' => $this->longitud,
+            'direccion' => $this->direccion,
+            'observacion' => $this->observacion,
+        ];
+
+        if ($controller_method == 'show') {
+            $modelo['tipo'] = $this->tipo_id;
+        }
+
+        return $modelo;
     }
 }

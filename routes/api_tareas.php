@@ -32,6 +32,8 @@ use App\Http\Controllers\Tareas\CentroCostoController;
 use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
 use App\Http\Controllers\SubtareaDocumentController;
+use App\Http\Controllers\Tareas\TipoCoordenadaController;
+use App\Http\Controllers\Tareas\TipoFotografiaController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -43,6 +45,8 @@ Route::apiResources(
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
+        'tipos-fotografias' => TipoFotografiaController::class,
+        'tipos-coordenadas' => TipoCoordenadaController::class,
         'causas-intervenciones' => CausaIntervencionController::class,
         'rutas-tareas' => RutaTareaController::class,
         'control-asistencias' => ControlAsistenciaController::class,
@@ -68,6 +72,8 @@ Route::apiResources(
             'centros-costos' => 'centro',
             'tipos-trabajos' => 'tipo_trabajo',
             'causas-intervenciones' => 'causa_intervencion',
+            'tipos-fotografias' => 'tipo_fotografia',
+            'tipos-coordenadas' => 'tipo_coordenada',
             'tipos-elementos' => 'tipo_elemento',
             'clientes-finales' => 'cliente_final',
             'archivos-subtareas' => 'archivo_subtarea',
@@ -197,16 +203,3 @@ Route::post('transferencias-productos-empleados/files/{transferencia}', [Transfe
 Route::get('tipos-trabajos/{tipo_trabajo}/form-config', [TipoTrabajoController::class, 'getFormConfig']);
 
 // Rutas para formularios dinámicos de subtareas
-Route::prefix('subtareas')->group(function () {
-    // Guardar datos del formulario dinámico
-    Route::post('{subtarea}/form-data', [SubtareaDocumentController::class, 'saveFormData']);
-    
-    // Obtener datos del formulario
-    Route::get('{subtarea}/form-data', [SubtareaDocumentController::class, 'getFormData']);
-    
-    // Previsualizar configuración del formulario
-    Route::get('{subtarea}/form-config-preview', [SubtareaDocumentController::class, 'previewFormConfig']);
-    
-    // Generar documento Word
-    Route::get('{subtarea}/generate-document', [SubtareaDocumentController::class, 'generateDocument']);
-});

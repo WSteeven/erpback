@@ -13,7 +13,7 @@ class TipoFotografiaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,16 @@ class TipoFotografiaRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre' => 'required|string',
+            'tipo_trabajo_id' => 'required|exists:tipos_trabajos,id',
+            'activo' => 'boolean'
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'tipo_trabajo_id' => $this->tipo_trabajo ?? null
+        ]);
     }
 }

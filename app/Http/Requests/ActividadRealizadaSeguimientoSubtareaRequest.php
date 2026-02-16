@@ -27,6 +27,7 @@ class ActividadRealizadaSeguimientoSubtareaRequest extends FormRequest
             'fecha_hora' => 'required|string',
             'trabajo_realizado' => 'required|string',
             'fotografia' => 'nullable|string',
+            'tipo_fotografia' => 'nullable|string',
             'subtarea' => 'required|numeric|integer',
         ];
     }

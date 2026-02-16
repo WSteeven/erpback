@@ -13,14 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tar_tipos_fotografias', function (Blueprint $table) {
+        Schema::create('tar_tipos_coordenadas', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->unsignedBigInteger('tipo_trabajo_id')->nullable();
-            $table->boolean('activo')->default(true);
             $table->timestamps();
-
-            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('set null');
         });
     }
 
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tar_tipos_fotografias');
+        Schema::dropIfExists('tar_tipos_coordenadas');
     }
 };

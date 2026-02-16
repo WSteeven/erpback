@@ -3,62 +3,72 @@
 namespace App\Http\Controllers\Tareas;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tareas\CoordenadasRequest;
+use App\Http\Resources\Tareas\CoordenadasResource;
+use App\Models\Tareas\Coordenadas;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class CoordenadasController extends Controller
 {
+    private string $entidad = 'Coordenadas';
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Listar
      */
     public function index()
     {
-        //
+        $results = Coordenadas::filter()->orderBy('id', 'desc')->get();
+        $results = CoordenadasResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Guardar
      */
-    public function store(Request $request)
+    public function store(CoordenadasRequest $request)
     {
-        //
+        $datos = $request->validated();
+        $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+
+        $modelo = Coordenadas::create($datos);
+        $modelo = new CoordenadasResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Consultar
      */
-    public function show($id)
+    public function show(Coordenadas $coordenada)
     {
-        //
+        $modelo = new CoordenadasResource($coordenada);
+        return response()->json(compact('modelo'));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Actualizar
      */
-    public function update(Request $request, $id)
+    public function update(CoordenadasRequest $request, Coordenadas $coordenada)
     {
-        //
+        $datos = $request->validated();
+        $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+
+        $coordenada->update($datos);
+        $modelo = new CoordenadasResource($coordenada->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Eliminar
      */
-    public function destroy($id)
+    public function destroy(Coordenadas $coordenada)
     {
-        //
+        $coordenada->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

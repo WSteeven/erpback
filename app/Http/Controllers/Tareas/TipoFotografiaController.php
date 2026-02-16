@@ -3,62 +3,68 @@
 namespace App\Http\Controllers\Tareas;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tareas\TipoFotografiaRequest;
+use App\Http\Resources\Tareas\TipoFotografiaResource;
+use App\Models\Tareas\TipoFotografia;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class TipoFotografiaController extends Controller
 {
+    private string $entidad = 'Tipo de fotografía';
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Listar
      */
     public function index()
     {
-        //
+        $results = TipoFotografia::filter()->orderBy('id', 'desc')->get();
+        $results = TipoFotografiaResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Guardar
      */
-    public function store(Request $request)
+    public function store(TipoFotografiaRequest $request)
     {
-        //
+        $datos = $request->validated();
+
+        $modelo = TipoFotografia::create($datos);
+        $modelo = new TipoFotografiaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Consultar
      */
-    public function show($id)
+    public function show(TipoFotografia $tipo_fotografia)
     {
-        //
+        $modelo = new TipoFotografiaResource($tipo_fotografia);
+        return response()->json(compact('modelo'));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Actualizar
      */
-    public function update(Request $request, $id)
+    public function update(TipoFotografiaRequest $request, TipoFotografia $tipo_fotografia)
     {
-        //
+        $datos = $request->validated();
+
+        $tipo_fotografia->update($datos);
+        $modelo = new TipoFotografiaResource($tipo_fotografia->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Eliminar
      */
-    public function destroy($id)
+    public function destroy(TipoFotografia $tipo_fotografia)
     {
-        //
+        $tipo_fotografia->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

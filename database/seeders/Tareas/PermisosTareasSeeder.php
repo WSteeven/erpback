@@ -18,6 +18,7 @@ class PermisosTareasSeeder extends Seeder
      */
     public function run()
     {
+        $empleado = Role::firstOrCreate(['name' => User::ROL_EMPLEADO]);
         $jefeTecnico = Role::firstOrCreate(['name' => User::ROL_JEFE_TECNICO]);
         $bodega = Role::firstOrCreate(['name' => User::ROL_BODEGA]);
         $coordinadorBodega = Role::firstOrCreate(['name' => User::ROL_COORDINADOR_BODEGA]);
@@ -32,6 +33,18 @@ class PermisosTareasSeeder extends Seeder
         Permission::firstOrCreate(['name' => Permisos::VER . 'alimentacion_grupo'])->syncRoles([$jefeTecnico, $coordinador, $coordinadorBackup, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::CREAR . 'alimentacion_grupo'])->syncRoles([$jefeTecnico, $coordinador, $coordinadorBackup, $administrador]);
         Permission::firstOrCreate(['name' => Permisos::EDITAR . 'alimentacion_grupo'])->syncRoles([$jefeTecnico, $coordinador, $coordinadorBackup, $administrador]);
+
+        //Tipos Fotografias
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tipos_fotografias'])->syncRoles([$jefeTecnico, $coordinador, $coordinadorBackup, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'tipos_fotografias'])->syncRoles([$jefeTecnico, $coordinador, $coordinadorBackup, $administrador, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'tipos_fotografias'])->syncRoles([$jefeTecnico, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'tipos_fotografias'])->syncRoles([$jefeTecnico, $administrador]);
+
+        //Tipos Coordenadas
+        Permission::firstOrCreate(['name' => Permisos::ACCEDER . 'tipos_coordenadas'])->syncRoles([$jefeTecnico, $coordinador, $coordinadorBackup, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::VER . 'tipos_coordenadas'])->syncRoles([$jefeTecnico, $coordinador, $coordinadorBackup, $administrador, $empleado]);
+        Permission::firstOrCreate(['name' => Permisos::CREAR . 'tipos_coordenadas'])->syncRoles([$jefeTecnico, $administrador]);
+        Permission::firstOrCreate(['name' => Permisos::EDITAR . 'tipos_coordenadas'])->syncRoles([$jefeTecnico, $administrador]);
 
         /* PERMISOS DEL JEFE TECNICO
          Permission::firstOrCreate(['name' => Permisos::VER . 'tablero'])->syncRoles([$gerente_procesos]);

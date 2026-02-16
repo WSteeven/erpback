@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\TipoFotografia;
 use App\Traits\UppercaseValuesTrait;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

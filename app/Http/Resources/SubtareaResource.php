@@ -56,6 +56,7 @@ class SubtareaResource extends JsonResource
             'hora_inicio_trabajo' => $this->cargar('hora_inicio_trabajo', $campos) ? $this->hora_inicio_trabajo : null,
             'hora_fin_trabajo' => $this->cargar('hora_fin_trabajo', $campos) ? $this->hora_fin_trabajo : null,
             'tipo_trabajo' => $this->cargar('tipo_trabajo', $campos) ? $this->tipo_trabajo?->descripcion : null,
+            'tipo_trabajo_id' => $this->cargar('tipo_trabajo_id', $campos) ? $this->tipo_trabajo_id : null,
             'fecha_hora_creacion' => $this->cargar('fecha_hora_creacion', $campos) ? $this->formatTimestamp($this->fecha_hora_creacion) : null,
             'fecha_hora_asignacion' => $this->cargar('fecha_hora_asignacion', $campos) ? $this->formatTimestamp($this->fecha_hora_asignacion) : null,
             'fecha_hora_agendado' => $this->cargar('fecha_hora_agendado', $campos) ? $this->formatTimestamp($this['fecha_inicio_trabajo'] . ' ' . $this['hora_inicio_trabajo']) : null,

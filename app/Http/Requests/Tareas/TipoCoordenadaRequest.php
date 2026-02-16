@@ -5,7 +5,7 @@ namespace App\Http\Requests\Tareas;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CoordenadasRequest extends FormRequest
+class TipoCoordenadaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,19 +25,17 @@ class CoordenadasRequest extends FormRequest
     public function rules()
     {
         $ignoreId = null;
-        $routeModel = $this->route('coordenada') ?? $this->route('coordenadas') ?? $this->route('coordenada_id');
+        $routeModel = $this->route('tipo_coordenada');
         if ($routeModel) {
             $ignoreId = is_object($routeModel) ? ($routeModel->id ?? $routeModel) : $routeModel;
         }
 
         return [
-            'subtarea' => 'required|exists:subtareas,id',
-            'tipo' => 'nullable|exists:tar_tipos_coordenadas,id',
-            'nombre' => ['required', 'string', Rule::unique('tar_coordenadas', 'nombre')->ignore($ignoreId)],
-            'latitud' => 'nullable|numeric',
-            'longitud' => 'nullable|numeric',
-            'direccion' => 'nullable|string',
-            'observacion' => 'nullable|string',
+            'nombre' => [
+                'required',
+                'string',
+                Rule::unique('tar_tipos_coordenadas', 'nombre')->ignore($ignoreId),
+            ],
         ];
     }
 }

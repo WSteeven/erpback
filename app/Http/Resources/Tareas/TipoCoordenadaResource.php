@@ -4,7 +4,7 @@ namespace App\Http\Resources\Tareas;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TipoFotografiaResource extends JsonResource
+class TipoCoordenadaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,13 +18,7 @@ class TipoFotografiaResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'tipo_trabajo' => $this->tipoTrabajo?->descripcion,
-            'activo' => $this->activo,
         ];
-
-        if ($controller_method == 'show') {
-            $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
-        }
 
         return $modelo;
     }
