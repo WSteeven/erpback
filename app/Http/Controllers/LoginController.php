@@ -32,12 +32,12 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            //            'name' => 'email:rfc,dns',
-            'name' => 'required|string',
+            'name' => 'email:rfc,dns',
+            // 'name' => 'required|string',
             'password' => 'required',
         ]);
 
-        $user = User::where('name', $request['name'])->orWhere('email', $request['name'])->first();
+        $user = User::where('email', $request['name'])->first();
         // Log::channel('testing')->info('Log', ['Diferencia de dias: ' . $user->updated_at->diffInDays(now())]);
         if (!$user) {
             throw ValidationException::withMessages([
