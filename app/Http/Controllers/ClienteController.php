@@ -31,25 +31,41 @@ class ClienteController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request['search'];
+        $search = $request->input('search');
+        $coordinador = $request->input('coordinador');
 
-        $results = [];
-        if ($request['campos']) {
-            $results = Cliente::ignoreRequest(['campos'])->filter()->get();
-            // return response()->json(compact('results'));
-        } else if ($search) {
-            $empresa = Empresa::select('id')->where('razon_social', 'LIKE', '%' . $search . '%')->first();
-            // Log::channel('testing')->info('Log', ['empresa', $empresa->id]);
+        $query = Cliente::query();
 
-            if ($empresa) $results = ClienteResource::collection(Cliente::where('empresa_id', $empresa->id)->get());
-        } else {
-            $results = Cliente::filter()->get();
-            // Log::channel('testing')->info('Log', ['entro en el else grande', $results, $request->all()]);
+        // Filtro por campos dinámicos
+        if ($request->filled('campos')) {
+            $query->ignoreRequest(['campos', 'coordinador'])->filter();
         }
 
-        $results = ClienteResource::collection($results);
-        return response()->json(compact('results'));
-    }
+        // Filtro por búsqueda de empresa
+        if ($search) {
+            $empresa = Empresa::select('id')
+                ->where('razon_social', 'LIKE', "%{$search}%")
+                ->first();
+
+            if ($empresa) {
+                $query->where('empresa_id', $empresa->id);
+            } else {
+                // Si no existe empresa, no devolver resultados
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+        // 🔹 Filtro por coordinador (JSON array)
+        if ($request->filled('coordinador')) {
+            $query->whereJsonContains('coordinadores', (int) $coordinador);
+        }
+
+        $results = $query->ignoreRequest(['coordinador'])->get();
+
+        return response()->json([
+            'results' => ClienteResource::collection($results)
+        ]);
+}
 
     /**
      * Guardar

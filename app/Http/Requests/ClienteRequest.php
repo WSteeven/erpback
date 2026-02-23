@@ -31,6 +31,7 @@ class ClienteRequest extends FormRequest
             'requiere_fr' => 'boolean',
             'estado' => 'boolean',
             'logo_url' => 'nullable|string',
+            'coordinadores' => 'nullable|array',
         ];
         /* if(in_array($this->method(), ['PUT', 'PATCH'])){
             $cliente = $this->route()->parameter('cliente');

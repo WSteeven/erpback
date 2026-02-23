@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tareas\CoordenadasRequest;
 use App\Http\Resources\Tareas\CoordenadasResource;
 use App\Models\Tareas\Coordenadas;
-use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
 class CoordenadasController extends Controller
@@ -29,8 +28,6 @@ class CoordenadasController extends Controller
     public function store(CoordenadasRequest $request)
     {
         $datos = $request->validated();
-        $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-        $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
 
         $modelo = Coordenadas::create($datos);
         $modelo = new CoordenadasResource($modelo);
@@ -53,8 +50,6 @@ class CoordenadasController extends Controller
     public function update(CoordenadasRequest $request, Coordenadas $coordenada)
     {
         $datos = $request->validated();
-        $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-        $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
 
         $coordenada->update($datos);
         $modelo = new CoordenadasResource($coordenada->refresh());

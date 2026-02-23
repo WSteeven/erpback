@@ -67,14 +67,15 @@ class Cliente extends Model implements Auditable
     use Filterable;
 
     protected $table = "clientes";
-    protected $fillable = ['empresa_id', 'parroquia_id', 'requiere_bodega', 'requiere_fr', 'estado', 'logo_url'];
+    protected $fillable = ['empresa_id', 'parroquia_id', 'requiere_bodega', 'requiere_fr', 'estado','coordinadores', 'logo_url'];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'requiere_bodega' => 'boolean',
         'requiere_fr' => 'boolean',
-        'estado' => 'boolean'
+        'estado' => 'boolean',
+        'coordinadores' => 'array'
     ];
 
 

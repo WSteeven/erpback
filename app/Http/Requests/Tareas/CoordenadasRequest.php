@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tareas;
 
+use App\Models\Tareas\TipoCoordenada;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -31,13 +32,21 @@ class CoordenadasRequest extends FormRequest
         }
 
         return [
-            'subtarea' => 'required|exists:subtareas,id',
-            'tipo' => 'nullable|exists:tar_tipos_coordenadas,id',
-            'nombre' => ['required', 'string', Rule::unique('tar_coordenadas', 'nombre')->ignore($ignoreId)],
+            'subtarea_id' => 'required|exists:subtareas,id',
+            'tipo_id' => 'nullable|exists:tar_tipos_coordenadas,id',
+            'nombre' => ['required', 'string'],
             'latitud' => 'nullable|numeric',
             'longitud' => 'nullable|numeric',
             'direccion' => 'nullable|string',
             'observacion' => 'nullable|string',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'subtarea_id' => $this->subtarea,
+            'tipo_id'=> TipoCoordenada::getTipoCoordenadaByNombre($this->tipo),
+        ]);
     }
 }

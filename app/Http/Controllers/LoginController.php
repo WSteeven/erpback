@@ -35,6 +35,9 @@ class LoginController extends Controller
             'name' => 'email:rfc,dns',
             // 'name' => 'required|string',
             'password' => 'required',
+        ],[],[
+            'name' => 'correo electrónico',
+            'password' => 'contraseña',
         ]);
 
         $user = User::where('email', $request['name'])->first();

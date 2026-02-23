@@ -18,11 +18,24 @@ class TrabajoAsignadoService
     } */
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
-    {
-        // return $empleado->subtareas()->filter()->anterioresNoFinalizados()->noEsStandby()->get();
-return $empleado->grupo->subtareas()->filter()->anterioresNoFinalizados()->noEsStandby()->get();
-        // ->where('fecha_hora_agendado', '!=', null)
-    }
+{
+    $subtareasEmpleado = $empleado->subtareas()
+        ->filter()
+        ->anterioresNoFinalizados()
+        ->noEsStandby()
+        ->get();
+
+    $subtareasGrupo = $empleado->grupo?->subtareas()
+        ->filter()
+        ->anterioresNoFinalizados()
+        ->noEsStandby()
+        ->get() ?? collect();
+
+    return $subtareasEmpleado
+        ->merge($subtareasGrupo)
+        ->unique('id')   // evita duplicados por PK
+        ->values();      // reindexa la colección
+}
 
     public function obtenerTodosTrabajosAsignadosEmpleado(Empleado $empleado)
     {

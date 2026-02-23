@@ -4,6 +4,7 @@ namespace App\Models\Tareas;
 
 use App\Models\Subtarea;
 use App\Traits\UppercaseValuesTrait;
+use Arr;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,10 @@ class Coordenadas extends Model implements Auditable
         'longitud',
         'direccion', // nullable
         'observacion', //nullable
+    ];
+
+    private static array $whiteListFilter = [
+        '*',
     ];
 
     public function subtarea()

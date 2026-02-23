@@ -24,6 +24,7 @@ class ClienteResource extends BaseResource
             $modelo['empresa'] = $this->empresa_id;
             $modelo['canton'] = $this->parroquia?->canton_id;
             $modelo['parroquia'] = $this->parroquia_id;
+            $modelo['coordinadores'] = $this->coordinadores;
         }
 
         return $modelo;

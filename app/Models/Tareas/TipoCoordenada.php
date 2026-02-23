@@ -20,6 +20,15 @@ class TipoCoordenada extends Model implements Auditable
     protected $fillable = [
         'nombre',
      ];
-     
 
+
+     public static function getTipoCoordenadaByNombre(?string $nombre=null)
+      {
+        if (!$nombre) {
+            return null;
+        }
+        return self::where('nombre', $nombre)->first()->id ?? null;
+
+
+     }
 }

@@ -31,7 +31,7 @@ use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
 use App\Http\Controllers\Tareas\CentroCostoController;
 use App\Http\Controllers\Tareas\MaterialUtilizadoController;
 use App\Http\Controllers\Tareas\SubCentroCostoController;
-use App\Http\Controllers\SubtareaDocumentController;
+use App\Http\Controllers\Tareas\CoordenadasController;
 use App\Http\Controllers\Tareas\TipoCoordenadaController;
 use App\Http\Controllers\Tareas\TipoFotografiaController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +47,7 @@ Route::apiResources(
         'tipos-trabajos' => TipoTrabajoController::class,
         'tipos-fotografias' => TipoFotografiaController::class,
         'tipos-coordenadas' => TipoCoordenadaController::class,
+        'coordenadas' => CoordenadasController::class,
         'causas-intervenciones' => CausaIntervencionController::class,
         'rutas-tareas' => RutaTareaController::class,
         'control-asistencias' => ControlAsistenciaController::class,
@@ -120,7 +121,7 @@ Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verifi
 // Transferir mis tareas activas
 Route::post('transferir-mis-tareas-activas', [TareaController::class, 'transferirMisTareasActivas']);
 
-Route::get('export-seguimiento/{subtarea}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
+Route::get('export-seguimiento/{subtarea_id}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
 Route::get('ver-seguimiento/{subtarea}', [SeguimientoSubtareaController::class, 'verSeguimiento']);
 
 // Obtener los trabajos designados: de un grupo o empleado individual
