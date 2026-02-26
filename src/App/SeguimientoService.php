@@ -132,7 +132,7 @@ class SeguimientoService
     //
 
     // Descontar individual material de tarea
-    public function actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request)
+        public function actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request)
     {
         return DB::transaction(function () use ($request) {
             $request->validate([
@@ -153,7 +153,7 @@ class SeguimientoService
             $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->where('cliente_id', $cliente_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
 
             if ($materialSubtarea) {
-                $materialSubtarea->cantidad_utilizada =  $cantidadUtilizada;
+                $materialSubtarea->cantidad_utilizada = $cantidadUtilizada;
                 $materialSubtarea->save();
             } else {
                 $idGrupo = Empleado::find($request['empleado_id'])->grupo_id;
@@ -171,6 +171,7 @@ class SeguimientoService
             return $this->actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request);
         });
     }
+
 
     public function actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTareaHistorial($request)
     {
@@ -230,7 +231,7 @@ class SeguimientoService
         return $this->actualizarDescuentoCantidadUtilizadaMaterialEmpleadoStock($request);
     }
 
-    public function actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request)
+        public function actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request)
     {
         $idTarea = $request['tarea_id'];
         $etapa_id = $request['etapa_id'];
@@ -247,7 +248,7 @@ class SeguimientoService
         } else {
             $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->where('etapa_id', $etapa_id)->where('proyecto_id', $proyecto_id)->where('cliente_id', $cliente_id)->first();
         }
-        $material->cantidad_stock += (isset($cantidadAnterior) ? $cantidadAnterior : 0)  - $cantidadUtilizada;
+        $material->cantidad_stock += ($cantidadAnterior ?? 0) - $cantidadUtilizada;
         $material->save();
 
         $detalle = DetalleProducto::find($material->detalle_producto_id);

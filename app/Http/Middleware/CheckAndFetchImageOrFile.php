@@ -10,6 +10,9 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Response as FacadeResponse;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * TODO: Este middleware no trabaja en este caso
+ */
 class CheckAndFetchImageOrFile
 {
     /**
