@@ -16,7 +16,7 @@ class PedidoCreadoEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Pedido $pedido;
+        public int $autorizaId;
     public Notificacion $notificacion;
 
     /**
@@ -27,8 +27,7 @@ class PedidoCreadoEvent implements ShouldBroadcast
      */
     public function __construct(string $mensaje, $url, $pedido, $solicitante,  $destinatario, $informativa)
     {
-        $this->pedido = $pedido;
-
+        $this->autorizaId = $pedido->per_autoriza_id;
 
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
@@ -45,12 +44,23 @@ class PedidoCreadoEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         return [
-            new Channel('pedidos-tracker-' . $this->pedido->per_autoriza_id),
+            new Channel('pedidos-tracker-' . $this->autorizaId),
         ];
     }
 
     public function broadcastAs()
     {
         return 'pedido-event';
+    }
+    // 🔥 IMPORTANTE: controlamos el payload
+
+    public function broadcastWith()
+    {
+        return [
+            'notificacion' => [
+                'mensaje' => $this->notificacion->mensaje,
+                'link'    => $this->notificacion->url,
+            ],
+        ];
     }
 }

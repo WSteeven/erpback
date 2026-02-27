@@ -56,18 +56,25 @@ class TareaService
 
     public function obtenerTareasAsignadasEmpleado(int $empleado_id)
     {
+        $usuario = auth()->user();
         $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id'); // ->disponible()
         $ignoreRequest = ['activas_empleado', 'empleado_id', 'formulario', 'campos'];
 
         /* if (request('sin_etapa')) {
             Tarea::whereIn('id', $tareas_ids)->estaActiva()->sinEtapa()->ignoreRequest([...$ignoreRequest, 'etapa_id'])->filter()->get();
         } */
-        $results = Tarea::whereIn('id', $tareas_ids)->estaActiva()->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
+       $query = Tarea::whereIn('id', $tareas_ids)->estaActiva()->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc');
+
+       // Aplica politica de visibilidad: si el usuario es coordinador o visualizador cliente, solo verá tareas de clientes donde sea coordinador
+       $query = $query->permitidoPara($usuario);
+
+        $results = $query->get();
         return response()->json(compact('results'));
     }
 
     public function obtenerTareasAsignadasEmpleadoLuegoFinalizar(int $empleado_id)
     {
+        $usuario = auth()->user();
         $empleado = Empleado::find(request('empleado_id'));
         $grupo_id = $empleado->grupo_id;
         if ($grupo_id) {
@@ -78,9 +85,25 @@ class TareaService
             $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->orWhereJsonContains('empleados_designados', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
         }
         $ignoreRequest = ['activas_empleado', 'empleado_id', 'campos', 'formulario'];
-        $results = Tarea::whereIn('id', $tareas_ids)->estaActiva()->orWhere(function ($query) use ($tareas_ids) {
-            $query->whereIn('id', $tareas_ids)->where('finalizado', true)->disponibleUnaHoraFinalizar();
-        })->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
+
+        $query = Tarea::where(function ($q) use ($tareas_ids) {
+            $q->whereIn('id', $tareas_ids)
+              ->estaActiva()
+            ->orWhere(function ($sub) use ($tareas_ids) {
+                $sub->whereIn('id', $tareas_ids)
+                    ->where('finalizado', true)
+                    ->disponibleUnaHoraFinalizar();
+            });
+        })
+        ->ignoreRequest($ignoreRequest)
+        ->filter()
+        ->orderBy('id', 'desc');
+
+    // 🔥 Aplica política de visibilidad
+    $query = $query->permitidoPara($usuario);
+
+    $results = $query->get();
+
 
         return response()->json(compact('results'));
     }

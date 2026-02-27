@@ -45,4 +45,15 @@ class PedidoAutorizadoEvent implements ShouldBroadcast
     {
         return 'pedido-event';
     }
+
+    // 🔥 SOLO lo que el front usa
+    public function broadcastWith()
+    {
+        return [
+            'notificacion' => [
+                'mensaje' => $this->notificacion->mensaje,
+                'link'    => $this->notificacion->url,
+            ],
+        ];
+    }
 }

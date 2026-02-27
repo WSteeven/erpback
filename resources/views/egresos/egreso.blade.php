@@ -131,7 +131,7 @@
                     @endif
                 </td>
                 <td style="width: 22%;">
-                    <div class="col-md-2"  style="font-size: 15px; text-align: right">Sistema de bodega</div>
+                    {{-- <div class="col-md-2"  style="font-size: 15px; text-align: right">MASTERJAS</div> --}}
                 </td>
             </tr>
         </table>
@@ -209,11 +209,11 @@
                         {{ $fecha->format('d/m/Y H:i') }}
                     </div>
                 </td>
-                <td>
+                {{-- <td>
                     <div style="text-align: center"><img src="data:image/svg;base64,{!! base64_encode(
                         QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr),
                     ) !!}" alt="qr"></div>
-                </td>
+                </td> --}}
             </tr>
         </table>
     </footer>

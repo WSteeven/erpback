@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Events\Bodega\PedidoAutorizadoEvent;
 use App\Events\Bodega\PedidoCreadoEvent;
 use App\Exports\Bodega\PedidoExport;
-use App\Helpers\Filtros\FiltroSearchHelper;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
@@ -57,8 +56,7 @@ class PedidoController extends Controller
     {
         $estado = $request->estado;
         $search = $request->search;
-        //$filtro = ['clave' => 'autorizacion', 'valor' => 'PENDIENTE'];
-        //FiltroSearchHelper::formatearFiltrosPorMotor($filtro);
+
         try {
 
             if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {

@@ -138,14 +138,22 @@ class SubtareaService
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
         $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
+        $debeFiltrarPorCliente = ($esCoordinador || $usuario->hasRole(User::ROL_VISUALIZADOR_TAREA_CLIENTE_FIBERTICS)) && !$esCoordinadorBackup && !$esJefeTecnico;
 
         $search = request('search');
         $paginate = request('paginate');
 
+        $empleadoId = $usuario->empleado->id ;
         // Monitor
-        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) {
-            if ($search) $query = $usuario->empleado->subtareasCoordinador();
-            else $query = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos', 'paginate'])->filter();
+        if (!request('tarea_id') && $debeFiltrarPorCliente) {
+             $baseQuery = $esCoordinador ? $usuario->empleado->subtareasCoordinador()->getQuery()
+                : Subtarea::query();
+            if ($search) $query = $baseQuery->whereHas('tarea.cliente', function ($q) use ($empleadoId) {
+                    $q->whereJsonContains('coordinadores', $empleadoId);
+                });
+            else $query = $baseQuery->whereHas('tarea.cliente', function ($q) use ($empleadoId) {
+                    $q->whereJsonContains('coordinadores', $empleadoId);
+                })->ignoreRequest(['campos', 'paginate'])->filter();
 
             // if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
             //else return $query->get();

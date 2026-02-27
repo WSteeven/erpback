@@ -271,6 +271,22 @@ class Tarea extends Model implements Auditable
     /*********
      * Scopes
      *********/
+    public function scopePermitidoPara($query, $usuario)
+    {
+        if ($usuario->hasRole(User::ROL_JEFE_TECNICO)) {
+            return $query;
+        }
+
+        if ($usuario->hasRole(User::ROL_VISUALIZADOR_TAREA_CLIENTE_FIBERTICS)) {
+            $empleadoId = $usuario->empleado->id;
+
+            return $query->whereHas('cliente', function ($q) use ($empleadoId) {
+                $q->whereJsonContains('coordinadores', $empleadoId);
+            });
+        }
+
+        return $query;
+    }
     public function scopePorRol($query)
     {
         $usuario = Auth::user();

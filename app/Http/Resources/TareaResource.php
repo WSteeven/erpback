@@ -33,6 +33,7 @@ class TareaResource extends JsonResource
             'coordinador_id' => $this->coordinador_id,
             'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
             'cliente_id' => $this->cliente_id,
+            'cliente' => $this->cliente ? $this->cliente->empresa?->razon_social : null,
             'cantidad_subtareas' => $this->subtareas->count(),
             'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
             'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,

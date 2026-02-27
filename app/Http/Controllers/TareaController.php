@@ -45,12 +45,14 @@ class TareaController extends Controller
      * @OA\Get(
      *     path="/api/tareas/tareas",
      *     summary="Devuelve un listado de tareas",
-     *     security={{"bearerAuth": {}}},
+     *     security={{ "bearerAuth": { }}},
      *     @OA\Response(response=200, description="Description of response")
      * )
      */
     public function index(Request $request)
     {
+        $usuario = auth()->user();
+
         // $paginated = $this->listar();
         $search = request('search');
         $paginate = request('paginate');
@@ -65,6 +67,8 @@ class TareaController extends Controller
             else $query = Tarea::ignoreRequest(['campos', 'page', 'paginate'])->filter()->porRol()->orderBy('id', 'desc');
         }
 
+        // 🔥 Aquí aplicamos la política de visibilidad
+        $query = $query->permitidoPara($usuario);
         $filtros = [
             ['clave' => 'finalizado', 'valor' => request('finalizado') ? 'true' : 'false'],
         ];

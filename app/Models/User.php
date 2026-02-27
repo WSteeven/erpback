@@ -97,7 +97,7 @@ class User extends Authenticatable implements Auditable
     use UppercaseValuesTrait;
 
     const BODEGA_TELCONET = 'BODEGA_TELCONET';
-
+const ROL_VISUALIZADOR_TAREA_CLIENTE_FIBERTICS = 'VISUALIZADOR_TAREA_CLIENTE_FIBERTICS';
     const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
     const ROL_ADMINISTRATIVO = 'ADMINISTRATIVO';
