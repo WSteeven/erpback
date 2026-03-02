@@ -509,11 +509,6 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Devolucion::class);
     }
 
-    /* public function subtareas()
-    {
-        return $this->belongsToMany(Subtarea::class);e
-    } */
-
     /**
      * Relacion uno a muchos
      * Un empleado es solicitante de varios pedidos

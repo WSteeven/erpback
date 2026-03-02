@@ -19,22 +19,18 @@ class TrabajoAsignadoService
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
 {
-    $subtareasEmpleado = $empleado->subtareas()
+    return Subtarea::query()
+        ->where(function ($query) use ($empleado) {
+
+            // Compatibilidad por si alguna antigua no tiene json
+            $query->where('empleado_id', $empleado->id)
+                ->orWhereJsonContains('empleados_designados', $empleado->id);
+        })
         ->filter()
         ->anterioresNoFinalizados()
         ->noEsStandby()
+        ->distinct()
         ->get();
-
-    $subtareasGrupo = $empleado->grupo?->subtareas()
-        ->filter()
-        ->anterioresNoFinalizados()
-        ->noEsStandby()
-        ->get() ?? collect();
-
-    return $subtareasEmpleado
-        ->merge($subtareasGrupo)
-        ->unique('id')   // evita duplicados por PK
-        ->values();      // reindexa la colección
 }
 
     public function obtenerTodosTrabajosAsignadosEmpleado(Empleado $empleado)

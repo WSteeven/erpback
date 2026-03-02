@@ -270,7 +270,7 @@ class SubtareaResource extends JsonResource
     private function verificarSiPuedeEjecutar()
     {
         $existeTrabajoEjecutado = !!$this->empleado?->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
-        return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado;
+        return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado && ($this->verificarSiEsResponsable()||auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO]));
     }
 
     private function verificarSiPuedeEjecutarOld()
