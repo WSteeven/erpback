@@ -10,6 +10,7 @@ use Src\Config\RutasStorage;
 use Src\Shared\EliminarArchivo;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Str;
 
 class ArchivoSeguimientoController extends Controller
 {
@@ -96,8 +97,8 @@ class ArchivoSeguimientoController extends Controller
     public function guardarArchivo(Subtarea $subtarea, Request $request, RutasStorage $ruta)
     {
         $archivo = $request->file('file');
-
-        $path = $archivo->store($ruta->value);
+        $nombre = Str::random(40) . '.' . $archivo->getClientOriginalExtension();
+        $path = $archivo->storeAs($ruta->value, $nombre);
         $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
         return $subtarea->archivosSeguimiento()->create([
             'nombre' => $archivo->getClientOriginalName(),
