@@ -203,4 +203,3 @@ Route::post('transferencias-productos-empleados/files/{transferencia}', [Transfe
 // Obtener configuración de formulario por tipo de trabajo
 Route::get('tipos-trabajos/{tipo_trabajo}/form-config', [TipoTrabajoController::class, 'getFormConfig']);
 
-// Rutas para formularios dinámicos de subtareas

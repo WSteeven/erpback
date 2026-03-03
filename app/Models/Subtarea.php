@@ -273,6 +273,8 @@ class Subtarea extends Model implements Auditable
             'estado' => $this->estado,
             'tipo_trabajo' => $this->tipo_trabajo->descripcion,
             'empleado_responsable' => Empleado::extraerApellidosNombres($this->empleado),
+            'cliente' => $this->tarea->cliente?->empresa?->razon_social,
+            'cliente_id' => $this->tarea->cliente_id,
         ];
     }
 

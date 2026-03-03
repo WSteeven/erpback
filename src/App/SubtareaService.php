@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Helpers\Filtros\FiltroSearchHelper;
+use App\Models\Cliente;
 use App\Models\Empleado;
 use App\Models\MovilizacionSubtarea;
 use App\Models\Subtarea;
@@ -11,6 +12,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\Sistema\PaginationService;
 use Src\Config\Constantes;
@@ -133,54 +135,120 @@ class SubtareaService
      * @throws Exception
      */
     public function obtenerTodos()
-    {
-        $usuario = Auth::user();
-        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
-        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
-        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
-        $debeFiltrarPorCliente = ($esCoordinador || $usuario->hasRole(User::ROL_VISUALIZADOR_TAREA_CLIENTE_FIBERTICS)) && !$esCoordinadorBackup && !$esJefeTecnico;
+{
+    $usuario = Auth::user();
+    $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+    $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+    $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
 
-        $search = request('search');
-        $paginate = request('paginate');
+    $search = request('search');
+    $paginate = request('paginate');
 
-        $empleadoId = $usuario->empleado->id ;
-        // Monitor
-        if (!request('tarea_id') && $debeFiltrarPorCliente) {
-             $baseQuery = $esCoordinador ? $usuario->empleado->subtareasCoordinador()->getQuery()
-                : Subtarea::query();
-            if ($search) $query = $baseQuery->whereHas('tarea.cliente', function ($q) use ($empleadoId) {
-                    $q->whereJsonContains('coordinadores', $empleadoId);
-                });
-            else $query = $baseQuery->whereHas('tarea.cliente', function ($q) use ($empleadoId) {
-                    $q->whereJsonContains('coordinadores', $empleadoId);
-                })->ignoreRequest(['campos', 'paginate'])->filter();
+    /*
+     |--------------------------------------------------------------------------
+     | MONITOR
+     |--------------------------------------------------------------------------
+     */
+    if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && !$esJefeTecnico) {
 
-            // if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
-            //else return $query->get();
-            $filtros = [
-                ['clave' => 'estado', 'valor' => request('estado')],
-            ];
-            $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
-//            Log::channel('testing')->info('Log', ['DENTRO', $filtros]);
-            return buscarConAlgoliaFiltrado(Subtarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
-            // return TareaResource::collection($results);
+        if ($search) {
+            $query = $usuario->empleado->subtareasCoordinador();
+        } else {
+            $query = $usuario->empleado->subtareasCoordinador()
+                ->ignoreRequest(['campos', 'paginate'])
+                ->filter();
         }
 
-        // Control de tareas
-        if ($search) $query = Subtarea::where('estado', request('estado'));
-        else $query = Subtarea::ignoreRequest(['campos', 'paginate'])->filter()->latest();
-
-        /*if ($paginate) return $this->paginationService->paginate($query, 100, request('page'));
-        else return $query->get();*/
         $filtros = [
             ['clave' => 'estado', 'valor' => request('estado')],
         ];
 
         $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
-//        Log::channel('testing')->info('Log', ['FUERA', $filtros]);
-        return buscarConAlgoliaFiltrado(Subtarea::class, $query, 'id', $search, Constantes::PAGINATION_ITEMS_PER_PAGE, request('page'), !!$paginate, $filtros);
+
+        return buscarConAlgoliaFiltrado(
+            Subtarea::class,
+            $query,
+            'id',
+            $search,
+            Constantes::PAGINATION_ITEMS_PER_PAGE,
+            request('page'),
+            !!$paginate,
+            $filtros
+        );
     }
 
+    /*
+     |--------------------------------------------------------------------------
+     | CONTROL DE TAREAS
+     |--------------------------------------------------------------------------
+     */
+    if ($search) {
+        $query = Subtarea::where('estado', request('estado'));
+    } else {
+        $query = Subtarea::ignoreRequest(['campos', 'paginate'])
+            ->filter()
+            ->latest();
+    }
+
+    $filtros = [
+        ['clave' => 'estado', 'valor' => request('estado')],
+    ];
+
+    /*
+     |--------------------------------------------------------------------------
+     | FILTRO GLOBAL POR CLIENTE (REGLA ESTRUCTURAL REAL)
+     |--------------------------------------------------------------------------
+     */
+    if (!$esCoordinadorBackup && !$esJefeTecnico) {
+
+        $empleadoId = $usuario->empleado->id;
+
+        $clienteIds = Cliente::whereJsonContains('coordinadores', $empleadoId)
+            ->pluck('id')
+            ->toArray();
+
+        if (!empty($clienteIds)) {
+
+            // 🔐 APLICAR SEGURIDAD EN ELOQUENT
+            $query->whereHas('tarea', function ($q) use ($clienteIds) {
+                $q->whereIn('cliente_id', $clienteIds);
+            });
+
+            // Mantener también filtro para Algolia
+            foreach ($clienteIds as $index => $clienteId) {
+                $filtros[] = [
+                    'clave' => 'cliente_id',
+                    'valor' => $clienteId,
+                    'operador' => $index === 0 ? 'AND' : 'OR'
+                ];
+            }
+
+        } else {
+
+            // 🔐 No tiene clientes → no ve nada
+            $query->where('cliente_id', -1);
+
+            $filtros[] = [
+                'clave' => 'cliente_id',
+                'valor' => -1,
+                'operador' => 'AND'
+            ];
+        }
+    }
+
+    $filtros = FiltroSearchHelper::formatearFiltrosPorMotor($filtros);
+
+    return buscarConAlgoliaFiltrado(
+        Subtarea::class,
+        $query,
+        'id',
+        $search,
+        Constantes::PAGINATION_ITEMS_PER_PAGE,
+        request('page'),
+        !!$paginate,
+        $filtros
+    );
+}
     public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea, Request $request)
     {
         $idEmpleadoResponsable = $request['empleado_responsable_subtarea'];
