@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.user.logged.in' => \App\Http\Middleware\CheckUserLoggedIn::class,
         'verificar.apikey'=>\App\Http\Middleware\VerificarApiKey::class,
+        'artisan.key'=>\App\Http\Middleware\VerifyArtisanKey::class,
     ];
 }

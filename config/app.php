@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
+    'artisan_http_key' => env('ARTISAN_HTTP_KEY'),
     /*
     |--------------------------------------------------------------------------
     | País de Operaciones

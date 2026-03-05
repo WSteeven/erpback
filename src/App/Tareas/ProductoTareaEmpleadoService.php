@@ -194,7 +194,7 @@ class ProductoTareaEmpleadoService
     public function filtrarMaterialesEquipos($productos) // Destino Tarea
     {
         return $productos->filter(function ($producto) {
-            return in_array($producto['categoria'], ['MATERIAL', 'EQUIPO']);
+            return in_array($producto['categoria'], ['MATERIALES', 'EQUIPOS']);
         });
     }
 
@@ -202,8 +202,8 @@ class ProductoTareaEmpleadoService
     {
         $esCoordinadorBodega = Auth::user()->hasRole(User::ROL_COORDINADOR_BODEGA);
 
-        $categoriasCoordinadorBodega = ['HERRAMIENTA','MATERIAL', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP', 'UNIFORME'];
-        $categoriasCualquierRol = ['HERRAMIENTA', 'ACCESORIO', 'EQUIPO PROPIO', 'INFORMATICA', 'SUMINISTRO', 'EQUIPO PARA ALOJAMIENTO', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA'];
+        $categoriasCoordinadorBodega = ['HERRAMIENTAS','MATERIALES', 'ACCESORIOS', 'EQUIPOS PROPIOS', 'INFORMATICA', 'SUMINISTROS', 'EQUIPOS PARA ALOJAMIENTO DE PERSONAL', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA', 'EPP', 'UNIFORMES'];
+        $categoriasCualquierRol = ['HERRAMIENTAS', 'ACCESORIOS', 'EQUIPOS PROPIOS', 'INFORMATICA', 'SUMINISTROS', 'EQUIPOS PARA ALOJAMIENTO DE PERSONAL', 'MUEBLE Y ENSERES', 'BOTIQUIN', 'MAQUINA'];
 
         return $productos->filter(function ($producto) use ($esCoordinadorBodega, $categoriasCoordinadorBodega, $categoriasCualquierRol) {
             return in_array($producto['categoria'], $esCoordinadorBodega ? $categoriasCoordinadorBodega : $categoriasCualquierRol);
