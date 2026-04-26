@@ -13,7 +13,6 @@ use App\Models\SeguimientoSubtarea;
 use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\TrabajoRealizado;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Illuminate\Support\Facades\DB;

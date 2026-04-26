@@ -3,40 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ReporteSubtareaExport;
-use App\Exports\SeguimientoExport;
 use App\Http\Requests\SeguimientoSubtareaRequest;
 use App\Http\Resources\SeguimientoSubtareaResource;
-use App\Models\Empleado;
 use App\Models\MaterialEmpleadoTarea;
-use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
-use Illuminate\Support\Facades\Storage;
 use Src\App\SeguimientoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\App\TransaccionBodegaEgresoService;
 use Maatwebsite\Excel\Facades\Excel;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\SimpleType\Jc;
-use PhpOffice\PhpWord\Style\Table;
-
+use Src\App\ReporteSeguimientoService;
 
 class SeguimientoSubtareaController extends Controller
 {
     private $entidad = 'SeguimientoSubtarea';
-    private $reporteService;
-    private $seguimientoService;
 
-    public function __construct()
+
+    public function __construct(private ReporteSeguimientoService $reporteSeguimientoService, private SeguimientoService $seguimientoService)
     {
-        $this->reporteService = new ReportePdfExcelService();
-        $this->seguimientoService = new SeguimientoService();
     }
 
     /* public function index()
@@ -105,152 +93,24 @@ class SeguimientoSubtareaController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
     }
-private function obtenerDatosSimulados()
-{
-    return [
-        'cliente' => 'DOCTORES YA S.A.S. GUAYAQUIL',
-        'info_general' => [
-            'Cliente Principal' => 'TELEFONICA',
-            'Cliente Final' => 'DOCTORES YA S.A.S. GUAYAQUIL',
-            'Ciudad' => 'Guayaquil',
-            'Dirección' => 'Calles Carlos Gómez Rendón y Chile',
-            'Latitud' => '-2.204425',
-            'Longitud' => '-79.885405',
-        ],
-        'equipos' => [
-            ['item' => 1, 'descripcion' => 'ONT HUAWEI HG8245W5', 'cantidad' => 1],
-            ['item' => 2, 'descripcion' => 'Patchcord SC/APC', 'cantidad' => 1],
-        ],
-        'imagenes' => [
-            ['titulo' => 'Panorámica Cliente', 'ruta' => 'imagenes/foto1.jpg'],
-            ['titulo' => 'Conexión NAP', 'ruta' => 'imagenes/foto2.jpg'],
-        ]
-    ];
-}
 
-
-public function exportarSeguimientoWord($subtarea_id)
-{
-    // Simulación de datos dinámicos
-    $data = $this->obtenerDatosSimulados();
-
-    $phpWord = new PhpWord();
-
-    $phpWord->setDefaultFontName('Arial');
-    $phpWord->setDefaultFontSize(10);
-
-    $section = $phpWord->addSection();
-
-    /*
-    |--------------------------------------------------------------------------
-    | TÍTULO
-    |--------------------------------------------------------------------------
-    */
-
-    $section->addText(
-        'INFORME TÉCNICO',
-        ['bold' => true, 'size' => 16],
-        ['alignment' => Jc::CENTER]
-    );
-
-    $section->addTextBreak(1);
-
-    /*
-    |--------------------------------------------------------------------------
-    | INFORMACIÓN GENERAL (TABLA DINÁMICA)
-    |--------------------------------------------------------------------------
-    */
-
-    $tableStyle = [
-        'borderSize' => 6,
-        'borderColor' => '000000',
-        'cellMargin' => 80
-    ];
-
-    $phpWord->addTableStyle('tablaGeneral', $tableStyle);
-
-    $table = $section->addTable('tablaGeneral');
-
-    foreach ($data['info_general'] as $label => $valor) {
-        $table->addRow();
-        $table->addCell(4000)->addText($label, ['bold' => true]);
-        $table->addCell(6000)->addText($valor);
-    }
-
-    $section->addTextBreak(1);
-
-    /*
-    |--------------------------------------------------------------------------
-    | TABLA DE EQUIPOS (DINÁMICA)
-    |--------------------------------------------------------------------------
-    */
-
-    $section->addText('DETALLE DE EQUIPOS', ['bold' => true]);
-
-    $tableEquipos = $section->addTable('tablaGeneral');
-
-    // Header
-    $tableEquipos->addRow();
-    $tableEquipos->addCell(2000)->addText('Item', ['bold' => true]);
-    $tableEquipos->addCell(6000)->addText('Descripción', ['bold' => true]);
-    $tableEquipos->addCell(2000)->addText('Cantidad', ['bold' => true]);
-
-    foreach ($data['equipos'] as $equipo) {
-        $tableEquipos->addRow();
-        $tableEquipos->addCell(2000)->addText($equipo['item']);
-        $tableEquipos->addCell(6000)->addText($equipo['descripcion']);
-        $tableEquipos->addCell(2000)->addText($equipo['cantidad']);
-    }
-
-    $section->addPageBreak();
-
-    /*
-    |--------------------------------------------------------------------------
-    | INFORME FOTOGRÁFICO (DINÁMICO)
-    |--------------------------------------------------------------------------
-    */
-
-    $section->addText('INFORME FOTOGRÁFICO', ['bold' => true]);
-
-    foreach ($data['imagenes'] as $imagen) {
-        $section->addText($imagen['titulo'], ['bold' => true]);
-        $section->addImage(
-            storage_path('app/public/' . $imagen['ruta']),
-            [
-                'width' => 400,
-                'alignment' => Jc::CENTER
-            ]
-        );
-        $section->addTextBreak(1);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | GUARDAR Y DESCARGAR
-    |--------------------------------------------------------------------------
-    */
-
-    $fileName = "Informe_Tecnico_{$data['cliente']}.docx";
-    $tempFile = storage_path($fileName);
-
-    $writer = IOFactory::createWriter($phpWord, 'Word2007');
-    $writer->save($tempFile);
-
-    return response()->download($tempFile)->deleteFileAfterSend(true);
-}
-public function exportarSeguimientoBlade($subtarea_id)
-{
-    $data = $this->obtenerDatosSimulados();
-
-    $nombre = "Informe_Tecnico_{$data['cliente']}";
-
-    return response()
-        ->view('tareas.seguimiento_word', $data)
-        ->header('Content-Type', 'application/msword')
-        ->header('Content-Disposition', "attachment; filename={$nombre}.doc");
-}
+/**
+ * El informe debe contener esta estructura:
+ * 1. Proyecto e información del cliente (nombre, ciudad, dirección, coordenadas)
+ * 2. Antecedentes y descripción general del trabajo realizado
+ * 3. Trabajos realizados (listado detallado de actividades, materiales usados, tiempos, etc.)
+ * 4. Conclusiones
+ * 5. Ubicación del cliente
+ * 6. Coordenadas
+ * 7. Informe fotográfico (con título descriptivo para cada imagen)
+ * 8. Pruebas de protocolo
+ * 9. Oracle y
+ * 10. Acta de aceptación del cliente
+ *
+ */
     public function exportarSeguimiento($subtarea_id)
     {
+        return $this->reporteSeguimientoService->exportarSeguimientoWord($subtarea_id);
         throw new \Exception('No se ha definido el tipo de exportación. Por favor, elija entre Word o Excel.');
         $subtarea = Subtarea::find($subtarea_id);
         // $export_excel = new SeguimientoExport($subtarea);
@@ -258,6 +118,7 @@ public function exportarSeguimientoBlade($subtarea_id)
         $nombre_reporte = 'Juan Reporte';
         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
     }
+
 
     public function verSeguimiento(Subtarea $subtarea)
     {
